@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Agent Office</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: an office floor. Header with the office name and counts; team zones of desks; then team map, messages and live feed; a rail with project info. */
+  :root {
+    --bg: #0d1224; --panel: #141a33; --raised: #1c2446; --line: #2a3363; --floor: #10162d;
+    --fg: #eef0fb; --muted: #959cc6;
+    --accent: #5ad8ff; --violet: #a28bff; --amber: #ffad4d; --ok: #3fe3a0; --bad: #ff7083;
+    --desk: #3b3160; --desk-top: #4d407a;
+    --display: "Sora", "Segoe UI", system-ui, sans-serif;
+    --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--body); margin: 0; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)); }
+  .wrap { max-width: 1360px; margin: 0 auto; display: grid; gap: 20px; }
+  h1, h2, h3 { margin: 0; font-family: var(--display); text-wrap: balance; }
+  h1 { font-size: clamp(22px, 3.6vw, 30px); font-weight: 800; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+  h2 { font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--violet); }
+  h3 { font-size: 15px; font-weight: 600; }
+  p { margin: 0; }
+  .muted { color: var(--muted); }
+  code { font: 13px var(--mono); color: var(--accent); }
+
+  header { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; justify-content: space-between; }
+  .title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .title-row input { font: 800 22px var(--display); background: var(--bg); color: var(--fg); border: 1px solid var(--accent); border-radius: 8px; padding: 2px 8px; width: min(420px, 80vw); }
+  .sub-title { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); display: inline-block; }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 16px; min-width: 84px; }
+  .stat b { display: block; font: 600 22px/1.2 var(--display); color: var(--accent); font-variant-numeric: tabular-nums; }
+  .stat small { color: var(--muted); font-size: 12px; }
+  .setup { border: 1px solid var(--amber); color: var(--amber); border-radius: 12px; padding: 10px 14px; font-size: 14px; }
+
+  .cols { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+  @media (min-width: 1100px) { .cols { grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); } }
+  .stack { display: grid; gap: 20px; min-width: 0; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; min-width: 0; display: grid; gap: 14px; }
+  .sec-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  /* ---------- floor ---------- */
+  .zones { display: grid; gap: 14px; }
+  .zone {
+    border-radius: 14px; border: 1px solid var(--line); border-top: 4px solid var(--team, var(--line));
+    background: repeating-linear-gradient(90deg, transparent 0 79px, rgba(162, 139, 255, 0.05) 79px 80px), repeating-linear-gradient(0deg, transparent 0 79px, rgba(162, 139, 255, 0.05) 79px 80px), var(--floor);
+    padding: 12px 14px 10px; display: grid; gap: 10px;
+  }
+  .zone-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; justify-content: space-between; }
+  .zone-name { display: flex; align-items: center; gap: 8px; font: 600 14px var(--display); }
+  .zone-name i { width: 10px; height: 10px; border-radius: 3px; background: var(--team); }
+  .zone-meta { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+  .desks { display: grid; gap: 24px 12px; grid-template-columns: repeat(auto-fill, minmax(min(190px, 100%), 1fr)); }
+  .desk { position: relative; display: grid; justify-items: center; gap: 4px; padding-top: 56px; min-width: 0; }
+  .bubble { position: absolute; top: 0; left: 50%; transform: translateX(-50%); max-width: 100%; width: max-content; padding: 6px 12px; border-radius: 14px; background: var(--raised); border: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.35; text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .bubble::after { content: ""; position: absolute; left: 50%; bottom: -6px; width: 10px; height: 10px; margin-left: -5px; background: inherit; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); transform: rotate(45deg); }
+  .desk.working .bubble { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 500; }
+  .desk.talking .bubble { color: var(--bg); background: var(--amber); border-color: var(--amber); font-weight: 500; }
+  .person { width: 100%; max-width: 200px; height: auto; display: block; }
+  .name { font: 600 14px var(--display); display: flex; align-items: center; gap: 6px; overflow-wrap: anywhere; }
+  .lead-tag { font: 500 10px var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--bg); background: var(--team, var(--violet)); border-radius: 4px; padding: 0 5px; }
+  .badge { font-size: 11px; border-radius: 999px; padding: 1px 10px; border: 1px solid var(--line); color: var(--muted); }
+  .desk.working .badge { border-color: var(--ok); color: var(--ok); }
+  .meta { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1.4em; }
+  .screen-glow, .face-glow { opacity: 0; transition: opacity 0.4s; }
+  .desk.working .screen-glow { opacity: 1; } .desk.working .face-glow { opacity: 0.12; } .desk.working .logo { fill: var(--accent); }
+  .eyes-open { display: none; } .eyes-closed { display: block; }
+  .desk.working .eyes-open, .preview .eyes-open { display: block; } .desk.working .eyes-closed, .preview .eyes-closed { display: none; }
+  .zzz { opacity: 0.7; } .desk.working .zzz, .desk.working .steam, .preview .zzz { display: none; }
+  .desk.working .hand-l { animation: type 0.22s ease-in-out infinite alternate; }
+  .desk.working .hand-r { animation: type 0.22s ease-in-out 0.11s infinite alternate; }
+  .desk.working .body { animation: lean 2.4s ease-in-out infinite; transform-origin: 110px 140px; }
+  .steam path { animation: rise 2.6s ease-in-out infinite; } .steam path:nth-child(2) { animation-delay: 1.3s; }
+  @keyframes type { to { transform: translateY(-4px); } }
+  @keyframes lean { 50% { transform: translateY(1.5px); } }
+  @keyframes rise { 0% { opacity: 0; transform: translateY(4px); } 40% { opacity: 0.8; } 100% { opacity: 0; transform: translateY(-10px); } }
+  @media (prefers-reduced-motion: reduce) { .desk *, .pulse { animation: none !important; } }
+  .empty { display: grid; gap: 10px; justify-items: start; padding: 20px; border: 1px dashed var(--line); border-radius: 14px; }
+
+  /* ---------- map, messages, feed ---------- */
+  .map { width: 100%; max-width: 640px; min-width: 340px; height: auto; display: block; margin: 0 auto; }
+  .map-wrap { overflow-x: auto; display: grid; gap: 6px; }
+  .pulse { animation: dash 1.2s linear infinite; } @keyframes dash { to { stroke-dashoffset: -24; } }
+  .msgs, .feed { list-style: none; margin: 0; padding: 0; display: grid; max-height: 340px; overflow: auto; }
+  .msgs li { display: grid; gap: 4px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .msgs li:last-child, .feed li:last-child { border-bottom: none; }
+  .route { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; }
+  .pill { border-radius: 999px; padding: 0 9px; font-weight: 600; color: var(--bg); background: var(--c, var(--muted)); }
+  .composer { display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 640px) { .composer { grid-template-columns: 170px minmax(0, 1fr) auto; } }
+  .feed li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+  .swatch-sm { width: 10px; height: 10px; border-radius: 3px; align-self: center; }
+  time { color: var(--muted); font: 12px var(--mono); white-space: nowrap; }
+
+  /* ---------- controls ---------- */
+  button.btn { background: var(--raised); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font: 500 13px var(--body); cursor: pointer; }
+  button.btn:hover { border-color: var(--accent); }
+  button.btn.go { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  button.btn.amber { border-color: var(--amber); color: var(--amber); }
+  button.btn.danger { border-color: var(--bad); color: var(--bad); }
+  button.btn.small { padding: 3px 9px; font-size: 12px; }
+  button.icon { background: none; border: 1px solid transparent; color: var(--muted); border-radius: 6px; cursor: pointer; font-size: 13px; padding: 2px 6px; }
+  button.icon:hover { border-color: var(--line); color: var(--fg); }
+  input, textarea, select { font: 14px var(--body); background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; }
+  textarea { min-height: 160px; resize: vertical; font: 13px/1.5 var(--mono); }
+  label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  .checks { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 4px; }
+  .checks label { display: flex; align-items: center; gap: 6px; color: var(--fg); }
+  .checks input { width: auto; }
+  .form { display: grid; gap: 12px; }
+  .row2 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); }
+  .err { color: var(--bad); font-size: 13px; min-height: 1.2em; }
+  .hint { font-size: 12px; color: var(--muted); }
+  .demo-banner { font-size: 13px; color: var(--bg); background: var(--amber); border-radius: 10px; padding: 8px 12px; font-weight: 500; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, .sw:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ok); color: var(--bg); font-weight: 600; border-radius: 10px; padding: 8px 16px; z-index: 10; }
+  .toast.bad { background: var(--bad); }
+
+  /* ---------- look builder ---------- */
+  .builder { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 760px) { .builder { grid-template-columns: 240px minmax(0, 1fr); } }
+  .preview { background: var(--floor); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 10px; align-content: start; justify-items: center; }
+  .preview .person { max-width: 220px; }
+  .look-row { display: grid; gap: 6px; width: 100%; }
+  .look-row > span { font-size: 12px; color: var(--muted); }
+  .swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sw { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; padding: 0; }
+  .sw[aria-pressed="true"] { border-color: var(--fg); box-shadow: 0 0 0 2px var(--accent); }
+  .chipsel { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chipsel button { font: 12px var(--body); background: var(--raised); color: var(--fg); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; cursor: pointer; }
+  .chipsel button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  .toggles { display: flex; gap: 14px; }
+  .toggles label { display: flex; align-items: center; gap: 6px; color: var(--fg); }
+  .toggles input { width: auto; }
+
+  ul.plain { list-style: none; margin: 0; padding: 0; }
+  ul.plain li { padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+  ul.plain li:last-child { border-bottom: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-size: 11px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; color: var(--muted); }
+  ol.how { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+
+  dialog { width: min(900px, calc(100vw - 32px)); max-height: 90vh; background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 16px; padding: 0; }
+  dialog.narrow { width: min(640px, calc(100vw - 32px)); }
+  dialog::backdrop { background: rgba(6, 9, 22, 0.78); }
+  .dhead { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .dhead b { font: 600 15px var(--display); }
+  .dbody { padding: 16px; overflow: auto; max-height: calc(90vh - 56px); }
+  .close { background: none; border: none; color: var(--muted); font-size: 24px; line-height: 1; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="title-row" id="titleRow"></div>
+      <p class="sub-title" id="subtitle"></p>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+  <p class="setup" id="setup" hidden>Live activity and team messages are off for this project. Run <code>npx github:atlaharshavardhan/agent-office init</code> in the project folder, then restart Claude Code.</p>
+
+  <div class="cols">
+    <div class="stack">
+      <section>
+        <div class="sec-head">
+          <h2>Office floor</h2>
+          <div class="actions">
+            <button class="btn go" id="newAgent">+ New agent</button>
+            <button class="btn" id="newTeam">+ New team</button>
+            <button class="btn amber" id="demoBtn">▶ Demo run</button>
+          </div>
+        </div>
+        <p class="demo-banner" id="demoBanner" hidden>Demo run: simulated activity so you can see how the office looks while agents work. Your real agents are not running.</p>
+        <div class="zones" id="floor"></div>
+      </section>
+      <section>
+        <h2>How the teams connect</h2>
+        <div class="map-wrap" id="map"></div>
+      </section>
+      <section>
+        <h2>Team messages</h2>
+        <form class="composer" id="composer">
+          <select id="msgTo" aria-label="Send to"></select>
+          <input id="msgText" maxlength="2000" placeholder="Message a team, for example “Check every number against its source”" aria-label="Message">
+          <button class="btn go" type="submit">Send</button>
+        </form>
+        <ul class="msgs" id="msgs"></ul>
+      </section>
+      <section>
+        <h2>Live activity</h2>
+        <ul class="feed" id="feed"></ul>
+      </section>
+    </div>
+    <div class="stack">
+      <section>
+        <h2>How it works</h2>
+        <ol class="how">
+          <li><b>Agents</b> are files in <code>.claude/agents/</code>. Adding or editing one here changes that file, so Claude Code uses it right away.</li>
+          <li><b>Teams</b> group agents. Each team has a lead and a list of teams it can message.</li>
+          <li><b>Messages</b> live in <code>.claude/agent-office/messages/</code>. When an agent starts, it is told its team and shown the latest messages to its team, and it can reply by writing a message file.</li>
+          <li><b>Live activity</b> comes from Claude Code hooks: each agent's start, tool use and finish.</li>
+        </ol>
+      </section>
+      <section><h2>Slash commands</h2><ul class="plain" id="commands"></ul></section>
+      <section><h2>Skills</h2><div class="chips" id="skills"></div></section>
+    </div>
+  </div>
+</div>
+
+<dialog id="agentDlg" aria-labelledby="agentDlgTitle">
+  <div class="dhead"><b id="agentDlgTitle">New agent</b><button class="close" data-close aria-label="Close">×</button></div>
+  <div class="dbody">
+    <form class="builder" id="agentForm">
+      <div class="preview">
+        <div id="preview"></div>
+        <div class="look-row"><span>Skin tone</span><div class="swatches" id="skinSw"></div></div>
+        <div class="look-row"><span>Hair style</span><div class="chipsel" id="hairStyles"></div></div>
+        <div class="look-row"><span>Hair colour</span><div class="swatches" id="hairSw"></div></div>
+        <div class="look-row"><span>Outfit colour</span><div class="swatches" id="outfitSw"></div></div>
+        <div class="toggles"><label><input type="checkbox" id="lkGlasses"> Glasses</label><label><input type="checkbox" id="lkBeard"> Beard</label></div>
+        <button class="btn small" type="button" id="randomLook">🎲 Random look</button>
+      </div>
+      <div class="form">
+        <div class="row2">
+          <label>Name <input id="fName" required maxlength="40" placeholder="research-lead" autocomplete="off"></label>
+          <label>Team <select id="fTeam"></select></label>
+        </div>
+        <label>What it does
+          <input id="fDesc" required maxlength="400" placeholder="Researches a topic and writes research.md with sources">
+          <span class="hint">One sentence. Claude reads this to decide when to call the agent.</span></label>
+        <label>Model <select id="fModel">
+          <option value="sonnet">sonnet · balanced</option><option value="opus">opus · best quality</option>
+          <option value="haiku">haiku · fastest</option><option value="inherit">inherit · same as the session</option><option value="">not set</option></select></label>
+        <div>
+          <span class="hint">Tools it may use</span>
+          <div class="checks" id="fTools"></div>
+          <div class="checks"><label><input type="checkbox" id="fAllTools"> All tools (no limit)</label></div>
+          <label style="margin-top:8px">Other tools, comma separated <input id="fOtherTools" placeholder="mcp__github__get_file_contents, Agent(researcher)"></label>
+        </div>
+        <label>Instructions
+          <textarea id="fInstr" required placeholder="You are the research lead. When given a topic, …"></textarea></label>
+        <p class="err" id="agentErr"></p>
+        <div class="actions">
+          <button class="btn go" type="submit" id="agentSave">Create agent</button>
+          <button class="btn" type="button" data-close>Cancel</button>
+          <button class="btn danger" type="button" id="agentRemove" hidden>Remove agent</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<dialog id="teamDlg" class="narrow" aria-labelledby="teamDlgTitle">
+  <div class="dhead"><b id="teamDlgTitle">New team</b><button class="close" data-close aria-label="Close">×</button></div>
+  <div class="dbody">
+    <form class="form" id="teamForm">
+      <div class="row2">
+        <label>Team name <input id="tName" required maxlength="40" placeholder="Research"></label>
+        <label>Colour <input id="tColor" type="color" value="#5ad8ff"></label>
+      </div>
+      <div><span class="hint">Members (an agent belongs to one team)</span><div class="checks" id="tMembers"></div></div>
+      <label>Team lead <select id="tLead"></select></label>
+      <div><span class="hint">This team can message</span><div class="checks" id="tTalks"></div></div>
+      <p class="err" id="teamErr"></p>
+      <div class="actions">
+        <button class="btn go" type="submit">Save team</button>
+        <button class="btn" type="button" data-close>Cancel</button>
+        <button class="btn danger" type="button" id="teamRemove" hidden>Delete team</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const ago = (t, now = Date.now()) => { const s = Math.max(0, Math.round((now - t) / 1000)); return s < 60 ? s + "s" : s < 3600 ? Math.round(s / 60) + "m" : s < 86400 ? Math.round(s / 3600) + "h" : Math.round(s / 86400) + "d"; };
+  const tsToMs = (ts) => { const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/.exec(ts || ""); return m ? Date.UTC(m[1], m[2] - 1, m[3], m[4], m[5], m[6]) : 0; };
+  let toastTimer;
+  function toast(msg, bad) {
+    let t = document.querySelector(".toast"); if (!t) { t = document.createElement("div"); t.setAttribute("role", "status"); document.body.append(t); }
+    t.className = "toast" + (bad ? " bad" : ""); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), 2600);
+  }
+  // Two-step buttons stand in for confirm(), which some browsers block in embedded views
+  function armed(btn, label, run) {
+    if (btn.dataset.armed !== "1") {
+      btn.dataset.armed = "1"; const old = btn.textContent; btn.textContent = label;
+      setTimeout(() => { btn.dataset.armed = ""; btn.textContent = old; }, 4000); return;
+    }
+    btn.dataset.armed = ""; run();
+  }
+
+  // ---------- people ----------
+  const SKINS = ["#f6d5b0", "#f1c27d", "#e0ac69", "#c68b59", "#a86b3c", "#8d5524", "#5c3a21"];
+  const HAIRS = ["#120d0a", "#2b1b14", "#5a3825", "#8a5a33", "#b55239", "#d9c27a", "#9a9aa8", "#1b1b2f"];
+  const OUTFITS = ["#7c4dff", "#5ad8ff", "#ff9933", "#3fe3a0", "#ff5e8a", "#ffd166", "#eef0fb", "#2b3266"];
+  function hairSVG(l) {
+    const c = l.hairColor;
+    const cap = `<path d="M88 52 Q88 28 110 27 Q132 28 132 52 Q128 38 110 37 Q92 38 88 52Z" fill="${c}"/>`;
+    return {
+      short: cap,
+      buzz: `<path d="M90 48 Q92 32 110 31 Q128 32 130 48 Q124 40 110 39 Q96 40 90 48Z" fill="${c}" opacity="0.85"/>`,
+      bun: cap + `<circle cx="110" cy="24" r="8" fill="${c}"/>`,
+      ponytail: cap + `<path d="M128 40 Q144 46 140 72 Q136 60 128 52Z" fill="${c}"/>`,
+      curly: `<g fill="${c}">${[[92, 40], [100, 32], [110, 29], [120, 32], [128, 40], [90, 50], [130, 50]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="8"/>`).join("")}</g>`,
+      long: cap + `<path d="M88 50 Q84 74 90 84 L96 84 Q92 66 94 52Z M132 50 Q136 74 130 84 L124 84 Q128 66 126 52Z" fill="${c}"/>`,
+      side: `<path d="M88 54 Q86 26 112 27 Q134 29 132 46 Q118 36 96 44 Q92 48 88 54Z" fill="${c}"/>`,
+      bald: "",
+    }[l.hairStyle] ?? cap;
+  }
+  function personSVG(l, label) {
+    return `<svg class="person" viewBox="0 0 220 170" role="img" aria-label="${esc(label)}">
+      <ellipse cx="110" cy="160" rx="92" ry="8" fill="#000" opacity="0.25"/>
+      <rect x="78" y="62" width="64" height="66" rx="12" fill="#262f60"/>
+      <g class="body">
+        <path d="M80 128 Q80 86 110 84 Q140 86 140 128Z" fill="${l.outfit}"/>
+        <path d="M104 86 L110 96 L116 86" fill="none" stroke="#000" stroke-opacity="0.18" stroke-width="2"/>
+        <rect x="104" y="72" width="12" height="14" rx="4" fill="${l.skin}"/>
+        <circle cx="110" cy="54" r="20" fill="${l.skin}"/>
+        <circle class="face-glow" cx="110" cy="56" r="20" fill="#5ad8ff"/>
+        ${l.beard ? `<path d="M92 58 Q94 78 110 80 Q126 78 128 58 Q122 70 110 70 Q98 70 92 58Z" fill="${l.hairColor}"/>` : ""}
+        ${hairSVG(l)}
+        <g class="eyes-open" fill="#14142a"><circle cx="103" cy="57" r="2.2"/><circle cx="117" cy="57" r="2.2"/></g>
+        <g class="eyes-closed" stroke="#14142a" stroke-width="2" stroke-linecap="round"><path d="M100 58 h6 M114 58 h6"/></g>
+        ${l.glasses ? `<g fill="none" stroke="#14142a" stroke-width="1.6"><circle cx="103" cy="57" r="5.5"/><circle cx="117" cy="57" r="5.5"/><path d="M108.5 57 h3"/></g>` : ""}
+        <path d="M106 66 Q110 68.5 114 66" stroke="#14142a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      </g>
+      <rect x="18" y="120" width="184" height="12" rx="4" fill="var(--desk-top)"/>
+      <rect x="26" y="132" width="10" height="26" fill="var(--desk)"/><rect x="184" y="132" width="10" height="26" fill="var(--desk)"/>
+      <path class="screen-glow" d="M72 121 L80 86 L140 86 L148 121Z" fill="#5ad8ff" opacity="0.35"/>
+      <path d="M80 120 L86 92 L134 92 L140 120Z" fill="#2b3470"/>
+      <circle class="logo" cx="110" cy="106" r="4" fill="#4a5590"/>
+      <rect class="hand-l" x="82" y="114" width="14" height="8" rx="4" fill="${l.skin}"/>
+      <rect class="hand-r" x="124" y="114" width="14" height="8" rx="4" fill="${l.skin}"/>
+      <rect x="160" y="104" width="16" height="16" rx="3" fill="#eef0fb"/><path d="M176 108 q8 0 8 5 q0 5 -8 5" stroke="#eef0fb" stroke-width="2.5" fill="none"/>
+      <g class="steam" stroke="#959cc6" stroke-width="1.6" fill="none" stroke-linecap="round"><path d="M164 100 q-3 -5 0 -10"/><path d="M171 100 q-3 -5 0 -10"/></g>
+      <text class="zzz" x="134" y="34" fill="#959cc6" font-family="Sora, sans-serif" font-size="13" font-weight="600">z z</text>
+    </svg>`;
+  }
+
+  // ---------- state + API ----------
+  let state = null, demo = null;
+  const teams = () => state.office.teams;
+  const teamOf = (n) => teams().find((t) => t.members.includes(n));
+  const teamById = (id) => teams().find((t) => t.id === id);
+  const teamName = (id) => (id === "you" ? "You" : id === "all" ? "Everyone" : teamById(id)?.name || id);
+  const teamColor = (id) => (id === "you" ? "#ffad4d" : id === "all" ? "#eef0fb" : teamById(id)?.color || "#959cc6");
+  const agentBy = (n) => state.agents.find((a) => a.name === n);
+  // Activity says "Messaging <team id>"; show the team's name instead
+  const named = (text) => String(text ?? "").replace(/^Messaging (\S+)/, (m, id) => `Messaging ${teamName(id)}`);
+
+  async function api(path, body) {
+    let r;
+    try { r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json", "X-Agent-Office": "1" }, body: JSON.stringify(body) }); }
+    catch { throw new Error("The Agent Office server isn't answering. Is it still running in your terminal?"); }
+    const out = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(out.error || "Something went wrong.");
+    return out;
+  }
+  const saveTeams = (list) => api("/api/office", { teams: list });
+  const editing = () => renaming || document.querySelector("dialog[open]") || document.activeElement?.closest?.("#composer");
+
+  document.addEventListener("click", (e) => { const c = e.target.closest("[data-close]"); if (c) c.closest("dialog").close(); });
+
+  // ---------- header ----------
+  let renaming = false;
+  function renderHeader() {
+    if (!renaming) {
+      $("titleRow").innerHTML = `<h1>${esc(state.office.name)}</h1><button class="icon" id="renameBtn">✎ Rename</button>`;
+      $("renameBtn").onclick = startRename;
+    }
+    $("subtitle").innerHTML = `<span class="dot"></span>Live · project <b>${esc(state.project)}</b> · updated ${new Date().toLocaleTimeString()}`;
+    const live = (n) => (demo ? demo.agents[n] : agentBy(n)?.live);
+    const busy = state.agents.filter((a) => live(a.name)?.working).length;
+    $("stats").innerHTML = [[state.agents.length, "agents"], [busy, "working"], [teams().length, "teams"], [state.messages.length, "messages"]]
+      .map(([n, l]) => `<div class="stat"><b>${n}</b><small>${l}</small></div>`).join("");
+    $("setup").hidden = state.setup.hooksInstalled;
+  }
+  function startRename() {
+    renaming = true;
+    $("titleRow").innerHTML = `<input id="renameInput" maxlength="60" aria-label="Office name" value="${esc(state.office.name)}"><button class="btn go" id="rnSave">Save</button><button class="btn" id="rnCancel">Cancel</button>`;
+    const input = $("renameInput"); input.focus(); input.select();
+    const done = () => { renaming = false; renderHeader(); };
+    const save = async () => {
+      try { await api("/api/office", { name: input.value }); state.office.name = input.value.trim(); toast("Office renamed"); done(); }
+      catch (err) { toast(err.message, true); }
+    };
+    $("rnSave").onclick = save; $("rnCancel").onclick = done;
+    input.onkeydown = (e) => { if (e.key === "Enter") save(); if (e.key === "Escape") done(); };
+  }
+
+  // ---------- floor ----------
+  function desk(a, team, now) {
+    const l = demo ? demo.agents[a.name] : a.live;
+    const working = !!l?.working;
+    const talking = working && /^Messaging/.test(l?.doing || "");
+    const bubble = working ? named(l.doing) || "Working…" : l?.lastDone ? `Finished ${ago(l.lastDone, now)} ago` : "Waiting for work";
+    const meta = working && l?.since ? `${l.actions || 0} actions · ${ago(l.since, now)}` : "";
+    return `<div class="desk ${working ? "working" : ""} ${talking ? "talking" : ""}">
+      <div class="bubble" title="${esc(bubble)}">${esc(bubble)}</div>
+      ${personSVG(a.look, `${a.name} at a desk`)}
+      <div class="name">${esc(a.name)}${team?.lead === a.name ? `<span class="lead-tag">lead</span>` : ""}</div>
+      <span class="badge">${working ? "● working" : "○ idle"}${a.model ? " · " + esc(a.model) : ""}</span>
+      <div class="meta">${esc(meta)}</div>
+      <button class="btn small" data-edit-agent="${esc(a.name)}">Edit</button>
+    </div>`;
+  }
+  function renderFloor() {
+    const now = Date.now();
+    if (!state.agents.length) {
+      $("floor").innerHTML = `<div class="empty"><h3>No agents yet</h3><p class="muted">Create your first agent: choose how they look, then tell them what to do.</p><button class="btn go" data-new-agent>+ New agent</button></div>`;
+      return;
+    }
+    const zones = teams().map((t) => ({ t, agents: t.members.map(agentBy).filter(Boolean) }));
+    const loose = state.agents.filter((a) => !teamOf(a.name));
+    if (loose.length) zones.push({ t: null, agents: loose });
+    $("floor").innerHTML = zones.map(({ t, agents }) => `
+      <div class="zone" style="--team:${t ? esc(t.color) : "var(--line)"}">
+        <div class="zone-head">
+          <div class="zone-name"><i></i>${t ? esc(t.name) : "Not in a team"}</div>
+          <div class="zone-meta">${t ? `<span>${agents.length} ${agents.length === 1 ? "member" : "members"} · ${t.talksTo.length ? "talks to " + t.talksTo.map((id) => esc(teamName(id))).join(", ") : "talks to no one yet"}</span><button class="icon" data-edit-team="${esc(t.id)}">✎ Edit team</button>` : `<span>Edit an agent or a team to give these agents a team</span>`}</div>
+        </div>
+        <div class="desks">${agents.map((a) => desk(a, t, now)).join("") || `<p class="hint">No members yet. Edit the team to add agents.</p>`}</div>
+      </div>`).join("");
+  }
+  $("floor").addEventListener("click", (e) => {
+    const a = e.target.closest("[data-edit-agent]")?.dataset.editAgent; if (a) return openAgent(a);
+    const t = e.target.closest("[data-edit-team]")?.dataset.editTeam; if (t) return openTeam(t);
+    if (e.target.closest("[data-new-agent]")) openAgent(null);
+  });
+
+  // ---------- map ----------
+  function renderMap() {
+    const list = teams();
+    if (!list.length) { $("map").innerHTML = `<p class="muted">No teams yet. Use <b>+ New team</b> to group agents.</p>`; return; }
+    const W = 640, H = 240, cx = W / 2, cy = 104;
+    const pos = Object.fromEntries(list.map((t, i) => {
+      const a = (list.length === 2 ? Math.PI : -Math.PI / 2) + (i / list.length) * Math.PI * 2; // two teams sit side by side
+      return [t.id, list.length > 1 ? [cx + Math.cos(a) * 220, cy + Math.sin(a) * 66] : [cx, cy]];
+    }));
+    const now = Date.now();
+    const recent = new Set(state.messages.filter((m) => now - tsToMs(m.ts) < 600000).map((m) => [m.from, m.to].sort().join("|")));
+    const pairs = new Map();
+    for (const t of list) for (const o of t.talksTo) if (pos[o]) { const k = [t.id, o].sort().join("|"); pairs.set(k, (pairs.get(k) || 0) + 1); }
+    const lines = [...pairs].map(([k, n]) => {
+      const [a, b] = k.split("|"), [x1, y1] = pos[a], [x2, y2] = pos[b], live = recent.has(k);
+      return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${live ? "#ffad4d" : "#4c5799"}" stroke-width="${live || n > 1 ? 3 : 2}" ${live ? 'stroke-dasharray="8 4" class="pulse"' : n > 1 ? "" : 'stroke-dasharray="5 6"'}/>`;
+    }).join("");
+    const nodes = list.map((t) => {
+      const [x, y] = pos[t.id];
+      return `<circle cx="${x}" cy="${y}" r="30" fill="${esc(t.color)}" opacity="0.18"/><circle cx="${x}" cy="${y}" r="22" fill="${esc(t.color)}"/>
+        <text x="${x}" y="${y + 5}" text-anchor="middle" font-size="14" font-weight="700" fill="#0d1224" font-family="IBM Plex Sans, sans-serif">${t.members.length}</text>
+        <text x="${x}" y="${y + 50}" text-anchor="middle" font-size="13" font-weight="600" fill="#eef0fb" font-family="IBM Plex Sans, sans-serif">${esc(t.name)}</text>`;
+    }).join("");
+    $("map").innerHTML = `<svg class="map" viewBox="0 0 ${W} ${H}" role="img" aria-label="Which teams can message each other">${lines}${nodes}</svg>
+      <p class="hint">Each circle is a team (the number is its members). Solid line: both teams can message each other. Dashed: one way only. Moving orange line: a message in the last 10 minutes.</p>`;
+  }
+
+  // ---------- messages + feed ----------
+  function renderMessages() {
+    $("msgs").innerHTML = state.messages.length ? state.messages.map((m) => `<li>
+        <div class="route"><span class="pill" style="--c:${esc(teamColor(m.from))}">${esc(teamName(m.from))}</span>→<span class="pill" style="--c:${esc(teamColor(m.to))}">${esc(teamName(m.to))}</span><time>${ago(tsToMs(m.ts))} ago</time></div>
+        <div>${esc(m.text)}</div></li>`).join("") : `<li class="muted">No messages yet. Send the first one above, or let your agents message each other.</li>`;
+    if (document.activeElement !== $("msgTo")) {
+      const cur = $("msgTo").value;
+      $("msgTo").innerHTML = `<option value="all">Everyone</option>` + teams().map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("");
+      if ([...$("msgTo").options].some((o) => o.value === cur)) $("msgTo").value = cur;
+    }
+  }
+  $("composer").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    try { await api("/api/messages", { to: $("msgTo").value, text: $("msgText").value }); $("msgText").value = ""; $("msgText").blur(); toast("Message sent"); load(true); }
+    catch (err) { toast(err.message, true); }
+  });
+  function renderFeed() {
+    const feed = demo ? demo.feed : state.feed;
+    const label = (e) => (e.event === "SubagentStart" ? "started" : e.event === "SubagentStop" ? "finished" : named(e.detail));
+    const who = (e) => (e.agent === "main" ? "main session" : e.agent);
+    const color = (e) => agentBy(e.agent)?.look.outfit || "#959cc6";
+    $("feed").innerHTML = feed.length ? feed.map((e) => `<li><span class="swatch-sm" style="background:${esc(color(e))}"></span><span><b>${esc(who(e))}</b> ${esc(label(e))}</span><time>${ago(e.t)} ago</time></li>`).join("")
+      : `<li><span></span><span class="muted">Nothing yet. Activity appears here when your agents run in Claude Code.</span><span></span></li>`;
+  }
+  function renderRail() {
+    $("commands").innerHTML = state.commands.map((c) => `<li><code>/${esc(c)}</code></li>`).join("") || `<li class="muted">None in this project.</li>`;
+    $("skills").innerHTML = state.skills.map((s) => `<span class="chip">${esc(s)}</span>`).join("") || `<span class="muted">None in this project.</span>`;
+  }
+
+  // ---------- agent editor ----------
+  let look = null, editingAgent = null;
+  function swatches(el, colors, key) {
+    el.innerHTML = colors.map((c) => `<button type="button" class="sw" style="background:${c}" aria-label="${c}" aria-pressed="${look[key] === c}" data-k="${key}" data-v="${c}"></button>`).join("")
+      + (key === "outfit" ? `<input type="color" aria-label="Custom outfit colour" value="${look.outfit}" data-k="outfit" style="width:34px;height:28px;padding:0;border-radius:6px">` : "");
+  }
+  function renderBuilder() {
+    $("preview").innerHTML = personSVG(look, "Preview of the agent");
+    swatches($("skinSw"), SKINS, "skin");
+    swatches($("hairSw"), HAIRS, "hairColor");
+    swatches($("outfitSw"), OUTFITS, "outfit");
+    $("hairStyles").innerHTML = state.options.hairStyles.map((s) => `<button type="button" aria-pressed="${look.hairStyle === s}" data-k="hairStyle" data-v="${s}">${s}</button>`).join("");
+    $("lkGlasses").checked = look.glasses; $("lkBeard").checked = look.beard;
+  }
+  $("agentForm").addEventListener("click", (e) => { const b = e.target.closest("button[data-k]"); if (b) { look[b.dataset.k] = b.dataset.v; renderBuilder(); } });
+  $("agentForm").addEventListener("input", (e) => { if (e.target.matches("input[type=color][data-k]")) { look.outfit = e.target.value; $("preview").innerHTML = personSVG(look, "Preview of the agent"); } });
+  $("lkGlasses").onchange = () => { look.glasses = $("lkGlasses").checked; renderBuilder(); };
+  $("lkBeard").onchange = () => { look.beard = $("lkBeard").checked; renderBuilder(); };
+  $("randomLook").onclick = () => {
+    const r = (a) => a[Math.floor(Math.random() * a.length)];
+    look = { skin: r(SKINS), hairColor: r(HAIRS), hairStyle: r(state.options.hairStyles), outfit: r(OUTFITS), glasses: Math.random() < 0.3, beard: Math.random() < 0.2 };
+    renderBuilder();
+  };
+  $("fAllTools").onchange = () => { $("fTools").querySelectorAll("input").forEach((i) => (i.disabled = $("fAllTools").checked)); $("fOtherTools").disabled = $("fAllTools").checked; };
+
+  function openAgent(name) {
+    const a = name ? agentBy(name) : null;
+    editingAgent = a;
+    look = a ? { ...a.look } : { skin: "#c68b59", hairColor: "#2b1b14", hairStyle: "short", outfit: "#5ad8ff", glasses: false, beard: false };
+    $("agentDlgTitle").textContent = a ? `Edit ${a.name}` : "New agent";
+    $("agentSave").textContent = a ? "Save changes" : "Create agent";
+    $("agentRemove").hidden = !a;
+    $("agentErr").textContent = "";
+    $("fName").value = a?.name || "";
+    $("fDesc").value = a?.description || "";
+    $("fModel").value = a ? a.model || "" : "sonnet";
+    $("fInstr").value = a?.instructions || "";
+    $("fTeam").innerHTML = `<option value="">No team</option>` + teams().map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("");
+    $("fTeam").value = a ? teamOf(a.name)?.id || "" : "";
+    const has = new Set(a?.tools || ["Read", "Write"]);
+    $("fTools").innerHTML = state.options.tools.map((t) => `<label><input type="checkbox" value="${t}" ${has.has(t) ? "checked" : ""}> ${t}</label>`).join("");
+    $("fOtherTools").value = (a?.tools || []).filter((t) => !state.options.tools.includes(t)).join(", ");
+    $("fAllTools").checked = !!a && !a.hasTools;
+    $("fAllTools").onchange();
+    renderBuilder();
+    $("agentDlg").showModal();
+    $("fName").focus();
+  }
+  $("newAgent").onclick = () => openAgent(null);
+
+  $("agentForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const other = $("fOtherTools").value.split(/,(?![^(]*\))/).map((s) => s.trim()).filter(Boolean);
+    const body = {
+      description: $("fDesc").value, model: $("fModel").value, instructions: $("fInstr").value, look, team: $("fTeam").value,
+      ...($("fAllTools").checked ? { allTools: true } : { tools: [...[...$("fTools").querySelectorAll("input:checked")].map((i) => i.value), ...other] }),
+    };
+    try {
+      const out = editingAgent
+        ? await api("/api/agents/update", { ...body, name: editingAgent.name, newName: $("fName").value.trim().toLowerCase() })
+        : await api("/api/agents/create", { ...body, name: $("fName").value.trim().toLowerCase() });
+      $("agentDlg").close();
+      toast(editingAgent ? `Saved ${out.name}` : `Created ${out.file}`);
+      load(true);
+    } catch (err) { $("agentErr").textContent = err.message; }
+  });
+  $("agentRemove").onclick = () => armed($("agentRemove"), "Click again to remove", async () => {
+    try { const out = await api("/api/agents/remove", { name: editingAgent.name }); $("agentDlg").close(); toast(`Removed. The file is kept in ${out.trashed}`); load(true); }
+    catch (err) { $("agentErr").textContent = err.message; }
+  });
+
+  // ---------- team editor ----------
+  let editingTeam = null;
+  function openTeam(id) {
+    editingTeam = id ? structuredClone(teamById(id)) : null;
+    const t = editingTeam || { id: "", name: "", color: "#5ad8ff", lead: "", members: [], talksTo: [] };
+    $("teamDlgTitle").textContent = editingTeam ? `Edit ${t.name}` : "New team";
+    $("tName").value = t.name; $("tColor").value = t.color; $("teamErr").textContent = "";
+    $("tMembers").innerHTML = state.agents.map((a) => {
+      const other = teamOf(a.name);
+      return `<label><input type="checkbox" value="${esc(a.name)}" ${t.members.includes(a.name) ? "checked" : ""}> ${esc(a.name)}${other && other.id !== t.id ? ` <span class="hint">(in ${esc(other.name)})</span>` : ""}</label>`;
+    }).join("") || `<span class="hint">Create agents first.</span>`;
+    const others = teams().filter((o) => o.id !== t.id);
+    $("tTalks").innerHTML = others.map((o) => `<label><input type="checkbox" value="${esc(o.id)}" ${t.talksTo.includes(o.id) ? "checked" : ""}> ${esc(o.name)}</label>`).join("") || `<span class="hint">No other teams yet.</span>`;
+    const syncLead = () => {
+      const m = [...$("tMembers").querySelectorAll("input:checked")].map((i) => i.value);
+      const cur = $("tLead").value || t.lead;
+      $("tLead").innerHTML = m.map((x) => `<option ${x === cur ? "selected" : ""}>${esc(x)}</option>`).join("") || `<option value="">Pick members first</option>`;
+    };
+    $("tMembers").onchange = syncLead; $("tLead").innerHTML = ""; syncLead();
+    $("teamRemove").hidden = !editingTeam;
+    $("teamDlg").showModal();
+  }
+  $("newTeam").onclick = () => openTeam(null);
+  const slug = (s) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 34);
+  $("teamForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const members = [...$("tMembers").querySelectorAll("input:checked")].map((i) => i.value);
+    const talksTo = [...$("tTalks").querySelectorAll("input:checked")].map((i) => i.value);
+    let list = structuredClone(teams());
+    let id = editingTeam?.id;
+    if (!id) { id = slug($("tName").value); if (!/^[a-z][a-z0-9-]+$/.test(id)) id = "team-" + (id || "1"); const base = id; let n = 2; while (list.some((t) => t.id === id)) id = `${base}-${n++}`; }
+    for (const t of list) if (t.id !== id) t.members = t.members.filter((m) => !members.includes(m));
+    const updated = { id, name: $("tName").value, color: $("tColor").value, lead: $("tLead").value, members, talksTo };
+    list = editingTeam ? list.map((t) => (t.id === id ? updated : t)) : [...list, updated];
+    try { await saveTeams(list); $("teamDlg").close(); toast(editingTeam ? "Team saved" : "Team created"); load(true); }
+    catch (err) { $("teamErr").textContent = err.message; }
+  });
+  $("teamRemove").onclick = () => armed($("teamRemove"), "Click again to delete", async () => {
+    try { await saveTeams(teams().filter((t) => t.id !== editingTeam.id)); $("teamDlg").close(); toast("Team deleted. Its agents are now without a team."); load(true); }
+    catch (err) { $("teamErr").textContent = err.message; }
+  });
+
+  // ---------- demo (simulated, clearly labelled) ----------
+  function buildScript() {
+    const names = state.agents.map((a) => a.name).slice(0, 4);
+    const steps = []; let t = 0;
+    names.forEach((n, i) => {
+      steps.push([t, n, "SubagentStart"], [t + 1, n, "PreToolUse", "Reading the brief"], [t + 2.4, n, "PreToolUse", i % 2 ? "Searching “best practices”" : "Reading notes.md"],
+        [t + 4, n, "PreToolUse", `Writing ${n}-output.md`]);
+      const team = teamOf(n);
+      if (team?.talksTo[0]) steps.push([t + 5.2, n, "PreToolUse", `Messaging ${team.talksTo[0]}`]);
+      steps.push([t + 6.5, n, "SubagentStop"]);
+      t += i % 2 ? 7 : 3; // overlap every other agent to show parallel work
+    });
+    return steps.sort((a, b) => a[0] - b[0]);
+  }
+  function demoTick() {
+    const el = (Date.now() - demo.start) / 1000, agents = {}, feed = [];
+    for (const [at, who, event, detail] of demo.script) {
+      if (at > el) break;
+      const t = demo.start + at * 1000, a = (agents[who] ||= { working: false, actions: 0 });
+      feed.unshift({ t, agent: who, event, detail });
+      if (event === "SubagentStart") Object.assign(a, { working: true, since: t, actions: 0, doing: "Getting started" });
+      else if (event === "SubagentStop") Object.assign(a, { working: false, doing: null, lastDone: t });
+      else { a.actions++; a.doing = detail; }
+    }
+    demo.agents = agents; demo.feed = feed;
+    renderHeader(); renderFloor(); renderFeed();
+    if (el > demo.script.at(-1)[0] + 4) stopDemo();
+  }
+  function stopDemo() { clearInterval(demo?.timer); demo = null; $("demoBanner").hidden = true; $("demoBtn").textContent = "▶ Demo run"; renderAll(); }
+  $("demoBtn").onclick = () => {
+    if (demo) return stopDemo();
+    if (!state.agents.length) return toast("Create an agent first", true);
+    demo = { start: Date.now(), script: buildScript(), agents: {}, feed: [] };
+    demo.timer = setInterval(demoTick, 250);
+    $("demoBanner").hidden = false; $("demoBtn").textContent = "■ Stop demo"; demoTick();
+  };
+
+  function renderAll() { renderHeader(); renderFloor(); renderMap(); renderMessages(); renderFeed(); renderRail(); }
+  async function load(force) {
+    if (!force && editing()) return;
+    try { state = await (await fetch("/api/state", { cache: "no-store" })).json(); } catch { return; }
+    if (demo) { renderMap(); renderMessages(); renderRail(); } else renderAll();
+  }
+  load(true);
+  setInterval(load, 2000);
+</script>
+</body>
+</html>

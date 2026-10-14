@@ -1,0 +1,12 @@
+{
+  "name": "agent-office",
+  "version": "0.1.0",
+  "description": "A live office for your Claude Code agents: build agents with a human look, edit them, group them into teams, and let teams message each other.",
+  "type": "module",
+  "bin": { "agent-office": "bin/agent-office.mjs" },
+  "files": ["bin", "src", "public", "README.md", "LICENSE"],
+  "scripts": { "start": "node bin/agent-office.mjs", "test": "node --test" },
+  "engines": { "node": ">=18.17" },
+  "keywords": ["claude-code", "agents", "subagents", "teams", "dashboard"],
+  "license": "MIT"
+}
