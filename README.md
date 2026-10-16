@@ -63,6 +63,8 @@ npm start         # serves the office for the current folder
 
 The whole project uses only Node.js built-ins: `bin/` is the command, `src/` the server and hooks, `public/index.html` the page.
 
+The line figures in the empty states come from [hairline](https://github.com/lucasmarkes/hairline) (MIT), copied as one file into `public/vendor/hairline.js` with its licence beside it. To update it, replace that file with `dist/index.js` from a newer `@lucasmarkes/hairline` release.
+
 ## License
 
 MIT

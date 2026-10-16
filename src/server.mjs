@@ -11,6 +11,8 @@ import {
 } from "./lib.mjs";
 
 const PUBLIC = join(dirname(fileURLToPath(import.meta.url)), "..", "public");
+// Static files the page loads, by URL. A fixed list, so no request can reach other files.
+const ASSETS = { "/vendor/hairline.js": ["vendor/hairline.js", "text/javascript; charset=utf-8"] };
 const STALE_MS = 20 * 60 * 1000; // a "working" agent with no events for 20 minutes is treated as stopped
 
 // ---------- live activity (written by hooks/activity.mjs) ----------
@@ -207,6 +209,9 @@ export function createOfficeServer(root) {
     try {
       if (req.method === "GET" && url.pathname === "/") {
         res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }).end(await readFile(join(PUBLIC, "index.html")));
+      } else if (req.method === "GET" && ASSETS[url.pathname]) {
+        const [file, type] = ASSETS[url.pathname];
+        res.writeHead(200, { "Content-Type": type, "Cache-Control": "max-age=3600" }).end(await readFile(join(PUBLIC, file)));
       } else if (req.method === "GET" && url.pathname === "/api/state") {
         json(200, await getState(root));
       } else if (req.method === "POST" && ROUTES[url.pathname]) {

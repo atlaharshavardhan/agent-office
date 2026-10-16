@@ -139,3 +139,12 @@ test("removing an agent moves it to the trash and out of its team", async () => 
   const t = (await state()).office.teams;
   assert.ok(!t.some((x) => x.members.includes("researcher")));
 });
+
+test("serves the vendored hairline module and nothing else from public", async () => {
+  const r = await fetch(base + "/vendor/hairline.js");
+  assert.equal(r.status, 200);
+  assert.match(r.headers.get("content-type"), /^text\/javascript/);
+  assert.match(await r.text(), /export \{/);
+  assert.equal((await fetch(base + "/vendor/hairline.LICENSE")).status, 404);
+  assert.equal((await fetch(base + "/vendor/../../package.json")).status, 404);
+});

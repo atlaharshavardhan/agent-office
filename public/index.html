@@ -86,6 +86,8 @@
   @keyframes rise { 0% { opacity: 0; transform: translateY(4px); } 40% { opacity: 0.8; } 100% { opacity: 0; transform: translateY(-10px); } }
   @media (prefers-reduced-motion: reduce) { .desk *, .pulse { animation: none !important; } }
   .empty { display: grid; gap: 10px; justify-items: start; padding: 20px; border: 1px dashed var(--line); border-radius: 14px; }
+  /* hairline figures (public/vendor/hairline.js), drawn in the page's palette on the panel they sit on */
+  .figure { width: min(240px, 100%); justify-self: center; --hairline-plate: var(--panel); --hairline-hi: var(--accent); --hairline-edge: var(--muted); --hairline-mid: #4a5384; --hairline-lo: var(--line); }
 
   /* ---------- map, messages, feed ---------- */
   .map { width: 100%; max-width: 640px; min-width: 340px; height: auto; display: block; margin: 0 auto; }
@@ -420,9 +422,11 @@
   function renderFloor() {
     const now = Date.now();
     if (!state.agents.length) {
-      $("floor").innerHTML = `<div class="empty"><h3>No agents yet</h3><p class="muted">Create your first agent: choose how they look, then tell them what to do.</p><button class="btn go" data-new-agent>+ New agent</button></div>`;
-      return;
+      if ($("floor").querySelector(".empty")) return; // already showing; keep the figure running across refreshes
+      $("floor").innerHTML = `<div class="empty"><div class="figure" data-figure="hub"></div><h3>No agents yet</h3><p class="muted">Create your first agent: choose how they look, then tell them what to do.</p><button class="btn go" data-new-agent>+ New agent</button></div>`;
+      return mountFigures($("floor"));
     }
+    unmountFigures($("floor"));
     const zones = teams().map((t) => ({ t, agents: t.members.map(agentBy).filter(Boolean) }));
     const loose = state.agents.filter((a) => !teamOf(a.name));
     if (loose.length) zones.push({ t: null, agents: loose });
@@ -441,10 +445,31 @@
     if (e.target.closest("[data-new-agent]")) openAgent(null);
   });
 
+  // ---------- hairline figures ----------
+  // Line figures from hairline (public/vendor/hairline.js) for empty states. They play on their own
+  // and answer the pointer; if the module fails to load, the empty state simply has no figure.
+  const hairline = import("/vendor/hairline.js").catch(() => null);
+  const figures = new Map(); // element -> running figure
+  async function mountFigures(root) {
+    const lib = await hairline; if (!lib) return;
+    for (const el of root.querySelectorAll("[data-figure]")) {
+      if (figures.has(el) || !el.isConnected || typeof lib[el.dataset.figure] !== "function") continue;
+      figures.set(el, lib[el.dataset.figure](el, { play: true, theme: "dark", intensity: 0.6 }));
+    }
+  }
+  function unmountFigures(root) {
+    for (const [el, fig] of figures) if (root.contains(el)) { fig.destroy(); figures.delete(el); }
+  }
+
   // ---------- map ----------
   function renderMap() {
     const list = teams();
-    if (!list.length) { $("map").innerHTML = `<p class="muted">No teams yet. Use <b>+ New team</b> to group agents.</p>`; return; }
+    if (!list.length) {
+      if ($("map").querySelector("[data-figure]")) return;
+      $("map").innerHTML = `<div class="figure" data-figure="settle"></div><p class="muted">No teams yet. Use <b>+ New team</b> to group agents.</p>`;
+      return mountFigures($("map"));
+    }
+    unmountFigures($("map"));
     const W = 640, H = 240, cx = W / 2, cy = 104;
     const pos = Object.fromEntries(list.map((t, i) => {
       const a = (list.length === 2 ? Math.PI : -Math.PI / 2) + (i / list.length) * Math.PI * 2; // two teams sit side by side
