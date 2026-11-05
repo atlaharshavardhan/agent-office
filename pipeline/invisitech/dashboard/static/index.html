@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InvisiTech Agents</title>
+<style>
+  :root { --bg:#0b1020; --panel:#121a30; --line:#1f2a47; --text:#e8ecf6; --muted:#8a96b5;
+          --accent:#5b8cff; --ok:#3ecf8e; --warn:#f5b84b; --bad:#ff6b6b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.45 Inter, system-ui, Arial, sans-serif; }
+  header { display:flex; align-items:center; gap:12px; padding:18px 24px; border-bottom:1px solid var(--line); }
+  header h1 { margin:0; font-size:18px; font-weight:650; letter-spacing:.2px; }
+  #conn { margin-left:auto; color:var(--muted); font-size:12px; }
+  main, #teams { padding:20px 24px; display:grid; gap:24px; }
+  #teams { padding:0; }
+  h2 { font-size:12px; text-transform:uppercase; letter-spacing:1.4px; color:var(--muted); margin:0 0 10px; }
+  .row { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px;
+          box-shadow:0 10px 24px rgba(0,0,0,.28); display:grid; gap:8px; min-height:150px; }
+  .card.off { opacity:.5; }
+  .top { display:flex; align-items:center; gap:8px; }
+  .name { font-weight:650; font-size:15px; }
+  .status { margin-left:auto; font-size:11px; padding:2px 8px; border-radius:99px; background:#1b2440; color:var(--muted); }
+  .status.working { background:rgba(91,140,255,.18); color:var(--accent); }
+  .status.waiting { background:rgba(245,184,75,.16); color:var(--warn); }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--muted); }
+  .working .dot, .dot.working { background:var(--accent); animation:pulse 1.2s infinite; }
+  @keyframes pulse { 50% { opacity:.35; } }
+  .label { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:1px; }
+  .task, .out { font-size:13px; overflow-wrap:anywhere; }
+  .out { color:#c6cee3; }
+  .err { color:var(--bad); font-size:12px; }
+  .badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:auto; }
+  .badge { font-size:11px; padding:2px 8px; border-radius:6px; border:1px solid var(--line); color:var(--muted); }
+  .badge.on { border-color:var(--accent); color:#fff; background:var(--accent); box-shadow:0 4px 12px rgba(0,0,0,.35); }
+  .score { font-weight:700; color:var(--ok); }
+  table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  td, th { text-align:left; padding:8px 12px; border-bottom:1px solid var(--line); font-size:13px; }
+  th { color:var(--muted); font-weight:500; }
+  a { color:var(--accent); }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media (max-width:800px) { .two { grid-template-columns:1fr; } main, header { padding-left:16px; padding-right:16px; } }
+</style>
+</head>
+<body>
+<header><h1>InvisiTech · Agent Office</h1><span id="conn">connecting…</span></header>
+<main>
+  <div id="teams"></div>
+  <section id="approvals-wrap"><h2>Waiting for you</h2><div id="approvals" class="out">Nothing pending.</div></section>
+  <div class="two">
+    <section><h2>Videos</h2><table><thead><tr><th>#</th><th>Title</th><th>Stage</th><th>Drive</th></tr></thead><tbody id="videos"></tbody></table></section>
+    <section><h2>Recent activity</h2><table><tbody id="feed"></tbody></table></section>
+  </div>
+</main>
+<script>
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+function card(c) {
+  const d = el("div", "card" + (c.enabled ? "" : " off") + (c.status === "working" ? " working" : ""));
+  const top = el("div", "top");
+  top.append(el("span", "dot" + (c.status === "working" ? " working" : "")), el("span", "name", c.display_name));
+  const st = el("span", "status" + (c.status === "working" ? " working" : c.status.startsWith("waiting") ? " waiting" : ""), c.status);
+  top.append(st); d.append(top);
+  if (c.task) { d.append(el("div", "label", "Current task"), el("div", "task", c.task)); }
+  if (c.output) { d.append(el("div", "label", "Latest output"), el("div", "out", c.output)); }
+  if (c.error) d.append(el("div", "err", "Last run failed: " + c.error));
+  if (c.score != null) { const s = el("div", "task"); s.append("Score ", el("span", "score", (+c.score).toFixed(0) + (c.name === "topic_scout" ? "" : "/10"))); d.append(s); }
+  const b = el("div", "badges");
+  for (const t of c.tools) b.append(el("span", "badge" + (c.tool_now === t ? " on" : ""), t));
+  if (c.tool_now && !c.tools.includes(c.tool_now)) b.append(el("span", "badge on", c.tool_now));
+  d.append(b);
+  return d;
+}
+
+function render(s) {
+  const teams = document.getElementById("teams"); teams.replaceChildren();
+  for (const t of s.teams) {
+    const sec = el("section"); sec.append(el("h2", null, t.team === "Director" ? "Director" : t.team + " team"));
+    const row = el("div", "row"); t.cards.forEach(c => row.append(card(c))); sec.append(row); teams.append(sec);
+  }
+  const ap = document.getElementById("approvals"); ap.replaceChildren();
+  if (!s.approvals.length) ap.textContent = "Nothing pending.";
+  for (const a of s.approvals) ap.append(el("div", "task", `#${a.id} · ${a.kind} · ${a.request_text || ""}`));
+  const vt = document.getElementById("videos"); vt.replaceChildren();
+  for (const v of s.videos) {
+    const tr = el("tr"); tr.append(el("td", null, v.id), el("td", null, v.title), el("td", null, v.stage));
+    const td = el("td"); if (v.drive_folder) { const a = el("a", null, "open"); a.href = v.drive_folder; a.target = "_blank"; a.rel = "noopener"; td.append(a); } tr.append(td); vt.append(tr);
+  }
+  const ft = document.getElementById("feed"); ft.replaceChildren();
+  for (const r of s.feed) { const tr = el("tr"); tr.append(el("td", null, r.agent), el("td", null, r.status === "working" ? r.task : (r.output || r.task))); ft.append(tr); }
+}
+
+function connect() {
+  const es = new EventSource("/events");
+  const conn = document.getElementById("conn");
+  es.addEventListener("state", e => { conn.textContent = "live · " + new Date().toLocaleTimeString(); render(JSON.parse(e.data)); });
+  es.onerror = () => { conn.textContent = "reconnecting…"; };
+}
+connect();
+</script>
+</body>
+</html>

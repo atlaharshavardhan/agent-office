@@ -1,0 +1,86 @@
+{
+  "topic": {
+    "title": "How your OTP reaches your phone",
+    "thing": "the OTP code",
+    "angle": "follow one OTP from the bank's server to your screen and back"
+  },
+  "script": {
+    "title": "The 30-Second Life of Your OTP",
+    "target_minutes": 5,
+    "format": {
+      "type": "long",
+      "aspect": "16:9",
+      "width": 1920,
+      "height": 1080
+    },
+    "hook_line": "The six-digit OTP on your phone was born a few seconds ago, and it usually crossed three different companies to reach you.",
+    "scenes": [
+      {
+        "n": 1,
+        "section": "hook",
+        "narration": "The six-digit OTP on your phone was born a few seconds ago, and it usually crossed three different companies to reach you. Today we follow one single code, from the moment you tap Pay to the moment it disappears forever.",
+        "visual": "A dark phone screen in close-up with a softly shadowed six-digit code card rising out of it; three small building icons in a row behind it."
+      },
+      {
+        "n": 2,
+        "section": "main",
+        "narration": "It starts with a tap. You are buying a pair of shoes online and you press Pay. The shop sends your card details to your bank and asks one question: is this really you? Your bank behaves like a strict security guard at a gate. It already knows your card and your registered mobile number. What it wants now is proof that the person paying is holding that exact phone. So it decides to send you a secret that only that phone can receive.",
+        "visual": "A flat cartoon hand tapping a Pay button; a dotted path leads to a bank building drawn as a calm guard booth with a gate."
+      },
+      {
+        "n": 3,
+        "section": "main",
+        "narration": "Here our code is born. A computer at the bank picks a random number, usually six digits long. That gives one million possible codes, so guessing it is like finding one marked grain of rice in a full bag. The bank stores the code together with a timer, often set to a few minutes, and ties it to this one payment only. Many systems even keep a scrambled copy instead of the number itself, so a peek at the database reveals nothing useful.",
+        "visual": "A server rack in navy tones; a small dice rolls out six digits that click into a code card with a tiny stopwatch attached."
+      },
+      {
+        "n": 4,
+        "section": "main",
+        "narration": "Now the bank has a problem. It does not own a single mobile tower. So it hands the message to an SMS company, called an aggregator, that is connected to many mobile networks at once. In India there is an extra checkpoint here. Every business message must use a registered sender name and a pre-approved message template, under a system set up by the telecom regulator, TRAI. That makes it much harder for a stranger to send a message that looks exactly like your bank.",
+        "visual": "The code card dropped into an envelope at a sorting desk; a checklist stamp marked with a tick for sender name and template."
+      },
+      {
+        "n": 5,
+        "section": "main",
+        "narration": "The aggregator passes the envelope to your mobile operator. Inside the operator sits a message centre whose whole job is delivering texts. It asks a simple question: where is this phone right now? Your phone quietly checks in with nearby towers all day, so the network already knows which area you are in. The message centre picks the right tower and sends the code on its way.",
+        "visual": "A map of a city at night drawn with flat blocks; one tower highlighted with a soft shadow, a dotted line from an operator building to it."
+      },
+      {
+        "n": 6,
+        "section": "main",
+        "narration": "From the tower, the code travels through the air as radio waves to your phone. Text messages use a separate lane from your internet data. That is why an OTP can still arrive when your mobile data is switched off, or when the signal is too weak to load a web page. A second later your screen lights up, and our code has finished its journey outward.",
+        "visual": "Radio waves drawn as soft curved bands from the tower to a phone in a pocket; a toggle labelled Data shown switched off."
+      },
+      {
+        "n": 7,
+        "section": "main",
+        "narration": "Next comes the trip home. Your phone may offer to fill in the code for you, or you type it in yourself. Either way, the six digits leave your phone over the internet and head straight back to the bank that created them. This return trip is short, but it is the moment that proves you really hold the phone.",
+        "visual": "The code card sliding into an input box on a checkout page, then travelling back along a dotted line toward the bank booth."
+      },
+      {
+        "n": 8,
+        "section": "main",
+        "narration": "At the bank, three checks happen in a blink. Does the code match? Is the timer still running? Has someone already made too many wrong attempts? If all three answers are right, the payment goes through. Then the code is destroyed. It can never be used again, not even for the same shop. A few wrong tries, and the bank blocks the attempt to keep you safe.",
+        "visual": "Three tick boxes lighting up one after another next to the guard booth; the code card dissolving into small flat squares."
+      },
+      {
+        "n": 9,
+        "section": "main",
+        "narration": "Notice where the weak spot is. Every step of this journey is designed so that only the person holding the phone sees the code. So fraudsters do not attack the towers or the bank computers. They attack people, with a phone call that sounds urgent and official. That is why the message itself tells you never to share it. No real bank employee will ever ask for your OTP.",
+        "visual": "A phone ringing with a question-mark caller; a large calm shield in front of the code card, soft shadow beneath it."
+      },
+      {
+        "n": 10,
+        "section": "outro",
+        "narration": "So the next time six digits pop up, remember what just happened. A bank created a secret, an SMS company and your operator carried it, a tower threw it through the air, and it will vanish after one use. An OTP is a key made for one lock, one time. Keep that key to yourself. If this made something invisible a little more visible, follow InvisiTech for the next journey.",
+        "visual": "A single key turning in a single lock, then fading; the full journey path from bank to phone shown as a calm map in the background."
+      }
+    ],
+    "sources": [
+      "TRAI Telecom Commercial Communications Customer Preference Regulations, 2018 (DLT sender and template registration)",
+      "RBI guidance on additional factor of authentication for card-not-present transactions",
+      "3GPP: SMS delivered over signalling, independent of mobile data sessions"
+    ],
+    "change_notes": ""
+  }
+}

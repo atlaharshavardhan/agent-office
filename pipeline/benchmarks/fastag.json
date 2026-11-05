@@ -1,0 +1,80 @@
+{
+  "topic": {
+    "title": "How FASTag pays your toll",
+    "thing": "the toll payment",
+    "angle": "follow one toll payment from the windshield sticker to your bank and back to the barrier"
+  },
+  "script": {
+    "title": "The Sticker With No Battery That Pays Your Toll",
+    "target_minutes": 5,
+    "format": {
+      "type": "long",
+      "aspect": "16:9",
+      "width": 1920,
+      "height": 1080
+    },
+    "hook_line": "The FASTag on your windshield has no battery, yet it can pay your toll without you ever rolling down the window.",
+    "scenes": [
+      {
+        "n": 1,
+        "section": "hook",
+        "narration": "The FASTag on your windshield has no battery, yet it can pay your toll without you ever rolling down the window. Today we follow one toll payment, from that little sticker all the way to your bank and back to the barrier.",
+        "visual": "A car windshield at night in flat cartoon style, a small white sticker near the mirror; a battery icon with a cross beside it."
+      },
+      {
+        "n": 2,
+        "section": "main",
+        "narration": "First, what is inside the sticker? A tiny chip and a thin metal antenna, flat as paper. This kind of tag is called passive, because it has no power of its own. It sleeps until a special reader sends radio waves toward it. The tag catches a little energy from those waves, wakes up, and answers with its own unique number. Many tags are also built to tear if you peel them off, so one sticker cannot be moved to another car. And why stick it on the windshield? Glass lets radio waves pass through easily, and the spot behind the mirror faces the reader straight on as the car arrives.",
+        "visual": "A cut-away view of the sticker: a small square chip and a looping antenna line, drawn large on a dark background with soft shadows."
+      },
+      {
+        "n": 3,
+        "section": "main",
+        "narration": "Now your car rolls toward the toll plaza. Above the lane hangs a reader antenna, quietly sending out radio waves. As your windshield passes underneath, the tag wakes up and replies with its ID, a long number linked to your vehicle and to the account that pays for it. A camera may also read your number plate, so the system can double-check that the tag really belongs to this kind of vehicle.",
+        "visual": "A toll lane from the side: a gantry with a reader box above, curved signal bands reaching down to the windshield sticker."
+      },
+      {
+        "n": 4,
+        "section": "main",
+        "narration": "Here is something surprising. The toll plaza has no idea how much money you have. It only knows three things: your tag number, which plaza this is, and how much the toll costs for your type of vehicle. So it packs those details into a request and sends it to its own bank, which is called the acquiring bank. Keeping the plaza out of money decisions is clever: your balance never sits inside hundreds of toll booths across the country, where it could go out of date or be misused.",
+        "visual": "A small toll booth computer printing a request slip with three lines: tag, plaza, amount; an arrow toward a bank building."
+      },
+      {
+        "n": 5,
+        "section": "main",
+        "narration": "The acquiring bank passes the request to a national switchboard called NETC, run by NPCI, the same organisation behind UPI. This switchboard knows which bank issued every FASTag in the country. It also keeps a list of tags that cannot pay right now, such as blocked ones or those with too little balance, so plazas can check quickly instead of waiting.",
+        "visual": "A big round switchboard hub in the centre of the frame, many thin lines connecting to bank buildings around it."
+      },
+      {
+        "n": 6,
+        "section": "main",
+        "narration": "The switchboard forwards the request to the bank that gave you the tag, the issuing bank. This is the only place that actually holds your FASTag balance. It checks that there is enough money, takes out the toll amount, and replies with a simple yes. Within moments, you usually get a text message saying how much was deducted and at which plaza.",
+        "visual": "A wallet card inside a bank vault drawn in flat shapes; a coin sliding out and a reply bubble with a tick."
+      },
+      {
+        "n": 7,
+        "section": "main",
+        "narration": "The yes travels back the same road it came: from your bank to the switchboard, from the switchboard to the plaza's bank, and from there to the toll booth. The barrier lifts and you drive on. All of this usually happens in a few seconds, often before the car has fully stopped. The money between the banks is settled later, in bulk, but your balance changes right away.",
+        "visual": "The barrier arm rising; the reply path drawn as a returning dotted line through all the buildings back to the booth."
+      },
+      {
+        "n": 8,
+        "section": "main",
+        "narration": "So why does the barrier sometimes refuse to open? Usually for one of three reasons: the balance is too low, the tag has been blocked, or the sticker is damaged and cannot be read. FASTag has been compulsory on national highway toll plazas since February 2021, and vehicles without a working tag are charged a higher fee. A quick look at your balance before a long drive saves a lot of honking.",
+        "visual": "Three simple warning cards side by side: an empty wallet, a lock, a torn sticker; the barrier staying down."
+      },
+      {
+        "n": 9,
+        "section": "outro",
+        "narration": "So that tiny sticker never pays anything by itself. It just says its name when asked, and a chain of banks and one big switchboard do the rest in seconds. The real magic is not in the tag but in the teamwork behind it. Next time the barrier lifts, you will know who said yes. Follow InvisiTech to see what else is quietly working for you.",
+        "visual": "The car driving away under the open barrier; the whole chain of buildings shown small in the background, linked by a soft path."
+      }
+    ],
+    "sources": [
+      "NPCI: National Electronic Toll Collection (NETC) programme",
+      "MoRTH notification: FASTag mandatory at national highway fee plazas from 15 February 2021",
+      "NHAI / IHMCL FASTag FAQs (passive RFID tag, tag exception list, issuer and acquirer banks)"
+    ],
+    "change_notes": ""
+  }
+}
