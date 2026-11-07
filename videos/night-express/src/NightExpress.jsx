@@ -4,7 +4,7 @@ import {geoDistance, geoGraticule10, geoInterpolate, geoOrthographic, geoPath} f
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
-import {ARCS, CITY, DOTS, ROUTE_LEG1, ROUTE_LEG2} from './data';
+import {ARCS, CITY, DOTS, ROUTE_LEG1, ROUTE_LEG2, india} from './data';
 
 const fontFamily = 'Inter, sans-serif';
 
@@ -112,7 +112,7 @@ export const NightExpress = () => {
 		const limb = Math.min(1, Math.cos(ang) * 4); // fade at the edge of the globe
 		const tw = 0.78 + 0.22 * Math.sin(frame * (0.05 + d.seed * 0.12) + d.seed * 40);
 		const r = d.r * dotScale * (0.85 + 0.15 * Math.cos(ang));
-		const op = limb * tw;
+		const op = limb * tw * (d.india ? 1 : 1 - 0.6 * zoomT) * (d.border ? 0.75 + 0.35 * zoomT : 1);
 		if (d.hot > 0.5) {
 			halos.push(<circle key={'h' + i} cx={x} cy={y} r={r * 3.2} fill="url(#halo)" opacity={op * 0.5 * (1 - 0.35 * zoomT)} />);
 		}
@@ -223,6 +223,9 @@ export const NightExpress = () => {
 					<path d={path({type: 'Sphere'})} fill="url(#sphere)" />
 					<path d={path(graticule)} fill="none" stroke="#6f93e0" strokeOpacity={0.22 - zoomT * 0.08} strokeWidth={1} />
 					<path d={path({type: 'Sphere'})} fill="none" stroke="#7fa2f0" strokeOpacity={0.55} strokeWidth={1.5} />
+					{/* India outline glow, grows in with the zoom */}
+					<path d={path(india)} fill="#ffb878" fillOpacity={0.035 * zoomT} stroke="#ff9a4a" strokeOpacity={0.45 * zoomT} strokeWidth={6} strokeLinejoin="round" filter="url(#glow)" />
+					<path d={path(india)} fill="none" stroke="#ffd9b3" strokeOpacity={0.4 * zoomT} strokeWidth={1.2} strokeLinejoin="round" />
 					<g>{halos}</g>
 					<g>{cores}</g>
 					<g>{arcEls}</g>

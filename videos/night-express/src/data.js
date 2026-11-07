@@ -2,6 +2,7 @@ import {feature} from 'topojson-client';
 import {geoContains} from 'd3-geo';
 import land110 from 'world-atlas/land-110m.json';
 import countries110 from 'world-atlas/countries-110m.json';
+import countries50 from 'world-atlas/countries-50m.json';
 
 // Deterministic RNG so every render frame sees the same dots.
 const mulberry32 = (a) => () => {
@@ -18,7 +19,7 @@ const gauss = () => {
 };
 
 export const land = feature(land110, land110.objects.land);
-const india = feature(countries110, countries110.objects.countries).features.find(
+export const india = feature(countries50, countries50.objects.countries).features.find(
 	(f) => f.id === '356',
 );
 
@@ -98,6 +99,30 @@ while (added < 1100) {
 	const big = rand() < 0.07;
 	dots.push({lon: p[0], lat: p[1], r: big ? 1.3 + rand() * 1.8 : 0.45 + rand() * 0.75, hot: big ? 0.9 : rand() * 0.5, seed: rand()});
 }
+// Lights tracing India's border and coastline, so the outline reads clearly.
+const rings = india.geometry.type === 'Polygon' ? [india.geometry.coordinates] : india.geometry.coordinates;
+for (const poly of rings) {
+	const ring = poly[0];
+	if (ring.length < 20) continue; // skip tiny islands
+	for (let i = 0; i < ring.length - 1; i++) {
+		const [a, b] = [ring[i], ring[i + 1]];
+		const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+		const steps = Math.max(1, Math.round(len / 0.09));
+		for (let k = 0; k < steps; k++) {
+			const t = k / steps;
+			const big = rand() < 0.1;
+			dots.push({
+				lon: a[0] + (b[0] - a[0]) * t + gauss() * 0.03,
+				lat: a[1] + (b[1] - a[1]) * t + gauss() * 0.03,
+				r: big ? 1.2 + rand() * 1.0 : 0.6 + rand() * 0.5,
+				hot: big ? 0.85 : 0.35 + rand() * 0.3,
+				seed: rand(),
+				border: true,
+			});
+		}
+	}
+}
+for (const d of dots) d.india = d.border || geoContains(india, [d.lon, d.lat]);
 export const DOTS = dots;
 
 export const CITY = {
