@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Audio, Easing, Sequence, getStaticFiles, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Easing, Sequence, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
@@ -24,7 +24,7 @@ const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'};
 
 const CODES = ['482913', '107364', '659201'];
 
-// ---------- timeline (frames @ 30fps), matched to the narration slots ----------
+// ---------- timeline (frames @ 30fps) ----------
 export const T = {
 	s1: 0, // 0–3s    "Code late? You tap Resend. Again. And again."
 	s2: 90, // 3–6.5s  "Now three codes, and the old ones may not work."
@@ -411,11 +411,7 @@ const Scene4 = () => {
 };
 
 // ---------- composition ----------
-const hasFile = (name) => getStaticFiles().some((f) => f.name === name);
-
 export const ResendOtp = () => {
-	const voice = hasFile('voice.mp3');
-	const music = hasFile('music.mp3');
 	return (
 		<AbsoluteFill style={{background: NAVY}}>
 			<Background />
@@ -432,8 +428,6 @@ export const ResendOtp = () => {
 				<Scene4 />
 			</Sequence>
 			<Brand />
-			{voice && <Audio src={staticFile('voice.mp3')} />}
-			{music && <Audio src={staticFile('music.mp3')} volume={(f) => interpolate(f, [0, 10, 270, 300], [0, 0.18, 0.18, 0], clamp)} />}
 		</AbsoluteFill>
 	);
 };

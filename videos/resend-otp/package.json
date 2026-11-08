@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "studio": "remotion studio",
-    "render": "remotion render ResendOtp out/resend-otp.mp4"
+    "render": "remotion render ResendOtp out/resend-otp.mp4 --muted"
   },
   "dependencies": {
     "@fontsource/inter": "^5.1.0",
