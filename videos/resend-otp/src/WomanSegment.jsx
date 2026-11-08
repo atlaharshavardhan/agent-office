@@ -7,7 +7,7 @@ import '@fontsource/poppins/700.css';
 import '@fontsource/poppins/800.css';
 import {StatusBar} from './Phone';
 
-// "The woman" segment: ~23 s, 1080×1920, 30 fps. Flat InvisiTech style:
+// "The woman" segment: ~23 s, 1920×1080 (YouTube 16:9), 30 fps. Flat InvisiTech style:
 // dark navy, one bold accent per element, soft shadows, no glow.
 const NAVY = '#0B1532';
 const C = {
@@ -35,7 +35,7 @@ const useSpr = (at, cfg = {damping: 13, stiffness: 170}) => {
 
 // ---------- shared pieces ----------
 const Brand = () => (
-	<div style={{position: 'absolute', top: 92, width: '100%', display: 'flex', justifyContent: 'center', zIndex: 5}}>
+	<div style={{position: 'absolute', top: 44, left: 56, display: 'flex', zIndex: 5}}>
 		<div style={{display: 'flex', alignItems: 'center', gap: 14, padding: '12px 26px', borderRadius: 999, background: '#16244f', boxShadow: '0 6px 16px rgba(0,0,0,0.3)', fontFamily: HEAD, fontWeight: 700, fontSize: 30, color: '#fff', letterSpacing: 0.5}}>
 			<span style={{width: 16, height: 16, borderRadius: 5, background: C.blue, transform: 'rotate(45deg)'}} />
 			InvisiTech
@@ -43,7 +43,7 @@ const Brand = () => (
 	</div>
 );
 
-const Tag = ({text, at = 0, top = 200}) => {
+const Tag = ({text, at = 0, top = 48}) => {
 	const s = useSpr(at);
 	return (
 		<div style={{position: 'absolute', top, width: '100%', display: 'flex', justifyContent: 'center', zIndex: 5}}>
@@ -54,11 +54,11 @@ const Tag = ({text, at = 0, top = 200}) => {
 	);
 };
 
-const Caption = ({words, top = 290, size = 78}) => {
+const Caption = ({words, top = 130, size = 72, left = 0, width = '100%', align = 'center'}) => {
 	const f = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	return (
-		<div style={{position: 'absolute', top, width: '100%', padding: '0 70px', boxSizing: 'border-box', textAlign: 'center', fontFamily: HEAD, fontWeight: 800, fontSize: size, lineHeight: 1.12, color: '#fff', zIndex: 5}}>
+		<div style={{position: 'absolute', top, left, width, padding: '0 70px', boxSizing: 'border-box', textAlign: align, fontFamily: HEAD, fontWeight: 800, fontSize: size, lineHeight: 1.12, color: '#fff', zIndex: 5}}>
 			{words.map((w, i) => {
 				const s = spring({frame: f - w.at, fps, config: {damping: 12, stiffness: 200}});
 				return (
@@ -197,23 +197,22 @@ const Train = ({f, slump = 0, sigh = 0}) => {
 	return (
 		<AbsoluteFill style={{background: '#14214a'}}>
 			{/* window */}
-			<div style={{position: 'absolute', left: 90, top: 380, width: 900, height: 560, borderRadius: 60, background: '#1f2d5a', padding: 26, boxShadow: 'inset 0 0 0 4px #2a3a70'}}>
+			<div style={{position: 'absolute', left: 120, top: 70, width: 1680, height: 560, borderRadius: 60, background: '#1f2d5a', padding: 26, boxShadow: 'inset 0 0 0 4px #2a3a70'}}>
 				<div style={{position: 'relative', width: '100%', height: '100%', borderRadius: 40, overflow: 'hidden', background: '#060c22'}}>
 					<div style={{position: 'absolute', right: 120, top: 70, width: 70, height: 70, borderRadius: 35, background: '#e9eef8'}} />
 					<div style={{position: 'absolute', right: 100, top: 62, width: 70, height: 70, borderRadius: 35, background: '#060c22'}} />
-					{Array.from({length: 14}, (_, i) => {
-						const x = ((i * 173 - speed) % 1100 + 1100) % 1100 - 100;
+					{Array.from({length: 24}, (_, i) => {
+						const x = ((i * 173 - speed) % 1900 + 1900) % 1900 - 100;
 						return <div key={i} style={{position: 'absolute', left: x, top: 300 + (i % 3) * 40, width: 10 + (i % 4) * 4, height: 10 + (i % 4) * 4, borderRadius: 3, background: i % 3 ? '#ffd27a' : '#ffffff', opacity: 0.85}} />;
 					})}
 					{/* hills */}
-					<svg width="848" height="508" style={{position: 'absolute', inset: 0}}>
-						<path d={`M0 420 Q 200 ${360} 400 410 T 848 400 L 848 508 L 0 508 Z`} fill="#0d1838" />
+					<svg width="1628" height="508" style={{position: 'absolute', inset: 0}}>
+						<path d="M0 420 Q 200 360 400 410 T 800 400 T 1200 410 T 1628 400 L 1628 508 L 0 508 Z" fill="#0d1838" />
 					</svg>
 				</div>
 			</div>
 			{/* table */}
-			<div style={{position: 'absolute', left: 60, top: 1700, width: 960, height: 40, borderRadius: 20, background: '#2a3a70'}} />
-			<div style={{position: 'absolute', left: 160, top: 760}}>
+						<div style={{position: 'absolute', left: 656, top: 156, transform: 'scale(0.8)', transformOrigin: '0 0'}}>
 				<Woman slump={slump} sigh={sigh} />
 			</div>
 		</AbsoluteFill>
@@ -225,12 +224,12 @@ const Train = ({f, slump = 0, sigh = 0}) => {
 const W1 = () => {
 	const f = useCurrentFrame();
 	const t = interpolate(f, [0, 120], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)});
-	const push = 1 + 1.6 * t;
+	const push = 1 + 1.5 * t;
 	const grade = interpolate(f, [40, 100], [0, 1], clamp);
 	return (
 		<AbsoluteFill>
 			<Memory amount={grade}>
-				<AbsoluteFill style={{transform: `translateY(${-380 * t}px) scale(${push})`, transformOrigin: '540px 1520px'}}>
+				<AbsoluteFill style={{transform: `translateY(${-224 * t}px) scale(${push})`, transformOrigin: '960px 764px'}}>
 					<Train f={f} />
 				</AbsoluteFill>
 			</Memory>
@@ -262,19 +261,19 @@ const W2 = () => {
 	const cards = cardsDef
 		.filter((c) => f >= c.join)
 		.map((c, i) => ({i, mine: !!c.mine, slot: c.slot + shiftAt(c.join), enter: spring({frame: f - c.join, fps, config: {damping: 14, stiffness: 160}})}));
-	const crowd = Array.from({length: 46}, (_, i) => ({x: 40 + ((i * 97) % 1000), row: Math.floor(i / 9), hue: i % 5}));
+	const crowd = Array.from({length: 66}, (_, i) => ({x: 20 + ((i * 89) % 1860), row: Math.floor(i / 22), hue: i % 5}));
 	const bodyCols = ['#5d6bb0', '#b0605d', '#5db08a', '#b0a05d', '#8a5db0'];
-	const lane = {x: 300, y: 980, w: 740};
+	const lane = {x: 520, y: 450, w: 760};
 	return (
 		<AbsoluteFill>
 			<Memory amount={1}>
 				<AbsoluteFill style={{background: '#14214a'}}>
 					{/* platform */}
-					<div style={{position: 'absolute', left: 0, top: 1320, width: 1080, height: 600, background: '#1d2b5c'}} />
-					<div style={{position: 'absolute', left: 0, top: 1320, width: 1080, height: 16, background: '#e2c35a'}} />
+					<div style={{position: 'absolute', left: 0, top: 790, width: 1920, height: 300, background: '#1d2b5c'}} />
+					<div style={{position: 'absolute', left: 0, top: 790, width: 1920, height: 14, background: '#e2c35a'}} />
 					{/* crowd */}
 					{crowd.map((p, i) => {
-						const y = 1400 + p.row * 95;
+						const y = 830 + p.row * 80;
 						const bob = Math.sin(f / 8 + i) * 4;
 						return (
 							<div key={i} style={{position: 'absolute', left: p.x + (p.row % 2) * 45, top: y + bob}}>
@@ -285,16 +284,16 @@ const W2 = () => {
 						);
 					})}
 					{/* "hundreds" counter */}
-					<div style={{position: 'absolute', left: 640, top: 880, padding: '8px 18px', borderRadius: 12, background: '#2a3557', color: '#fff', fontFamily: UI, fontWeight: 800, fontSize: 30}}>
+					<div style={{position: 'absolute', left: 1330, top: 520, padding: '12px 22px', borderRadius: 12, background: '#2a3557', color: '#fff', fontFamily: UI, fontWeight: 800, fontSize: 30}}>
 						👥 {Math.round(interpolate(f, [20, 120], [40, 600], clamp))}+ on 1 tower
 					</div>
 					{/* queue lane */}
 					<div style={{position: 'absolute', left: lane.x, top: lane.y, width: lane.w, height: 190, borderRadius: 30, background: '#0f1838', boxShadow: 'inset 0 4px 10px rgba(0,0,0,0.4)'}} />
-					<div style={{position: 'absolute', left: lane.x + 20, top: lane.y + 200, fontFamily: UI, fontWeight: 800, fontSize: 28, color: C.muted, letterSpacing: 3}}>QUEUE →</div>
+					<div style={{position: 'absolute', left: lane.x + 20, top: lane.y - 44, fontFamily: UI, fontWeight: 800, fontSize: 28, color: C.muted, letterSpacing: 3}}>QUEUE →</div>
 				</AbsoluteFill>
 			</Memory>
 			{/* tower */}
-			<svg width="300" height="640" style={{position: 'absolute', left: 60, top: 560 + (1 - towerIn) * 300, opacity: towerIn}}>
+			<svg width="300" height="640" style={{position: 'absolute', left: 170, top: 250 + (1 - towerIn) * 300, opacity: towerIn}}>
 				<path d="M150 40 L 60 620 M150 40 L 240 620 M 98 380 L 202 380 M 80 500 L 220 500 M 118 260 L 182 260 M 98 380 L 182 260 M 202 380 L 118 260 M 80 500 L 202 380 M 220 500 L 98 380" stroke={C.purple} strokeWidth="12" strokeLinecap="round" fill="none" />
 				<circle cx="150" cy="40" r="20" fill={C.purple} />
 				{[0, 1, 2].map((k) => {
@@ -324,7 +323,7 @@ const W2 = () => {
 				]}
 			/>
 			{f > 85 && (
-				<div style={{position: 'absolute', left: 400, top: 1200, fontFamily: HEAD, fontWeight: 800, fontSize: 54, color: '#fff', opacity: interpolate(f, [86, 96], [0, 1], clamp), transform: `translateY(${interpolate(f, [86, 96], [20, 0], clamp)}px)`, textShadow: '0 6px 14px rgba(0,0,0,0.35)'}}>
+				<div style={{position: 'absolute', left: 560, top: 668, fontFamily: HEAD, fontWeight: 800, fontSize: 54, color: '#fff', opacity: interpolate(f, [86, 96], [0, 1], clamp), transform: `translateY(${interpolate(f, [86, 96], [20, 0], clamp)}px)`, textShadow: '0 6px 14px rgba(0,0,0,0.35)'}}>
 					Her <span style={{color: C.orange}}>code</span> is stuck…
 				</div>
 			)}
@@ -347,32 +346,18 @@ const W3 = () => {
 				<AbsoluteFill style={{background: '#14214a'}} />
 			</Memory>
 			<Tag text="EARLIER · 21:49 → 21:52" />
-			<Caption top={290} size={74} words={[{text: 'A', at: 120}, {text: 'late', at: 123}, {text: 'code', at: 126}, {text: 'is', at: 129}, {text: 'a', at: 132}, {text: 'dead', at: 136, color: C.red}, {text: 'code.', at: 140, color: C.red}]} />
+			<Caption top={190} size={84} left={820} width={1060} align="left" words={[{text: 'A', at: 120}, {text: 'late', at: 123}, {text: 'code', at: 126}, {text: 'is', at: 129}, {text: 'a', at: 132}, {text: 'dead', at: 136, color: C.red}, {text: 'code.', at: 140, color: C.red}]} />
 			{/* her phone, big */}
-			<div style={{position: 'absolute', left: 540 - 250, top: 640, width: 500, height: 1000, borderRadius: 70, background: '#1d2433', padding: 16, boxShadow: '0 30px 60px rgba(0,0,0,0.45), inset 0 0 0 2px #2f3a52', transform: `translateX(${shake}px)`, filter: 'grayscale(0.8)'}}>
+			<div style={{position: 'absolute', left: 260, top: 130, width: 460, height: 920, borderRadius: 70, background: '#1d2433', padding: 16, boxShadow: '0 30px 60px rgba(0,0,0,0.45), inset 0 0 0 2px #2f3a52', transform: `translateX(${shake}px)`, filter: 'grayscale(0.8)'}}>
 				<div style={{position: 'relative', width: '100%', height: '100%', borderRadius: 56, overflow: 'hidden', background: '#0c1020'}}>
 					<div style={{transform: 'scale(1.18)', transformOrigin: '0 0'}}>
 						<StatusBar />
 					</div>
 					<div style={{position: 'absolute', top: 120, width: '100%', textAlign: 'center', fontFamily: UI, fontSize: 30, fontWeight: 700, color: '#fff'}}>Messages</div>
-					{/* life of the code: valid 0–3 min, arrived at 5 */}
-					<div style={{position: 'absolute', left: 40, right: 40, top: 600, fontFamily: UI, color: '#fff', opacity: interpolate(f, [100, 112], [0, 1], clamp)}}>
-						<div style={{position: 'relative', height: 26, borderRadius: 13, background: '#2a3147'}}>
-							<div style={{position: 'absolute', left: 0, top: 0, height: 26, borderRadius: 13, width: `${interpolate(f, [104, 124], [0, 60], clamp)}%`, background: '#22C55E'}} />
-							<div style={{position: 'absolute', left: '100%', top: -14, width: 8, height: 54, borderRadius: 4, marginLeft: -4, background: C.red, opacity: interpolate(f, [126, 132], [0, 1], clamp)}} />
-						</div>
-						<div style={{display: 'flex', justifyContent: 'space-between', marginTop: 16, fontSize: 22, fontWeight: 700, color: C.muted}}>
-							{['0', '1', '2', '3', '4', '5 min'].map((m) => <span key={m}>{m}</span>)}
-						</div>
-						<div style={{display: 'flex', justifyContent: 'space-between', marginTop: 22, fontSize: 24, fontWeight: 800}}>
-							<span style={{color: '#22C55E'}}>alive</span>
-							<span style={{color: C.red}}>arrived ✕</span>
-						</div>
-					</div>
 				</div>
 			</div>
 			{/* her card drops into the phone and becomes the message */}
-			<div style={{position: 'absolute', left: 540 - 200, top: 760 - (1 - drop) * 700, width: 400, transform: `translateX(${shake}px) rotate(${(1 - drop) * -12}deg)`}}>
+			<div style={{position: 'absolute', left: 290, top: 440 - (1 - drop) * 700, width: 400, transform: `translateX(${shake}px) rotate(${(1 - drop) * -12}deg)`}}>
 				<div style={{position: 'relative', borderRadius: 26, padding: '22px 24px', background: grey > 0.5 ? '#4e5568' : C.orange, color: grey > 0.5 ? '#c3c8d6' : '#2a1600', fontFamily: UI, boxShadow: '0 10px 20px rgba(0,0,0,0.4)'}}>
 					<div style={{fontSize: 20, fontWeight: 700, opacity: 0.8}}>JM-MYBANK-T · 21:52</div>
 					<div style={{fontSize: 52, fontWeight: 800, letterSpacing: 4, marginTop: 6, position: 'relative', display: 'inline-block'}}>
@@ -385,9 +370,23 @@ const W3 = () => {
 					)}
 				</div>
 			</div>
+			{/* life of the code: valid 0–3 min, arrived at 5 */}
+			<div style={{position: 'absolute', left: 890, width: 860, top: 640, fontFamily: UI, color: '#fff', opacity: interpolate(f, [100, 112], [0, 1], clamp)}}>
+				<div style={{position: 'relative', height: 34, borderRadius: 17, background: '#2a3147'}}>
+					<div style={{position: 'absolute', left: 0, top: 0, height: 34, borderRadius: 17, width: `${interpolate(f, [104, 124], [0, 60], clamp)}%`, background: '#22C55E'}} />
+					<div style={{position: 'absolute', left: '100%', top: -16, width: 10, height: 66, borderRadius: 4, marginLeft: -4, background: C.red, opacity: interpolate(f, [126, 132], [0, 1], clamp)}} />
+				</div>
+				<div style={{display: 'flex', justifyContent: 'space-between', marginTop: 16, fontSize: 30, fontWeight: 700, color: C.muted}}>
+					{['0', '1', '2', '3', '4', '5 min'].map((m) => <span key={m}>{m}</span>)}
+				</div>
+				<div style={{display: 'flex', justifyContent: 'space-between', marginTop: 22, fontSize: 34, fontWeight: 800}}>
+					<span style={{color: '#22C55E'}}>alive</span>
+					<span style={{color: C.red}}>arrived ✕</span>
+				</div>
+			</div>
 			{/* timing chip */}
-			<div style={{position: 'absolute', top: 1110, width: '100%', display: 'flex', justifyContent: 'center', opacity: Math.min(1, chip * 1.5), transform: `translateY(${(1 - chip) * 30}px)`}}>
-				<div style={{display: 'flex', gap: 14, fontFamily: UI, fontWeight: 800, fontSize: 32}}>
+			<div style={{position: 'absolute', top: 470, left: 890, display: 'flex', opacity: Math.min(1, chip * 1.5), transform: `translateY(${(1 - chip) * 30}px)`}}>
+				<div style={{display: 'flex', gap: 18, fontFamily: UI, fontWeight: 800, fontSize: 40}}>
 					<div style={{padding: '14px 22px', borderRadius: 16, background: '#203058', color: '#fff'}}>⏱ valid 3 min</div>
 					<div style={{padding: '14px 22px', borderRadius: 16, background: C.red, color: '#fff'}}>arrived after 5</div>
 				</div>
@@ -405,7 +404,7 @@ const W4 = () => {
 	return (
 		<AbsoluteFill>
 			<Memory amount={back}>
-				<AbsoluteFill style={{transform: `scale(${1.25 - 0.1 * (f / 60)})`, transformOrigin: '540px 1300px'}}>
+				<AbsoluteFill style={{transform: `scale(${1.3 - 0.1 * (f / 60)})`, transformOrigin: '960px 640px'}}>
 					<Train f={540 + f} slump={slump} sigh={sigh} />
 				</AbsoluteFill>
 			</Memory>
@@ -426,7 +425,7 @@ const W5 = () => {
 				<Train f={600 + f} slump={1} />
 			</AbsoluteFill>
 			{/* station board */}
-			<div style={{position: 'absolute', left: 70, top: 380, width: 940, borderRadius: 30, background: '#0a0f1f', padding: '34px 40px', boxShadow: '0 24px 48px rgba(0,0,0,0.5), inset 0 0 0 4px #222c48', transform: `translateY(${(1 - board) * -400}px)`}}>
+			<div style={{position: 'absolute', left: 460, top: 120, width: 1000, borderRadius: 30, background: '#0a0f1f', padding: '34px 40px', boxShadow: '0 24px 48px rgba(0,0,0,0.5), inset 0 0 0 4px #222c48', transform: `translateY(${(1 - board) * -400}px)`}}>
 				<div style={{fontFamily: UI, fontWeight: 700, color: C.muted, fontSize: 28, letterSpacing: 4}}>NEXT STATION</div>
 				<div style={{fontFamily: '"Courier New", monospace', fontWeight: 700, color: C.amber, fontSize: 96, letterSpacing: 6, marginTop: 6}}>ITARSI JN</div>
 				<div style={{display: 'flex', justifyContent: 'space-between', marginTop: 18, fontFamily: '"Courier New", monospace', fontWeight: 700, color: C.amber, fontSize: 48}}>
@@ -435,7 +434,7 @@ const W5 = () => {
 				</div>
 			</div>
 			{/* popup */}
-			<div style={{position: 'absolute', left: 90, top: 900, width: 900, borderRadius: 34, background: '#f4f6fb', padding: '28px 32px', display: 'flex', gap: 24, alignItems: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.45)', opacity: Math.min(1, pop * 1.5), transform: `translateY(${(1 - pop) * 80}px) scale(${0.85 + 0.15 * pop})`}}>
+			<div style={{position: 'absolute', left: 510, top: 560, width: 900, borderRadius: 34, background: '#f4f6fb', padding: '28px 32px', display: 'flex', gap: 24, alignItems: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.45)', opacity: Math.min(1, pop * 1.5), transform: `translateY(${(1 - pop) * 80}px) scale(${0.85 + 0.15 * pop})`}}>
 				<div style={{width: 96, height: 96, borderRadius: 24, background: C.blue, display: 'grid', placeItems: 'center', fontSize: 54}}>🚆</div>
 				<div style={{fontFamily: UI, color: '#0b1532'}}>
 					<div style={{fontSize: 24, fontWeight: 700, color: '#5b6378'}}>RAIL ALERT · now</div>
