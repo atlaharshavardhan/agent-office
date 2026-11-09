@@ -39,13 +39,13 @@ export const Phone = ({children, style}) => (
 			width: PW + 24,
 			height: PH + 24,
 			borderRadius: 66,
-			background: '#1d2433',
+			background: '#2E3D78',
 			padding: 12,
-			boxShadow: '0 30px 60px rgba(0,0,0,0.45), 0 8px 18px rgba(0,0,0,0.3), inset 0 0 0 2px #2f3a52',
+			boxShadow: '0 30px 60px rgba(0,0,0,0.45), 0 8px 18px rgba(0,0,0,0.3), inset 0 0 0 2px #3D4E90',
 			...style,
 		}}
 	>
-		<div style={{position: 'relative', width: PW, height: PH, borderRadius: 54, overflow: 'hidden', background: '#0c1020'}}>
+		<div style={{position: 'relative', width: PW, height: PH, borderRadius: 54, overflow: 'hidden', background: '#121C45'}}>
 			{children}
 			<StatusBar />
 			<div style={{position: 'absolute', bottom: 9, left: (PW - 140) / 2, width: 140, height: 5, borderRadius: 3, background: '#fff', opacity: 0.8}} />

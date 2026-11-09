@@ -1,6 +1,6 @@
 # Why you shouldn't spam Resend OTP (InvisiTech, Remotion)
 
-A 10 s, 1080×1920, 30 fps explainer with four quick scenes, :
+A 10 s, 1920×1080 (YouTube 16:9), 30 fps explainer with four quick scenes, :
 
 | Time | On-screen text | Scene |
 |---|---|---|

@@ -6,12 +6,16 @@ import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
 import '@fontsource/poppins/700.css';
 import '@fontsource/poppins/800.css';
-import {Phone, PH, PW, Thumb} from './Phone';
+import {Phone, PH, PW} from './Phone';
+
+// 16:9 YouTube layout (1920×1080): headline on the left, phone on the right.
 
 // ---------- brand ----------
 const NAVY = '#0B1532';
 const C = {
-	amber: '#FFB020', // Resend button
+	coral: '#FF6B4A', // Resend button
+	badge: '#FFC83A', // tap counter
+	amber: '#FFB020',
 	blue: '#4C9BFF', // OTP codes
 	red: '#FF4D5E', // expired
 	purple: '#9B7BFF', // countdown
@@ -41,23 +45,55 @@ const useSpring = (at, cfg = {damping: 13, stiffness: 180}) => {
 	return spring({frame: frame - at, fps, config: cfg});
 };
 
+// Same background as the Resend tap shot: navy, big soft circles, faint dots, "…" chat bubbles.
+const BG = {base: '#0B1430', circle: '#0F1C44', bubble: '#1A2A63', dot: '#3A4F95'};
+const STARS = Array.from({length: 30}, (_, i) => ({x: (i * 379 + 60) % 1900, y: (i * 701 + 140) % 1060, r: 2.5 + (i % 3), s: (i * 0.37) % 1}));
+const ChatBubble = ({x, y, w, rot, f, k}) => (
+	<div style={{position: 'absolute', left: x, top: y + Math.sin(f / 30 + k) * 10, transform: `rotate(${rot + Math.sin(f / 40 + k) * 2}deg)`}}>
+		<div style={{position: 'relative', width: w, height: w * 0.62, borderRadius: w * 0.26, background: BG.bubble, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: w * 0.08}}>
+			{[0, 1, 2].map((d) => (
+				<div key={d} style={{width: w * 0.12, height: w * 0.12, borderRadius: '50%', background: BG.dot, opacity: 0.6 + 0.4 * Math.sin(f / 6 - d * 0.9 + k)}} />
+			))}
+			<div style={{position: 'absolute', bottom: -w * 0.12, left: w * 0.16, width: 0, height: 0, borderLeft: `${w * 0.1}px solid transparent`, borderRight: `${w * 0.1}px solid transparent`, borderTop: `${w * 0.18}px solid ${BG.bubble}`, transform: 'rotate(18deg)'}} />
+		</div>
+	</div>
+);
 const Background = () => {
 	const f = useCurrentFrame();
+	const wrapY = (y) => ((y % 1240) + 1240) % 1240 - 160;
 	return (
-		<AbsoluteFill style={{background: NAVY, overflow: 'hidden'}}>
-			<div style={{position: 'absolute', width: 900, height: 900, borderRadius: '50%', background: '#101d44', left: -380 + Math.sin(f / 40) * 30, top: 980 + Math.cos(f / 50) * 30}} />
-			<div style={{position: 'absolute', width: 700, height: 700, borderRadius: '50%', background: '#0e1a3d', right: -300 + Math.cos(f / 45) * 30, top: -160}} />
-			<svg width="1080" height="1920" style={{position: 'absolute', inset: 0, opacity: 0.07}}>
-				{Array.from({length: 12 * 21}, (_, i) => (
-					<circle key={i} cx={45 + (i % 12) * 90} cy={45 + Math.floor(i / 12) * 90} r="3" fill="#fff" />
-				))}
-			</svg>
+		<AbsoluteFill style={{background: BG.base, overflow: 'hidden'}}>
+			{[
+				{x: 230, y: 170, r: 360, k: 0},
+				{x: 1780, y: 660, r: 380, k: 2},
+				{x: 360, y: 1080, r: 260, k: 4},
+			].map((c, i) => (
+				<div key={i} style={{position: 'absolute', left: c.x - c.r + Math.sin(f / 80 + c.k) * 18, top: c.y - c.r + Math.cos(f / 90 + c.k) * 18, width: c.r * 2, height: c.r * 2, borderRadius: '50%', background: BG.circle}} />
+			))}
+			{STARS.map((st, i) => (
+				<div key={i} style={{position: 'absolute', left: st.x, top: wrapY(st.y - f * 0.15 + 160), width: st.r * 2, height: st.r * 2, borderRadius: '50%', background: BG.dot, opacity: 0.5 + 0.5 * Math.sin(f / 12 + st.s * 20)}} />
+			))}
+			<ChatBubble x={250} y={wrapY(330 - f * 0.4 + 160)} w={140} rot={-6} f={f} k={0} />
+			<ChatBubble x={880} y={wrapY(150 - f * 0.4 + 160)} w={110} rot={8} f={f} k={1.5} />
+			<ChatBubble x={1720} y={wrapY(900 - f * 0.4 + 160)} w={130} rot={-5} f={f} k={3} />
+			<ChatBubble x={760} y={wrapY(880 - f * 0.4 + 160)} w={100} rot={6} f={f} k={4.5} />
 		</AbsoluteFill>
 	);
 };
 
+// Flat thumb (same art as the Resend tap shot). (x, y) = fingertip, in phone coordinates.
+const Thumb = ({x, y, k = 0.5}) => (
+	<svg width="460" height="900" viewBox="-60 -40 460 900" style={{position: 'absolute', left: x - 60 * k, top: y - 40 * k, transform: `scale(${k})`, transformOrigin: '0 0', overflow: 'visible'}}>
+		<g transform="rotate(-28)">
+			<rect x="-56" y="-30" width="150" height="1600" rx="75" fill="#F2A877" />
+			<path d="M 70 40 Q 92 300 76 1560" stroke="#DE8F5E" strokeWidth="38" fill="none" strokeLinecap="round" />
+			<rect x="-30" y="-12" width="96" height="112" rx="46" fill="#FBD3B8" />
+		</g>
+	</svg>
+);
+
 const Brand = () => (
-	<div style={{position: 'absolute', top: 92, width: '100%', display: 'flex', justifyContent: 'center'}}>
+	<div style={{position: 'absolute', top: 44, left: 56, display: 'flex'}}>
 		<div style={{display: 'flex', alignItems: 'center', gap: 14, padding: '12px 26px', borderRadius: 999, background: '#16244f', boxShadow: '0 6px 16px rgba(0,0,0,0.3)', fontFamily: HEAD, fontWeight: 700, fontSize: 30, color: '#fff', letterSpacing: 0.5}}>
 			<span style={{width: 16, height: 16, borderRadius: 5, background: C.blue, transform: 'rotate(45deg)'}} />
 			InvisiTech
@@ -66,11 +102,11 @@ const Brand = () => (
 );
 
 // Words pop in one at a time. parts: [{t, text, color, at}]
-const Headline = ({lines, top = 210}) => {
+const Headline = ({lines, top = 330}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	return (
-		<div style={{position: 'absolute', top, width: '100%', padding: '0 70px', boxSizing: 'border-box', textAlign: 'center', fontFamily: HEAD, fontWeight: 800, color: '#fff', lineHeight: 1.12}}>
+		<div style={{position: 'absolute', top, left: 110, width: 900, textAlign: 'left', fontFamily: HEAD, fontWeight: 800, color: '#fff', lineHeight: 1.12}}>
 			{lines.map((line, li) => (
 				<div key={li} style={{fontSize: line.size || 96, marginBottom: 6}}>
 					{line.words.map((w, wi) => {
@@ -127,7 +163,7 @@ const LockIcon = ({color, size = 18}) => (
 	</svg>
 );
 
-const VerifyScreen = ({hideButton = false, shake = 0, pressed = 0, sent = 0, locked = 0, timer = '0:30', digits = '', focus = 0, banner = null}) => (
+const VerifyScreen = ({hideButton = false, shake = 0, pressed = 0, sent = 0, ripples = [], badgePop = 1, locked = 0, timer = '0:30', digits = '', focus = 0, banner = null}) => (
 	<div style={{position: 'absolute', inset: 0, fontFamily: UI, color: '#fff'}}>
 		<div style={{position: 'absolute', top: 66, left: 20, fontSize: 17, color: C.blue, fontWeight: 500}}>‹ MyBank</div>
 		<div style={{position: 'absolute', top: 128, left: (PW - 72) / 2, width: 72, height: 72, borderRadius: 22, background: '#18213a', display: 'grid', placeItems: 'center', boxShadow: '0 6px 14px rgba(0,0,0,0.35)'}}>
@@ -150,8 +186,8 @@ const VerifyScreen = ({hideButton = false, shake = 0, pressed = 0, sent = 0, loc
 							width: 46,
 							height: 58,
 							borderRadius: 12,
-							background: '#151c30',
-							border: `2px solid ${ch ? C.green : isFocus ? C.blue : '#29324d'}`,
+							background: '#18245A',
+							border: `2px solid ${ch ? C.green : isFocus ? C.blue : '#33437F'}`,
 							display: 'grid',
 							placeItems: 'center',
 							fontSize: 28,
@@ -164,6 +200,14 @@ const VerifyScreen = ({hideButton = false, shake = 0, pressed = 0, sent = 0, loc
 				);
 			})}
 		</div>
+		{!hideButton && <div style={{position: 'absolute', top: 432, width: '100%', textAlign: 'center', color: C.muted, fontSize: 15, fontWeight: 500}}>Didn't get a code?</div>}
+		{/* tap ripples: coral pill rings growing out of the button, never over the label */}
+		{!hideButton &&
+			ripples.map((p, i) =>
+				p > 0 && p < 1 ? (
+					<div key={i} style={{position: 'absolute', top: 460, left: (PW - 290) / 2, width: 290, height: 60, borderRadius: 30, border: `4px solid ${C.coral}`, boxSizing: 'border-box', opacity: 0.85 * (1 - p), transform: `scale(${1 + Easing.out(Easing.cubic)(p) * 0.2}, ${1 + Easing.out(Easing.cubic)(p) * 0.3})`}} />
+				) : null,
+			)}
 		{/* Resend button */}
 		<div
 			style={{
@@ -174,15 +218,15 @@ const VerifyScreen = ({hideButton = false, shake = 0, pressed = 0, sent = 0, loc
 				width: 290,
 				height: 60,
 				borderRadius: 30,
-				background: locked ? '#232a40' : C.amber,
-				color: locked ? '#c9cfe0' : '#2a1a00',
+				background: locked ? '#232a54' : C.coral,
+				color: locked ? '#c9cfe0' : '#fff',
 				alignItems: 'center',
 				justifyContent: 'center',
 				gap: 10,
-				fontSize: 19,
-				fontWeight: 700,
-				boxShadow: `0 ${8 - pressed * 6}px ${16 - pressed * 10}px rgba(0,0,0,0.35)`,
-				transform: `translateX(${shake}px) rotate(${shake * 0.35}deg) scale(${1 - pressed * 0.07})`,
+				fontSize: 20,
+				fontWeight: 800,
+				boxShadow: `0 ${10 - pressed * 7}px ${22 - pressed * 14}px rgba(0,0,0,${0.4 - pressed * 0.15})`,
+				transform: `translateX(${shake}px) rotate(${shake * 0.3}deg) scale(${1 + pressed * 0.04}, ${1 - pressed * 0.08})`,
 			}}
 		>
 			{locked ? (
@@ -194,8 +238,8 @@ const VerifyScreen = ({hideButton = false, shake = 0, pressed = 0, sent = 0, loc
 				'Resend code'
 			)}
 			{sent > 0 && !locked && (
-				<div style={{position: 'absolute', right: -10, top: -14, minWidth: 34, height: 34, padding: '0 8px', borderRadius: 17, background: '#fff', color: '#2a1a00', fontSize: 16, fontWeight: 800, display: 'grid', placeItems: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.35)'}}>
-					×{sent}
+				<div style={{position: 'absolute', right: -12, top: -16, width: 38, height: 38, borderRadius: 19, background: C.badge, color: '#1d1400', fontSize: 20, fontWeight: 800, display: 'grid', placeItems: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.35)', transform: `scale(${badgePop})`}}>
+					{sent}
 				</div>
 			)}
 		</div>
@@ -211,7 +255,7 @@ const Bubble = ({code, grey = 0, strike = 0, stamp = 0, highlight = 0, enter = 1
 			padding: '14px 16px',
 			borderRadius: 20,
 			borderBottomLeftRadius: compact ? 20 : 6,
-			background: '#1d2539',
+			background: '#1E2B60',
 			border: `3px solid ${highlight ? C.green : 'transparent'}`,
 			boxShadow: '0 6px 14px rgba(0,0,0,0.3)',
 			fontFamily: UI,
@@ -231,13 +275,13 @@ const Bubble = ({code, grey = 0, strike = 0, stamp = 0, highlight = 0, enter = 1
 		</span>{' '}
 		is your OTP for MyBank login. Valid for 5 min. Do not share it.
 		{stamp > 0.01 && (
-			<div style={{position: 'absolute', right: 12, top: 10, padding: '3px 10px', border: `3px solid ${C.red}`, borderRadius: 8, color: C.red, fontWeight: 800, fontSize: 14, letterSpacing: 1.5, background: '#1d2539', opacity: Math.min(1, stamp), transform: `rotate(-10deg) scale(${2 - stamp})`}}>EXPIRED</div>
+			<div style={{position: 'absolute', right: 12, top: 10, padding: '3px 10px', border: `3px solid ${C.red}`, borderRadius: 8, color: C.red, fontWeight: 800, fontSize: 14, letterSpacing: 1.5, background: '#1E2B60', opacity: Math.min(1, stamp), transform: `rotate(-10deg) scale(${2 - stamp})`}}>EXPIRED</div>
 		)}
 	</div>
 );
 
 const MessagesHeader = () => (
-	<div style={{position: 'absolute', top: 58, left: 0, width: '100%', paddingBottom: 12, borderBottom: '1px solid #1f2740', fontFamily: UI, textAlign: 'center'}}>
+	<div style={{position: 'absolute', top: 58, left: 0, width: '100%', paddingBottom: 12, borderBottom: '1px solid #2a3a72', fontFamily: UI, textAlign: 'center'}}>
 		<div style={{position: 'absolute', left: 18, top: 16, fontSize: 30, color: C.blue}}>‹</div>
 		<div style={{width: 50, height: 50, margin: '0 auto', borderRadius: 25, background: '#2b3552', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 700, fontSize: 17}}>JM</div>
 		<div style={{color: '#fff', fontSize: 14, fontWeight: 600, marginTop: 6}}>JM-MYBANK-T ›</div>
@@ -247,43 +291,38 @@ const MessagesHeader = () => (
 // ---------- scenes ----------
 const Scene1 = () => {
 	const f = useCurrentFrame();
-	// tap state
+	const {fps} = useVideoConfig();
 	let pressed = 0;
 	let shake = 0;
 	let sent = 0;
 	TAPS.forEach((t, i) => {
 		const d = f - t;
-		if (d >= -3 && d < 4) pressed = Math.max(pressed, interpolate(d, [-3, 0, 4], [0, 1, 0], clamp));
+		pressed = Math.max(pressed, interpolate(d, [-4, 0, 6], [0, 1, 0], clamp));
 		if (d >= 0) {
 			sent = i + 1;
-			const amp = [5, 11, 19][i];
-			shake += amp * Math.exp(-d / 6) * Math.sin(d * 1.9);
+			shake += [4, 8, 13][i] * Math.exp(-d / 5) * Math.sin(d * 2.1);
 		}
 	});
-	// thumb: enters, then hovers/taps over the button
-	const enter = interpolate(f, [6, 24], [1, 0], {...clamp, easing: Easing.out(Easing.cubic)});
-	let lift = 1;
-	TAPS.forEach((t) => {
-		lift = Math.min(lift, interpolate(Math.abs(f - t), [0, 7], [0, 1], clamp));
-	});
-	const tipX = 236 + enter * 260;
-	const tipY = 496 + enter * 500 + lift * 40;
-	const camS = 1.72;
-	const zoomPunch = 1 + 0.03 * Math.exp(-Math.max(0, f - TAPS[2]) / 8) * (f >= TAPS[2] ? 1 : 0);
+	const ripples = TAPS.map((t) => interpolate(f - t, [0, 16], [0, 1], clamp) * (f >= t ? 1 : 0));
+	const badgePop = sent ? spring({frame: f - TAPS[sent - 1], fps, config: {damping: 8, stiffness: 260}}) : 0;
+	// thumb: enters from bottom right, dips on each tap, presses the button's edge (not the text)
+	const enter = interpolate(f, [4, 22], [1, 0], {...clamp, easing: Easing.out(Easing.cubic)});
+	const lift = TAPS.reduce((m, t) => Math.min(m, interpolate(Math.abs(f - t), [0, 9], [0, 1], clamp)), 1);
+	const push = interpolate(f, [0, 80], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)});
 	return (
 		<SceneIn>
 			<Headline
 				lines={[
 					{words: [{text: 'Code', at: 3}, {text: 'late?', at: 6}]},
-					{size: 76, words: [{text: 'Resend.', at: TAPS[0], color: C.amber}, {text: 'Again.', at: TAPS[1], color: C.amber}]},
-					{size: 76, words: [{text: 'And', at: TAPS[2], color: C.amber}, {text: 'again.', at: TAPS[2] + 3, color: C.amber}]},
+					{size: 84, words: [{text: 'Resend.', at: TAPS[0], color: C.coral}, {text: 'Again.', at: TAPS[1], color: C.coral}]},
+					{size: 84, words: [{text: 'And', at: TAPS[2], color: C.coral}, {text: 'again.', at: TAPS[2] + 3, color: C.coral}]},
 				]}
 			/>
-			<Camera px={196} py={490} sx={540} sy={1520} s={camS * zoomPunch} rotate={-2}>
+			<Camera px={196} py={470} sx={1350} sy={640} s={1.1 + push * 0.12}>
 				<Phone>
-					<VerifyScreen pressed={pressed} shake={shake} sent={sent} />
+					<VerifyScreen pressed={pressed} shake={shake} sent={sent} ripples={ripples} badgePop={badgePop} />
 				</Phone>
-				<Thumb x={tipX + 12 - 17} y={tipY + 12 + 28 - pressed * 6} rotate={-24} scale={0.55} />
+				<Thumb x={12 + PW / 2 + 98 + enter * 260} y={12 + 490 + 24 + enter * 420 + lift * 22 - pressed * 4} />
 			</Camera>
 		</SceneIn>
 	);
@@ -296,17 +335,17 @@ const Scene2 = () => {
 	const grey = interpolate(f, [46, 56], [0, 1], clamp);
 	const strike = interpolate(f, [54, 66], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
 	const stamp = spring({frame: f - 64, fps, config: {damping: 11, stiffness: 220}});
-	const push = interpolate(f, [0, 105], [1.82, 1.92], clamp);
+	const push = interpolate(f, [0, 105], [1.2, 1.26], clamp);
 	return (
 		<SceneIn>
 			<Headline
-				top={200}
+				top={360}
 				lines={[
 					{words: [{text: 'Now', at: 3}, {text: '3', at: 6, color: C.blue}, {text: 'codes…', at: 9, color: C.blue}]},
 					{size: 72, words: [{text: 'old', at: 44}, {text: 'ones', at: 47}, {text: 'may', at: 52, color: C.red}, {text: 'not', at: 55, color: C.red}, {text: 'work.', at: 58, color: C.red}]},
 				]}
 			/>
-			<Camera px={196} py={280} sx={540} sy={1260} s={push} rotate={1.5}>
+			<Camera px={196} py={300} sx={1350} sy={520} s={push} rotate={1.5}>
 				<Phone>
 					<div style={{position: 'absolute', inset: 0}}>
 						<MessagesHeader />
@@ -337,10 +376,10 @@ const Scene3 = () => {
 	return (
 		<SceneIn>
 			<Headline
-				top={200}
+				top={150}
 				lines={[{size: 88, words: [{text: 'Wait', at: 2}, {text: 'for', at: 5}, {text: 'the', at: 8}, {text: 'countdown.', at: 12, color: C.purple}]}]}
 			/>
-			<Camera px={196} py={490} sx={540} sy={1790} s={2.0} rotate={-1}>
+			<Camera px={196} py={490} sx={1350} sy={660} s={1.24} rotate={-1}>
 				<Phone>
 					<VerifyScreen locked={lock > 0.5 ? 1 : 0} timer={timer} />
 					{/* padlock clamps onto the button */}
@@ -352,7 +391,7 @@ const Scene3 = () => {
 				</Phone>
 			</Camera>
 			{/* big timer illustration */}
-			<div style={{position: 'absolute', left: 540 - 190, top: 470, width: 380, height: 380, transform: `scale(${spring({frame: f, fps, config: {damping: 12, stiffness: 170}})})`}}>
+			<div style={{position: 'absolute', left: 160, top: 420, width: 380, height: 380, transform: `scale(${spring({frame: f, fps, config: {damping: 12, stiffness: 170}})})`}}>
 				<svg width="380" height="380" style={{position: 'absolute', inset: 0, filter: 'drop-shadow(0 18px 24px rgba(0,0,0,0.4))'}}>
 					<circle cx="190" cy="190" r="178" fill="#141f45" />
 					<circle cx="190" cy="190" r={R} fill="none" stroke="#24305c" strokeWidth="22" />
@@ -377,10 +416,10 @@ const Scene4 = () => {
 	return (
 		<SceneIn>
 			<Headline
-				top={200}
+				top={420}
 				lines={[{size: 92, words: [{text: 'Use', at: 2}, {text: 'the', at: 4}, {text: 'newest', at: 7, color: C.green}, {text: 'one.', at: 11}]}]}
 			/>
-			<Camera px={196} py={360} sx={540} sy={1210} s={1.6} rotate={-1.5}>
+			<Camera px={196} py={360} sx={1350} sy={560} s={1.24} rotate={-1.5}>
 				<Phone>
 					<VerifyScreen
 						hideButton
@@ -413,7 +452,7 @@ const Scene4 = () => {
 // ---------- composition ----------
 export const ResendOtp = () => {
 	return (
-		<AbsoluteFill style={{background: NAVY}}>
+		<AbsoluteFill style={{background: BG.base}}>
 			<Background />
 			<Sequence from={T.s1} durationInFrames={T.s2 - T.s1}>
 				<Scene1 />
