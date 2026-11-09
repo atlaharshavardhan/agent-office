@@ -1,0 +1,6 @@
+tts/.venv
+tts/*.onnx
+tts/*.bin
+tts/test
+node_modules
+out
