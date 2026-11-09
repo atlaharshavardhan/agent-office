@@ -4,6 +4,8 @@ import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
 import '@fontsource/inter/800.css';
+import '@fontsource/poppins/700.css';
+import '@fontsource/poppins/800.css';
 
 // ───────── design tokens ─────────
 const T = {
@@ -96,11 +98,42 @@ const Grain = ({f, opacity = 0.06}) => (
 	</svg>
 );
 
-const Chip = ({text, show, top = 48, color = T.amber, dark = '#2a1a00'}) => (
-	<div style={{position: 'absolute', top: top - (1 - show) * 90, width: '100%', display: 'flex', justifyContent: 'center', opacity: show, zIndex: 20}}>
+const Chip = ({text, show, top = 48, left = null, color = T.amber, dark = '#2a1a00'}) => (
+	<div style={{position: 'absolute', top: top - (1 - show) * 90, ...(left === null ? {width: '100%', justifyContent: 'center'} : {left}), display: 'flex', opacity: show, zIndex: 20}}>
 		<div style={{padding: '12px 26px', borderRadius: 999, background: color, color: dark, fontFamily: FONT, fontWeight: 800, fontSize: 30, letterSpacing: 3, boxShadow: SHADOW}}>{text}</div>
 	</div>
 );
+
+// ───────── brand + headline (same as the Resend OTP video) ─────────
+const HEAD = 'Poppins, sans-serif';
+const Brand = () => (
+	<div style={{position: 'absolute', top: 44, left: 56, display: 'flex', zIndex: 30}}>
+		<div style={{display: 'flex', alignItems: 'center', gap: 14, padding: '12px 26px', borderRadius: 999, background: '#16244f', boxShadow: '0 6px 16px rgba(0,0,0,0.3)', fontFamily: HEAD, fontWeight: 700, fontSize: 30, color: '#fff', letterSpacing: 0.5}}>
+			<span style={{width: 16, height: 16, borderRadius: 5, background: '#4C9BFF', transform: 'rotate(45deg)'}} />
+			InvisiTech
+		</div>
+	</div>
+);
+// Left-column headline; words pop in at absolute frames. lines: [{size, words: [{text, at, color}]}]
+const Headline = ({f, fps, lines, top = 330, out = 1e9}) => {
+	const o = interpolate(f, [out, out + 8], [1, 0], clamp);
+	return (
+		<div style={{position: 'absolute', top, left: 110, width: 960, fontFamily: HEAD, fontWeight: 800, color: '#fff', lineHeight: 1.12, opacity: o, zIndex: 10}}>
+			{lines.map((line, li) => (
+				<div key={li} style={{fontSize: line.size || 96, marginBottom: 6}}>
+					{line.words.map((w, wi) => {
+						const sv = spring({frame: f - w.at, fps, config: {damping: 12, stiffness: 200}});
+						return (
+							<span key={wi} style={{display: 'inline-block', marginRight: '0.24em', color: w.color || '#fff', opacity: Math.min(1, sv * 1.5), transform: `translateY(${(1 - sv) * 40}px) scale(${0.6 + 0.4 * sv})`, textShadow: '0 6px 14px rgba(0,0,0,0.35)'}}>
+								{w.text}
+							</span>
+						);
+					})}
+				</div>
+			))}
+		</div>
+	);
+};
 
 // ───────── phone ─────────
 const PW = 393;
@@ -182,50 +215,61 @@ const CodeNote = ({grey = 0, stamp = 0, strike = 0, width = 345}) => {
 	);
 };
 
-const VerifyScreen = ({f, press = 0, toast = 0, note = null, sent = false, ripple = 0}) => (
-	<div style={{position: 'absolute', inset: 0, fontFamily: FONT, color: T.text}}>
-		<div style={{position: 'absolute', top: 64, left: 20, fontSize: 17, fontWeight: 600, color: T.muted}}>‹ MyBank</div>
-		<div style={{position: 'absolute', top: 128, left: (PW - 70) / 2, width: 70, height: 70, borderRadius: 22, background: T.panel, display: 'grid', placeItems: 'center', boxShadow: SHADOW}}>
-			<svg width="32" height="32" viewBox="0 0 24 24">
-				<rect x="4" y="10" width="16" height="12" rx="3" fill={T.muted} />
-				<path d="M8 10V7a4 4 0 0 1 8 0v3" stroke={T.muted} strokeWidth="2.6" fill="none" />
-			</svg>
+// Same screen as the Resend OTP video.
+const LockIcon = ({color, size = 18}) => (
+	<svg width={size} height={size} viewBox="0 0 24 24">
+		<rect x="4" y="10" width="16" height="12" rx="3" fill={color} />
+		<path d="M8 10V7a4 4 0 0 1 8 0v3" stroke={color} strokeWidth="2.6" fill="none" />
+	</svg>
+);
+const VerifyScreen = ({f, press = 0, toast = 0, note = null, ripple = 0, count = 0, badgePop = 1, shake = 0}) => (
+	<div style={{position: 'absolute', inset: 0, fontFamily: FONT, color: '#fff'}}>
+		<div style={{position: 'absolute', top: 66, left: 20, fontSize: 17, color: '#4C9BFF', fontWeight: 500}}>‹ MyBank</div>
+		<div style={{position: 'absolute', top: 128, left: (PW - 72) / 2, width: 72, height: 72, borderRadius: 22, background: '#18213a', display: 'grid', placeItems: 'center', boxShadow: '0 6px 14px rgba(0,0,0,0.35)'}}>
+			<LockIcon color="#4C9BFF" size={34} />
 		</div>
-		<div style={{position: 'absolute', top: 222, width: '100%', textAlign: 'center', fontSize: 28, fontWeight: 800}}>Verify it's you</div>
-		<div style={{position: 'absolute', top: 266, width: '100%', textAlign: 'center', fontSize: 16, fontWeight: 500, color: T.muted}}>Enter the 6-digit code we sent</div>
-		<div style={{position: 'absolute', top: 320, width: '100%', display: 'flex', justifyContent: 'center', gap: 9}}>
+		<div style={{position: 'absolute', top: 226, width: '100%', textAlign: 'center', fontSize: 28, fontWeight: 700}}>Verify it's you</div>
+		<div style={{position: 'absolute', top: 270, width: '100%', textAlign: 'center', fontSize: 16, lineHeight: 1.45, color: '#8D96AD'}}>
+			Enter the 6-digit code sent to
+			<br />
+			+91 ••••• 4821
+		</div>
+		<div style={{position: 'absolute', top: 350, width: '100%', display: 'flex', justifyContent: 'center', gap: 9}}>
 			{Array.from({length: 6}, (_, i) => (
-				<div key={i} style={{width: 46, height: 58, borderRadius: 12, background: '#18245A', border: `2px solid ${i === 0 ? T.muted : '#33437F'}`}} />
+				<div key={i} style={{width: 46, height: 58, borderRadius: 12, background: '#18245A', border: '2px solid #33437F'}} />
 			))}
 		</div>
-		{/* tap ripple: a coral pill ring growing out of the button, fading fast */}
+		<div style={{position: 'absolute', top: 432, width: '100%', textAlign: 'center', color: '#8D96AD', fontSize: 15, fontWeight: 500}}>Didn't get a code?</div>
 		{ripple > 0 && ripple < 1 && (
-			<div style={{position: 'absolute', top: 430, left: (PW - 290) / 2, width: 290, height: 60, borderRadius: 30, border: `4px solid ${T.coral}`, boxSizing: 'border-box', opacity: 0.85 * (1 - ripple), transform: `scale(${1 + Easing.out(Easing.cubic)(ripple) * 0.2}, ${1 + Easing.out(Easing.cubic)(ripple) * 0.4})`}} />
+			<div style={{position: 'absolute', top: 460, left: (PW - 290) / 2, width: 290, height: 60, borderRadius: 30, border: `4px solid ${T.coral}`, boxSizing: 'border-box', opacity: 0.85 * (1 - ripple), transform: `scale(${1 + Easing.out(Easing.cubic)(ripple) * 0.2}, ${1 + Easing.out(Easing.cubic)(ripple) * 0.3})`}} />
 		)}
 		<div
 			style={{
 				position: 'absolute',
-				top: 430,
+				top: 460,
 				left: (PW - 290) / 2,
 				width: 290,
 				height: 60,
 				borderRadius: 30,
-				background: sent ? T.panel : T.coral,
-				color: sent ? T.muted : '#fff',
+				background: T.coral,
+				color: '#fff',
 				display: 'grid',
 				placeItems: 'center',
-				fontSize: 19,
+				fontSize: 20,
 				fontWeight: 800,
 				boxShadow: `0 ${10 - press * 7}px ${22 - press * 14}px rgba(0,0,0,${0.4 - press * 0.15})`,
-				transform: `scale(${1 + press * 0.04}, ${1 - press * 0.08})`,
+				transform: `translateX(${shake}px) rotate(${shake * 0.3}deg) scale(${1 + press * 0.04}, ${1 - press * 0.08})`,
 			}}
 		>
-			{sent ? 'Code sent' : 'Send code'}
+			Resend code
+			{count > 0 && (
+				<div style={{position: 'absolute', right: -12, top: -16, width: 38, height: 38, borderRadius: 19, background: '#FFC83A', color: '#1d1400', fontSize: 20, fontWeight: 800, display: 'grid', placeItems: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.35)', transform: `scale(${badgePop})`}}>{count}</div>
+			)}
 		</div>
 		{toast > 0.01 && (
-			<div style={{position: 'absolute', top: 520, width: '100%', display: 'flex', justifyContent: 'center', opacity: Math.min(1, toast * 1.5), transform: `translateY(${(1 - toast) * 20}px)`}}>
-				<div style={{display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', borderRadius: 14, background: T.panel, border: `1px solid ${T.line}`, fontSize: 16, fontWeight: 700, color: T.text}}>
-					<span style={{width: 14, height: 14, borderRadius: 7, border: `3px solid ${T.muted}`, borderTopColor: 'transparent', transform: `rotate(${f * 14}deg)`}} />
+			<div style={{position: 'absolute', top: 548, width: '100%', display: 'flex', justifyContent: 'center', opacity: Math.min(1, toast * 1.5), transform: `translateY(${(1 - toast) * 20}px)`}}>
+				<div style={{display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', borderRadius: 14, background: '#1E2B60', border: '1px solid #33437F', fontSize: 16, fontWeight: 700, color: '#fff'}}>
+					<span style={{width: 14, height: 14, borderRadius: 7, border: '3px solid #8D96AD', borderTopColor: 'transparent', transform: `rotate(${f * 14}deg)`}} />
 					Sending code…
 				</div>
 			</div>
@@ -246,7 +290,7 @@ const Thumb = ({x, y, k = 0.56}) => (
 );
 
 // Mini-phone position above her head (train shot) and full-frame position.
-const FULL = {x: 960, y: 572, s: 1.0};
+const FULL = {x: 1350, y: 592, s: 1.1};
 const PhoneAt = ({x, y, s, rot = 0, children}) => (
 	<div style={{position: 'absolute', left: x - (PW + 24) / 2, top: y - (PH + 24) / 2, transform: `rotate(${rot}deg) scale(${s})`, transformOrigin: 'center center'}}>{children}</div>
 );
@@ -306,30 +350,39 @@ export const WomanScene = () => {
 		const shake = f >= S.tap && f < S.tap + 8 ? Math.sin((f - S.tap) * 3) * (8 - (f - S.tap)) * 0.6 : 0;
 		// stage coordinates of the Send code button
 		const btnX = FULL.x;
-		const btnY = FULL.y + (460 - PH / 2) * FULL.s;
+		const btnY = FULL.y + (502 - (PH + 24) / 2) * FULL.s;
+		const btnShake = f >= S.tap ? 5 * Math.exp(-(f - S.tap) / 5) * Math.sin((f - S.tap) * 2.1) : 0;
+		const badgePop = sp(S.tap, {damping: 8, stiffness: 260});
 		const arcs = [0, 1, 2].map((k) => interpolate(f, [S.tap + 4 + k * 6, S.tap + 26 + k * 6], [0, 1], clamp));
 		shot = (
 			<>
 				<AbsoluteFill style={{background: T.bg}}>
 					<Bubbles f={f} />
 				</AbsoluteFill>
-				<PhoneAt x={FULL.x + shake} y={FULL.y + (1 - intro) * 60} s={FULL.s * (0.94 + 0.06 * intro)}>
+				<PhoneAt x={FULL.x} y={FULL.y + (1 - intro) * 60} s={FULL.s * (0.94 + 0.06 * intro)}>
 					<Phone minutes={rewind} tint={tint}>
-						<VerifyScreen f={f} press={press} ripple={ripple} toast={f >= S.tap ? toast : 0} sent={f >= S.tap + 30} />
+						<VerifyScreen f={f} press={press} ripple={ripple} shake={btnShake} count={f >= S.tap ? 1 : 0} badgePop={badgePop} toast={f >= S.tap ? toast : 0} />
 					</Phone>
 				</PhoneAt>
 				{/* signal arcs from the top of the phone */}
 				<svg width={W} height={H} style={{position: 'absolute', inset: 0}}>
 					{arcs.map((p, k) =>
 						p > 0 && p < 1 ? (
-							<path key={k} d={`M ${960 - 60 - p * 140} ${50 - p * 30} Q 960 ${-10 - p * 70} ${960 + 60 + p * 140} ${50 - p * 30}`} stroke={T.coral} strokeWidth={8} fill="none" strokeLinecap="round" opacity={1 - p} />
+							<path key={k} d={`M ${FULL.x - 60 - p * 140} ${110 - p * 30} Q ${FULL.x} ${50 - p * 70} ${FULL.x + 60 + p * 140} ${110 - p * 30}`} stroke={T.coral} strokeWidth={8} fill="none" strokeLinecap="round" opacity={1 - p} />
 						) : null,
 					)}
 				</svg>
 				{f >= S.s3 && (
-					<Thumb x={btnX + 96 + (thumbIn + thumbOut) * 300} y={btnY + 22 + (thumbIn + thumbOut) * 520 + lift * 26 - press * 4} />
+					<Thumb x={btnX + 108 + (thumbIn + thumbOut) * 300} y={btnY + 26 + (thumbIn + thumbOut) * 520 + lift * 26 - press * 4} />
 				)}
-				<Chip text="20 MIN EARLIER" show={Math.min(1, chip)} />
+				<Chip text="20 MIN EARLIER" show={Math.min(1, chip)} top={220} left={110} />
+				{f < S.dive + 4 ? (
+					<Headline f={f} fps={fps} out={S.dive - 4} lines={[{words: [{text: 'But', at: VO.l01}, {text: "it's", at: VO.l01 + 4}, {text: 'not', at: VO.l01 + 8}]}, {size: 84, words: [{text: 'always', at: VO.l01 + 14}, {text: 'this', at: VO.l01 + 22, color: T.coral}, {text: 'fast.', at: VO.l01 + 28, color: T.coral}]}]} />
+				) : f < S.s3 ? (
+					<Headline f={f} fps={fps} out={S.s3 - 4} lines={[{words: [{text: '20', at: S.dive + 6, color: T.amber}, {text: 'minutes', at: S.dive + 9, color: T.amber}]}, {size: 84, words: [{text: 'earlier…', at: S.dive + 14}]}]} />
+				) : (
+					<Headline f={f} fps={fps} lines={[{size: 76, words: [{text: 'At', at: VO.l03}, {text: 'the', at: VO.l03 + 4}, {text: 'last', at: VO.l03 + 8}, {text: 'station,', at: VO.l03 + 14}]}, {size: 76, words: [{text: 'she', at: VO.l03 + 40}, {text: 'asked', at: VO.l03 + 44}, {text: 'for', at: VO.l03 + 52}, {text: 'a', at: VO.l03 + 56, color: T.coral}, {text: 'code.', at: VO.l03 + 60, color: T.coral}]}]} />
+				)}
 			</>
 		);
 	}
@@ -569,13 +622,14 @@ export const WomanScene = () => {
 					</Phone>
 				</PhoneAt>
 				{/* label */}
-				<div style={{position: 'absolute', left: FULL.x + 290, top: 330, opacity: Math.min(1, label * 1.4), transform: `translateX(${(1 - label) * 40}px)`, fontFamily: FONT}}>
+				<div style={{position: 'absolute', left: 110, top: 600, opacity: Math.min(1, label * 1.4), transform: `translateY(${(1 - label) * 30}px)`, fontFamily: FONT}}>
 					<div style={{padding: '18px 26px', borderRadius: 20, background: T.panel, border: `2px solid ${T.line}`, boxShadow: SHADOW}}>
 						<div style={{fontSize: 34, fontWeight: 800, color: T.text}}>valid 3 min</div>
 						<div style={{fontSize: 34, fontWeight: 800, color: T.red, marginTop: 4}}>arrived after 5</div>
 					</div>
 				</div>
-				<Chip text="9:26 · 5 MIN LATER" show={Math.min(1, sp(S.s6 + 10))} />
+				<Chip text="9:26 · 5 MIN LATER" show={Math.min(1, sp(S.s6 + 10))} top={200} left={110} />
+				<Headline f={f} fps={fps} top={300} lines={[{size: 84, words: [{text: 'It', at: VO.l06}, {text: 'arrived', at: VO.l06 + 4}, {text: 'late.', at: VO.l06 + 14}]}, {size: 84, words: [{text: 'Already', at: VO.l06 + 50, color: T.red}, {text: 'expired.', at: VO.l06 + 60, color: T.red}]}]} />
 				{lf < 0 && null}
 			</>
 		);
@@ -635,6 +689,7 @@ export const WomanScene = () => {
 	return (
 		<AbsoluteFill style={{background: T.bg}}>
 			{shot}
+			<Brand />
 			{inFlash && grainOn > 0 && <Grain f={f} opacity={0.06 * grainOn} />}
 
 			{/* voice */}
