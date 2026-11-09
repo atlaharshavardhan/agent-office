@@ -48,30 +48,43 @@ const useSpr = (at, config = {damping: 14, stiffness: 170}) => {
 };
 
 // ───────── shared visuals ─────────
-const bubbleSeeds = Array.from({length: 18}, (_, i) => ({
-	x: (i * 397) % 1920,
-	y: (i * 613) % 1080,
-	w: 90 + ((i * 53) % 120),
-	far: i % 2 === 0,
-	tailLeft: i % 3 === 0,
-}));
+// Background (same as the Resend tap shot): navy, big soft circles, faint dots, "…" chat bubbles.
+// Two parallax layers: circles drift slowly (far), chat bubbles float up faster (near).
+const BG = {base: '#0B1430', circle: '#0F1C44', bubble: '#1A2A63', dot: '#3A4F95'};
+const STARS = Array.from({length: 30}, (_, i) => ({x: (i * 379 + 60) % 1900, y: (i * 701 + 140) % 1060, r: 2.5 + (i % 3), s: (i * 0.37) % 1}));
 
-// Two-layer parallax of soft chat-bubble shapes drifting upward.
-const Bubbles = ({f}) => (
-	<AbsoluteFill style={{overflow: 'hidden'}}>
-		{bubbleSeeds.map((b, i) => {
-			const speed = b.far ? 0.35 : 0.8;
-			const y = ((b.y - f * speed) % 1240 + 1240) % 1240 - 120;
-			const x = b.x + Math.sin((f + i * 40) / 70) * (b.far ? 10 : 22);
-			const s = b.far ? 0.7 : 1.1;
-			return (
-				<div key={i} style={{position: 'absolute', left: x, top: y, width: b.w * s, height: b.w * 0.62 * s, borderRadius: 26 * s, background: T.panel, opacity: b.far ? 0.55 : 0.85}}>
-					<div style={{position: 'absolute', bottom: -10 * s, [b.tailLeft ? 'left' : 'right']: 18 * s, width: 22 * s, height: 22 * s, background: T.panel, transform: 'rotate(45deg)', borderRadius: 4}} />
-				</div>
-			);
-		})}
-	</AbsoluteFill>
+const ChatBubble = ({x, y, w, rot, f, k}) => (
+	<div style={{position: 'absolute', left: x, top: y + Math.sin(f / 30 + k) * 10, transform: `rotate(${rot + Math.sin(f / 40 + k) * 2}deg)`}}>
+		<div style={{position: 'relative', width: w, height: w * 0.62, borderRadius: w * 0.26, background: BG.bubble, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: w * 0.08}}>
+			{[0, 1, 2].map((d) => (
+				<div key={d} style={{width: w * 0.12, height: w * 0.12, borderRadius: '50%', background: BG.dot, opacity: 0.6 + 0.4 * Math.sin(f / 6 - d * 0.9 + k)}} />
+			))}
+			<div style={{position: 'absolute', bottom: -w * 0.12, left: w * 0.16, width: 0, height: 0, borderLeft: `${w * 0.1}px solid transparent`, borderRight: `${w * 0.1}px solid transparent`, borderTop: `${w * 0.18}px solid ${BG.bubble}`, transform: 'rotate(18deg)'}} />
+		</div>
+	</div>
 );
+
+const Bubbles = ({f}) => {
+	const wrapY = (y) => ((y % 1240) + 1240) % 1240 - 160;
+	return (
+		<AbsoluteFill style={{background: BG.base, overflow: 'hidden'}}>
+			{[
+				{x: 230, y: 170, r: 360, k: 0},
+				{x: 1780, y: 660, r: 380, k: 2},
+				{x: 360, y: 1080, r: 260, k: 4},
+			].map((c, i) => (
+				<div key={i} style={{position: 'absolute', left: c.x - c.r + Math.sin(f / 80 + c.k) * 18, top: c.y - c.r + Math.cos(f / 90 + c.k) * 18, width: c.r * 2, height: c.r * 2, borderRadius: '50%', background: BG.circle}} />
+			))}
+			{STARS.map((st, i) => (
+				<div key={i} style={{position: 'absolute', left: st.x, top: wrapY(st.y - f * 0.15 + 160), width: st.r * 2, height: st.r * 2, borderRadius: '50%', background: BG.dot, opacity: 0.5 + 0.5 * Math.sin(f / 12 + st.s * 20)}} />
+			))}
+			<ChatBubble x={250} y={wrapY(330 - f * 0.4 + 160)} w={140} rot={-6} f={f} k={0} />
+			<ChatBubble x={1500} y={wrapY(190 - f * 0.4 + 160)} w={110} rot={8} f={f} k={1.5} />
+			<ChatBubble x={1560} y={wrapY(860 - f * 0.4 + 160)} w={150} rot={-5} f={f} k={3} />
+			<ChatBubble x={330} y={wrapY(800 - f * 0.4 + 160)} w={100} rot={6} f={f} k={4.5} />
+		</AbsoluteFill>
+	);
+};
 
 const Grain = ({f, opacity = 0.06}) => (
 	<svg width={W} height={H} style={{position: 'absolute', inset: 0, opacity, pointerEvents: 'none', mixBlendMode: 'overlay'}}>
@@ -140,11 +153,11 @@ const StatusBar = ({minutes}) => (
 );
 
 const Phone = ({minutes = 41, tint = 0, children}) => (
-	<div style={{position: 'relative', width: PW + 24, height: PH + 24, borderRadius: 66, background: '#1b2442', padding: 12, boxShadow: `${SHADOW}, inset 0 0 0 2px ${T.line}`}}>
-		<div style={{position: 'relative', width: PW, height: PH, borderRadius: 54, overflow: 'hidden', background: T.bg}}>
-			<div style={{position: 'absolute', inset: 0, filter: `saturate(${1 - tint * 0.45})`}}>{children}</div>
+	<div style={{position: 'relative', width: PW + 24, height: PH + 24, borderRadius: 66, background: '#2E3D78', padding: 12, boxShadow: `0 30px 60px rgba(0,0,0,0.45), inset 0 0 0 2px #3D4E90`}}>
+		<div style={{position: 'relative', width: PW, height: PH, borderRadius: 54, overflow: 'hidden', background: '#121C45'}}>
+			<div style={{position: 'absolute', inset: 0, filter: `saturate(${1 - tint * 0.25})`}}>{children}</div>
 			{/* cool blue-grey flashback tint */}
-			<div style={{position: 'absolute', inset: 0, background: '#7f9cd6', mixBlendMode: 'color', opacity: tint * 0.35, pointerEvents: 'none'}} />
+			<div style={{position: 'absolute', inset: 0, background: '#7f9cd6', mixBlendMode: 'color', opacity: tint * 0.18, pointerEvents: 'none'}} />
 			<StatusBar minutes={minutes} />
 			<div style={{position: 'absolute', bottom: 9, left: (PW - 140) / 2, width: 140, height: 5, borderRadius: 3, background: '#fff', opacity: 0.8}} />
 		</div>
@@ -169,7 +182,7 @@ const CodeNote = ({grey = 0, stamp = 0, strike = 0, width = 345}) => {
 	);
 };
 
-const VerifyScreen = ({f, press = 0, toast = 0, note = null, sent = false}) => (
+const VerifyScreen = ({f, press = 0, toast = 0, note = null, sent = false, ripple = 0}) => (
 	<div style={{position: 'absolute', inset: 0, fontFamily: FONT, color: T.text}}>
 		<div style={{position: 'absolute', top: 64, left: 20, fontSize: 17, fontWeight: 600, color: T.muted}}>‹ MyBank</div>
 		<div style={{position: 'absolute', top: 128, left: (PW - 70) / 2, width: 70, height: 70, borderRadius: 22, background: T.panel, display: 'grid', placeItems: 'center', boxShadow: SHADOW}}>
@@ -182,9 +195,13 @@ const VerifyScreen = ({f, press = 0, toast = 0, note = null, sent = false}) => (
 		<div style={{position: 'absolute', top: 266, width: '100%', textAlign: 'center', fontSize: 16, fontWeight: 500, color: T.muted}}>Enter the 6-digit code we sent</div>
 		<div style={{position: 'absolute', top: 320, width: '100%', display: 'flex', justifyContent: 'center', gap: 9}}>
 			{Array.from({length: 6}, (_, i) => (
-				<div key={i} style={{width: 46, height: 58, borderRadius: 12, background: T.panel, border: `2px solid ${i === 0 ? T.muted : T.line}`}} />
+				<div key={i} style={{width: 46, height: 58, borderRadius: 12, background: '#18245A', border: `2px solid ${i === 0 ? T.muted : '#33437F'}`}} />
 			))}
 		</div>
+		{/* tap ripple: a coral pill ring growing out of the button, fading fast */}
+		{ripple > 0 && ripple < 1 && (
+			<div style={{position: 'absolute', top: 430, left: (PW - 290) / 2, width: 290, height: 60, borderRadius: 30, border: `4px solid ${T.coral}`, boxSizing: 'border-box', opacity: 0.85 * (1 - ripple), transform: `scale(${1 + Easing.out(Easing.cubic)(ripple) * 0.2}, ${1 + Easing.out(Easing.cubic)(ripple) * 0.4})`}} />
+		)}
 		<div
 			style={{
 				position: 'absolute',
@@ -199,8 +216,8 @@ const VerifyScreen = ({f, press = 0, toast = 0, note = null, sent = false}) => (
 				placeItems: 'center',
 				fontSize: 19,
 				fontWeight: 800,
-				boxShadow: `0 ${8 - press * 6}px ${18 - press * 12}px rgba(0,0,0,0.35)`,
-				transform: `scale(${1 - press * 0.06})`,
+				boxShadow: `0 ${10 - press * 7}px ${22 - press * 14}px rgba(0,0,0,${0.4 - press * 0.15})`,
+				transform: `scale(${1 + press * 0.04}, ${1 - press * 0.08})`,
 			}}
 		>
 			{sent ? 'Code sent' : 'Send code'}
@@ -217,13 +234,13 @@ const VerifyScreen = ({f, press = 0, toast = 0, note = null, sent = false}) => (
 	</div>
 );
 
-// Simple flat thumb (fingertip at its own origin).
-const Thumb = ({x, y, press = 0}) => (
-	<svg width="300" height="640" viewBox="-110 -40 300 640" style={{position: 'absolute', left: x - 110, top: y - 40 + press * 10, overflow: 'visible'}}>
-		<g transform="rotate(-22)">
-			<rect x="-60" y="-24" width="140" height="560" rx="70" fill="#C68A62" />
-			<rect x="-30" y="-6" width="82" height="104" rx="38" fill="#E3B595" />
-			<rect x="-80" y="400" width="180" height="200" rx="36" fill={T.line} />
+// Flat thumb (same art as the Resend tap shot). (x, y) = fingertip.
+const Thumb = ({x, y, k = 0.56}) => (
+	<svg width="460" height="900" viewBox="-60 -40 460 900" style={{position: 'absolute', left: x - 60 * k, top: y - 40 * k, transform: `scale(${k})`, transformOrigin: '0 0', overflow: 'visible'}}>
+		<g transform="rotate(-28)">
+			<rect x="-56" y="-30" width="150" height="1600" rx="75" fill="#F2A877" />
+			<path d="M 70 40 Q 92 300 76 1560" stroke="#DE8F5E" strokeWidth="38" fill="none" strokeLinecap="round" />
+			<rect x="-30" y="-12" width="96" height="112" rx="46" fill="#FBD3B8" />
 		</g>
 	</svg>
 );
@@ -281,7 +298,9 @@ export const WomanScene = () => {
 		const chip = f >= S.dive + 10 ? sp(S.dive + 10) : 0;
 		const intro = sp(0, {damping: 18, stiffness: 120});
 		const thumbIn = interpolate(f, [S.s3 + 10, S.tap - 8], [1, 0], {...clamp, easing: Easing.out(Easing.cubic)});
-		const press = interpolate(f, [S.tap - 4, S.tap, S.tap + 5], [0, 1, 0], clamp);
+		const press = interpolate(f, [S.tap - 4, S.tap, S.tap + 6], [0, 1, 0], clamp);
+		const ripple = interpolate(f, [S.tap, S.tap + 16], [0, 1], clamp);
+		const lift = interpolate(Math.abs(f - S.tap), [0, 9], [0, 1], clamp);
 		const thumbOut = interpolate(f, [S.tap + 6, S.tap + 20], [0, 1], {...clamp, easing: Easing.in(Easing.cubic)});
 		const toast = sp(S.tap + 2);
 		const shake = f >= S.tap && f < S.tap + 8 ? Math.sin((f - S.tap) * 3) * (8 - (f - S.tap)) * 0.6 : 0;
@@ -296,7 +315,7 @@ export const WomanScene = () => {
 				</AbsoluteFill>
 				<PhoneAt x={FULL.x + shake} y={FULL.y + (1 - intro) * 60} s={FULL.s * (0.94 + 0.06 * intro)}>
 					<Phone minutes={rewind} tint={tint}>
-						<VerifyScreen f={f} press={press} toast={f >= S.tap ? toast : 0} sent={f >= S.tap + 30} />
+						<VerifyScreen f={f} press={press} ripple={ripple} toast={f >= S.tap ? toast : 0} sent={f >= S.tap + 30} />
 					</Phone>
 				</PhoneAt>
 				{/* signal arcs from the top of the phone */}
@@ -308,7 +327,7 @@ export const WomanScene = () => {
 					)}
 				</svg>
 				{f >= S.s3 && (
-					<Thumb x={btnX + 90 + thumbIn * 360 + thumbOut * 360} y={btnY + 6 + thumbIn * 520 + thumbOut * 520} press={press} />
+					<Thumb x={btnX + 96 + (thumbIn + thumbOut) * 300} y={btnY + 22 + (thumbIn + thumbOut) * 520 + lift * 26 - press * 4} />
 				)}
 				<Chip text="20 MIN EARLIER" show={Math.min(1, chip)} />
 			</>
