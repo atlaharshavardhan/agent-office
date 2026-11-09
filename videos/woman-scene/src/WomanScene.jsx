@@ -4,7 +4,6 @@ import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
 import '@fontsource/inter/800.css';
-import {Woman} from './Woman';
 
 // ───────── design tokens ─────────
 const T = {
@@ -27,22 +26,19 @@ const SHADOW = '0 18px 40px rgba(0,0,0,0.35), 0 4px 10px rgba(0,0,0,0.25)';
 
 // ───────── timeline (frames @ 30 fps), snapped to the generated voice ─────────
 // Voice start frames. Line lengths (s): 1.96 1.66 2.67 2.62 2.24 2.88 4.52 · PA 2.05
-export const VO = {l01: 8, l02: 78, l03: 129, l04: 215, l05: 299, l06: 372, l07: 467, pa: 656};
+export const VO = {l01: 8, l03: 99, l04: 185, l05: 269, l06: 342, l07: 437};
 export const S = {
-	s1: 0, // train, mini-phone above her head            "But it's not always this fast."
-	dive: 75, // PHONE DIVE, 15 frames
-	s2: 90, // full phone, clock rewinds 9:41 → 9:21       "Dive into her phone."
-	s3: 126, // Verify screen, thumb taps Send code         "At the last station, she asked for a code,"
-	tap: 186,
-	s4: 212, // pull out: crowd + one tower                 "with hundreds of people on one tower."
-	s5: 296, // push into the queue                         "Her code got stuck in the queue."
-	s6: 372, // her card drops into her phone, EXPIRED      "It arrived minutes later, already expired."
-	grey: 420,
-	stamp: 428,
-	s7: 465, // life of a code                              "A code only lives a few minutes, so a late code is a dead code."
-	s8: 606, // back in the train, sigh
-	s9: 650, // station board + popup, chime + PA
-	end: 720,
+	s2: 0, // her phone, now                               "But it's not always this fast."
+	dive: 56, // time rewind: clock spins 9:41 → 9:21, blue-grey tint, film grain
+	s3: 96, // Verify screen, thumb taps Send code          "At the last station, she asked for a code,"
+	tap: 156,
+	s4: 182, // pull out: crowd + one tower                 "with hundreds of people on one tower."
+	s5: 266, // push into the queue                         "Her code got stuck in the queue."
+	s6: 342, // her card drops into her phone, EXPIRED      "It arrived minutes later, already expired."
+	grey: 390,
+	stamp: 398,
+	s7: 435, // life of a code                              "A code only lives a few minutes, so a late code is a dead code."
+	end: 590,
 };
 
 const useSpr = (at, config = {damping: 14, stiffness: 170}) => {
@@ -232,34 +228,7 @@ const Thumb = ({x, y, press = 0}) => (
 	</svg>
 );
 
-// ───────── train (flat stand-in for the Blender cutback) ─────────
-const TrainScene = ({f, slump = 0, sigh = 0, mini = null}) => {
-	const speed = f * 14;
-	return (
-		<AbsoluteFill style={{background: '#14214a'}}>
-			<div style={{position: 'absolute', left: 120, top: 70, width: 1680, height: 560, borderRadius: 60, background: '#1f2d5a', padding: 26, boxShadow: 'inset 0 0 0 4px #2a3a70'}}>
-				<div style={{position: 'relative', width: '100%', height: '100%', borderRadius: 40, overflow: 'hidden', background: '#060c22'}}>
-					<div style={{position: 'absolute', right: 160, top: 70, width: 70, height: 70, borderRadius: 35, background: '#e9eef8'}} />
-					<div style={{position: 'absolute', right: 140, top: 62, width: 70, height: 70, borderRadius: 35, background: '#060c22'}} />
-					{Array.from({length: 24}, (_, i) => {
-						const x = ((i * 173 - speed) % 1900 + 1900) % 1900 - 100;
-						return <div key={i} style={{position: 'absolute', left: x, top: 300 + (i % 3) * 40, width: 10 + (i % 4) * 4, height: 10 + (i % 4) * 4, borderRadius: 3, background: i % 3 ? '#ffd27a' : '#ffffff', opacity: 0.85}} />;
-					})}
-					<svg width="1628" height="508" style={{position: 'absolute', inset: 0}}>
-						<path d="M0 420 Q 200 360 400 410 T 800 400 T 1200 410 T 1628 400 L 1628 508 L 0 508 Z" fill="#0d1838" />
-					</svg>
-				</div>
-			</div>
-			<div style={{position: 'absolute', left: 656, top: 156, transform: 'scale(0.8)', transformOrigin: '0 0'}}>
-				<Woman slump={slump} sigh={sigh} />
-			</div>
-			{mini}
-		</AbsoluteFill>
-	);
-};
-
 // Mini-phone position above her head (train shot) and full-frame position.
-const MINI = {x: 1170, y: 196, s: 0.27};
 const FULL = {x: 960, y: 572, s: 1.0};
 const PhoneAt = ({x, y, s, rot = 0, children}) => (
 	<div style={{position: 'absolute', left: x - (PW + 24) / 2, top: y - (PH + 24) / 2, transform: `rotate(${rot}deg) scale(${s})`, transformOrigin: 'center center'}}>{children}</div>
@@ -300,42 +269,17 @@ export const WomanScene = () => {
 	const sp = (at, config = {damping: 14, stiffness: 170}) => spring({frame: f - at, fps, config});
 
 	// flashback state (S2 → S7)
-	const inFlash = f >= S.dive && f < S.s8 + 8;
-	const grainOn = interpolate(f, [S.s2 - 6, S.s2 + 4, S.s8, S.s8 + 10], [0, 1, 1, 0], clamp);
+	const inFlash = f >= S.dive;
+	const grainOn = interpolate(f, [S.dive, S.dive + 10], [0, 1], clamp);
 
 	let shot;
 
-	// ── S1 + PHONE DIVE ──
-	if (f < S.s2) {
-		const push = interpolate(f, [0, S.dive], [1, 1.08], {...clamp, easing: io});
-		const dive = spring({frame: f - S.dive, fps, config: {damping: 18, stiffness: 120}});
-		const blur = interpolate(f, [S.dive, S.dive + 15], [0, 12], clamp);
-		const dark = interpolate(f, [S.dive, S.dive + 15], [0, 0.55], clamp);
-		const miniIn = sp(10, {damping: 12, stiffness: 140});
-		// mini phone position in stage space (includes the push-in)
-		const mx = W / 2 + (MINI.x - W / 2) * push;
-		const my = H / 2 + (MINI.y + Math.sin(f / 14) * 6 - H / 2) * push;
-		const x = interpolate(dive, [0, 1], [mx, FULL.x]);
-		const y = interpolate(dive, [0, 1], [my, FULL.y]);
-		const s = interpolate(dive, [0, 1], [MINI.s * push * miniIn, FULL.s]);
-		const rewind = interpolate(f, [S.dive + 4, S.s2 + 20], [41, 21], {...clamp, easing: Easing.inOut(Easing.quad)});
-		shot = (
-			<>
-				<AbsoluteFill style={{transform: `scale(${push})`, filter: `blur(${blur}px) brightness(${1 - dark})`}}>
-					<TrainScene f={f} />
-				</AbsoluteFill>
-				<PhoneAt x={x} y={y} s={s}>
-					<Phone minutes={rewind} tint={interpolate(f, [S.dive + 6, S.s2 + 10], [0, 1], clamp)}>
-						<VerifyScreen f={f} />
-					</Phone>
-				</PhoneAt>
-			</>
-		);
-	}
 	// ── S2 + S3: full phone, rewind, then the tap ──
-	else if (f < S.s4) {
-		const rewind = interpolate(f, [S.dive + 4, S.s2 + 20], [41, 21], {...clamp, easing: Easing.inOut(Easing.quad)});
-		const chip = sp(S.s2 + 2);
+	if (f < S.s4) {
+		const rewind = interpolate(f, [S.dive, S.dive + 30], [41, 21], {...clamp, easing: Easing.inOut(Easing.quad)});
+		const tint = interpolate(f, [S.dive, S.dive + 20], [0, 1], clamp);
+		const chip = f >= S.dive + 10 ? sp(S.dive + 10) : 0;
+		const intro = sp(0, {damping: 18, stiffness: 120});
 		const thumbIn = interpolate(f, [S.s3 + 10, S.tap - 8], [1, 0], {...clamp, easing: Easing.out(Easing.cubic)});
 		const press = interpolate(f, [S.tap - 4, S.tap, S.tap + 5], [0, 1, 0], clamp);
 		const thumbOut = interpolate(f, [S.tap + 6, S.tap + 20], [0, 1], {...clamp, easing: Easing.in(Easing.cubic)});
@@ -350,8 +294,8 @@ export const WomanScene = () => {
 				<AbsoluteFill style={{background: T.bg}}>
 					<Bubbles f={f} />
 				</AbsoluteFill>
-				<PhoneAt x={FULL.x + shake} y={FULL.y} s={FULL.s}>
-					<Phone minutes={rewind} tint={1}>
+				<PhoneAt x={FULL.x + shake} y={FULL.y + (1 - intro) * 60} s={FULL.s * (0.94 + 0.06 * intro)}>
+					<Phone minutes={rewind} tint={tint}>
 						<VerifyScreen f={f} press={press} toast={f >= S.tap ? toast : 0} sent={f >= S.tap + 30} />
 					</Phone>
 				</PhoneAt>
@@ -519,12 +463,12 @@ export const WomanScene = () => {
 		);
 	}
 	// ── S7: a code only lives a few minutes ──
-	else if (f < S.s8) {
+	else {
 		const lf = f - S.s7;
 		const bar = interpolate(f, [S.s7 + 10, S.s7 + 52], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
 		const arrive = sp(S.s7 + 60);
-		const late = 467 + Math.round(2.2 * 30); // "so a late code…"
-		const dead = 467 + Math.round(3.37 * 30); // "…dead code"
+		const late = VO.l07 + Math.round(2.2 * 30); // "so a late code…"
+		const dead = VO.l07 + Math.round(3.37 * 30); // "…dead code"
 		const head1 = sp(S.s7 + 4);
 		const head2 = sp(late);
 		const deadPop = sp(dead, {damping: 9, stiffness: 220});
@@ -569,72 +513,6 @@ export const WomanScene = () => {
 			</>
 		);
 	}
-	// ── S8: back in the train, sigh ──
-	else if (f < S.s9) {
-		const back = spring({frame: f - S.s8, fps, config: {damping: 18, stiffness: 120}});
-		const blur = interpolate(f, [S.s8, S.s8 + 15], [12, 0], clamp);
-		const slump = interpolate(f, [S.s8 + 12, S.s8 + 34], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)});
-		const sigh = interpolate(f, [S.s8 + 10, S.s8 + 28, S.s9], [0, 1, 1.4], clamp);
-		const x = interpolate(back, [0, 1], [FULL.x, MINI.x]);
-		const y = interpolate(back, [0, 1], [FULL.y, MINI.y]);
-		const s = interpolate(back, [0, 1], [FULL.s * 0.92, MINI.s]);
-		shot = (
-			<>
-				<AbsoluteFill style={{filter: `blur(${blur}px)`, transform: `scale(${1.08 - 0.05 * back})`}}>
-					<TrainScene f={f} slump={slump} sigh={sigh} />
-				</AbsoluteFill>
-				<PhoneAt x={x} y={y + Math.sin(f / 14) * 6} s={s}>
-					<Phone minutes={47} tint={0}>
-						<VerifyScreen
-							f={f}
-							sent
-							note={
-								<div style={{position: 'absolute', top: 60, left: 24}}>
-									<CodeNote grey={1} stamp={1} strike={1} />
-								</div>
-							}
-						/>
-					</Phone>
-				</PhoneAt>
-			</>
-		);
-	}
-	// ── S9: station board + popup ──
-	else {
-		const board = sp(S.s9, {damping: 15, stiffness: 150});
-		const pop = sp(VO.pa + 2, {damping: 12, stiffness: 190});
-		const blink = Math.floor(f / 12) % 2;
-		shot = (
-			<>
-				<AbsoluteFill style={{filter: 'brightness(0.5) blur(3px)'}}>
-					<TrainScene f={f} slump={1} />
-				</AbsoluteFill>
-				<div style={{position: 'absolute', left: 460, top: 130, width: 1000, borderRadius: 30, background: '#070d1f', padding: '34px 44px', boxShadow: `${SHADOW}, inset 0 0 0 3px ${T.line}`, transform: `translateY(${(1 - board) * -420}px)`}}>
-					<div style={{fontFamily: FONT, fontWeight: 700, color: T.muted, fontSize: 28, letterSpacing: 5}}>NEXT STATION</div>
-					<div style={{fontFamily: '"Courier New", monospace', fontWeight: 700, color: T.amber, fontSize: 104, letterSpacing: 8, marginTop: 4}}>ITARSI JN</div>
-					<div style={{display: 'flex', justifyContent: 'space-between', marginTop: 14, fontFamily: '"Courier New", monospace', fontWeight: 700, color: T.amber, fontSize: 50}}>
-						<span>ETA 22:41</span>
-						<span style={{opacity: blink ? 1 : 0.35}}>● 40 MIN</span>
-					</div>
-				</div>
-				<div style={{position: 'absolute', left: 510, top: 590, width: 900, borderRadius: 30, background: T.panel, border: `2px solid ${T.line}`, padding: '26px 30px', display: 'flex', gap: 24, alignItems: 'center', boxShadow: SHADOW, opacity: Math.min(1, pop * 1.5), transform: `translateY(${(1 - pop) * 80}px) scale(${0.86 + 0.14 * pop})`}}>
-					<div style={{width: 92, height: 92, borderRadius: 24, background: T.coral, display: 'grid', placeItems: 'center'}}>
-						<svg width="52" height="52" viewBox="0 0 24 24">
-							<rect x="5" y="2.5" width="14" height="15" rx="3.5" fill="#fff" />
-							<rect x="7.5" y="5" width="9" height="5" rx="1.2" fill={T.coral} />
-							<circle cx="9" cy="14" r="1.4" fill={T.coral} />
-							<circle cx="15" cy="14" r="1.4" fill={T.coral} />
-							<path d="M8 18l-2 3.5M16 18l2 3.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-						</svg>
-					</div>
-					<div style={{fontFamily: FONT}}>
-						<div style={{fontSize: 22, fontWeight: 700, color: T.muted, letterSpacing: 1}}>RAIL ALERT · now</div>
-						<div style={{fontSize: 42, fontWeight: 800, color: T.text, marginTop: 4}}>Itarsi Junction in 40 minutes</div>
-					</div>
-				</div>
-			</>
-		);
-	}
 
 	return (
 		<AbsoluteFill style={{background: T.bg}}>
@@ -649,8 +527,7 @@ export const WomanScene = () => {
 			))}
 			{/* sound effects */}
 			{[
-				['whoosh', S.dive - 2, 0.7],
-				['rewind', S.dive + 6, 0.55],
+				['rewind', S.dive + 2, 0.55],
 				['tap', S.tap, 0.8],
 				['ping', S.tap + 6, 0.5],
 				['whoosh', S.s4 - 2, 0.45],
@@ -660,9 +537,6 @@ export const WomanScene = () => {
 				['tick', S.s5 + 54, 0.6],
 				['whoosh', S.s6 - 4, 0.5],
 				['stamp', S.stamp, 0.9],
-				['whoosh_back', S.s8 - 2, 0.6],
-				['sigh', S.s8 + 10, 0.8],
-				['chime', S.s9 + 2, 0.6],
 			].map(([name, at, vol], i) => (
 				<Sequence key={'sfx' + i} from={at}>
 					<Audio src={staticFile(`audio/sfx_${name}.wav`)} volume={vol} />
