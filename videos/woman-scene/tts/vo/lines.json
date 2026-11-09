@@ -1,0 +1,44 @@
+[
+ {
+  "line": 1,
+  "text": "But it's not always this fast.",
+  "file": "vo/l01.wav",
+  "seconds": 1.963
+ },
+ {
+  "line": 2,
+  "text": "Dive into her phone.",
+  "file": "vo/l02.wav",
+  "seconds": 1.664
+ },
+ {
+  "line": 3,
+  "text": "At the last station, she asked for a code,",
+  "file": "vo/l03.wav",
+  "seconds": 2.667
+ },
+ {
+  "line": 4,
+  "text": "with hundreds of people on one tower.",
+  "file": "vo/l04.wav",
+  "seconds": 2.624
+ },
+ {
+  "line": 5,
+  "text": "Her code got stuck in the queue.",
+  "file": "vo/l05.wav",
+  "seconds": 2.24
+ },
+ {
+  "line": 6,
+  "text": "It arrived minutes later, already expired.",
+  "file": "vo/l06.wav",
+  "seconds": 2.88
+ },
+ {
+  "line": 7,
+  "text": "A code only lives a few minutes, so a late code is a dead code.",
+  "file": "vo/l07.wav",
+  "seconds": 4.523
+ }
+]
