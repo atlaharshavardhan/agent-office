@@ -333,60 +333,131 @@ export const WomanScene = () => {
 			</>
 		);
 	}
-	// ── S4 + S5: crowd, one tower, the queue ──
+	// ── S4 + S5: how the message travels ──
+	// her request goes UP (phone → tower → bank) · the bank makes her code → SMS centre (operator)
+	// → the code waits in the tower's queue to come DOWN, one at a time · hers waits while its life drains
 	else if (f < S.s6 + 18) {
 		const lf = f - S.s4;
-		// her phone shrinks into the crowd
 		const shrink = spring({frame: lf, fps, config: {damping: 18, stiffness: 110}});
 		const sceneIn = interpolate(lf, [0, 12], [0, 1], clamp);
-		// camera: wide at S4, push into the queue at S5, follow her card out at S6
 		const toQueue = interpolate(f, [S.s5 - 6, S.s5 + 22], [0, 1], {...clamp, easing: io});
-		const camS = 1 + 0.32 * toQueue;
-		const camX = -260 * toQueue;
-		const camY = 120 * toQueue;
-		// queue
-		const TICKS = [S.s5 + 14, S.s5 + 34, S.s5 + 54];
-		const shifted = (from) => TICKS.reduce((a, t) => a + (t >= from ? io(interpolate(f, [t, t + 10], [0, 1], clamp)) : 0), 0);
-		const defs = [
-			{join: S.s4 + 18, slot: 4},
-			{join: S.s4 + 24, slot: 3},
-			{join: S.s4 + 30, slot: 2},
-			{join: S.s4 + 36, slot: 1},
-			{join: S.s4 + 42, slot: 0, mine: true},
-			{join: S.s5 + 24, slot: 0},
-			{join: S.s5 + 44, slot: 0},
-			{join: S.s5 + 64, slot: 0},
-		];
-		const lane = {x: 1010, y: 360};
-		const lifeSec = Math.round(interpolate(f, [S.s4 + 42, S.s6], [180, 12], clamp));
-		const life = `${Math.floor(lifeSec / 60)}:${String(lifeSec % 60).padStart(2, '0')}`;
-		const wait = sp(S.s4 + 56);
+		const camS = 1 + 0.08 * toQueue;
 		const towerLights = Math.floor(f / 15) % 2;
 		const crowd = Array.from({length: 84}, (_, i) => ({x: 40 + ((i * 137) % 1840), row: Math.floor(i / 28), c: i % 4}));
 		const crowdCols = ['#2a4a8f', '#3b3f86', '#22507a', '#4a3d7a'];
-		// her card leaving at S6
+		// key points
+		const P = {
+			her: {x: 1180, y: 880}, // her phone in the crowd
+			top: {x: 320, y: 170}, // tower antenna
+			bank: {x: 1010, y: 64, w: 360, h: 124},
+			smsc: {x: 1450, y: 64, w: 400, h: 124},
+		};
+		const bankC = {x: P.bank.x + P.bank.w / 2, y: P.bank.y + P.bank.h / 2};
+		const smscC = {x: P.smsc.x + P.smsc.w / 2, y: P.smsc.y + P.smsc.h / 2};
+		// 1. her request: phone → tower → bank
+		const up1 = interpolate(lf, [14, 32], [0, 1], {...clamp, easing: io});
+		const up2 = interpolate(lf, [32, 46], [0, 1], {...clamp, easing: io});
+		const reqVisible = lf >= 14 && lf < 48;
+		const req = up2 > 0 ? {x: P.top.x + (P.bank.x - P.top.x) * up2, y: P.top.y + (bankC.y - P.top.y) * up2} : {x: P.her.x + (P.top.x - P.her.x) * up1, y: P.her.y + (P.top.y - P.her.y) * up1 - Math.sin(up1 * Math.PI) * 120};
+		const bankPulse = interpolate(lf, [46, 52, 60], [0, 1, 0], clamp);
+		// 2. her code: bank → SMS centre → back of the queue
+		const toSmsc = interpolate(lf, [52, 64], [0, 1], {...clamp, easing: io});
+		const toQ = interpolate(lf, [64, 76], [0, 1], {...clamp, easing: io});
+		// 3. queue at the tower: q = 0 back (right) … 6 front (left, next to the tower)
+		const lane = {x: 560, y: 400, w: 1080};
+		const slotX = (q) => lane.x + lane.w - 26 - 128 - q * 146;
+		const TICKS = [S.s4 + 8, S.s4 + 40, S.s4 + 66, S.s5 + 6, S.s5 + 26, S.s5 + 46, S.s5 + 64];
+		const ticksSince = (from) => TICKS.reduce((acc, t) => acc + (t >= from ? io(interpolate(f, [t, t + 12], [0, 1], clamp)) : 0), 0);
+		// one card joins the back right after every tick, so the queue never has gaps
+		const defs = [
+			...[5, 4, 3, 2, 1, 0].map((q) => ({join: S.s4 - 40, q})),
+			{join: S.s4 + 20, q: 0},
+			{join: S.s4 + 52, q: 0},
+			{join: S.s4 + 76, q: 0, mine: true},
+			{join: S.s5 + 18, q: 0},
+			{join: S.s5 + 38, q: 0},
+			{join: S.s5 + 58, q: 0},
+		];
+		const lifeSec = Math.round(interpolate(f, [S.s4 + 52, S.s6], [180, 12], clamp));
+		const life = `${Math.floor(lifeSec / 60)}:${String(lifeSec % 60).padStart(2, '0')}`;
+		const wait = sp(S.s4 + 84);
 		const leaveT = interpolate(f, [S.s6 - 4, S.s6 + 18], [0, 1], {...clamp, easing: Easing.in(Easing.cubic)});
+		const Node = ({n, title, sub, icon, pulse = 0, show}) => (
+			<div style={{position: 'absolute', left: n.x, top: n.y, width: n.w, height: n.h, borderRadius: 24, background: T.panel, border: `2px solid ${pulse > 0.01 ? T.amber : T.line}`, boxShadow: SHADOW, display: 'flex', alignItems: 'center', gap: 18, padding: '0 22px', boxSizing: 'border-box', fontFamily: FONT, opacity: show, transform: `scale(${(0.9 + 0.1 * show) * (1 + pulse * 0.05)})`}}>
+				<div style={{width: 64, height: 64, borderRadius: 18, background: '#1E2B60', display: 'grid', placeItems: 'center', flexShrink: 0}}>{icon}</div>
+				<div>
+					<div style={{color: T.text, fontWeight: 800, fontSize: 28, letterSpacing: 1, whiteSpace: 'nowrap'}}>{title}</div>
+					<div style={{color: T.muted, fontWeight: 600, fontSize: 20, marginTop: 2, whiteSpace: 'nowrap'}}>{sub}</div>
+				</div>
+			</div>
+		);
+		const nodesIn = interpolate(lf, [6, 20], [0, 1], clamp);
+		const arrow = (x1, y1, x2, y2, color, prog, dash) => {
+			if (prog <= 0) return null;
+			const x = x1 + (x2 - x1) * prog;
+			const y = y1 + (y2 - y1) * prog;
+			const ang = Math.atan2(y2 - y1, x2 - x1);
+			return (
+				<g>
+					<line x1={x1} y1={y1} x2={x} y2={y} stroke={color} strokeWidth={5} strokeDasharray={dash ? '14 12' : 'none'} strokeLinecap="round" opacity={0.85} />
+					{prog > 0.95 && <path d={`M ${x2} ${y2} l ${-20 * Math.cos(ang - 0.45)} ${-20 * Math.sin(ang - 0.45)} M ${x2} ${y2} l ${-20 * Math.cos(ang + 0.45)} ${-20 * Math.sin(ang + 0.45)}`} stroke={color} strokeWidth={5} strokeLinecap="round" fill="none" />}
+				</g>
+			);
+		};
 		shot = (
 			<>
 				<AbsoluteFill style={{background: T.bg, opacity: sceneIn}}>
 					<Bubbles f={f} />
-					<AbsoluteFill style={{transform: `translate(${camX}px, ${camY}px) scale(${camS})`, transformOrigin: '1300px 450px'}}>
+					<AbsoluteFill style={{transform: `scale(${camS})`, transformOrigin: '1000px 470px'}}>
 						{/* tower */}
-						<div style={{position: 'absolute', left: 620, top: 140}}>
+						<div style={{position: 'absolute', left: P.top.x - 180, top: P.top.y - 30}}>
 							<Tower lights={towerLights} />
 						</div>
-						{/* incoming arcs from the crowd towards the tower */}
-						<svg width={W} height={H} style={{position: 'absolute', inset: 0}}>
-							{Array.from({length: 14}, (_, i) => {
-								const p = ((lf / 26 + i * 0.137) % 1);
+						{/* path arrows */}
+						<svg width={W} height={H} style={{position: 'absolute', inset: 0, overflow: 'visible'}}>
+							{arrow(P.top.x + 30, P.top.y - 10, P.bank.x - 16, bankC.y, T.coral, interpolate(lf, [30, 46], [0, 1], clamp), true)}
+							{arrow(P.bank.x + P.bank.w + 6, bankC.y, P.smsc.x - 14, smscC.y, T.amber, interpolate(lf, [50, 60], [0, 1], clamp), false)}
+							{arrow(smscC.x, P.smsc.y + P.smsc.h + 8, smscC.x, lane.y - 16, T.amber, interpolate(lf, [60, 70], [0, 1], clamp), false)}
+							{/* other phones' requests going up to the same tower */}
+							{Array.from({length: 12}, (_, i) => {
+								const p = (lf / 28 + i * 0.137) % 1;
 								const sx = 80 + ((i * 263) % 1760);
-								const sy = 860;
-								const x = sx + (800 - sx) * p;
-								const y = sy + (180 - sy) * p - Math.sin(p * Math.PI) * 80;
-								return <circle key={i} cx={x} cy={y} r={7} fill={T.muted} opacity={(1 - p) * 0.8} />;
+								const x = sx + (P.top.x - sx) * p;
+								const y = 860 + (P.top.y + 10 - 860) * p - Math.sin(p * Math.PI) * 80;
+								return <circle key={i} cx={x} cy={y} r={7} fill={T.muted} opacity={(1 - p) * 0.7} />;
 							})}
 						</svg>
-						{/* crowd of phones */}
+						{/* bank + SMS centre */}
+						<Node
+							n={P.bank}
+							title="BANK"
+							sub="makes your code"
+							show={nodesIn}
+							pulse={bankPulse}
+							icon={
+								<svg width="38" height="38" viewBox="0 0 24 24">
+									<path d="M3 9l9-5 9 5z" fill={T.muted} />
+									<rect x="5" y="10" width="2.6" height="8" fill={T.muted} />
+									<rect x="10.7" y="10" width="2.6" height="8" fill={T.muted} />
+									<rect x="16.4" y="10" width="2.6" height="8" fill={T.muted} />
+									<rect x="3" y="19" width="18" height="2.4" fill={T.muted} />
+								</svg>
+							}
+						/>
+						<Node
+							n={P.smsc}
+							title="SMS CENTRE"
+							sub="your mobile operator"
+							show={nodesIn}
+							pulse={interpolate(lf, [62, 66, 72], [0, 1, 0], clamp)}
+							icon={
+								<svg width="40" height="32" viewBox="0 0 30 21">
+									<rect x="1.2" y="1.2" width="27.6" height="18.6" rx="4" fill="none" stroke={T.muted} strokeWidth="2.4" />
+									<path d="M2 3l13 9 13-9" fill="none" stroke={T.muted} strokeWidth="2.4" />
+								</svg>
+							}
+						/>
+						{/* crowd */}
 						{crowd.map((p, i) => {
 							const y = 820 + p.row * 70 + Math.sin(lf / 7 + i) * 3;
 							return (
@@ -397,41 +468,69 @@ export const WomanScene = () => {
 								</div>
 							);
 						})}
-						{/* queue lane + gate */}
-						<div style={{position: 'absolute', left: lane.x, top: lane.y, width: 760, height: 190, borderRadius: 30, background: T.panel, border: `2px solid ${T.line}`}} />
-						<div style={{position: 'absolute', left: lane.x + 24, top: lane.y + 206, fontFamily: FONT, fontWeight: 800, fontSize: 26, letterSpacing: 4, color: T.muted}}>QUEUE · 1 AT A TIME →</div>
+						{/* queue at the tower: codes wait to come DOWN */}
+						<div style={{position: 'absolute', left: lane.x, top: lane.y, width: lane.w, height: 190, borderRadius: 30, background: T.panel, border: `2px solid ${T.line}`}} />
+						<div style={{position: 'absolute', left: lane.x + 24, top: lane.y + 206, fontFamily: FONT, fontWeight: 800, fontSize: 26, letterSpacing: 3, color: T.muted}}>← WAITING FOR A FREE SLOT · 1 AT A TIME</div>
 						{defs
 							.filter((d) => f >= d.join)
 							.map((d, i) => {
-								const slot = d.slot + shifted(d.join);
-								const enter = sp(d.join, {damping: 14, stiffness: 180});
-								const leave = interpolate(slot, [4, 5], [1, 0], clamp);
-								if (leave <= 0) return null;
-								// impatient bump when the queue moves
+								const q = d.q + ticksSince(d.join);
+								const enter = d.join < S.s4 ? 1 : sp(d.join, {damping: 14, stiffness: 180});
+								// past the front: go to the tower and drop down into the crowd
+								const out = interpolate(q, [6, 7], [0, 1], clamp);
+								if (out >= 1 && !d.mine) return null;
 								const bump = TICKS.reduce((a, t) => a + (f >= t && f < t + 12 ? Math.sin((f - t) * 1.2) * (12 - (f - t)) * 0.5 : 0), 0);
-								let x = lane.x + 26 + slot * 146 + bump;
-								let y = lane.y + 20 - (1 - enter) * 140 + (1 - leave) * 40;
+								let x = slotX(Math.min(q, 6)) + bump;
+								let y = lane.y + 20 - (1 - enter) * 160;
 								let scale = 1;
+								let op = Math.min(1, enter * 2);
+								if (out > 0) {
+									x = x + (P.top.x - 64 - x) * out;
+									y = y + (700 - y) * out * out;
+									scale = 1 - 0.6 * out;
+									op *= 1 - out;
+								}
 								if (d.mine && leaveT > 0) {
-									x += leaveT * 260;
-									y += leaveT * 700;
-									scale = 1 + leaveT * 1.6;
+									x = x + (P.top.x - 40 - x) * Math.min(1, leaveT * 1.6);
+									y = y + 640 * leaveT * leaveT;
+									scale = 1 + leaveT * 1.8;
 								}
 								return (
-									<div key={i} style={{position: 'absolute', left: x, top: y, opacity: Math.min(1, enter * 2) * leave, zIndex: d.mine ? 3 : 2, transform: `scale(${scale})`}}>
+									<div key={i} style={{position: 'absolute', left: x, top: y, opacity: op, zIndex: d.mine ? 3 : 2, transform: `scale(${scale})`}}>
 										<QueueCard mine={d.mine} life={d.mine ? life : null} wait={wait} />
 									</div>
 								);
 							})}
+						{/* her code card on its way: bank → SMS centre → queue */}
+						{lf >= 52 && lf < 76 && (
+							<div
+								style={{
+									position: 'absolute',
+									left: (toQ > 0 ? smscC.x + (slotX(0) + 64 - smscC.x) * toQ : bankC.x + (smscC.x - bankC.x) * toSmsc) - 64,
+									top: (toQ > 0 ? smscC.y + 130 + (lane.y + 20 + 75 - smscC.y - 130) * toQ : bankC.y + 130) - 75,
+									transform: `scale(${0.55 + 0.45 * Math.max(toQ, 0)})`,
+									zIndex: 4,
+								}}
+							>
+								<QueueCard mine />
+							</div>
+						)}
+						{/* her request (coral) */}
+						{reqVisible && (
+							<div style={{position: 'absolute', left: req.x - 70, top: req.y - 22, display: 'flex', alignItems: 'center', gap: 10, zIndex: 5}}>
+								<div style={{width: 26, height: 26, borderRadius: 13, background: T.coral, boxShadow: SHADOW}} />
+								<div style={{padding: '6px 14px', borderRadius: 12, background: T.coral, color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: 22}}>her request</div>
+							</div>
+						)}
 						{/* counter */}
-						<div style={{position: 'absolute', left: 120, top: 210, padding: '16px 26px', borderRadius: 18, background: T.panel, border: `2px solid ${T.line}`, color: T.text, fontFamily: FONT, fontWeight: 800, fontSize: 36, boxShadow: SHADOW, opacity: interpolate(lf, [10, 22], [0, 1], clamp) * (1 - toQueue)}}>
+						<div style={{position: 'absolute', left: 560, top: 240, padding: '14px 24px', borderRadius: 18, background: T.panel, border: `2px solid ${T.line}`, color: T.text, fontFamily: FONT, fontWeight: 800, fontSize: 34, boxShadow: SHADOW, opacity: interpolate(lf, [10, 22], [0, 1], clamp)}}>
 							{Math.round(interpolate(lf, [10, 70], [20, 600], clamp))}+ phones <span style={{color: T.muted}}>·</span> 1 tower
 						</div>
 					</AbsoluteFill>
 				</AbsoluteFill>
 				{/* her phone shrinking into the crowd (S4 entry) */}
 				{lf < 22 && (
-					<PhoneAt x={interpolate(shrink, [0, 1], [FULL.x, 1180])} y={interpolate(shrink, [0, 1], [FULL.y, 900])} s={interpolate(shrink, [0, 1], [FULL.s, 0.05])}>
+					<PhoneAt x={interpolate(shrink, [0, 1], [FULL.x, P.her.x])} y={interpolate(shrink, [0, 1], [FULL.y, P.her.y + 20])} s={interpolate(shrink, [0, 1], [FULL.s, 0.05])}>
 						<Phone minutes={21} tint={1}>
 							<VerifyScreen f={f} sent />
 						</Phone>
