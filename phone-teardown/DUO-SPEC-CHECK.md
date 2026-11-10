@@ -22,14 +22,16 @@ Checked against Apple's iPhone Duo spec pages, Apple's Duo guide, Apple newsroom
 | Outer camera | 12 MP Center Stage in a punch-hole | ✅ top outer corner |
 | Brightness | 1000 typ / 1600 HDR / 3000 outdoor nits | ✅ (in text) |
 
-## Controls (Apple's Duo guide + BGR, T3, TechRadar, Daring Fireball)
+## Controls (Apple's Duo guide diagram + reviews)
+Apple's guide numbers the hardware: 1 under-display FaceTime camera, 2 volume buttons, 3 side button with Touch ID, 4 Camera Control, 5 USB-C.
+
 | Control | Model |
 |---|---|
-| Volume up/down on the top edge (closed), up = nearer the Touch ID button | ✅ near the Touch ID corner |
-| Long, slightly raised side button with Touch ID on the right edge (closed) | ✅ on the cover-screen half |
+| Volume buttons on the top edge, just right of the under-display FaceTime camera | ✅ camera half, top edge |
+| Side button with Touch ID (no Face ID), long and slightly raised; works open or closed | ✅ outer edge of the camera half (right edge when closed) |
 | Camera Control below the side button | ✅ |
 | Action button | ✅ none (TechRadar's mention conflicts with Apple, MacRumors, T3, BGR) |
-| Which half carries the buttons | ⚠️ cover-screen half: inferred from "right edge when closed" and Daring Fireball ("held open vertically, Touch ID is on the top on the left side"); not stated outright |
+| Top and bottom speakers (Apple repair manual) | ✅ earpiece slit at the top of the cover screen + bottom grille |
 
 ## Cameras
 | Spec | Source value | Model |
