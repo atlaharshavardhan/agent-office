@@ -287,9 +287,9 @@ const Watermark = () => {
   return <Img src={staticFile('watermark-clear.png')} style={{ position: 'absolute', left: 30, top: 960 - 27, height: 54, opacity: 0.55 * (away ? k : 1) }} />;
 };
 
-export const Reel = () => (
+export const Reel = ({ bg } = {}) => (
   <AbsoluteFill style={{ background: '#000' }}>
-    <Footage />
+    {bg ? <Img src={staticFile(bg)} style={{ width: 1080, height: 1920 }} /> : <Footage />}  {/* bg: storyboard still instead of the video */}
     {SWEEPS.map((t) => <LightSweep key={t} at={t} />)}
     <Chrome />
     <Sequence durationInFrames={s(END_AT + 0.3)}><TextTrack /></Sequence>
