@@ -208,14 +208,14 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ---------------- Part descriptions ---------------- */
 const INFO = {
   inner: { name: 'Inner display', role: 'A 7.6-inch screen that folds in half.',
-    body: 'A flexible OLED panel built as a stack of about ten thin layers, topped with ultra-thin glass and a matte finish. The layers slide past each other every time you fold, which is why the crease is easier to feel than to see. The FaceTime camera sits underneath the display, so the big screen has no cutout.',
-    specs: ['7.6-inch foldable OLED', 'About 10 layers, ultra-thin glass', 'Under-display FaceTime camera'] },
-  frame: { name: 'Frame halves and buttons', role: 'Two metal halves joined by the hinge.',
-    body: 'Each half of the phone has its own titanium frame and inner plate. Open, it is only 5.2 mm thick; folded, the halves stack to 11.3 mm. Every control sits on the top edge: the volume buttons, a side button with Touch ID built in (there is no Face ID), and a Camera Control button. There is no Action button.',
-    specs: ['Titanium frame, 5.2 mm open', 'Touch ID side button + Camera Control', 'No Action button'] },
+    body: 'A flexible OLED made of 10 ultrathin layers, topped with a nano-texture layer that cuts glare and helps hide the crease. The layers slide past each other every time you fold. ProMotion runs it at up to 120 Hz, and a 1080p FaceTime camera hides under the display.',
+    specs: ['7.6-inch, 2670 × 1878, 430 ppi', '10 ultrathin layers, nano-texture', 'Under-display 1080p FaceTime camera'] },
+  frame: { name: 'Frame halves and buttons', role: 'Two titanium halves joined by the hinge.',
+    body: 'Each half has a mirror-polished Grade 5 titanium frame over an aluminum inner structure. Open it is 5.2 mm thick; folded, 11.3 mm. Every control sits on the top edge: two volume buttons, a side button with Touch ID (there is no Face ID) and Camera Control. There is no Action button.',
+    specs: ['Grade 5 titanium, mirror-polished', 'Touch ID side button + Camera Control', '254 g, IP68'] },
   hinge: { name: 'Hinge', role: 'The part that makes it fold.',
-    body: 'A 3D-printed titanium hinge links the halves with gears, springs and interlocking metal joints. It closes in a waterdrop shape, leaving a teardrop pocket for the screen to curl into so it never bends sharply. A central support bar holds the screen flat when the phone is open.',
-    specs: ['3D-printed titanium', 'Waterdrop fold for a gentler crease', 'Gears, springs and a support bar'] },
+    body: 'The hinge is more than 100 parts: gears, springs and interlocking joints under a 3D-printed Grade 5 titanium cover. It closes in a waterdrop shape, leaving a teardrop pocket for the screen to curl into so it never bends sharply. A support bar holds the screen flat when open.',
+    specs: ['100+ parts', '3D-printed titanium hinge cover', 'Waterdrop fold for a gentler crease'] },
   board: { name: 'Logic board', role: 'A single-layer board instead of a sandwich.',
     body: 'Recent iPhones stack two circuit boards, but the Duo spreads its main board out in one layer, the first iPhone to do that since iPhone 8. It carries the A20 Pro chip, Apple’s own C2 cellular modem and the N1 chip for Wi-Fi and Bluetooth.',
     specs: ['A20 Pro chip', 'C2 modem and N1 wireless chip', 'Single-layer layout'] },
@@ -225,15 +225,15 @@ const INFO = {
   batteries: { name: 'Two batteries', role: 'One cell in each half.',
     body: 'Teardowns found two cells: a larger 2,962 mAh battery in one half and a 1,921 mAh battery in the other, about 4,883 mAh in total. They are held with electrically released adhesive, so a technician frees them by passing a small current instead of prying.',
     specs: ['2,962 mAh + 1,921 mAh', 'About 4,883 mAh total', 'Electrically released adhesive'] },
-  cameras: { name: 'Rear cameras', role: 'Two 48 MP cameras.',
-    body: 'The Duo has a 48 MP Fusion main camera and a 48 MP Fusion ultra-wide camera on one bracket. To keep each half thin it leaves out the telephoto lens found on iPhone 18 Pro.',
-    specs: ['48 MP Fusion main', '48 MP Fusion ultra-wide', 'No telephoto'] },
+  cameras: { name: 'Rear cameras', role: 'Dual 48 MP Fusion system.',
+    body: 'A 48 MP Fusion Main camera (26 mm, ƒ/1.6) and a 48 MP Fusion Ultra Wide sit side by side. There is no telephoto lens; the Main camera crops to a 12 MP optical-quality 2× instead.',
+    specs: ['48 MP Fusion Main, ƒ/1.6', '48 MP Fusion Ultra Wide', '2× optical-quality crop, no telephoto'] },
   outer: { name: 'Outer display', role: 'Use it like a normal phone when closed.',
-    body: 'A 5.4-inch screen covers the outside of one half. With the Duo folded it gives about 90% of the screen area of an iPhone 18 Pro, and its own front camera handles selfies and calls while the phone is shut.',
-    specs: ['5.4-inch OLED', 'About 90% of iPhone 18 Pro screen area', 'Front camera for closed use'] },
+    body: 'A 5.4-inch screen covers the outside of one half, with the same aspect ratio as the inner display and about 90% of the screen area of iPhone 18 Pro. A 12 MP Center Stage camera in the punch-hole handles selfies and calls while the phone is shut.',
+    specs: ['5.4-inch OLED, up to 120 Hz', '3000 nits peak outdoors', '12 MP Center Stage front camera'] },
   back: { name: 'Back cover', role: 'Closes the camera half.',
-    body: 'The back of the camera half is Ceramic Shield glass with a colored finish, a raised camera plateau and the Apple logo. Open the phone partway on a table and the plateau angles the cameras up like a small tripod. The whole phone weighs 254 g and is rated IP68.',
-    specs: ['Ceramic Shield glass back', '254 g, IP68', 'Night Sky or Star White'] },
+    body: 'The camera half is backed with Ceramic Shield glass, a raised camera plateau and the Apple logo. Behind the logo sits a MagSafe coil and magnet ring for wireless charging. Open the phone partway on a table and the plateau angles the cameras up like a small tripod.',
+    specs: ['Ceramic Shield back', 'MagSafe and Qi2, up to 25 W', 'Night Sky or Star White'] },
 };
 
 /* ---------------- Three.js setup ---------------- */
@@ -524,7 +524,7 @@ function paintScreen(canvas, bg, items, p, radius, hole) {
 }
 const INNER_HOLE = [1560, 62, 17], OUTER_HOLE = [680, 72, 22];
 const innerSharp = document.createElement('canvas'); innerSharp.width = 1640; innerSharp.height = 1100;
-paintScreen(innerSharp, innerBg, innerItems, 1, 86, INNER_HOLE);
+paintScreen(innerSharp, innerBg, innerItems, 1, 86, null); circ(innerSharp.getContext('2d'), INNER_HOLE[0], INNER_HOLE[1], 13, 'rgba(0,0,0,0.16)'); // under-display camera: barely visible
 const innerBlur = document.createElement('canvas'); innerBlur.width = 1640; innerBlur.height = 1100;
 (function () {
   const b = innerBlur.getContext('2d');
@@ -539,7 +539,7 @@ const innerBlur = document.createElement('canvas'); innerBlur.width = 1640; inne
 })();
 function composeInner(bl) {
   const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100); x.drawImage(innerSharp, 0, 0);
-  if (bl > 0.003) { x.globalAlpha = bl; x.drawImage(innerBlur, 0, 0); x.globalAlpha = 1; const [hx, hy, hr] = INNER_HOLE; circ(x, hx, hy, hr, '#000'); circ(x, hx, hy, hr * 0.55, '#0d1630'); }
+  if (bl > 0.003) { x.globalAlpha = bl; x.drawImage(innerBlur, 0, 0); x.globalAlpha = 1; }
 }
 composeInner(0);
 function innerTex(offset) { const t = new THREE.CanvasTexture(innerCanvas); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; t.repeat.set(0.5, 1); t.offset.set(offset, 0); return t; }
@@ -547,7 +547,7 @@ addPart('inner', [0, 0, 72], { az: 0.42, el: 0.4, k: 0.92 }, [-80, 56, 2.6], g =
   const body = phys({ color: 0x050506, metalness: 0.1, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.05 });
   mesh(extrude(halfL(0.3), 0.6, 0.1), body, 0, 0, 2.35, g);
   mesh(extrude(halfR(0.3), 0.6, 0.1), body, 0, 0, 2.35, g);
-  const sw = 81.0, sh = 115.2;
+  const sw = 78.85, sh = 111.0;  // 7.6-inch, 2670 x 1878 at 430 ppi
   const full = new THREE.CanvasTexture(innerCanvas); full.encoding = THREE.sRGBEncoding; full.anisotropy = 4;
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(sw * 2, sh, 240, 1), new THREE.MeshBasicMaterial({ map: full, transparent: true, toneMapped: false, side: THREE.DoubleSide }));
   const roundA = canvasTex(820, 550, (x, w, h) => { x.fillStyle = '#000'; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.beginPath(); x.roundRect(2, 2, w - 4, h - 4, 42); x.fill(); });
@@ -561,7 +561,7 @@ addPart('inner', [0, 0, 72], { az: 0.42, el: 0.4, k: 0.92 }, [-80, 56, 2.6], g =
 
 /* 2. Frame halves */
 addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g => {
-  const metal = std(0x060a14, 0.75, 0.36, { envMapIntensity: 0.7 }, { envMapIntensity: 1.1 });
+  const metal = std(0x0a1222, 1, 0.16, { envMapIntensity: 0.9 }, { envMapIntensity: 1.1 });
   [[halfL(0), halfL(1.6, R)], [halfR(0), halfR(1.6, R)]].forEach(([o, i]) => { const s = o; const hole = i; const hp = new THREE.Path(hole.getPoints(24)); s.holes.push(hp); mesh(extrude(s, D, 0.4), metal, 0, 0, 0, g); });
   const plate = std(0x9aa0a6, 0.8, 0.45);
   const pl = halfR(1.4); pl.holes.push(new THREE.Path(rrShape(54, 25, 12, CAM.x, CAM.y).getPoints(16)));
@@ -603,7 +603,7 @@ addPart('hinge', [0, 0, 22], { az: 0.75, el: 0.45, k: 0.72, t: [0, 40, 0.5], dis
 }, false);
 (function makeSpine() {
   const hp = parts[parts.length - 1];
-  const mat = std(0x060a14, 0.75, 0.36, { envMapIntensity: 0.7 }, { side: THREE.DoubleSide, envMapIntensity: 1.1 });
+  const mat = std(0x0a1222, 1, 0.16, { envMapIntensity: 0.9 }, { side: THREE.DoubleSide, envMapIntensity: 1.1 });
   const geo = new THREE.CylinderGeometry(5.72, 5.72, H - 0.2, 64, 1, true, Math.PI / 2, Math.PI);
   spine = new THREE.Mesh(geo, mat); spine.position.set(0, 0, ZF); spine.visible = false; spine.userData.part = hp;
   mat.userData.baseOpacity = 1; mat.userData.baseTransparent = false; mat.userData.baseDepthWrite = true;
@@ -691,10 +691,10 @@ paintScreen(outerCanvas, outerBg, outerItems, 1, [6, 82, 82, 6], OUTER_HOLE);
 const outerTex = new THREE.CanvasTexture(outerCanvas); outerTex.encoding = THREE.sRGBEncoding; outerTex.anisotropy = 4;
 addPart('outer', [0, 0, -52], { az: 3.35, el: 0.28, k: 1.0 }, [-80, 56, -2.5], g => {
   mesh(extrude(halfL(0.3), 0.7, 0.15), phys({ color: 0x050506, metalness: 0.1, roughness: 0.2, clearcoat: 1 }), 0, 0, -2.33, g);
-  const scr = new THREE.Mesh(new THREE.PlaneGeometry(78.6, 115), new THREE.MeshBasicMaterial({ map: outerTex, transparent: true, toneMapped: false }));
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(79, 112.2), new THREE.MeshBasicMaterial({ map: outerTex, transparent: true, toneMapped: false }));
   scr.position.set(-41.6, 0, -2.74); scr.rotation.y = Math.PI; g.add(scr); outerScr = scr;
   const gl = new THREE.Mesh(extrude(halfL(1.0), 0.15, 0.05), phys({ color: 0xdfefff, transparent: true, opacity: 0.06, roughness: 0.05, clearcoat: 1, envMapIntensity: 1.0, depthWrite: false })); gl.position.z = -2.82; g.add(gl);
-  mesh(cyl(1.6, 1.6, 24), std(0x2e3136, 0.8, 0.38), -72.6, 50.1, -1.6, g); // outer front camera (top-right of cover screen)
+  mesh(cyl(1.6, 1.6, 24), std(0x2e3136, 0.8, 0.38), -72.8, 48.9, -1.6, g); // 12 MP Center Stage camera behind the cover-screen punch-hole
   box(14, 3, 0.18, std(0xd99a3a, 0.1, 0.45), -64, 43, -1.2, g);
 });
 
@@ -719,6 +719,12 @@ addPart('back', [0, 0, -68], { az: 2.95, el: 0.25, k: 0.95 }, [82, -50, -2.6], g
   [[CAM.x + 14.5, 7.6], [CAM.x - 3.5, 7.6]].forEach(([lx, r]) => lens3D(g, lx, CAM.y, -3.65, r));
   mesh(cyl(1.9, 0.5, 32), std(0xfff4dc, 0.1, 0.25, { emissive: 0x2a2416 }), CAM.x - 17, CAM.y, -3.85, g);  // flash
   mesh(cyl(0.45, 0.4, 12), std(0x050506, 0, 0.8), CAM.x - 17, CAM.y - 6.2, -3.8, g);                     // mic hole
+  const msZ = -1.25, msX = 41.2, msY = 0;
+  mesh((() => { const sh = new THREE.Shape(); sh.absarc(0, 0, 19, 0, Math.PI * 2); const hh = new THREE.Path(); hh.absarc(0, 0, 7, 0, Math.PI * 2, true); sh.holes.push(hh); return extrude(sh, 0.3, 0, 48); })(), std(0x141518, 0.2, 0.7), msX, msY, msZ + 0.25, g); // ferrite shield
+  const cu = std(0xc98552, 1, 0.3);
+  for (let i = 0; i < 10; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(8 + i * 1.0, 0.38, 6, 72), cu); t.position.set(msX, msY, msZ); g.add(t); }
+  const mg = std(0x80868d, 0.9, 0.35);
+  for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2; const mm = box(6.2, 2.2, 0.8, mg, msX + Math.cos(a) * 23, msY + Math.sin(a) * 23, msZ, g); mm.rotation.z = a + Math.PI / 2; }
   logoDecal(19, phys({ color: 0x0c1528, metalness: 0.75, roughness: 0.08, clearcoat: 1, envMapIntensity: 1.3 }), 41.2, 0, -2.68, g);
 });
 
@@ -867,7 +873,7 @@ sseg({ dur: 10, explode: () => 1, dimMap: { inner: 0.8 }, dimDefault: 0.93,
   pose: t => P(STACK_C.x, STACK_C.y + 2, STACK_C.z, 0.42 + 0.12 * t, 0.2, 400),
   caps: [[0.3, 4.4, L('Trick 1: the screen is <em>~10 thin layers</em>')], [4.4, 10, L('They <em>slide</em> like paper, so nothing snaps')]] });
 sseg({ dur: 5.5, explode: () => 1, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 34, 22.5, 0.38 + 0.25 * t, 0.32, 200),
-  caps: [[0.25, 5.5, L('Trick 2: a <em>3D-printed titanium</em> hinge') + '<div class="sub">gears · springs</div>']] });
+  caps: [[0.25, 5.5, L('Trick 2: a hinge of <em>100+ parts</em>') + '<div class="sub">gears · springs · 3D-printed titanium cover</div>']] });
 sseg({ dur: 5.5, explode: t => 1 - ease(clamp01(t * 5.5 / 1.4)), fold: t => 0.74 * ease(clamp01((t * 5.5 - 1.5) / 2.6)),
   keepOn: true, dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(14, 30, 10, -0.2 - 0.1 * t, 0.95, 330),
   caps: [[0.25, 5.5, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });
