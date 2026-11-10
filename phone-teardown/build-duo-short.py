@@ -156,7 +156,7 @@ window.mirrorPass = () => {
        so it can only ever show around the edges, never on the phone or its screen --- */
 const haloC = document.createElement('canvas'); haloC.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
 canvas.parentNode.insertBefore(haloC, canvas);
-const hS = [14, 30, 60, 110].map(k => { const c = document.createElement('canvas'); return { k, c, x: c.getContext('2d') }; });
+const hS = [40, 80, 140].map(k => { const c = document.createElement('canvas'); return { k, c, x: c.getContext('2d') }; });
 window.haloPass = () => {
   const W = canvas.width, H = canvas.height; if (haloC.width !== W) { haloC.width = W; haloC.height = H; }
   const hx = haloC.getContext('2d'); hx.clearRect(0, 0, W, H); hx.imageSmoothingEnabled = true; hx.imageSmoothingQuality = 'high';
@@ -164,7 +164,7 @@ window.haloPass = () => {
   hS.forEach(({ k, c, x }, i) => {
     const w = Math.max(2, Math.round(W / k)), h = Math.max(2, Math.round(H / k)); if (c.width !== w) { c.width = w; c.height = h; }
     x.globalCompositeOperation = 'copy'; x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.drawImage(canvas, 0, 0, w, h);
-    x.globalCompositeOperation = 'source-in'; x.fillStyle = ['rgba(150,190,255,0.16)', 'rgba(110,160,255,0.22)', 'rgba(85,135,245,0.22)', 'rgba(70,110,230,0.18)'][i]; x.fillRect(0, 0, w, h);
+    x.globalCompositeOperation = 'source-in'; x.fillStyle = ['rgba(120,165,255,0.10)', 'rgba(95,145,250,0.10)', 'rgba(80,125,240,0.08)'][i]; x.fillRect(0, 0, w, h);
     hx.drawImage(c, -k, -k, W + 2 * k, H + 2 * k);
   });
   hx.globalCompositeOperation = 'source-over';
