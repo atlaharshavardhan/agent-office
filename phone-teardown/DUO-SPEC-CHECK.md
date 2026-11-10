@@ -22,16 +22,20 @@ Checked against Apple's iPhone Duo spec pages, Apple's Duo guide, Apple newsroom
 | Outer camera | 12 MP Center Stage in a punch-hole | ✅ top outer corner |
 | Brightness | 1000 typ / 1600 HDR / 3000 outdoor nits | ✅ (in text) |
 
-## Controls (Apple's Duo guide diagram + reviews)
-Apple's guide numbers the hardware: 1 under-display FaceTime camera, 2 volume buttons, 3 side button with Touch ID, 4 Camera Control, 5 USB-C.
+## Controls and ports (placed from Apple's Duo guide diagram, scaled to 164.6 × 117.8 mm)
+Open, inner screen facing you (camera half on the right):
 
-| Control | Model |
-|---|---|
-| Volume buttons on the top edge, just right of the under-display FaceTime camera | ✅ camera half, top edge |
-| Side button with Touch ID (no Face ID), long and slightly raised; works open or closed | ✅ outer edge of the camera half (right edge when closed) |
-| Camera Control below the side button | ✅ |
-| Action button | ✅ none (TechRadar's mention conflicts with Apple, MacRumors, T3, BGR) |
-| Top and bottom speakers (Apple repair manual) | ✅ earpiece slit at the top of the cover screen + bottom grille |
+| # | Apple label | Model position |
+|---|---|---|
+| 1 | Under-display FaceTime camera | camera half, ~34 mm right of centre, near the top |
+| 2 | Volume buttons | top edge, just right of the camera (two ~10 mm buttons) |
+| 3 | Side button / Touch ID | outer edge of the camera half, upper part, ~19 mm long, slightly raised |
+| 4 | Camera Control | same edge, about three-quarters of the way down |
+| 5 | USB-C connector | bottom edge of the cover-screen half, ~¼ from the left (with speaker and mic grilles) |
+| 6–8 | Ultra Wide, Main, flash (mic slot above flash) | wide pill at the top outer corner of the back |
+| 9 | Center Stage front camera | top outer corner of the cover screen |
+
+No Action button. Top and bottom speakers per Apple's repair manual (earpiece slit + bottom grille).
 
 ## Cameras
 | Spec | Source value | Model |
