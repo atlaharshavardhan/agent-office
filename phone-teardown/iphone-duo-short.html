@@ -979,7 +979,7 @@ const floorMat = new THREE.ShaderMaterial({ transparent: true, depthWrite: false
   vertexShader: 'uniform mat4 texM; varying vec4 vUv; varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; vUv = texM * w; gl_Position = projectionMatrix * viewMatrix * w; }',
   fragmentShader: 'uniform sampler2D map; uniform float op; uniform vec2 c; varying vec4 vUv; varying vec3 vW; void main(){ vec4 r = texture2DProj(map, vUv); float d = length(vW.xz - c); float f = op * exp(-d / 95.0); gl_FragColor = vec4(pow(max(r.rgb, 0.0), vec3(1.0 / 2.2)) * 0.9, r.a * f); }' });
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), floorMat); floor.rotation.x = -Math.PI / 2; floor.position.y = FLOOR_Y; floor.renderOrder = -1; scene.add(floor);
-const rimL = new THREE.DirectionalLight(0xb9d6ff, 0.8); scene.add(rimL); scene.add(rimL.target);
+const rimL = new THREE.DirectionalLight(0xb9d6ff, 0.45); scene.add(rimL); scene.add(rimL.target);
 const _v = new THREE.Vector3(), _d = new THREE.Vector3(), _u = new THREE.Vector3();
 window.mirrorPass = () => {
   // rim light sits behind the phone, opposite the camera, a little above
@@ -1012,7 +1012,7 @@ window.haloPass = () => {
   hS.forEach(({ k, c, x }, i) => {
     const w = Math.max(2, Math.round(W / k)), h = Math.max(2, Math.round(H / k)); if (c.width !== w) { c.width = w; c.height = h; }
     x.globalCompositeOperation = 'copy'; x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.drawImage(canvas, 0, 0, w, h);
-    x.globalCompositeOperation = 'source-in'; x.fillStyle = ['rgba(110,155,255,0.055)', 'rgba(90,135,245,0.05)'][i]; x.fillRect(0, 0, w, h);
+    x.globalCompositeOperation = 'source-in'; x.fillStyle = ['rgba(110,155,255,0.025)', 'rgba(90,135,245,0.022)'][i]; x.fillRect(0, 0, w, h);
     hx.drawImage(c, -k, -k, W + 2 * k, H + 2 * k);
   });
   hx.globalCompositeOperation = 'source-over';
@@ -1026,7 +1026,7 @@ const OPEN = P(0, 0, 1, 0.06, 0.12, 690), OVER = P(36, 0, 2, 0.12, 0.85, 1080, U
 sseg({ dur: 2.2, fold: () => 1, pose: t => { const T = t * 2.2; return T < 1.2 ? lerpPose(MACRO, BACK0, ease(T / 1.2) * 0.999) : lerpPose(BACK0, BACK1, ease((T - 1.2) / 1.0)); },
   caps: [[0, 2.2, '<div class="big">₹2,99,900</div>' + L('This iPhone <em>folds in half</em>')]] });
 sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 1.1) / 1.35)), cb: t => clamp01((t * 2.8 - 0.75) / 0.3),  // sharp cover → frost → open
-  wake: t => 1 + 0.22 * Math.sin(Math.PI * clamp01((t * 2.8 - 2.25) / 0.55)),       // little Apple-style glow as the screen lands flat
+  wake: t => 1 + 0.06 * Math.sin(Math.PI * clamp01((t * 2.8 - 2.25) / 0.55)),       // little Apple-style glow as the screen lands flat
   pose: t => { const T = t * 2.8; return T < 0.55 ? lerpPose(BACK1, FRONT_C, ease(T / 0.55)) : lerpPose(FRONT_C, OPEN, ease(clamp01((T - 1.15) / 1.45))); },
   caps: [[0.05, 1.6, L('But glass <em>cracks</em> when you bend it')], [1.6, 2.8, '<div class="big">So how?</div>']] });
 sseg({ dur: 4, gl: t => clamp01((t * 4 - 2.25) / 1.0), glo: t => clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
