@@ -141,13 +141,13 @@ const TextTrack = () => {
   );
 };
 
-const Chip = ({ label, value, durationInFrames, bumpAt }) => {
+const Chip = ({ label, value, durationInFrames, bumpAt, top = 1395 }) => {
   const frame = useCurrentFrame();
   const p = spring({ frame, fps: FPS, config: { damping: 15, stiffness: 180 } });
   const out = interpolate(frame, [durationInFrames - 8, durationInFrames], [1, 0], clamp);
   const bump = bumpAt != null ? interpolate(frame - bumpAt, [0, 3, 9], [0, 1, 0], clamp) : 0;
   return (
-    <AbsoluteFill style={{ top: 1395, height: 'auto', alignItems: 'center' }}>
+    <AbsoluteFill style={{ top, height: 'auto', alignItems: 'center' }}>
       <div style={{
         display: 'flex', alignItems: 'baseline', gap: 18, padding: '18px 34px', borderRadius: 999,
         background: C.chipBg, border: `2px solid ${C.chipLine}`,
@@ -214,7 +214,7 @@ export const Reel = () => (
     <Chrome />
     <TextTrack />
 
-    <Sequence from={s(6.85)} durationInFrames={s(2.2)}><Chip value="5.2 mm" label="open · 11.3 mm closed" durationInFrames={s(2.2)} /></Sequence>
+    <Sequence from={s(6.85)} durationInFrames={s(2.2)}><Chip value="5.2 mm" label="open · 11.3 mm closed" durationInFrames={s(2.2)} top={330} /></Sequence>
     <Sequence from={s(9.55)} durationInFrames={s(9.3)}><CountChip to={10} label="ultrathin layers" countFrames={s(1.6)} durationInFrames={s(9.3)} /></Sequence>
     <Sequence from={s(19.45)} durationInFrames={s(5.2)}><CountChip to={100} suffix="+" label="hinge parts" countFrames={s(0.9)} durationInFrames={s(5.2)} /></Sequence>
 
