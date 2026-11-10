@@ -29,7 +29,10 @@ R("return { fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,",
   "return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, wake: s.wake ? s.wake(u) : 1, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
 R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake;")
 R("const camera = new THREE.PerspectiveCamera(30, 1, 5, 3000);", "const camera = new THREE.PerspectiveCamera(33, 1, 5, 3000);  // ~10% wider so tall shots fit the 450-1500 band")
+R("function composeInner(bl) {\n  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100); x.drawImage(innerSharp, 0, 0);",
+  "function composeInner(bl) {\n  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100);\n  const z = 1 + 0.05 * bl; x.save(); x.beginPath(); x.roundRect(0, 0, 1640, 1100, 86); x.clip(); x.translate(1230, 550); x.scale(z, z); x.translate(-1230, -550); x.drawImage(innerSharp, 0, 0); x.restore();")
 R("var KEEP_ON = false, lastInnerP = 0, lastOuterP = 1;", "var KEEP_ON = false, WAKE = 1, lastInnerP = 0, lastOuterP = 1;")
+R("  if (bl > 0.003) { x.globalAlpha = bl; x.drawImage(innerBlur, 0, 0); x.globalAlpha = 1; }", "  if (bl > 0.003) { x.globalAlpha = bl; x.drawImage(innerBlur, 0, 0); x.globalAlpha = 1; }\n  if (bl > 0.003) { const g = x.createLinearGradient(0, 0, 860, 0); g.addColorStop(0, `rgba(8,10,16,${(0.62 * bl).toFixed(3)})`); g.addColorStop(0.8, `rgba(8,10,16,${(0.45 * bl).toFixed(3)})`); g.addColorStop(1, 'rgba(8,10,16,0)'); x.save(); x.beginPath(); x.roundRect(0, 0, 1640, 1100, 86); x.clip(); x.fillStyle = g; x.fillRect(0, 0, 860, 1100); x.restore(); }")
 R("  innerScr.material.color.setScalar(ease(on));", "  innerScr.material.color.setScalar(ease(on) * WAKE);")
 R("  explode = st.explode; applyExplode(explode);", "  KEEP_ON = st.keepOn; explode = st.explode; applyExplode(explode);")
 
@@ -70,6 +73,7 @@ const capEl = document.getElementById('cap'); let capHtml = null;
 function setCap([html, a]) { if (html !== capHtml) { capHtml = html; capEl.innerHTML = html; } capEl.style.opacity = a.toFixed(3); capEl.style.transform = `translateY(${((1 - a) * 24).toFixed(1)}px)`; }
 function capAt(s, lt) { const c = (s.caps || []).find(([a, b]) => lt >= a && lt < b); if (!c) return ['', 0]; return [c[2], clamp01(Math.min((lt - c[0]) / 0.22, (c[1] - lt) / 0.18))]; }
 (function portraitInner() {
+  return;  // open phone is shown wide (hinge vertical, like the real Duo), so keep the original wide home screen
   const P = document.createElement('canvas'); P.width = 1100; P.height = 1640; const x = P.getContext('2d');
   dunes(x, 1100, 1640, 0.4);
   const cg = x.createLinearGradient(0, 800, 0, 840); cg.addColorStop(0, 'rgba(0,0,0,0)'); cg.addColorStop(0.5, 'rgba(0,0,0,0.04)'); cg.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = cg; x.fillRect(0, 800, 1100, 40);
@@ -169,8 +173,8 @@ window.haloPass = () => {
 const S1A = P(36, 0, 3, 2.75, 0.16, 380);  // closed, back three-quarter (end of the tour)
 // Apple-style reveal: slow turntable close-up of the closed phone, swing to face the viewer, open towards the camera
 const MACRO = P(56, 40, -4, 2.95, 0.06, 205), BACK0 = P(36, 0, 3, 2.75, 0.1, 500), BACK1 = P(36, 0, 3, 3.3, 0.14, 455);
-const FRONT_C = P(36, 0, 3, 0.1, 0.06, 470);                 // closed, cover screen facing us
-const OPEN = P(0, 0, 1, 0.04, 0.08, 610, UP_OPEN), OVER = P(36, 0, 2, 0.12, 0.85, 1080, UP_STACK);
+const FRONT_C = P(36, 0, 3, 0.12, 0.16, 470);                 // closed, cover screen facing us
+const OPEN = P(0, 0, 1, 0.1, 0.2, 690), OVER = P(36, 0, 2, 0.12, 0.85, 1080, UP_STACK);
 sseg({ dur: 2.2, fold: () => 1, pose: t => { const T = t * 2.2; return T < 1.2 ? lerpPose(MACRO, BACK0, ease(T / 1.2) * 0.999) : lerpPose(BACK0, BACK1, ease((T - 1.2) / 1.0)); },
   caps: [[0, 2.2, '<div class="big">₹2,99,900</div>' + L('This iPhone <em>folds in half</em>')]] });
 sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 0.75) / 1.55)),
