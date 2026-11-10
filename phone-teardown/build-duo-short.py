@@ -203,7 +203,7 @@ for a_, b_ in [("if (Math.abs(sx) + Math.abs(sy) > 0.5) camera.setViewOffset(w, 
     assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
 for a_, b_ in [("g.addColorStop(0, 'rgba(0,0,0,0.85)'); g.addColorStop(0.55, 'rgba(0,0,0,0.35)'); g.addColorStop(1, 'rgba(0,0,0,0)');", "g.addColorStop(0, 'rgba(150,170,215,0.17)'); g.addColorStop(0.55, 'rgba(120,140,190,0.06)'); g.addColorStop(1, 'rgba(0,0,0,0)');"),
                ("m.position.set(x, y, z); m.rotation.y = Math.PI; parent.add(m); return m; // faces the back (-z)", "m.position.set(x, y, z); m.rotation.y = Math.PI; m.userData.logo = true; parent.add(m); return m; // faces the back (-z)"),
-               ("const P = (tx, ty, tz, az, el, dist, ax", "root.traverse(o => { if (o.userData.logo) o.visible = false; }); // no Apple logo in the reel\nconst P = (tx, ty, tz, az, el, dist, ax")]:
+               ("const P = (tx, ty, tz, az, el, dist, ax", "// Apple logo stays on the back (owner asked for it)\nconst P = (tx, ty, tz, az, el, dist, ax")]:
     assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
 
 # --- camera orientation: each pose names the world axis that should point UP on screen (lets the open phone stand tall) ---
