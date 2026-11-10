@@ -201,8 +201,8 @@ const INFO = {
     body: 'A flexible OLED panel built as a stack of about ten thin layers, topped with ultra-thin glass and a matte finish. The layers slide past each other every time you fold, which is why the crease is easier to feel than to see. The FaceTime camera sits underneath the display, so the big screen has no cutout.',
     specs: ['7.6-inch foldable OLED', 'About 10 layers, ultra-thin glass', 'Under-display FaceTime camera'] },
   frame: { name: 'Frame halves and buttons', role: 'Two metal halves joined by the hinge.',
-    body: 'Each half of the phone has its own metal frame and inner plate. Open, the phone is only 5.2 mm thick; folded, the halves stack to 11.3 mm. The side button has Touch ID built in, so you unlock it with your fingerprint.',
-    specs: ['5.2 mm open, 11.3 mm closed', '164.6 × 117.8 mm open', 'Touch ID in the side button'] },
+    body: 'Each half of the phone has its own titanium frame and inner plate. Open, the phone is only 5.2 mm thick; folded, the halves stack to 11.3 mm. The side button has Touch ID built in, so you unlock it with your fingerprint.',
+    specs: ['Titanium frame', '5.2 mm open, 11.3 mm closed', 'Touch ID in the side button'] },
   hinge: { name: 'Hinge', role: 'The part that makes it fold.',
     body: 'A 3D-printed titanium hinge links the halves with gears, springs and interlocking metal joints. It closes in a waterdrop shape, leaving a teardrop pocket for the screen to curl into so it never bends sharply. A central support bar holds the screen flat when the phone is open.',
     specs: ['3D-printed titanium', 'Waterdrop fold for a gentler crease', 'Gears, springs and a support bar'] },
@@ -222,8 +222,8 @@ const INFO = {
     body: 'A 5.4-inch screen covers the outside of one half. With the Duo folded it gives about 90% of the screen area of an iPhone 18 Pro, and its own front camera handles selfies and calls while the phone is shut.',
     specs: ['5.4-inch OLED', 'About 90% of iPhone 18 Pro screen area', 'Front camera for closed use'] },
   back: { name: 'Back cover', role: 'Closes the camera half.',
-    body: 'The back of the camera half is one panel with a raised camera plateau and the Apple logo. The whole phone weighs 254 g, open or closed, and is rated IP68 against dust and water.',
-    specs: ['254 g', 'IP68 dust and water resistance', 'Star White or Night Sky'] },
+    body: 'The back of the camera half is Ceramic Shield glass with a colored finish, a raised camera plateau and the Apple logo. Open the phone partway on a table and the plateau angles the cameras up like a small tripod. The whole phone weighs 254 g and is rated IP68.',
+    specs: ['Ceramic Shield glass back', '254 g, IP68', 'Night Sky or Star White'] },
 };
 
 /* ---------------- Three.js setup ---------------- */
@@ -239,26 +239,29 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(30, 1, 1, 4000);
 const FOV = THREE.MathUtils.degToRad(30);
 
-scene.add(new THREE.HemisphereLight(0xdfe8ff, 0x1a1410, 0.55));
-const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(140, 220, 260); scene.add(key);
+scene.add(new THREE.HemisphereLight(0xdfe8ff, 0x1a1410, 0.3));
+const key = new THREE.DirectionalLight(0xffffff, 1.0); key.position.set(140, 220, 260); scene.add(key);
 const rim = new THREE.DirectionalLight(0xffd2a8, 0.9); rim.position.set(-240, 90, -220); scene.add(rim);
 const fill = new THREE.DirectionalLight(0xa8c2ff, 0.55); fill.position.set(-220, -120, 160); scene.add(fill);
 const back = new THREE.DirectionalLight(0xffffff, 0.7); back.position.set(160, 60, -260); scene.add(back);
 
 // Studio environment for metal reflections
 (function makeEnv() {
-  const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 512;
-  const x = cv.getContext('2d');
-  const g = x.createLinearGradient(0, 0, 0, 512);
-  g.addColorStop(0, '#39424c'); g.addColorStop(0.48, '#1c2228'); g.addColorStop(0.52, '#121518'); g.addColorStop(1, '#07080a');
-  x.fillStyle = g; x.fillRect(0, 0, 1024, 512);
-  x.fillStyle = '#ffffff'; x.fillRect(110, 70, 240, 80); x.fillRect(640, 110, 300, 60);
-  x.fillStyle = '#ffd9b0'; x.fillRect(420, 300, 160, 40);
-  x.fillStyle = '#bcd0ff'; x.fillRect(860, 260, 120, 50);
-  const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding;
+  // Photo-studio room: dark walls with bright softboxes, so chrome and gloss pick up crisp highlights.
+  const es = new THREE.Scene();
+  const room = new THREE.Mesh(new THREE.BoxGeometry(120, 70, 120), new THREE.MeshBasicMaterial({ color: 0x24282d, side: THREE.BackSide }));
+  es.add(room);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshBasicMaterial({ color: 0x0c0d0f })); floor.rotation.x = -Math.PI / 2; floor.position.y = -34; es.add(floor);
+  const panel = (w, h, k, x, y, z, ry = 0, rx = 0, tint = 0xffffff) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(tint).multiplyScalar(k), side: THREE.DoubleSide })); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); es.add(m); };
+  panel(70, 40, 3.2, 0, 34, 0, 0, Math.PI / 2);          // overhead softbox
+  panel(10, 50, 7, -58, 6, -10, Math.PI / 2);             // left strip
+  panel(10, 50, 6, 58, 6, 15, Math.PI / 2);               // right strip
+  panel(46, 26, 2.4, 10, 8, 58, 0, 0, 0xfff1e2);          // front key, warm
+  panel(30, 16, 1.6, -15, -4, -58, 0, 0, 0xdfe8ff);       // back fill, cool
+  panel(120, 3, 3.5, 0, -18, -59);                        // horizon line
   const pm = new THREE.PMREMGenerator(renderer);
-  scene.environment = pm.fromEquirectangular(t).texture;
-  t.dispose(); pm.dispose();
+  scene.environment = pm.fromScene(es, 0.015).texture;
+  pm.dispose();
 })();
 
 /* ---------------- Geometry helpers ---------------- */
@@ -374,29 +377,77 @@ function passives(g, seed, n, z0, inside, blocked) {
   im.count = k; im.userData.right = inside(rng(seed))[0] > 0; g.add(im);
 }
 
+/* ---------------- App icons (drawn, stylised) ---------------- */
+if (!CanvasRenderingContext2D.prototype.roundRect) CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) { this.moveTo(x + r, y); this.arcTo(x + w, y, x + w, y + h, r); this.arcTo(x + w, y + h, x, y + h, r); this.arcTo(x, y + h, x, y, r); this.arcTo(x, y, x + w, y, r); this.closePath(); };
+const lg = (x, s, a, b) => { const g = x.createLinearGradient(0, 0, 0, s); g.addColorStop(0, a); g.addColorStop(1, b); x.fillStyle = g; x.fillRect(0, 0, s, s); };
+const circ = (x, cx, cy, r, c) => { x.fillStyle = c; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill(); };
+const line = (x, pts, w, c) => { x.strokeStyle = c; x.lineWidth = w; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath(); pts.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); x.stroke(); };
+const ICONS = {
+  phone: (x, s) => { lg(x, s, '#62f57c', '#10bd3f'); x.save(); x.translate(s * 0.5, s * 0.52); x.rotate(0.75); line(x, [[-s * 0.2, -s * 0.06], [-s * 0.2, s * 0.06]], s * 0.15, '#fff'); line(x, [[s * 0.2, -s * 0.06], [s * 0.2, s * 0.06]], s * 0.15, '#fff'); x.strokeStyle = '#fff'; x.lineWidth = s * 0.08; x.beginPath(); x.arc(0, s * 0.02, s * 0.2, Math.PI * 1.05, Math.PI * 1.95); x.stroke(); x.restore(); },
+  messages: (x, s) => { lg(x, s, '#6af27e', '#0fc13c'); x.fillStyle = '#fff'; x.beginPath(); x.ellipse(s * 0.5, s * 0.47, s * 0.33, s * 0.27, 0, 0, Math.PI * 2); x.fill(); x.beginPath(); x.moveTo(s * 0.27, s * 0.62); x.quadraticCurveTo(s * 0.26, s * 0.76, s * 0.18, s * 0.8); x.quadraticCurveTo(s * 0.34, s * 0.78, s * 0.4, s * 0.7); x.fill(); },
+  facetime: (x, s) => { lg(x, s, '#6af27e', '#0fc13c'); x.fillStyle = '#fff'; x.beginPath(); x.roundRect(s * 0.18, s * 0.33, s * 0.42, s * 0.34, s * 0.08); x.fill(); x.beginPath(); x.moveTo(s * 0.63, s * 0.47); x.lineTo(s * 0.82, s * 0.35); x.lineTo(s * 0.82, s * 0.65); x.lineTo(s * 0.63, s * 0.53); x.fill(); },
+  safari: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); const g = x.createLinearGradient(0, s * 0.1, 0, s * 0.9); g.addColorStop(0, '#2ad0ff'); g.addColorStop(1, '#1366f0'); x.fillStyle = g; x.beginPath(); x.arc(s / 2, s / 2, s * 0.4, 0, Math.PI * 2); x.fill(); x.strokeStyle = 'rgba(255,255,255,0.8)'; x.lineWidth = s * 0.012; for (let i = 0; i < 36; i++) { const a = i / 36 * Math.PI * 2; x.beginPath(); x.moveTo(s / 2 + Math.cos(a) * s * 0.33, s / 2 + Math.sin(a) * s * 0.33); x.lineTo(s / 2 + Math.cos(a) * s * 0.37, s / 2 + Math.sin(a) * s * 0.37); x.stroke(); } x.save(); x.translate(s / 2, s / 2); x.rotate(Math.PI / 4); x.fillStyle = '#ff3b30'; x.beginPath(); x.moveTo(0, -s * 0.3); x.lineTo(s * 0.06, 0); x.lineTo(-s * 0.06, 0); x.fill(); x.fillStyle = '#fff'; x.beginPath(); x.moveTo(0, s * 0.3); x.lineTo(s * 0.06, 0); x.lineTo(-s * 0.06, 0); x.fill(); x.restore(); },
+  mail: (x, s) => { lg(x, s, '#3ec0ff', '#1a6ff0'); x.fillStyle = '#fff'; x.beginPath(); x.roundRect(s * 0.17, s * 0.3, s * 0.66, s * 0.42, s * 0.05); x.fill(); line(x, [[s * 0.2, s * 0.34], [s * 0.5, s * 0.55], [s * 0.8, s * 0.34]], s * 0.035, '#2a86f5'); },
+  music: (x, s) => { lg(x, s, '#ff6b81', '#fa233b'); circ(x, s * 0.35, s * 0.68, s * 0.09, '#fff'); circ(x, s * 0.64, s * 0.62, s * 0.09, '#fff'); line(x, [[s * 0.43, s * 0.67], [s * 0.43, s * 0.27], [s * 0.72, s * 0.21], [s * 0.72, s * 0.61]], s * 0.05, '#fff'); },
+  photos: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); ['#f9a51b', '#f7d13b', '#9cd23c', '#3fbf73', '#3aa5e8', '#7c6be0', '#c55bd6', '#f0505a'].forEach((c, i) => { x.save(); x.translate(s / 2, s / 2); x.rotate(i / 8 * Math.PI * 2); x.globalAlpha = 0.82; x.fillStyle = c; x.beginPath(); x.ellipse(0, -s * 0.17, s * 0.085, s * 0.19, 0, 0, Math.PI * 2); x.fill(); x.restore(); }); },
+  camera: (x, s) => { lg(x, s, '#eeeeee', '#a3a3a3'); x.fillStyle = '#2a2a2c'; x.beginPath(); x.roundRect(s * 0.15, s * 0.3, s * 0.7, s * 0.45, s * 0.07); x.fill(); x.fillRect(s * 0.36, s * 0.24, s * 0.22, s * 0.08); circ(x, s * 0.5, s * 0.52, s * 0.15, '#9a9a9c'); circ(x, s * 0.5, s * 0.52, s * 0.1, '#1d2a44'); circ(x, s * 0.75, s * 0.37, s * 0.03, '#ffd23f'); },
+  maps: (x, s) => { x.fillStyle = '#eef3e2'; x.fillRect(0, 0, s, s); x.fillStyle = '#9edb8a'; x.beginPath(); x.moveTo(0, 0); x.lineTo(s * 0.5, 0); x.lineTo(0, s * 0.45); x.fill(); line(x, [[0, s * 0.75], [s, s * 0.35]], s * 0.11, '#fff'); line(x, [[s * 0.35, s], [s * 0.6, 0]], s * 0.09, '#ffd04a'); circ(x, s * 0.62, s * 0.62, s * 0.13, '#1f7cf2'); x.fillStyle = '#fff'; x.beginPath(); x.moveTo(s * 0.62, s * 0.53); x.lineTo(s * 0.68, s * 0.68); x.lineTo(s * 0.62, s * 0.64); x.lineTo(s * 0.56, s * 0.68); x.fill(); },
+  weather: (x, s) => { lg(x, s, '#4cb3ff', '#1d6fe0'); circ(x, s * 0.38, s * 0.38, s * 0.15, '#ffd23f'); x.fillStyle = '#fff'; [[0.45, 0.62, 0.13], [0.6, 0.55, 0.16], [0.74, 0.64, 0.11]].forEach(([a, b, r]) => { x.beginPath(); x.arc(s * a, s * b, s * r, 0, Math.PI * 2); x.fill(); }); x.fillRect(s * 0.42, s * 0.62, s * 0.36, s * 0.13); },
+  clock: (x, s) => { x.fillStyle = '#000'; x.fillRect(0, 0, s, s); circ(x, s / 2, s / 2, s * 0.4, '#fff'); x.strokeStyle = '#000'; x.lineWidth = s * 0.015; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; x.beginPath(); x.moveTo(s / 2 + Math.cos(a) * s * 0.33, s / 2 + Math.sin(a) * s * 0.33); x.lineTo(s / 2 + Math.cos(a) * s * 0.37, s / 2 + Math.sin(a) * s * 0.37); x.stroke(); } line(x, [[s / 2, s / 2], [s * 0.5, s * 0.27]], s * 0.04, '#000'); line(x, [[s / 2, s / 2], [s * 0.66, s * 0.56]], s * 0.04, '#000'); line(x, [[s / 2, s / 2], [s * 0.36, s * 0.7]], s * 0.015, '#ff9500'); },
+  calendar: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); x.fillStyle = '#ff3b30'; x.textAlign = 'center'; x.font = `600 ${s * 0.16}px sans-serif`; x.fillText('TUE', s / 2, s * 0.3); x.fillStyle = '#111'; x.font = `300 ${s * 0.5}px sans-serif`; x.fillText('10', s / 2, s * 0.78); },
+  notes: (x, s) => { x.fillStyle = '#fdfdfb'; x.fillRect(0, 0, s, s); x.fillStyle = '#ffd23f'; x.fillRect(0, 0, s, s * 0.26); [0.45, 0.6, 0.75].forEach(y => line(x, [[s * 0.1, s * y], [s * 0.9, s * y]], s * 0.012, '#c9c9c9')); },
+  reminders: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); [['#1f7cf2', 0.28], ['#ff3b30', 0.5], ['#ff9500', 0.72]].forEach(([c, y]) => { x.strokeStyle = c; x.lineWidth = s * 0.03; x.beginPath(); x.arc(s * 0.24, s * y, s * 0.07, 0, Math.PI * 2); x.stroke(); line(x, [[s * 0.4, s * y], [s * 0.82, s * y]], s * 0.03, '#d4d4d4'); }); },
+  settings: (x, s) => { lg(x, s, '#b4b6ba', '#6d7075'); x.save(); x.translate(s / 2, s / 2); x.fillStyle = '#4a4d52'; for (let i = 0; i < 12; i++) { x.rotate(Math.PI / 6); x.fillRect(-s * 0.05, -s * 0.38, s * 0.1, s * 0.12); } x.restore(); circ(x, s / 2, s / 2, s * 0.29, '#4a4d52'); circ(x, s / 2, s / 2, s * 0.2, '#c9cbcf'); circ(x, s / 2, s / 2, s * 0.08, '#4a4d52'); },
+  appstore: (x, s) => { lg(x, s, '#1ec8fa', '#1572ee'); line(x, [[s * 0.3, s * 0.72], [s * 0.54, s * 0.28]], s * 0.075, '#fff'); line(x, [[s * 0.7, s * 0.72], [s * 0.46, s * 0.28]], s * 0.075, '#fff'); line(x, [[s * 0.26, s * 0.6], [s * 0.74, s * 0.6]], s * 0.075, '#fff'); },
+  wallet: (x, s) => { x.fillStyle = '#000'; x.fillRect(0, 0, s, s); [['#ffb000', 0.22], ['#2fbf71', 0.32], ['#1f8cff', 0.42], ['#ff5a4f', 0.52]].forEach(([c, y]) => { x.fillStyle = c; x.beginPath(); x.roundRect(s * 0.16, s * y, s * 0.68, s * 0.24, s * 0.05); x.fill(); }); x.fillStyle = '#1c1c1e'; x.beginPath(); x.roundRect(s * 0.12, s * 0.58, s * 0.76, s * 0.24, s * 0.05); x.fill(); },
+  health: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); x.fillStyle = '#ff2d55'; x.beginPath(); x.moveTo(s * 0.5, s * 0.78); x.bezierCurveTo(s * 0.1, s * 0.52, s * 0.18, s * 0.2, s * 0.5, s * 0.36); x.bezierCurveTo(s * 0.82, s * 0.2, s * 0.9, s * 0.52, s * 0.5, s * 0.78); x.fill(); },
+  files: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); x.fillStyle = '#5fb2ff'; x.beginPath(); x.roundRect(s * 0.15, s * 0.28, s * 0.32, s * 0.16, s * 0.04); x.fill(); x.fillStyle = '#1a8cff'; x.beginPath(); x.roundRect(s * 0.15, s * 0.36, s * 0.7, s * 0.4, s * 0.05); x.fill(); },
+  podcasts: (x, s) => { lg(x, s, '#d56df5', '#8b2ed6'); x.strokeStyle = '#fff'; x.lineWidth = s * 0.05; [0.3, 0.2].forEach(r => { x.beginPath(); x.arc(s / 2, s * 0.46, s * r, Math.PI * 0.8, Math.PI * 2.2); x.stroke(); }); circ(x, s / 2, s * 0.46, s * 0.07, '#fff'); line(x, [[s / 2, s * 0.56], [s / 2, s * 0.8]], s * 0.08, '#fff'); },
+  tv: (x, s) => { x.fillStyle = '#000'; x.fillRect(0, 0, s, s); x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = `700 ${s * 0.42}px sans-serif`; x.fillText('tv', s / 2, s * 0.64); },
+  books: (x, s) => { lg(x, s, '#ffa53d', '#ff7a00'); x.fillStyle = '#fff'; x.beginPath(); x.moveTo(s * 0.5, s * 0.34); x.quadraticCurveTo(s * 0.35, s * 0.26, s * 0.17, s * 0.3); x.lineTo(s * 0.17, s * 0.72); x.quadraticCurveTo(s * 0.35, s * 0.68, s * 0.5, s * 0.76); x.quadraticCurveTo(s * 0.65, s * 0.68, s * 0.83, s * 0.72); x.lineTo(s * 0.83, s * 0.3); x.quadraticCurveTo(s * 0.65, s * 0.26, s * 0.5, s * 0.34); x.fill(); line(x, [[s * 0.5, s * 0.36], [s * 0.5, s * 0.74]], s * 0.02, '#ff8c1a'); },
+  findmy: (x, s) => { lg(x, s, '#4fe06f', '#24b34a'); x.strokeStyle = '#fff'; x.lineWidth = s * 0.04; [0.32, 0.2].forEach(r => { x.beginPath(); x.arc(s / 2, s / 2, s * r, 0, Math.PI * 2); x.stroke(); }); circ(x, s / 2, s / 2, s * 0.08, '#fff'); },
+  calculator: (x, s) => { x.fillStyle = '#1c1c1e'; x.fillRect(0, 0, s, s); for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) circ(x, s * (0.22 + c * 0.187), s * (0.24 + r * 0.175), s * 0.07, c === 3 ? '#ff9f0a' : r === 0 ? '#a5a5a5' : '#505050'); },
+  stocks: (x, s) => { x.fillStyle = '#000'; x.fillRect(0, 0, s, s); line(x, [[s * 0.14, s * 0.68], [s * 0.32, s * 0.5], [s * 0.46, s * 0.6], [s * 0.64, s * 0.34], [s * 0.86, s * 0.42]], s * 0.05, '#30d158'); },
+  home: (x, s) => { lg(x, s, '#ffc04d', '#ff8a00'); x.fillStyle = '#fff'; x.beginPath(); x.moveTo(s * 0.5, s * 0.22); x.lineTo(s * 0.82, s * 0.5); x.lineTo(s * 0.72, s * 0.5); x.lineTo(s * 0.72, s * 0.78); x.lineTo(s * 0.28, s * 0.78); x.lineTo(s * 0.28, s * 0.5); x.lineTo(s * 0.18, s * 0.5); x.fill(); },
+};
+const LABELS = { appstore: 'App Store', findmy: 'Find My', facetime: 'FaceTime', tv: 'TV' };
+function appIcon(x, kind, cx, cy, s, label = true) {
+  x.save(); x.shadowColor = 'rgba(0,0,0,0.25)'; x.shadowBlur = s * 0.12; x.shadowOffsetY = s * 0.04;
+  x.fillStyle = '#000'; x.beginPath(); x.roundRect(cx - s / 2, cy - s / 2, s, s, s * 0.225); x.fill(); x.restore();
+  x.save(); x.translate(cx - s / 2, cy - s / 2); x.beginPath(); x.roundRect(0, 0, s, s, s * 0.225); x.clip(); ICONS[kind](x, s);
+  const sh = x.createLinearGradient(0, 0, 0, s); sh.addColorStop(0, 'rgba(255,255,255,0.18)'); sh.addColorStop(0.5, 'rgba(255,255,255,0)'); x.fillStyle = sh; x.fillRect(0, 0, s, s); x.restore();
+  if (label) { x.fillStyle = 'rgba(255,255,255,0.96)'; x.textAlign = 'center'; x.font = `500 ${Math.round(s * 0.19)}px sans-serif`; x.shadowColor = 'rgba(0,0,0,0.35)'; x.shadowBlur = 4; x.fillText(LABELS[kind] || kind[0].toUpperCase() + kind.slice(1), cx, cy + s / 2 + s * 0.26); x.shadowBlur = 0; }
+}
+function wallpaper(x, w, h) {
+  const g = x.createLinearGradient(0, 0, w * 0.35, h); g.addColorStop(0, '#0d2a52'); g.addColorStop(0.5, '#3b3a86'); g.addColorStop(1, '#c76e58'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  [[0.2, 0.25, '#4fa3ff'], [0.75, 0.3, '#b56cff'], [0.55, 0.85, '#ff9a6b']].forEach(([a, b, c]) => { const rg = x.createRadialGradient(w * a, h * b, 0, w * a, h * b, Math.max(w, h) * 0.45); rg.addColorStop(0, c + '66'); rg.addColorStop(1, c + '00'); x.fillStyle = rg; x.fillRect(0, 0, w, h); });
+}
+function statusBar(x, w, y, s) { x.fillStyle = '#fff'; x.textAlign = 'left'; x.font = `600 ${s}px sans-serif`; x.fillText('10:08', s * 2.2, y); x.strokeStyle = '#fff'; x.lineWidth = 2; x.beginPath(); x.roundRect(w - s * 3.6, y - s * 0.75, s * 1.7, s * 0.85, 4); x.stroke(); x.fillRect(w - s * 3.45, y - s * 0.6, s * 1.4, s * 0.55); [0, 1, 2, 3].forEach(i => x.fillRect(w - s * 6.4 + i * s * 0.42, y - s * (0.25 + i * 0.17), s * 0.28, s * (0.25 + i * 0.17))); }
+function frosted(x, a, b, c, d, r) { x.fillStyle = 'rgba(255,255,255,0.2)'; x.beginPath(); x.roundRect(a, b, c, d, r); x.fill(); }
+
 /* 1. Inner display */
 const innerCanvas = document.createElement('canvas'); innerCanvas.width = 1640; innerCanvas.height = 1100;
 (function drawInner() {
   const x = innerCanvas.getContext('2d'), w = 1640, h = 1100, r = 70;
-  x.beginPath(); x.moveTo(r, 0); x.arcTo(w, 0, w, h, r); x.arcTo(w, h, 0, h, r); x.arcTo(0, h, 0, 0, r); x.arcTo(0, 0, w, 0, r); x.closePath(); x.clip();
-  const g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#0f2a4a'); g.addColorStop(0.5, '#3a2d6b'); g.addColorStop(1, '#d0784a'); x.fillStyle = g; x.fillRect(0, 0, w, h);
-  for (let i = 0; i < 6; i++) { const cx = w * (0.1 + i * 0.17), cy = h * (0.3 + (i % 3) * 0.2); const rg = x.createRadialGradient(cx, cy, 0, cx, cy, 300); rg.addColorStop(0, 'rgba(255,255,255,0.16)'); rg.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = rg; x.fillRect(0, 0, w, h); }
-  x.fillStyle = 'rgba(255,255,255,0.92)'; x.font = '600 30px sans-serif'; x.fillText('10:08', 60, 50); x.textAlign = 'right'; x.fillText('100%', w - 60, 50); x.textAlign = 'left';
-  // widgets on the left half
-  x.fillStyle = 'rgba(255,255,255,0.16)'; [[70, 110, 330, 330], [430, 110, 330, 155], [430, 285, 330, 155]].forEach(([a, b, c, d]) => { x.beginPath(); x.roundRect ? x.roundRect(a, b, c, d, 40) : x.rect(a, b, c, d); x.fill(); });
-  x.fillStyle = '#fff'; x.font = '700 120px sans-serif'; x.fillText('10', 110, 300); x.font = '500 34px sans-serif'; x.fillText('Tuesday', 110, 180);
-  // app grid
-  const pal = ['#ff6b5a', '#ffb340', '#3ccf7a', '#2f9bff', '#8f6bff', '#ff4f9a', '#28c7c7', '#f5f5f5', '#5b6cff', '#ffd23f', '#00b37a', '#ff8a3d'];
-  const r2 = rng(3);
-  for (let row = 0; row < 4; row++) for (let col = 0; col < 8; col++) {
-    if (col < 4 && row < 2) continue;
-    const cx = 80 + col * 192 + (col >= 4 ? 40 : 0), cy = 120 + row * 185;
-    x.fillStyle = pal[(r2() * pal.length) | 0]; x.beginPath(); x.roundRect ? x.roundRect(cx, cy, 118, 118, 30) : x.rect(cx, cy, 118, 118); x.fill();
-    x.fillStyle = 'rgba(255,255,255,0.5)'; x.beginPath(); x.arc(cx + 59, cy + 59, 26, 0, Math.PI * 2); x.fill();
-  }
-  x.fillStyle = 'rgba(255,255,255,0.2)'; x.beginPath(); x.roundRect ? x.roundRect(w / 2 - 420, h - 190, 840, 150, 50) : x.rect(w / 2 - 420, h - 190, 840, 150); x.fill();
-  for (let i = 0; i < 6; i++) { x.fillStyle = pal[(i * 5) % pal.length]; x.beginPath(); x.roundRect ? x.roundRect(w / 2 - 380 + i * 128, h - 172, 108, 108, 28) : x.rect(w / 2 - 380 + i * 128, h - 172, 108, 108); x.fill(); }
-  x.fillStyle = 'rgba(0,0,0,0.55)'; x.beginPath(); x.arc(w * 0.75, 42, 14, 0, Math.PI * 2); x.fill(); // under-display camera zone
+  x.beginPath(); x.roundRect(0, 0, w, h, r); x.clip();
+  wallpaper(x, w, h); statusBar(x, w, 46, 30);
+  // widgets
+  x.fillStyle = 'rgba(255,255,255,0.92)'; x.beginPath(); x.roundRect(90, 100, 330, 300, 44); x.fill();
+  x.fillStyle = '#ff3b30'; x.textAlign = 'left'; x.font = '600 30px sans-serif'; x.fillText('TUESDAY', 126, 158);
+  x.fillStyle = '#111'; x.font = '300 120px sans-serif'; x.fillText('10', 120, 280);
+  x.fillStyle = '#5b6cff'; x.fillRect(126, 310, 6, 56); x.fillStyle = '#333'; x.font = '500 26px sans-serif'; x.fillText('Design review', 146, 332); x.fillStyle = '#888'; x.font = '400 22px sans-serif'; x.fillText('11:00 – 12:00', 146, 362);
+  const wg = x.createLinearGradient(0, 100, 0, 400); wg.addColorStop(0, '#3d9bff'); wg.addColorStop(1, '#1f5fd1'); x.fillStyle = wg; x.beginPath(); x.roundRect(450, 100, 330, 300, 44); x.fill();
+  x.fillStyle = '#fff'; x.font = '600 30px sans-serif'; x.fillText('Cupertino', 484, 158); x.font = '200 110px sans-serif'; x.fillText('22°', 478, 278);
+  circ(x, 720, 160, 28, '#ffd23f'); x.font = '500 26px sans-serif'; x.fillText('Mostly Sunny', 484, 332); x.font = '400 24px sans-serif'; x.fillStyle = 'rgba(255,255,255,0.85)'; x.fillText('H:24°  L:14°', 484, 366);
+  const S = 118, colsL = [158, 348, 538, 728], rows = [200, 420, 640];
+  const grid = [[null, null, null, null], ['facetime', 'calendar', 'camera', 'clock'], ['maps', 'weather', 'notes', 'reminders']];
+  const gridR = [['appstore', 'books', 'podcasts', 'tv'], ['health', 'wallet', 'files', 'findmy'], ['calculator', 'stocks', 'home', 'settings']];
+  grid.forEach((row, ri) => row.forEach((k, ci) => k && appIcon(x, k, colsL[ci] - 18, rows[ri] + 40, S)));
+  gridR.forEach((row, ri) => row.forEach((k, ci) => appIcon(x, k, colsL[ci] + 820 + 18, rows[ri], S)));
+  frosted(x, 360, 900, 920, 168, 56);
+  ['phone', 'safari', 'messages', 'mail', 'music', 'photos'].forEach((k, i) => appIcon(x, k, 445 + i * 150, 984, 112, false));
+  [0, 1, 2].forEach(i => circ(x, w * 0.75 - 30 + i * 30, 840, 7, i === 0 ? '#fff' : 'rgba(255,255,255,0.45)'));
+  circ(x, w * 0.75, 42, 13, 'rgba(0,0,0,0.25)'); // under-display camera, barely visible
 })();
 function innerTex(offset) { const t = new THREE.CanvasTexture(innerCanvas); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; t.repeat.set(0.5, 1); t.offset.set(offset, 0); return t; }
 addPart('inner', [0, 0, 72], { az: 0.42, el: 0.4, k: 0.92 }, [-80, 56, 2.6], g => {
@@ -412,14 +463,14 @@ addPart('inner', [0, 0, 72], { az: 0.42, el: 0.4, k: 0.92 }, [-80, 56, 2.6], g =
 
 /* 2. Frame halves */
 addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g => {
-  const metal = std(0xd8d4cb, 0.85, 0.3);
+  const metal = std(0xb7b2a9, 1, 0.34, { envMapIntensity: 1.1 });
   [[halfL(0), halfL(1.6, R)], [halfR(0), halfR(1.6, R)]].forEach(([o, i]) => { const s = o; const hole = i; const hp = new THREE.Path(hole.getPoints(24)); s.holes.push(hp); mesh(extrude(s, D, 0.4), metal, 0, 0, 0, g); });
   const plate = std(0x9aa0a6, 0.8, 0.45);
   const pl = halfL(1.4); pl.holes.push(new THREE.Path(rrShape(27, 43, 7, CAM.x, CAM.y).getPoints(16)));
   mesh(extrude(pl, 0.5, 0), plate, 0, 0, 1.6, g);
   mesh(extrude(halfR(1.4), 0.5, 0), plate, 0, 0, 1.6, g);
-  const btn = std(0xe6e2da, 0.9, 0.25);
-  box(15, 1.4, 3, std(0xc9c4ba, 0.95, 0.2), 64, H / 2 + 0.5, 0, g);               // side button with Touch ID
+  const btn = std(0xb7b2a9, 1, 0.3);
+  box(15, 1.4, 3, std(0xa9a49b, 1, 0.22), 64, H / 2 + 0.5, 0, g);               // side button with Touch ID
   const tid = new THREE.Mesh(new THREE.BoxGeometry(15.4, 0.3, 3.3), std(0x9b958b, 1, 0.2)); tid.position.set(64, H / 2 + 0.3, 0); g.add(tid);
   box(9, 1.4, 3, btn, 44, H / 2 + 0.5, 0, g); box(9, 1.4, 3, btn, 32, H / 2 + 0.5, 0, g);
   const ab = std(0x5c5f63, 0, 0.6);
@@ -450,7 +501,7 @@ addPart('hinge', [0, 0, 22], { az: 0.75, el: 0.45, k: 0.72, t: [0, 40, 0.5], dis
 }, false);
 (function makeSpine() {
   const hp = parts[parts.length - 1];
-  const mat = std(0xd8d4cb, 0.85, 0.3, { side: THREE.DoubleSide });
+  const mat = std(0xb7b2a9, 1, 0.34, { side: THREE.DoubleSide, envMapIntensity: 1.1 });
   const geo = new THREE.CylinderGeometry(5.65, 5.65, H - 1, 48, 1, true, Math.PI - Math.PI * 0.46, Math.PI * 0.92);
   spine = new THREE.Mesh(geo, mat); spine.position.set(0, 0, ZF); spine.visible = false; spine.userData.part = hp;
   mat.userData.baseOpacity = 1; mat.userData.baseTransparent = false; mat.userData.baseDepthWrite = true;
@@ -516,13 +567,16 @@ addPart('cameras', [0, 0, -36], { az: 2.55, el: 0.35, k: 1.45 }, [-78, 54, -2], 
 
 /* 8. Outer display (back of the right half) */
 const outerTex = canvasTex(760, 1100, (x, w, h) => {
-  x.clearRect(0, 0, w, h); const r = 70;
-  x.beginPath(); x.moveTo(r, 0); x.arcTo(w, 0, w, h, r); x.arcTo(w, h, 0, h, r); x.arcTo(0, h, 0, 0, r); x.arcTo(0, 0, w, 0, r); x.closePath(); x.clip();
-  const g = x.createLinearGradient(0, 0, w * 0.3, h); g.addColorStop(0, '#16345c'); g.addColorStop(0.55, '#4f3a78'); g.addColorStop(1, '#e09a52'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  x.clearRect(0, 0, w, h); x.beginPath(); x.roundRect(0, 0, w, h, 70); x.clip();
+  wallpaper(x, w, h); statusBar(x, w, 62, 28);
   x.fillStyle = '#000'; x.beginPath(); x.arc(w / 2, 52, 20, 0, Math.PI * 2); x.fill();
-  x.fillStyle = 'rgba(255,255,255,0.95)'; x.textAlign = 'center'; x.font = '600 190px sans-serif'; x.fillText('10:08', w / 2, 330);
-  x.font = '500 40px sans-serif'; x.fillText('Tuesday, November 10', w / 2, 140);
-  x.fillStyle = 'rgba(255,255,255,0.8)'; x.fillRect(w / 2 - 100, h - 26, 200, 8);
+  frosted(x, 60, 110, 640, 230, 44);
+  x.fillStyle = '#fff'; x.textAlign = 'left'; x.font = '600 28px sans-serif'; x.fillText('TUESDAY, NOV 10', 96, 166); x.font = '200 120px sans-serif'; x.fillText('10:08', 92, 296);
+  circ(x, 610, 210, 40, '#ffd23f'); x.font = '500 30px sans-serif'; x.textAlign = 'right'; x.fillText('22°', 660, 300);
+  const cols = [130, 296, 462, 628];
+  [['facetime', 'calendar', 'photos', 'camera'], ['maps', 'weather', 'clock', 'notes'], ['appstore', 'wallet', 'health', 'settings']].forEach((row, ri) => row.forEach((k, ci) => appIcon(x, k, cols[ci], 450 + ri * 180, 116)));
+  frosted(x, 36, 940, 688, 150, 54);
+  ['phone', 'safari', 'messages', 'music'].forEach((k, i) => appIcon(x, k, cols[i], 1015, 112, false));
 });
 addPart('outer', [0, 0, -52], { az: 2.95, el: 0.28, k: 1.0 }, [80, 56, -2.5], g => {
   mesh(extrude(halfR(0.2), 0.7, 0.15), std(0x0a0a0c, 0.2, 0.5), 0, 0, -2.25, g);
@@ -535,18 +589,22 @@ addPart('outer', [0, 0, -52], { az: 2.95, el: 0.28, k: 1.0 }, [80, 56, -2.5], g 
 
 /* 9. Back cover (left half) */
 addPart('back', [0, 0, -68], { az: 3.35, el: 0.25, k: 0.95 }, [-82, -50, -2.6], g => {
-  const back = phys({ color: 0xe9e6df, metalness: 0.05, roughness: 0.55, clearcoat: 0.2, clearcoatRoughness: 0.6, envMapIntensity: 0.8 });
+  const back = phys({ color: 0x15223c, metalness: 0.15, roughness: 0.5, clearcoat: 0.6, clearcoatRoughness: 0.3, envMapIntensity: 0.55 });
   mesh(extrude(halfL(0.2), 0.7, 0.15), back, 0, 0, -2.25, g);
-  mesh(extrude(rrShape(24, 40, 8, CAM.x, CAM.y), 1.1, 0.35), phys({ color: 0xe2ded6, metalness: 0.05, roughness: 0.18, clearcoat: 1 }), 0, 0, -3.1, g);
-  const ring = std(0xd8d4cb, 0.95, 0.2);
+  mesh(extrude(rrShape(24, 40, 8, CAM.x, CAM.y), 1.1, 0.35), phys({ color: 0x1a2a48, metalness: 0.15, roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 0.7 }), 0, 0, -3.1, g);
+  const ring = std(0xb7b2a9, 1, 0.18);
   const lensG = phys({ color: 0x050a14, metalness: 0.3, roughness: 0.03, clearcoat: 1, envMapIntensity: 2.4 });
   [[CAM.y + 9, 7.2], [CAM.y - 9, 6.6]].forEach(([y, r]) => { mesh(cyl(r, 1.0, 48), ring, CAM.x, y, -4.0, g); mesh(cyl(r * 0.8, 1.05, 48), lensG, CAM.x, y, -4.02, g); });
   mesh(cyl(1.8, 0.4, 24), std(0xf1ead8, 0.1, 0.3), CAM.x + 8.5, CAM.y, -3.75, g);
-  logoDecal(19, phys({ color: 0xbfbab1, metalness: 0.8, roughness: 0.14, clearcoat: 1 }), -41, -10, -2.63, g);
+  logoDecal(19, phys({ color: 0x9fb0c8, metalness: 0.85, roughness: 0.1, clearcoat: 1 }), -41, -10, -2.63, g);
 });
 
+const shadowTex = canvasTex(256, 256, (x, w, h) => { const g = x.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, 'rgba(0,0,0,0.85)'); g.addColorStop(0.55, 'rgba(0,0,0,0.35)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false, toneMapped: false }));
+shadow.rotation.x = -Math.PI / 2; shadow.position.y = -H / 2 - 0.6; scene.add(shadow);
 let fold = 0;
-function applyFold(f) { parts.forEach(p => { p.pivot.rotation.y = -Math.PI * f; }); spine.rotation.y = -Math.PI / 2 * f; spine.visible = f > 0.02; }
+function updateShadow() { shadow.position.x = -40 * fold; shadow.position.z = 3 * fold; shadow.scale.set(200 - 95 * fold, 34 + 6 * fold, 1); shadow.material.opacity = 0.7 * clamp01(1 - explode * 4); shadow.visible = shadow.material.opacity > 0.01; }
+function applyFold(f) { parts.forEach(p => { p.pivot.rotation.y = -Math.PI * f; }); spine.rotation.y = -Math.PI / 2 * f; spine.visible = f > 0.02; updateShadow(); }
 
 /* ---------------- View / state ---------------- */
 const N = parts.length;
@@ -667,7 +725,7 @@ function stateAt(t) {
 }
 
 function applyState(st) {
-  explode = st.explode; applyExplode(explode); fold = st.fold; applyFold(fold);
+  explode = st.explode; applyExplode(explode); fold = st.fold; applyFold(fold); updateShadow();
   Object.assign(view, clonePose(st.pose));
   parts.forEach((p, i) => applyDim(p, st.dims[i]));
   labelsAlpha = st.labels;
@@ -775,7 +833,7 @@ function loop(now) {
     Object.assign(view, lerpPose(view, goal, k));
     if (goalFold > 0.5) { explode += (0 - explode) * k; if (explode < 0.03) fold += (1 - fold) * k * 0.8; }
     else { fold += (0 - fold) * k; if (fold < 0.03) explode += (goalExplode - explode) * k; }
-    if (fold < 1e-3) fold = 0; applyExplode(explode); applyFold(fold);
+    if (fold < 1e-3) fold = 0; applyExplode(explode); applyFold(fold); updateShadow();
     parts.forEach(p => { const t = selected >= 0 && p.index !== selected ? 1 : 0; const d = p.dim + (t - p.dim) * k; if (Math.abs(d - p.dim) > 1e-4 || (t === 0 && p.dim !== 0)) applyDim(p, Math.abs(d - t) < 1e-3 ? t : d); });
     const lt = selected < 0 && explode > 0.55 ? 1 : 0; labelsAlpha += (lt - labelsAlpha) * k;
     if (!REDUCED && selected < 0 && !ptrs.size && Math.abs(goalExplode - explode) < 0.01) goal.az += dt * 0.04;
