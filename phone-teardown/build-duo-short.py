@@ -6,6 +6,7 @@ def R(a, b):
 R('<title>iPhone Duo Teardown</title>', '<title>iPhone Duo Fold Short</title>')
 R('</style>', r'''body.short { background: #000 !important; }
 body.short .top, body.short #card, body.short #labels, body.short #title-card, body.short #parts, body.short #controls, body.short #hint { display: none !important; }
+body.clean #cap, body.clean #capbg { display: none !important; }
 #capbg { position: absolute; inset: 0 0 auto; height: 34%; background: linear-gradient(#000 0%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0) 100%); pointer-events: none; }
 #cap { z-index: 2; position: absolute; left: 0; right: 0; top: 10.5%; padding: 0 72px; text-align: center; color: #fff; font-family: var(--font-display); pointer-events: none; will-change: opacity, transform; }
 #cap .big { font-size: 150px; font-weight: 700; letter-spacing: -0.035em; line-height: 1; color: var(--accent); margin-bottom: 18px; }
@@ -14,7 +15,7 @@ body.short .top, body.short #card, body.short #labels, body.short #title-card, b
 #cap .sub { font-family: var(--font-mono); font-size: 34px; letter-spacing: .14em; text-transform: uppercase; color: #9aa4ad; margin-top: 22px; }
 </style>''')
 R('<div id="labels"></div>', '<div id="labels"></div>\n  <div id="capbg"></div>\n  <div id="cap"></div>')
-R("if (RENDER) document.body.classList.add('render');", "document.body.classList.add('short'); if (RENDER) document.body.classList.add('render');")
+R("if (RENDER) document.body.classList.add('render');", "document.body.classList.add('short'); if (RENDER) document.body.classList.add('render'); if (new URLSearchParams(location.search).has('clean')) document.body.classList.add('clean');")
 R("function dimTarget(p, s) { return s.focus >= 0 && p.index !== s.focus ? 1 : 0; }",
   "function dimTarget(p, s) { if (s.dimMap) return p.id in s.dimMap ? s.dimMap[p.id] : (s.dimDefault ?? 0); return s.focus >= 0 && p.index !== s.focus ? 1 : 0; }")
 R("return { fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,",

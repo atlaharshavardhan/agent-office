@@ -9,7 +9,7 @@ info = r'''const INFO = {
     body: 'A flexible OLED made of 10 ultrathin layers, topped with a nano-texture layer that cuts glare and helps hide the crease. The layers slide past each other every time you fold. ProMotion runs it at up to 120 Hz, and a 1080p FaceTime camera hides under the display.',
     specs: ['7.6-inch, 2670 × 1878, 430 ppi', '10 ultrathin layers, nano-texture', 'Under-display 1080p FaceTime camera'] },
   frame: { name: 'Frame halves and buttons', role: 'Two titanium halves joined by the hinge.',
-    body: 'Each half has a mirror-polished Grade 5 titanium frame over an aluminum inner structure. Open it is 5.2 mm thick; folded, 11.3 mm. Every control sits on the top edge: two volume buttons, a side button with Touch ID (there is no Face ID) and Camera Control. There is no Action button.',
+    body: 'Each half has a mirror-polished Grade 5 titanium frame over an aluminum inner structure. Open it is 5.2 mm thick; folded, 11.3 mm. The volume buttons sit on the top edge; the side button with Touch ID (there is no Face ID) and Camera Control sit on the outer edge. There is no Action button.',
     specs: ['Grade 5 titanium, mirror-polished', 'Touch ID side button + Camera Control', '254 g, IP68'] },
   hinge: { name: 'Hinge', role: 'The part that makes it fold.',
     body: 'The hinge is more than 100 parts: gears, springs and interlocking joints under a 3D-printed Grade 5 titanium cover. It closes in a waterdrop shape, leaving a teardrop pocket for the screen to curl into so it never bends sharply. A support bar holds the screen flat when open.',
@@ -262,11 +262,13 @@ addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g =
   const btn = std(0x070b16, 0.8, 0.26, { envMapIntensity: 0.7 });
   const capsule = (len, x, mat, th = 2.3, pr = 1.1) => { const gg = extrude(rrShape(len, th, th / 2), pr, 0.3, 16); gg.rotateX(-Math.PI / 2); return mesh(gg, mat, x, H / 2 + pr / 2 - 0.25, 0, g); };
   // all controls sit on the top edge (Apple's Duo guide, top view): volume up/down, side button with Touch ID, Camera Control
-  capsule(9, 16, btn); capsule(9, 28, btn);                                                      // volume
-  capsule(15.7, 47, std(0x3a4868, 1, 0.18), 2.75, 0.8);                                         // Touch ID ring
-  capsule(15, 47, std(0x0a1020, 0.85, 0.2, { envMapIntensity: 0.9 }), 2.3, 1.15);                // side button with Touch ID
-  capsule(11.2, 66, std(0x8090ae, 1, 0.16), 2.6, 0.85);                                              // Camera Control ring
-  capsule(10, 66, phys({ color: 0x05070c, metalness: 0.2, roughness: 0.06, clearcoat: 1, envMapIntensity: 1.8 }), 2.1, 0.95); // Camera Control sapphire pad
+  // Apple's Duo guide (closed): volume on the top edge; side button with Touch ID on the right (outer) edge, Camera Control below it
+  const capsuleR = (len, y, mat, th = 2.3, pr = 1.1) => { const gg = extrude(rrShape(len, th, th / 2), pr, 0.3, 16); gg.rotateX(-Math.PI / 2); gg.rotateZ(-Math.PI / 2); return mesh(gg, mat, HW + pr / 2 - 0.25, y, 0, g); };
+  capsule(8.5, 56, btn); capsule(8.5, 67, btn);                                                    // volume up / down (top edge)
+  capsuleR(15.7, 30, std(0x3a4868, 1, 0.18), 2.75, 0.8);                                           // Touch ID ring
+  capsuleR(15, 30, std(0x0a1020, 0.85, 0.2, { envMapIntensity: 0.9 }), 2.3, 1.15);                 // side button with Touch ID
+  capsuleR(11.2, 8, std(0x8090ae, 1, 0.16), 2.6, 0.85);                                            // Camera Control ring
+  capsuleR(10, 8, phys({ color: 0x05070c, metalness: 0.2, roughness: 0.06, clearcoat: 1, envMapIntensity: 1.8 }), 2.1, 0.95); // Camera Control sapphire pad
   const ab = std(0x1a1b1e, 0, 0.6);
   [[-HW + 0.6, 40], [-HW + 0.6, -40], [HW - 0.6, 40], [HW - 0.6, -40]].forEach(([x, y]) => box(1.8, 1.0, D - 0.4, ab, x, y, 0, g));
   box(9.2, 1.6, 3.2, std(0x050506, 0, 0.8), 41, -H / 2 + 0.4, 0, g);

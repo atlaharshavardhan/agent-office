@@ -13,13 +13,13 @@ const fontCss = [
 ].flatMap(([fam, pkg, base, ws]) => ws.map(w => `@font-face{font-family:"${fam}";font-weight:${w};font-style:normal;src:url(https://fonts.gstatic.com/local/${pkg}/${base}-latin-${w}-normal.woff2) format("woff2")}`)).join('\n');
 (async () => {
   const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-  const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+  const page = await browser.newPage({ viewport: { width: +process.env.VW || 1920, height: +process.env.VH || 1080 }, deviceScaleFactor: 1 });
   page.on('console', m => { if (m.type() === 'error') console.log('console:', m.text()); });
   page.on('pageerror', e => console.log('pageerror:', e.message));
   await page.route('https://cdnjs.cloudflare.com/**', r => r.fulfill({ path: path.join(dir, 'package/build/three.min.js'), contentType: 'application/javascript' }));
   await page.route('https://fonts.googleapis.com/**', r => r.fulfill({ body: fontCss, contentType: 'text/css' }));
   await page.route('https://fonts.gstatic.com/local/**', r => { const u = new URL(r.request().url()).pathname.split('/'); r.fulfill({ path: path.join(F(u[2]), u[3]), contentType: 'font/woff2' }); });
-  await page.goto('file://' + wrapped + '?render=1');
+  await page.goto('file://' + wrapped + '?render=1' + (process.env.Q || ''));
   await page.waitForFunction(() => window.__tour);
   await page.evaluate(() => document.fonts.ready);
   const total = await page.evaluate(() => window.__tour.total);

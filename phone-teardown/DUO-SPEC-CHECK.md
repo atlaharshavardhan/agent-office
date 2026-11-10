@@ -22,12 +22,12 @@ Checked against Apple's iPhone Duo spec pages, Apple's Duo guide, Apple newsroom
 | Outer camera | 12 MP Center Stage in a punch-hole | ✅ top outer corner |
 | Brightness | 1000 typ / 1600 HDR / 3000 outdoor nits | ✅ (in text) |
 
-## Controls (Apple's Duo guide, top view)
+## Controls (Apple's Duo guide, phone closed)
 | Control | Model |
 |---|---|
 | Volume up/down on the top edge | ✅ |
-| Side button with Touch ID (no Face ID) | ✅ with ring |
-| Camera Control | 🔧 added |
+| Side button with Touch ID (no Face ID) on the right (outer) edge | 🔧 moved from the top edge to the outer edge |
+| Camera Control below the side button | 🔧 moved to the outer edge |
 | Action button | ✅ none (Duo has no Action button) |
 
 ## Cameras
