@@ -26,15 +26,17 @@ R("function dimTarget(p, s) { return s.focus >= 0 && p.index !== s.focus ? 1 : 0
   "function dimTarget(p, s) { if (s.dimMap) return p.id in s.dimMap ? s.dimMap[p.id] : (s.dimDefault ?? 0); return s.focus >= 0 && p.index !== s.focus ? 1 : 0; }")
 R("  const dimB = prev ? ease(clamp01(lt / 0.9)) : 1;", "  const dimB = prev ? ease(clamp01(lt / 0.35)) : 1;")
 R("return { fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,",
-  "return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, wake: s.wake ? s.wake(u) : 1, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
-R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake;")
+  "return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, wake: s.wake ? s.wake(u) : 1, cb: s.cb ? s.cb(u) : 0, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
+R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake; COVER_BLUR = st.cb;")
 R("const camera = new THREE.PerspectiveCamera(30, 1, 5, 3000);", "const camera = new THREE.PerspectiveCamera(33, 1, 5, 3000);  // ~10% wider so tall shots fit the 450-1500 band")
 R("function composeInner(bl) {\n  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100); x.drawImage(innerSharp, 0, 0);",
   "function composeInner(bl) {\n  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100);\n  const z = 1 + 0.05 * bl; x.save(); x.beginPath(); x.roundRect(0, 0, 1640, 1100, 86); x.clip(); x.translate(1230, 550); x.scale(z, z); x.translate(-1230, -550); x.drawImage(innerSharp, 0, 0); x.restore();")
-R("var KEEP_ON = false, lastInnerP = 0, lastOuterP = 1;", "var KEEP_ON = false, WAKE = 1, lastInnerP = 0, lastOuterP = 1;")
+R("var KEEP_ON = false, lastInnerP = 0, lastOuterP = 1;", "var KEEP_ON = false, WAKE = 1, COVER_BLUR = 0, lastInnerP = 0, lastOuterP = 1;\nconst _fb = [document.createElement('canvas'), document.createElement('canvas')];\nfunction frostOver(cv, a) {  // Apple-style frost: blur the screen content by down/up-sampling, keep the screen shape\n  const w = cv.width, h = cv.height, [s1, s2] = _fb; s1.width = Math.max(2, w >> 5); s1.height = Math.max(2, h >> 5); s2.width = Math.max(2, w >> 3); s2.height = Math.max(2, h >> 3);\n  const a1 = s1.getContext('2d'), a2 = s2.getContext('2d'); a1.imageSmoothingQuality = a2.imageSmoothingQuality = 'high'; a1.drawImage(cv, 0, 0, s1.width, s1.height); a2.drawImage(s1, 0, 0, s2.width, s2.height);\n  const x = cv.getContext('2d'); x.save(); x.globalCompositeOperation = 'source-atop'; x.globalAlpha = a; x.imageSmoothingQuality = 'high'; x.drawImage(s2, 0, 0, w, h); x.fillStyle = 'rgba(225,232,255,0.10)'; x.fillRect(0, 0, w, h); x.restore();\n}")
 R("  if (bl > 0.003) { x.globalAlpha = bl; x.drawImage(innerBlur, 0, 0); x.globalAlpha = 1; }", "  if (bl > 0.003) { x.globalAlpha = bl; x.drawImage(innerBlur, 0, 0); x.globalAlpha = 1; }\n  if (bl > 0.003) { const g = x.createLinearGradient(0, 0, 860, 0); g.addColorStop(0, `rgba(8,10,16,${(0.62 * bl).toFixed(3)})`); g.addColorStop(0.8, `rgba(8,10,16,${(0.45 * bl).toFixed(3)})`); g.addColorStop(1, 'rgba(8,10,16,0)'); x.save(); x.beginPath(); x.roundRect(0, 0, 1640, 1100, 86); x.clip(); x.fillStyle = g; x.fillRect(0, 0, 860, 1100); x.restore(); }")
 R("  innerScr.material.color.setScalar(ease(on));", "  innerScr.material.color.setScalar(ease(on) * WAKE);")
-R("  explode = st.explode; applyExplode(explode);", "  KEEP_ON = st.keepOn; explode = st.explode; applyExplode(explode);")
+R("oon = clamp01((f - 0.86) / 0.12)", "oon = clamp01((f - 0.45) / 0.25)")  # cover screen stays lit (frosted) while it swings, like the real thing
+R("  if (Math.abs(oon - lastOuterP) > 0.004 || (oon !== lastOuterP && (oon === 0 || oon === 1))) { paintScreen(outerCanvas, outerBg, outerItems, oon, [6, 82, 82, 6], OUTER_HOLE); outerTex.needsUpdate = true; lastOuterP = oon; }", "  const ob = Math.max(COVER_BLUR, clamp01((0.995 - f) / 0.05)), okey = Math.round(oon * 250) * 1000 + Math.round(ob * 250);\n  if (okey !== lastOuterP) { paintScreen(outerCanvas, outerBg, outerItems, oon, [6, 82, 82, 6], OUTER_HOLE); if (ob > 0.004) frostOver(outerCanvas, ob); outerTex.needsUpdate = true; lastOuterP = okey; }")
+R("  explode = st.explode; applyExplode(explode);", "  KEEP_ON = st.keepOn; COVER_BLUR = st.cb; WAKE = st.wake; explode = st.explode; applyExplode(explode);")
 
 a = src.index("const CLOSED_T = new THREE.Vector3(38, 0, 3);"); b = src.index("const TOTAL = tAcc;")
 tour = r'''/* ---------- Short: "How does a ₹3 lakh iPhone fold?" (9:16, 40 s) ---------- */
@@ -177,7 +179,7 @@ const FRONT_C = P(36, 0, 3, 0.12, 0.16, 470);                 // closed, cover s
 const OPEN = P(0, 0, 1, 0.1, 0.2, 690), OVER = P(36, 0, 2, 0.12, 0.85, 1080, UP_STACK);
 sseg({ dur: 2.2, fold: () => 1, pose: t => { const T = t * 2.2; return T < 1.2 ? lerpPose(MACRO, BACK0, ease(T / 1.2) * 0.999) : lerpPose(BACK0, BACK1, ease((T - 1.2) / 1.0)); },
   caps: [[0, 2.2, '<div class="big">₹2,99,900</div>' + L('This iPhone <em>folds in half</em>')]] });
-sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 0.75) / 1.55)),
+sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 0.9) / 1.45)), cb: t => clamp01((t * 2.8 - 0.5) / 0.35),
   wake: t => 1 + 0.22 * Math.sin(Math.PI * clamp01((t * 2.8 - 2.0) / 0.8)),       // little Apple-style glow as the screen lands flat
   pose: t => { const T = t * 2.8; return T < 0.8 ? lerpPose(BACK1, FRONT_C, ease(T / 0.8)) : lerpPose(FRONT_C, OPEN, ease(clamp01((T - 0.75) / 1.75))); },
   caps: [[0.05, 1.6, L('But glass <em>cracks</em> when you bend it')], [1.6, 2.8, '<div class="big">So how?</div>']] });
@@ -197,7 +199,8 @@ sseg({ dur: 6, keepOn: true, fold: t => 0.74 * (1 - ease(clamp01(t * 6 / 1.4))),
 // Apple-style close: face the viewer, fold shut towards the camera (soft ease-in, firm landing at 38.9 s), then turn to the back
 const CREASE_END = P(0, -30, 2.6, 1.3, 0.17, 330), BACK_HERO = P(36, -48, 3, -1.25, 0.12, 790);
 sseg({ dur: 4, fold: t => { const T = t * 4; const u = clamp01((T - 0.9) / 1.6); return u * u * (1.6 - 0.6 * u); },
-  pose: t => { const T = t * 4; return T < 0.95 ? lerpPose(CREASE_END, OPEN, ease(T / 0.95)) : T < 2.5 ? lerpPose(OPEN, FRONT_C, ease((T - 0.95) / 1.55)) : lerpPose(FRONT_C, BACK_HERO, ease((T - 2.5) / 1.5)); },
+  cb: t => { const T = t * 4; return T < 2.5 ? 1 : 1 - ease(clamp01((T - 2.6) / 0.55)); },
+  pose: t => { const T = t * 4; return T < 0.95 ? lerpPose(CREASE_END, OPEN, ease(T / 0.95)) : T < 2.5 ? lerpPose(OPEN, FRONT_C, ease((T - 0.95) / 1.55)) : T < 3.25 ? FRONT_C : lerpPose(FRONT_C, BACK_HERO, ease((T - 3.25) / 0.75)); },
   caps: [[0.2, 4, L('It doesn’t fold like paper.<br>It <em>rolls like a poster.</em>')]] });
 // end card backdrop: slow hero turn of the closed phone, high in the frame (the channel card sits underneath)
 sseg({ dur: 5, fold: () => 1, pose: t => lerpPose(BACK_HERO, P(36, -48, 3, -2.25, 0.12, 790), ease(t)), caps: [] });
