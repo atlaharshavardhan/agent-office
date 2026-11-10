@@ -20,6 +20,7 @@ LINES = {
     "l7a": "So it doesn't fold like paper.",  # l7 split around the close sound
     "l7b": "It rolls like a poster.",
     "l8": "Follow InvisiTech for more tech, explained.",
+    "l8s": "Follow InvisiTech for more. Like, and subscribe.",  # v4 ending
 }
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
 L = {}

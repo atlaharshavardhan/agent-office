@@ -1,0 +1,1195 @@
+<title>iPhone Duo Fold Short</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap">
+<style>
+/* Layout: full-bleed 3D stage on a teardown-mat grid; layer rail right, part card left, controls docked bottom. */
+:root {
+  --bg: #0c0f12;
+  --bg-2: #141a1f;
+  --panel: rgba(18, 23, 28, 0.82);
+  --fg: #e8ecef;
+  --muted: #8e99a3;
+  --line: rgba(160, 180, 195, 0.16);
+  --grid: rgba(120, 150, 170, 0.07);
+  --accent: #f0a640;      /* polyimide flex-cable amber */
+  --accent-ink: #1a1206;
+  --copper: #c98552;
+  --font-display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  margin: 0; overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 60% at 55% 45%, #1a222a 0%, transparent 70%),
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 40px 40px,
+    var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+#app { position: fixed; inset: 0; }
+#c { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#c.dragging { cursor: grabbing; }
+button { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.top {
+  position: absolute; top: env(safe-area-inset-top, 0px); left: 0; right: 0;
+  padding-block: 18px;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  pointer-events: none;
+}
+.eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.top h1 { margin: 4px 0 0; font-family: var(--font-display); font-weight: 600; font-size: clamp(18px, 2.2vw, 26px); letter-spacing: -0.01em; text-wrap: balance; }
+.top .note { font-size: 12px; color: var(--muted); margin-top: 4px; max-width: 40ch; }
+
+#parts {
+  position: absolute; right: max(20px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%);
+  width: 216px; padding: 14px 10px; border: 1px solid var(--line); border-radius: 14px;
+  background: var(--panel); backdrop-filter: blur(10px);
+}
+.rail-title { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 0 8px 8px; }
+#parts ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+#parts button {
+  width: 100%; display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 6px;
+  background: none; border: 0; border-radius: 8px; padding: 7px 8px; text-align: left; cursor: pointer;
+  font-size: 13.5px; color: var(--fg);
+}
+#parts button .n { font-family: var(--font-mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+#parts button:hover { background: rgba(255,255,255,.05); }
+#parts button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+#parts button[aria-pressed="true"] .n { color: var(--accent-ink); }
+
+#card {
+  position: absolute; left: max(24px, env(safe-area-inset-left, 0px)); top: 50%; transform: translateY(-50%);
+  width: min(400px, 34vw); padding: 22px 24px; border: 1px solid var(--line); border-radius: 16px;
+  background: var(--panel); backdrop-filter: blur(12px);
+  transition: opacity .35s ease;
+}
+#card .num { font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+#card h2 { font-family: var(--font-display); font-weight: 600; font-size: 28px; line-height: 1.1; margin: 8px 0 6px; letter-spacing: -0.015em; text-wrap: balance; }
+#card .role { margin: 0 0 12px; color: var(--accent); font-weight: 500; font-size: 15px; }
+#card .body { margin: 0 0 16px; color: #c9d1d8; line-height: 1.55; font-size: 15px; }
+#card .specs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 12px; }
+#card .specs li { font-family: var(--font-mono); font-size: 12.5px; color: var(--fg); display: flex; gap: 8px; }
+#card .specs li::before { content: ""; width: 6px; height: 6px; margin-top: 6px; flex: none; border-radius: 1px; background: var(--copper); }
+#card .nav { display: flex; gap: 8px; margin-top: 16px; }
+.btn {
+  border: 1px solid var(--line); background: rgba(255,255,255,.04); border-radius: 999px;
+  padding: 8px 14px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { background: rgba(255,255,255,.09); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+
+#controls {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 12px; padding: 8px 10px 8px 8px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--panel); backdrop-filter: blur(10px);
+  max-width: calc(100% - 32px);
+}
+#controls label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+#explode { width: 140px; accent-color: var(--accent); }
+#hint { position: absolute; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--muted); white-space: nowrap; pointer-events: none; }
+
+#labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.tag { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 0; white-space: nowrap; will-change: transform; }
+.tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(240,166,64,.22); flex: none; }
+.tag b { width: 26px; height: 1px; background: rgba(240,166,64,.6); flex: none; }
+.tag span { font-size: 12.5px; font-weight: 500; padding: 3px 8px; border-radius: 6px; background: rgba(12,15,18,.78); border: 1px solid var(--line); }
+.tag.left { flex-direction: row-reverse; }
+
+#title-card { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 0 13vh 7vw; pointer-events: none; opacity: 0; }
+#title-card .eyebrow { font-size: 15px; }
+#title-card h2 { font-family: var(--font-display); font-size: clamp(34px, 5vw, 76px); font-weight: 700; letter-spacing: -0.03em; margin: 10px 0 8px; line-height: 1; max-width: 14ch; }
+#title-card p { font-size: clamp(15px, 1.5vw, 22px); color: #b9c3cb; margin: 0; max-width: 40ch; }
+
+/* Video render mode */
+body.render .top .note, body.render #parts, body.render #controls, body.render #hint, body.render #card .nav { display: none !important; }
+body.render #card { width: 560px; left: 88px; padding: 32px 36px; border-radius: 20px; transition: none; }
+body.render #card h2 { font-size: 44px; }
+body.render #card .num { font-size: 16px; }
+body.render #card .role { font-size: 21px; }
+body.render #card .body { font-size: 21px; }
+body.render #card .specs li { font-size: 17px; }
+body.render #card .specs li::before { margin-top: 8px; }
+body.render .top { padding: 40px 56px; }
+body.render .top h1 { font-size: 26px; }
+body.render .tag span { font-size: 17px; padding: 4px 10px; }
+
+@media (max-width: 820px) {
+  #parts { top: auto; transform: none; right: 0; left: 0; bottom: calc(68px + env(safe-area-inset-bottom, 0px)); width: auto; border: 0; border-radius: 0; background: none; backdrop-filter: none; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+  .rail-title { display: none; }
+  #parts ol { flex-direction: row; overflow-x: auto; gap: 6px; scrollbar-width: none; padding-bottom: 2px; }
+  #parts button { width: auto; white-space: nowrap; grid-template-columns: auto auto; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 13px; }
+  #card { top: auto; transform: none; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); width: auto; bottom: calc(112px + env(safe-area-inset-bottom, 0px)); padding: 16px 18px; max-height: 42vh; overflow-y: auto; }
+  #card h2 { font-size: 22px; }
+  #card .body { font-size: 14px; margin-bottom: 10px; }
+  #hint { display: none; }
+  #explode { width: 90px; }
+  .top .note { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { #card { transition: none; } }
+
+.btn { white-space: nowrap; }
+@media (max-width: 820px) {
+  #controls { left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); transform: none; max-width: none; justify-content: space-between; gap: 8px; padding: 6px; border-radius: 16px; flex-wrap: nowrap; }
+  #controls .btn { padding: 8px 12px; font-size: 13px; }
+  #controls label { display: none; }
+  #explode { flex: 1 1 auto; min-width: 50px; width: auto; }
+  #parts { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+  #card { bottom: calc(124px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 820px) { #labels { display: none; } }
+body.short { background: radial-gradient(ellipse 95% 62% at 50% 46%, #142a52 0%, #0b1833 42%, #060d1f 72%, #03060f 100%) !important; }  /* Apple-style deep navy */
+body.short .top, body.short #card, body.short #labels, body.short #title-card, body.short #parts, body.short #controls, body.short #hint { display: none !important; }
+body.clean #cap, body.clean #capbg { display: none !important; }
+#glabels { position: absolute; inset: 0; pointer-events: none; }
+#glabels .gl { position: absolute; left: 0; right: 0; top: 0; height: 0; }
+#glabels .gl span { position: absolute; left: 56px; top: -24px; font-family: var(--font-display); font-weight: 600; font-size: 36px; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.8); white-space: nowrap; }
+#glabels .gl span em { font-style: normal; font-family: var(--font-mono); font-weight: 500; font-size: 28px; color: var(--accent); margin-right: 14px; }
+#glabels .gl b { position: absolute; top: 0; height: 2px; background: rgba(240,166,64,.75); }
+#glabels .gl i { position: absolute; top: -6px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 5px rgba(240,166,64,.25); }
+#capbg { position: absolute; inset: 0 0 auto; height: 34%; background: linear-gradient(#000 0%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0) 100%); pointer-events: none; }
+#cap { z-index: 2; position: absolute; left: 0; right: 0; top: 10.5%; padding: 0 72px; text-align: center; color: #fff; font-family: var(--font-display); pointer-events: none; will-change: opacity, transform; }
+#cap .big { font-size: 150px; font-weight: 700; letter-spacing: -0.035em; line-height: 1; color: var(--accent); margin-bottom: 18px; }
+#cap .line { font-size: 74px; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; text-wrap: balance; text-shadow: 0 4px 30px rgba(0,0,0,.6); }
+#cap .line em { font-style: normal; color: var(--accent); }
+#cap .sub { font-family: var(--font-mono); font-size: 34px; letter-spacing: .14em; text-transform: uppercase; color: #9aa4ad; margin-top: 22px; }
+</style>
+
+<div id="app">
+  <canvas id="c" aria-label="3D exploded view of the iPhone Duo foldable. Drag to rotate, scroll to zoom, tap a part to learn about it."></canvas>
+  <div id="labels"></div>
+  <div id="capbg"></div>
+  <div id="cap"></div>
+
+  <header class="top">
+    <div>
+      <div class="eyebrow">Teardown · 9 parts · 5.2 mm open · <a href="https://claude.ai/artifact/SXUo4GB4f5C9AhS5iwrLtA" target="_top" style="color:var(--fg);text-decoration:underline;text-underline-offset:3px;pointer-events:auto;white-space:nowrap">Screen layers →</a></div>
+      <h1>Inside the iPhone Duo</h1>
+      <div class="note">Illustrative model based on Apple’s published specs and teardown reports. Proportions are approximate. Not affiliated with Apple.</div>
+    </div>
+  </header>
+
+  <aside id="parts" aria-label="Phone layers">
+    <div class="rail-title">Parts, front to back</div>
+    <ol id="part-list"></ol>
+  </aside>
+
+  <section id="card" hidden aria-live="polite">
+    <div class="num" id="card-num"></div>
+    <h2 id="card-name"></h2>
+    <p class="role" id="card-role"></p>
+    <p class="body" id="card-body"></p>
+    <ul class="specs" id="card-specs"></ul>
+    <div class="nav">
+      <button class="btn" id="prev" type="button">← Previous</button>
+      <button class="btn" id="next" type="button">Next →</button>
+    </div>
+  </section>
+
+  <div id="title-card" aria-hidden="true">
+    <div class="eyebrow" id="tc-eyebrow">Teardown</div>
+    <h2 id="tc-title">Inside the iPhone Duo</h2>
+    <p id="tc-sub">Apple’s first foldable, opened up.</p>
+  </div>
+
+  <div id="hint">Drag to rotate · scroll or pinch to zoom · tap a part</div>
+
+  <div id="controls">
+    <button class="btn primary" id="play" type="button">▶ Play tour</button>
+    <label for="explode">Explode</label>
+    <input type="range" id="explode" min="0" max="1" step="0.01" value="1">
+    <button class="btn" id="fold" type="button">Fold</button>
+    <button class="btn" id="overview" type="button">Overview</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+'use strict';
+const RENDER = new URLSearchParams(location.search).has('render');
+document.body.classList.add('short'); if (RENDER) document.body.classList.add('render'); if (new URLSearchParams(location.search).has('clean')) document.body.classList.add('clean');
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------------- Part descriptions ---------------- */
+const INFO = {
+  inner: { name: 'Inner display', role: 'A 7.6-inch screen that folds in half.',
+    body: 'A flexible OLED made of 10 ultrathin layers, topped with a nano-texture layer that cuts glare and helps hide the crease. The layers slide past each other every time you fold. ProMotion runs it at up to 120 Hz, and a 1080p FaceTime camera hides under the display.',
+    specs: ['7.6-inch, 2670 × 1878, 430 ppi', '10 ultrathin layers, nano-texture', 'Under-display 1080p FaceTime camera'] },
+  frame: { name: 'Frame halves and buttons', role: 'Two titanium halves joined by the hinge.',
+    body: 'Each half has a mirror-polished Grade 5 titanium frame over an aluminum inner structure. Open it is 5.2 mm thick; folded, 11.3 mm. The volume buttons sit on the top edge; the side button with Touch ID (there is no Face ID) and Camera Control sit on the outer edge. There is no Action button.',
+    specs: ['Grade 5 titanium, mirror-polished', 'Touch ID side button + Camera Control', '254 g, IP68'] },
+  hinge: { name: 'Hinge', role: 'The part that makes it fold.',
+    body: 'The hinge is more than 100 parts: gears, springs and interlocking joints under a 3D-printed Grade 5 titanium cover. It closes in a waterdrop shape, leaving a teardrop pocket for the screen to curl into so it never bends sharply. A support bar holds the screen flat when open.',
+    specs: ['100+ parts', '3D-printed titanium hinge cover', 'Waterdrop fold for a gentler crease'] },
+  board: { name: 'Logic board', role: 'A single-layer board instead of a sandwich.',
+    body: 'Recent iPhones stack two circuit boards, but the Duo spreads its main board out in one layer, the first iPhone to do that since iPhone 8. It carries the A20 Pro chip, Apple’s own C2 cellular modem and the N1 chip for Wi-Fi and Bluetooth.',
+    specs: ['A20 Pro chip', 'C2 modem and N1 wireless chip', 'Single-layer layout'] },
+  io: { name: 'I/O board and flex cable', role: 'Wires the two halves together.',
+    body: 'Some functions move to a second single-layer board in the other half, next to the USB-C port and loudspeaker. A flexible printed cable runs through the hinge to join it to the logic board, and it has to survive being folded thousands of times.',
+    specs: ['Single-layer I/O board', 'Flex cable through the hinge', 'USB-C port and speaker'] },
+  batteries: { name: 'Two batteries', role: 'One cell in each half.',
+    body: 'Teardowns found two cells: a larger 2,962 mAh battery in one half and a 1,921 mAh battery in the other, about 4,883 mAh in total. They are held with electrically released adhesive, so a technician frees them by passing a small current instead of prying.',
+    specs: ['2,962 mAh + 1,921 mAh', 'About 4,883 mAh total', 'Electrically released adhesive'] },
+  cameras: { name: 'Rear cameras', role: 'Dual 48 MP Fusion system.',
+    body: 'A 48 MP Fusion Main camera (26 mm, ƒ/1.6) and a 48 MP Fusion Ultra Wide sit side by side. There is no telephoto lens; the Main camera crops to a 12 MP optical-quality 2× instead.',
+    specs: ['48 MP Fusion Main, ƒ/1.6', '48 MP Fusion Ultra Wide', '2× optical-quality crop, no telephoto'] },
+  outer: { name: 'Outer display', role: 'Use it like a normal phone when closed.',
+    body: 'A 5.4-inch screen covers the outside of one half, with the same aspect ratio as the inner display and about 90% of the screen area of iPhone 18 Pro. A 12 MP Center Stage camera in the punch-hole handles selfies and calls while the phone is shut.',
+    specs: ['5.4-inch OLED, up to 120 Hz', '3000 nits peak outdoors', '12 MP Center Stage front camera'] },
+  back: { name: 'Back cover', role: 'Closes the camera half.',
+    body: 'The camera half is backed with Ceramic Shield glass, a raised camera plateau and the Apple logo. Behind the logo sits a MagSafe coil and magnet ring for wireless charging. Open the phone partway on a table and the plateau angles the cameras up like a small tripod.',
+    specs: ['Ceramic Shield back', 'MagSafe and Qi2, up to 25 W', 'Night Sky or Star White'] },
+};
+
+/* ---------------- Three.js setup ---------------- */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: RENDER, logarithmicDepthBuffer: true });
+renderer.setPixelRatio(RENDER ? 1 : Math.min(devicePixelRatio || 1, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.setClearColor(0x000000, 0);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(33, 1, 5, 3000);  // ~10% wider so tall shots fit the 450-1500 band
+const FOV = THREE.MathUtils.degToRad(30);
+
+scene.add(new THREE.HemisphereLight(0xdfe8ff, 0x1a1410, 0.3));
+const key = new THREE.DirectionalLight(0xffffff, 1.0); key.position.set(140, 220, 260); scene.add(key);
+const rim = new THREE.DirectionalLight(0xffd2a8, 0.9); rim.position.set(-240, 90, -220); scene.add(rim);
+const fill = new THREE.DirectionalLight(0xa8c2ff, 0.55); fill.position.set(-220, -120, 160); scene.add(fill);
+const back = new THREE.DirectionalLight(0xffffff, 0.7); back.position.set(160, 60, -260); scene.add(back);
+
+// Studio environment for metal reflections
+(function makeEnv() {
+  // Photo-studio room: dark walls with bright softboxes, so chrome and gloss pick up crisp highlights.
+  const es = new THREE.Scene();
+  const room = new THREE.Mesh(new THREE.BoxGeometry(120, 70, 120), new THREE.MeshBasicMaterial({ color: 0x24282d, side: THREE.BackSide }));
+  es.add(room);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshBasicMaterial({ color: 0x0c0d0f })); floor.rotation.x = -Math.PI / 2; floor.position.y = -34; es.add(floor);
+  const panel = (w, h, k, x, y, z, ry = 0, rx = 0, tint = 0xffffff) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(tint).multiplyScalar(k), side: THREE.DoubleSide })); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); es.add(m); };
+  panel(70, 40, 3.2, 0, 34, 0, 0, Math.PI / 2);          // overhead softbox
+  panel(10, 50, 7, -58, 6, -10, Math.PI / 2);             // left strip
+  panel(10, 50, 6, 58, 6, 15, Math.PI / 2);               // right strip
+  panel(46, 26, 2.4, 10, 8, 58, 0, 0, 0xfff1e2);          // front key, warm
+  panel(30, 16, 1.6, -15, -4, -58, 0, 0, 0xdfe8ff);       // back fill, cool
+  panel(120, 3, 3.5, 0, -18, -59);                        // horizon line
+  const pm = new THREE.PMREMGenerator(renderer);
+  scene.environment = pm.fromScene(es, 0.015).texture;
+  pm.dispose();
+})();
+
+/* ---------------- Geometry helpers ---------------- */
+function rrShape(w, h, r, cx = 0, cy = 0, PathT = THREE.Shape) {
+  const s = new PathT(); const x = cx - w / 2, y = cy - h / 2;
+  r = Math.min(r, w / 2, h / 2);
+  s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.absarc(x + w - r, y + r, r, -Math.PI / 2, 0);
+  s.lineTo(x + w, y + h - r); s.absarc(x + w - r, y + h - r, r, 0, Math.PI / 2);
+  s.lineTo(x + r, y + h); s.absarc(x + r, y + h - r, r, Math.PI / 2, Math.PI);
+  s.lineTo(x, y + r); s.absarc(x + r, y + r, r, Math.PI, Math.PI * 1.5);
+  return s;
+}
+function extrude(shape, depth, bevel = 0.25, curve = 20) {
+  const d = Math.max(depth - 2 * bevel, 0.01);
+  const g = new THREE.ExtrudeGeometry(shape, { depth: d, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2, curveSegments: curve });
+  g.translate(0, 0, -d / 2);
+  return g;
+}
+function slab(w, h, r, depth, bevel = 0.25) { return extrude(rrShape(w - 2 * bevel, h - 2 * bevel, Math.max(r - bevel, 0.1)), depth, bevel); }
+function cyl(r, len, seg = 40) { const g = new THREE.CylinderGeometry(r, r, len, seg); g.rotateX(Math.PI / 2); return g; }
+function mesh(geo, mat, x = 0, y = 0, z = 0, parent) { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); if (parent) parent.add(m); return m; }
+function box(w, h, d, mat, x, y, z, parent) { return mesh(new THREE.BoxGeometry(w, h, d), mat, x, y, z, parent); }
+
+const std = (color, metalness, roughness, extra = {}) => new THREE.MeshStandardMaterial(Object.assign({ color, metalness, roughness }, extra));
+const phys = (o) => new THREE.MeshPhysicalMaterial(o);
+function canvasTex(w, h, draw) {
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  draw(cv.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
+}
+function labelTex(lines, bg = '#1b1c1f', fg = '#c8ccd2', w = 256, h = 256) {
+  return canvasTex(w, h, (x) => {
+    x.fillStyle = bg; x.fillRect(0, 0, w, h);
+    x.fillStyle = fg; x.textAlign = 'center'; x.textBaseline = 'middle';
+    lines.forEach((l, i) => { x.font = (i === 0 ? '600 ' : '400 ') + l[1] + 'px monospace'; x.fillText(l[0], w / 2, h / 2 + (i - (lines.length - 1) / 2) * l[1] * 1.35); });
+  });
+}
+function appleLogoTex() {
+  // Apple logo silhouette drawn on a 0–100 grid; used as an alpha mask.
+  return canvasTex(512, 512, (x, w, h) => {
+    x.fillStyle = '#000'; x.fillRect(0, 0, w, h);
+    x.save(); x.scale(w / 100, h / 100); x.fillStyle = '#fff';
+    x.beginPath();
+    x.moveTo(50, 31);
+    x.bezierCurveTo(56, 26, 66, 24, 74, 27);
+    x.bezierCurveTo(78, 28.5, 82, 31, 84.5, 34.5);
+    x.bezierCurveTo(78, 38.5, 75.5, 45, 76, 51.5);
+    x.bezierCurveTo(76.8, 58.5, 81.5, 63, 87.5, 64.5);
+    x.bezierCurveTo(85.5, 71, 81.5, 79, 76, 86);
+    x.bezierCurveTo(71.5, 91.5, 67, 94.5, 61.5, 93.5);
+    x.bezierCurveTo(57, 92.8, 54.5, 90.6, 50, 90.6);
+    x.bezierCurveTo(45.5, 90.6, 43, 92.8, 38.5, 93.5);
+    x.bezierCurveTo(33, 94.5, 28.5, 90.5, 24.5, 85);
+    x.bezierCurveTo(15.5, 72.5, 12.5, 57, 16.5, 46);
+    x.bezierCurveTo(19.5, 35.5, 28.5, 27.5, 38, 27.5);
+    x.bezierCurveTo(43, 27.5, 47, 29.5, 50, 31);
+    x.closePath(); x.fill();
+    x.beginPath();
+    x.moveTo(50.5, 24.5);
+    x.bezierCurveTo(50, 16, 56, 8, 64.5, 6);
+    x.bezierCurveTo(65.5, 14.5, 58.5, 23.5, 50.5, 24.5);
+    x.closePath(); x.fill();
+    x.restore();
+  });
+}
+function logoDecal(size, mat, x, y, z, parent) {
+  mat.alphaMap = appleLogoTex(); mat.alphaTest = 0.5;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size), mat);
+  m.position.set(x, y, z); m.rotation.y = Math.PI; m.userData.logo = true; parent.add(m); return m; // faces the back (-z)
+}
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* ---------------- iPhone Duo dimensions (mm, open) ---------------- */
+const HW = 82.3, H = 117.8, D = 5.2, R = 9.5, ZF = 3.05; // half width, height, depth, corner radius, fold axis height
+const CAM = { x: 48.8, y: 44.3 };  // camera pill centre (lenses side by side, flash toward the hinge)
+function half(x0, x1, h, r, roundLeft, PathT = THREE.Shape) {
+  const s = new PathT(), y0 = -h / 2, y1 = h / 2;
+  if (roundLeft) { s.moveTo(x0 + r, y0); s.lineTo(x1, y0); s.lineTo(x1, y1); s.lineTo(x0 + r, y1); s.absarc(x0 + r, y1 - r, r, Math.PI / 2, Math.PI); s.lineTo(x0, y0 + r); s.absarc(x0 + r, y0 + r, r, Math.PI, Math.PI * 1.5); }
+  else { s.moveTo(x0, y0); s.lineTo(x1 - r, y0); s.absarc(x1 - r, y0 + r, r, -Math.PI / 2, 0); s.lineTo(x1, y1 - r); s.absarc(x1 - r, y1 - r, r, 0, Math.PI / 2); s.lineTo(x0, y1); s.lineTo(x0, y0); }
+  return s;
+}
+const halfL = (inset, r = R) => half(-HW + inset, -0.3 - inset * 0.2, H - 2 * inset, Math.max(r - inset, 0.5), true);
+const halfR = (inset, r = R) => half(0.3 + inset * 0.2, HW - inset, H - 2 * inset, Math.max(r - inset, 0.5), false);
+
+const root = new THREE.Group(); scene.add(root);
+const parts = [];
+function addPart(id, offset, view, anchor, build, foldable = true) {
+  const g = new THREE.Group(); build(g); root.add(g);
+  const bb = new THREE.Box3().setFromObject(g);
+  const center = bb.getCenter(new THREE.Vector3());
+  const radius = bb.getBoundingSphere(new THREE.Sphere()).radius;
+  // right-half meshes hang from a pivot on the fold axis
+  const pivot = new THREE.Group(); pivot.position.set(0, 0, ZF); const rg = new THREE.Group(); rg.position.set(0, 0, -ZF); pivot.add(rg); g.add(pivot);
+  if (foldable) [...g.children].forEach(o => { if (o === pivot) return; const b = new THREE.Box3().setFromObject(o); if (o.userData.left || (!o.isInstancedMesh && b.getCenter(new THREE.Vector3()).x < -1)) rg.attach(o); });
+  const p = { id, index: parts.length, group: g, pivot, offset: new THREE.Vector3(...offset), center, radius, view, anchor: new THREE.Vector3(...anchor), dim: 0, info: INFO[id] };
+  g.traverse(o => { if (o.isMesh) { o.userData.part = p; const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach(m => { m.userData.baseOpacity = m.opacity; m.userData.baseTransparent = m.transparent; m.userData.baseDepthWrite = m.depthWrite; }); } });
+  parts.push(p); return p;
+}
+function chipOn(g, z0, w, h, t, lines, x, y) {
+  const side = std(0x16171a, 0.3, 0.45);
+  const top = new THREE.MeshStandardMaterial({ map: labelTex(lines), metalness: 0.3, roughness: 0.4 });
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, t), [side, side, side, side, top, side]);
+  m.position.set(x, y, z0 + t / 2); g.add(m); return m;
+}
+function passives(g, seed, n, z0, inside, blocked) {
+  const r = rng(seed); const im = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), std(0xffffff, 0.3, 0.5), n);
+  const cols = [0x8a6a44, 0x2a2b2e, 0xb9a27a, 0x3b3d42]; const mtx = new THREE.Matrix4(); const col = new THREE.Color(); let k = 0, guard = 0;
+  while (k < n && guard++ < 20000) {
+    const [x, y] = inside(r); if (blocked.some(([a, b, c, d]) => x > a - 0.8 && x < b + 0.8 && y > c - 0.8 && y < d + 0.8)) continue;
+    const sw = 0.6 + r() * 1.0, sh = 0.4 + r() * 0.6, t = 0.3 + r() * 0.4;
+    mtx.makeScale(r() > 0.5 ? sw : sh, r() > 0.5 ? sh : sw, t); mtx.setPosition(x, y, z0 + t / 2); im.setMatrixAt(k, mtx); im.setColorAt(k, col.setHex(cols[(r() * cols.length) | 0])); k++;
+  }
+  im.count = k; im.userData.left = inside(rng(seed))[0] < 0; g.add(im);
+}
+
+/* ---------------- App icons (drawn, stylised) ---------------- */
+if (!CanvasRenderingContext2D.prototype.roundRect) CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) { this.moveTo(x + r, y); this.arcTo(x + w, y, x + w, y + h, r); this.arcTo(x + w, y + h, x, y + h, r); this.arcTo(x, y + h, x, y, r); this.arcTo(x, y, x + w, y, r); this.closePath(); };
+const lg = (x, s, a, b) => { const g = x.createLinearGradient(0, 0, 0, s); g.addColorStop(0, a); g.addColorStop(1, b); x.fillStyle = g; x.fillRect(0, 0, s, s); };
+const circ = (x, cx, cy, r, c) => { x.fillStyle = c; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill(); };
+const line = (x, pts, w, c) => { x.strokeStyle = c; x.lineWidth = w; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath(); pts.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); x.stroke(); };
+const ICONS = {
+  phone: (x, s) => { lg(x, s, '#62f57c', '#10bd3f'); const ph = new Path2D('M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z'); x.save(); x.translate(s * 0.2, s * 0.2); x.scale(s * 0.6 / 24, s * 0.6 / 24); x.fillStyle = '#fff'; x.fill(ph); x.restore(); },
+  messages: (x, s) => { lg(x, s, '#6af27e', '#0fc13c'); x.fillStyle = '#fff'; x.beginPath(); x.ellipse(s * 0.5, s * 0.47, s * 0.33, s * 0.27, 0, 0, Math.PI * 2); x.fill(); x.beginPath(); x.moveTo(s * 0.27, s * 0.62); x.quadraticCurveTo(s * 0.26, s * 0.76, s * 0.18, s * 0.8); x.quadraticCurveTo(s * 0.34, s * 0.78, s * 0.4, s * 0.7); x.fill(); },
+  facetime: (x, s) => { lg(x, s, '#6af27e', '#0fc13c'); x.fillStyle = '#fff'; x.beginPath(); x.roundRect(s * 0.18, s * 0.33, s * 0.42, s * 0.34, s * 0.08); x.fill(); x.beginPath(); x.moveTo(s * 0.63, s * 0.47); x.lineTo(s * 0.82, s * 0.35); x.lineTo(s * 0.82, s * 0.65); x.lineTo(s * 0.63, s * 0.53); x.fill(); },
+  safari: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); const g = x.createLinearGradient(0, s * 0.1, 0, s * 0.9); g.addColorStop(0, '#2ad0ff'); g.addColorStop(1, '#1366f0'); x.fillStyle = g; x.beginPath(); x.arc(s / 2, s / 2, s * 0.4, 0, Math.PI * 2); x.fill(); x.strokeStyle = 'rgba(255,255,255,0.8)'; x.lineWidth = s * 0.012; for (let i = 0; i < 36; i++) { const a = i / 36 * Math.PI * 2; x.beginPath(); x.moveTo(s / 2 + Math.cos(a) * s * 0.33, s / 2 + Math.sin(a) * s * 0.33); x.lineTo(s / 2 + Math.cos(a) * s * 0.37, s / 2 + Math.sin(a) * s * 0.37); x.stroke(); } x.save(); x.translate(s / 2, s / 2); x.rotate(Math.PI / 4); x.fillStyle = '#ff3b30'; x.beginPath(); x.moveTo(0, -s * 0.3); x.lineTo(s * 0.06, 0); x.lineTo(-s * 0.06, 0); x.fill(); x.fillStyle = '#fff'; x.beginPath(); x.moveTo(0, s * 0.3); x.lineTo(s * 0.06, 0); x.lineTo(-s * 0.06, 0); x.fill(); x.restore(); },
+  mail: (x, s) => { lg(x, s, '#3ec0ff', '#1a6ff0'); x.fillStyle = '#fff'; x.beginPath(); x.roundRect(s * 0.17, s * 0.3, s * 0.66, s * 0.42, s * 0.05); x.fill(); line(x, [[s * 0.2, s * 0.34], [s * 0.5, s * 0.55], [s * 0.8, s * 0.34]], s * 0.035, '#2a86f5'); },
+  music: (x, s) => { lg(x, s, '#ff6b81', '#fa233b'); circ(x, s * 0.35, s * 0.68, s * 0.09, '#fff'); circ(x, s * 0.64, s * 0.62, s * 0.09, '#fff'); line(x, [[s * 0.43, s * 0.67], [s * 0.43, s * 0.27], [s * 0.72, s * 0.21], [s * 0.72, s * 0.61]], s * 0.05, '#fff'); },
+  photos: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); ['#f9a51b', '#f7d13b', '#9cd23c', '#3fbf73', '#3aa5e8', '#7c6be0', '#c55bd6', '#f0505a'].forEach((c, i) => { x.save(); x.translate(s / 2, s / 2); x.rotate(i / 8 * Math.PI * 2); x.globalAlpha = 0.82; x.fillStyle = c; x.beginPath(); x.ellipse(0, -s * 0.17, s * 0.085, s * 0.19, 0, 0, Math.PI * 2); x.fill(); x.restore(); }); },
+  camera: (x, s) => { lg(x, s, '#eeeeee', '#a3a3a3'); x.fillStyle = '#2a2a2c'; x.beginPath(); x.roundRect(s * 0.15, s * 0.3, s * 0.7, s * 0.45, s * 0.07); x.fill(); x.fillRect(s * 0.36, s * 0.24, s * 0.22, s * 0.08); circ(x, s * 0.5, s * 0.52, s * 0.15, '#9a9a9c'); circ(x, s * 0.5, s * 0.52, s * 0.1, '#1d2a44'); circ(x, s * 0.75, s * 0.37, s * 0.03, '#ffd23f'); },
+  maps: (x, s) => { x.fillStyle = '#eef3e2'; x.fillRect(0, 0, s, s); x.fillStyle = '#9edb8a'; x.beginPath(); x.moveTo(0, 0); x.lineTo(s * 0.5, 0); x.lineTo(0, s * 0.45); x.fill(); line(x, [[0, s * 0.75], [s, s * 0.35]], s * 0.11, '#fff'); line(x, [[s * 0.35, s], [s * 0.6, 0]], s * 0.09, '#ffd04a'); circ(x, s * 0.62, s * 0.62, s * 0.13, '#1f7cf2'); x.fillStyle = '#fff'; x.beginPath(); x.moveTo(s * 0.62, s * 0.53); x.lineTo(s * 0.68, s * 0.68); x.lineTo(s * 0.62, s * 0.64); x.lineTo(s * 0.56, s * 0.68); x.fill(); },
+  weather: (x, s) => { lg(x, s, '#4cb3ff', '#1d6fe0'); circ(x, s * 0.38, s * 0.38, s * 0.15, '#ffd23f'); x.fillStyle = '#fff'; [[0.45, 0.62, 0.13], [0.6, 0.55, 0.16], [0.74, 0.64, 0.11]].forEach(([a, b, r]) => { x.beginPath(); x.arc(s * a, s * b, s * r, 0, Math.PI * 2); x.fill(); }); x.fillRect(s * 0.42, s * 0.62, s * 0.36, s * 0.13); },
+  clock: (x, s) => { x.fillStyle = '#000'; x.fillRect(0, 0, s, s); circ(x, s / 2, s / 2, s * 0.4, '#fff'); x.strokeStyle = '#000'; x.lineWidth = s * 0.015; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; x.beginPath(); x.moveTo(s / 2 + Math.cos(a) * s * 0.33, s / 2 + Math.sin(a) * s * 0.33); x.lineTo(s / 2 + Math.cos(a) * s * 0.37, s / 2 + Math.sin(a) * s * 0.37); x.stroke(); } line(x, [[s / 2, s / 2], [s * 0.5, s * 0.27]], s * 0.04, '#000'); line(x, [[s / 2, s / 2], [s * 0.66, s * 0.56]], s * 0.04, '#000'); line(x, [[s / 2, s / 2], [s * 0.36, s * 0.7]], s * 0.015, '#ff9500'); },
+  calendar: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); x.fillStyle = '#ff3b30'; x.textAlign = 'center'; x.font = `600 ${s * 0.16}px sans-serif`; x.fillText('TUE', s / 2, s * 0.3); x.fillStyle = '#111'; x.font = `300 ${s * 0.5}px sans-serif`; x.fillText('10', s / 2, s * 0.78); },
+  notes: (x, s) => { x.fillStyle = '#fdfdfb'; x.fillRect(0, 0, s, s); x.fillStyle = '#ffd23f'; x.fillRect(0, 0, s, s * 0.26); [0.45, 0.6, 0.75].forEach(y => line(x, [[s * 0.1, s * y], [s * 0.9, s * y]], s * 0.012, '#c9c9c9')); },
+  reminders: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); [['#1f7cf2', 0.28], ['#ff3b30', 0.5], ['#ff9500', 0.72]].forEach(([c, y]) => { x.strokeStyle = c; x.lineWidth = s * 0.03; x.beginPath(); x.arc(s * 0.24, s * y, s * 0.07, 0, Math.PI * 2); x.stroke(); line(x, [[s * 0.4, s * y], [s * 0.82, s * y]], s * 0.03, '#d4d4d4'); }); },
+  settings: (x, s) => { lg(x, s, '#b4b6ba', '#6d7075'); x.save(); x.translate(s / 2, s / 2); x.fillStyle = '#4a4d52'; for (let i = 0; i < 12; i++) { x.rotate(Math.PI / 6); x.fillRect(-s * 0.05, -s * 0.38, s * 0.1, s * 0.12); } x.restore(); circ(x, s / 2, s / 2, s * 0.29, '#4a4d52'); circ(x, s / 2, s / 2, s * 0.2, '#c9cbcf'); circ(x, s / 2, s / 2, s * 0.08, '#4a4d52'); },
+  appstore: (x, s) => { lg(x, s, '#1ec8fa', '#1572ee'); line(x, [[s * 0.3, s * 0.72], [s * 0.54, s * 0.28]], s * 0.075, '#fff'); line(x, [[s * 0.7, s * 0.72], [s * 0.46, s * 0.28]], s * 0.075, '#fff'); line(x, [[s * 0.26, s * 0.6], [s * 0.74, s * 0.6]], s * 0.075, '#fff'); },
+  wallet: (x, s) => { x.fillStyle = '#000'; x.fillRect(0, 0, s, s); [['#ffb000', 0.22], ['#2fbf71', 0.32], ['#1f8cff', 0.42], ['#ff5a4f', 0.52]].forEach(([c, y]) => { x.fillStyle = c; x.beginPath(); x.roundRect(s * 0.16, s * y, s * 0.68, s * 0.24, s * 0.05); x.fill(); }); x.fillStyle = '#1c1c1e'; x.beginPath(); x.roundRect(s * 0.12, s * 0.58, s * 0.76, s * 0.24, s * 0.05); x.fill(); },
+  health: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); x.fillStyle = '#ff2d55'; x.beginPath(); x.moveTo(s * 0.5, s * 0.78); x.bezierCurveTo(s * 0.1, s * 0.52, s * 0.18, s * 0.2, s * 0.5, s * 0.36); x.bezierCurveTo(s * 0.82, s * 0.2, s * 0.9, s * 0.52, s * 0.5, s * 0.78); x.fill(); },
+  files: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); x.fillStyle = '#5fb2ff'; x.beginPath(); x.roundRect(s * 0.15, s * 0.28, s * 0.32, s * 0.16, s * 0.04); x.fill(); x.fillStyle = '#1a8cff'; x.beginPath(); x.roundRect(s * 0.15, s * 0.36, s * 0.7, s * 0.4, s * 0.05); x.fill(); },
+  podcasts: (x, s) => { lg(x, s, '#d56df5', '#8b2ed6'); x.strokeStyle = '#fff'; x.lineWidth = s * 0.05; [0.3, 0.2].forEach(r => { x.beginPath(); x.arc(s / 2, s * 0.46, s * r, Math.PI * 0.8, Math.PI * 2.2); x.stroke(); }); circ(x, s / 2, s * 0.46, s * 0.07, '#fff'); line(x, [[s / 2, s * 0.56], [s / 2, s * 0.8]], s * 0.08, '#fff'); },
+  tv: (x, s) => { x.fillStyle = '#000'; x.fillRect(0, 0, s, s); x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = `700 ${s * 0.42}px sans-serif`; x.fillText('tv', s / 2, s * 0.64); },
+  books: (x, s) => { lg(x, s, '#ffa53d', '#ff7a00'); x.fillStyle = '#fff'; x.beginPath(); x.moveTo(s * 0.5, s * 0.34); x.quadraticCurveTo(s * 0.35, s * 0.26, s * 0.17, s * 0.3); x.lineTo(s * 0.17, s * 0.72); x.quadraticCurveTo(s * 0.35, s * 0.68, s * 0.5, s * 0.76); x.quadraticCurveTo(s * 0.65, s * 0.68, s * 0.83, s * 0.72); x.lineTo(s * 0.83, s * 0.3); x.quadraticCurveTo(s * 0.65, s * 0.26, s * 0.5, s * 0.34); x.fill(); line(x, [[s * 0.5, s * 0.36], [s * 0.5, s * 0.74]], s * 0.02, '#ff8c1a'); },
+  findmy: (x, s) => { lg(x, s, '#4fe06f', '#24b34a'); x.strokeStyle = '#fff'; x.lineWidth = s * 0.04; [0.32, 0.2].forEach(r => { x.beginPath(); x.arc(s / 2, s / 2, s * r, 0, Math.PI * 2); x.stroke(); }); circ(x, s / 2, s / 2, s * 0.08, '#fff'); },
+  calculator: (x, s) => { x.fillStyle = '#1c1c1e'; x.fillRect(0, 0, s, s); for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) circ(x, s * (0.22 + c * 0.187), s * (0.24 + r * 0.175), s * 0.07, c === 3 ? '#ff9f0a' : r === 0 ? '#a5a5a5' : '#505050'); },
+  stocks: (x, s) => { x.fillStyle = '#000'; x.fillRect(0, 0, s, s); line(x, [[s * 0.14, s * 0.68], [s * 0.32, s * 0.5], [s * 0.46, s * 0.6], [s * 0.64, s * 0.34], [s * 0.86, s * 0.42]], s * 0.05, '#30d158'); },
+  home: (x, s) => { lg(x, s, '#ffc04d', '#ff8a00'); x.fillStyle = '#fff'; x.beginPath(); x.moveTo(s * 0.5, s * 0.22); x.lineTo(s * 0.82, s * 0.5); x.lineTo(s * 0.72, s * 0.5); x.lineTo(s * 0.72, s * 0.78); x.lineTo(s * 0.28, s * 0.78); x.lineTo(s * 0.28, s * 0.5); x.lineTo(s * 0.18, s * 0.5); x.fill(); },
+  siri: (x, s) => { x.fillStyle = '#14151f'; x.fillRect(0, 0, s, s); [['#ff4fa3', 0.42, 0.45], ['#4f8bff', 0.58, 0.5], ['#9b5bff', 0.5, 0.6]].forEach(([c, a, b]) => { const g = x.createRadialGradient(s * a, s * b, 0, s * a, s * b, s * 0.26); g.addColorStop(0, c); g.addColorStop(1, c + '00'); x.fillStyle = g; x.fillRect(0, 0, s, s); }); x.strokeStyle = 'rgba(255,255,255,0.6)'; x.lineWidth = s * 0.02; x.beginPath(); x.arc(s / 2, s / 2, s * 0.3, 0, Math.PI * 2); x.stroke(); },
+  shortcuts: (x, s) => { x.fillStyle = '#2b2f77'; x.fillRect(0, 0, s, s); [['#5ac8fa', -0.06], ['#ff5ea8', 0.06]].forEach(([c, d]) => { x.save(); x.translate(s * (0.5 + d), s * (0.5 - d)); x.rotate(Math.PI / 4); x.fillStyle = c; x.globalAlpha = 0.9; x.beginPath(); x.roundRect(-s * 0.2, -s * 0.2, s * 0.4, s * 0.4, s * 0.08); x.fill(); x.restore(); }); },
+  fitness: (x, s) => { x.fillStyle = '#000'; x.fillRect(0, 0, s, s); x.lineCap = 'round'; [['#fa114f', 0.33, 1.75], ['#92e82a', 0.235, 1.55], ['#1eeaef', 0.14, 1.35]].forEach(([c, r, e]) => { x.strokeStyle = c + '55'; x.lineWidth = s * 0.08; x.beginPath(); x.arc(s / 2, s / 2, s * r, 0, Math.PI * 2); x.stroke(); x.strokeStyle = c; x.beginPath(); x.arc(s / 2, s / 2, s * r, -Math.PI / 2, -Math.PI / 2 + Math.PI * e); x.stroke(); }); },
+  preview: (x, s) => { lg(x, s, '#e6f4ff', '#9fd0ff'); const g = x.createLinearGradient(0, s * 0.2, 0, s * 0.7); g.addColorStop(0, '#5ab0ff'); g.addColorStop(1, '#ff8ac2'); x.fillStyle = g; x.beginPath(); x.roundRect(s * 0.2, s * 0.2, s * 0.5, s * 0.5, s * 0.06); x.fill(); circ(x, s * 0.64, s * 0.64, s * 0.17, '#1c1c1e'); circ(x, s * 0.64, s * 0.64, s * 0.1, '#e6f4ff'); },
+  news: (x, s) => { x.fillStyle = '#fff'; x.fillRect(0, 0, s, s); line(x, [[s * 0.3, s * 0.74], [s * 0.3, s * 0.26], [s * 0.7, s * 0.74], [s * 0.7, s * 0.26]], s * 0.13, '#fa2d48'); },
+  utilities: (x, s) => { lg(x, s, '#e2e2e7', '#bdbdc4'); const cs = ['#1c1c1e', '#4a90e2', '#1c1c1e', '#888', '#1c1c1e', '#5ac8fa', '#2fbf71', '#1c1c1e', '#ff9f0a']; cs.forEach((c, i) => { x.fillStyle = c; x.beginPath(); x.roundRect(s * (0.2 + (i % 3) * 0.21), s * (0.2 + ((i / 3) | 0) * 0.21), s * 0.17, s * 0.17, s * 0.04); x.fill(); }); },
+  translate: (x, s) => { lg(x, s, '#5fdcf5', '#1a8fe3'); x.fillStyle = '#fff'; x.beginPath(); x.roundRect(s * 0.14, s * 0.18, s * 0.42, s * 0.36, s * 0.08); x.fill(); x.fillStyle = '#1c1c1e'; x.beginPath(); x.roundRect(s * 0.44, s * 0.44, s * 0.42, s * 0.36, s * 0.08); x.fill(); x.textAlign = 'center'; x.font = `600 ${s * 0.24}px sans-serif`; x.fillStyle = '#1a8fe3'; x.fillText('A', s * 0.35, s * 0.45); x.fillStyle = '#fff'; x.fillText('文', s * 0.65, s * 0.71); },
+  freeform: (x, s) => { lg(x, s, '#1f86e8', '#0b4aa6'); x.strokeStyle = '#fff'; x.lineWidth = s * 0.07; x.lineCap = 'round'; x.beginPath(); x.moveTo(s * 0.18, s * 0.62); x.bezierCurveTo(s * 0.3, s * 0.2, s * 0.42, s * 0.75, s * 0.52, s * 0.42); x.bezierCurveTo(s * 0.6, s * 0.2, s * 0.7, s * 0.7, s * 0.82, s * 0.4); x.stroke(); },
+  journal: (x, s) => { lg(x, s, '#2c2370', '#7b3fd0'); [['#ff7ac6', -1], ['#7ab8ff', 1]].forEach(([c, d]) => { x.fillStyle = c; x.globalAlpha = 0.95; x.beginPath(); x.ellipse(s * (0.5 + d * 0.13), s * 0.42, s * 0.13, s * 0.2, d * 0.35, 0, Math.PI * 2); x.fill(); x.beginPath(); x.ellipse(s * (0.5 + d * 0.1), s * 0.66, s * 0.09, s * 0.12, d * 0.5, 0, Math.PI * 2); x.fill(); x.globalAlpha = 1; }); },
+  keynote: (x, s) => { lg(x, s, '#3a9bff', '#1258d6'); x.fillStyle = '#fff'; x.beginPath(); x.roundRect(s * 0.22, s * 0.24, s * 0.56, s * 0.3, s * 0.05); x.fill(); line(x, [[s * 0.5, s * 0.54], [s * 0.5, s * 0.78]], s * 0.06, '#fff'); line(x, [[s * 0.36, s * 0.8], [s * 0.64, s * 0.8]], s * 0.06, '#fff'); },
+  numbers: (x, s) => { lg(x, s, '#34d66b', '#0f9a3c'); x.fillStyle = '#fff'; [[0.24, 0.5], [0.42, 0.3], [0.6, 0.42]].forEach(([a, b]) => { x.beginPath(); x.roundRect(s * a, s * b, s * 0.14, s * (0.72 - b), s * 0.04); x.fill(); }); x.fillRect(s * 0.2, s * 0.74, s * 0.6, s * 0.05); },
+  pages: (x, s) => { lg(x, s, '#ffa92e', '#ff5a1f'); line(x, [[s * 0.28, s * 0.74], [s * 0.72, s * 0.26]], s * 0.13, '#fff'); line(x, [[s * 0.22, s * 0.8], [s * 0.6, s * 0.8]], s * 0.05, '#ffd9b0'); },
+  compass: (x, s) => { x.fillStyle = '#000'; x.fillRect(0, 0, s, s); circ(x, s / 2, s / 2, s * 0.36, '#1c1c1e'); x.strokeStyle = '#fff'; x.lineWidth = s * 0.012; for (let i = 0; i < 48; i++) { const a = i / 48 * Math.PI * 2, r0 = i % 4 ? 0.31 : 0.28; x.beginPath(); x.moveTo(s / 2 + Math.cos(a) * s * r0, s / 2 + Math.sin(a) * s * r0); x.lineTo(s / 2 + Math.cos(a) * s * 0.35, s / 2 + Math.sin(a) * s * 0.35); x.stroke(); } x.fillStyle = '#ff3b30'; x.beginPath(); x.moveTo(s / 2, s * 0.24); x.lineTo(s * 0.54, s / 2); x.lineTo(s * 0.46, s / 2); x.fill(); x.fillStyle = '#fff'; x.beginPath(); x.moveTo(s / 2, s * 0.76); x.lineTo(s * 0.54, s / 2); x.lineTo(s * 0.46, s / 2); x.fill(); },
+  voicememos: (x, s) => { x.fillStyle = '#000'; x.fillRect(0, 0, s, s); [0.2, 0.35, 0.55, 0.3, 0.7, 0.45, 0.25, 0.5, 0.2].forEach((hh, i) => { x.fillStyle = i === 4 ? '#ff3b30' : '#fff'; x.beginPath(); x.roundRect(s * (0.17 + i * 0.075), s * (0.5 - hh / 2), s * 0.04, s * hh, s * 0.02); x.fill(); }); },
+  tips: (x, s) => { lg(x, s, '#ffd84a', '#ffb000'); circ(x, s / 2, s * 0.42, s * 0.18, '#fff'); x.fillStyle = '#fff'; x.beginPath(); x.roundRect(s * 0.41, s * 0.58, s * 0.18, s * 0.16, s * 0.03); x.fill(); },
+};
+const LABELS = { appstore: 'App Store', findmy: 'Find My', facetime: 'FaceTime', tv: 'TV', voicememos: 'Voice Memos' };
+function appIcon(x, kind, cx, cy, s, label = true) {
+  x.save(); x.shadowColor = 'rgba(0,0,0,0.25)'; x.shadowBlur = s * 0.12; x.shadowOffsetY = s * 0.04;
+  x.fillStyle = '#000'; x.beginPath(); x.roundRect(cx - s / 2, cy - s / 2, s, s, s * 0.225); x.fill(); x.restore();
+  x.save(); x.translate(cx - s / 2, cy - s / 2); x.beginPath(); x.roundRect(0, 0, s, s, s * 0.225); x.clip(); ICONS[kind](x, s);
+  const sh = x.createLinearGradient(0, 0, 0, s); sh.addColorStop(0, 'rgba(255,255,255,0.18)'); sh.addColorStop(0.5, 'rgba(255,255,255,0)'); x.fillStyle = sh; x.fillRect(0, 0, s, s); x.restore();
+  if (label) { x.fillStyle = 'rgba(255,255,255,0.96)'; x.textAlign = 'center'; x.font = `500 ${Math.round(s * 0.19)}px sans-serif`; x.shadowColor = 'rgba(0,0,0,0.35)'; x.shadowBlur = 4; x.fillText(LABELS[kind] || kind[0].toUpperCase() + kind.slice(1), cx, cy + s / 2 + s * 0.26); x.shadowBlur = 0; }
+}
+function wallpaper(x, w, h) {
+  const g = x.createLinearGradient(0, 0, w * 0.35, h); g.addColorStop(0, '#0d2a52'); g.addColorStop(0.5, '#3b3a86'); g.addColorStop(1, '#c76e58'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  [[0.2, 0.25, '#4fa3ff'], [0.75, 0.3, '#b56cff'], [0.55, 0.85, '#ff9a6b']].forEach(([a, b, c]) => { const rg = x.createRadialGradient(w * a, h * b, 0, w * a, h * b, Math.max(w, h) * 0.45); rg.addColorStop(0, c + '66'); rg.addColorStop(1, c + '00'); x.fillStyle = rg; x.fillRect(0, 0, w, h); });
+}
+function dunes(x, w, h, hz = 0.46) {
+  const sky = x.createLinearGradient(0, 0, 0, h * hz); sky.addColorStop(0, '#050a1a'); sky.addColorStop(0.7, '#121a3a'); sky.addColorStop(1, '#33264a'); x.fillStyle = sky; x.fillRect(0, 0, w, h);
+  const r0 = rng(5); for (let i = 0; i < 70; i++) { x.fillStyle = `rgba(255,255,255,${0.25 + r0() * 0.5})`; x.beginPath(); x.arc(r0() * w, r0() * h * hz * 0.85, 0.8 + r0() * 1.6, 0, Math.PI * 2); x.fill(); }
+  const r = rng(17); x.beginPath(); x.moveTo(0, h); x.lineTo(0, h * (hz + 0.04));
+  for (let i = 0; i <= 24; i++) x.lineTo(w * i / 24, h * (hz - 0.02 + r() * 0.07 - Math.sin(i / 24 * Math.PI) * 0.05));
+  x.lineTo(w, h); x.closePath(); const mg = x.createLinearGradient(0, h * (hz - 0.05), 0, h * (hz + 0.18)); mg.addColorStop(0, '#12141f'); mg.addColorStop(1, '#211c2a'); x.fillStyle = mg; x.fill();
+  x.beginPath(); x.moveTo(0, h * (hz + 0.16)); x.bezierCurveTo(w * 0.3, h * (hz + 0.06), w * 0.55, h * (hz + 0.1), w, h * (hz + 0.05)); x.lineTo(w, h); x.lineTo(0, h); x.closePath();
+  const dg = x.createLinearGradient(0, h * hz, 0, h); dg.addColorStop(0, '#3a2c3c'); dg.addColorStop(1, '#140f18'); x.fillStyle = dg; x.fill();
+  x.beginPath(); x.moveTo(w * 0.15, h); x.bezierCurveTo(w * 0.35, h * (hz + 0.25), w * 0.6, h * (hz + 0.2), w, h * (hz + 0.22)); x.lineTo(w, h); x.closePath(); x.fillStyle = 'rgba(10,6,14,0.35)'; x.fill();
+  x.strokeStyle = 'rgba(255,200,170,0.07)'; x.lineWidth = 2; for (let k = 0; k < 26; k++) { const y0 = h * (hz + 0.22) + k * h * 0.02; x.beginPath(); x.moveTo(0, y0); for (let i = 0; i <= 20; i++) x.lineTo(w * i / 20, y0 + Math.sin(i * 1.3 + k) * 4); x.stroke(); }
+}
+function wifiGlyph(x, cx, cy, s) { x.strokeStyle = '#fff'; x.lineWidth = s * 0.09; x.lineCap = 'round'; [0.42, 0.28].forEach(r => { x.beginPath(); x.arc(cx, cy + s * 0.2, s * r, Math.PI * 1.25, Math.PI * 1.75); x.stroke(); }); circ(x, cx, cy + s * 0.2, s * 0.07, '#fff'); }
+function searchPill(x, cx, cy, r) { x.fillStyle = 'rgba(255,255,255,0.32)'; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill(); x.strokeStyle = '#fff'; x.lineWidth = r * 0.12; x.beginPath(); x.arc(cx - r * 0.1, cy - r * 0.1, r * 0.32, 0, Math.PI * 2); x.stroke(); line(x, [[cx + r * 0.14, cy + r * 0.14], [cx + r * 0.38, cy + r * 0.38]], r * 0.12, '#fff'); }
+function vDock(x, cx, top, n, s, kinds) { x.fillStyle = 'rgba(255,255,255,0.28)'; x.beginPath(); x.roundRect(cx - s * 0.66, top, s * 1.32, n * s * 1.32 + s * 0.3, s * 0.6); x.fill(); kinds.forEach((k, i) => appIcon(x, k, cx, top + s * 0.81 + i * s * 1.32, s, false)); }
+const RIGHT_GRID = [['weather', 'stocks', 'findmy', 'podcasts'], ['books', 'fitness', 'files', 'preview'], ['news', 'utilities', 'translate', 'freeform'], ['journal', 'keynote', 'numbers', 'pages'], ['compass', 'voicememos', 'tips', 'home']];
+const DOCK = ['phone', 'safari', 'messages', 'music'];
+function statusBar(x, w, y, s) { x.fillStyle = '#fff'; x.textAlign = 'left'; x.font = `600 ${s}px sans-serif`; x.fillText('10:08', s * 2.2, y); x.strokeStyle = '#fff'; x.lineWidth = 2; x.beginPath(); x.roundRect(w - s * 3.6, y - s * 0.75, s * 1.7, s * 0.85, 4); x.stroke(); x.fillRect(w - s * 3.45, y - s * 0.6, s * 1.4, s * 0.55); [0, 1, 2, 3].forEach(i => x.fillRect(w - s * 6.4 + i * s * 0.42, y - s * (0.25 + i * 0.17), s * 0.28, s * (0.25 + i * 0.17))); }
+function frosted(x, a, b, c, d, r) { x.fillStyle = 'rgba(255,255,255,0.2)'; x.beginPath(); x.roundRect(a, b, c, d, r); x.fill(); }
+
+/* 1. Inner display */
+var KEEP_ON = false, WAKE = 1, COVER_BLUR = 0, lastInnerP = 0, lastOuterP = 1;
+const _fb = [document.createElement('canvas'), document.createElement('canvas')];
+function frostOver(cv, a) {  // Apple-style frost: blur the screen content by down/up-sampling, keep the screen shape
+  const w = cv.width, h = cv.height, [s1, s2] = _fb; s1.width = Math.max(2, w >> 5); s1.height = Math.max(2, h >> 5); s2.width = Math.max(2, w >> 3); s2.height = Math.max(2, h >> 3);
+  const a1 = s1.getContext('2d'), a2 = s2.getContext('2d'); a1.imageSmoothingQuality = a2.imageSmoothingQuality = 'high'; a1.drawImage(cv, 0, 0, s1.width, s1.height); a2.drawImage(s1, 0, 0, s2.width, s2.height);
+  const x = cv.getContext('2d'); x.save(); x.globalCompositeOperation = 'source-atop'; x.globalAlpha = a; x.imageSmoothingQuality = 'high'; x.drawImage(s2, 0, 0, w, h); x.fillStyle = 'rgba(225,232,255,0.10)'; x.fillRect(0, 0, w, h); x.restore();
+}
+const innerScreens = [], bendMeshes = []; let innerScr, innerTexFull, outerScr;
+function foldPoint(x, f, z0) {
+  // flat on the left, rigidly rotated on the right, and a smooth curve through the hinge zone
+  const a = 7, th = -Math.PI * f, c = Math.cos(th), s = Math.sin(th);
+  const rot = (px, pz) => { const dz = pz - ZF; return [px * c + dz * s, -px * s + dz * c + ZF]; };
+  if (x <= -a) return [x, z0];
+  if (x >= a) return rot(x, z0);
+  const h = a * (2 / 3 + 0.5 * f), t = (x + a) / (2 * a), u = 1 - t;
+  const p0 = [-a, z0], p1 = [-a + h, z0], p3 = rot(a, z0), p2 = [p3[0] - h * c, p3[1] + h * s];
+  return [u * u * u * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t * t * t * p3[0], u * u * u * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t * t * t * p3[1]];
+}
+function bendScreens(f) {
+  bendMeshes.forEach(m => {
+    const b = m.userData.base, pos = m.geometry.attributes.position.array, z0 = 2.7 + m.userData.lift;
+    for (let i = 0; i < b.length; i += 3) { const x = b[i]; const dip = 0.14 * Math.exp(-(x * x) / 2.5) * (1 - f); const [X, Z] = foldPoint(-x, f, z0 - dip); pos[i] = -X; pos[i + 2] = Z; /* mirrored: left half swings */ }
+    m.geometry.attributes.position.needsUpdate = true; m.geometry.computeBoundingSphere();
+  });
+}
+const innerCanvas = document.createElement('canvas'); innerCanvas.width = 1640; innerCanvas.height = 1100;
+const innerBg = document.createElement('canvas'); innerBg.width = 1640; innerBg.height = 1100;
+const innerItems = [];
+(function buildInner() {
+  const b = innerBg.getContext('2d'), w = 1640, h = 1100;
+  dunes(b, w, h, 0.44);
+  const cg = b.createLinearGradient(800, 0, 840, 0); cg.addColorStop(0, 'rgba(0,0,0,0)'); cg.addColorStop(0.5, 'rgba(0,0,0,0.04)'); cg.addColorStop(1, 'rgba(0,0,0,0)'); b.fillStyle = cg; b.fillRect(800, 0, 40, h);
+  const add = (cx, cy, fn) => innerItems.push({ cx, cy, fn });
+  add(224, 205, x => {
+    const wg = x.createLinearGradient(0, 70, 0, 340); wg.addColorStop(0, '#3e9cf5'); wg.addColorStop(1, '#2a6fd8'); x.fillStyle = wg; x.beginPath(); x.roundRect(78, 70, 292, 270, 46); x.fill();
+    x.fillStyle = '#fff'; x.textAlign = 'left'; x.font = '600 28px sans-serif'; x.fillText('Bengaluru ➤', 108, 120); x.font = '300 100px sans-serif'; x.fillText('27°', 104, 222);
+    circ(x, 124, 268, 11, '#ffd23f'); x.font = '500 24px sans-serif'; x.fillText('Partly Cloudy', 144, 277); });
+  add(544, 205, x => {
+    x.save(); x.beginPath(); x.roundRect(398, 70, 292, 270, 46); x.clip(); const pg = x.createLinearGradient(0, 70, 0, 340); pg.addColorStop(0, '#ff9a5a'); pg.addColorStop(0.55, '#ffcf8a'); pg.addColorStop(0.56, '#2f7fa8'); pg.addColorStop(1, '#1d4f73'); x.fillStyle = pg; x.fillRect(398, 70, 292, 270);
+    circ(x, 544, 210, 34, '#fff3c9'); x.fillStyle = '#1d2a33'; x.beginPath(); x.moveTo(398, 340); x.lineTo(398, 250); x.quadraticCurveTo(430, 230, 470, 262); x.lineTo(470, 340); x.fill();
+    x.fillStyle = '#fff'; x.textAlign = 'left'; x.font = '700 34px sans-serif'; x.fillText('Goa', 424, 300); x.font = '600 20px sans-serif'; x.fillText('DEC 2025', 424, 326); x.restore(); });
+  const S = 106, colsL = [140, 300, 460, 620], rowsL = [455, 620, 785, 950];
+  [['facetime', 'calendar', 'photos', 'camera'], ['mail', 'notes', 'clock', 'maps'], ['siri', 'tv', 'health', 'reminders'], ['shortcuts', 'appstore', 'wallet', 'settings']].forEach((row, ri) => row.forEach((k, ci) => add(colsL[ci], rowsL[ri], x => appIcon(x, k, colsL[ci], rowsL[ri], S))));
+  const colsR = [930, 1090, 1250, 1410], rowsR = [120, 290, 460, 630, 800];
+  RIGHT_GRID.forEach((row, ri) => row.forEach((k, ci) => add(colsR[ci], rowsR[ri], x => appIcon(x, k, colsR[ci], rowsR[ri], S))));
+  add(1560, 600, x => { x.fillStyle = 'rgba(255,255,255,0.28)'; x.beginPath(); x.roundRect(1560 - 61, 340, 122, 4 * 121 + 28, 55); x.fill(); });
+  DOCK.forEach((k, i) => add(1560, 340 + 75 + i * 121, x => appIcon(x, k, 1560, 340 + 75 + i * 121, 92, false)));
+  add(1560, 140, x => { x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = '600 32px sans-serif'; x.fillText('10:08', 1560, 140); wifiGlyph(x, 1560, 172, 46); });
+  add(1560, 1030, x => searchPill(x, 1560, 1030, 34));
+  add(654, 1058, x => { circ(x, 640, 1058, 8, '#fff'); circ(x, 668, 1058, 8, 'rgba(255,255,255,0.5)'); });
+})();
+function paintScreen(canvas, bg, items, p, radius, hole) {
+  // p = wake progress 0..1; items appear in a wave from the right edge (where the cover screen's content sits)
+  const e = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2, c01 = t => Math.min(1, Math.max(0, t));
+  const x = canvas.getContext('2d'), w = canvas.width, h = canvas.height;
+  x.save(); x.clearRect(0, 0, w, h); x.beginPath(); x.roundRect(0, 0, w, h, radius); x.clip(); x.drawImage(bg, 0, 0);
+  items.forEach(it => { const d = (1 - it.cx / w) * 0.55 + (it.cy / h) * 0.12; const q = e(c01((p * 1.7 - d) / 0.55)); if (q <= 0.001) return;
+    const sc = 0.8 + 0.2 * q; x.save(); x.globalAlpha = q; x.translate(it.cx, it.cy); x.scale(sc, sc); x.translate(-it.cx, -it.cy); it.fn(x); x.restore(); });
+  if (hole) { const [hx, hy, hr] = hole; circ(x, hx, hy, hr, '#000'); circ(x, hx, hy, hr * 0.55, '#0d1630'); circ(x, hx - hr * 0.25, hy - hr * 0.25, hr * 0.17, 'rgba(255,255,255,0.55)'); }
+  x.restore();
+}
+const INNER_HOLE = [1162, 77, 17], OUTER_HOLE = [680, 72, 22];
+const innerSharp = document.createElement('canvas'); innerSharp.width = 1640; innerSharp.height = 1100;
+paintScreen(innerSharp, innerBg, innerItems, 1, 86, null); circ(innerSharp.getContext('2d'), INNER_HOLE[0], INNER_HOLE[1], 13, 'rgba(0,0,0,0.16)'); // under-display camera: barely visible
+const innerBlur = document.createElement('canvas'); innerBlur.width = 1640; innerBlur.height = 1100;
+(function () {
+  const b = innerBlur.getContext('2d');
+  // blur by down-sampling and scaling back up (works everywhere, no canvas filter needed)
+  const tiny = document.createElement('canvas'); tiny.width = 82; tiny.height = 55; const t = tiny.getContext('2d'); t.imageSmoothingQuality = 'high'; t.drawImage(innerSharp, 0, 0, 82, 55);
+  const mid = document.createElement('canvas'); mid.width = 205; mid.height = 138; const mm = mid.getContext('2d'); mm.imageSmoothingQuality = 'high'; mm.drawImage(tiny, 0, 0, 205, 138);
+  b.imageSmoothingQuality = 'high'; b.drawImage(mid, 0, 0, 1640, 1100);
+  b.fillStyle = 'rgba(235,240,255,0.14)'; b.fillRect(0, 0, 1640, 1100);
+  b.globalCompositeOperation = 'destination-in';
+  const m = b.createLinearGradient(870, 0, 760, 0); m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(1, 'rgba(0,0,0,1)'); b.fillStyle = m; b.fillRect(0, 0, 1640, 1100);
+  b.beginPath(); b.roundRect(0, 0, 1640, 1100, 86); b.fill(); b.globalCompositeOperation = 'source-over';
+})();
+function composeInner(bl) {
+  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100);
+  const z = 1 + 0.05 * bl; x.save(); x.beginPath(); x.roundRect(0, 0, 1640, 1100, 86); x.clip(); x.translate(1230, 550); x.scale(z, z); x.translate(-1230, -550); x.drawImage(innerSharp, 0, 0); x.restore();
+  if (bl > 0.003) { x.globalAlpha = bl; x.drawImage(innerBlur, 0, 0); x.globalAlpha = 1; }
+  if (bl > 0.003) { const g = x.createLinearGradient(0, 0, 860, 0); g.addColorStop(0, `rgba(8,10,16,${(0.62 * bl).toFixed(3)})`); g.addColorStop(0.8, `rgba(8,10,16,${(0.45 * bl).toFixed(3)})`); g.addColorStop(1, 'rgba(8,10,16,0)'); x.save(); x.beginPath(); x.roundRect(0, 0, 1640, 1100, 86); x.clip(); x.fillStyle = g; x.fillRect(0, 0, 860, 1100); x.restore(); }
+}
+composeInner(0);
+function innerTex(offset) { const t = new THREE.CanvasTexture(innerCanvas); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; t.repeat.set(0.5, 1); t.offset.set(offset, 0); return t; }
+addPart('inner', [0, 0, 72], { az: 0.42, el: 0.4, k: 0.92 }, [-80, 56, 2.6], g => {
+  const body = phys({ color: 0x050506, metalness: 0.1, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.05 });
+  mesh(extrude(halfL(0.3), 0.6, 0.1), body, 0, 0, 2.35, g);
+  mesh(extrude(halfR(0.3), 0.6, 0.1), body, 0, 0, 2.35, g);
+  const sw = 80.3, sh = 113.8;  // ~2 mm bezel, matching hands-on photos (Apple's 7.6-inch is measured as a rectangle)
+  const full = new THREE.CanvasTexture(innerCanvas); full.encoding = THREE.sRGBEncoding; full.anisotropy = 4;
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(sw * 2, sh, 240, 1), new THREE.MeshBasicMaterial({ map: full, transparent: true, toneMapped: false, side: THREE.DoubleSide }));
+  const roundA = canvasTex(820, 550, (x, w, h) => { x.fillStyle = '#000'; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.beginPath(); x.roundRect(2, 2, w - 4, h - 4, 42); x.fill(); });
+  const gloss = new THREE.Mesh(new THREE.PlaneGeometry(sw * 2, sh, 240, 1), phys({ alphaMap: roundA, color: 0xffffff, transparent: true, opacity: 0.07, roughness: 0.05, metalness: 0, clearcoat: 1, envMapIntensity: 1.0, depthWrite: false, side: THREE.DoubleSide }));
+  innerScr = scr; innerTexFull = full;
+  [scr, gloss].forEach((m, k) => { m.userData.base = Float32Array.from(m.geometry.attributes.position.array); m.userData.lift = k ? 0.06 : 0; g.add(m); innerScreens.push(m); bendMeshes.push(m); });
+  bendScreens(0);
+  mesh(cyl(1.3, 1.0, 24), phys({ color: 0x0b1020, metalness: 0.3, roughness: 0.05, clearcoat: 1 }), 33.5, 48.9, 1.6, g); // under-display FaceTime camera (volume buttons sit just to its right on the top edge)
+  box(18, 8, 0.18, std(0xd99a3a, 0.1, 0.45), 30, -50, 1.85, g);
+});
+
+/* 2. Frame halves */
+addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g => {
+  const metal = std(0x0a1222, 1, 0.16, { envMapIntensity: 0.9 }, { envMapIntensity: 1.1 });
+  [[halfL(0), halfL(1.6, R)], [halfR(0), halfR(1.6, R)]].forEach(([o, i]) => { const s = o; const hole = i; const hp = new THREE.Path(hole.getPoints(24)); s.holes.push(hp); mesh(extrude(s, D, 0.4), metal, 0, 0, 0, g); });
+  const plate = std(0x9aa0a6, 0.8, 0.45);
+  const pl = halfR(1.4); pl.holes.push(new THREE.Path(rrShape(60, 24, 12, CAM.x, CAM.y).getPoints(16)));
+  mesh(extrude(pl, 0.5, 0), plate, 0, 0, 1.6, g);
+  mesh(extrude(halfL(1.4), 0.5, 0), plate, 0, 0, 1.6, g);
+  const btn = std(0x070b16, 0.8, 0.26, { envMapIntensity: 0.7 });
+  const capsule = (len, x, mat, th = 2.3, pr = 1.1) => { const gg = extrude(rrShape(len, th, th / 2), pr, 0.3, 16); gg.rotateX(-Math.PI / 2); return mesh(gg, mat, x, H / 2 + pr / 2 - 0.25, 0, g); };
+  // all controls sit on the top edge (Apple's Duo guide, top view): volume up/down, side button with Touch ID, Camera Control
+  // Apple's Duo guide callouts: 1 under-display FaceTime camera, 2 volume buttons (top edge, just right of that camera),
+  // 3 side button with Touch ID and 4 Camera Control (outer edge, top to bottom), 5 USB-C. All on the camera half.
+  const capsuleR = (len, y, mat, th = 2.3, pr = 1.1) => { const gg = extrude(rrShape(len, th, th / 2), pr, 0.3, 16); gg.rotateX(-Math.PI / 2); gg.rotateZ(-Math.PI / 2); return mesh(gg, mat, HW + pr / 2 - 0.25, y, 0, g); };
+  capsule(10.1, 42.9, btn); capsule(10.8, 56.3, btn);                                                  // volume buttons
+  capsuleR(19.6, 16, std(0x3a4868, 1, 0.18), 2.75, 0.9);                                           // Touch ID ring
+  capsuleR(19, 16, std(0x0a1020, 0.85, 0.2, { envMapIntensity: 0.9 }), 2.3, 1.35);                 // long side button with Touch ID, slightly raised
+  capsuleR(14.6, -25.7, std(0x8090ae, 1, 0.16), 2.75, 0.85);  // Camera Control ring (~3/4 of the side button length)                                            // Camera Control ring
+  capsuleR(14, -25.7, phys({ color: 0x05070c, metalness: 0.2, roughness: 0.06, clearcoat: 1, envMapIntensity: 1.8 }), 2.3, 0.95); // Camera Control sapphire pad
+  const ab = std(0x1a1b1e, 0, 0.6);
+  [[-HW + 0.6, 40], [-HW + 0.6, -40], [HW - 0.6, 40], [HW - 0.6, -40]].forEach(([x, y]) => box(1.8, 1.0, D - 0.4, ab, x, y, 0, g));
+  box(9.2, 1.6, 3.2, std(0x050506, 0, 0.8), -42, -H / 2 + 0.4, 0, g);
+  // bottom edge: loudspeaker grille right of USB-C, microphone grille left (standard iPhone layout)
+  const hole = new THREE.CylinderGeometry(0.62, 0.62, 2.0, 14), holeM = std(0x020203, 0, 0.9);
+  for (let i = 0; i < 7; i++) mesh(hole, holeM, -34 + i * 2.3, -H / 2 + 0.35, 0, g);   // speaker
+  for (let i = 0; i < 4; i++) mesh(hole, holeM, -50 - i * 2.3, -H / 2 + 0.35, 0, g);   // microphones
+});
+
+/* 3. Hinge */
+let spine;
+let hingeMech; const hingeGears = [];
+window.spinGears = t => hingeGears.forEach((gg, i) => { gg.rotation.y = (i % 2 ? -1 : 1) * t * 2.4; });
+addPart('hinge', [0, 0, 22], { az: 0.6, el: 0.55, k: 0.72, t: [0, 44, 0.6], dist: 62 }, [0, 58, 0.5], g => {
+  // Mechanism (iFixit: gears, springs, interlocking joints; REWA: four springs) under a 3D-printed titanium cover.
+  const m = new THREE.Group(); g.add(m); hingeMech = m;
+  const ti = std(0x161b24, 0.8, 0.45, { envMapIntensity: 0.6 }), steel = std(0xa3aab4, 1, 0.24), dark = std(0x3a414c, 0.95, 0.3), springM = std(0xb4bac2, 1, 0.25);
+  mesh(extrude(rrShape(8.5, 110, 3), 1.6, 0.3), ti, 0, 0, -1.4, m);                         // structural spine
+  const gearAt = (x, y, z, r, mat) => {
+    const gg = new THREE.Group(); gg.position.set(x, y, z); m.add(gg); hingeGears.push(gg);
+    mesh(new THREE.CylinderGeometry(r, r, 1.6, 24), mat, 0, 0, 0, gg);
+    for (let t = 0; t < 12; t++) { const a = t / 12 * Math.PI * 2 + (x > 0 ? 0.26 : 0); box(0.32, 1.6, 0.32, mat, Math.cos(a) * (r + 0.14), 0, Math.sin(a) * (r + 0.14), gg); }
+  };
+  const coil = (x, y0, y1, z, r) => {
+    const pts = []; for (let i = 0; i <= 200; i++) { const t = i / 200, a = t * Math.PI * 2 * 8; pts.push(new THREE.Vector3(x + Math.cos(a) * r, y0 + t * (y1 - y0), z + Math.sin(a) * r)); }
+    m.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 400, 0.13, 6), springM));
+  };
+  [46, -46].forEach(y => {
+    const sgn = Math.sign(y);
+    mesh(extrude(rrShape(10, 16, 1.5), 1.2, 0.2), ti, 0, y, -0.2, m);                       // module bracket
+    const xs = [-2.85, -0.95, 0.95, 2.85];
+    xs.forEach((x, k) => {
+      mesh(new THREE.CylinderGeometry(0.32, 0.32, 15, 16), steel, x, y, 0.75, m);          // shaft
+      gearAt(x, y + sgn * 5.5, 0.75, 0.82, k % 2 ? dark : steel);                           // synchronising gear train
+      mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.18, 24), dark, x, y - sgn * 5.9, 0.75, m); // friction washer
+    });
+    [-2.85, 2.85].forEach(x => {
+      mesh(new THREE.CylinderGeometry(0.95, 0.95, 2, 24), dark, x, y + sgn * 1.2, 0.75, m);   // detent cam
+      for (let t = 0; t < 3; t++) { const a = t / 3 * Math.PI * 2; box(0.45, 0.5, 0.45, steel, x + Math.cos(a) * 0.6, y + sgn * 2.4, 0.75 + Math.sin(a) * 0.6, m); }
+      coil(x, y - sgn * 4.8, y - sgn * 0.4, 0.75, 0.82);                                    // detent spring
+      const arm = box(1.4, 12, 0.5, ti, Math.sign(x) * 4.45, y, 1.35, m); arm.rotation.y = Math.sign(x) * 0.12; // swing arm
+    });
+    [[-4, 7], [4, 7], [-4, -7], [4, -7]].forEach(([sx, sy]) => {                           // screws
+      mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.35, 16).rotateX(Math.PI / 2), steel, sx, y + sy, 0.5, m);
+      box(0.55, 0.1, 0.05, dark, sx, y + sy, 0.69, m); box(0.1, 0.55, 0.05, dark, sx, y + sy, 0.69, m);
+    });
+  });
+  const fp = [steel, dark, steel, dark, steel];                                             // centre friction stack
+  fp.forEach((mat, k) => box(7, 3.2, 0.22, mat, 0, 0, -0.35 + k * 0.28, m));
+  mesh(new THREE.CylinderGeometry(0.32, 0.32, 5, 16), steel, 0, 0, 0.9, m);
+  [30, 12, -12, -30].forEach(y => { const arc = new THREE.Mesh(new THREE.TorusGeometry(2.3, 0.32, 8, 32, Math.PI), ti); arc.rotation.x = Math.PI / 2; arc.position.set(0, y, -0.25); m.add(arc); }); // waterdrop guide rails
+  box(6.5, 44, 0.4, std(0x1a1f29, 0.85, 0.35), 0, -2, 1.95, m);                             // central support bar
+}, false);
+(function makeSpine() {
+  const hp = parts[parts.length - 1];
+  const mat = std(0x0a1222, 1, 0.16, { side: THREE.DoubleSide, envMapIntensity: 0.9 });
+  const geo = new THREE.CylinderGeometry(5.72, 5.72, H - 0.2, 64, 1, true, Math.PI / 2, Math.PI);
+  spine = new THREE.Mesh(geo, mat); spine.position.set(0, 0, ZF); spine.visible = false; spine.userData.part = hp;
+  mat.userData.baseOpacity = 1; mat.userData.baseTransparent = false; mat.userData.baseDepthWrite = true;
+  hp.group.add(spine);
+})();
+
+/* 4. Logic board (left half) */
+addPart('board', [0, 0, 2], { az: 0.4, el: 0.48, k: 1.05 }, [-79, 27, 1], g => {
+  const sh = new THREE.Shape();
+  [[-79, 16], [-12, 16], [-12, 54], [-53, 54], [-53, 27], [-79, 27]].forEach(([x, y], i) => i ? sh.lineTo(x, y) : sh.moveTo(x, y));
+  mesh(extrude(sh, 0.8, 0.1, 4), std(0x173226, 0.15, 0.55), 0, 0, 0.6, g);
+  const z0 = 1.0;
+  chipOn(g, z0, 13, 13, 1.2, [['A20 Pro', 46], ['SoC + RAM', 28]], -35, 40);
+  chipOn(g, z0, 9, 11, 0.9, [['NAND', 54], ['256 GB', 30]], -20, 44);
+  chipOn(g, z0, 10, 8, 0.9, [['C2', 64], ['MODEM', 28]], -46, 21.5);
+  chipOn(g, z0, 7, 7, 0.8, [['N1', 70]], -22, 24);
+  chipOn(g, z0, 8, 7, 0.8, [['PMIC', 54]], -69, 21.5);
+  const shield = std(0xb8bcc2, 0.95, 0.28);
+  box(10, 12, 0.7, shield, -47, 45, z0 + 0.35, g); box(9, 6, 0.7, shield, -32, 22, z0 + 0.35, g);
+  box(3, 8, 0.9, std(0xc9a347, 0.9, 0.3), -14.5, 32, z0 + 0.45, g);
+  passives(g, 21, 170, z0, r => [-78 + r() * 65, 17 + r() * 36.5], [[-79, -53, 27, 60], [-41.5, -28.5, 33.5, 46.5], [-24.5, -15.5, 38.5, 49.5], [-51, -41, 17.5, 25.5], [-25.5, -18.5, 20.5, 27.5], [-73, -65, 18, 25], [-52, -42, 39, 51], [-36.5, -27.5, 19, 25], [-16, -12, 28, 36]]);
+});
+
+/* 5. I/O board and flex (right half, linked through the hinge) */
+addPart('io', [0, 0, 2], { az: -0.5, el: 0.5, k: 1.0 }, [-78, -42, 1], g => {
+  mesh(extrude(rrShape(64, 15, 1.5, -46, -49.5), 0.8, 0.1, 4), std(0x173226, 0.15, 0.55), 0, 0, 0.6, g);
+  const z0 = 1.0;
+  chipOn(g, z0, 7, 6, 0.8, [['AUDIO', 44]], -62, -48);
+  const usb = std(0xc4c8cd, 0.95, 0.25);
+  const u = mesh(extrude(rrShape(9.4, 3.4, 1.6), 7, 0.2), usb, -42, -54, 0, g); u.rotation.x = Math.PI / 2;
+  box(17, 10, 1.2, std(0x1c1e22, 0.1, 0.55), -26, -49, 1.0, g); // loudspeaker
+  passives(g, 5, 50, z0, r => [-76 + r() * 60, -56 + r() * 13], [[-65.5, -58.5, -51, -45], [-47, -37, -58, -50], [-34.5, -17.5, -54, -44]]);
+  const flex = std(0xd99a3a, 0.1, 0.45);
+  box(14, 4, 0.2, flex, -7, 20, 0.9, g); box(17, 4, 0.2, flex, 8.5, 20, 0.9, g); // across the hinge
+  box(4, 30, 0.2, flex, -10, 5, 0.9, g);     // logic board to I/O board
+});
+
+/* 6. Two batteries */
+function cellLabel(lines) { return canvasTex(640, 640, (x, w, h) => { x.fillStyle = '#1b1e23'; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(240,166,64,0.55)'; x.lineWidth = 3; x.strokeRect(30, 30, w - 60, h - 60); x.fillStyle = '#d9dde2'; x.font = '600 54px monospace'; x.fillText(lines[0], 70, 140); x.font = '400 36px monospace'; lines.slice(1).forEach((t, i) => x.fillText(t, 70, 230 + i * 60)); x.fillStyle = 'rgba(217,221,226,0.5)'; for (let i = 0; i < 24; i++) x.fillRect(70 + i * 17, 520, i % 3 ? 6 : 10, 60); }); }
+addPart('batteries', [0, 0, -18], { az: 0.55, el: 0.42, k: 0.95 }, [-77, -54, 1], g => {
+  const wrap = std(0x15171b, 0.25, 0.5);
+  [[-45, -17, 64, 58, ['Li-ion  Cell 1', '3.88 V', '2,962 mAh', '11.56 Wh']], [45, -9, 60, 50, ['Li-ion  Cell 2', '3.88 V', '1,921 mAh', '7.5 Wh']]].forEach(([cx, cy, w, h, lines]) => {
+    mesh(extrude(rrShape(w, h, 3, cx, cy), 2.6, 0.5, 12), wrap, 0, 0, -0.4, g);
+    const lp = new THREE.Mesh(new THREE.PlaneGeometry(w - 8, h - 8), new THREE.MeshStandardMaterial({ map: cellLabel(lines), metalness: 0.2, roughness: 0.6 })); lp.position.set(cx, cy, 0.92); g.add(lp);
+    box(5, 4, 0.3, std(0xd99a3a, 0.1, 0.45), cx + (cx < 0 ? 20 : -20), cy + h / 2 + 1.5, 0.6, g);
+  });
+});
+
+/* 7. Rear cameras (left half) */
+addPart('cameras', [0, 0, -36], { az: 1.95, el: 0.38, k: 1.15 }, [78, 54, -2], g => {
+  box(56, 20, 0.6, std(0x2e3136, 0.8, 0.38), CAM.x, CAM.y, 2.1, g); // thin backing plate
+  const barrel = std(0x1a1c20, 0.6, 0.35), ring = std(0xd8d4cb, 0.95, 0.22);
+  const lensG = phys({ color: 0x0a1424, metalness: 0.35, roughness: 0.04, clearcoat: 1, envMapIntensity: 2 });
+  const sensorT = canvasTex(256, 256, (x, w, h) => { const g2 = x.createLinearGradient(0, 0, w, h); g2.addColorStop(0, '#3b2a6b'); g2.addColorStop(0.5, '#1f5a7a'); g2.addColorStop(1, '#6b2a5a'); x.fillStyle = g2; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(255,255,255,0.1)'; for (let i = 0; i < w; i += 6) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, h); x.stroke(); x.beginPath(); x.moveTo(0, i); x.lineTo(w, i); x.stroke(); } });
+  [[CAM.x + 17.8, 8.2], [CAM.x, 8.2]].forEach(([lx, r]) => { const y = CAM.y;
+    box(r * 2.05, r * 2.05, 3.0, std(0x22262d, 0.85, 0.35), lx, y, 0.3, g);                                   // module housing
+    const sens = new THREE.Mesh(new THREE.PlaneGeometry(r * 1.3, r * 1.0), new THREE.MeshStandardMaterial({ map: sensorT, metalness: 0.6, roughness: 0.25 }));
+    sens.position.set(lx, y, -1.25); sens.rotation.y = Math.PI; g.add(sens);                                      // image sensor
+    mesh(cyl(r * 0.95, 3.4, 48), phys({ color: 0x9aa6b8, transparent: true, opacity: 0.16, roughness: 0.1, clearcoat: 1, depthWrite: false }), lx, y, -2.95, g); // see-through barrel
+    [0.55, 0.68, 0.78, 0.86].forEach((k, i) => mesh(cyl(r * k, 0.3, 48), phys({ color: [0x6fb3ff, 0x9c7bff, 0x7fe0d0, 0x5a8cff][i], transparent: true, opacity: 0.55, roughness: 0.02, clearcoat: 1, metalness: 0.2, envMapIntensity: 2 }), lx, y, -1.7 - i * 0.7, g)); // lens elements
+    const rr = new THREE.Mesh(new THREE.TorusGeometry(r * 0.95, 0.22, 8, 48), ring); rr.position.set(lx, y, -4.6); g.add(rr);
+    mesh(cyl(r * 0.88, 0.22, 48), lensG, lx, y, -4.62, g);                                                    // front element
+    box(r * 0.5, r * 2.05, 0.6, std(0xc9a347, 0.9, 0.3), lx + r * 1.25, y, 0.6, g);                           // OIS coils / connector
+  });
+
+  mesh(cyl(1.7, 2, 24), std(0xf3e6c4, 0.1, 0.3, { emissive: 0x332a10 }), CAM.x - 16.8, CAM.y - 3.5, -2.6, g);
+  box(14, 3, 0.18, std(0xd99a3a, 0.1, 0.45), CAM.x - 10, CAM.y - 13, 0.4, g);
+});
+
+/* 8. Outer display (back of the right half) */
+const outerCanvas = document.createElement('canvas'); outerCanvas.width = 760; outerCanvas.height = 1100;
+const outerBg = document.createElement('canvas'); outerBg.width = 760; outerBg.height = 1100; dunes(outerBg.getContext('2d'), 760, 1100, 0.42);
+const outerItems = [];
+(function buildOuter() {
+  const add = (cx, cy, fn) => outerItems.push({ cx, cy, fn });
+  const cols = [102, 244, 386, 528], rows = [140, 305, 470, 635, 800];
+  RIGHT_GRID.forEach((row, ri) => row.forEach((k, ci) => add(cols[ci], rows[ri], x => appIcon(x, k, cols[ci], rows[ri], 100))));
+  add(676, 600, x => { x.fillStyle = 'rgba(255,255,255,0.28)'; x.beginPath(); x.roundRect(676 - 56, 330, 112, 4 * 111 + 26, 50); x.fill(); });
+  DOCK.forEach((k, i) => add(676, 330 + 69 + i * 111, x => appIcon(x, k, 676, 330 + 69 + i * 111, 84, false)));
+  add(680, 150, x => { x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = '600 30px sans-serif'; x.fillText('10:08', 680, 150); wifiGlyph(x, 680, 182, 42); });
+  add(676, 1030, x => searchPill(x, 676, 1030, 32));
+  add(383, 1060, x => { circ(x, 370, 1060, 7, '#fff'); circ(x, 396, 1060, 7, 'rgba(255,255,255,0.5)'); });
+})();
+paintScreen(outerCanvas, outerBg, outerItems, 1, [6, 82, 82, 6], OUTER_HOLE);
+const outerTex = new THREE.CanvasTexture(outerCanvas); outerTex.encoding = THREE.sRGBEncoding; outerTex.anisotropy = 4;
+addPart('outer', [0, 0, -52], { az: 3.35, el: 0.28, k: 1.0 }, [-80, 56, -2.5], g => {
+  mesh(extrude(halfL(0.3), 0.7, 0.15), phys({ color: 0x050506, metalness: 0.1, roughness: 0.2, clearcoat: 1 }), 0, 0, -2.33, g);
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(80, 114), new THREE.MeshBasicMaterial({ map: outerTex, transparent: true, toneMapped: false }));
+  scr.position.set(-41.5, 0, -2.74); scr.rotation.y = Math.PI; g.add(scr); outerScr = scr;
+  const gl = new THREE.Mesh(extrude(halfL(1.0), 0.15, 0.05), phys({ color: 0xdfefff, transparent: true, opacity: 0.06, roughness: 0.05, clearcoat: 1, envMapIntensity: 1.0, depthWrite: false })); gl.position.z = -2.82; g.add(gl);
+  box(12, 0.7, 0.12, phys({ color: 0x1b1f28, metalness: 0.4, roughness: 0.5 }), -41.5, 57.9, -2.79, g); // earpiece speaker slit above the cover screen
+  mesh(cyl(1.6, 1.6, 24), std(0x2e3136, 0.8, 0.38), -73.1, 49.7, -1.6, g); // 12 MP Center Stage camera behind the cover-screen punch-hole
+  box(14, 3, 0.18, std(0xd99a3a, 0.1, 0.45), -64, 43, -1.2, g);
+});
+
+/* 3D camera lens: raised ring, chamfer, black well, inner rings, coated element, cover glass */
+function lens3D(g, x, y, z0, r) {
+  const ringM = std(0x060a14, 0.8, 0.3, { envMapIntensity: 0.7 }), chamf = std(0x5d6b86, 1, 0.2);
+  mesh(cyl(r, 1.2, 64), ringM, x, y, z0 - 0.6, g);
+  const ch = new THREE.Mesh(new THREE.TorusGeometry(r * 0.93, 0.22, 10, 64), chamf); ch.position.set(x, y, z0 - 1.2); g.add(ch);
+  mesh(cyl(r * 0.86, 0.5, 64), std(0x020203, 0.2, 0.6), x, y, z0 - 1.0, g);
+  [[0.72, 0.1, 0x2a2e36], [0.56, 0.08, 0x3a3f4a], [0.44, 0.06, 0x1a1c22]].forEach(([k, t, c]) => { const rr = new THREE.Mesh(new THREE.TorusGeometry(r * k, t, 6, 48), std(c, 0.8, 0.3)); rr.position.set(x, y, z0 - 1.15); g.add(rr); });
+  const el = new THREE.Mesh(new THREE.SphereGeometry(r * 0.5, 40, 16, 0, Math.PI * 2, 0, 0.75), phys({ color: 0x141a3a, metalness: 0.5, roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 2.2 }));
+  el.rotation.x = -Math.PI / 2; el.position.set(x, y, z0 - 1.0 + r * 0.5 * Math.cos(0.75)); el.scale.set(1, 1, 1); g.add(el);
+  const cover = new THREE.Mesh(new THREE.CircleGeometry(r * 0.88, 64), phys({ color: 0xffffff, transparent: true, opacity: 0.12, roughness: 0.02, clearcoat: 1, envMapIntensity: 3, depthWrite: false }));
+  cover.rotation.y = Math.PI; cover.position.set(x, y, z0 - 1.22); g.add(cover);
+}
+
+/* 9. Back cover (left half) */
+addPart('back', [0, 0, -68], { az: 2.95, el: 0.25, k: 0.95 }, [82, -50, -2.6], g => {
+  const back = phys({ color: 0x03060d, metalness: 0.05, roughness: 0.72, clearcoat: 0.15, clearcoatRoughness: 0.6, envMapIntensity: 0.3 });
+  mesh(extrude(halfR(0.9), 0.7, 0.15), back, 0, 0, -2.32, g);
+  mesh(extrude(rrShape(56, 20, 10, CAM.x, CAM.y), 1.1, 0.35), phys({ color: 0x050912, metalness: 0.1, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 0.6 }), 0, 0, -3.1, g);
+  [[CAM.x + 17.8, 8.2], [CAM.x, 8.2]].forEach(([lx, r]) => lens3D(g, lx, CAM.y, -3.65, r));  // Ultra Wide (outer), Main
+  mesh(cyl(1.9, 0.5, 32), std(0xfff4dc, 0.1, 0.25, { emissive: 0x2a2416 }), CAM.x - 16.8, CAM.y - 3.5, -3.85, g);  // flash
+  box(2.2, 0.8, 0.4, std(0x050506, 0, 0.8), CAM.x - 16.8, CAM.y + 4.2, -3.8, g);                     // mic hole
+  const msZ = -0.6, msX = 41.2, msY = 0;
+  mesh((() => { const sh = new THREE.Shape(); sh.absarc(0, 0, 19, 0, Math.PI * 2); const hh = new THREE.Path(); hh.absarc(0, 0, 7, 0, Math.PI * 2, true); sh.holes.push(hh); return extrude(sh, 0.3, 0, 48); })(), std(0x141518, 0.2, 0.7), msX, msY, msZ + 0.25, g); // ferrite shield
+  const cu = std(0xc98552, 1, 0.3);
+  for (let i = 0; i < 10; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(8 + i * 1.0, 0.38, 6, 72), cu); t.position.set(msX, msY, msZ); g.add(t); }
+  const mg = std(0x80868d, 0.9, 0.35);
+  for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2; const mm = box(6.2, 2.2, 0.8, mg, msX + Math.cos(a) * 23, msY + Math.sin(a) * 23, msZ, g); mm.rotation.z = a + Math.PI / 2; }
+  logoDecal(19, phys({ color: 0x0c1528, metalness: 0.75, roughness: 0.08, clearcoat: 1, envMapIntensity: 1.3 }), 41.2, 0, -2.68, g);
+});
+
+const shadowTex = canvasTex(256, 256, (x, w, h) => { const g = x.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, 'rgba(150,170,215,0.17)'); g.addColorStop(0.55, 'rgba(120,140,190,0.06)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false, toneMapped: false }));
+shadow.rotation.x = -Math.PI / 2; shadow.position.y = -H / 2 - 0.6; scene.add(shadow);
+let fold = 0;
+function updateShadow() { shadow.position.x = 40 * fold; shadow.position.z = 3 * fold; shadow.scale.set(200 - 95 * fold, 34 + 6 * fold, 1); shadow.material.opacity = 0.7 * clamp01(1 - explode * 4); shadow.visible = shadow.material.opacity > 0.01; }
+function applyFold(f) { parts.forEach(p => { p.pivot.rotation.y = Math.PI * f; }); spine.rotation.y = Math.PI / 2 * f; spine.visible = f > 0.02 || explode > 0.3; if (hingeMech) hingeMech.visible = f < 0.5; bendScreens(f); innerScreens.forEach(m => { m.visible = f < 0.97; });
+  // outer screen sleeps as soon as it opens; inner screen wakes (fade + zoom settle) as it reaches flat
+  // inner screen is lit as soon as it starts opening; the swinging half stays frosted until it lands flat
+  const on = KEEP_ON ? 1 : clamp01((0.97 - f) / 0.12), oon = clamp01((f - 0.45) / 0.25), bl = clamp01(f / 0.55);
+  if (Math.abs(bl - lastInnerP) > 0.004 || (bl !== lastInnerP && (bl === 0 || bl === 1))) { composeInner(bl); innerTexFull.needsUpdate = true; lastInnerP = bl; }
+  const ob = Math.max(COVER_BLUR, clamp01((0.995 - f) / 0.05)), okey = Math.round(oon * 250) * 1000 + Math.round(ob * 250);
+  if (okey !== lastOuterP) { paintScreen(outerCanvas, outerBg, outerItems, oon, [6, 82, 82, 6], OUTER_HOLE); if (ob > 0.004) frostOver(outerCanvas, ob); outerTex.needsUpdate = true; lastOuterP = okey; }
+  innerScr.material.color.setScalar(ease(on) * WAKE);
+  outerScr.material.color.setScalar(ease(clamp01(oon * 2.2))); updateShadow(); }
+
+/* ---------------- View / state ---------------- */
+const N = parts.length;
+const OVERVIEW = { target: new THREE.Vector3(0, 0, 0), az: 0.78, el: 0.32, dist: 430, shift: 0 };
+const ASSEMBLED = { target: new THREE.Vector3(0, 0, 0), az: 0.45, el: 0.12, dist: 330, shift: 0 };
+const view = clonePose(OVERVIEW);
+let explode = 1;
+
+function clonePose(p) { return { target: p.target.clone(), az: p.az, el: p.el, dist: p.dist, shift: p.shift, axis: p.axis ? p.axis.clone() : new THREE.Vector3(0, 1, 0) }; }
+function lerpPose(a, b, t) { return { axis: (a.axis || new THREE.Vector3(0, 1, 0)).clone().lerp(b.axis || new THREE.Vector3(0, 1, 0), t), target: a.target.clone().lerp(b.target, t), az: a.az + (b.az - a.az) * t, el: a.el + (b.el - a.el) * t, dist: a.dist + (b.dist - a.dist) * t, shift: a.shift + (b.shift - a.shift) * t }; }
+function partPose(p, drift = 0) {
+  const c = (p.view.t ? new THREE.Vector3(...p.view.t) : p.center.clone()).add(p.offset);
+  const dist = p.view.dist || Math.max(p.radius / Math.sin(FOV / 2) * p.view.k, 70);
+  return { target: c, az: p.view.az + drift, el: p.view.el, dist, shift: 1 };
+}
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const clamp01 = t => Math.min(1, Math.max(0, t));
+
+function applyExplode(e) { parts.forEach(p => p.group.position.copy(p.offset).multiplyScalar(e)); }
+function applyDim(p, d) {
+  p.dim = d;
+  p.group.traverse(o => {
+    if (!o.isMesh) return;
+    (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => {
+      const u = m.userData; const tr = u.baseTransparent || d > 0.01;
+      if (m.transparent !== tr) { m.transparent = tr; m.needsUpdate = true; }
+      m.opacity = u.baseOpacity * (1 - 0.9 * d);
+      m.depthWrite = d > 0.4 ? false : u.baseDepthWrite;
+    });
+  });
+}
+
+/* ---------------- Labels ---------------- */
+const labelsEl = document.getElementById('labels');
+parts.forEach(p => {
+  const el = document.createElement('div'); el.className = 'tag'; el.innerHTML = '<i></i><b></b><span></span>';
+  el.querySelector('span').textContent = p.info.name; labelsEl.appendChild(el); p.tag = el;
+});
+let labelsAlpha = 1;
+const tmpV = new THREE.Vector3();
+function updateLabels(w, h) {
+  if (window.groupLabels) groupLabels(w, h);
+  labelsEl.style.opacity = labelsAlpha.toFixed(3);
+  if (labelsAlpha < 0.01) return;
+  parts.forEach(p => {
+    tmpV.copy(p.anchor).add(p.group.position).project(camera);
+    const x = (tmpV.x * 0.5 + 0.5) * w, y = (-tmpV.y * 0.5 + 0.5) * h;
+    const left = x < w * 0.5; p.tag.classList.toggle('left', left);
+    p.tag.style.transform = `translate(${left ? 'calc(' + x + 'px - 100% + 3.5px)' : (x - 3.5) + 'px'}, ${y - 12}px)`;
+    p.tag.style.visibility = tmpV.z < 1 ? 'visible' : 'hidden';
+  });
+}
+
+/* ---------------- Card + title ---------------- */
+const card = document.getElementById('card');
+let cardIndex = -1;
+function setCard(i) {
+  if (i === cardIndex) return; cardIndex = i;
+  if (i < 0) { card.hidden = true; return; }
+  const p = parts[i];
+  document.getElementById('card-num').textContent = String(i + 1).padStart(2, '0') + ' / ' + N + '  ·  Part';
+  document.getElementById('card-name').textContent = p.info.name;
+  document.getElementById('card-role').textContent = p.info.role;
+  document.getElementById('card-body').textContent = p.info.body;
+  const ul = document.getElementById('card-specs'); ul.innerHTML = '';
+  p.info.specs.forEach(s => { const li = document.createElement('li'); li.textContent = s; ul.appendChild(li); });
+  card.hidden = false;
+}
+const titleCard = document.getElementById('title-card');
+const TITLES = {
+  intro: ['Teardown', 'Inside the iPhone Duo', 'Apple’s first foldable, opened up.'],
+  outro: ['5.2 mm open · 11.3 mm closed', 'One phone, folded in two.', 'Two screens, two batteries, two boards and a titanium hinge holding it all together.'],
+};
+let titleKey = '';
+function setTitle(k, a) {
+  if (k && k !== titleKey) { titleKey = k; const [e, t, s] = TITLES[k]; document.getElementById('tc-eyebrow').textContent = e; document.getElementById('tc-title').textContent = t; document.getElementById('tc-sub').textContent = s; }
+  titleCard.style.opacity = k ? a.toFixed(3) : 0;
+}
+
+/* ---------------- Tour timeline ---------------- */
+const BLEND = 1.5, PART_DUR = 6.2;
+const segs = [];
+let tAcc = 0;
+function seg(o) { o.start = tAcc; tAcc += o.dur; segs.push(o); }
+/* ---------- Short: "How does a ₹3 lakh iPhone fold?" (9:16, 40 s) ---------- */
+// Apple logo stays on the back (owner asked for it), with a soft sheen so it reads at every angle
+root.traverse(o => { if (o.userData.logo && o.material.emissive) { o.material = o.material.clone(); o.material.emissive.setHex(0x39445c); o.material.envMapIntensity = 1.8; } });
+const P = (tx, ty, tz, az, el, dist, ax = [0, 1, 0]) => ({ target: new THREE.Vector3(tx, ty, tz), az, el, dist, shift: 0, axis: new THREE.Vector3(...ax) });
+const UP_OPEN = [-1, 0, 0], UP_STACK = [0, 0, 1];  // open phone stands tall (hinge left-right); exploded stack spreads up/down
+const EX = 1.3; // exploded spacing for the reel (spreads the stack down the frame)
+const STACK_C = new THREE.Vector3(0, 0, 72 * EX + 12);
+
+// display stack: ~10 thin layers (illustrative, unlabeled)
+const stackG = new THREE.Group(); stackG.position.copy(STACK_C); scene.add(stackG);
+const gridT = (bg, ln, step, w = 2) => canvasTex(256, 256, (x) => { x.fillStyle = bg; x.fillRect(0, 0, 256, 256); x.strokeStyle = ln; x.lineWidth = w; for (let i = 0; i <= 256; i += step) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 256); x.stroke(); x.beginPath(); x.moveTo(0, i); x.lineTo(256, i); x.stroke(); } });
+const oledT = canvasTex(256, 256, (x) => { x.fillStyle = '#05060a'; x.fillRect(0, 0, 256, 256); const c = ['#ff3b4a', '#33e06a', '#3b7bff']; for (let y = 0; y < 256; y += 10) for (let xx = 0; xx < 256; xx += 12) c.forEach((k, i) => { x.fillStyle = k; x.fillRect(xx + i * 4, y + 1, 3, 7); }); });
+const LAYERS = [
+  phys({ color: 0xe8f4ff, transparent: true, opacity: 0.35, roughness: 0.03, clearcoat: 1, envMapIntensity: 2 }),
+  phys({ color: 0xffffff, transparent: true, opacity: 0.18, roughness: 0.2 }),
+  std(0x23262c, 0.2, 0.35, { transparent: true, opacity: 0.92 }),
+  new THREE.MeshStandardMaterial({ map: gridT('#3a2a1a', '#e2b35a', 16, 2), metalness: 0.5, roughness: 0.4, transparent: true, opacity: 0.95 }),
+  phys({ color: 0xbfd9ff, transparent: true, opacity: 0.3, roughness: 0.1 }),
+  new THREE.MeshBasicMaterial({ map: oledT, transparent: true, opacity: 1, toneMapped: false }),
+  new THREE.MeshStandardMaterial({ map: gridT('#183326', '#5fcf96', 21, 1.5), metalness: 0.3, roughness: 0.5, transparent: true, opacity: 0.95 }),
+  std(0xd99a3a, 0.1, 0.45, { transparent: true, opacity: 0.95 }),
+  std(0x15171b, 0.2, 0.5, { transparent: true, opacity: 0.95 }),
+  std(0xc4c8cd, 1, 0.3, { transparent: true, opacity: 1 }),
+];
+const layerGeo = extrude(rrShape(64, 64, 8), 0.4, 0.06, 16);
+LAYERS.forEach(m => { m.userData.baseOpacity = m.opacity; const ms = new THREE.Mesh(layerGeo, m); stackG.add(ms); });
+function applyStack([spread, slide, ph]) {
+  stackG.visible = spread > 0.01;
+  stackG.children.forEach((m, i) => {
+    const k = 4.5 - i;
+    m.position.set(Math.sin(ph * 2.4 + i * 0.55) * 3 * slide, k * 8.5 * spread, k * (0.45 + 2.8 * spread));
+    m.material.opacity = m.material.userData.baseOpacity * clamp01(spread * 2.5);
+  });
+}
+const capEl = document.getElementById('cap'); let capHtml = null;
+function setCap([html, a]) { if (html !== capHtml) { capHtml = html; capEl.innerHTML = html; } capEl.style.opacity = a.toFixed(3); capEl.style.transform = `translateY(${((1 - a) * 24).toFixed(1)}px)`; }
+function capAt(s, lt) { const c = (s.caps || []).find(([a, b]) => lt >= a && lt < b); if (!c) return ['', 0]; return [c[2], clamp01(Math.min((lt - c[0]) / 0.22, (c[1] - lt) / 0.18))]; }
+(function portraitInner() {
+  return;  // open phone is shown wide (hinge vertical, like the real Duo), so keep the original wide home screen
+  const P = document.createElement('canvas'); P.width = 1100; P.height = 1640; const x = P.getContext('2d');
+  dunes(x, 1100, 1640, 0.4);
+  const cg = x.createLinearGradient(0, 800, 0, 840); cg.addColorStop(0, 'rgba(0,0,0,0)'); cg.addColorStop(0.5, 'rgba(0,0,0,0.04)'); cg.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = cg; x.fillRect(0, 800, 1100, 40);
+  x.fillStyle = '#fff'; x.textAlign = 'left'; x.font = '600 34px sans-serif'; x.fillText('10:08', 80, 70); wifiGlyph(x, 1000, 60, 40);
+  const wg = x.createLinearGradient(0, 120, 0, 400); wg.addColorStop(0, '#3e9cf5'); wg.addColorStop(1, '#2a6fd8'); x.fillStyle = wg; x.beginPath(); x.roundRect(80, 120, 450, 280, 50); x.fill();
+  x.fillStyle = '#fff'; x.font = '600 32px sans-serif'; x.fillText('Bengaluru ➤', 116, 178); x.font = '300 112px sans-serif'; x.fillText('27°', 110, 290); circ(x, 132, 350, 12, '#ffd23f'); x.font = '500 28px sans-serif'; x.fillText('Partly Cloudy', 156, 360);
+  x.save(); x.beginPath(); x.roundRect(570, 120, 450, 280, 50); x.clip(); const pg = x.createLinearGradient(0, 120, 0, 400); pg.addColorStop(0, '#ff9a5a'); pg.addColorStop(0.55, '#ffcf8a'); pg.addColorStop(0.56, '#2f7fa8'); pg.addColorStop(1, '#1d4f73'); x.fillStyle = pg; x.fillRect(570, 120, 450, 280);
+  circ(x, 800, 250, 44, '#fff3c9'); x.fillStyle = '#fff'; x.font = '700 38px sans-serif'; x.fillText('Goa', 600, 350); x.font = '600 22px sans-serif'; x.fillText('DEC 2025', 600, 380); x.restore();
+  const cols = [175, 405, 635, 865], S = 128;
+  [['facetime', 'calendar', 'photos', 'camera'], ['mail', 'notes', 'clock', 'maps']].forEach((r, ri) => r.forEach((k, ci) => appIcon(x, k, cols[ci], 510 + ri * 190, S)));
+  [['weather', 'stocks', 'findmy', 'podcasts'], ['books', 'fitness', 'files', 'preview'], ['news', 'utilities', 'translate', 'freeform']].forEach((r, ri) => r.forEach((k, ci) => appIcon(x, k, cols[ci], 930 + ri * 190, S)));
+  x.fillStyle = 'rgba(255,255,255,0.26)'; x.beginPath(); x.roundRect(90, 1440, 920, 160, 56); x.fill();
+  ['phone', 'safari', 'messages', 'music'].forEach((k, i) => appIcon(x, k, cols[i], 1520, 116, false));
+  circ(x, 536, 1410, 8, '#fff'); circ(x, 564, 1410, 8, 'rgba(255,255,255,0.5)');
+  // rotate the upright layout into the screen texture (open phone stands with its swinging half on top)
+  const sx = innerSharp.getContext('2d'); sx.save(); sx.clearRect(0, 0, 1640, 1100); sx.beginPath(); sx.roundRect(0, 0, 1640, 1100, 86); sx.clip();
+  sx.translate(0, 1100); sx.rotate(-Math.PI / 2); sx.drawImage(P, 0, 0); sx.restore();
+  circ(sx, INNER_HOLE[0], INNER_HOLE[1], 13, 'rgba(0,0,0,0.16)');
+  const b = innerBlur.getContext('2d'); b.clearRect(0, 0, 1640, 1100);
+  const tiny = document.createElement('canvas'); tiny.width = 82; tiny.height = 55; tiny.getContext('2d').drawImage(innerSharp, 0, 0, 82, 55);
+  const mid = document.createElement('canvas'); mid.width = 205; mid.height = 138; mid.getContext('2d').drawImage(tiny, 0, 0, 205, 138);
+  b.drawImage(mid, 0, 0, 1640, 1100); b.fillStyle = 'rgba(235,240,255,0.14)'; b.fillRect(0, 0, 1640, 1100);
+  b.globalCompositeOperation = 'destination-in'; const m = b.createLinearGradient(870, 0, 760, 0); m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(1, 'rgba(0,0,0,1)'); b.fillStyle = m; b.fillRect(0, 0, 1640, 1100);
+  b.beginPath(); b.roundRect(0, 0, 1640, 1100, 86); b.fill(); b.globalCompositeOperation = 'source-over';
+  lastInnerP = -1; composeInner(0); innerTexFull.needsUpdate = true;
+})();
+const GL = [['inner', 'Display', 1], ['frame', 'Frame + buttons', 2], ['hinge', 'Hinge', 3], ['board', 'Logic board', 4], ['batteries', '2 batteries', 5], ['cameras', 'Rear cameras', 7], ['outer', 'Cover screen', 6], ['back', 'Back glass', 8]];
+const glWrap = document.createElement('div'); glWrap.id = 'glabels'; document.getElementById('app').appendChild(glWrap);
+parts.forEach(p => { const b = new THREE.Box3().setFromObject(p.group); p.lb = new THREE.Vector3(b.min.x, (b.min.y + b.max.y) / 2, (b.min.z + b.max.z) / 2).sub(p.group.position); });
+const glItems = GL.map(([id, name, n]) => { const el = document.createElement('div'); el.className = 'gl'; el.innerHTML = '<span><em>0' + n + '</em></span><b></b><i></i>'; el.querySelector('span').append(name); glWrap.appendChild(el); return { p: parts.find(q => q.id === id), el, n }; });
+let GL_OUT = 1;
+let GL_ALPHA = 0; const glV = new THREE.Vector3(), _gb = new THREE.Box3();
+window.groupLabels = (w, h) => {
+  glWrap.style.opacity = (GL_ALPHA > 0 ? GL_OUT : 0).toFixed(3); if (GL_ALPHA < 0.01 || GL_OUT < 0.01) return;
+  const pts = glItems.map(it => { _gb.setFromObject(it.p.group); let mx = 1e9, sy = 0; for (let k = 0; k < 8; k++) { glV.set(k & 1 ? _gb.max.x : _gb.min.x, k & 2 ? _gb.max.y : _gb.min.y, k & 4 ? _gb.max.z : _gb.min.z).project(camera); const px = (glV.x * 0.5 + 0.5) * w; sy += (-glV.y * 0.5 + 0.5) * h; if (px < mx) mx = px; } return { it, x: mx + 14, y: sy / 8 }; });
+  pts.sort((a, b) => a.y - b.y); for (let i = 1; i < pts.length; i++) pts[i].ly = Math.max(pts[i].y, (pts[i - 1].ly ?? pts[i - 1].y) + 62); pts[0].ly = pts[0].y;
+  pts.forEach(({ it, x, ly }) => {
+    const el = it.el, span = el.querySelector('span'), line = el.querySelector('b'), dot = el.querySelector('i');
+    const tx = 64 + span.offsetWidth + 18;
+    const k = it.n - 1, a = clamp01((GL_ALPHA * 10 - k) / 2), pop = Math.sin(Math.PI * a);  // one by one, top to bottom
+    el.style.opacity = a.toFixed(3); dot.style.transform = `scale(${1 + 0.9 * pop})`;
+    el.style.transform = `translateY(${ly}px)`; line.style.left = tx + 'px'; line.style.width = Math.max(0, x - tx - 6) + 'px'; dot.style.left = (x - 6) + 'px';
+  });
+};
+const sseg = o => seg(Object.assign({ focus: -1, labels: () => 0, explode: () => 0 }, o));
+const L = (h) => `<div class="line">${h}</div>`;
+
+/* --- product-shot look: glossy mirror floor with a fading reflection + cool rim light behind the phone --- */
+const FLOOR_Y = shadow.position.y - 0.15;
+const mirRT = new THREE.WebGLRenderTarget(720, 1280);
+const mirCam = new THREE.PerspectiveCamera(46, 1080 / 1920, 5, 3000);
+const mirTexM = new THREE.Matrix4();
+const floorMat = new THREE.ShaderMaterial({ transparent: true, depthWrite: false,
+  uniforms: { map: { value: mirRT.texture }, texM: { value: mirTexM }, op: { value: 0 }, c: { value: new THREE.Vector2() } },
+  vertexShader: 'uniform mat4 texM; varying vec4 vUv; varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; vUv = texM * w; gl_Position = projectionMatrix * viewMatrix * w; }',
+  fragmentShader: 'uniform sampler2D map; uniform float op; uniform vec2 c; varying vec4 vUv; varying vec3 vW; void main(){ vec4 r = texture2DProj(map, vUv); float d = length(vW.xz - c); float f = op * exp(-d / 95.0); gl_FragColor = vec4(pow(max(r.rgb, 0.0), vec3(1.0 / 2.2)) * 0.9, r.a * f); }' });
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), floorMat); floor.rotation.x = -Math.PI / 2; floor.position.y = FLOOR_Y; floor.renderOrder = -1; scene.add(floor);
+const rimL = new THREE.DirectionalLight(0xb9d6ff, 0.45); scene.add(rimL); scene.add(rimL.target);
+const _v = new THREE.Vector3(), _d = new THREE.Vector3(), _u = new THREE.Vector3();
+window.mirrorPass = () => {
+  // rim light sits behind the phone, opposite the camera, a little above
+  _d.copy(view.target).sub(camera.position).normalize();
+  rimL.position.copy(view.target).addScaledVector(_d, 300).add(_u.set(0, 90, 0)); rimL.target.position.copy(view.target);
+  const op = 0.16 * Math.pow(Math.max(0, view.axis ? view.axis.y : 1), 6) * clamp01(1 - explode * 4) * clamp01((0.75 - view.el) / 0.35);
+  floorMat.uniforms.op.value = op; floor.visible = op > 0.004;
+  if (!floor.visible) return;
+  floorMat.uniforms.c.value.set(shadow.position.x, shadow.position.z);
+  camera.updateMatrixWorld();
+  _v.copy(camera.position); _v.y = 2 * FLOOR_Y - _v.y;
+  camera.getWorldDirection(_d); _d.y = -_d.y;
+  _u.set(0, 1, 0).applyQuaternion(camera.quaternion); _u.y = -_u.y;
+  mirCam.position.copy(_v); mirCam.up.copy(_u); mirCam.lookAt(_v.clone().add(_d)); mirCam.updateMatrixWorld(); mirCam.updateProjectionMatrix();
+  mirTexM.set(0.5, 0, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0, 0.5, 0.5, 0, 0, 0, 1).multiply(mirCam.projectionMatrix).multiply(mirCam.matrixWorldInverse);
+  const sv = shadow.visible; floor.visible = false; shadow.visible = false;
+  renderer.setRenderTarget(mirRT); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(scene, mirCam); renderer.setRenderTarget(null);
+  floor.visible = true; shadow.visible = sv;
+};
+
+/* --- soft blue halo hugging the phone's outline: built from the WebGL canvas alpha, drawn BEHIND the 3D canvas,
+       so it can only ever show around the edges, never on the phone or its screen --- */
+const haloC = document.createElement('canvas'); haloC.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
+canvas.parentNode.insertBefore(haloC, canvas);
+const hS = [36, 90].map(k => { const c = document.createElement('canvas'); return { k, c, x: c.getContext('2d') }; });
+window.haloPass = () => {
+  const W = canvas.width, H = canvas.height; if (haloC.width !== W) { haloC.width = W; haloC.height = H; }
+  const hx = haloC.getContext('2d'); hx.clearRect(0, 0, W, H); hx.imageSmoothingEnabled = true; hx.imageSmoothingQuality = 'high';
+  hx.globalCompositeOperation = 'lighter';
+  hS.forEach(({ k, c, x }, i) => {
+    const w = Math.max(2, Math.round(W / k)), h = Math.max(2, Math.round(H / k)); if (c.width !== w) { c.width = w; c.height = h; }
+    x.globalCompositeOperation = 'copy'; x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.drawImage(canvas, 0, 0, w, h);
+    x.globalCompositeOperation = 'source-in'; x.fillStyle = ['rgba(110,155,255,0.025)', 'rgba(90,135,245,0.022)'][i]; x.fillRect(0, 0, w, h);
+    hx.drawImage(c, -k, -k, W + 2 * k, H + 2 * k);
+  });
+  hx.globalCompositeOperation = 'source-over';
+};
+
+const S1A = P(36, 0, 3, 2.75, 0.16, 380);  // closed, back three-quarter (end of the tour)
+// Apple-style reveal: slow turntable close-up of the closed phone, swing to face the viewer, open towards the camera
+const MACRO = P(56, 40, -4, 2.95, 0.06, 205), BACK0 = P(36, 0, 3, 2.75, 0.1, 500), BACK1 = P(36, 0, 3, 3.3, 0.14, 455);
+const FRONT_C = P(36, 0, 3, 0.08, 0.1, 470);                 // closed, cover screen facing us
+const OPEN = P(0, 0, 1, 0.06, 0.12, 690), OVER = P(52, 0, 2, 0.12, 0.85, 1080, UP_STACK);
+sseg({ dur: 2.2, fold: () => 1, pose: t => { const T = t * 2.2; return T < 1.2 ? lerpPose(MACRO, BACK0, ease(T / 1.2) * 0.999) : lerpPose(BACK0, BACK1, ease((T - 1.2) / 1.0)); },
+  caps: [[0, 2.2, '<div class="big">₹2,99,900</div>' + L('This iPhone <em>folds in half</em>')]] });
+sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 1.78) / 1.0)), cb: t => clamp01((t * 2.8 - 1.5) / 0.28),  // sharp cover held ~1 s so the apps read → frost → open
+  wake: t => 1 + 0.06 * Math.sin(Math.PI * clamp01((t * 2.8 - 2.45) / 0.35)),       // little Apple-style glow as the screen lands flat
+  pose: t => { const T = t * 2.8; return T < 0.55 ? lerpPose(BACK1, FRONT_C, ease(T / 0.55)) : lerpPose(FRONT_C, OPEN, ease(clamp01((T - 1.75) / 1.05))); },
+  caps: [[0.05, 1.6, L('But glass <em>cracks</em> when you bend it')], [1.6, 2.8, '<div class="big">So how?</div>']] });
+sseg({ dur: 4, gl: t => clamp01((t * 4 - 2.25) / 1.0), glo: t => clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
+  caps: [[0.05, 1.7, L('Just <em>5.2 mm</em> thin')], [1.7, 4, L('Let’s open it up')]] });
+sseg({ dur: 10, explode: t => EX + (2.1 - EX) * (1 - ease(clamp01(t * 10 / 1.2))), dimMap: { inner: 0.8 }, dimDefault: 0.93,
+  stack: lt => [ease(clamp01((lt - 0.5) / 1.6)) * (1 - ease(clamp01((lt - 9.2) / 0.8))), ease(clamp01((lt - 4.4) / 0.8)), lt],
+  pose: t => P(STACK_C.x, STACK_C.y + 2, STACK_C.z, 0.42 + 0.12 * t, 0.2, 430),
+  caps: [[0.3, 4.4, L('Trick 1: the screen is <em>~10 thin layers</em>')], [4.4, 10, L('They <em>slide</em> like paper, so nothing snaps')]] });
+sseg({ dur: 5.5, explode: () => EX, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 43 - 5 * t, 22 * EX + 1, 0.05 + 0.85 * t, 0.48 - 0.12 * t, 125 - 25 * t),
+  caps: [[0.25, 5.5, L('Trick 2: a hinge of <em>100+ parts</em>') + '<div class="sub">gears · springs · 3D-printed titanium cover</div>']] });
+sseg({ dur: 5.5, explode: t => EX * (1 - ease(clamp01(t * 5.5 / 1.4))), fold: t => 0.74 * ease(clamp01((t * 5.5 - 1.5) / 2.6)),
+  keepOn: true, dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(34, 0, 24, 0.08 + 0.06 * t, 1.3, 430, UP_STACK),  // look down onto the V
+  caps: [[0.25, 5.5, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });
+sseg({ dur: 6, keepOn: true, fold: t => 0.74 * (1 - ease(clamp01(t * 6 / 1.4))), pose: t => P(0, 30 - 60 * t, 2.6, 1.3, 0.17, 330),
+  caps: [[0.3, 3.1, L('Bend the same spot <em>again and again</em>')], [3.1, 6, L('…and you get <em>the crease</em> you can feel')]] });
+// v4 ending: open wide facing you → channel card over the open phone → close with the thock → back to the opening lens shot (seamless loop)
+const CREASE_END = P(0, -30, 2.6, 1.3, 0.17, 330), OPEN_HI = P(0, -50, 1, 0.06, 0.12, 800);
+sseg({ dur: 3.5, keepOn: true, fold: () => 0, pose: t => { const T = t * 3.5; return T < 1.0 ? lerpPose(CREASE_END, OPEN, ease(T)) : Object.assign(clonePose(OPEN), { az: OPEN.az + 0.03 * (T - 1) }); },
+  caps: [[0.2, 3.5, L('It doesn’t fold like paper.<br>It <em>rolls like a poster.</em>')]] });
+sseg({ dur: 3.7, keepOn: true, fold: () => 0, pose: t => { const T = t * 3.7; const o = Object.assign(clonePose(OPEN), { az: OPEN.az + 0.075 }); return T < 0.8 ? lerpPose(o, OPEN_HI, ease(T / 0.8)) : Object.assign(clonePose(OPEN_HI), { az: OPEN_HI.az + 0.025 * (T - 0.8) }); }, caps: [] });
+sseg({ dur: 1.8, keepOn: true, cb: () => 1, fold: t => { const T = t * 1.8; const u = clamp01((T - 0.05) / 0.85); return u * u * (1.6 - 0.6 * u); },   // lands at 44.1 s
+  pose: t => { const T = t * 1.8; const hi = Object.assign(clonePose(OPEN_HI), { az: OPEN_HI.az + 0.0725 }); return T < 0.95 ? lerpPose(hi, FRONT_C, ease(T / 0.95)) : lerpPose(FRONT_C, MACRO, ease((T - 0.95) / 0.85)); }, caps: [] });
+const TOTAL = tAcc;
+
+function segAt(t) { for (let i = segs.length - 1; i >= 0; i--) if (t >= segs[i].start) return i; return 0; }
+function dimTarget(p, s) { if (s.dimMap) return p.id in s.dimMap ? s.dimMap[p.id] : (s.dimDefault ?? 0); return s.focus >= 0 && p.index !== s.focus ? 1 : 0; }
+
+function stateAt(t) {
+  t = Math.min(Math.max(t, 0), TOTAL - 1e-4);
+  const si = segAt(t), s = segs[si], lt = t - s.start, u = lt / s.dur;
+  let pose = s.pose(u);
+  const prev = segs[si - 1];
+  const b = prev ? ease(clamp01(lt / BLEND)) : 1;
+  if (prev && b < 1) pose = lerpPose(prev.pose(1), pose, b);
+  const dimB = prev ? ease(clamp01(lt / 0.35)) : 1;
+  const dims = parts.map(p => prev ? dimTarget(p, prev) + (dimTarget(p, s) - dimTarget(p, prev)) * dimB : dimTarget(p, s));
+  let labels = s.labels(u);
+  if (prev && lt < 0.6) labels = Math.min(labels, prev.labels(1) * (1 - lt / 0.6) + labels * (lt / 0.6));
+  const cardA = s.card ? clamp01(Math.min((lt - 0.5) / 0.6, (s.dur - lt) / 0.45)) : 0;
+  const title = s.title ? s.title(u) : [null, 0];
+  return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, wake: s.wake ? s.wake(u) : 1, cb: s.cb ? s.cb(u) : 0, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose, dims, labels, card: s.card ? s.focus : -1, cardA, title, focus: s.focus };
+}
+
+function applyState(st) {
+  KEEP_ON = st.keepOn; COVER_BLUR = st.cb; WAKE = st.wake; explode = st.explode; applyExplode(explode); fold = st.fold; applyFold(fold); updateShadow();
+  Object.assign(view, clonePose(st.pose));
+  parts.forEach((p, i) => applyDim(p, st.dims[i]));
+  labelsAlpha = st.labels;
+  setCard(st.card); card.style.opacity = st.cardA.toFixed(3);
+  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake; COVER_BLUR = st.cb;
+}
+
+/* ---------------- Render ---------------- */
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+function draw() {
+  const w = innerWidth, h = innerHeight;
+  const c = Math.cos(view.el);
+  camera.position.set(view.target.x + view.dist * c * Math.sin(view.az), view.target.y + view.dist * Math.sin(view.el), view.target.z + view.dist * c * Math.cos(view.az));
+  camera.up.set(0, 1, 0); camera.lookAt(view.target);
+  if (view.axis && view.axis.lengthSq() > 1e-6) { camera.updateMatrixWorld(); const v = view.axis.clone().transformDirection(camera.matrixWorldInverse); if (Math.hypot(v.x, v.y) > 1e-3) camera.rotateZ(Math.atan2(v.y, v.x) - Math.PI / 2); }
+  if (window.shadow) shadow.material.opacity *= Math.max(0, view.axis ? view.axis.y : 1);
+  const wide = w > 820;
+  const sx = wide ? -0.17 * w * view.shift : 0, sy = wide ? 0 : 0.2 * h * view.shift;
+  camera.setViewOffset(w, h, sx, sy - 0.008 * h, w, h); // main object centred in the Reels 'main object' band (y 450-1500)
+  camera.updateProjectionMatrix();
+  if (window.mirrorPass) mirrorPass();
+  renderer.render(scene, camera);
+  if (window.haloPass) haloPass();
+  updateLabels(w, h);
+}
+addEventListener('resize', resize); resize();
+
+/* ---------------- Video render hook ---------------- */
+window.__tour = { total: TOTAL, renderAt(t) { applyState(stateAt(t)); draw(); return true; }, look(o) { applyState(stateAt(o.t || 0)); if (o.fold != null) { fold = o.fold; applyFold(fold); } Object.assign(view, { target: new THREE.Vector3(o.tx, o.ty, o.tz), az: o.az, el: o.el, dist: o.dist, shift: 0 }); draw(); } };
+if (RENDER) { applyState(stateAt(0)); draw(); return; }
+
+/* ---------------- Interactive mode ---------------- */
+const listEl = document.getElementById('part-list');
+parts.forEach((p, i) => {
+  const li = document.createElement('li'); const b = document.createElement('button'); b.type = 'button';
+  b.innerHTML = `<span class="n">${String(i + 1).padStart(2, '0')}</span><span></span>`; b.lastChild.textContent = p.info.name;
+  b.setAttribute('aria-pressed', 'false'); b.addEventListener('click', () => select(selected === i ? -1 : i));
+  li.appendChild(b); listEl.appendChild(li); p.btn = b;
+});
+
+let selected = -1, touring = false, tourT = 0;
+const ovI = () => Object.assign(clonePose(OVERVIEW), innerWidth > 820 ? { dist: 560, shift: -0.4 } : { dist: 980, shift: 0.15 });
+let goal = ovI(), goalExplode = 1;
+Object.assign(view, ovI());
+const slider = document.getElementById('explode');
+const playBtn = document.getElementById('play');
+
+function select(i) {
+  stopTour();
+  selected = i;
+  parts.forEach(p => p.btn.setAttribute('aria-pressed', String(p.index === i)));
+  if (i >= 0) { goalFold = 0; foldBtn.textContent = 'Fold'; if (goalExplode < 0.6) goalExplode = 1; slider.value = goalExplode; goal = partPose(parts[i]); setCard(i); card.style.opacity = 1; }
+  else { goal = ovI(); setCard(-1); }
+}
+document.getElementById('prev').addEventListener('click', () => select((selected - 1 + N) % N));
+document.getElementById('next').addEventListener('click', () => select((selected + 1) % N));
+document.getElementById('overview').addEventListener('click', () => { select(-1); goalExplode = 1; slider.value = 1; });
+slider.addEventListener('input', () => { stopTour(); goalFold = 0; foldBtn.textContent = 'Fold'; goalExplode = +slider.value; });
+let goalFold = 0; const foldBtn = document.getElementById('fold');
+const CLOSED_VIEW = () => ({ target: new THREE.Vector3(38, 0, 3), az: -0.55, el: 0.42, dist: innerWidth > 820 ? 330 : 560, shift: innerWidth > 820 ? -0.3 : 0.15 });
+foldBtn.addEventListener('click', () => { stopTour(); if (goalFold > 0.5) { goalFold = 0; foldBtn.textContent = 'Fold'; goal = ovI(); goalExplode = 0; slider.value = 0; } else { select(-1); goalFold = 1; goalExplode = 0; slider.value = 0; goal = CLOSED_VIEW(); foldBtn.textContent = 'Unfold'; } });
+
+function startTour() { touring = true; tourT = 0; selected = -1; parts.forEach(p => p.btn.setAttribute('aria-pressed', 'false')); playBtn.textContent = '■ Stop tour'; }
+function stopTour() {
+  if (!touring) return; touring = false; playBtn.textContent = '▶ Play tour';
+  goal = clonePose(view); goal.shift = selected >= 0 ? 1 : 0; goalExplode = explode; slider.value = explode; goalFold = fold > 0.5 ? 1 : 0; foldBtn.textContent = goalFold ? 'Unfold' : 'Fold'; setTitle(null, 0);
+  if (selected < 0) setCard(-1);
+}
+playBtn.addEventListener('click', () => touring ? (stopTour(), select(-1)) : startTour());
+
+// orbit controls
+const ptrs = new Map(); let pinch0 = 0, dist0 = 0, moved = 0;
+canvas.addEventListener('pointerdown', e => { canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = 0; canvas.classList.add('dragging');
+  if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); dist0 = goal.dist; } });
+canvas.addEventListener('pointermove', e => {
+  const p = ptrs.get(e.pointerId); if (!p) return;
+  const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY; moved += Math.abs(dx) + Math.abs(dy);
+  if (moved > 4 && touring) stopTour();
+  if (ptrs.size === 1) { goal.az -= dx * 0.008; goal.el = Math.max(-1.3, Math.min(1.3, goal.el + dy * 0.006)); }
+  else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); if (pinch0) goal.dist = Math.max(40, Math.min(1400, dist0 * pinch0 / d)); }
+});
+function endPtr(e) {
+  if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); if (!ptrs.size) canvas.classList.remove('dragging');
+  if (moved < 5 && e.type === 'pointerup') pick(e);
+}
+canvas.addEventListener('pointerup', endPtr); canvas.addEventListener('pointercancel', endPtr);
+canvas.addEventListener('wheel', e => { e.preventDefault(); if (touring) stopTour(); goal.dist = Math.max(40, Math.min(1400, goal.dist * Math.exp(e.deltaY * 0.0012))); }, { passive: false });
+
+const ray = new THREE.Raycaster(); const ndc = new THREE.Vector2();
+function pick(e) {
+  if (touring) return;
+  const r = canvas.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const hit = ray.intersectObjects(root.children, true).find(h => h.object.userData.part && h.object.userData.part.dim < 0.5);
+  if (hit) select(hit.object.userData.part.index); else if (selected >= 0) select(-1);
+}
+
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (touring) {
+    tourT += dt; if (tourT >= TOTAL) { applyState(stateAt(TOTAL)); touring = false; playBtn.textContent = '▶ Play tour'; goal = clonePose(view); goalExplode = explode; slider.value = explode; goalFold = fold > 0.5 ? 1 : 0; foldBtn.textContent = goalFold ? 'Unfold' : 'Fold'; setTitle(null, 0); }
+    else applyState(stateAt(tourT));
+  } else {
+    const k = 1 - Math.exp(-dt * 5);
+    Object.assign(view, lerpPose(view, goal, k));
+    if (goalFold > 0.5) { explode += (0 - explode) * k; if (explode < 0.03) fold += (1 - fold) * k * 0.8; }
+    else { fold += (0 - fold) * k; if (fold < 0.03) explode += (goalExplode - explode) * k; }
+    if (fold < 1e-3) fold = 0; applyExplode(explode); applyFold(fold); updateShadow();
+    parts.forEach(p => { const t = selected >= 0 && p.index !== selected ? 1 : 0; const d = p.dim + (t - p.dim) * k; if (Math.abs(d - p.dim) > 1e-4 || (t === 0 && p.dim !== 0)) applyDim(p, Math.abs(d - t) < 1e-3 ? t : d); });
+    const lt = selected < 0 && explode > 0.55 ? 1 : 0; labelsAlpha += (lt - labelsAlpha) * k;
+    if (!REDUCED && selected < 0 && !ptrs.size && Math.abs(goalExplode - explode) < 0.01) goal.az += dt * 0.04;
+  }
+  draw(); requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+})();
+</script>
