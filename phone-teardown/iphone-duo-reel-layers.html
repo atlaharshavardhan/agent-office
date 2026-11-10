@@ -362,7 +362,7 @@ const ease = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2, cl 
 const lerp = (a, b, u) => a + (b - a) * u;
 // poses: [tx, ty, tz, az, el, dist]
 // [tx, ty, tz, az, el, dist, offX (share of width, + moves the model right), offY (+ moves it up)]
-const A = [0, 10, 0, 0.62, 0.45, 760, 0.0, 0.02], B = [0, 76, 0, 0.5, 0.26, 1180, 0.2, 0.0], C = [-22, 34, 0, 0.02, 0.06, 640, 0.0, 0.02];
+const A = [0, 10, 0, 0.62, 0.45, 760, 0.0, 0.02], B = [0, 76, 0, 0.5, 0.26, 1250, 0.175, 0.0], C = [-22, 34, 0, 0.02, 0.06, 640, 0.0, 0.02];
 function reelState(t) {
   const e1 = ease(cl((t - 0.3) / 1.9));               // single sheet -> 10 layers (counter ticks with it)
   const e2 = ease(cl((t - 3.6) / 0.9));               // squeeze a bit so the bend reads

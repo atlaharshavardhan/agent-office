@@ -28,6 +28,7 @@ R("  const dimB = prev ? ease(clamp01(lt / 0.9)) : 1;", "  const dimB = prev ? e
 R("return { fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,",
   "return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, wake: s.wake ? s.wake(u) : 1, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
 R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake;")
+R("const camera = new THREE.PerspectiveCamera(30, 1, 5, 3000);", "const camera = new THREE.PerspectiveCamera(33, 1, 5, 3000);  // ~10% wider so tall shots fit the 450-1500 band")
 R("var KEEP_ON = false, lastInnerP = 0, lastOuterP = 1;", "var KEEP_ON = false, WAKE = 1, lastInnerP = 0, lastOuterP = 1;")
 R("  innerScr.material.color.setScalar(ease(on));", "  innerScr.material.color.setScalar(ease(on) * WAKE);")
 R("  explode = st.explode; applyExplode(explode);", "  KEEP_ON = st.keepOn; explode = st.explode; applyExplode(explode);")
@@ -119,8 +120,8 @@ const L = (h) => `<div class="line">${h}</div>`;
 const S1A = P(36, 0, 3, 2.75, 0.16, 380);  // closed, back three-quarter (end of the tour)
 // Apple-style reveal: slow turntable close-up of the closed phone, swing to face the viewer, open towards the camera
 const BACK0 = P(36, 0, 3, 2.45, 0.1, 500), BACK1 = P(36, 0, 3, 3.3, 0.14, 455);
-const FRONT_C = P(36, 0, 3, 0.1, 0.06, 440);                 // closed, cover screen facing us
-const OPEN = P(0, 0, 1, 0.04, 0.08, 560, UP_OPEN), OVER = P(36, 0, 2, 0.12, 0.85, 1080, UP_STACK);
+const FRONT_C = P(36, 0, 3, 0.1, 0.06, 470);                 // closed, cover screen facing us
+const OPEN = P(0, 0, 1, 0.04, 0.08, 610, UP_OPEN), OVER = P(36, 0, 2, 0.12, 0.85, 1080, UP_STACK);
 sseg({ dur: 2.2, fold: () => 1, pose: t => lerpPose(BACK0, BACK1, ease(t)),
   caps: [[0, 2.2, '<div class="big">₹2,99,900</div>' + L('This iPhone <em>folds in half</em>')]] });
 sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 0.75) / 1.55)),
@@ -141,12 +142,12 @@ sseg({ dur: 5.5, explode: t => EX * (1 - ease(clamp01(t * 5.5 / 1.4))), fold: t 
 sseg({ dur: 6, keepOn: true, fold: t => 0.74 * (1 - ease(clamp01(t * 6 / 1.4))), pose: t => P(0, 30 - 60 * t, 2.6, 1.3, 0.17, 330),
   caps: [[0.3, 3.1, L('Bend the same spot <em>again and again</em>')], [3.1, 6, L('…and you get <em>the crease</em> you can feel')]] });
 // Apple-style close: face the viewer, fold shut towards the camera (soft ease-in, firm landing at 38.9 s), then turn to the back
-const CREASE_END = P(0, -30, 2.6, 1.3, 0.17, 330), BACK_HERO = P(36, 0, 3, -1.25, 0.1, 330);
+const CREASE_END = P(0, -30, 2.6, 1.3, 0.17, 330), BACK_HERO = P(36, -48, 3, -1.25, 0.12, 790);
 sseg({ dur: 4, fold: t => { const T = t * 4; const u = clamp01((T - 0.9) / 1.6); return u * u * (1.6 - 0.6 * u); },
   pose: t => { const T = t * 4; return T < 0.95 ? lerpPose(CREASE_END, OPEN, ease(T / 0.95)) : T < 2.5 ? lerpPose(OPEN, FRONT_C, ease((T - 0.95) / 1.55)) : lerpPose(FRONT_C, BACK_HERO, ease((T - 2.5) / 1.5)); },
   caps: [[0.2, 4, L('It doesn’t fold like paper.<br>It <em>rolls like a poster.</em>')]] });
 // end card backdrop: slow hero turn of the closed phone, high in the frame (the channel card sits underneath)
-sseg({ dur: 5, fold: () => 1, pose: t => lerpPose(BACK_HERO, P(36, -48, 3, -2.25, 0.12, 470), ease(t)), caps: [] });
+sseg({ dur: 5, fold: () => 1, pose: t => lerpPose(BACK_HERO, P(36, -48, 3, -2.25, 0.12, 790), ease(t)), caps: [] });
 '''
 src = src[:a] + tour + src[b:]
 for a_, b_ in [("if (Math.abs(sx) + Math.abs(sy) > 0.5) camera.setViewOffset(w, h, sx, sy, w, h); else camera.clearViewOffset();", "camera.setViewOffset(w, h, sx, sy - 0.085 * h, w, h);")]:
@@ -164,7 +165,7 @@ for a_, b_ in [
    "function lerpPose(a, b, t) { return { axis: (a.axis || new THREE.Vector3(0, 1, 0)).clone().lerp(b.axis || new THREE.Vector3(0, 1, 0), t), target: a.target.clone().lerp(b.target, t),"),
   ("  camera.up.set(0, 1, 0); camera.lookAt(view.target);",
    "  camera.up.set(0, 1, 0); camera.lookAt(view.target);\n  if (view.axis && view.axis.lengthSq() > 1e-6) { camera.updateMatrixWorld(); const v = view.axis.clone().transformDirection(camera.matrixWorldInverse); if (Math.hypot(v.x, v.y) > 1e-3) camera.rotateZ(Math.atan2(v.y, v.x) - Math.PI / 2); }\n  if (window.shadow) shadow.material.opacity *= Math.max(0, view.axis ? view.axis.y : 1);"),
-  ("camera.setViewOffset(w, h, sx, sy - 0.085 * h, w, h);", "camera.setViewOffset(w, h, sx, sy - 0.085 * h, w, h); // phone sits lower, clear of the captions"),
+  ("camera.setViewOffset(w, h, sx, sy - 0.085 * h, w, h);", "camera.setViewOffset(w, h, sx, sy - 0.008 * h, w, h); // main object centred in the Reels 'main object' band (y 450-1500)"),
 ]:
     assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
 for a_, b_ in [("function updateLabels(w, h) {", "function updateLabels(w, h) {\n  if (window.groupLabels) groupLabels(w, h);")]:

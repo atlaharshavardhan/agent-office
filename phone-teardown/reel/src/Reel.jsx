@@ -148,7 +148,7 @@ const TextTrack = () => {
   const local = frame - s(TEXT[cur].at);
   const prev = cur > 0 && local < SWAP ? cur - 1 : -1;
   const p = interpolate(local, [0, SWAP], [0, 1], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 3) });
-  const wrap = (children, style) => <div style={{ position: 'absolute', top: 215, left: 60, right: 60, ...style }}>{children}</div>;
+  const wrap = (children, style) => <div style={{ position: 'absolute', top: 232, left: 60, right: 60, ...style }}>{children}</div>;
   return (
     <AbsoluteFill>
       {prev >= 0 ? wrap(<Block entry={TEXT[prev]} local={frame - s(TEXT[prev].at)} />, { opacity: 1 - p, transform: `translateY(${-70 * p}px)` }) : null}
@@ -157,7 +157,7 @@ const TextTrack = () => {
   );
 };
 
-const Chip = ({ label, value, durationInFrames, bumpAt, top = 1395 }) => {
+const Chip = ({ label, value, durationInFrames, bumpAt, top = 1300 }) => {
   const frame = useCurrentFrame();
   const p = spring({ frame, fps: FPS, config: { damping: 15, stiffness: 180 } });
   const out = interpolate(frame, [durationInFrames - 8, durationInFrames], [1, 0], clamp);
@@ -226,7 +226,6 @@ const Chrome = () => {
     <>
       <AbsoluteFill style={{ background: 'linear-gradient(#000 0%, rgba(0,0,0,0.88) 17%, rgba(0,0,0,0) 34%)' }} />
       <div style={{ position: 'absolute', top: 0, left: 0, height: 7, width: `${(frame / durationInFrames) * 100}%`, background: C.accent }} />
-      <div style={{ position: 'absolute', top: 92, left: 0, right: 0, textAlign: 'center', fontFamily: 'Plex Mono', fontWeight: 500, fontSize: 26, letterSpacing: '0.32em', color: 'rgba(255,255,255,0.55)' }}>INVISITECH · TEARDOWN</div>
     </>
   );
 };
@@ -261,14 +260,14 @@ const EndCard = () => {
   );
   return (
     <AbsoluteFill>
-      <AbsoluteFill style={{ opacity: shade, background: 'linear-gradient(rgba(0,0,0,0) 45%, rgba(3,6,14,0.75) 62%, rgba(3,6,14,0.92) 100%)' }} />
-      <div style={{ position: 'absolute', top: 1095, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 150, letterSpacing: '-0.03em', lineHeight: 1, transform: `scale(${0.85 + 0.15 * Math.min(1, word)})`, opacity: Math.min(1, word), textShadow: '0 8px 40px rgba(0,0,0,0.6)' }}>
+      <AbsoluteFill style={{ opacity: shade, background: 'linear-gradient(rgba(0,0,0,0) 50%, rgba(3,6,14,0.7) 58%, rgba(3,6,14,0.9) 100%)' }} />
+      <div style={{ position: 'absolute', top: 1068, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>  {/* phone sits in 450–1050, card text in 1060–1450 */}
+        <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 128, letterSpacing: '-0.03em', lineHeight: 1, transform: `scale(${0.85 + 0.15 * Math.min(1, word)})`, opacity: Math.min(1, word), textShadow: '0 8px 40px rgba(0,0,0,0.6)' }}>
           <span style={{ color: C.white }}>Invisi</span><span style={{ color: '#5bc8e0' }}>Tech</span>
         </div>
-        <div style={{ marginTop: 22, fontFamily: 'Sora', fontWeight: 700, fontSize: 60, color: C.white, opacity: Math.min(1, handle), transform: `translateY(${(1 - handle) * 30}px)` }}>@TheInvisiTech</div>
-        <div style={{ marginTop: 14, fontFamily: 'Sora', fontWeight: 600, fontSize: 38, color: C.accent, opacity: Math.min(1, follow), transform: `translateY(${(1 - follow) * 30}px)` }}>Like · follow for more</div>
-        <div style={{ marginTop: 34, display: 'flex', gap: 120, alignItems: 'center' }}>
+        <div style={{ marginTop: 16, fontFamily: 'Sora', fontWeight: 700, fontSize: 54, color: C.white, opacity: Math.min(1, handle), transform: `translateY(${(1 - handle) * 30}px)` }}>@TheInvisiTech</div>
+        <div style={{ marginTop: 8, fontFamily: 'Sora', fontWeight: 600, fontSize: 34, color: C.accent, opacity: Math.min(1, follow), transform: `translateY(${(1 - follow) * 30}px)` }}>Like · follow for more</div>
+        <div style={{ marginTop: 22, display: 'flex', gap: 110, alignItems: 'center', transform: 'scale(0.86)' }}>
           {slot(<Thumb fill={liked ? '#5bc8e0' : '#ffffff'} />, 0, press, tapAt)}
           {slot(<Heart fill={filled ? '#ff3b5c' : 'none'} stroke={filled ? '#ff3b5c' : '#ffffff'} />, 1, hp, heartAt)}
           {slot(<Bubble stroke="#ffffff" />, 2, cp, cmtAt)}
