@@ -16,9 +16,9 @@ Checked against Apple's iPhone Duo spec pages, Apple's Duo guide, Apple newsroom
 ## Displays
 | Spec | Source value | Model |
 |---|---|---|
-| Inner | 7.6″, 2670 × 1878, 430 ppi, 10 ultrathin layers, nano-texture, up to 120 Hz | 🔧 screen was 7.8″; now 157.7 × 111.0 mm (7.6″). Text updated |
+| Inner | 7.6″, 2670 × 1878, 430 ppi, 10 ultrathin layers, nano-texture, up to 120 Hz | ⚠️ drawn with a ~2 mm bezel to match hands-on photos (Apple measures 7.6″ as a full rectangle, so the visible border looks thinner than the spec math). Text says 7.6″ |
 | Inner camera | Under-display 1080p FaceTime camera | 🔧 had a visible punch-hole; now hidden under the display |
-| Outer | 5.4″, same aspect ratio as inner, ~90% of iPhone 18 Pro area | 🔧 now 79 × 112.2 mm (5.4″) |
+| Outer | 5.4″, same aspect ratio as inner, ~90% of iPhone 18 Pro area | ⚠️ thin ~1.5–2 mm bezel to match photos; straight edge on the hinge side |
 | Outer camera | 12 MP Center Stage in a punch-hole | ✅ top outer corner |
 | Brightness | 1000 typ / 1600 HDR / 3000 outdoor nits | ✅ (in text) |
 

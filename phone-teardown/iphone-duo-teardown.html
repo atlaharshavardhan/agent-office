@@ -482,7 +482,7 @@ const innerItems = [];
 (function buildInner() {
   const b = innerBg.getContext('2d'), w = 1640, h = 1100;
   dunes(b, w, h, 0.44);
-  const cg = b.createLinearGradient(800, 0, 840, 0); cg.addColorStop(0, 'rgba(0,0,0,0)'); cg.addColorStop(0.5, 'rgba(0,0,0,0.1)'); cg.addColorStop(1, 'rgba(0,0,0,0)'); b.fillStyle = cg; b.fillRect(800, 0, 40, h);
+  const cg = b.createLinearGradient(800, 0, 840, 0); cg.addColorStop(0, 'rgba(0,0,0,0)'); cg.addColorStop(0.5, 'rgba(0,0,0,0.04)'); cg.addColorStop(1, 'rgba(0,0,0,0)'); b.fillStyle = cg; b.fillRect(800, 0, 40, h);
   const add = (cx, cy, fn) => innerItems.push({ cx, cy, fn });
   add(224, 205, x => {
     const wg = x.createLinearGradient(0, 70, 0, 340); wg.addColorStop(0, '#3e9cf5'); wg.addColorStop(1, '#2a6fd8'); x.fillStyle = wg; x.beginPath(); x.roundRect(78, 70, 292, 270, 46); x.fill();
@@ -537,7 +537,7 @@ addPart('inner', [0, 0, 72], { az: 0.42, el: 0.4, k: 0.92 }, [-80, 56, 2.6], g =
   const body = phys({ color: 0x050506, metalness: 0.1, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.05 });
   mesh(extrude(halfL(0.3), 0.6, 0.1), body, 0, 0, 2.35, g);
   mesh(extrude(halfR(0.3), 0.6, 0.1), body, 0, 0, 2.35, g);
-  const sw = 78.85, sh = 111.0;  // 7.6-inch, 2670 x 1878 at 430 ppi
+  const sw = 80.3, sh = 113.8;  // ~2 mm bezel, matching hands-on photos (Apple's 7.6-inch is measured as a rectangle)
   const full = new THREE.CanvasTexture(innerCanvas); full.encoding = THREE.sRGBEncoding; full.anisotropy = 4;
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(sw * 2, sh, 240, 1), new THREE.MeshBasicMaterial({ map: full, transparent: true, toneMapped: false, side: THREE.DoubleSide }));
   const roundA = canvasTex(820, 550, (x, w, h) => { x.fillStyle = '#000'; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.beginPath(); x.roundRect(2, 2, w - 4, h - 4, 42); x.fill(); });
@@ -681,10 +681,10 @@ paintScreen(outerCanvas, outerBg, outerItems, 1, [6, 82, 82, 6], OUTER_HOLE);
 const outerTex = new THREE.CanvasTexture(outerCanvas); outerTex.encoding = THREE.sRGBEncoding; outerTex.anisotropy = 4;
 addPart('outer', [0, 0, -52], { az: 3.35, el: 0.28, k: 1.0 }, [-80, 56, -2.5], g => {
   mesh(extrude(halfL(0.3), 0.7, 0.15), phys({ color: 0x050506, metalness: 0.1, roughness: 0.2, clearcoat: 1 }), 0, 0, -2.33, g);
-  const scr = new THREE.Mesh(new THREE.PlaneGeometry(79, 112.2), new THREE.MeshBasicMaterial({ map: outerTex, transparent: true, toneMapped: false }));
-  scr.position.set(-41.6, 0, -2.74); scr.rotation.y = Math.PI; g.add(scr); outerScr = scr;
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(80, 114), new THREE.MeshBasicMaterial({ map: outerTex, transparent: true, toneMapped: false }));
+  scr.position.set(-41.5, 0, -2.74); scr.rotation.y = Math.PI; g.add(scr); outerScr = scr;
   const gl = new THREE.Mesh(extrude(halfL(1.0), 0.15, 0.05), phys({ color: 0xdfefff, transparent: true, opacity: 0.06, roughness: 0.05, clearcoat: 1, envMapIntensity: 1.0, depthWrite: false })); gl.position.z = -2.82; g.add(gl);
-  mesh(cyl(1.6, 1.6, 24), std(0x2e3136, 0.8, 0.38), -72.8, 48.9, -1.6, g); // 12 MP Center Stage camera behind the cover-screen punch-hole
+  mesh(cyl(1.6, 1.6, 24), std(0x2e3136, 0.8, 0.38), -73.1, 49.7, -1.6, g); // 12 MP Center Stage camera behind the cover-screen punch-hole
   box(14, 3, 0.18, std(0xd99a3a, 0.1, 0.45), -64, 43, -1.2, g);
 });
 
