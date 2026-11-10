@@ -71,7 +71,7 @@ R("if (RENDER) {\n  layers.forEach(L => { L.mesh.material.opacity = L.mesh.mater
   "  layers.forEach(L => { L.mesh.material.opacity = L.mesh.material.userData.base; });")
 # layers above the pixels are see-through while stacked, so the screen reads through them
 R("function draw(st) {\n  place(st.explode, st.fold);",
-  "function draw(st) {\n  place(st.explode, st.fold);\n  layers.forEach((L, i) => { if (i < 5) L.mesh.material.opacity = L.mesh.material.userData.base * (0.18 + 0.5 * Math.min(1, st.explode * 1.4)); });")
+  "function draw(st) {\n  place(st.explode, st.fold);\n  layers.forEach((L, i) => { if (i < 5) L.mesh.material.opacity = L.mesh.material.userData.base * (0.16 + 0.22 * Math.min(1, st.explode * 1.4)); });")
 R("const SHORT = ['Cover', 'Clear glue', 'Polarizer', 'Touch sensor', 'Seal', 'OLED pixels',", "const SHORT = ['Cover', 'Clear glue', 'Polarizer', 'Touch sensor', 'Seal', 'OLED pixels (picture)',")
 R("window.__tour = { total: 10, renderAt(t) { draw(reelState(t)); return true; } };", "window.__tour = { total: 10, renderAt(t) { draw(reelState(t)); return true; } };\n  window.__tourReady = () => !!window.__homeReady;")
 open('iphone-duo-reel-layers.html', 'w').write(s)
