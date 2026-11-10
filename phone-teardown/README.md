@@ -1,7 +1,8 @@
-# Teardowns: iPhone and AirTag in 3D
+# Teardowns: iPhone Duo, iPhone and AirTag in 3D
 
-Illustrative 3D models of a modern iPhone (11 layers) and an AirTag (7 parts), exploded from front to back. Each part comes with a short explanation of what it does.
+Illustrative 3D models of the iPhone Duo foldable (9 parts), a modern iPhone (11 layers) and an AirTag (7 parts), exploded from front to back. Each part comes with a short explanation of what it does.
 
+- `iphone-duo-teardown.html` / `iphone-duo-teardown.mp4`: Apple's foldable. It unfolds, explodes into inner display, frame halves, titanium hinge, logic board, I/O board, two batteries, rear cameras, outer display and back cover, and folds shut again (Fold button on the page). `build-duo.py` generates it from `iphone-teardown.html`.
 - `iphone-teardown.html`: the interactive explorer. Open it in a browser to rotate the phone, explode or collapse the layers, tap a part to read about it, or play the guided tour.
 - `iphone-teardown.mp4`: the guided tour rendered as a 1920×1080, 30 fps video (about 90 s).
 - `airtag-teardown.html` / `airtag-teardown.mp4`: the same for an AirTag (enclosure, antennas, logic board, speaker, battery tray, CR2032 cell, steel cap). The video is about 65 s.
