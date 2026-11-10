@@ -129,7 +129,7 @@ const mirTexM = new THREE.Matrix4();
 const floorMat = new THREE.ShaderMaterial({ transparent: true, depthWrite: false,
   uniforms: { map: { value: mirRT.texture }, texM: { value: mirTexM }, op: { value: 0 }, c: { value: new THREE.Vector2() } },
   vertexShader: 'uniform mat4 texM; varying vec4 vUv; varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; vUv = texM * w; gl_Position = projectionMatrix * viewMatrix * w; }',
-  fragmentShader: 'uniform sampler2D map; uniform float op; uniform vec2 c; varying vec4 vUv; varying vec3 vW; void main(){ vec4 r = texture2DProj(map, vUv); float d = length(vW.xz - c); float f = op * exp(-d / 150.0); gl_FragColor = vec4(pow(max(r.rgb, 0.0), vec3(1.0 / 2.2)) * 0.9, r.a * f); }' });
+  fragmentShader: 'uniform sampler2D map; uniform float op; uniform vec2 c; varying vec4 vUv; varying vec3 vW; void main(){ vec4 r = texture2DProj(map, vUv); float d = length(vW.xz - c); float f = op * exp(-d / 95.0); gl_FragColor = vec4(pow(max(r.rgb, 0.0), vec3(1.0 / 2.2)) * 0.9, r.a * f); }' });
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), floorMat); floor.rotation.x = -Math.PI / 2; floor.position.y = FLOOR_Y; floor.renderOrder = -1; scene.add(floor);
 const rimL = new THREE.DirectionalLight(0xb9d6ff, 1.5); scene.add(rimL); scene.add(rimL.target);
 const _v = new THREE.Vector3(), _d = new THREE.Vector3(), _u = new THREE.Vector3();
@@ -137,7 +137,7 @@ window.mirrorPass = () => {
   // rim light sits behind the phone, opposite the camera, a little above
   _d.copy(view.target).sub(camera.position).normalize();
   rimL.position.copy(view.target).addScaledVector(_d, 300).add(_u.set(0, 90, 0)); rimL.target.position.copy(view.target);
-  const op = 0.42 * Math.pow(Math.max(0, view.axis ? view.axis.y : 1), 6) * clamp01(1 - explode * 4) * clamp01((0.75 - view.el) / 0.35);
+  const op = 0.16 * Math.pow(Math.max(0, view.axis ? view.axis.y : 1), 6) * clamp01(1 - explode * 4) * clamp01((0.75 - view.el) / 0.35);
   floorMat.uniforms.op.value = op; floor.visible = op > 0.004;
   if (!floor.visible) return;
   floorMat.uniforms.c.value.set(shadow.position.x, shadow.position.z);
@@ -156,7 +156,7 @@ window.mirrorPass = () => {
        so it can only ever show around the edges, never on the phone or its screen --- */
 const haloC = document.createElement('canvas'); haloC.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
 canvas.parentNode.insertBefore(haloC, canvas);
-const hS = [6, 14, 30, 64].map(k => { const c = document.createElement('canvas'); return { k, c, x: c.getContext('2d') }; });
+const hS = [14, 30, 60, 110].map(k => { const c = document.createElement('canvas'); return { k, c, x: c.getContext('2d') }; });
 window.haloPass = () => {
   const W = canvas.width, H = canvas.height; if (haloC.width !== W) { haloC.width = W; haloC.height = H; }
   const hx = haloC.getContext('2d'); hx.clearRect(0, 0, W, H); hx.imageSmoothingEnabled = true; hx.imageSmoothingQuality = 'high';
@@ -164,7 +164,7 @@ window.haloPass = () => {
   hS.forEach(({ k, c, x }, i) => {
     const w = Math.max(2, Math.round(W / k)), h = Math.max(2, Math.round(H / k)); if (c.width !== w) { c.width = w; c.height = h; }
     x.globalCompositeOperation = 'copy'; x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.drawImage(canvas, 0, 0, w, h);
-    x.globalCompositeOperation = 'source-in'; x.fillStyle = ['rgba(150,190,255,0.32)', 'rgba(100,155,255,0.42)', 'rgba(75,125,245,0.42)', 'rgba(60,100,225,0.38)'][i]; x.fillRect(0, 0, w, h);
+    x.globalCompositeOperation = 'source-in'; x.fillStyle = ['rgba(150,190,255,0.16)', 'rgba(110,160,255,0.22)', 'rgba(85,135,245,0.22)', 'rgba(70,110,230,0.18)'][i]; x.fillRect(0, 0, w, h);
     hx.drawImage(c, -k, -k, W + 2 * k, H + 2 * k);
   });
   hx.globalCompositeOperation = 'source-over';
@@ -207,7 +207,7 @@ for a_, b_ in [("if (Math.abs(sx) + Math.abs(sy) > 0.5) camera.setViewOffset(w, 
     assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
 for a_, b_ in [("g.addColorStop(0, 'rgba(0,0,0,0.85)'); g.addColorStop(0.55, 'rgba(0,0,0,0.35)'); g.addColorStop(1, 'rgba(0,0,0,0)');", "g.addColorStop(0, 'rgba(150,170,215,0.17)'); g.addColorStop(0.55, 'rgba(120,140,190,0.06)'); g.addColorStop(1, 'rgba(0,0,0,0)');"),
                ("m.position.set(x, y, z); m.rotation.y = Math.PI; parent.add(m); return m; // faces the back (-z)", "m.position.set(x, y, z); m.rotation.y = Math.PI; m.userData.logo = true; parent.add(m); return m; // faces the back (-z)"),
-               ("const P = (tx, ty, tz, az, el, dist, ax", "// Apple logo stays on the back (owner asked for it)\nconst P = (tx, ty, tz, az, el, dist, ax")]:
+               ("const P = (tx, ty, tz, az, el, dist, ax", "// Apple logo stays on the back (owner asked for it), with a soft sheen so it reads at every angle\nroot.traverse(o => { if (o.userData.logo && o.material.emissive) { o.material = o.material.clone(); o.material.emissive.setHex(0x39445c); o.material.envMapIntensity = 1.8; } });\nconst P = (tx, ty, tz, az, el, dist, ax")]:
     assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
 
 # --- camera orientation: each pose names the world axis that should point UP on screen (lets the open phone stand tall) ---

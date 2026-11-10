@@ -877,7 +877,8 @@ const segs = [];
 let tAcc = 0;
 function seg(o) { o.start = tAcc; tAcc += o.dur; segs.push(o); }
 /* ---------- Short: "How does a ₹3 lakh iPhone fold?" (9:16, 40 s) ---------- */
-// Apple logo stays on the back (owner asked for it)
+// Apple logo stays on the back (owner asked for it), with a soft sheen so it reads at every angle
+root.traverse(o => { if (o.userData.logo && o.material.emissive) { o.material = o.material.clone(); o.material.emissive.setHex(0x39445c); o.material.envMapIntensity = 1.8; } });
 const P = (tx, ty, tz, az, el, dist, ax = [0, 1, 0]) => ({ target: new THREE.Vector3(tx, ty, tz), az, el, dist, shift: 0, axis: new THREE.Vector3(...ax) });
 const UP_OPEN = [-1, 0, 0], UP_STACK = [0, 0, 1];  // open phone stands tall (hinge left-right); exploded stack spreads up/down
 const EX = 1.3; // exploded spacing for the reel (spreads the stack down the frame)
@@ -969,7 +970,7 @@ const mirTexM = new THREE.Matrix4();
 const floorMat = new THREE.ShaderMaterial({ transparent: true, depthWrite: false,
   uniforms: { map: { value: mirRT.texture }, texM: { value: mirTexM }, op: { value: 0 }, c: { value: new THREE.Vector2() } },
   vertexShader: 'uniform mat4 texM; varying vec4 vUv; varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; vUv = texM * w; gl_Position = projectionMatrix * viewMatrix * w; }',
-  fragmentShader: 'uniform sampler2D map; uniform float op; uniform vec2 c; varying vec4 vUv; varying vec3 vW; void main(){ vec4 r = texture2DProj(map, vUv); float d = length(vW.xz - c); float f = op * exp(-d / 150.0); gl_FragColor = vec4(pow(max(r.rgb, 0.0), vec3(1.0 / 2.2)) * 0.9, r.a * f); }' });
+  fragmentShader: 'uniform sampler2D map; uniform float op; uniform vec2 c; varying vec4 vUv; varying vec3 vW; void main(){ vec4 r = texture2DProj(map, vUv); float d = length(vW.xz - c); float f = op * exp(-d / 95.0); gl_FragColor = vec4(pow(max(r.rgb, 0.0), vec3(1.0 / 2.2)) * 0.9, r.a * f); }' });
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), floorMat); floor.rotation.x = -Math.PI / 2; floor.position.y = FLOOR_Y; floor.renderOrder = -1; scene.add(floor);
 const rimL = new THREE.DirectionalLight(0xb9d6ff, 1.5); scene.add(rimL); scene.add(rimL.target);
 const _v = new THREE.Vector3(), _d = new THREE.Vector3(), _u = new THREE.Vector3();
@@ -977,7 +978,7 @@ window.mirrorPass = () => {
   // rim light sits behind the phone, opposite the camera, a little above
   _d.copy(view.target).sub(camera.position).normalize();
   rimL.position.copy(view.target).addScaledVector(_d, 300).add(_u.set(0, 90, 0)); rimL.target.position.copy(view.target);
-  const op = 0.42 * Math.pow(Math.max(0, view.axis ? view.axis.y : 1), 6) * clamp01(1 - explode * 4) * clamp01((0.75 - view.el) / 0.35);
+  const op = 0.16 * Math.pow(Math.max(0, view.axis ? view.axis.y : 1), 6) * clamp01(1 - explode * 4) * clamp01((0.75 - view.el) / 0.35);
   floorMat.uniforms.op.value = op; floor.visible = op > 0.004;
   if (!floor.visible) return;
   floorMat.uniforms.c.value.set(shadow.position.x, shadow.position.z);
@@ -996,7 +997,7 @@ window.mirrorPass = () => {
        so it can only ever show around the edges, never on the phone or its screen --- */
 const haloC = document.createElement('canvas'); haloC.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
 canvas.parentNode.insertBefore(haloC, canvas);
-const hS = [6, 14, 30, 64].map(k => { const c = document.createElement('canvas'); return { k, c, x: c.getContext('2d') }; });
+const hS = [14, 30, 60, 110].map(k => { const c = document.createElement('canvas'); return { k, c, x: c.getContext('2d') }; });
 window.haloPass = () => {
   const W = canvas.width, H = canvas.height; if (haloC.width !== W) { haloC.width = W; haloC.height = H; }
   const hx = haloC.getContext('2d'); hx.clearRect(0, 0, W, H); hx.imageSmoothingEnabled = true; hx.imageSmoothingQuality = 'high';
@@ -1004,7 +1005,7 @@ window.haloPass = () => {
   hS.forEach(({ k, c, x }, i) => {
     const w = Math.max(2, Math.round(W / k)), h = Math.max(2, Math.round(H / k)); if (c.width !== w) { c.width = w; c.height = h; }
     x.globalCompositeOperation = 'copy'; x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.drawImage(canvas, 0, 0, w, h);
-    x.globalCompositeOperation = 'source-in'; x.fillStyle = ['rgba(150,190,255,0.32)', 'rgba(100,155,255,0.42)', 'rgba(75,125,245,0.42)', 'rgba(60,100,225,0.38)'][i]; x.fillRect(0, 0, w, h);
+    x.globalCompositeOperation = 'source-in'; x.fillStyle = ['rgba(150,190,255,0.16)', 'rgba(110,160,255,0.22)', 'rgba(85,135,245,0.22)', 'rgba(70,110,230,0.18)'][i]; x.fillRect(0, 0, w, h);
     hx.drawImage(c, -k, -k, W + 2 * k, H + 2 * k);
   });
   hx.globalCompositeOperation = 'source-over';
