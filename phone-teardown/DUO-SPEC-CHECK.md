@@ -30,7 +30,7 @@ Open, inner screen facing you (camera half on the right):
 | 1 | Under-display FaceTime camera | camera half, ~34 mm right of centre, near the top |
 | 2 | Volume buttons | top edge, just right of the camera (two ~10 mm buttons) |
 | 3 | Side button / Touch ID | outer edge of the camera half, upper part, ~19 mm long, slightly raised |
-| 4 | Camera Control | same edge, about three-quarters of the way down |
+| 4 | Camera Control | same edge, about three-quarters of the way down; ~14 mm, about ¾ of the side button length (matches photo) |
 | 5 | USB-C connector | bottom edge of the cover-screen half, ~¼ from the left (with speaker and mic grilles) |
 | 6–8 | Ultra Wide, Main, flash (mic slot above flash) | wide pill at the top outer corner of the back |
 | 9 | Center Stage front camera | top outer corner of the cover screen |

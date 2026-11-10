@@ -268,8 +268,8 @@ addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g =
   capsule(10.1, 42.9, btn); capsule(10.8, 56.3, btn);                                                  // volume buttons
   capsuleR(19.6, 16, std(0x3a4868, 1, 0.18), 2.75, 0.9);                                           // Touch ID ring
   capsuleR(19, 16, std(0x0a1020, 0.85, 0.2, { envMapIntensity: 0.9 }), 2.3, 1.35);                 // long side button with Touch ID, slightly raised
-  capsuleR(11.2, -25.7, std(0x8090ae, 1, 0.16), 2.6, 0.85);                                            // Camera Control ring
-  capsuleR(10, -25.7, phys({ color: 0x05070c, metalness: 0.2, roughness: 0.06, clearcoat: 1, envMapIntensity: 1.8 }), 2.1, 0.95); // Camera Control sapphire pad
+  capsuleR(14.6, -25.7, std(0x8090ae, 1, 0.16), 2.75, 0.85);  // Camera Control ring (~3/4 of the side button length)                                            // Camera Control ring
+  capsuleR(14, -25.7, phys({ color: 0x05070c, metalness: 0.2, roughness: 0.06, clearcoat: 1, envMapIntensity: 1.8 }), 2.3, 0.95); // Camera Control sapphire pad
   const ab = std(0x1a1b1e, 0, 0.6);
   [[-HW + 0.6, 40], [-HW + 0.6, -40], [HW - 0.6, 40], [HW - 0.6, -40]].forEach(([x, y]) => box(1.8, 1.0, D - 0.4, ab, x, y, 0, g));
   box(9.2, 1.6, 3.2, std(0x050506, 0, 0.8), -42, -H / 2 + 0.4, 0, g);
