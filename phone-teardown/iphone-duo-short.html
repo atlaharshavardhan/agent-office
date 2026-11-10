@@ -155,7 +155,7 @@ body.short .top, body.short #card, body.short #labels, body.short #title-card, b
 body.clean #cap, body.clean #capbg { display: none !important; }
 #glabels { position: absolute; inset: 0; pointer-events: none; }
 #glabels .gl { position: absolute; left: 0; right: 0; top: 0; height: 0; }
-#glabels .gl span { position: absolute; left: 64px; top: -26px; font-family: var(--font-display); font-weight: 600; font-size: 40px; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.8); white-space: nowrap; }
+#glabels .gl span { position: absolute; left: 56px; top: -24px; font-family: var(--font-display); font-weight: 600; font-size: 36px; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.8); white-space: nowrap; }
 #glabels .gl span em { font-style: normal; font-family: var(--font-mono); font-weight: 500; font-size: 28px; color: var(--accent); margin-right: 14px; }
 #glabels .gl b { position: absolute; top: 0; height: 2px; background: rgba(240,166,64,.75); }
 #glabels .gl i { position: absolute; top: -6px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 5px rgba(240,166,64,.25); }
@@ -953,10 +953,10 @@ const glWrap = document.createElement('div'); glWrap.id = 'glabels'; document.ge
 parts.forEach(p => { const b = new THREE.Box3().setFromObject(p.group); p.lb = new THREE.Vector3(b.min.x, (b.min.y + b.max.y) / 2, (b.min.z + b.max.z) / 2).sub(p.group.position); });
 const glItems = GL.map(([id, name, n]) => { const el = document.createElement('div'); el.className = 'gl'; el.innerHTML = '<span><em>0' + n + '</em></span><b></b><i></i>'; el.querySelector('span').append(name); glWrap.appendChild(el); return { p: parts.find(q => q.id === id), el, n }; });
 let GL_OUT = 1;
-let GL_ALPHA = 0; const glV = new THREE.Vector3();
+let GL_ALPHA = 0; const glV = new THREE.Vector3(), _gb = new THREE.Box3();
 window.groupLabels = (w, h) => {
   glWrap.style.opacity = (GL_ALPHA > 0 ? GL_OUT : 0).toFixed(3); if (GL_ALPHA < 0.01 || GL_OUT < 0.01) return;
-  const pts = glItems.map(it => { glV.copy(it.p.lb).add(it.p.group.position).project(camera); return { it, x: (glV.x * 0.5 + 0.5) * w, y: (-glV.y * 0.5 + 0.5) * h }; });
+  const pts = glItems.map(it => { _gb.setFromObject(it.p.group); let mx = 1e9, sy = 0; for (let k = 0; k < 8; k++) { glV.set(k & 1 ? _gb.max.x : _gb.min.x, k & 2 ? _gb.max.y : _gb.min.y, k & 4 ? _gb.max.z : _gb.min.z).project(camera); const px = (glV.x * 0.5 + 0.5) * w; sy += (-glV.y * 0.5 + 0.5) * h; if (px < mx) mx = px; } return { it, x: mx + 14, y: sy / 8 }; });
   pts.sort((a, b) => a.y - b.y); for (let i = 1; i < pts.length; i++) pts[i].ly = Math.max(pts[i].y, (pts[i - 1].ly ?? pts[i - 1].y) + 62); pts[0].ly = pts[0].y;
   pts.forEach(({ it, x, ly }) => {
     const el = it.el, span = el.querySelector('span'), line = el.querySelector('b'), dot = el.querySelector('i');
@@ -1022,7 +1022,7 @@ const S1A = P(36, 0, 3, 2.75, 0.16, 380);  // closed, back three-quarter (end of
 // Apple-style reveal: slow turntable close-up of the closed phone, swing to face the viewer, open towards the camera
 const MACRO = P(56, 40, -4, 2.95, 0.06, 205), BACK0 = P(36, 0, 3, 2.75, 0.1, 500), BACK1 = P(36, 0, 3, 3.3, 0.14, 455);
 const FRONT_C = P(36, 0, 3, 0.08, 0.1, 470);                 // closed, cover screen facing us
-const OPEN = P(0, 0, 1, 0.06, 0.12, 690), OVER = P(36, 0, 2, 0.12, 0.85, 1080, UP_STACK);
+const OPEN = P(0, 0, 1, 0.06, 0.12, 690), OVER = P(52, 0, 2, 0.12, 0.85, 1080, UP_STACK);
 sseg({ dur: 2.2, fold: () => 1, pose: t => { const T = t * 2.2; return T < 1.2 ? lerpPose(MACRO, BACK0, ease(T / 1.2) * 0.999) : lerpPose(BACK0, BACK1, ease((T - 1.2) / 1.0)); },
   caps: [[0, 2.2, '<div class="big">₹2,99,900</div>' + L('This iPhone <em>folds in half</em>')]] });
 sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 1.78) / 1.0)), cb: t => clamp01((t * 2.8 - 1.5) / 0.28),  // sharp cover held ~1 s so the apps read → frost → open

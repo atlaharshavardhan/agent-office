@@ -157,7 +157,7 @@ const TextTrack = () => {
   );
 };
 
-const Chip = ({ label, value, durationInFrames, bumpAt, top = 1300 }) => {
+const Chip = ({ label, value, durationInFrames, bumpAt, top = 1372 }) => {
   const frame = useCurrentFrame();
   const p = spring({ frame, fps: FPS, config: { damping: 15, stiffness: 180 } });
   const out = interpolate(frame, [durationInFrames - 8, durationInFrames], [1, 0], clamp);
