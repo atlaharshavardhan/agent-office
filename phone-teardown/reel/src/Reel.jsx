@@ -183,6 +183,14 @@ const LightSweep = ({ at }) => {
   );
 };
 
+/* Trick 1: the 10-layer screen model (separate render), cross-faded over the phone footage */
+const LAYERS_AT = 9.2, LAYERS_DUR = 10;
+const LayersShot = () => {
+  const frame = useCurrentFrame();
+  const a = interpolate(frame, [0, 8, s(LAYERS_DUR) - 8, s(LAYERS_DUR)], [0, 1, 1, 0], clamp);
+  return <AbsoluteFill style={{ opacity: a }}><OffthreadVideo src={staticFile('duo-layers-3d.mp4')} muted /></AbsoluteFill>;
+};
+
 /* the 3D footage, with a quick 5% zoom punch when the numbers land */
 const Footage = () => {
   const frame = useCurrentFrame();
@@ -190,6 +198,7 @@ const Footage = () => {
   return (
     <AbsoluteFill style={{ transform: `scale(${1 + 0.05 * bump})` }}>
       <OffthreadVideo src={staticFile('duo-short-3d.mp4')} muted />
+      <Sequence from={s(LAYERS_AT)} durationInFrames={s(LAYERS_DUR)}><LayersShot /></Sequence>
     </AbsoluteFill>
   );
 };

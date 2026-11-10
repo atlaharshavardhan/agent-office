@@ -44,6 +44,12 @@ Use `stills <dir> 30 <t1> <t2> ...` in place of `video <file> 30` to grab single
 Q='&clean=1' VW=1080 VH=1920 node render.js iphone-duo-short.html video reel/public/duo-short-3d.mp4 30
 ```
 
+The "Trick 1" shot (9.2–19.2 s) is the 10-layer screen model, rendered separately from `iphone-duo-reel-layers.html` (built by `build-duo-reel-layers.py`):
+
+```bash
+Q='&clean=1' VW=1080 VH=1920 node render.js iphone-duo-reel-layers.html video reel/public/duo-layers-3d.mp4 30
+```
+
 ```bash
 cd reel && npm install && npx remotion render src/index.jsx DuoReel out/duo-reel-v2.mp4 --codec=h264 --crf=18
 ```
