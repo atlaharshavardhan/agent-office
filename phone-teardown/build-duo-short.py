@@ -7,6 +7,11 @@ R('<title>iPhone Duo Teardown</title>', '<title>iPhone Duo Fold Short</title>')
 R('</style>', r'''body.short { background: radial-gradient(ellipse 70% 45% at 50% 56%, #0e121a 0%, #05070a 45%, #000 75%) !important; }
 body.short .top, body.short #card, body.short #labels, body.short #title-card, body.short #parts, body.short #controls, body.short #hint { display: none !important; }
 body.clean #cap, body.clean #capbg { display: none !important; }
+#glabels { position: absolute; inset: 0; pointer-events: none; }
+#glabels .gl { position: absolute; left: 0; right: 0; top: 0; height: 0; }
+#glabels .gl span { position: absolute; left: 64px; top: -26px; font-family: var(--font-display); font-weight: 600; font-size: 40px; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.8); white-space: nowrap; }
+#glabels .gl b { position: absolute; top: 0; height: 2px; background: rgba(255,255,255,.55); }
+#glabels .gl i { position: absolute; top: -6px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 5px rgba(240,166,64,.25); }
 #capbg { position: absolute; inset: 0 0 auto; height: 34%; background: linear-gradient(#000 0%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0) 100%); pointer-events: none; }
 #cap { z-index: 2; position: absolute; left: 0; right: 0; top: 10.5%; padding: 0 72px; text-align: center; color: #fff; font-family: var(--font-display); pointer-events: none; will-change: opacity, transform; }
 #cap .big { font-size: 150px; font-weight: 700; letter-spacing: -0.035em; line-height: 1; color: var(--accent); margin-bottom: 18px; }
@@ -20,14 +25,16 @@ R("function dimTarget(p, s) { return s.focus >= 0 && p.index !== s.focus ? 1 : 0
   "function dimTarget(p, s) { if (s.dimMap) return p.id in s.dimMap ? s.dimMap[p.id] : (s.dimDefault ?? 0); return s.focus >= 0 && p.index !== s.focus ? 1 : 0; }")
 R("  const dimB = prev ? ease(clamp01(lt / 0.9)) : 1;", "  const dimB = prev ? ease(clamp01(lt / 0.35)) : 1;")
 R("return { fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,",
-  "return { time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
-R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time);")
+  "return { gl: s.gl ? s.gl(u) : 0, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
+R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl;")
 R("  explode = st.explode; applyExplode(explode);", "  KEEP_ON = st.keepOn; explode = st.explode; applyExplode(explode);")
 
 a = src.index("const CLOSED_T = new THREE.Vector3(38, 0, 3);"); b = src.index("const TOTAL = tAcc;")
 tour = r'''/* ---------- Short: "How does a ₹3 lakh iPhone fold?" (9:16, 40 s) ---------- */
-const P = (tx, ty, tz, az, el, dist) => ({ target: new THREE.Vector3(tx, ty, tz), az, el, dist, shift: 0 });
-const STACK_C = new THREE.Vector3(0, 0, 84);
+const P = (tx, ty, tz, az, el, dist, ax = [0, 1, 0]) => ({ target: new THREE.Vector3(tx, ty, tz), az, el, dist, shift: 0, axis: new THREE.Vector3(...ax) });
+const UP_OPEN = [-1, 0, 0], UP_STACK = [0, 0, 1];  // open phone stands tall (hinge left-right); exploded stack spreads up/down
+const EX = 1.3; // exploded spacing for the reel (spreads the stack down the frame)
+const STACK_C = new THREE.Vector3(0, 0, 72 * EX + 12);
 
 // display stack: ~10 thin layers (illustrative, unlabeled)
 const stackG = new THREE.Group(); stackG.position.copy(STACK_C); scene.add(stackG);
@@ -58,29 +65,71 @@ function applyStack([spread, slide, ph]) {
 const capEl = document.getElementById('cap'); let capHtml = null;
 function setCap([html, a]) { if (html !== capHtml) { capHtml = html; capEl.innerHTML = html; } capEl.style.opacity = a.toFixed(3); capEl.style.transform = `translateY(${((1 - a) * 24).toFixed(1)}px)`; }
 function capAt(s, lt) { const c = (s.caps || []).find(([a, b]) => lt >= a && lt < b); if (!c) return ['', 0]; return [c[2], clamp01(Math.min((lt - c[0]) / 0.22, (c[1] - lt) / 0.18))]; }
+(function portraitInner() {
+  const P = document.createElement('canvas'); P.width = 1100; P.height = 1640; const x = P.getContext('2d');
+  dunes(x, 1100, 1640, 0.4);
+  const cg = x.createLinearGradient(0, 800, 0, 840); cg.addColorStop(0, 'rgba(0,0,0,0)'); cg.addColorStop(0.5, 'rgba(0,0,0,0.04)'); cg.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = cg; x.fillRect(0, 800, 1100, 40);
+  x.fillStyle = '#fff'; x.textAlign = 'left'; x.font = '600 34px sans-serif'; x.fillText('10:08', 80, 70); wifiGlyph(x, 1000, 60, 40);
+  const wg = x.createLinearGradient(0, 120, 0, 400); wg.addColorStop(0, '#3e9cf5'); wg.addColorStop(1, '#2a6fd8'); x.fillStyle = wg; x.beginPath(); x.roundRect(80, 120, 450, 280, 50); x.fill();
+  x.fillStyle = '#fff'; x.font = '600 32px sans-serif'; x.fillText('Bengaluru ➤', 116, 178); x.font = '300 112px sans-serif'; x.fillText('27°', 110, 290); circ(x, 132, 350, 12, '#ffd23f'); x.font = '500 28px sans-serif'; x.fillText('Partly Cloudy', 156, 360);
+  x.save(); x.beginPath(); x.roundRect(570, 120, 450, 280, 50); x.clip(); const pg = x.createLinearGradient(0, 120, 0, 400); pg.addColorStop(0, '#ff9a5a'); pg.addColorStop(0.55, '#ffcf8a'); pg.addColorStop(0.56, '#2f7fa8'); pg.addColorStop(1, '#1d4f73'); x.fillStyle = pg; x.fillRect(570, 120, 450, 280);
+  circ(x, 800, 250, 44, '#fff3c9'); x.fillStyle = '#fff'; x.font = '700 38px sans-serif'; x.fillText('Goa', 600, 350); x.font = '600 22px sans-serif'; x.fillText('DEC 2025', 600, 380); x.restore();
+  const cols = [175, 405, 635, 865], S = 128;
+  [['facetime', 'calendar', 'photos', 'camera'], ['mail', 'notes', 'clock', 'maps']].forEach((r, ri) => r.forEach((k, ci) => appIcon(x, k, cols[ci], 510 + ri * 190, S)));
+  [['weather', 'stocks', 'findmy', 'podcasts'], ['books', 'fitness', 'files', 'preview'], ['news', 'utilities', 'translate', 'freeform']].forEach((r, ri) => r.forEach((k, ci) => appIcon(x, k, cols[ci], 930 + ri * 190, S)));
+  x.fillStyle = 'rgba(255,255,255,0.26)'; x.beginPath(); x.roundRect(90, 1440, 920, 160, 56); x.fill();
+  ['phone', 'safari', 'messages', 'music'].forEach((k, i) => appIcon(x, k, cols[i], 1520, 116, false));
+  circ(x, 536, 1410, 8, '#fff'); circ(x, 564, 1410, 8, 'rgba(255,255,255,0.5)');
+  // rotate the upright layout into the screen texture (open phone stands with its swinging half on top)
+  const sx = innerSharp.getContext('2d'); sx.save(); sx.clearRect(0, 0, 1640, 1100); sx.beginPath(); sx.roundRect(0, 0, 1640, 1100, 86); sx.clip();
+  sx.translate(0, 1100); sx.rotate(-Math.PI / 2); sx.drawImage(P, 0, 0); sx.restore();
+  circ(sx, INNER_HOLE[0], INNER_HOLE[1], 13, 'rgba(0,0,0,0.16)');
+  const b = innerBlur.getContext('2d'); b.clearRect(0, 0, 1640, 1100);
+  const tiny = document.createElement('canvas'); tiny.width = 82; tiny.height = 55; tiny.getContext('2d').drawImage(innerSharp, 0, 0, 82, 55);
+  const mid = document.createElement('canvas'); mid.width = 205; mid.height = 138; mid.getContext('2d').drawImage(tiny, 0, 0, 205, 138);
+  b.drawImage(mid, 0, 0, 1640, 1100); b.fillStyle = 'rgba(235,240,255,0.14)'; b.fillRect(0, 0, 1640, 1100);
+  b.globalCompositeOperation = 'destination-in'; const m = b.createLinearGradient(870, 0, 760, 0); m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(1, 'rgba(0,0,0,1)'); b.fillStyle = m; b.fillRect(0, 0, 1640, 1100);
+  b.beginPath(); b.roundRect(0, 0, 1640, 1100, 86); b.fill(); b.globalCompositeOperation = 'source-over';
+  lastInnerP = -1; composeInner(0); innerTexFull.needsUpdate = true;
+})();
+const GL = [['inner', 'Display'], ['frame', 'Frame + buttons'], ['hinge', 'Hinge'], ['board', 'Logic board'], ['batteries', '2 batteries'], ['cameras', 'Rear cameras'], ['outer', 'Cover screen'], ['back', 'Back glass']];
+const glWrap = document.createElement('div'); glWrap.id = 'glabels'; document.getElementById('app').appendChild(glWrap);
+parts.forEach(p => { const b = new THREE.Box3().setFromObject(p.group); p.lb = new THREE.Vector3(b.min.x, (b.min.y + b.max.y) / 2, (b.min.z + b.max.z) / 2).sub(p.group.position); });
+const glItems = GL.map(([id, name]) => { const el = document.createElement('div'); el.className = 'gl'; el.innerHTML = '<span></span><b></b><i></i>'; el.querySelector('span').textContent = name; glWrap.appendChild(el); return { p: parts.find(q => q.id === id), el }; });
+let GL_ALPHA = 0; const glV = new THREE.Vector3();
+window.groupLabels = (w, h) => {
+  glWrap.style.opacity = GL_ALPHA.toFixed(3); if (GL_ALPHA < 0.01) return;
+  const pts = glItems.map(it => { glV.copy(it.p.lb).add(it.p.group.position).project(camera); return { it, x: (glV.x * 0.5 + 0.5) * w, y: (-glV.y * 0.5 + 0.5) * h }; });
+  pts.sort((a, b) => a.y - b.y); for (let i = 1; i < pts.length; i++) pts[i].ly = Math.max(pts[i].y, (pts[i - 1].ly ?? pts[i - 1].y) + 62); pts[0].ly = pts[0].y;
+  pts.forEach(({ it, x, ly }) => {
+    const el = it.el, span = el.querySelector('span'), line = el.querySelector('b'), dot = el.querySelector('i');
+    const tx = 64 + span.offsetWidth + 18;
+    el.style.transform = `translateY(${ly}px)`; line.style.left = tx + 'px'; line.style.width = Math.max(0, x - tx - 6) + 'px'; dot.style.left = (x - 6) + 'px';
+  });
+};
 const sseg = o => seg(Object.assign({ focus: -1, labels: () => 0, explode: () => 0 }, o));
 const L = (h) => `<div class="line">${h}</div>`;
 
-const S1A = P(36, 0, 3, 2.75, 0.16, 400), S1B = P(30, 0, 3, 0.5, 0.18, 400);
-const OPEN = P(0, 0, 1, 0.38, 0.2, 760), OVER = P(0, 0, 0, 0.6, 0.55, 640);
+const S1A = P(36, 0, 3, 2.75, 0.16, 380), S1B = P(30, 0, 3, 0.5, 0.18, 380);
+const OPEN = P(0, 0, 1, 0.3, 0.22, 530, UP_OPEN), OVER = P(36, 0, 2, 0.12, 0.85, 1080, UP_STACK);
 sseg({ dur: 2.2, fold: t => 1 - 0.3 * ease(clamp01((t - 0.62) / 0.38)), pose: t => lerpPose(S1A, S1B, ease(Math.min(1, t * 1.45))),
   caps: [[0, 2.2, '<div class="big">₹2,99,900</div>' + L('This iPhone <em>folds in half</em>')]] });
 sseg({ dur: 2.8, fold: t => 0.7 * (1 - ease(clamp01(t / 0.78))), pose: t => lerpPose(S1B, OPEN, Math.min(1, ease(t) * 1.4)),
   caps: [[0.05, 1.6, L('But glass <em>cracks</em> when you bend it')], [1.6, 2.8, '<div class="big">So how?</div>']] });
-sseg({ dur: 4, explode: t => ease(clamp01((t - 0.2) / 0.7)), pose: t => lerpPose(OPEN, OVER, ease(t)),
+sseg({ dur: 4, gl: t => clamp01((t * 4 - 2.4) / 0.4) * clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
   caps: [[0.05, 1.7, L('Just <em>5.2 mm</em> thin')], [1.7, 4, L('Let’s open it up')]] });
-sseg({ dur: 10, explode: () => 1, dimMap: { inner: 0.8 }, dimDefault: 0.93,
+sseg({ dur: 10, explode: t => EX + (2.1 - EX) * (1 - ease(clamp01(t * 10 / 1.2))), dimMap: { inner: 0.8 }, dimDefault: 0.93,
   stack: lt => [ease(clamp01((lt - 0.5) / 1.6)) * (1 - ease(clamp01((lt - 9.2) / 0.8))), ease(clamp01((lt - 4.4) / 0.8)), lt],
-  pose: t => P(STACK_C.x, STACK_C.y + 2, STACK_C.z, 0.42 + 0.12 * t, 0.2, 400),
+  pose: t => P(STACK_C.x, STACK_C.y + 2, STACK_C.z, 0.42 + 0.12 * t, 0.2, 430),
   caps: [[0.3, 4.4, L('Trick 1: the screen is <em>~10 thin layers</em>')], [4.4, 10, L('They <em>slide</em> like paper, so nothing snaps')]] });
-sseg({ dur: 5.5, explode: () => 1, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 43 - 5 * t, 23, 0.05 + 0.85 * t, 0.48 - 0.12 * t, 125 - 25 * t),
+sseg({ dur: 5.5, explode: () => EX, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 43 - 5 * t, 22 * EX + 1, 0.05 + 0.85 * t, 0.48 - 0.12 * t, 125 - 25 * t),
   caps: [[0.25, 5.5, L('Trick 2: a hinge of <em>100+ parts</em>') + '<div class="sub">gears · springs · 3D-printed titanium cover</div>']] });
-sseg({ dur: 5.5, explode: t => 1 - ease(clamp01(t * 5.5 / 1.4)), fold: t => 0.74 * ease(clamp01((t * 5.5 - 1.5) / 2.6)),
-  keepOn: true, dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(14, 30, 10, -0.2 - 0.1 * t, 0.95, 330),
+sseg({ dur: 5.5, explode: t => EX * (1 - ease(clamp01(t * 5.5 / 1.4))), fold: t => 0.74 * ease(clamp01((t * 5.5 - 1.5) / 2.6)),
+  keepOn: true, dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(34, 0, 24, 0.08 + 0.06 * t, 1.3, 430, UP_STACK),  // look down onto the V
   caps: [[0.25, 5.5, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });
-sseg({ dur: 6, keepOn: true, fold: t => 0.74 * (1 - ease(clamp01(t * 6 / 1.4))), pose: t => P(0, 30 - 60 * t, 2.6, 1.3, 0.17, 240),
+sseg({ dur: 6, keepOn: true, fold: t => 0.74 * (1 - ease(clamp01(t * 6 / 1.4))), pose: t => P(0, 30 - 60 * t, 2.6, 1.3, 0.17, 330),
   caps: [[0.3, 3.1, L('Bend the same spot <em>again and again</em>')], [3.1, 6, L('…and you get <em>the crease</em> you can feel')]] });
-sseg({ dur: 4, fold: t => ease(clamp01(t * 4 / 2.6)), pose: t => lerpPose(P(0, -30, 2.6, 1.3, 0.17, 240), S1A, ease(t)),
+sseg({ dur: 4, fold: t => ease(clamp01(t * 4 / 2.6)), pose: t => lerpPose(P(0, -30, 2.6, 1.3, 0.17, 330), S1A, ease(t)),
   caps: [[0.2, 4, L('It doesn’t fold like paper.<br>It <em>rolls like a poster.</em>')]] });
 '''
 src = src[:a] + tour + src[b:]
@@ -88,7 +137,21 @@ for a_, b_ in [("if (Math.abs(sx) + Math.abs(sy) > 0.5) camera.setViewOffset(w, 
     assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
 for a_, b_ in [("g.addColorStop(0, 'rgba(0,0,0,0.85)'); g.addColorStop(0.55, 'rgba(0,0,0,0.35)'); g.addColorStop(1, 'rgba(0,0,0,0)');", "g.addColorStop(0, 'rgba(150,170,215,0.17)'); g.addColorStop(0.55, 'rgba(120,140,190,0.06)'); g.addColorStop(1, 'rgba(0,0,0,0)');"),
                ("m.position.set(x, y, z); m.rotation.y = Math.PI; parent.add(m); return m; // faces the back (-z)", "m.position.set(x, y, z); m.rotation.y = Math.PI; m.userData.logo = true; parent.add(m); return m; // faces the back (-z)"),
-               ("const P = (tx, ty, tz, az, el, dist) =>", "root.traverse(o => { if (o.userData.logo) o.visible = false; }); // no Apple logo in the reel\nconst P = (tx, ty, tz, az, el, dist) =>")]:
+               ("const P = (tx, ty, tz, az, el, dist, ax", "root.traverse(o => { if (o.userData.logo) o.visible = false; }); // no Apple logo in the reel\nconst P = (tx, ty, tz, az, el, dist, ax")]:
+    assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
+
+# --- camera orientation: each pose names the world axis that should point UP on screen (lets the open phone stand tall) ---
+for a_, b_ in [
+  ("function clonePose(p) { return { target: p.target.clone(), az: p.az, el: p.el, dist: p.dist, shift: p.shift }; }",
+   "function clonePose(p) { return { target: p.target.clone(), az: p.az, el: p.el, dist: p.dist, shift: p.shift, axis: p.axis ? p.axis.clone() : new THREE.Vector3(0, 1, 0) }; }"),
+  ("function lerpPose(a, b, t) { return { target: a.target.clone().lerp(b.target, t),",
+   "function lerpPose(a, b, t) { return { axis: (a.axis || new THREE.Vector3(0, 1, 0)).clone().lerp(b.axis || new THREE.Vector3(0, 1, 0), t), target: a.target.clone().lerp(b.target, t),"),
+  ("  camera.up.set(0, 1, 0); camera.lookAt(view.target);",
+   "  camera.up.set(0, 1, 0); camera.lookAt(view.target);\n  if (view.axis && view.axis.lengthSq() > 1e-6) { camera.updateMatrixWorld(); const v = view.axis.clone().transformDirection(camera.matrixWorldInverse); if (Math.hypot(v.x, v.y) > 1e-3) camera.rotateZ(Math.atan2(v.y, v.x) - Math.PI / 2); }\n  if (window.shadow) shadow.material.opacity *= Math.max(0, view.axis ? view.axis.y : 1);"),
+  ("camera.setViewOffset(w, h, sx, sy - 0.085 * h, w, h);", "camera.setViewOffset(w, h, sx, sy - 0.045 * h, w, h); // phone centred in the safe zone below the title"),
+]:
+    assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
+for a_, b_ in [("function updateLabels(w, h) {", "function updateLabels(w, h) {\n  if (window.groupLabels) groupLabels(w, h);")]:
     assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
 open('iphone-duo-short.html', 'w').write(src)
 print('ok')

@@ -6,6 +6,7 @@ Illustrative 3D models of the iPhone Duo foldable (9 parts), a modern iPhone (11
 - `iphone-teardown.html`: the interactive explorer. Open it in a browser to rotate the phone, explode or collapse the layers, tap a part to read about it, or play the guided tour.
 - `iphone-teardown.mp4`: the guided tour rendered as a 1920×1080, 30 fps video (about 90 s).
 - `airtag-teardown.html` / `airtag-teardown.mp4`: the same for an AirTag (enclosure, antennas, logic board, speaker, battery tray, CR2032 cell, steel cap). The video is about 65 s.
+- `iphone-duo-screen-layers.html`: the Duo's folding inner screen on its own, split into its 10 layers (cover, adhesive, polarizer, touch sensor, encapsulation, OLED pixels, backplane, polyimide, cushion, metal support plate). Explode and Fold sliders show how each layer bends on a slightly different radius. Apple confirms the count of 10 and the nano-texture cover; the other layers follow the typical foldable OLED stack.
 - `render.js`: renders the tour to MP4 frame by frame with headless Chromium and ffmpeg.
 
 iPhone layers: cover glass, OLED display, TrueDepth camera, frame and mid-plate, logic board, battery, Taptic Engine, speaker/mics/USB-C, rear cameras and LiDAR, MagSafe coil and magnets, back glass.

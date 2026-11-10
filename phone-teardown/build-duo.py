@@ -1,5 +1,5 @@
 import re
-src = open('iphone-teardown.html').read()
+src = open('../phone/iphone-teardown.html').read()
 def R(a, b, n=1):
     global src
     assert src.count(a) == n, (src.count(a), a[:80]); src = src.replace(a, b)
@@ -531,9 +531,10 @@ for a_, b_ in [("new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true,
                ("new THREE.PerspectiveCamera(30, 1, 1, 4000)", "new THREE.PerspectiveCamera(30, 1, 5, 3000)")]:
     assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
 src = src.replace("window.__tour = { total: TOTAL, renderAt(t) { applyState(stateAt(t)); draw(); return true; } };", "window.__tour = { total: TOTAL, renderAt(t) { applyState(stateAt(t)); draw(); return true; }, look(o) { applyState(stateAt(o.t || 0)); if (o.fold != null) { fold = o.fold; applyFold(fold); } Object.assign(view, { target: new THREE.Vector3(o.tx, o.ty, o.tz), az: o.az, el: o.el, dist: o.dist, shift: 0 }); draw(); } };")
+src = src.replace('</style>', '\n.btn { white-space: nowrap; }\n@media (max-width: 820px) {\n  #controls { left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); transform: none; max-width: none; justify-content: space-between; gap: 8px; padding: 6px; border-radius: 16px; flex-wrap: nowrap; }\n  #controls .btn { padding: 8px 12px; font-size: 13px; }\n  #controls label { display: none; }\n  #explode { flex: 1 1 auto; min-width: 50px; width: auto; }\n  #parts { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }\n  #card { bottom: calc(124px + env(safe-area-inset-bottom, 0px)); }\n}\n' + '</style>', 1)
 open('iphone-duo-teardown.html', 'w').write(src)
 
-env = open('build-airtag.py').read()
+env = open('../airtag/build.py').read()
 k0 = env.index('env = r"""') + len('env = r"""'); env = env[k0: env.index('"""', k0)]
 i = src.index('(function makeEnv() {'); j = src.index('})();', i) + 5
 src = src[:i] + env + src[j:]
@@ -542,5 +543,7 @@ for a_, b_ in [("new THREE.HemisphereLight(0xdfe8ff, 0x1a1410, 0.55)", "new THRE
                ("explode = st.explode; applyExplode(explode); fold = st.fold; applyFold(fold);", "explode = st.explode; applyExplode(explode); fold = st.fold; applyFold(fold); updateShadow();"),
                ("if (fold < 1e-3) fold = 0; applyExplode(explode); applyFold(fold);", "if (fold < 1e-3) fold = 0; applyExplode(explode); applyFold(fold); updateShadow();")]:
     assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
+src = src.replace('<div class="eyebrow">Teardown · 9 parts · 5.2 mm open</div>', '<div class="eyebrow">Teardown · 9 parts · 5.2 mm open · <a href="https://claude.ai/artifact/SXUo4GB4f5C9AhS5iwrLtA" target="_top" style="color:var(--fg);text-decoration:underline;text-underline-offset:3px;pointer-events:auto;white-space:nowrap">Screen layers →</a></div>', 1)
+src = src.replace('</style>', '@media (max-width: 820px) { #labels { display: none; } }\n</style>', 1)
 open('iphone-duo-teardown.html', 'w').write(src)
 print('ok')
