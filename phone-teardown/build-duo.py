@@ -128,6 +128,7 @@ function statusBar(x, w, y, s) { x.fillStyle = '#fff'; x.textAlign = 'left'; x.f
 function frosted(x, a, b, c, d, r) { x.fillStyle = 'rgba(255,255,255,0.2)'; x.beginPath(); x.roundRect(a, b, c, d, r); x.fill(); }
 
 /* 1. Inner display */
+const innerScreens = [];
 const innerCanvas = document.createElement('canvas'); innerCanvas.width = 1640; innerCanvas.height = 1100;
 (function drawInner() {
   const x = innerCanvas.getContext('2d'), w = 1640, h = 1100, r = 70;
@@ -154,18 +155,18 @@ const innerCanvas = document.createElement('canvas'); innerCanvas.width = 1640; 
 function innerTex(offset) { const t = new THREE.CanvasTexture(innerCanvas); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; t.repeat.set(0.5, 1); t.offset.set(offset, 0); return t; }
 addPart('inner', [0, 0, 72], { az: 0.42, el: 0.4, k: 0.92 }, [-80, 56, 2.6], g => {
   const body = std(0x0a0a0c, 0.2, 0.5);
-  mesh(extrude(halfL(0.4), 0.6, 0.1), body, 0, 0, 2.25, g);
-  mesh(extrude(halfR(0.4), 0.6, 0.1), body, 0, 0, 2.25, g);
+  mesh(extrude(halfL(1.0), 0.6, 0.1), body, 0, 0, 2.2, g);
+  mesh(extrude(halfR(1.0), 0.6, 0.1), body, 0, 0, 2.2, g);
   const sw = 80.4, sh = 112;
-  [[-1, 0], [1, 0.5]].forEach(([s, off]) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), new THREE.MeshBasicMaterial({ map: innerTex(off), transparent: true, toneMapped: false })); m.position.set(s * sw / 2, 0, 2.6); g.add(m); });
-  const crease = new THREE.Mesh(new THREE.PlaneGeometry(1.4, sh), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.18 })); crease.position.set(-0.7, 0, 2.61); g.add(crease);
+  [[-1, 0], [1, 0.5]].forEach(([s, off]) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), new THREE.MeshBasicMaterial({ map: innerTex(off), transparent: true, toneMapped: false })); m.position.set(s * sw / 2, 0, 2.6); g.add(m); innerScreens.push(m); });
+  const crease = new THREE.Mesh(new THREE.PlaneGeometry(1.4, sh), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.18 })); crease.position.set(-0.7, 0, 2.66); g.add(crease); innerScreens.push(crease);
   mesh(cyl(1.3, 1.0, 24), phys({ color: 0x0b1020, metalness: 0.3, roughness: 0.05, clearcoat: 1 }), 41, 52, 1.6, g); // under-display camera
   box(18, 8, 0.18, std(0xd99a3a, 0.1, 0.45), 30, -50, 1.85, g);
 });
 
 /* 2. Frame halves */
 addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g => {
-  const metal = std(0xb7b2a9, 1, 0.34, { envMapIntensity: 1.1 });
+  const metal = std(0xb7b2a9, 1, 0.4, { envMapIntensity: 1.1 });
   [[halfL(0), halfL(1.6, R)], [halfR(0), halfR(1.6, R)]].forEach(([o, i]) => { const s = o; const hole = i; const hp = new THREE.Path(hole.getPoints(24)); s.holes.push(hp); mesh(extrude(s, D, 0.4), metal, 0, 0, 0, g); });
   const plate = std(0x9aa0a6, 0.8, 0.45);
   const pl = halfL(1.4); pl.holes.push(new THREE.Path(rrShape(27, 43, 7, CAM.x, CAM.y).getPoints(16)));
@@ -203,8 +204,8 @@ addPart('hinge', [0, 0, 22], { az: 0.75, el: 0.45, k: 0.72, t: [0, 40, 0.5], dis
 }, false);
 (function makeSpine() {
   const hp = parts[parts.length - 1];
-  const mat = std(0xb7b2a9, 1, 0.34, { side: THREE.DoubleSide, envMapIntensity: 1.1 });
-  const geo = new THREE.CylinderGeometry(5.65, 5.65, H - 1, 48, 1, true, Math.PI - Math.PI * 0.46, Math.PI * 0.92);
+  const mat = std(0xb7b2a9, 1, 0.4, { side: THREE.DoubleSide, envMapIntensity: 1.1 });
+  const geo = new THREE.CylinderGeometry(5.65, 5.65, H - 0.2, 64, 1, true, Math.PI - Math.PI * 0.46, Math.PI * 0.92);
   spine = new THREE.Mesh(geo, mat); spine.position.set(0, 0, ZF); spine.visible = false; spine.userData.part = hp;
   mat.userData.baseOpacity = 1; mat.userData.baseTransparent = false; mat.userData.baseDepthWrite = true;
   hp.group.add(spine);
@@ -281,10 +282,10 @@ const outerTex = canvasTex(760, 1100, (x, w, h) => {
   ['phone', 'safari', 'messages', 'music'].forEach((k, i) => appIcon(x, k, cols[i], 1015, 112, false));
 });
 addPart('outer', [0, 0, -52], { az: 2.95, el: 0.28, k: 1.0 }, [80, 56, -2.5], g => {
-  mesh(extrude(halfR(0.2), 0.7, 0.15), std(0x0a0a0c, 0.2, 0.5), 0, 0, -2.25, g);
+  mesh(extrude(halfR(0.9), 0.7, 0.15), std(0x0a0a0c, 0.2, 0.5), 0, 0, -2.32, g);
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(76, 110), new THREE.MeshBasicMaterial({ map: outerTex, transparent: true, toneMapped: false }));
-  scr.position.set(41.5, 0, -2.62); scr.rotation.y = Math.PI; g.add(scr);
-  const gl = new THREE.Mesh(extrude(halfR(0.1), 0.15, 0.05), phys({ color: 0xdfefff, transparent: true, opacity: 0.12, roughness: 0.04, clearcoat: 1, envMapIntensity: 2, depthWrite: false })); gl.position.z = -2.7; g.add(gl);
+  scr.position.set(41.5, 0, -2.68); scr.rotation.y = Math.PI; g.add(scr);
+  const gl = new THREE.Mesh(extrude(halfR(1.0), 0.15, 0.05), phys({ color: 0xdfefff, transparent: true, opacity: 0.12, roughness: 0.04, clearcoat: 1, envMapIntensity: 2, depthWrite: false })); gl.position.z = -2.82; g.add(gl);
   mesh(cyl(1.6, 1.6, 24), std(0x2e3136, 0.8, 0.38), 41.5, 52, -1.5, g); // outer front camera
   box(14, 3, 0.18, std(0xd99a3a, 0.1, 0.45), 52, 46, -1.2, g);
 });
@@ -292,13 +293,13 @@ addPart('outer', [0, 0, -52], { az: 2.95, el: 0.28, k: 1.0 }, [80, 56, -2.5], g 
 /* 9. Back cover (left half) */
 addPart('back', [0, 0, -68], { az: 3.35, el: 0.25, k: 0.95 }, [-82, -50, -2.6], g => {
   const back = phys({ color: 0x15223c, metalness: 0.15, roughness: 0.5, clearcoat: 0.6, clearcoatRoughness: 0.3, envMapIntensity: 0.55 });
-  mesh(extrude(halfL(0.2), 0.7, 0.15), back, 0, 0, -2.25, g);
+  mesh(extrude(halfL(0.9), 0.7, 0.15), back, 0, 0, -2.32, g);
   mesh(extrude(rrShape(24, 40, 8, CAM.x, CAM.y), 1.1, 0.35), phys({ color: 0x1a2a48, metalness: 0.15, roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 0.7 }), 0, 0, -3.1, g);
   const ring = std(0xb7b2a9, 1, 0.18);
   const lensG = phys({ color: 0x050a14, metalness: 0.3, roughness: 0.03, clearcoat: 1, envMapIntensity: 2.4 });
   [[CAM.y + 9, 7.2], [CAM.y - 9, 6.6]].forEach(([y, r]) => { mesh(cyl(r, 1.0, 48), ring, CAM.x, y, -4.0, g); mesh(cyl(r * 0.8, 1.05, 48), lensG, CAM.x, y, -4.02, g); });
   mesh(cyl(1.8, 0.4, 24), std(0xf1ead8, 0.1, 0.3), CAM.x + 8.5, CAM.y, -3.75, g);
-  logoDecal(19, phys({ color: 0x9fb0c8, metalness: 0.85, roughness: 0.1, clearcoat: 1 }), -41, -10, -2.63, g);
+  logoDecal(19, phys({ color: 0x9fb0c8, metalness: 0.85, roughness: 0.1, clearcoat: 1 }), -41, -10, -2.68, g);
 });
 
 const shadowTex = canvasTex(256, 256, (x, w, h) => { const g = x.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, 'rgba(0,0,0,0.85)'); g.addColorStop(0.55, 'rgba(0,0,0,0.35)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
@@ -306,7 +307,7 @@ const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasic
 shadow.rotation.x = -Math.PI / 2; shadow.position.y = -H / 2 - 0.6; scene.add(shadow);
 let fold = 0;
 function updateShadow() { shadow.position.x = -40 * fold; shadow.position.z = 3 * fold; shadow.scale.set(200 - 95 * fold, 34 + 6 * fold, 1); shadow.material.opacity = 0.7 * clamp01(1 - explode * 4); shadow.visible = shadow.material.opacity > 0.01; }
-function applyFold(f) { parts.forEach(p => { p.pivot.rotation.y = -Math.PI * f; }); spine.rotation.y = -Math.PI / 2 * f; spine.visible = f > 0.02; updateShadow(); }
+function applyFold(f) { parts.forEach(p => { p.pivot.rotation.y = -Math.PI * f; }); spine.rotation.y = -Math.PI / 2 * f; spine.visible = f > 0.02; innerScreens.forEach(m => { m.visible = f < 0.85; }); updateShadow(); }
 
 '''
 a = src.index('/* ---------------- Phone dimensions (mm) ---------------- */'); b = src.index('/* ---------------- View / state ---------------- */')
@@ -370,6 +371,9 @@ for a_, b_ in [
 ]: R(a_, b_)
 R("const c = p.center.clone().add(p.offset);\n  const dist = Math.max(p.radius / Math.sin(FOV / 2) * p.view.k, 70);",
   "const c = (p.view.t ? new THREE.Vector3(...p.view.t) : p.center.clone()).add(p.offset);\n  const dist = p.view.dist || Math.max(p.radius / Math.sin(FOV / 2) * p.view.k, 70);")
+for a_, b_ in [("new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: RENDER })", "new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: RENDER, logarithmicDepthBuffer: true })"),
+               ("new THREE.PerspectiveCamera(30, 1, 1, 4000)", "new THREE.PerspectiveCamera(30, 1, 5, 3000)")]:
+    assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
 open('iphone-duo-teardown.html', 'w').write(src)
 
 env = open('build-airtag.py').read()
