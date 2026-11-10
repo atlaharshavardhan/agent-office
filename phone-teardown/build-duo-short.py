@@ -10,7 +10,8 @@ body.clean #cap, body.clean #capbg { display: none !important; }
 #glabels { position: absolute; inset: 0; pointer-events: none; }
 #glabels .gl { position: absolute; left: 0; right: 0; top: 0; height: 0; }
 #glabels .gl span { position: absolute; left: 64px; top: -26px; font-family: var(--font-display); font-weight: 600; font-size: 40px; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.8); white-space: nowrap; }
-#glabels .gl b { position: absolute; top: 0; height: 2px; background: rgba(255,255,255,.55); }
+#glabels .gl span em { font-style: normal; font-family: var(--font-mono); font-weight: 500; font-size: 28px; color: var(--accent); margin-right: 14px; }
+#glabels .gl b { position: absolute; top: 0; height: 2px; background: rgba(240,166,64,.75); }
 #glabels .gl i { position: absolute; top: -6px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 5px rgba(240,166,64,.25); }
 #capbg { position: absolute; inset: 0 0 auto; height: 34%; background: linear-gradient(#000 0%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0) 100%); pointer-events: none; }
 #cap { z-index: 2; position: absolute; left: 0; right: 0; top: 10.5%; padding: 0 72px; text-align: center; color: #fff; font-family: var(--font-display); pointer-events: none; will-change: opacity, transform; }
@@ -25,8 +26,10 @@ R("function dimTarget(p, s) { return s.focus >= 0 && p.index !== s.focus ? 1 : 0
   "function dimTarget(p, s) { if (s.dimMap) return p.id in s.dimMap ? s.dimMap[p.id] : (s.dimDefault ?? 0); return s.focus >= 0 && p.index !== s.focus ? 1 : 0; }")
 R("  const dimB = prev ? ease(clamp01(lt / 0.9)) : 1;", "  const dimB = prev ? ease(clamp01(lt / 0.35)) : 1;")
 R("return { fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,",
-  "return { gl: s.gl ? s.gl(u) : 0, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
-R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl;")
+  "return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, wake: s.wake ? s.wake(u) : 1, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
+R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake;")
+R("var KEEP_ON = false, lastInnerP = 0, lastOuterP = 1;", "var KEEP_ON = false, WAKE = 1, lastInnerP = 0, lastOuterP = 1;")
+R("  innerScr.material.color.setScalar(ease(on));", "  innerScr.material.color.setScalar(ease(on) * WAKE);")
 R("  explode = st.explode; applyExplode(explode);", "  KEEP_ON = st.keepOn; explode = st.explode; applyExplode(explode);")
 
 a = src.index("const CLOSED_T = new THREE.Vector3(38, 0, 3);"); b = src.index("const TOTAL = tAcc;")
@@ -92,31 +95,39 @@ function capAt(s, lt) { const c = (s.caps || []).find(([a, b]) => lt >= a && lt 
   b.beginPath(); b.roundRect(0, 0, 1640, 1100, 86); b.fill(); b.globalCompositeOperation = 'source-over';
   lastInnerP = -1; composeInner(0); innerTexFull.needsUpdate = true;
 })();
-const GL = [['inner', 'Display'], ['frame', 'Frame + buttons'], ['hinge', 'Hinge'], ['board', 'Logic board'], ['batteries', '2 batteries'], ['cameras', 'Rear cameras'], ['outer', 'Cover screen'], ['back', 'Back glass']];
+const GL = [['inner', 'Display', 1], ['frame', 'Frame + buttons', 2], ['hinge', 'Hinge', 3], ['board', 'Logic board', 4], ['batteries', '2 batteries', 5], ['cameras', 'Rear cameras', 7], ['outer', 'Cover screen', 6], ['back', 'Back glass', 8]];
 const glWrap = document.createElement('div'); glWrap.id = 'glabels'; document.getElementById('app').appendChild(glWrap);
 parts.forEach(p => { const b = new THREE.Box3().setFromObject(p.group); p.lb = new THREE.Vector3(b.min.x, (b.min.y + b.max.y) / 2, (b.min.z + b.max.z) / 2).sub(p.group.position); });
-const glItems = GL.map(([id, name]) => { const el = document.createElement('div'); el.className = 'gl'; el.innerHTML = '<span></span><b></b><i></i>'; el.querySelector('span').textContent = name; glWrap.appendChild(el); return { p: parts.find(q => q.id === id), el }; });
+const glItems = GL.map(([id, name, n]) => { const el = document.createElement('div'); el.className = 'gl'; el.innerHTML = '<span><em>0' + n + '</em></span><b></b><i></i>'; el.querySelector('span').append(name); glWrap.appendChild(el); return { p: parts.find(q => q.id === id), el, n }; });
+let GL_OUT = 1;
 let GL_ALPHA = 0; const glV = new THREE.Vector3();
 window.groupLabels = (w, h) => {
-  glWrap.style.opacity = GL_ALPHA.toFixed(3); if (GL_ALPHA < 0.01) return;
+  glWrap.style.opacity = (GL_ALPHA > 0 ? GL_OUT : 0).toFixed(3); if (GL_ALPHA < 0.01 || GL_OUT < 0.01) return;
   const pts = glItems.map(it => { glV.copy(it.p.lb).add(it.p.group.position).project(camera); return { it, x: (glV.x * 0.5 + 0.5) * w, y: (-glV.y * 0.5 + 0.5) * h }; });
   pts.sort((a, b) => a.y - b.y); for (let i = 1; i < pts.length; i++) pts[i].ly = Math.max(pts[i].y, (pts[i - 1].ly ?? pts[i - 1].y) + 62); pts[0].ly = pts[0].y;
   pts.forEach(({ it, x, ly }) => {
     const el = it.el, span = el.querySelector('span'), line = el.querySelector('b'), dot = el.querySelector('i');
     const tx = 64 + span.offsetWidth + 18;
+    const k = it.n - 1, a = clamp01((GL_ALPHA * 10 - k) / 2), pop = Math.sin(Math.PI * a);  // one by one, top to bottom
+    el.style.opacity = a.toFixed(3); dot.style.transform = `scale(${1 + 0.9 * pop})`;
     el.style.transform = `translateY(${ly}px)`; line.style.left = tx + 'px'; line.style.width = Math.max(0, x - tx - 6) + 'px'; dot.style.left = (x - 6) + 'px';
   });
 };
 const sseg = o => seg(Object.assign({ focus: -1, labels: () => 0, explode: () => 0 }, o));
 const L = (h) => `<div class="line">${h}</div>`;
 
-const S1A = P(36, 0, 3, 2.75, 0.16, 380), S1B = P(30, 0, 3, 0.5, 0.18, 380);
-const OPEN = P(0, 0, 1, 0.3, 0.22, 530, UP_OPEN), OVER = P(36, 0, 2, 0.12, 0.85, 1080, UP_STACK);
-sseg({ dur: 2.2, fold: t => 1 - 0.3 * ease(clamp01((t - 0.62) / 0.38)), pose: t => lerpPose(S1A, S1B, ease(Math.min(1, t * 1.45))),
+const S1A = P(36, 0, 3, 2.75, 0.16, 380);  // closed, back three-quarter (end of the tour)
+// Apple-style reveal: slow turntable close-up of the closed phone, swing to face the viewer, open towards the camera
+const BACK0 = P(36, 0, 3, 2.45, 0.1, 500), BACK1 = P(36, 0, 3, 3.3, 0.14, 455);
+const FRONT_C = P(36, 0, 3, 0.1, 0.06, 440);                 // closed, cover screen facing us
+const OPEN = P(0, 0, 1, 0.04, 0.08, 560, UP_OPEN), OVER = P(36, 0, 2, 0.12, 0.85, 1080, UP_STACK);
+sseg({ dur: 2.2, fold: () => 1, pose: t => lerpPose(BACK0, BACK1, ease(t)),
   caps: [[0, 2.2, '<div class="big">₹2,99,900</div>' + L('This iPhone <em>folds in half</em>')]] });
-sseg({ dur: 2.8, fold: t => 0.7 * (1 - ease(clamp01(t / 0.78))), pose: t => lerpPose(S1B, OPEN, Math.min(1, ease(t) * 1.4)),
+sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 0.75) / 1.55)),
+  wake: t => 1 + 0.22 * Math.sin(Math.PI * clamp01((t * 2.8 - 2.0) / 0.8)),       // little Apple-style glow as the screen lands flat
+  pose: t => { const T = t * 2.8; return T < 0.8 ? lerpPose(BACK1, FRONT_C, ease(T / 0.8)) : lerpPose(FRONT_C, OPEN, ease(clamp01((T - 0.75) / 1.75))); },
   caps: [[0.05, 1.6, L('But glass <em>cracks</em> when you bend it')], [1.6, 2.8, '<div class="big">So how?</div>']] });
-sseg({ dur: 4, gl: t => clamp01((t * 4 - 2.4) / 0.4) * clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
+sseg({ dur: 4, gl: t => clamp01((t * 4 - 2.25) / 1.0), glo: t => clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
   caps: [[0.05, 1.7, L('Just <em>5.2 mm</em> thin')], [1.7, 4, L('Let’s open it up')]] });
 sseg({ dur: 10, explode: t => EX + (2.1 - EX) * (1 - ease(clamp01(t * 10 / 1.2))), dimMap: { inner: 0.8 }, dimDefault: 0.93,
   stack: lt => [ease(clamp01((lt - 0.5) / 1.6)) * (1 - ease(clamp01((lt - 9.2) / 0.8))), ease(clamp01((lt - 4.4) / 0.8)), lt],
@@ -129,8 +140,13 @@ sseg({ dur: 5.5, explode: t => EX * (1 - ease(clamp01(t * 5.5 / 1.4))), fold: t 
   caps: [[0.25, 5.5, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });
 sseg({ dur: 6, keepOn: true, fold: t => 0.74 * (1 - ease(clamp01(t * 6 / 1.4))), pose: t => P(0, 30 - 60 * t, 2.6, 1.3, 0.17, 330),
   caps: [[0.3, 3.1, L('Bend the same spot <em>again and again</em>')], [3.1, 6, L('…and you get <em>the crease</em> you can feel')]] });
-sseg({ dur: 4, fold: t => ease(clamp01(t * 4 / 2.6)), pose: t => lerpPose(P(0, -30, 2.6, 1.3, 0.17, 330), S1A, ease(t)),
+// Apple-style close: face the viewer, fold shut towards the camera (soft ease-in, firm landing at 38.9 s), then turn to the back
+const CREASE_END = P(0, -30, 2.6, 1.3, 0.17, 330), BACK_HERO = P(36, 0, 3, -1.25, 0.1, 330);
+sseg({ dur: 4, fold: t => { const T = t * 4; const u = clamp01((T - 0.9) / 1.6); return u * u * (1.6 - 0.6 * u); },
+  pose: t => { const T = t * 4; return T < 0.95 ? lerpPose(CREASE_END, OPEN, ease(T / 0.95)) : T < 2.5 ? lerpPose(OPEN, FRONT_C, ease((T - 0.95) / 1.55)) : lerpPose(FRONT_C, BACK_HERO, ease((T - 2.5) / 1.5)); },
   caps: [[0.2, 4, L('It doesn’t fold like paper.<br>It <em>rolls like a poster.</em>')]] });
+// end card backdrop: slow hero turn of the closed phone, high in the frame (the channel card sits underneath)
+sseg({ dur: 5, fold: () => 1, pose: t => lerpPose(BACK_HERO, P(36, -48, 3, -2.25, 0.12, 470), ease(t)), caps: [] });
 '''
 src = src[:a] + tour + src[b:]
 for a_, b_ in [("if (Math.abs(sx) + Math.abs(sy) > 0.5) camera.setViewOffset(w, h, sx, sy, w, h); else camera.clearViewOffset();", "camera.setViewOffset(w, h, sx, sy - 0.085 * h, w, h);")]:
@@ -148,7 +164,7 @@ for a_, b_ in [
    "function lerpPose(a, b, t) { return { axis: (a.axis || new THREE.Vector3(0, 1, 0)).clone().lerp(b.axis || new THREE.Vector3(0, 1, 0), t), target: a.target.clone().lerp(b.target, t),"),
   ("  camera.up.set(0, 1, 0); camera.lookAt(view.target);",
    "  camera.up.set(0, 1, 0); camera.lookAt(view.target);\n  if (view.axis && view.axis.lengthSq() > 1e-6) { camera.updateMatrixWorld(); const v = view.axis.clone().transformDirection(camera.matrixWorldInverse); if (Math.hypot(v.x, v.y) > 1e-3) camera.rotateZ(Math.atan2(v.y, v.x) - Math.PI / 2); }\n  if (window.shadow) shadow.material.opacity *= Math.max(0, view.axis ? view.axis.y : 1);"),
-  ("camera.setViewOffset(w, h, sx, sy - 0.085 * h, w, h);", "camera.setViewOffset(w, h, sx, sy - 0.045 * h, w, h); // phone centred in the safe zone below the title"),
+  ("camera.setViewOffset(w, h, sx, sy - 0.085 * h, w, h);", "camera.setViewOffset(w, h, sx, sy - 0.085 * h, w, h); // phone sits lower, clear of the captions"),
 ]:
     assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
 for a_, b_ in [("function updateLabels(w, h) {", "function updateLabels(w, h) {\n  if (window.groupLabels) groupLabels(w, h);")]:

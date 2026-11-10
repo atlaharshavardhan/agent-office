@@ -51,24 +51,40 @@ const SWAP = 7; // frames for the slide-up swap
 const SWEEPS = [9.12, 19.12];                // light sweep on the "trick" reveals
 const PUNCHES = [11.28, 20.48];              // zoom punch when the counters land
 
-/* ---------- sound design (seconds, volume) — kept under the narration ---------- */
+/* ---------- sound design (seconds, volume) — public/sfx2, synthesised by sfx/make_sound.py ---------- */
 const SFX = [
-  ['hit.wav', 0.02, 0.7],
-  ['whoosh.wav', 1.9, 0.4],           // starts opening
-  ['riser.wav', 3.3, 0.35],
-  ['hit.wav', 4.7, 0.55],             // "So how?"
-  ['whoosh.wav', 5.15, 0.4],          // explode
-  ['whoosh-short.wav', 9.08, 0.45],   // sweep → screen layers
-  ['whoosh-short.wav', 19.08, 0.45],  // sweep → hinge
-  ['whoosh.wav', 24.6, 0.35],         // pull back as it closes
-  ['whoosh-short.wav', 30.1, 0.3],
-  ['whoosh.wav', 36.1, 0.4],          // fold shut
-  ['snap.wav', 38.55, 0.6],           // halves meet
-  ...PUNCHES.map((t) => ['snap.wav', t, 0.45]),
+  ['impact.wav', 0.0, 0.55], ['shimmer.wav', 0.05, 0.35],      // cold open on the price
+  ['whoosh-soft.wav', 2.1, 0.45],                               // turns to face you
+  ['open.wav', 2.92, 0.7],                                      // magnetic release, halves part
+  ['chime.wav', 4.15, 0.4],                                     // screen wakes as it lands flat
+  ['impact.wav', 4.7, 0.6],                                     // "So how?"
+  ['whoosh.wav', 5.05, 0.5],                                    // explode
+  ['whoosh-fast.wav', 9.02, 0.5],                               // sweep → screen layers
+  ['impact-small.wav', 11.28, 0.55],                            // counter lands on 10
+  ['bend.wav', 13.35, 0.5], ['unbend.wav', 16.8, 0.45],         // layers bend and flatten
+  ['whoosh-fast.wav', 19.02, 0.5],                              // sweep → hinge
+  ['ratchet.wav', 19.55, 0.55], ['impact-small.wav', 20.48, 0.5],
+  ['whoosh-soft.wav', 24.45, 0.45],                             // looking down into the V
+  ['whoosh-soft.wav', 29.95, 0.4],                              // crease
+  ['whoosh-soft.wav', 35.9, 0.45],                              // turns to face you
+  ['close.wav', 38.445, 0.95],                                  // the satisfying close
+  ['whoosh.wav', 38.85, 0.35],                                  // turn to the back
+  ['shimmer.wav', 40.1, 0.4], ['impact-small.wav', 40.15, 0.45],// channel card
+  ['tap.wav', 41.85, 0.6], ['pluck7.wav', 42.45, 0.5], ['pluck9.wav', 43.05, 0.45],  // like · heart · comment
 ];
-const POPS = TEXT.filter((x) => !x.kind).map((x) => x.at);
-const LAYER_TICKS = Array.from({ length: 10 }, (_, i) => 9.62 + i * 0.16);
-const PART_TICKS = Array.from({ length: 8 }, (_, i) => 19.55 + i * 0.11);
+// a soft rising pluck as each numbered label appears (exploded phone, then the 10 screen layers)
+const PART_PLUCKS = Array.from({ length: 8 }, (_, i) => [7.27 + i * 0.1, i]);
+const LAYER_PLUCKS = Array.from({ length: 10 }, (_, i) => [10.12 + i * 0.13, i]);
+const VO_LEN = { l1: 2.347, l2: 2.432, l3: 3.392, l4: 8.469, l5: 10.773, l6: 5.76, l7: 3.179, l8: 2.752 };
+// music: louder in the gaps, tucked under George
+const musicVolume = (f) => {
+  const t = f / FPS;
+  const talking = VO.some(([k, at]) => t > at - 0.15 && t < at + VO_LEN[k] + 0.1);
+  const near = VO.reduce((m, [k, at]) => Math.min(m, Math.abs(t - (at - 0.15)), Math.abs(t - (at + VO_LEN[k] + 0.1))), 9);
+  const base = talking ? 0.16 : 0.34;
+  const other = talking ? 0.34 : 0.16;
+  return near < 0.2 ? base + (other - base) * (1 - near / 0.2) * 0.5 : base;
+};
 
 /* ---------- helpers ---------- */
 const parseWords = (text) => {
@@ -132,7 +148,7 @@ const TextTrack = () => {
   const local = frame - s(TEXT[cur].at);
   const prev = cur > 0 && local < SWAP ? cur - 1 : -1;
   const p = interpolate(local, [0, SWAP], [0, 1], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 3) });
-  const wrap = (children, style) => <div style={{ position: 'absolute', top: 268, left: 60, right: 60, ...style }}>{children}</div>;
+  const wrap = (children, style) => <div style={{ position: 'absolute', top: 215, left: 60, right: 60, ...style }}>{children}</div>;
   return (
     <AbsoluteFill>
       {prev >= 0 ? wrap(<Block entry={TEXT[prev]} local={frame - s(TEXT[prev].at)} />, { opacity: 1 - p, transform: `translateY(${-70 * p}px)` }) : null}
@@ -216,24 +232,59 @@ const Chrome = () => {
 };
 
 /* ---------- the reel ---------- */
-/* 40–45 s: channel end card */
-const END_AT = 39.7;
+/* 40–45 s: channel end card over the 3D hero shot — InvisiTech wordmark, handle, like · heart · comment */
+const END_AT = 40.0;
+const Thumb = ({ fill }) => (
+  <svg width="104" height="104" viewBox="0 0 24 24"><path d="M7 10v11H3V10h4zm2 11h9.2a2 2 0 0 0 2-1.6l1.3-6.6A2 2 0 0 0 19.5 10H14l.9-4.3a1.6 1.6 0 0 0-2.9-1.2L9 9.6V21z" fill={fill} /></svg>
+);
+const Heart = ({ fill, stroke }) => (
+  <svg width="104" height="104" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.6 1.1 5 2.9 1.4-1.8 3-2.9 5-2.9 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z" fill={fill} stroke={stroke} strokeWidth="1.6" strokeLinejoin="round" /></svg>
+);
+const Bubble = ({ stroke }) => (
+  <svg width="104" height="104" viewBox="0 0 24 24"><path d="M12 3.5c4.9 0 8.5 3.4 8.5 7.8s-3.6 7.8-8.5 7.8c-1.2 0-2.3-.2-3.3-.5L4 20.5l1.3-4.1A7.4 7.4 0 0 1 3.5 11.3C3.5 6.9 7.1 3.5 12 3.5z" fill="none" stroke={stroke} strokeWidth="1.6" strokeLinejoin="round" /></svg>
+);
 const EndCard = () => {
   const frame = useCurrentFrame();
-  const bg = interpolate(frame, [0, 9], [0, 1], clamp);
-  const logo = spring({ frame: frame - 8, fps: FPS, config: { damping: 12, stiffness: 160 } });
-  const t1 = spring({ frame: frame - 16, fps: FPS, config: { damping: 16, stiffness: 170 } });
-  const t2 = spring({ frame: frame - 24, fps: FPS, config: { damping: 16, stiffness: 170 } });
-  const glow = 0.5 + 0.5 * Math.sin(frame / 9);
+  const sp = (d, cfg = { damping: 14, stiffness: 170 }) => spring({ frame: frame - d, fps: FPS, config: cfg });
+  const shade = interpolate(frame, [0, 12], [0, 1], clamp);
+  const word = sp(4), handle = sp(12), follow = sp(20);
+  const icon = (d) => sp(d, { damping: 11, stiffness: 200 });
+  const tapAt = s(1.85), heartAt = s(2.45), cmtAt = s(3.05);
+  const press = interpolate(frame - tapAt, [0, 3, 7, 12], [1, 0.82, 1.12, 1], clamp);
+  const liked = frame >= tapAt + 3;
+  const hp = interpolate(frame - heartAt, [0, 4, 10], [1, 1.3, 1], clamp);
+  const filled = frame >= heartAt + 2;
+  const cp = interpolate(frame - cmtAt, [0, 4, 10], [1, 1.22, 1], clamp);
+  const ring = (at) => { const u = (frame - at) / 14; return u > 0 && u < 1 ? <div style={{ position: 'absolute', inset: -18, borderRadius: '50%', border: `4px solid rgba(91,200,224,${0.7 * (1 - u)})`, transform: `scale(${0.7 + 0.7 * u})` }} /> : null; };
+  const slot = (child, i, scale, at) => (
+    <div style={{ position: 'relative', transform: `translateY(${(1 - icon(26 + i * 4)) * 50}px) scale(${Math.min(1, icon(26 + i * 4)) * scale})`, opacity: Math.min(1, icon(26 + i * 4)) }}>{ring(at)}{child}</div>
+  );
   return (
-    <AbsoluteFill style={{ opacity: bg, background: 'radial-gradient(ellipse 60% 38% at 50% 44%, #141b26 0%, #05070a 62%, #000 100%)', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 34, marginTop: -120 }}>
-        <Img src={staticFile('logo.png')} style={{ width: 300, height: 300, transform: `scale(${logo})`, opacity: Math.min(1, logo), filter: `drop-shadow(0 0 ${30 + 30 * glow}px rgba(240,166,64,0.45))` }} />
-        <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 76, color: C.white, letterSpacing: '-0.01em', transform: `translateY(${(1 - t1) * 40}px)`, opacity: Math.min(1, t1) }}>@TheInvisiTech</div>
-        <div style={{ fontFamily: 'Sora', fontWeight: 600, fontSize: 44, color: C.accent, transform: `translateY(${(1 - t2) * 40}px)`, opacity: Math.min(1, t2) }}>Follow for more tech, explained</div>
+    <AbsoluteFill>
+      <AbsoluteFill style={{ opacity: shade, background: 'linear-gradient(rgba(0,0,0,0) 45%, rgba(3,6,14,0.75) 62%, rgba(3,6,14,0.92) 100%)' }} />
+      <div style={{ position: 'absolute', top: 1095, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 150, letterSpacing: '-0.03em', lineHeight: 1, transform: `scale(${0.85 + 0.15 * Math.min(1, word)})`, opacity: Math.min(1, word), textShadow: '0 8px 40px rgba(0,0,0,0.6)' }}>
+          <span style={{ color: C.white }}>Invisi</span><span style={{ color: '#5bc8e0' }}>Tech</span>
+        </div>
+        <div style={{ marginTop: 22, fontFamily: 'Sora', fontWeight: 700, fontSize: 60, color: C.white, opacity: Math.min(1, handle), transform: `translateY(${(1 - handle) * 30}px)` }}>@TheInvisiTech</div>
+        <div style={{ marginTop: 14, fontFamily: 'Sora', fontWeight: 600, fontSize: 38, color: C.accent, opacity: Math.min(1, follow), transform: `translateY(${(1 - follow) * 30}px)` }}>Like · follow for more</div>
+        <div style={{ marginTop: 34, display: 'flex', gap: 120, alignItems: 'center' }}>
+          {slot(<Thumb fill={liked ? '#5bc8e0' : '#ffffff'} />, 0, press, tapAt)}
+          {slot(<Heart fill={filled ? '#ff3b5c' : 'none'} stroke={filled ? '#ff3b5c' : '#ffffff'} />, 1, hp, heartAt)}
+          {slot(<Bubble stroke="#ffffff" />, 2, cp, cmtAt)}
+        </div>
       </div>
     </AbsoluteFill>
   );
+};
+
+/* watermark: left edge, middle of the frame, transparent (no pill); steps aside while labels use the left column */
+const Watermark = () => {
+  const frame = useCurrentFrame();
+  const t = frame / FPS;
+  const away = [[7.1, 9.05], [10.0, 13.6]].some(([a, b]) => t > a - 0.25 && t < b + 0.25);
+  const k = [[7.1, 9.05], [10.0, 13.6]].reduce((m, [a, b]) => Math.min(m, interpolate(t, [a - 0.25, a, b, b + 0.25], [1, 0, 0, 1], clamp)), 1);
+  return <Img src={staticFile('watermark-clear.png')} style={{ position: 'absolute', left: 30, top: 960 - 27, height: 54, opacity: 0.55 * (away ? k : 1) }} />;
 };
 
 export const Reel = () => (
@@ -241,21 +292,19 @@ export const Reel = () => (
     <Footage />
     {SWEEPS.map((t) => <LightSweep key={t} at={t} />)}
     <Chrome />
-    <TextTrack />
+    <Sequence durationInFrames={s(END_AT + 0.3)}><TextTrack /></Sequence>
 
-    <Sequence from={s(9.55)} durationInFrames={s(9.3)}><CountChip to={10} label="ultrathin layers" countFrames={s(1.6)} durationInFrames={s(9.3)} /></Sequence>
+    <Sequence from={s(9.95)} durationInFrames={s(8.9)}><CountChip to={10} label="ultrathin layers" countFrames={s(1.2)} durationInFrames={s(8.9)} /></Sequence>
     <Sequence from={s(19.45)} durationInFrames={s(5.2)}><CountChip to={100} suffix="+" label="hinge parts" countFrames={s(0.9)} durationInFrames={s(5.2)} /></Sequence>
     <Sequence from={s(END_AT)}><EndCard /></Sequence>
-    <Sequence from={s(END_AT)}><Audio src={staticFile('sfx/whoosh-short.wav')} volume={0.3} /></Sequence>
-    <Sequence from={s(END_AT + 0.3)}><Audio src={staticFile('sfx/pop.wav')} volume={0.3} /></Sequence>
+    <Watermark />
 
     {/* narration */}
     {VO.map(([f, t]) => <Sequence key={f} from={s(t)}><Audio src={staticFile(`vo/${f}.wav`)} volume={1} /></Sequence>)}
-    {/* music bed, ducked under the voice */}
-    <Audio src={staticFile('sfx/bed45.wav')} volume={0.28} />
-    {SFX.map(([f, t, v], k) => <Sequence key={'sfx' + k} from={s(t)}><Audio src={staticFile('sfx/' + f)} volume={v} /></Sequence>)}
-    {POPS.map((t, k) => <Sequence key={'pop' + k} from={s(t)}><Audio src={staticFile('sfx/pop.wav')} volume={0.22} /></Sequence>)}
-    {LAYER_TICKS.map((t, k) => <Sequence key={'lt' + k} from={s(t)}><Audio src={staticFile('sfx/tick.wav')} volume={0.3} /></Sequence>)}
-    {PART_TICKS.map((t, k) => <Sequence key={'pt' + k} from={s(t)}><Audio src={staticFile('sfx/tick.wav')} volume={0.28} /></Sequence>)}
+    {/* music bed (sfx/make_sound.py), ducked under the voice */}
+    <Audio src={staticFile('sfx2/music.wav')} volume={musicVolume} />
+    {SFX.map(([f, t, v], k) => <Sequence key={'sfx' + k} from={s(t)}><Audio src={staticFile('sfx2/' + f)} volume={v} /></Sequence>)}
+    {PART_PLUCKS.map(([t, i]) => <Sequence key={'pp' + i} from={s(t)}><Audio src={staticFile(`sfx2/pluck${i}.wav`)} volume={0.35} /></Sequence>)}
+    {LAYER_PLUCKS.map(([t, i]) => <Sequence key={'lp' + i} from={s(t)}><Audio src={staticFile(`sfx2/pluck${i}.wav`)} volume={0.32} /></Sequence>)}
   </AbsoluteFill>
 );
