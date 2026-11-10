@@ -20,7 +20,7 @@ const fontCss = [
   await page.route('https://fonts.googleapis.com/**', r => r.fulfill({ body: fontCss, contentType: 'text/css' }));
   await page.route('https://fonts.gstatic.com/local/**', r => { const u = new URL(r.request().url()).pathname.split('/'); r.fulfill({ path: path.join(F(u[2]), u[3]), contentType: 'font/woff2' }); });
   await page.goto('file://' + wrapped + '?render=1' + (process.env.Q || ''));
-  await page.waitForFunction(() => window.__tour);
+  await page.waitForFunction(() => window.__tour && (!window.__tourReady || window.__tourReady()));
   await page.evaluate(() => document.fonts.ready);
   const total = await page.evaluate(() => window.__tour.total);
   console.log('total seconds', total);

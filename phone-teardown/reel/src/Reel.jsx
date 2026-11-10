@@ -27,7 +27,7 @@ Promise.all([
   .catch(() => continueRender(fontHandle));
 
 /* ---------- narration (George, Kokoro bm_george) ---------- */
-const VO = [['l1', 0.1], ['l2', 2.85], ['l3', 5.45], ['l4', 9.2], ['l5', 19.2], ['l6', 30.3], ['l7', 36.4], ['l8', 41.0]];
+const VO = [['l1', 0.1], ['l2', 2.85], ['l3', 5.45], ['l4', 9.2], ['l5', 19.2], ['l6', 30.3], ['l7a', 36.35], ['l7b', 39.05], ['l8', 41.0]];  // l7 split so the close sound lands in a quiet gap
 
 /* ---------- on-screen text: one continuous track, each entry replaces the previous one ----------
    *asterisks* = accent colour, '|' = line break */
@@ -67,20 +67,21 @@ const SFX = [
   ['whoosh-soft.wav', 24.45, 0.45],                             // looking down into the V
   ['whoosh-soft.wav', 29.95, 0.4],                              // crease
   ['whoosh-soft.wav', 35.9, 0.45],                              // turns to face you
-  ['close.wav', 38.445, 0.95],                                  // the satisfying close
-  ['whoosh.wav', 38.85, 0.35],                                  // turn to the back
+  ['close.wav', 38.445, 1.0],                                   // the satisfying close — in the clear, nothing else plays
+  ['whoosh-soft.wav', 39.75, 0.25],                             // turn to the back
   ['shimmer.wav', 40.1, 0.4], ['impact-small.wav', 40.15, 0.45],// channel card
   ['tap.wav', 41.85, 0.6], ['pluck7.wav', 42.45, 0.5], ['pluck9.wav', 43.05, 0.45],  // like · heart · comment
 ];
 // a soft rising pluck as each numbered label appears (exploded phone, then the 10 screen layers)
 const PART_PLUCKS = Array.from({ length: 8 }, (_, i) => [7.27 + i * 0.1, i]);
 const LAYER_PLUCKS = Array.from({ length: 10 }, (_, i) => [10.12 + i * 0.13, i]);
-const VO_LEN = { l1: 2.347, l2: 2.432, l3: 3.392, l4: 8.469, l5: 10.773, l6: 5.76, l7: 3.179, l8: 2.752 };
+const VO_LEN = { l1: 2.347, l2: 2.432, l3: 3.392, l4: 8.469, l5: 10.773, l6: 5.76, l7a: 1.771, l7b: 1.579, l8: 2.752 };
 // music: louder in the gaps, tucked under George
 const musicVolume = (f) => {
   const t = f / FPS;
   const talking = VO.some(([k, at]) => t > at - 0.15 && t < at + VO_LEN[k] + 0.1);
   const near = VO.reduce((m, [k, at]) => Math.min(m, Math.abs(t - (at - 0.15)), Math.abs(t - (at + VO_LEN[k] + 0.1))), 9);
+  if (t > 38.1 && t < 39.1) return interpolate(t, [38.1, 38.3, 38.95, 39.1], [0.16, 0.02, 0.02, 0.16], clamp);  // near-silence so the close is heard clearly
   const base = talking ? 0.16 : 0.34;
   const other = talking ? 0.34 : 0.16;
   return near < 0.2 ? base + (other - base) * (1 - near / 0.2) * 0.5 : base;
@@ -242,12 +243,29 @@ const Heart = ({ fill, stroke }) => (
 const Bubble = ({ stroke }) => (
   <svg width="104" height="104" viewBox="0 0 24 24"><path d="M12 3.5c4.9 0 8.5 3.4 8.5 7.8s-3.6 7.8-8.5 7.8c-1.2 0-2.3-.2-3.3-.5L4 20.5l1.3-4.1A7.4 7.4 0 0 1 3.5 11.3C3.5 6.9 7.1 3.5 12 3.5z" fill="none" stroke={stroke} strokeWidth="1.6" strokeLinejoin="round" /></svg>
 );
+/* wordmark reveal: letters rise out of a soft blur one by one, tracking tightens, then a light sweep crosses it */
+const Wordmark = ({ frame }) => {
+  const letters = 'InvisiTech'.split('');
+  const track = interpolate(frame, [4, 30], [0.14, -0.03], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 3) });
+  const sweep = interpolate(frame, [26, 46], [-30, 130], clamp);
+  return (
+    <div style={{ position: 'relative', display: 'flex', fontFamily: 'Sora', fontWeight: 700, fontSize: 128, lineHeight: 1, letterSpacing: `${track}em`, textShadow: '0 8px 40px rgba(0,0,0,0.6)' }}>
+      {letters.map((ch, i) => {
+        const p = interpolate(frame, [4 + i * 1.6, 16 + i * 1.6], [0, 1], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 3) });
+        return <span key={i} style={{ color: i < 6 ? C.white : '#5bc8e0', opacity: p, filter: `blur(${(1 - p) * 10}px)`, transform: `translateY(${(1 - p) * 26}px)`, display: 'inline-block' }}>{ch}</span>;
+      })}
+      <div style={{ position: 'absolute', inset: '-10px -20px', pointerEvents: 'none', mixBlendMode: 'overlay',
+        background: `linear-gradient(105deg, rgba(255,255,255,0) ${sweep - 12}%, rgba(255,255,255,0.85) ${sweep}%, rgba(255,255,255,0) ${sweep + 12}%)` }} />
+    </div>
+  );
+};
+
 const EndCard = () => {
   const frame = useCurrentFrame();
   const sp = (d, cfg = { damping: 14, stiffness: 170 }) => spring({ frame: frame - d, fps: FPS, config: cfg });
   const shade = interpolate(frame, [0, 12], [0, 1], clamp);
-  const word = sp(4), handle = sp(12), follow = sp(20);
-  const icon = (d) => sp(d, { damping: 11, stiffness: 200 });
+  const handle = sp(22), follow = sp(28);
+  const icon = (d) => sp(d + 8, { damping: 11, stiffness: 200 });
   const tapAt = s(1.85), heartAt = s(2.45), cmtAt = s(3.05);
   const press = interpolate(frame - tapAt, [0, 3, 7, 12], [1, 0.82, 1.12, 1], clamp);
   const liked = frame >= tapAt + 3;
@@ -262,9 +280,7 @@ const EndCard = () => {
     <AbsoluteFill>
       <AbsoluteFill style={{ opacity: shade, background: 'linear-gradient(rgba(0,0,0,0) 50%, rgba(3,6,14,0.7) 58%, rgba(3,6,14,0.9) 100%)' }} />
       <div style={{ position: 'absolute', top: 1118, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>  {/* phone sits in 450–1050, card text in 1060–1450 */}
-        <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 128, letterSpacing: '-0.03em', lineHeight: 1, transform: `scale(${0.85 + 0.15 * Math.min(1, word)})`, opacity: Math.min(1, word), textShadow: '0 8px 40px rgba(0,0,0,0.6)' }}>
-          <span style={{ color: C.white }}>Invisi</span><span style={{ color: '#5bc8e0' }}>Tech</span>
-        </div>
+        <Wordmark frame={frame} />
         <div style={{ marginTop: 16, fontFamily: 'Sora', fontWeight: 700, fontSize: 54, color: C.white, opacity: Math.min(1, handle), transform: `translateY(${(1 - handle) * 30}px)` }}>@TheInvisiTech</div>
         <div style={{ marginTop: 8, fontFamily: 'Sora', fontWeight: 600, fontSize: 34, color: C.accent, opacity: Math.min(1, follow), transform: `translateY(${(1 - follow) * 30}px)` }}>Like · follow for more</div>
         <div style={{ marginTop: 22, display: 'flex', gap: 110, alignItems: 'center', transform: 'scale(0.86)' }}>
@@ -277,14 +293,10 @@ const EndCard = () => {
   );
 };
 
-/* watermark: left edge, middle of the frame, transparent (no pill); steps aside while labels use the left column */
-const Watermark = () => {
-  const frame = useCurrentFrame();
-  const t = frame / FPS;
-  const away = [[7.1, 9.05], [10.0, 13.6]].some(([a, b]) => t > a - 0.25 && t < b + 0.25);
-  const k = [[7.1, 9.05], [10.0, 13.6]].reduce((m, [a, b]) => Math.min(m, interpolate(t, [a - 0.25, a, b, b + 0.25], [1, 0, 0, 1], clamp)), 1);
-  return <Img src={staticFile('watermark-clear.png')} style={{ position: 'absolute', left: 30, top: 960 - 27, height: 54, opacity: 0.55 * (away ? k : 1) }} />;
-};
+/* watermark: right side, just above centre (clear of the like/comment column), softly blended into the scene */
+const Watermark = () => (
+  <Img src={staticFile('watermark-clear.png')} style={{ position: 'absolute', right: 34, top: 860, height: 50, opacity: 0.42, mixBlendMode: 'screen', filter: 'saturate(0.85)' }} />
+);
 
 export const Reel = ({ bg } = {}) => (
   <AbsoluteFill style={{ background: '#000' }}>

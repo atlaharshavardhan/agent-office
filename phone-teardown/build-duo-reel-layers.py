@@ -60,5 +60,19 @@ if (RENDER) {
   window.__tour = { total: 10, renderAt(t) { draw(reelState(t)); return true; } };
 } else requestAnimationFrame(loop);
 })();''')
+import base64 as _b64
+HOME = 'data:image/jpeg;base64,' + _b64.b64encode(open('duo-home-screen.jpg', 'rb').read()).decode()
+# the OLED layer shows the real Duo home screen, so the stack first reads as "the screen", then splits apart
+R("if (RENDER) {\n  layers.forEach(L => { L.mesh.material.opacity = L.mesh.material.userData.base; });",
+  "if (RENDER) {\n  const homeImg = new Image(); homeImg.onload = () => { const cv = MAPS.oled.image, x = cv.getContext('2d'), w = cv.width, h = cv.height, r = w * R / W;\n"
+  "    x.save(); x.clearRect(0, 0, w, h); x.beginPath(); x.roundRect(0, 0, w, h, r); x.clip(); x.drawImage(homeImg, 0, 0, w, h);\n"
+  "    x.globalAlpha = 0.12; const c = ['#ff3b4a', '#33e06a', '#3b7bff']; for (let y = 0; y < h; y += 7) for (let xx = (y / 7) % 2 ? 4 : 0; xx < w; xx += 9) c.forEach((k, i) => { x.fillStyle = k; x.fillRect(xx + i * 3, y + 1, 2, 5); }); x.restore(); MAPS.oled.needsUpdate = true; window.__homeReady = true; };\n"
+  "  homeImg.src = '" + HOME + "';\n"
+  "  layers.forEach(L => { L.mesh.material.opacity = L.mesh.material.userData.base; });")
+# layers above the pixels are see-through while stacked, so the screen reads through them
+R("function draw(st) {\n  place(st.explode, st.fold);",
+  "function draw(st) {\n  place(st.explode, st.fold);\n  layers.forEach((L, i) => { if (i < 5) L.mesh.material.opacity = L.mesh.material.userData.base * (0.18 + 0.5 * Math.min(1, st.explode * 1.4)); });")
+R("const SHORT = ['Cover', 'Clear glue', 'Polarizer', 'Touch sensor', 'Seal', 'OLED pixels',", "const SHORT = ['Cover', 'Clear glue', 'Polarizer', 'Touch sensor', 'Seal', 'OLED pixels (picture)',")
+R("window.__tour = { total: 10, renderAt(t) { draw(reelState(t)); return true; } };", "window.__tour = { total: 10, renderAt(t) { draw(reelState(t)); return true; } };\n  window.__tourReady = () => !!window.__homeReady;")
 open('iphone-duo-reel-layers.html', 'w').write(s)
 print('ok')

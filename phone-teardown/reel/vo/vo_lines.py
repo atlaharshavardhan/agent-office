@@ -17,6 +17,8 @@ LINES = {
     "l5": "Trick two: the hinge. Over a hundred parts, gears and springs, under a three D printed titanium cover. When it closes, the screen doesn't fold flat. It curls into a teardrop shape.",
     "l6": "But bend the same spot again and again, and it never goes perfectly flat. That's the crease you can feel.",
     "l7": "So it doesn't fold like paper. It rolls like a poster.",
+    "l7a": "So it doesn't fold like paper.",  # l7 split around the close sound
+    "l7b": "It rolls like a poster.",
     "l8": "Follow InvisiTech for more tech, explained.",
 }
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
