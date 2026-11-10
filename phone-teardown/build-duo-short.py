@@ -179,9 +179,9 @@ const FRONT_C = P(36, 0, 3, 0.08, 0.1, 470);                 // closed, cover sc
 const OPEN = P(0, 0, 1, 0.06, 0.12, 690), OVER = P(36, 0, 2, 0.12, 0.85, 1080, UP_STACK);
 sseg({ dur: 2.2, fold: () => 1, pose: t => { const T = t * 2.2; return T < 1.2 ? lerpPose(MACRO, BACK0, ease(T / 1.2) * 0.999) : lerpPose(BACK0, BACK1, ease((T - 1.2) / 1.0)); },
   caps: [[0, 2.2, '<div class="big">₹2,99,900</div>' + L('This iPhone <em>folds in half</em>')]] });
-sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 1.1) / 1.35)), cb: t => clamp01((t * 2.8 - 0.75) / 0.3),  // sharp cover → frost → open
-  wake: t => 1 + 0.06 * Math.sin(Math.PI * clamp01((t * 2.8 - 2.25) / 0.55)),       // little Apple-style glow as the screen lands flat
-  pose: t => { const T = t * 2.8; return T < 0.55 ? lerpPose(BACK1, FRONT_C, ease(T / 0.55)) : lerpPose(FRONT_C, OPEN, ease(clamp01((T - 1.15) / 1.45))); },
+sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 1.78) / 1.0)), cb: t => clamp01((t * 2.8 - 1.5) / 0.28),  // sharp cover held ~1 s so the apps read → frost → open
+  wake: t => 1 + 0.06 * Math.sin(Math.PI * clamp01((t * 2.8 - 2.45) / 0.35)),       // little Apple-style glow as the screen lands flat
+  pose: t => { const T = t * 2.8; return T < 0.55 ? lerpPose(BACK1, FRONT_C, ease(T / 0.55)) : lerpPose(FRONT_C, OPEN, ease(clamp01((T - 1.75) / 1.05))); },
   caps: [[0.05, 1.6, L('But glass <em>cracks</em> when you bend it')], [1.6, 2.8, '<div class="big">So how?</div>']] });
 sseg({ dur: 4, gl: t => clamp01((t * 4 - 2.25) / 1.0), glo: t => clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
   caps: [[0.05, 1.7, L('Just <em>5.2 mm</em> thin')], [1.7, 4, L('Let’s open it up')]] });

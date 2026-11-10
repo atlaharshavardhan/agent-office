@@ -166,14 +166,14 @@ def close_thock():
     return reverb(st, IR_ROOM, 0.22)
 
 
-def open_release():
+def open_release(swish=True):
     """magnetic release: a soft 'tk' then a short airy swish as the halves part."""
     n = int(0.12 * SR)
     tk = np.arange(n) / SR
     tick = (svf_bp(noise(n), 2600, 3.0) * np.exp(-tk * 180) * 0.6
             + np.sin(2 * np.pi * 240 * tk) * np.exp(-tk * 60) * 0.35)
     st = pan(tick, 0)
-    sw = whoosh(1.1, 300, 1800, 0.45, 0.2, -0.3, air=True, rev=0.25) * 0.55
+    sw = whoosh(1.1, 300, 1800, 0.45, 0.2, -0.3, air=True, rev=0.25) * (0.55 if swish else 0.0)
     out = np.zeros((max(len(st), len(sw) + int(0.04 * SR)), 2))
     out[: len(st)] += st
     out[int(0.04 * SR): int(0.04 * SR) + len(sw)] += sw
@@ -279,17 +279,17 @@ save("whoosh-fast.wav", whoosh(0.55, 500, 3500, 0.5, 0.6, -0.6, rev=0.3), -5)
 save("impact.wav", soft_impact(), -2)
 save("impact-small.wav", soft_impact(1.0, 120, 60, 0.35, 0.3), -5)
 save("close.wav", close_thock(), -1)
-save("open.wav", open_release(), -4)
+save("open.wav", open_release(swish=False), -4)
 save("chime.wav", chime(), -6)
 save("shimmer.wav", shimmer(), -8)
-save("ratchet.wav", swell(), -10)
+save("ratchet.wav", ratchet(), -9)
 save("bend.wav", swish_bend(), -7)
 save("unbend.wav", swish_bend(1.4, True), -8)
 save("tap.wav", like_tap(), -4)
 save("tick.wav", tick(), -12)
 SCALE = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66, 1318.51, 1567.98, 1760.0]  # C major pentatonic-ish, rising
 for i, f in enumerate(SCALE):
-    save(f"pluck{i}.wav", soft_tone(f, 0.9, -0.4 + 0.8 * i / 9), -12)
+    save(f"pluck{i}.wav", pluck(f, 0.5, 0.4, -0.5 + i / 9), -10)
 
 
 # ---------------------------------------------------------------- music bed (45 s, 100 BPM, C major vi-IV-I-V)
@@ -363,8 +363,8 @@ for k in range(int(DUR / (BEAT / 2))):
     chord = CHORDS[int(at // BAR) % 4]
     m = chord[[0, 2, 1, 3, 2, 1, 3, 2][k % 8]] + 12
     if m not in pl_cache:
-        pl_cache[m] = soft_tone(midi(m), 0.8, 0.0, 0.35)
-    add(arp, at, pl_cache[m] * 0.32)
+        pl_cache[m] = pluck(midi(m), 0.45, 0.0)
+    add(arp, at, pl_cache[m] * 0.42)
 dly = int(BEAT * 0.75 * SR)
 echo = np.zeros_like(arp)
 echo[dly:, 0] = arp[:-dly, 1] * 0.35

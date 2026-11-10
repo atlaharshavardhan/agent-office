@@ -52,24 +52,15 @@ const SWEEPS = [9.12, 19.12];                // light sweep on the "trick" revea
 const PUNCHES = [11.28, 20.48];              // zoom punch when the counters land
 
 /* ---------- sound design (seconds, volume) — public/sfx2, synthesised by sfx/make_sound.py ---------- */
-const SFX = [
+const SFX = [   // no whooshes on camera moves: only meaningful hits, clicks and tones
   ['impact.wav', 0.0, 0.55], ['shimmer.wav', 0.05, 0.35],      // cold open on the price
-  ['whoosh-soft.wav', 2.1, 0.45],                               // turns to face you
-  ['open.wav', 3.28, 0.7],                                      // magnetic release, halves part
-  ['chime.wav', 4.45, 0.4],                                     // screen wakes as it lands flat
-  ['impact.wav', 4.7, 0.6],                                     // "So how?"
-  ['whoosh.wav', 5.05, 0.5],                                    // explode
-  ['whoosh-fast.wav', 9.02, 0.5],                               // sweep → screen layers
-  ['impact-small.wav', 11.28, 0.55],                            // counter lands on 10
-  ['bend.wav', 13.35, 0.5], ['unbend.wav', 16.8, 0.45],         // layers bend and flatten
-  ['whoosh-fast.wav', 19.02, 0.5],                              // sweep → hinge
-  ['ratchet.wav', 19.4, 0.45], ['impact-small.wav', 20.48, 0.5],
-  ['whoosh-soft.wav', 24.45, 0.45],                             // looking down into the V
-  ['whoosh-soft.wav', 29.95, 0.4],                              // crease
-  ['whoosh-soft.wav', 35.9, 0.45],                              // turns to face you
+  ['open.wav', 3.98, 0.75],                                     // magnetic release as it opens
+  ['chime.wav', 4.85, 0.4],                                     // screen lands flat
+  ['impact.wav', 4.7, 0.5],                                     // "So how?"
+  ['impact-small.wav', 11.28, 0.5],                             // counter lands on 10
+  ['ratchet.wav', 19.55, 0.5], ['impact-small.wav', 20.48, 0.45], // hinge clicks as 100+ counts up
   ['close.wav', 38.445, 1.0],                                   // the satisfying close — in the clear, nothing else plays
-  ['whoosh-soft.wav', 39.75, 0.25],                             // turn to the back
-  ['shimmer.wav', 40.1, 0.4], ['impact-small.wav', 40.15, 0.45],// channel card
+  ['shimmer.wav', 40.1, 0.4], ['impact-small.wav', 40.15, 0.4], // channel card
   ['tap.wav', 41.85, 0.6], ['pluck7.wav', 42.45, 0.5], ['pluck9.wav', 43.05, 0.45],  // like · heart · comment
 ];
 // a soft rising pluck as each numbered label appears (exploded phone, then the 10 screen layers)
@@ -315,7 +306,7 @@ export const Reel = ({ bg } = {}) => (
     {/* music bed (sfx/make_sound.py), ducked under the voice */}
     <Audio src={staticFile('sfx2/music.wav')} volume={musicVolume} />
     {SFX.map(([f, t, v], k) => <Sequence key={'sfx' + k} from={s(t)}><Audio src={staticFile('sfx2/' + f)} volume={v} /></Sequence>)}
-    {PART_PLUCKS.map(([t, i]) => <Sequence key={'pp' + i} from={s(t)}><Audio src={staticFile(`sfx2/pluck${i}.wav`)} volume={0.3} /></Sequence>)}
+    {PART_PLUCKS.map(([t, i]) => <Sequence key={'pp' + i} from={s(t)}><Audio src={staticFile(`sfx2/pluck${i}.wav`)} volume={0.34} /></Sequence>)}
     {LAYER_PLUCKS.map(([t, i]) => <Sequence key={'lp' + i} from={s(t)}><Audio src={staticFile(`sfx2/pluck${i}.wav`)} volume={0.32} /></Sequence>)}
   </AbsoluteFill>
 );
