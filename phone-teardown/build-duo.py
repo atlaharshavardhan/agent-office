@@ -281,15 +281,17 @@ addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g =
 
 /* 3. Hinge */
 let spine;
-let hingeMech;
+let hingeMech; const hingeGears = [];
+window.spinGears = t => hingeGears.forEach((gg, i) => { gg.rotation.y = (i % 2 ? -1 : 1) * t * 2.4; });
 addPart('hinge', [0, 0, 22], { az: 0.6, el: 0.55, k: 0.72, t: [0, 44, 0.6], dist: 62 }, [0, 58, 0.5], g => {
   // Mechanism (iFixit: gears, springs, interlocking joints; REWA: four springs) under a 3D-printed titanium cover.
   const m = new THREE.Group(); g.add(m); hingeMech = m;
   const ti = std(0x161b24, 0.8, 0.45, { envMapIntensity: 0.6 }), steel = std(0xa3aab4, 1, 0.24), dark = std(0x3a414c, 0.95, 0.3), springM = std(0xb4bac2, 1, 0.25);
   mesh(extrude(rrShape(8.5, 110, 3), 1.6, 0.3), ti, 0, 0, -1.4, m);                         // structural spine
   const gearAt = (x, y, z, r, mat) => {
-    const gr = mesh(new THREE.CylinderGeometry(r, r, 1.6, 24), mat, x, y, z, m);
-    for (let t = 0; t < 12; t++) { const a = t / 12 * Math.PI * 2 + (x > 0 ? 0.26 : 0); box(0.32, 1.6, 0.32, mat, x + Math.cos(a) * (r + 0.14), y, z + Math.sin(a) * (r + 0.14), m); }
+    const gg = new THREE.Group(); gg.position.set(x, y, z); m.add(gg); hingeGears.push(gg);
+    mesh(new THREE.CylinderGeometry(r, r, 1.6, 24), mat, 0, 0, 0, gg);
+    for (let t = 0; t < 12; t++) { const a = t / 12 * Math.PI * 2 + (x > 0 ? 0.26 : 0); box(0.32, 1.6, 0.32, mat, Math.cos(a) * (r + 0.14), 0, Math.sin(a) * (r + 0.14), gg); }
   };
   const coil = (x, y0, y1, z, r) => {
     const pts = []; for (let i = 0; i <= 200; i++) { const t = i / 200, a = t * Math.PI * 2 * 8; pts.push(new THREE.Vector3(x + Math.cos(a) * r, y0 + t * (y1 - y0), z + Math.sin(a) * r)); }

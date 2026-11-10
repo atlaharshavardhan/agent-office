@@ -4,7 +4,7 @@ def R(a, b):
     assert src.count(a) == 1, (src.count(a), a[:90]); src = src.replace(a, b)
 
 R('<title>iPhone Duo Teardown</title>', '<title>iPhone Duo Fold Short</title>')
-R('</style>', r'''body.short { background: #000 !important; }
+R('</style>', r'''body.short { background: radial-gradient(ellipse 70% 45% at 50% 56%, #0e121a 0%, #05070a 45%, #000 75%) !important; }
 body.short .top, body.short #card, body.short #labels, body.short #title-card, body.short #parts, body.short #controls, body.short #hint { display: none !important; }
 body.clean #cap, body.clean #capbg { display: none !important; }
 #capbg { position: absolute; inset: 0 0 auto; height: 34%; background: linear-gradient(#000 0%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0) 100%); pointer-events: none; }
@@ -18,9 +18,10 @@ R('<div id="labels"></div>', '<div id="labels"></div>\n  <div id="capbg"></div>\
 R("if (RENDER) document.body.classList.add('render');", "document.body.classList.add('short'); if (RENDER) document.body.classList.add('render'); if (new URLSearchParams(location.search).has('clean')) document.body.classList.add('clean');")
 R("function dimTarget(p, s) { return s.focus >= 0 && p.index !== s.focus ? 1 : 0; }",
   "function dimTarget(p, s) { if (s.dimMap) return p.id in s.dimMap ? s.dimMap[p.id] : (s.dimDefault ?? 0); return s.focus >= 0 && p.index !== s.focus ? 1 : 0; }")
+R("  const dimB = prev ? ease(clamp01(lt / 0.9)) : 1;", "  const dimB = prev ? ease(clamp01(lt / 0.35)) : 1;")
 R("return { fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,",
-  "return { keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
-R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap);")
+  "return { time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
+R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time);")
 R("  explode = st.explode; applyExplode(explode);", "  KEEP_ON = st.keepOn; explode = st.explode; applyExplode(explode);")
 
 a = src.index("const CLOSED_T = new THREE.Vector3(38, 0, 3);"); b = src.index("const TOTAL = tAcc;")
@@ -72,7 +73,7 @@ sseg({ dur: 10, explode: () => 1, dimMap: { inner: 0.8 }, dimDefault: 0.93,
   stack: lt => [ease(clamp01((lt - 0.5) / 1.6)) * (1 - ease(clamp01((lt - 9.2) / 0.8))), ease(clamp01((lt - 4.4) / 0.8)), lt],
   pose: t => P(STACK_C.x, STACK_C.y + 2, STACK_C.z, 0.42 + 0.12 * t, 0.2, 400),
   caps: [[0.3, 4.4, L('Trick 1: the screen is <em>~10 thin layers</em>')], [4.4, 10, L('They <em>slide</em> like paper, so nothing snaps')]] });
-sseg({ dur: 5.5, explode: () => 1, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 42, 23, 0.3 + 0.35 * t, 0.42, 120),
+sseg({ dur: 5.5, explode: () => 1, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 43 - 5 * t, 23, 0.05 + 0.85 * t, 0.48 - 0.12 * t, 125 - 25 * t),
   caps: [[0.25, 5.5, L('Trick 2: a hinge of <em>100+ parts</em>') + '<div class="sub">gears · springs · 3D-printed titanium cover</div>']] });
 sseg({ dur: 5.5, explode: t => 1 - ease(clamp01(t * 5.5 / 1.4)), fold: t => 0.74 * ease(clamp01((t * 5.5 - 1.5) / 2.6)),
   keepOn: true, dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(14, 30, 10, -0.2 - 0.1 * t, 0.95, 330),
@@ -84,6 +85,10 @@ sseg({ dur: 4, fold: t => ease(clamp01(t * 4 / 2.6)), pose: t => lerpPose(P(0, -
 '''
 src = src[:a] + tour + src[b:]
 for a_, b_ in [("if (Math.abs(sx) + Math.abs(sy) > 0.5) camera.setViewOffset(w, h, sx, sy, w, h); else camera.clearViewOffset();", "camera.setViewOffset(w, h, sx, sy - 0.085 * h, w, h);")]:
+    assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
+for a_, b_ in [("g.addColorStop(0, 'rgba(0,0,0,0.85)'); g.addColorStop(0.55, 'rgba(0,0,0,0.35)'); g.addColorStop(1, 'rgba(0,0,0,0)');", "g.addColorStop(0, 'rgba(150,170,215,0.17)'); g.addColorStop(0.55, 'rgba(120,140,190,0.06)'); g.addColorStop(1, 'rgba(0,0,0,0)');"),
+               ("m.position.set(x, y, z); m.rotation.y = Math.PI; parent.add(m); return m; // faces the back (-z)", "m.position.set(x, y, z); m.rotation.y = Math.PI; m.userData.logo = true; parent.add(m); return m; // faces the back (-z)"),
+               ("const P = (tx, ty, tz, az, el, dist) =>", "root.traverse(o => { if (o.userData.logo) o.visible = false; }); // no Apple logo in the reel\nconst P = (tx, ty, tz, az, el, dist) =>")]:
     assert src.count(a_) == 1, a_; src = src.replace(a_, b_)
 open('iphone-duo-short.html', 'w').write(src)
 print('ok')
