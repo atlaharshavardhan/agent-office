@@ -45,7 +45,7 @@ Checked against Apple's iPhone Duo spec pages, Apple's Duo guide, Apple newsroom
 | Hinge | 100+ parts: gears, springs, joints; 3D-printed Grade 5 titanium **cover**; waterdrop fold | 🔧 text said the whole hinge was 3D-printed; now "100+ parts under a 3D-printed titanium cover" |
 | Charging | MagSafe + Qi2 up to 25 W, USB-C (USB 3, 10 Gb/s) | 🔧 MagSafe coil + magnet ring added behind the logo |
 | SIM | eSIM only | ✅ no SIM tray |
-| Speakers | Not published | ⚠️ bottom loudspeaker is an assumption |
+| Speakers | Not published for the Duo | ⚠️ standard iPhone layout used: loudspeaker grille right of USB-C, mic grille left, earpiece slit above the cover screen |
 | Internal part positions | Not published | ⚠️ approximate, based on teardown descriptions |
 
 ## Short script lines

@@ -578,8 +578,10 @@ addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g =
   const ab = std(0x1a1b1e, 0, 0.6);
   [[-HW + 0.6, 40], [-HW + 0.6, -40], [HW - 0.6, 40], [HW - 0.6, -40]].forEach(([x, y]) => box(1.8, 1.0, D - 0.4, ab, x, y, 0, g));
   box(9.2, 1.6, 3.2, std(0x050506, 0, 0.8), 41, -H / 2 + 0.4, 0, g);
-  const hole = new THREE.CylinderGeometry(0.55, 0.55, 1.8, 12);
-  for (let i = 0; i < 5; i++) mesh(hole, std(0x050506, 0, 0.8), 52 + i * 2.6, -H / 2 + 0.4, 0, g);
+  // bottom edge: loudspeaker grille right of USB-C, microphone grille left (standard iPhone layout)
+  const hole = new THREE.CylinderGeometry(0.62, 0.62, 2.0, 14), holeM = std(0x020203, 0, 0.9);
+  for (let i = 0; i < 7; i++) mesh(hole, holeM, 49.5 + i * 2.3, -H / 2 + 0.35, 0, g);   // speaker
+  for (let i = 0; i < 4; i++) mesh(hole, holeM, 32.5 - i * 2.3, -H / 2 + 0.35, 0, g);   // microphones
 });
 
 /* 3. Hinge */
@@ -694,6 +696,7 @@ addPart('outer', [0, 0, -52], { az: 3.35, el: 0.28, k: 1.0 }, [-80, 56, -2.5], g
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(80, 114), new THREE.MeshBasicMaterial({ map: outerTex, transparent: true, toneMapped: false }));
   scr.position.set(-41.5, 0, -2.74); scr.rotation.y = Math.PI; g.add(scr); outerScr = scr;
   const gl = new THREE.Mesh(extrude(halfL(1.0), 0.15, 0.05), phys({ color: 0xdfefff, transparent: true, opacity: 0.06, roughness: 0.05, clearcoat: 1, envMapIntensity: 1.0, depthWrite: false })); gl.position.z = -2.82; g.add(gl);
+  box(12, 0.7, 0.12, phys({ color: 0x1b1f28, metalness: 0.4, roughness: 0.5 }), -41.5, 57.9, -2.79, g); // earpiece speaker slit above the cover screen
   mesh(cyl(1.6, 1.6, 24), std(0x2e3136, 0.8, 0.38), -73.1, 49.7, -1.6, g); // 12 MP Center Stage camera behind the cover-screen punch-hole
   box(14, 3, 0.18, std(0xd99a3a, 0.1, 0.45), -64, 43, -1.2, g);
 });
