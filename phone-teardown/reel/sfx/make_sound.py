@@ -228,6 +228,17 @@ def swell(dur=1.4):
     return reverb(pan(air + pad, 0), IR_HALL, 0.5)
 
 
+def glide(dur=1.3, tone=(523.25, 783.99), p0=-0.5, p1=0.5):
+    """smooth transition: soft low-passed air that swells in and out (no hard rush) + a faint glassy tone"""
+    n = int(dur * SR)
+    u = np.linspace(0, 1, n)
+    shape = np.sin(np.pi * u) ** 3                       # slow, symmetric swell
+    air = onepole_lp(onepole_lp(noise(n), 700 + 500 * np.sin(np.pi * u)), 900) * shape * 1.6
+    t = np.arange(n) / SR
+    pad = sum(np.sin(2 * np.pi * f * t + i) for i, f in enumerate(tone)) * shape * 0.05
+    return reverb(pan(air + pad, np.linspace(p0, p1, n)), IR_HALL, 0.55)
+
+
 def tick(f=2400, p=0.0):
     n = int(0.06 * SR)
     tk = np.arange(n) / SR
@@ -286,6 +297,9 @@ save("ratchet.wav", ratchet(), -9)
 save("bend.wav", swish_bend(), -7)
 save("unbend.wav", swish_bend(1.4, True), -8)
 save("tap.wav", like_tap(), -4)
+save("glide.wav", glide(), -14)
+save("glide-low.wav", glide(1.6, (392.0, 587.33), 0.4, -0.4), -15)
+save("glide-up.wav", glide(1.1, (659.25, 987.77), -0.3, 0.3), -15)
 save("tick.wav", tick(), -12)
 SCALE = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66, 1318.51, 1567.98, 1760.0]  # C major pentatonic-ish, rising
 for i, f in enumerate(SCALE):

@@ -52,13 +52,21 @@ const SWEEPS = [9.12, 19.12];                // light sweep on the "trick" revea
 const PUNCHES = [11.28, 20.48];              // zoom punch when the counters land
 
 /* ---------- sound design (seconds, volume) — public/sfx2, synthesised by sfx/make_sound.py ---------- */
-const SFX = [   // no whooshes on camera moves: only meaningful hits, clicks and tones
+const SFX = [   // no hard whooshes: soft 'glide' swells on the camera moves, plus hits, clicks and tones
   ['impact.wav', 0.0, 0.55], ['shimmer.wav', 0.05, 0.35],      // cold open on the price
   ['open.wav', 3.98, 0.75],                                     // magnetic release as it opens
   ['chime.wav', 4.85, 0.4],                                     // screen lands flat
   ['impact.wav', 4.7, 0.5],                                     // "So how?"
   ['impact-small.wav', 11.28, 0.5],                             // counter lands on 10
   ['ratchet.wav', 19.55, 0.5], ['impact-small.wav', 20.48, 0.45], // hinge clicks as 100+ counts up
+  ['glide.wav', 2.15, 0.45],                                    // turns to face you
+  ['glide-up.wav', 5.0, 0.4],                                   // opens up into the parts
+  ['glide.wav', 8.95, 0.4],                                     // into the screen layers
+  ['glide-low.wav', 13.3, 0.35],                                // layers bend
+  ['glide.wav', 18.95, 0.4],                                    // into the hinge
+  ['glide-low.wav', 24.4, 0.35],                                // down into the V
+  ['glide.wav', 29.9, 0.35],                                    // the crease
+  ['glide-up.wav', 36.75, 0.3],                                 // starts to close (swell ends ~37.9, before the thock)
   ['close.wav', 38.445, 1.0],                                   // the satisfying close — in the clear, nothing else plays
   ['shimmer.wav', 40.1, 0.4], ['impact-small.wav', 40.15, 0.4], // channel card
   ['tap.wav', 41.85, 0.6], ['pluck7.wav', 42.45, 0.5], ['pluck9.wav', 43.05, 0.45],  // like · heart · comment
