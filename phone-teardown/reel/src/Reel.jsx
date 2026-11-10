@@ -1,10 +1,10 @@
 import {
-  AbsoluteFill, Audio, OffthreadVideo, Sequence, continueRender, delayRender,
+  AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, continueRender, delayRender,
   interpolate, spring, staticFile, useCurrentFrame, useVideoConfig,
 } from 'remotion';
 
 export const FPS = 30;
-export const DURATION_S = 40;
+export const DURATION_S = 45;
 const s = (sec) => Math.round(sec * FPS);
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' };
 
@@ -27,7 +27,7 @@ Promise.all([
   .catch(() => continueRender(fontHandle));
 
 /* ---------- narration (George, Kokoro bm_george) ---------- */
-const VO = [['l1', 0.1], ['l2', 2.85], ['l3', 5.45], ['l4', 9.2], ['l5', 19.2], ['l6', 30.3], ['l7', 36.4]];
+const VO = [['l1', 0.1], ['l2', 2.85], ['l3', 5.45], ['l4', 9.2], ['l5', 19.2], ['l6', 30.3], ['l7', 36.4], ['l8', 41.0]];
 
 /* ---------- on-screen text: one continuous track, each entry replaces the previous one ----------
    *asterisks* = accent colour, '|' = line break */
@@ -36,14 +36,14 @@ const TEXT = [
   { at: 2.85, text: 'But glass *cracks* when you bend it' },
   { at: 4.7, kind: 'punch', text: 'So how?' },
   { at: 5.45, text: 'Let’s open it up' },
-  { at: 6.75, text: 'Just *5.2 mm* thin' },
+  { at: 6.75, text: 'Just *5.2 mm* thin', sub: 'open · 11.3 mm closed' },
   { at: 9.2, text: 'Trick 1: the screen is *~10 thin layers*' },
   { at: 13.0, text: 'They *slide* like paper, so nothing snaps' },
   { at: 19.2, text: 'Trick 2: a hinge of *100+ parts*', sub: 'gears · springs · 3D-printed titanium cover' },
   { at: 24.9, text: 'Closing, it *curls into a teardrop* instead of folding flat' },
   { at: 30.3, text: 'Bend the same spot *again and again*' },
   { at: 33.2, text: '…and you get *the crease* you can feel' },
-  { at: 36.4, text: 'It doesn’t fold like paper.|It *rolls like a poster.*' },
+  { at: 36.4, text: 'It doesn’t fold like paper.|It *rolls like a poster.*', size: 62 },
 ];
 const SWAP = 7; // frames for the slide-up swap
 
@@ -86,10 +86,10 @@ const PriceBlock = ({ local }) => {
   const pop = spring({ frame: local - 12, fps: FPS, config: { damping: 9, stiffness: 220 } });
   return (
     <div style={{ textAlign: 'center' }}>
-      <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 158, letterSpacing: '-0.04em', color: C.accent, transform: `scale(${1 + 0.06 * (pop - Math.min(pop, 1))})`, textShadow: '0 8px 40px rgba(240,166,64,0.35)', fontVariantNumeric: 'tabular-nums' }}>
+      <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 132, letterSpacing: '-0.04em', color: C.accent, transform: `scale(${1 + 0.06 * (pop - Math.min(pop, 1))})`, textShadow: '0 8px 40px rgba(240,166,64,0.35)', fontVariantNumeric: 'tabular-nums' }}>
         {'₹' + n.toLocaleString('en-IN')}
       </div>
-      <div style={{ marginTop: 6, fontFamily: 'Sora', fontWeight: 700, fontSize: 72, color: C.white, letterSpacing: '-0.02em' }}>
+      <div style={{ marginTop: 0, fontFamily: 'Sora', fontWeight: 700, fontSize: 62, color: C.white, letterSpacing: '-0.02em' }}>
         This iPhone <span style={{ color: C.accent }}>folds in half</span>
       </div>
     </div>
@@ -102,7 +102,7 @@ const LineBlock = ({ entry, local }) => {
   const step = Math.min(2, 12 / Math.max(n, 1)); // whole line in ≤ 0.4 s
   return (
     <div style={{ textAlign: 'center' }}>
-      <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 76, lineHeight: 1.12, letterSpacing: '-0.02em', textShadow: '0 6px 30px rgba(0,0,0,0.7)' }}>
+      <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: entry.size || 76, lineHeight: 1.12, letterSpacing: '-0.02em', textShadow: '0 6px 30px rgba(0,0,0,0.7)' }}>
         {lines.map((ws, li) => (
           <div key={li}>
             {ws.map((w) => {
@@ -132,7 +132,7 @@ const TextTrack = () => {
   const local = frame - s(TEXT[cur].at);
   const prev = cur > 0 && local < SWAP ? cur - 1 : -1;
   const p = interpolate(local, [0, SWAP], [0, 1], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 3) });
-  const wrap = (children, style) => <div style={{ position: 'absolute', top: 175, left: 60, right: 60, ...style }}>{children}</div>;
+  const wrap = (children, style) => <div style={{ position: 'absolute', top: 268, left: 60, right: 60, ...style }}>{children}</div>;
   return (
     <AbsoluteFill>
       {prev >= 0 ? wrap(<Block entry={TEXT[prev]} local={frame - s(TEXT[prev].at)} />, { opacity: 1 - p, transform: `translateY(${-70 * p}px)` }) : null}
@@ -216,6 +216,26 @@ const Chrome = () => {
 };
 
 /* ---------- the reel ---------- */
+/* 40–45 s: channel end card */
+const END_AT = 39.7;
+const EndCard = () => {
+  const frame = useCurrentFrame();
+  const bg = interpolate(frame, [0, 9], [0, 1], clamp);
+  const logo = spring({ frame: frame - 8, fps: FPS, config: { damping: 12, stiffness: 160 } });
+  const t1 = spring({ frame: frame - 16, fps: FPS, config: { damping: 16, stiffness: 170 } });
+  const t2 = spring({ frame: frame - 24, fps: FPS, config: { damping: 16, stiffness: 170 } });
+  const glow = 0.5 + 0.5 * Math.sin(frame / 9);
+  return (
+    <AbsoluteFill style={{ opacity: bg, background: 'radial-gradient(ellipse 60% 38% at 50% 44%, #141b26 0%, #05070a 62%, #000 100%)', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 34, marginTop: -120 }}>
+        <Img src={staticFile('logo.png')} style={{ width: 300, height: 300, transform: `scale(${logo})`, opacity: Math.min(1, logo), filter: `drop-shadow(0 0 ${30 + 30 * glow}px rgba(240,166,64,0.45))` }} />
+        <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 76, color: C.white, letterSpacing: '-0.01em', transform: `translateY(${(1 - t1) * 40}px)`, opacity: Math.min(1, t1) }}>@TheInvisiTech</div>
+        <div style={{ fontFamily: 'Sora', fontWeight: 600, fontSize: 44, color: C.accent, transform: `translateY(${(1 - t2) * 40}px)`, opacity: Math.min(1, t2) }}>Follow for more tech, explained</div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 export const Reel = () => (
   <AbsoluteFill style={{ background: '#000' }}>
     <Footage />
@@ -223,14 +243,16 @@ export const Reel = () => (
     <Chrome />
     <TextTrack />
 
-    <Sequence from={s(6.85)} durationInFrames={s(2.2)}><Chip value="5.2 mm" label="open · 11.3 mm closed" durationInFrames={s(2.2)} top={330} /></Sequence>
     <Sequence from={s(9.55)} durationInFrames={s(9.3)}><CountChip to={10} label="ultrathin layers" countFrames={s(1.6)} durationInFrames={s(9.3)} /></Sequence>
     <Sequence from={s(19.45)} durationInFrames={s(5.2)}><CountChip to={100} suffix="+" label="hinge parts" countFrames={s(0.9)} durationInFrames={s(5.2)} /></Sequence>
+    <Sequence from={s(END_AT)}><EndCard /></Sequence>
+    <Sequence from={s(END_AT)}><Audio src={staticFile('sfx/whoosh-short.wav')} volume={0.3} /></Sequence>
+    <Sequence from={s(END_AT + 0.3)}><Audio src={staticFile('sfx/pop.wav')} volume={0.3} /></Sequence>
 
     {/* narration */}
     {VO.map(([f, t]) => <Sequence key={f} from={s(t)}><Audio src={staticFile(`vo/${f}.wav`)} volume={1} /></Sequence>)}
     {/* music bed, ducked under the voice */}
-    <Audio src={staticFile('sfx/bed.wav')} volume={0.28} />
+    <Audio src={staticFile('sfx/bed45.wav')} volume={0.28} />
     {SFX.map(([f, t, v], k) => <Sequence key={'sfx' + k} from={s(t)}><Audio src={staticFile('sfx/' + f)} volume={v} /></Sequence>)}
     {POPS.map((t, k) => <Sequence key={'pop' + k} from={s(t)}><Audio src={staticFile('sfx/pop.wav')} volume={0.22} /></Sequence>)}
     {LAYER_TICKS.map((t, k) => <Sequence key={'lt' + k} from={s(t)}><Audio src={staticFile('sfx/tick.wav')} volume={0.3} /></Sequence>)}
