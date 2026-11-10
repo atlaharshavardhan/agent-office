@@ -22,7 +22,7 @@ R("return { fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,",
 R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap);")
 R("  explode = st.explode; applyExplode(explode);", "  KEEP_ON = st.keepOn; explode = st.explode; applyExplode(explode);")
 
-a = src.index("const CLOSED_T = new THREE.Vector3(-38, 0, 3);"); b = src.index("const TOTAL = tAcc;")
+a = src.index("const CLOSED_T = new THREE.Vector3(38, 0, 3);"); b = src.index("const TOTAL = tAcc;")
 tour = r'''/* ---------- Short: "How does a ₹3 lakh iPhone fold?" (9:16, 40 s) ---------- */
 const P = (tx, ty, tz, az, el, dist) => ({ target: new THREE.Vector3(tx, ty, tz), az, el, dist, shift: 0 });
 const STACK_C = new THREE.Vector3(0, 0, 84);
@@ -59,9 +59,9 @@ function capAt(s, lt) { const c = (s.caps || []).find(([a, b]) => lt >= a && lt 
 const sseg = o => seg(Object.assign({ focus: -1, labels: () => 0, explode: () => 0 }, o));
 const L = (h) => `<div class="line">${h}</div>`;
 
-const S1A = P(-36, 0, 3, 2.75, 0.16, 400), S1B = P(-30, 0, 3, -0.5, 0.18, 400);
-const OPEN = P(0, 0, 1, -0.38, 0.2, 760), OVER = P(0, 0, 0, 0.6, 0.55, 640);
-sseg({ dur: 2.2, fold: t => 1 - 0.3 * ease(clamp01((t - 0.62) / 0.38)), pose: t => lerpPose(S1A, S1B, t),
+const S1A = P(36, 0, 3, 2.75, 0.16, 400), S1B = P(30, 0, 3, 0.5, 0.18, 400);
+const OPEN = P(0, 0, 1, 0.38, 0.2, 760), OVER = P(0, 0, 0, 0.6, 0.55, 640);
+sseg({ dur: 2.2, fold: t => 1 - 0.3 * ease(clamp01((t - 0.62) / 0.38)), pose: t => lerpPose(S1A, S1B, ease(Math.min(1, t * 1.45))),
   caps: [[0, 2.2, '<div class="big">₹2,99,900</div>' + L('This iPhone <em>folds in half</em>')]] });
 sseg({ dur: 2.8, fold: t => 0.7 * (1 - ease(clamp01(t / 0.78))), pose: t => lerpPose(S1B, OPEN, Math.min(1, ease(t) * 1.4)),
   caps: [[0.05, 1.6, L('But glass <em>cracks</em> when you bend it')], [1.6, 2.8, '<div class="big">So how?</div>']] });
@@ -74,7 +74,7 @@ sseg({ dur: 10, explode: () => 1, dimMap: { inner: 0.8 }, dimDefault: 0.93,
 sseg({ dur: 5.5, explode: () => 1, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 34, 22.5, 0.38 + 0.25 * t, 0.32, 200),
   caps: [[0.25, 5.5, L('Trick 2: a <em>3D-printed titanium</em> hinge') + '<div class="sub">gears · springs</div>']] });
 sseg({ dur: 5.5, explode: t => 1 - ease(clamp01(t * 5.5 / 1.4)), fold: t => 0.74 * ease(clamp01((t * 5.5 - 1.5) / 2.6)),
-  keepOn: true, dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(-14, 30, 10, 0.2 + 0.1 * t, 0.95, 330),
+  keepOn: true, dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(14, 30, 10, -0.2 - 0.1 * t, 0.95, 330),
   caps: [[0.25, 5.5, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });
 sseg({ dur: 6, keepOn: true, fold: t => 0.74 * (1 - ease(clamp01(t * 6 / 1.4))), pose: t => P(0, 30 - 60 * t, 2.6, 1.3, 0.17, 240),
   caps: [[0.3, 3.1, L('Bend the same spot <em>again and again</em>')], [3.1, 6, L('…and you get <em>the crease</em> you can feel')]] });
