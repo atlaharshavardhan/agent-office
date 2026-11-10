@@ -131,7 +131,7 @@ const floorMat = new THREE.ShaderMaterial({ transparent: true, depthWrite: false
   vertexShader: 'uniform mat4 texM; varying vec4 vUv; varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; vUv = texM * w; gl_Position = projectionMatrix * viewMatrix * w; }',
   fragmentShader: 'uniform sampler2D map; uniform float op; uniform vec2 c; varying vec4 vUv; varying vec3 vW; void main(){ vec4 r = texture2DProj(map, vUv); float d = length(vW.xz - c); float f = op * exp(-d / 95.0); gl_FragColor = vec4(pow(max(r.rgb, 0.0), vec3(1.0 / 2.2)) * 0.9, r.a * f); }' });
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), floorMat); floor.rotation.x = -Math.PI / 2; floor.position.y = FLOOR_Y; floor.renderOrder = -1; scene.add(floor);
-const rimL = new THREE.DirectionalLight(0xb9d6ff, 1.5); scene.add(rimL); scene.add(rimL.target);
+const rimL = new THREE.DirectionalLight(0xb9d6ff, 0.8); scene.add(rimL); scene.add(rimL.target);
 const _v = new THREE.Vector3(), _d = new THREE.Vector3(), _u = new THREE.Vector3();
 window.mirrorPass = () => {
   // rim light sits behind the phone, opposite the camera, a little above
@@ -156,7 +156,7 @@ window.mirrorPass = () => {
        so it can only ever show around the edges, never on the phone or its screen --- */
 const haloC = document.createElement('canvas'); haloC.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
 canvas.parentNode.insertBefore(haloC, canvas);
-const hS = [40, 80, 140].map(k => { const c = document.createElement('canvas'); return { k, c, x: c.getContext('2d') }; });
+const hS = [36, 90].map(k => { const c = document.createElement('canvas'); return { k, c, x: c.getContext('2d') }; });
 window.haloPass = () => {
   const W = canvas.width, H = canvas.height; if (haloC.width !== W) { haloC.width = W; haloC.height = H; }
   const hx = haloC.getContext('2d'); hx.clearRect(0, 0, W, H); hx.imageSmoothingEnabled = true; hx.imageSmoothingQuality = 'high';
@@ -164,7 +164,7 @@ window.haloPass = () => {
   hS.forEach(({ k, c, x }, i) => {
     const w = Math.max(2, Math.round(W / k)), h = Math.max(2, Math.round(H / k)); if (c.width !== w) { c.width = w; c.height = h; }
     x.globalCompositeOperation = 'copy'; x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.drawImage(canvas, 0, 0, w, h);
-    x.globalCompositeOperation = 'source-in'; x.fillStyle = ['rgba(120,165,255,0.10)', 'rgba(95,145,250,0.10)', 'rgba(80,125,240,0.08)'][i]; x.fillRect(0, 0, w, h);
+    x.globalCompositeOperation = 'source-in'; x.fillStyle = ['rgba(110,155,255,0.055)', 'rgba(90,135,245,0.05)'][i]; x.fillRect(0, 0, w, h);
     hx.drawImage(c, -k, -k, W + 2 * k, H + 2 * k);
   });
   hx.globalCompositeOperation = 'source-over';
