@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path'), { spawn } = require('child_process');
 const [,, src, mode = 'stills', out = 'out', fpsArg = '30'] = process.argv;
 const dir = __dirname;
-const wrapped = path.join(dir, '_local.html');
+const wrapped = path.join(dir, '_local-' + path.basename(src, '.html') + '-' + process.pid + '.html');  // unique per job, so parallel renders never clash
 fs.writeFileSync(wrapped, '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>' + fs.readFileSync(src, 'utf8') + '</body></html>');
 const F = f => path.join(dir, 'fonts', f, 'package/files');
 const fontCss = [
