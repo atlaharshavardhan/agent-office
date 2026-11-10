@@ -201,8 +201,8 @@ const INFO = {
     body: 'A flexible OLED panel built as a stack of about ten thin layers, topped with ultra-thin glass and a matte finish. The layers slide past each other every time you fold, which is why the crease is easier to feel than to see. The FaceTime camera sits underneath the display, so the big screen has no cutout.',
     specs: ['7.6-inch foldable OLED', 'About 10 layers, ultra-thin glass', 'Under-display FaceTime camera'] },
   frame: { name: 'Frame halves and buttons', role: 'Two metal halves joined by the hinge.',
-    body: 'Each half of the phone has its own titanium frame and inner plate. Open, the phone is only 5.2 mm thick; folded, the halves stack to 11.3 mm. The side button has Touch ID built in, so you unlock it with your fingerprint.',
-    specs: ['Titanium frame', '5.2 mm open, 11.3 mm closed', 'Touch ID in the side button'] },
+    body: 'Each half of the phone has its own titanium frame and inner plate. Open, it is only 5.2 mm thick; folded, the halves stack to 11.3 mm. Every control sits on the top edge: the volume buttons, a side button with Touch ID built in (there is no Face ID), and a Camera Control button. There is no Action button.',
+    specs: ['Titanium frame, 5.2 mm open', 'Touch ID side button + Camera Control', 'No Action button'] },
   hinge: { name: 'Hinge', role: 'The part that makes it fold.',
     body: 'A 3D-printed titanium hinge links the halves with gears, springs and interlocking metal joints. It closes in a waterdrop shape, leaving a teardrop pocket for the screen to curl into so it never bends sharply. A central support bar holds the screen flat when the phone is open.',
     specs: ['3D-printed titanium', 'Waterdrop fold for a gentler crease', 'Gears, springs and a support bar'] },
@@ -558,10 +558,13 @@ addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g =
   mesh(extrude(pl, 0.5, 0), plate, 0, 0, 1.6, g);
   mesh(extrude(halfL(1.4), 0.5, 0), plate, 0, 0, 1.6, g);
   const btn = std(0x070b16, 0.8, 0.26, { envMapIntensity: 0.7 });
-  const capsule = (len, x, mat, th = 2.3, pr = 0.6) => { const gg = extrude(rrShape(len, th, th / 2), pr, 0.3, 16); gg.rotateX(-Math.PI / 2); return mesh(gg, mat, x, H / 2 + pr / 2 - 0.25, 0, g); };
-  capsule(15.7, 64, std(0x2a3550, 1, 0.18), 2.75, 0.42);   // Touch ID ring
-  capsule(15, 64, std(0x070b16, 0.8, 0.22, { envMapIntensity: 0.8 }), 2.3, 0.65);     // side button with Touch ID
-  capsule(9, 44, btn); capsule(9, 32, btn);
+  const capsule = (len, x, mat, th = 2.3, pr = 1.1) => { const gg = extrude(rrShape(len, th, th / 2), pr, 0.3, 16); gg.rotateX(-Math.PI / 2); return mesh(gg, mat, x, H / 2 + pr / 2 - 0.25, 0, g); };
+  // all controls sit on the top edge (Apple's Duo guide, top view): volume up/down, side button with Touch ID, Camera Control
+  capsule(9, 16, btn); capsule(9, 28, btn);                                                      // volume
+  capsule(15.7, 47, std(0x3a4868, 1, 0.18), 2.75, 0.8);                                         // Touch ID ring
+  capsule(15, 47, std(0x0a1020, 0.85, 0.2, { envMapIntensity: 0.9 }), 2.3, 1.15);                // side button with Touch ID
+  capsule(11.2, 66, std(0x8090ae, 1, 0.16), 2.6, 0.85);                                              // Camera Control ring
+  capsule(10, 66, phys({ color: 0x05070c, metalness: 0.2, roughness: 0.06, clearcoat: 1, envMapIntensity: 1.8 }), 2.1, 0.95); // Camera Control sapphire pad
   const ab = std(0x1a1b1e, 0, 0.6);
   [[-HW + 0.6, 40], [-HW + 0.6, -40], [HW - 0.6, 40], [HW - 0.6, -40]].forEach(([x, y]) => box(1.8, 1.0, D - 0.4, ab, x, y, 0, g));
   box(9.2, 1.6, 3.2, std(0x050506, 0, 0.8), 41, -H / 2 + 0.4, 0, g);
@@ -572,7 +575,7 @@ addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g =
 /* 3. Hinge */
 let spine;
 addPart('hinge', [0, 0, 22], { az: 0.75, el: 0.45, k: 0.72, t: [0, 40, 0.5], dist: 85 }, [0, 58, 0.5], g => {
-  const ti = std(0x9a958d, 0.85, 0.42);
+  const ti = std(0x2a2f3a, 0.85, 0.4);
   mesh(extrude(rrShape(8.5, 110, 3), 2.6, 0.3), ti, 0, 0, -0.6, g);
   const plate = std(0xc4c8cc, 0.9, 0.3);
   box(6.5, 44, 0.4, plate, 0, -2, 1.85, g); // central support bar
@@ -674,7 +677,7 @@ const outerItems = [];
   add(676, 1030, x => searchPill(x, 676, 1030, 32));
   add(383, 1060, x => { circ(x, 370, 1060, 7, '#fff'); circ(x, 396, 1060, 7, 'rgba(255,255,255,0.5)'); });
 })();
-paintScreen(outerCanvas, outerBg, outerItems, 1, 82, OUTER_HOLE);
+paintScreen(outerCanvas, outerBg, outerItems, 1, [6, 82, 82, 6], OUTER_HOLE);
 const outerTex = new THREE.CanvasTexture(outerCanvas); outerTex.encoding = THREE.sRGBEncoding; outerTex.anisotropy = 4;
 addPart('outer', [0, 0, -52], { az: 3.35, el: 0.28, k: 1.0 }, [-80, 56, -2.5], g => {
   mesh(extrude(halfL(0.3), 0.7, 0.15), phys({ color: 0x050506, metalness: 0.1, roughness: 0.2, clearcoat: 1 }), 0, 0, -2.33, g);
@@ -719,7 +722,7 @@ function applyFold(f) { parts.forEach(p => { p.pivot.rotation.y = Math.PI * f; }
   // inner screen is lit as soon as it starts opening; the swinging half stays frosted until it lands flat
   const on = KEEP_ON ? 1 : clamp01((0.97 - f) / 0.12), oon = clamp01((f - 0.86) / 0.12), bl = clamp01(f / 0.55);
   if (Math.abs(bl - lastInnerP) > 0.004 || (bl !== lastInnerP && (bl === 0 || bl === 1))) { composeInner(bl); innerTexFull.needsUpdate = true; lastInnerP = bl; }
-  if (Math.abs(oon - lastOuterP) > 0.004 || (oon !== lastOuterP && (oon === 0 || oon === 1))) { paintScreen(outerCanvas, outerBg, outerItems, oon, 82, OUTER_HOLE); outerTex.needsUpdate = true; lastOuterP = oon; }
+  if (Math.abs(oon - lastOuterP) > 0.004 || (oon !== lastOuterP && (oon === 0 || oon === 1))) { paintScreen(outerCanvas, outerBg, outerItems, oon, [6, 82, 82, 6], OUTER_HOLE); outerTex.needsUpdate = true; lastOuterP = oon; }
   innerScr.material.color.setScalar(ease(on));
   outerScr.material.color.setScalar(ease(clamp01(oon * 2.2))); updateShadow(); }
 
@@ -870,7 +873,7 @@ function draw() {
 addEventListener('resize', resize); resize();
 
 /* ---------------- Video render hook ---------------- */
-window.__tour = { total: TOTAL, renderAt(t) { applyState(stateAt(t)); draw(); return true; } };
+window.__tour = { total: TOTAL, renderAt(t) { applyState(stateAt(t)); draw(); return true; }, look(o) { applyState(stateAt(o.t || 0)); if (o.fold != null) { fold = o.fold; applyFold(fold); } Object.assign(view, { target: new THREE.Vector3(o.tx, o.ty, o.tz), az: o.az, el: o.el, dist: o.dist, shift: 0 }); draw(); } };
 if (RENDER) { applyState(stateAt(0)); draw(); return; }
 
 /* ---------------- Interactive mode ---------------- */
