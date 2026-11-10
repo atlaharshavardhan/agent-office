@@ -33,3 +33,18 @@ node render.js airtag-teardown.html video airtag-teardown.mp4 30
 ```
 
 Use `stills <dir> 30 <t1> <t2> ...` in place of `video <file> 30` to grab single frames at given times (in seconds). Opening the page with `?render=1` exposes `window.__tour.renderAt(t)`, which renders the tour at exactly time `t`.
+
+## iPhone Duo Short / Reel (9:16)
+
+- `iphone-duo-short.html`: the vertical 3D scene (open with `?render=1&clean=1` for the text-free version used by the reel).
+- `reel/`: Remotion project that puts animated captions, counters, callouts, progress bar and sound effects over the 3D render.
+
+```bash
+Q='&clean=1' VW=1080 VH=1920 node render.js iphone-duo-short.html video reel/public/duo-short-3d.mp4 30
+```
+
+```bash
+cd reel && npm install && npx remotion render src/index.jsx DuoReel out/duo-reel.mp4 --codec=h264 --crf=18
+```
+
+Sound effects in `reel/public/sfx` are synthesised with ffmpeg (no third-party audio). Add the voiceover later as another `<Audio>` track in `reel/src/Reel.jsx`.

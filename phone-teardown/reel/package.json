@@ -1,0 +1,14 @@
+{
+  "name": "invisitech-duo-reel",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.jsx",
+    "render": "remotion render src/index.jsx DuoReel out/duo-reel.mp4 --codec=h264 --crf=18"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.538",
+    "remotion": "4.0.538",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
