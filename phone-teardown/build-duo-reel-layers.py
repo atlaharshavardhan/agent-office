@@ -6,7 +6,7 @@ def R(a, b):
 
 # reel look: black with a faint glow, all page UI hidden
 R('</style>', '''
-body.reel { background: radial-gradient(ellipse 70% 45% at 58% 46%, #121823 0%, #05070a 60%, #000 100%) !important; }
+body.reel { background: radial-gradient(ellipse 95% 62% at 50% 46%, #142a52 0%, #0b1833 42%, #060d1f 72%, #03060f 100%) !important; }
 body.reel .top, body.reel #rail, body.reel #card, body.reel #controls, body.reel #hint, body.reel #labels { display: none !important; }
 #rl { position: fixed; inset: 0; pointer-events: none; display: none; }
 body.reel #rl { display: block; }

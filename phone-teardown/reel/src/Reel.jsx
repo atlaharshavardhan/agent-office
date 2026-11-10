@@ -55,8 +55,8 @@ const PUNCHES = [11.28, 20.48];              // zoom punch when the counters lan
 const SFX = [
   ['impact.wav', 0.0, 0.55], ['shimmer.wav', 0.05, 0.35],      // cold open on the price
   ['whoosh-soft.wav', 2.1, 0.45],                               // turns to face you
-  ['open.wav', 2.92, 0.7],                                      // magnetic release, halves part
-  ['chime.wav', 4.15, 0.4],                                     // screen wakes as it lands flat
+  ['open.wav', 3.28, 0.7],                                      // magnetic release, halves part
+  ['chime.wav', 4.45, 0.4],                                     // screen wakes as it lands flat
   ['impact.wav', 4.7, 0.6],                                     // "So how?"
   ['whoosh.wav', 5.05, 0.5],                                    // explode
   ['whoosh-fast.wav', 9.02, 0.5],                               // sweep → screen layers
@@ -224,7 +224,7 @@ const Chrome = () => {
   const { durationInFrames } = useVideoConfig();
   return (
     <>
-      <AbsoluteFill style={{ background: 'linear-gradient(#000 0%, rgba(0,0,0,0.88) 17%, rgba(0,0,0,0) 34%)' }} />
+      <AbsoluteFill style={{ background: 'linear-gradient(rgb(3,6,15) 0%, rgba(3,6,15,0.85) 17%, rgba(3,6,15,0) 34%)' }} />
       <div style={{ position: 'absolute', top: 0, left: 0, height: 7, width: `${(frame / durationInFrames) * 100}%`, background: C.accent }} />
     </>
   );

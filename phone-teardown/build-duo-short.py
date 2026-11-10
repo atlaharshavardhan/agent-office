@@ -4,7 +4,7 @@ def R(a, b):
     assert src.count(a) == 1, (src.count(a), a[:90]); src = src.replace(a, b)
 
 R('<title>iPhone Duo Teardown</title>', '<title>iPhone Duo Fold Short</title>')
-R('</style>', r'''body.short { background: radial-gradient(ellipse 70% 45% at 50% 56%, #0e121a 0%, #05070a 45%, #000 75%) !important; }
+R('</style>', r'''body.short { background: radial-gradient(ellipse 95% 62% at 50% 46%, #142a52 0%, #0b1833 42%, #060d1f 72%, #03060f 100%) !important; }  /* Apple-style deep navy */
 body.short .top, body.short #card, body.short #labels, body.short #title-card, body.short #parts, body.short #controls, body.short #hint { display: none !important; }
 body.clean #cap, body.clean #capbg { display: none !important; }
 #glabels { position: absolute; inset: 0; pointer-events: none; }
@@ -175,13 +175,13 @@ window.haloPass = () => {
 const S1A = P(36, 0, 3, 2.75, 0.16, 380);  // closed, back three-quarter (end of the tour)
 // Apple-style reveal: slow turntable close-up of the closed phone, swing to face the viewer, open towards the camera
 const MACRO = P(56, 40, -4, 2.95, 0.06, 205), BACK0 = P(36, 0, 3, 2.75, 0.1, 500), BACK1 = P(36, 0, 3, 3.3, 0.14, 455);
-const FRONT_C = P(36, 0, 3, 0.12, 0.16, 470);                 // closed, cover screen facing us
-const OPEN = P(0, 0, 1, 0.1, 0.2, 690), OVER = P(36, 0, 2, 0.12, 0.85, 1080, UP_STACK);
+const FRONT_C = P(36, 0, 3, 0.08, 0.1, 470);                 // closed, cover screen facing us
+const OPEN = P(0, 0, 1, 0.06, 0.12, 690), OVER = P(36, 0, 2, 0.12, 0.85, 1080, UP_STACK);
 sseg({ dur: 2.2, fold: () => 1, pose: t => { const T = t * 2.2; return T < 1.2 ? lerpPose(MACRO, BACK0, ease(T / 1.2) * 0.999) : lerpPose(BACK0, BACK1, ease((T - 1.2) / 1.0)); },
   caps: [[0, 2.2, '<div class="big">₹2,99,900</div>' + L('This iPhone <em>folds in half</em>')]] });
-sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 0.9) / 1.45)), cb: t => clamp01((t * 2.8 - 0.5) / 0.35),
-  wake: t => 1 + 0.22 * Math.sin(Math.PI * clamp01((t * 2.8 - 2.0) / 0.8)),       // little Apple-style glow as the screen lands flat
-  pose: t => { const T = t * 2.8; return T < 0.8 ? lerpPose(BACK1, FRONT_C, ease(T / 0.8)) : lerpPose(FRONT_C, OPEN, ease(clamp01((T - 0.75) / 1.75))); },
+sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 1.1) / 1.35)), cb: t => clamp01((t * 2.8 - 0.75) / 0.3),  // sharp cover → frost → open
+  wake: t => 1 + 0.22 * Math.sin(Math.PI * clamp01((t * 2.8 - 2.25) / 0.55)),       // little Apple-style glow as the screen lands flat
+  pose: t => { const T = t * 2.8; return T < 0.55 ? lerpPose(BACK1, FRONT_C, ease(T / 0.55)) : lerpPose(FRONT_C, OPEN, ease(clamp01((T - 1.15) / 1.45))); },
   caps: [[0.05, 1.6, L('But glass <em>cracks</em> when you bend it')], [1.6, 2.8, '<div class="big">So how?</div>']] });
 sseg({ dur: 4, gl: t => clamp01((t * 4 - 2.25) / 1.0), glo: t => clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
   caps: [[0.05, 1.7, L('Just <em>5.2 mm</em> thin')], [1.7, 4, L('Let’s open it up')]] });
