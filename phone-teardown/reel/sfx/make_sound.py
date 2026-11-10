@@ -208,6 +208,26 @@ def pluck(f, dur=0.55, bright=0.5, p=0.0):
     return reverb(pan(y, p), IR_ROOM, 0.3)
 
 
+def soft_tone(f, dur=0.9, p=0.0, wet=0.45):
+    """premium UI tone: pure sine + a little octave, slow-ish attack, long smooth decay, airy reverb"""
+    n = int(dur * SR)
+    t = np.arange(n) / SR
+    e = np.clip(t / 0.012, 0, 1) ** 2 * np.exp(-t * 4.2)
+    y = (np.sin(2 * np.pi * f * t) + 0.18 * np.sin(4 * np.pi * f * t) * np.exp(-t * 6)) * e
+    return reverb(pan(y, p), IR_HALL, wet)
+
+
+def swell(dur=1.4):
+    """smooth airy swell for the hinge counter (replaces the ratchet clicks)"""
+    n = int(dur * SR)
+    u = np.linspace(0, 1, n)
+    shape = np.sin(np.pi * np.clip(u / 0.85, 0, 1)) ** 2
+    air = svf_bp(noise(n), 500 + 900 * u, 0.9) * shape * 0.5
+    t = np.arange(n) / SR
+    pad = sum(np.sin(2 * np.pi * f * t) for f in (220, 330, 440)) * shape * 0.12
+    return reverb(pan(air + pad, 0), IR_HALL, 0.5)
+
+
 def tick(f=2400, p=0.0):
     n = int(0.06 * SR)
     tk = np.arange(n) / SR
@@ -262,14 +282,14 @@ save("close.wav", close_thock(), -1)
 save("open.wav", open_release(), -4)
 save("chime.wav", chime(), -6)
 save("shimmer.wav", shimmer(), -8)
-save("ratchet.wav", ratchet(), -8)
+save("ratchet.wav", swell(), -10)
 save("bend.wav", swish_bend(), -7)
 save("unbend.wav", swish_bend(1.4, True), -8)
 save("tap.wav", like_tap(), -4)
 save("tick.wav", tick(), -12)
 SCALE = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66, 1318.51, 1567.98, 1760.0]  # C major pentatonic-ish, rising
 for i, f in enumerate(SCALE):
-    save(f"pluck{i}.wav", pluck(f, 0.5, 0.5, -0.5 + i / 9), -9)
+    save(f"pluck{i}.wav", soft_tone(f, 0.9, -0.4 + 0.8 * i / 9), -12)
 
 
 # ---------------------------------------------------------------- music bed (45 s, 100 BPM, C major vi-IV-I-V)
@@ -343,8 +363,8 @@ for k in range(int(DUR / (BEAT / 2))):
     chord = CHORDS[int(at // BAR) % 4]
     m = chord[[0, 2, 1, 3, 2, 1, 3, 2][k % 8]] + 12
     if m not in pl_cache:
-        pl_cache[m] = pluck(midi(m), 0.45, 0.0)
-    add(arp, at, pl_cache[m] * 0.45)
+        pl_cache[m] = soft_tone(midi(m), 0.8, 0.0, 0.35)
+    add(arp, at, pl_cache[m] * 0.32)
 dly = int(BEAT * 0.75 * SR)
 echo = np.zeros_like(arp)
 echo[dly:, 0] = arp[:-dly, 1] * 0.35
@@ -380,7 +400,7 @@ for k in range(int(DUR / BEAT)):
     add(drums, at, pan(K, 0) * 0.9)
     if k % 2 == 1:
         add(drums, at, reverb(pan(C, 0.1), IR_ROOM, 0.35)[: len(C) + 4000] * 0.32)
-    add(drums, at + BEAT / 2, pan(HO if k % 4 == 3 else H, 0.35) * 0.11)
+    add(drums, at + BEAT / 2, pan(H, 0.35) * 0.05)
 
 # arrangement (seconds): intro pad → arp at 2.4 → break before "So how?" → groove at 5.0 →
 # lighter under the crease → build into the close (38.5 thock) → outro pad + end card

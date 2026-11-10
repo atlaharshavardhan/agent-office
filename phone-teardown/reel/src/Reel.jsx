@@ -63,7 +63,7 @@ const SFX = [
   ['impact-small.wav', 11.28, 0.55],                            // counter lands on 10
   ['bend.wav', 13.35, 0.5], ['unbend.wav', 16.8, 0.45],         // layers bend and flatten
   ['whoosh-fast.wav', 19.02, 0.5],                              // sweep → hinge
-  ['ratchet.wav', 19.55, 0.55], ['impact-small.wav', 20.48, 0.5],
+  ['ratchet.wav', 19.4, 0.45], ['impact-small.wav', 20.48, 0.5],
   ['whoosh-soft.wav', 24.45, 0.45],                             // looking down into the V
   ['whoosh-soft.wav', 29.95, 0.4],                              // crease
   ['whoosh-soft.wav', 35.9, 0.45],                              // turns to face you
@@ -261,7 +261,7 @@ const EndCard = () => {
   return (
     <AbsoluteFill>
       <AbsoluteFill style={{ opacity: shade, background: 'linear-gradient(rgba(0,0,0,0) 50%, rgba(3,6,14,0.7) 58%, rgba(3,6,14,0.9) 100%)' }} />
-      <div style={{ position: 'absolute', top: 1068, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>  {/* phone sits in 450–1050, card text in 1060–1450 */}
+      <div style={{ position: 'absolute', top: 1118, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>  {/* phone sits in 450–1050, card text in 1060–1450 */}
         <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 128, letterSpacing: '-0.03em', lineHeight: 1, transform: `scale(${0.85 + 0.15 * Math.min(1, word)})`, opacity: Math.min(1, word), textShadow: '0 8px 40px rgba(0,0,0,0.6)' }}>
           <span style={{ color: C.white }}>Invisi</span><span style={{ color: '#5bc8e0' }}>Tech</span>
         </div>
@@ -303,7 +303,7 @@ export const Reel = ({ bg } = {}) => (
     {/* music bed (sfx/make_sound.py), ducked under the voice */}
     <Audio src={staticFile('sfx2/music.wav')} volume={musicVolume} />
     {SFX.map(([f, t, v], k) => <Sequence key={'sfx' + k} from={s(t)}><Audio src={staticFile('sfx2/' + f)} volume={v} /></Sequence>)}
-    {PART_PLUCKS.map(([t, i]) => <Sequence key={'pp' + i} from={s(t)}><Audio src={staticFile(`sfx2/pluck${i}.wav`)} volume={0.35} /></Sequence>)}
+    {PART_PLUCKS.map(([t, i]) => <Sequence key={'pp' + i} from={s(t)}><Audio src={staticFile(`sfx2/pluck${i}.wav`)} volume={0.3} /></Sequence>)}
     {LAYER_PLUCKS.map(([t, i]) => <Sequence key={'lp' + i} from={s(t)}><Audio src={staticFile(`sfx2/pluck${i}.wav`)} volume={0.32} /></Sequence>)}
   </AbsoluteFill>
 );
