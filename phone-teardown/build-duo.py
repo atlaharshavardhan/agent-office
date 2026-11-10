@@ -262,13 +262,14 @@ addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g =
   const btn = std(0x070b16, 0.8, 0.26, { envMapIntensity: 0.7 });
   const capsule = (len, x, mat, th = 2.3, pr = 1.1) => { const gg = extrude(rrShape(len, th, th / 2), pr, 0.3, 16); gg.rotateX(-Math.PI / 2); return mesh(gg, mat, x, H / 2 + pr / 2 - 0.25, 0, g); };
   // all controls sit on the top edge (Apple's Duo guide, top view): volume up/down, side button with Touch ID, Camera Control
-  // Apple's Duo guide (closed): volume on the top edge; side button with Touch ID on the right (outer) edge, Camera Control below it
-  const capsuleR = (len, y, mat, th = 2.3, pr = 1.1) => { const gg = extrude(rrShape(len, th, th / 2), pr, 0.3, 16); gg.rotateX(-Math.PI / 2); gg.rotateZ(-Math.PI / 2); return mesh(gg, mat, HW + pr / 2 - 0.25, y, 0, g); };
-  capsule(8.5, 56, btn); capsule(8.5, 67, btn);                                                    // volume up / down (top edge)
-  capsuleR(15.7, 30, std(0x3a4868, 1, 0.18), 2.75, 0.8);                                           // Touch ID ring
-  capsuleR(15, 30, std(0x0a1020, 0.85, 0.2, { envMapIntensity: 0.9 }), 2.3, 1.15);                 // side button with Touch ID
-  capsuleR(11.2, 8, std(0x8090ae, 1, 0.16), 2.6, 0.85);                                            // Camera Control ring
-  capsuleR(10, 8, phys({ color: 0x05070c, metalness: 0.2, roughness: 0.06, clearcoat: 1, envMapIntensity: 1.8 }), 2.1, 0.95); // Camera Control sapphire pad
+  // Buttons on the cover-screen half (the half you hold when closed), per Apple's guide and reviews:
+  // closed: volume x2 on the top edge near the Touch ID corner; long, slightly raised side button with Touch ID on the outer edge; Camera Control below it
+  const capsuleL = (len, y, mat, th = 2.3, pr = 1.1) => { const gg = extrude(rrShape(len, th, th / 2), pr, 0.3, 16); gg.rotateX(-Math.PI / 2); gg.rotateZ(Math.PI / 2); return mesh(gg, mat, -HW - pr / 2 + 0.25, y, 0, g); };
+  capsule(8.5, -60, btn); capsule(8.5, -71, btn);                                                  // volume up (nearer Touch ID) / down
+  capsuleL(20.6, 31, std(0x3a4868, 1, 0.18), 2.75, 0.9);                                           // Touch ID ring
+  capsuleL(20, 31, std(0x0a1020, 0.85, 0.2, { envMapIntensity: 0.9 }), 2.3, 1.35);                 // long side button with Touch ID, slightly raised
+  capsuleL(11.2, 7, std(0x8090ae, 1, 0.16), 2.6, 0.85);                                            // Camera Control ring
+  capsuleL(10, 7, phys({ color: 0x05070c, metalness: 0.2, roughness: 0.06, clearcoat: 1, envMapIntensity: 1.8 }), 2.1, 0.95); // Camera Control sapphire pad
   const ab = std(0x1a1b1e, 0, 0.6);
   [[-HW + 0.6, 40], [-HW + 0.6, -40], [HW - 0.6, 40], [HW - 0.6, -40]].forEach(([x, y]) => box(1.8, 1.0, D - 0.4, ab, x, y, 0, g));
   box(9.2, 1.6, 3.2, std(0x050506, 0, 0.8), 41, -H / 2 + 0.4, 0, g);

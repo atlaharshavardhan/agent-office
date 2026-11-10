@@ -22,13 +22,14 @@ Checked against Apple's iPhone Duo spec pages, Apple's Duo guide, Apple newsroom
 | Outer camera | 12 MP Center Stage in a punch-hole | ✅ top outer corner |
 | Brightness | 1000 typ / 1600 HDR / 3000 outdoor nits | ✅ (in text) |
 
-## Controls (Apple's Duo guide, phone closed)
+## Controls (Apple's Duo guide + BGR, T3, TechRadar, Daring Fireball)
 | Control | Model |
 |---|---|
-| Volume up/down on the top edge | ✅ |
-| Side button with Touch ID (no Face ID) on the right (outer) edge | 🔧 moved from the top edge to the outer edge |
-| Camera Control below the side button | 🔧 moved to the outer edge |
-| Action button | ✅ none (Duo has no Action button) |
+| Volume up/down on the top edge (closed), up = nearer the Touch ID button | ✅ near the Touch ID corner |
+| Long, slightly raised side button with Touch ID on the right edge (closed) | ✅ on the cover-screen half |
+| Camera Control below the side button | ✅ |
+| Action button | ✅ none (TechRadar's mention conflicts with Apple, MacRumors, T3, BGR) |
+| Which half carries the buttons | ⚠️ cover-screen half: inferred from "right edge when closed" and Daring Fireball ("held open vertically, Touch ID is on the top on the left side"); not stated outright |
 
 ## Cameras
 | Spec | Source value | Model |
