@@ -587,14 +587,14 @@ let spine;
 addPart('hinge', [0, 0, 22], { az: 0.75, el: 0.45, k: 0.72, t: [0, 40, 0.5], dist: 85 }, [0, 58, 0.5], g => {
   const ti = std(0x2a2f3a, 0.85, 0.4);
   mesh(extrude(rrShape(8.5, 110, 3), 2.6, 0.3), ti, 0, 0, -0.6, g);
-  const plate = std(0xc4c8cc, 0.9, 0.3);
+  const plate = std(0x1a1f29, 0.85, 0.35);
   box(6.5, 44, 0.4, plate, 0, -2, 1.85, g); // central support bar
-  const gearM = std(0xb8b2a8, 0.95, 0.3);
+  const gearM = std(0x2a2f3a, 0.9, 0.3);
   [50, -50].forEach(y => [-2.4, 2.4].forEach(x => {
     const gr = new THREE.Mesh(new THREE.CylinderGeometry(1.7, 1.7, 3, 24), gearM); gr.position.set(x, y, -0.3); g.add(gr);
     for (let t = 0; t < 12; t++) { const a = t / 12 * Math.PI * 2; box(0.6, 3, 0.6, gearM, x + Math.cos(a) * 1.9, y, -0.3 + Math.sin(a) * 1.9, g); }
   }));
-  const springM = std(0xd2d4d6, 1, 0.25);
+  const springM = std(0x3a404c, 1, 0.3);
   [42, 34, -34, -42].forEach(y => {
     const pts = []; for (let i = 0; i <= 160; i++) { const t = i / 160; const a = t * Math.PI * 2 * 9; pts.push(new THREE.Vector3(Math.cos(a) * 1.2, y - 3.5 + t * 7, 0.2 + Math.sin(a) * 1.2)); }
     const tb = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 320, 0.26, 6), springM); g.add(tb);
@@ -604,7 +604,7 @@ addPart('hinge', [0, 0, 22], { az: 0.75, el: 0.45, k: 0.72, t: [0, 40, 0.5], dis
 (function makeSpine() {
   const hp = parts[parts.length - 1];
   const mat = std(0x060a14, 0.75, 0.36, { envMapIntensity: 0.7 }, { side: THREE.DoubleSide, envMapIntensity: 1.1 });
-  const geo = new THREE.CylinderGeometry(5.65, 5.65, H - 0.2, 64, 1, true, Math.PI - Math.PI * 0.46, Math.PI * 0.92);
+  const geo = new THREE.CylinderGeometry(5.72, 5.72, H - 0.2, 64, 1, true, Math.PI / 2, Math.PI);
   spine = new THREE.Mesh(geo, mat); spine.position.set(0, 0, ZF); spine.visible = false; spine.userData.part = hp;
   mat.userData.baseOpacity = 1; mat.userData.baseTransparent = false; mat.userData.baseDepthWrite = true;
   hp.group.add(spine);
