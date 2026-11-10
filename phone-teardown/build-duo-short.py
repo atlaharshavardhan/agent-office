@@ -72,7 +72,7 @@ sseg({ dur: 10, explode: () => 1, dimMap: { inner: 0.8 }, dimDefault: 0.93,
   stack: lt => [ease(clamp01((lt - 0.5) / 1.6)) * (1 - ease(clamp01((lt - 9.2) / 0.8))), ease(clamp01((lt - 4.4) / 0.8)), lt],
   pose: t => P(STACK_C.x, STACK_C.y + 2, STACK_C.z, 0.42 + 0.12 * t, 0.2, 400),
   caps: [[0.3, 4.4, L('Trick 1: the screen is <em>~10 thin layers</em>')], [4.4, 10, L('They <em>slide</em> like paper, so nothing snaps')]] });
-sseg({ dur: 5.5, explode: () => 1, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 34, 22.5, 0.38 + 0.25 * t, 0.32, 200),
+sseg({ dur: 5.5, explode: () => 1, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 42, 23, 0.3 + 0.35 * t, 0.42, 120),
   caps: [[0.25, 5.5, L('Trick 2: a hinge of <em>100+ parts</em>') + '<div class="sub">gears · springs · 3D-printed titanium cover</div>']] });
 sseg({ dur: 5.5, explode: t => 1 - ease(clamp01(t * 5.5 / 1.4)), fold: t => 0.74 * ease(clamp01((t * 5.5 - 1.5) / 2.6)),
   keepOn: true, dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(14, 30, 10, -0.2 - 0.1 * t, 0.95, 330),

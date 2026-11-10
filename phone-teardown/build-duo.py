@@ -281,26 +281,49 @@ addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g =
 
 /* 3. Hinge */
 let spine;
-addPart('hinge', [0, 0, 22], { az: 0.75, el: 0.45, k: 0.72, t: [0, 40, 0.5], dist: 85 }, [0, 58, 0.5], g => {
-  const ti = std(0x2a2f3a, 0.85, 0.4);
-  mesh(extrude(rrShape(8.5, 110, 3), 2.6, 0.3), ti, 0, 0, -0.6, g);
-  const plate = std(0x1a1f29, 0.85, 0.35);
-  box(6.5, 44, 0.4, plate, 0, -2, 1.85, g); // central support bar
-  const gearM = std(0x2a2f3a, 0.9, 0.3);
-  [50, -50].forEach(y => [-2.4, 2.4].forEach(x => {
-    const gr = new THREE.Mesh(new THREE.CylinderGeometry(1.7, 1.7, 3, 24), gearM); gr.position.set(x, y, -0.3); g.add(gr);
-    for (let t = 0; t < 12; t++) { const a = t / 12 * Math.PI * 2; box(0.6, 3, 0.6, gearM, x + Math.cos(a) * 1.9, y, -0.3 + Math.sin(a) * 1.9, g); }
-  }));
-  const springM = std(0x3a404c, 1, 0.3);
-  [42, 34, -34, -42].forEach(y => {
-    const pts = []; for (let i = 0; i <= 160; i++) { const t = i / 160; const a = t * Math.PI * 2 * 9; pts.push(new THREE.Vector3(Math.cos(a) * 1.2, y - 3.5 + t * 7, 0.2 + Math.sin(a) * 1.2)); }
-    const tb = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 320, 0.26, 6), springM); g.add(tb);
+let hingeMech;
+addPart('hinge', [0, 0, 22], { az: 0.6, el: 0.55, k: 0.72, t: [0, 44, 0.6], dist: 62 }, [0, 58, 0.5], g => {
+  // Mechanism (iFixit: gears, springs, interlocking joints; REWA: four springs) under a 3D-printed titanium cover.
+  const m = new THREE.Group(); g.add(m); hingeMech = m;
+  const ti = std(0x161b24, 0.8, 0.45, { envMapIntensity: 0.6 }), steel = std(0xa3aab4, 1, 0.24), dark = std(0x3a414c, 0.95, 0.3), springM = std(0xb4bac2, 1, 0.25);
+  mesh(extrude(rrShape(8.5, 110, 3), 1.6, 0.3), ti, 0, 0, -1.4, m);                         // structural spine
+  const gearAt = (x, y, z, r, mat) => {
+    const gr = mesh(new THREE.CylinderGeometry(r, r, 1.6, 24), mat, x, y, z, m);
+    for (let t = 0; t < 12; t++) { const a = t / 12 * Math.PI * 2 + (x > 0 ? 0.26 : 0); box(0.32, 1.6, 0.32, mat, x + Math.cos(a) * (r + 0.14), y, z + Math.sin(a) * (r + 0.14), m); }
+  };
+  const coil = (x, y0, y1, z, r) => {
+    const pts = []; for (let i = 0; i <= 200; i++) { const t = i / 200, a = t * Math.PI * 2 * 8; pts.push(new THREE.Vector3(x + Math.cos(a) * r, y0 + t * (y1 - y0), z + Math.sin(a) * r)); }
+    m.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 400, 0.13, 6), springM));
+  };
+  [46, -46].forEach(y => {
+    const sgn = Math.sign(y);
+    mesh(extrude(rrShape(10, 16, 1.5), 1.2, 0.2), ti, 0, y, -0.2, m);                       // module bracket
+    const xs = [-2.85, -0.95, 0.95, 2.85];
+    xs.forEach((x, k) => {
+      mesh(new THREE.CylinderGeometry(0.32, 0.32, 15, 16), steel, x, y, 0.75, m);          // shaft
+      gearAt(x, y + sgn * 5.5, 0.75, 0.82, k % 2 ? dark : steel);                           // synchronising gear train
+      mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.18, 24), dark, x, y - sgn * 5.9, 0.75, m); // friction washer
+    });
+    [-2.85, 2.85].forEach(x => {
+      mesh(new THREE.CylinderGeometry(0.95, 0.95, 2, 24), dark, x, y + sgn * 1.2, 0.75, m);   // detent cam
+      for (let t = 0; t < 3; t++) { const a = t / 3 * Math.PI * 2; box(0.45, 0.5, 0.45, steel, x + Math.cos(a) * 0.6, y + sgn * 2.4, 0.75 + Math.sin(a) * 0.6, m); }
+      coil(x, y - sgn * 4.8, y - sgn * 0.4, 0.75, 0.82);                                    // detent spring
+      const arm = box(1.4, 12, 0.5, ti, Math.sign(x) * 4.45, y, 1.35, m); arm.rotation.y = Math.sign(x) * 0.12; // swing arm
+    });
+    [[-4, 7], [4, 7], [-4, -7], [4, -7]].forEach(([sx, sy]) => {                           // screws
+      mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.35, 16).rotateX(Math.PI / 2), steel, sx, y + sy, 0.5, m);
+      box(0.55, 0.1, 0.05, dark, sx, y + sy, 0.69, m); box(0.1, 0.55, 0.05, dark, sx, y + sy, 0.69, m);
+    });
   });
-  [46, -46, 20, -20].forEach(y => { const arc = new THREE.Mesh(new THREE.TorusGeometry(1.9, 0.4, 6, 24, Math.PI), ti); arc.rotation.x = Math.PI / 2; arc.position.set(0, y, -0.4); g.add(arc); });
+  const fp = [steel, dark, steel, dark, steel];                                             // centre friction stack
+  fp.forEach((mat, k) => box(7, 3.2, 0.22, mat, 0, 0, -0.35 + k * 0.28, m));
+  mesh(new THREE.CylinderGeometry(0.32, 0.32, 5, 16), steel, 0, 0, 0.9, m);
+  [30, 12, -12, -30].forEach(y => { const arc = new THREE.Mesh(new THREE.TorusGeometry(2.3, 0.32, 8, 32, Math.PI), ti); arc.rotation.x = Math.PI / 2; arc.position.set(0, y, -0.25); m.add(arc); }); // waterdrop guide rails
+  box(6.5, 44, 0.4, std(0x1a1f29, 0.85, 0.35), 0, -2, 1.95, m);                             // central support bar
 }, false);
 (function makeSpine() {
   const hp = parts[parts.length - 1];
-  const mat = std(0x0a1222, 1, 0.16, { envMapIntensity: 0.9 }, { side: THREE.DoubleSide, envMapIntensity: 1.1 });
+  const mat = std(0x0a1222, 1, 0.16, { side: THREE.DoubleSide, envMapIntensity: 0.9 });
   const geo = new THREE.CylinderGeometry(5.72, 5.72, H - 0.2, 64, 1, true, Math.PI / 2, Math.PI);
   spine = new THREE.Mesh(geo, mat); spine.position.set(0, 0, ZF); spine.visible = false; spine.userData.part = hp;
   mat.userData.baseOpacity = 1; mat.userData.baseTransparent = false; mat.userData.baseDepthWrite = true;
@@ -431,7 +454,7 @@ const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasic
 shadow.rotation.x = -Math.PI / 2; shadow.position.y = -H / 2 - 0.6; scene.add(shadow);
 let fold = 0;
 function updateShadow() { shadow.position.x = 40 * fold; shadow.position.z = 3 * fold; shadow.scale.set(200 - 95 * fold, 34 + 6 * fold, 1); shadow.material.opacity = 0.7 * clamp01(1 - explode * 4); shadow.visible = shadow.material.opacity > 0.01; }
-function applyFold(f) { parts.forEach(p => { p.pivot.rotation.y = Math.PI * f; }); spine.rotation.y = Math.PI / 2 * f; spine.visible = f > 0.02; bendScreens(f); innerScreens.forEach(m => { m.visible = f < 0.97; });
+function applyFold(f) { parts.forEach(p => { p.pivot.rotation.y = Math.PI * f; }); spine.rotation.y = Math.PI / 2 * f; spine.visible = f > 0.02 || explode > 0.3; if (hingeMech) hingeMech.visible = f < 0.5; bendScreens(f); innerScreens.forEach(m => { m.visible = f < 0.97; });
   // outer screen sleeps as soon as it opens; inner screen wakes (fade + zoom settle) as it reaches flat
   // inner screen is lit as soon as it starts opening; the swinging half stays frosted until it lands flat
   const on = KEEP_ON ? 1 : clamp01((0.97 - f) / 0.12), oon = clamp01((f - 0.86) / 0.12), bl = clamp01(f / 0.55);

@@ -347,7 +347,7 @@ function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let
 
 /* ---------------- iPhone Duo dimensions (mm, open) ---------------- */
 const HW = 82.3, H = 117.8, D = 5.2, R = 9.5, ZF = 3.05; // half width, height, depth, corner radius, fold axis height
-const CAM = { x: 51, y: 44 };  // camera pill centre (lenses side by side, flash toward the hinge)
+const CAM = { x: 48.8, y: 44.3 };  // camera pill centre (lenses side by side, flash toward the hinge)
 function half(x0, x1, h, r, roundLeft, PathT = THREE.Shape) {
   const s = new PathT(), y0 = -h / 2, y1 = h / 2;
   if (roundLeft) { s.moveTo(x0 + r, y0); s.lineTo(x1, y0); s.lineTo(x1, y1); s.lineTo(x0 + r, y1); s.absarc(x0 + r, y1 - r, r, Math.PI / 2, Math.PI); s.lineTo(x0, y0 + r); s.absarc(x0 + r, y0 + r, r, Math.PI, Math.PI * 1.5); }
@@ -523,7 +523,7 @@ function paintScreen(canvas, bg, items, p, radius, hole) {
   if (hole) { const [hx, hy, hr] = hole; circ(x, hx, hy, hr, '#000'); circ(x, hx, hy, hr * 0.55, '#0d1630'); circ(x, hx - hr * 0.25, hy - hr * 0.25, hr * 0.17, 'rgba(255,255,255,0.55)'); }
   x.restore();
 }
-const INNER_HOLE = [1560, 62, 17], OUTER_HOLE = [680, 72, 22];
+const INNER_HOLE = [1162, 77, 17], OUTER_HOLE = [680, 72, 22];
 const innerSharp = document.createElement('canvas'); innerSharp.width = 1640; innerSharp.height = 1100;
 paintScreen(innerSharp, innerBg, innerItems, 1, 86, null); circ(innerSharp.getContext('2d'), INNER_HOLE[0], INNER_HOLE[1], 13, 'rgba(0,0,0,0.16)'); // under-display camera: barely visible
 const innerBlur = document.createElement('canvas'); innerBlur.width = 1640; innerBlur.height = 1100;
@@ -556,7 +556,7 @@ addPart('inner', [0, 0, 72], { az: 0.42, el: 0.4, k: 0.92 }, [-80, 56, 2.6], g =
   innerScr = scr; innerTexFull = full;
   [scr, gloss].forEach((m, k) => { m.userData.base = Float32Array.from(m.geometry.attributes.position.array); m.userData.lift = k ? 0.06 : 0; g.add(m); innerScreens.push(m); bendMeshes.push(m); });
   bendScreens(0);
-  mesh(cyl(1.3, 1.0, 24), phys({ color: 0x0b1020, metalness: 0.3, roughness: 0.05, clearcoat: 1 }), 73.1, 51.1, 1.6, g); // front camera behind the hole
+  mesh(cyl(1.3, 1.0, 24), phys({ color: 0x0b1020, metalness: 0.3, roughness: 0.05, clearcoat: 1 }), 33.5, 48.9, 1.6, g); // under-display FaceTime camera (volume buttons sit just to its right on the top edge)
   box(18, 8, 0.18, std(0xd99a3a, 0.1, 0.45), 30, -50, 1.85, g);
 });
 
@@ -565,50 +565,74 @@ addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g =
   const metal = std(0x0a1222, 1, 0.16, { envMapIntensity: 0.9 }, { envMapIntensity: 1.1 });
   [[halfL(0), halfL(1.6, R)], [halfR(0), halfR(1.6, R)]].forEach(([o, i]) => { const s = o; const hole = i; const hp = new THREE.Path(hole.getPoints(24)); s.holes.push(hp); mesh(extrude(s, D, 0.4), metal, 0, 0, 0, g); });
   const plate = std(0x9aa0a6, 0.8, 0.45);
-  const pl = halfR(1.4); pl.holes.push(new THREE.Path(rrShape(54, 25, 12, CAM.x, CAM.y).getPoints(16)));
+  const pl = halfR(1.4); pl.holes.push(new THREE.Path(rrShape(60, 24, 12, CAM.x, CAM.y).getPoints(16)));
   mesh(extrude(pl, 0.5, 0), plate, 0, 0, 1.6, g);
   mesh(extrude(halfL(1.4), 0.5, 0), plate, 0, 0, 1.6, g);
   const btn = std(0x070b16, 0.8, 0.26, { envMapIntensity: 0.7 });
   const capsule = (len, x, mat, th = 2.3, pr = 1.1) => { const gg = extrude(rrShape(len, th, th / 2), pr, 0.3, 16); gg.rotateX(-Math.PI / 2); return mesh(gg, mat, x, H / 2 + pr / 2 - 0.25, 0, g); };
   // all controls sit on the top edge (Apple's Duo guide, top view): volume up/down, side button with Touch ID, Camera Control
-  // Apple's Duo guide (closed): volume on the top edge; side button with Touch ID on the right (outer) edge, Camera Control below it
+  // Apple's Duo guide callouts: 1 under-display FaceTime camera, 2 volume buttons (top edge, just right of that camera),
+  // 3 side button with Touch ID and 4 Camera Control (outer edge, top to bottom), 5 USB-C. All on the camera half.
   const capsuleR = (len, y, mat, th = 2.3, pr = 1.1) => { const gg = extrude(rrShape(len, th, th / 2), pr, 0.3, 16); gg.rotateX(-Math.PI / 2); gg.rotateZ(-Math.PI / 2); return mesh(gg, mat, HW + pr / 2 - 0.25, y, 0, g); };
-  capsule(8.5, 56, btn); capsule(8.5, 67, btn);                                                    // volume up / down (top edge)
-  capsuleR(15.7, 30, std(0x3a4868, 1, 0.18), 2.75, 0.8);                                           // Touch ID ring
-  capsuleR(15, 30, std(0x0a1020, 0.85, 0.2, { envMapIntensity: 0.9 }), 2.3, 1.15);                 // side button with Touch ID
-  capsuleR(11.2, 8, std(0x8090ae, 1, 0.16), 2.6, 0.85);                                            // Camera Control ring
-  capsuleR(10, 8, phys({ color: 0x05070c, metalness: 0.2, roughness: 0.06, clearcoat: 1, envMapIntensity: 1.8 }), 2.1, 0.95); // Camera Control sapphire pad
+  capsule(10.1, 42.9, btn); capsule(10.8, 56.3, btn);                                                  // volume buttons
+  capsuleR(19.6, 16, std(0x3a4868, 1, 0.18), 2.75, 0.9);                                           // Touch ID ring
+  capsuleR(19, 16, std(0x0a1020, 0.85, 0.2, { envMapIntensity: 0.9 }), 2.3, 1.35);                 // long side button with Touch ID, slightly raised
+  capsuleR(14.6, -25.7, std(0x8090ae, 1, 0.16), 2.75, 0.85);  // Camera Control ring (~3/4 of the side button length)                                            // Camera Control ring
+  capsuleR(14, -25.7, phys({ color: 0x05070c, metalness: 0.2, roughness: 0.06, clearcoat: 1, envMapIntensity: 1.8 }), 2.3, 0.95); // Camera Control sapphire pad
   const ab = std(0x1a1b1e, 0, 0.6);
   [[-HW + 0.6, 40], [-HW + 0.6, -40], [HW - 0.6, 40], [HW - 0.6, -40]].forEach(([x, y]) => box(1.8, 1.0, D - 0.4, ab, x, y, 0, g));
-  box(9.2, 1.6, 3.2, std(0x050506, 0, 0.8), 41, -H / 2 + 0.4, 0, g);
+  box(9.2, 1.6, 3.2, std(0x050506, 0, 0.8), -42, -H / 2 + 0.4, 0, g);
   // bottom edge: loudspeaker grille right of USB-C, microphone grille left (standard iPhone layout)
   const hole = new THREE.CylinderGeometry(0.62, 0.62, 2.0, 14), holeM = std(0x020203, 0, 0.9);
-  for (let i = 0; i < 7; i++) mesh(hole, holeM, 49.5 + i * 2.3, -H / 2 + 0.35, 0, g);   // speaker
-  for (let i = 0; i < 4; i++) mesh(hole, holeM, 32.5 - i * 2.3, -H / 2 + 0.35, 0, g);   // microphones
+  for (let i = 0; i < 7; i++) mesh(hole, holeM, -34 + i * 2.3, -H / 2 + 0.35, 0, g);   // speaker
+  for (let i = 0; i < 4; i++) mesh(hole, holeM, -50 - i * 2.3, -H / 2 + 0.35, 0, g);   // microphones
 });
 
 /* 3. Hinge */
 let spine;
-addPart('hinge', [0, 0, 22], { az: 0.75, el: 0.45, k: 0.72, t: [0, 40, 0.5], dist: 85 }, [0, 58, 0.5], g => {
-  const ti = std(0x2a2f3a, 0.85, 0.4);
-  mesh(extrude(rrShape(8.5, 110, 3), 2.6, 0.3), ti, 0, 0, -0.6, g);
-  const plate = std(0x1a1f29, 0.85, 0.35);
-  box(6.5, 44, 0.4, plate, 0, -2, 1.85, g); // central support bar
-  const gearM = std(0x2a2f3a, 0.9, 0.3);
-  [50, -50].forEach(y => [-2.4, 2.4].forEach(x => {
-    const gr = new THREE.Mesh(new THREE.CylinderGeometry(1.7, 1.7, 3, 24), gearM); gr.position.set(x, y, -0.3); g.add(gr);
-    for (let t = 0; t < 12; t++) { const a = t / 12 * Math.PI * 2; box(0.6, 3, 0.6, gearM, x + Math.cos(a) * 1.9, y, -0.3 + Math.sin(a) * 1.9, g); }
-  }));
-  const springM = std(0x3a404c, 1, 0.3);
-  [42, 34, -34, -42].forEach(y => {
-    const pts = []; for (let i = 0; i <= 160; i++) { const t = i / 160; const a = t * Math.PI * 2 * 9; pts.push(new THREE.Vector3(Math.cos(a) * 1.2, y - 3.5 + t * 7, 0.2 + Math.sin(a) * 1.2)); }
-    const tb = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 320, 0.26, 6), springM); g.add(tb);
+let hingeMech;
+addPart('hinge', [0, 0, 22], { az: 0.6, el: 0.55, k: 0.72, t: [0, 44, 0.6], dist: 62 }, [0, 58, 0.5], g => {
+  // Mechanism (iFixit: gears, springs, interlocking joints; REWA: four springs) under a 3D-printed titanium cover.
+  const m = new THREE.Group(); g.add(m); hingeMech = m;
+  const ti = std(0x161b24, 0.8, 0.45, { envMapIntensity: 0.6 }), steel = std(0xa3aab4, 1, 0.24), dark = std(0x3a414c, 0.95, 0.3), springM = std(0xb4bac2, 1, 0.25);
+  mesh(extrude(rrShape(8.5, 110, 3), 1.6, 0.3), ti, 0, 0, -1.4, m);                         // structural spine
+  const gearAt = (x, y, z, r, mat) => {
+    const gr = mesh(new THREE.CylinderGeometry(r, r, 1.6, 24), mat, x, y, z, m);
+    for (let t = 0; t < 12; t++) { const a = t / 12 * Math.PI * 2 + (x > 0 ? 0.26 : 0); box(0.32, 1.6, 0.32, mat, x + Math.cos(a) * (r + 0.14), y, z + Math.sin(a) * (r + 0.14), m); }
+  };
+  const coil = (x, y0, y1, z, r) => {
+    const pts = []; for (let i = 0; i <= 200; i++) { const t = i / 200, a = t * Math.PI * 2 * 8; pts.push(new THREE.Vector3(x + Math.cos(a) * r, y0 + t * (y1 - y0), z + Math.sin(a) * r)); }
+    m.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 400, 0.13, 6), springM));
+  };
+  [46, -46].forEach(y => {
+    const sgn = Math.sign(y);
+    mesh(extrude(rrShape(10, 16, 1.5), 1.2, 0.2), ti, 0, y, -0.2, m);                       // module bracket
+    const xs = [-2.85, -0.95, 0.95, 2.85];
+    xs.forEach((x, k) => {
+      mesh(new THREE.CylinderGeometry(0.32, 0.32, 15, 16), steel, x, y, 0.75, m);          // shaft
+      gearAt(x, y + sgn * 5.5, 0.75, 0.82, k % 2 ? dark : steel);                           // synchronising gear train
+      mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.18, 24), dark, x, y - sgn * 5.9, 0.75, m); // friction washer
+    });
+    [-2.85, 2.85].forEach(x => {
+      mesh(new THREE.CylinderGeometry(0.95, 0.95, 2, 24), dark, x, y + sgn * 1.2, 0.75, m);   // detent cam
+      for (let t = 0; t < 3; t++) { const a = t / 3 * Math.PI * 2; box(0.45, 0.5, 0.45, steel, x + Math.cos(a) * 0.6, y + sgn * 2.4, 0.75 + Math.sin(a) * 0.6, m); }
+      coil(x, y - sgn * 4.8, y - sgn * 0.4, 0.75, 0.82);                                    // detent spring
+      const arm = box(1.4, 12, 0.5, ti, Math.sign(x) * 4.45, y, 1.35, m); arm.rotation.y = Math.sign(x) * 0.12; // swing arm
+    });
+    [[-4, 7], [4, 7], [-4, -7], [4, -7]].forEach(([sx, sy]) => {                           // screws
+      mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.35, 16).rotateX(Math.PI / 2), steel, sx, y + sy, 0.5, m);
+      box(0.55, 0.1, 0.05, dark, sx, y + sy, 0.69, m); box(0.1, 0.55, 0.05, dark, sx, y + sy, 0.69, m);
+    });
   });
-  [46, -46, 20, -20].forEach(y => { const arc = new THREE.Mesh(new THREE.TorusGeometry(1.9, 0.4, 6, 24, Math.PI), ti); arc.rotation.x = Math.PI / 2; arc.position.set(0, y, -0.4); g.add(arc); });
+  const fp = [steel, dark, steel, dark, steel];                                             // centre friction stack
+  fp.forEach((mat, k) => box(7, 3.2, 0.22, mat, 0, 0, -0.35 + k * 0.28, m));
+  mesh(new THREE.CylinderGeometry(0.32, 0.32, 5, 16), steel, 0, 0, 0.9, m);
+  [30, 12, -12, -30].forEach(y => { const arc = new THREE.Mesh(new THREE.TorusGeometry(2.3, 0.32, 8, 32, Math.PI), ti); arc.rotation.x = Math.PI / 2; arc.position.set(0, y, -0.25); m.add(arc); }); // waterdrop guide rails
+  box(6.5, 44, 0.4, std(0x1a1f29, 0.85, 0.35), 0, -2, 1.95, m);                             // central support bar
 }, false);
 (function makeSpine() {
   const hp = parts[parts.length - 1];
-  const mat = std(0x0a1222, 1, 0.16, { envMapIntensity: 0.9 }, { side: THREE.DoubleSide, envMapIntensity: 1.1 });
+  const mat = std(0x0a1222, 1, 0.16, { side: THREE.DoubleSide, envMapIntensity: 0.9 });
   const geo = new THREE.CylinderGeometry(5.72, 5.72, H - 0.2, 64, 1, true, Math.PI / 2, Math.PI);
   spine = new THREE.Mesh(geo, mat); spine.position.set(0, 0, ZF); spine.visible = false; spine.userData.part = hp;
   mat.userData.baseOpacity = 1; mat.userData.baseTransparent = false; mat.userData.baseDepthWrite = true;
@@ -633,24 +657,24 @@ addPart('board', [0, 0, 2], { az: 0.4, el: 0.48, k: 1.05 }, [-79, 27, 1], g => {
 });
 
 /* 5. I/O board and flex (right half, linked through the hinge) */
-addPart('io', [0, 0, 2], { az: 0.5, el: 0.5, k: 1.0 }, [78, -42, 1], g => {
-  mesh(extrude(rrShape(64, 15, 1.5, 46, -49.5), 0.8, 0.1, 4), std(0x173226, 0.15, 0.55), 0, 0, 0.6, g);
+addPart('io', [0, 0, 2], { az: -0.5, el: 0.5, k: 1.0 }, [-78, -42, 1], g => {
+  mesh(extrude(rrShape(64, 15, 1.5, -46, -49.5), 0.8, 0.1, 4), std(0x173226, 0.15, 0.55), 0, 0, 0.6, g);
   const z0 = 1.0;
-  chipOn(g, z0, 7, 6, 0.8, [['AUDIO', 44]], 26, -48);
+  chipOn(g, z0, 7, 6, 0.8, [['AUDIO', 44]], -62, -48);
   const usb = std(0xc4c8cd, 0.95, 0.25);
-  const u = mesh(extrude(rrShape(9.4, 3.4, 1.6), 7, 0.2), usb, 41, -54, 0, g); u.rotation.x = Math.PI / 2;
-  box(17, 10, 1.2, std(0x1c1e22, 0.1, 0.55), 64, -49, 1.0, g); // loudspeaker
-  passives(g, 5, 50, z0, r => [16 + r() * 60, -56 + r() * 13], [[22.5, 29.5, -51, -45], [36, 46, -58, -50], [55.5, 72.5, -54, -44]]);
+  const u = mesh(extrude(rrShape(9.4, 3.4, 1.6), 7, 0.2), usb, -42, -54, 0, g); u.rotation.x = Math.PI / 2;
+  box(17, 10, 1.2, std(0x1c1e22, 0.1, 0.55), -26, -49, 1.0, g); // loudspeaker
+  passives(g, 5, 50, z0, r => [-76 + r() * 60, -56 + r() * 13], [[-65.5, -58.5, -51, -45], [-47, -37, -58, -50], [-34.5, -17.5, -54, -44]]);
   const flex = std(0xd99a3a, 0.1, 0.45);
   box(14, 4, 0.2, flex, -7, 20, 0.9, g); box(17, 4, 0.2, flex, 8.5, 20, 0.9, g); // across the hinge
-  box(4, 66, 0.2, flex, 16, -11, 0.9, g);     // down to the I/O board
+  box(4, 30, 0.2, flex, -10, 5, 0.9, g);     // logic board to I/O board
 });
 
 /* 6. Two batteries */
 function cellLabel(lines) { return canvasTex(640, 640, (x, w, h) => { x.fillStyle = '#1b1e23'; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(240,166,64,0.55)'; x.lineWidth = 3; x.strokeRect(30, 30, w - 60, h - 60); x.fillStyle = '#d9dde2'; x.font = '600 54px monospace'; x.fillText(lines[0], 70, 140); x.font = '400 36px monospace'; lines.slice(1).forEach((t, i) => x.fillText(t, 70, 230 + i * 60)); x.fillStyle = 'rgba(217,221,226,0.5)'; for (let i = 0; i < 24; i++) x.fillRect(70 + i * 17, 520, i % 3 ? 6 : 10, 60); }); }
 addPart('batteries', [0, 0, -18], { az: 0.55, el: 0.42, k: 0.95 }, [-77, -54, 1], g => {
   const wrap = std(0x15171b, 0.25, 0.5);
-  [[-45, -21, 64, 66, ['Li-ion  Cell 1', '3.88 V', '2,962 mAh', '11.56 Wh']], [45, -9, 60, 50, ['Li-ion  Cell 2', '3.88 V', '1,921 mAh', '7.5 Wh']]].forEach(([cx, cy, w, h, lines]) => {
+  [[-45, -17, 64, 58, ['Li-ion  Cell 1', '3.88 V', '2,962 mAh', '11.56 Wh']], [45, -9, 60, 50, ['Li-ion  Cell 2', '3.88 V', '1,921 mAh', '7.5 Wh']]].forEach(([cx, cy, w, h, lines]) => {
     mesh(extrude(rrShape(w, h, 3, cx, cy), 2.6, 0.5, 12), wrap, 0, 0, -0.4, g);
     const lp = new THREE.Mesh(new THREE.PlaneGeometry(w - 8, h - 8), new THREE.MeshStandardMaterial({ map: cellLabel(lines), metalness: 0.2, roughness: 0.6 })); lp.position.set(cx, cy, 0.92); g.add(lp);
     box(5, 4, 0.3, std(0xd99a3a, 0.1, 0.45), cx + (cx < 0 ? 20 : -20), cy + h / 2 + 1.5, 0.6, g);
@@ -659,11 +683,11 @@ addPart('batteries', [0, 0, -18], { az: 0.55, el: 0.42, k: 0.95 }, [-77, -54, 1]
 
 /* 7. Rear cameras (left half) */
 addPart('cameras', [0, 0, -36], { az: 1.95, el: 0.38, k: 1.15 }, [78, 54, -2], g => {
-  box(50, 21, 0.6, std(0x2e3136, 0.8, 0.38), CAM.x, CAM.y, 2.1, g); // thin backing plate
+  box(56, 20, 0.6, std(0x2e3136, 0.8, 0.38), CAM.x, CAM.y, 2.1, g); // thin backing plate
   const barrel = std(0x1a1c20, 0.6, 0.35), ring = std(0xd8d4cb, 0.95, 0.22);
   const lensG = phys({ color: 0x0a1424, metalness: 0.35, roughness: 0.04, clearcoat: 1, envMapIntensity: 2 });
   const sensorT = canvasTex(256, 256, (x, w, h) => { const g2 = x.createLinearGradient(0, 0, w, h); g2.addColorStop(0, '#3b2a6b'); g2.addColorStop(0.5, '#1f5a7a'); g2.addColorStop(1, '#6b2a5a'); x.fillStyle = g2; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(255,255,255,0.1)'; for (let i = 0; i < w; i += 6) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, h); x.stroke(); x.beginPath(); x.moveTo(0, i); x.lineTo(w, i); x.stroke(); } });
-  [[CAM.x + 14.5, 7.6], [CAM.x - 3.5, 7.6]].forEach(([lx, r]) => { const y = CAM.y;
+  [[CAM.x + 17.8, 8.2], [CAM.x, 8.2]].forEach(([lx, r]) => { const y = CAM.y;
     box(r * 2.05, r * 2.05, 3.0, std(0x22262d, 0.85, 0.35), lx, y, 0.3, g);                                   // module housing
     const sens = new THREE.Mesh(new THREE.PlaneGeometry(r * 1.3, r * 1.0), new THREE.MeshStandardMaterial({ map: sensorT, metalness: 0.6, roughness: 0.25 }));
     sens.position.set(lx, y, -1.25); sens.rotation.y = Math.PI; g.add(sens);                                      // image sensor
@@ -674,7 +698,7 @@ addPart('cameras', [0, 0, -36], { az: 1.95, el: 0.38, k: 1.15 }, [78, 54, -2], g
     box(r * 0.5, r * 2.05, 0.6, std(0xc9a347, 0.9, 0.3), lx + r * 1.25, y, 0.6, g);                           // OIS coils / connector
   });
 
-  mesh(cyl(1.7, 2, 24), std(0xf3e6c4, 0.1, 0.3, { emissive: 0x332a10 }), CAM.x - 17, CAM.y, -2.6, g);
+  mesh(cyl(1.7, 2, 24), std(0xf3e6c4, 0.1, 0.3, { emissive: 0x332a10 }), CAM.x - 16.8, CAM.y - 3.5, -2.6, g);
   box(14, 3, 0.18, std(0xd99a3a, 0.1, 0.45), CAM.x - 10, CAM.y - 13, 0.4, g);
 });
 
@@ -721,11 +745,11 @@ function lens3D(g, x, y, z0, r) {
 addPart('back', [0, 0, -68], { az: 2.95, el: 0.25, k: 0.95 }, [82, -50, -2.6], g => {
   const back = phys({ color: 0x03060d, metalness: 0.05, roughness: 0.72, clearcoat: 0.15, clearcoatRoughness: 0.6, envMapIntensity: 0.3 });
   mesh(extrude(halfR(0.9), 0.7, 0.15), back, 0, 0, -2.32, g);
-  mesh(extrude(rrShape(50, 21, 10.5, CAM.x, CAM.y), 1.1, 0.35), phys({ color: 0x050912, metalness: 0.1, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 0.6 }), 0, 0, -3.1, g);
-  [[CAM.x + 14.5, 7.6], [CAM.x - 3.5, 7.6]].forEach(([lx, r]) => lens3D(g, lx, CAM.y, -3.65, r));
-  mesh(cyl(1.9, 0.5, 32), std(0xfff4dc, 0.1, 0.25, { emissive: 0x2a2416 }), CAM.x - 17, CAM.y, -3.85, g);  // flash
-  mesh(cyl(0.45, 0.4, 12), std(0x050506, 0, 0.8), CAM.x - 17, CAM.y - 6.2, -3.8, g);                     // mic hole
-  const msZ = -1.25, msX = 41.2, msY = 0;
+  mesh(extrude(rrShape(56, 20, 10, CAM.x, CAM.y), 1.1, 0.35), phys({ color: 0x050912, metalness: 0.1, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 0.6 }), 0, 0, -3.1, g);
+  [[CAM.x + 17.8, 8.2], [CAM.x, 8.2]].forEach(([lx, r]) => lens3D(g, lx, CAM.y, -3.65, r));  // Ultra Wide (outer), Main
+  mesh(cyl(1.9, 0.5, 32), std(0xfff4dc, 0.1, 0.25, { emissive: 0x2a2416 }), CAM.x - 16.8, CAM.y - 3.5, -3.85, g);  // flash
+  box(2.2, 0.8, 0.4, std(0x050506, 0, 0.8), CAM.x - 16.8, CAM.y + 4.2, -3.8, g);                     // mic hole
+  const msZ = -0.6, msX = 41.2, msY = 0;
   mesh((() => { const sh = new THREE.Shape(); sh.absarc(0, 0, 19, 0, Math.PI * 2); const hh = new THREE.Path(); hh.absarc(0, 0, 7, 0, Math.PI * 2, true); sh.holes.push(hh); return extrude(sh, 0.3, 0, 48); })(), std(0x141518, 0.2, 0.7), msX, msY, msZ + 0.25, g); // ferrite shield
   const cu = std(0xc98552, 1, 0.3);
   for (let i = 0; i < 10; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(8 + i * 1.0, 0.38, 6, 72), cu); t.position.set(msX, msY, msZ); g.add(t); }
@@ -739,7 +763,7 @@ const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasic
 shadow.rotation.x = -Math.PI / 2; shadow.position.y = -H / 2 - 0.6; scene.add(shadow);
 let fold = 0;
 function updateShadow() { shadow.position.x = 40 * fold; shadow.position.z = 3 * fold; shadow.scale.set(200 - 95 * fold, 34 + 6 * fold, 1); shadow.material.opacity = 0.7 * clamp01(1 - explode * 4); shadow.visible = shadow.material.opacity > 0.01; }
-function applyFold(f) { parts.forEach(p => { p.pivot.rotation.y = Math.PI * f; }); spine.rotation.y = Math.PI / 2 * f; spine.visible = f > 0.02; bendScreens(f); innerScreens.forEach(m => { m.visible = f < 0.97; });
+function applyFold(f) { parts.forEach(p => { p.pivot.rotation.y = Math.PI * f; }); spine.rotation.y = Math.PI / 2 * f; spine.visible = f > 0.02 || explode > 0.3; if (hingeMech) hingeMech.visible = f < 0.5; bendScreens(f); innerScreens.forEach(m => { m.visible = f < 0.97; });
   // outer screen sleeps as soon as it opens; inner screen wakes (fade + zoom settle) as it reaches flat
   // inner screen is lit as soon as it starts opening; the swinging half stays frosted until it lands flat
   const on = KEEP_ON ? 1 : clamp01((0.97 - f) / 0.12), oon = clamp01((f - 0.86) / 0.12), bl = clamp01(f / 0.55);
@@ -878,7 +902,7 @@ sseg({ dur: 10, explode: () => 1, dimMap: { inner: 0.8 }, dimDefault: 0.93,
   stack: lt => [ease(clamp01((lt - 0.5) / 1.6)) * (1 - ease(clamp01((lt - 9.2) / 0.8))), ease(clamp01((lt - 4.4) / 0.8)), lt],
   pose: t => P(STACK_C.x, STACK_C.y + 2, STACK_C.z, 0.42 + 0.12 * t, 0.2, 400),
   caps: [[0.3, 4.4, L('Trick 1: the screen is <em>~10 thin layers</em>')], [4.4, 10, L('They <em>slide</em> like paper, so nothing snaps')]] });
-sseg({ dur: 5.5, explode: () => 1, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 34, 22.5, 0.38 + 0.25 * t, 0.32, 200),
+sseg({ dur: 5.5, explode: () => 1, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 42, 23, 0.3 + 0.35 * t, 0.42, 120),
   caps: [[0.25, 5.5, L('Trick 2: a hinge of <em>100+ parts</em>') + '<div class="sub">gears · springs · 3D-printed titanium cover</div>']] });
 sseg({ dur: 5.5, explode: t => 1 - ease(clamp01(t * 5.5 / 1.4)), fold: t => 0.74 * ease(clamp01((t * 5.5 - 1.5) / 2.6)),
   keepOn: true, dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(14, 30, 10, -0.2 - 0.1 * t, 0.95, 330),
