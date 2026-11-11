@@ -182,6 +182,8 @@ body.render .tag span { font-size: 17px; padding: 4px 10px; }
     <button class="btn primary" id="play" type="button">▶ Play tour</button>
     <label for="explode">Explode</label>
     <input type="range" id="explode" min="0" max="1" step="0.01" value="1">
+    <button class="btn" id="lidBtn" type="button">Close lid</button>
+    <button class="btn" id="budBtn" type="button">Buds in</button>
     <button class="btn" id="overview" type="button">Overview</button>
   </div>
 </div>
@@ -354,7 +356,7 @@ function chipOn(g, w, h, t, lines, x, y, z, rx = 0, ry = 0) {
 }
 const ell = (rx, ry, rz, mat, x, y, z, parent, seg = 64) => { const m = mesh(new THREE.SphereGeometry(1, seg, Math.round(seg * 0.75)), mat, x, y, z, parent); m.scale.set(rx, ry, rz); return m; };
 const yCyl = (r, len, mat, x, y, z, parent, seg = 40) => mesh(new THREE.CylinderGeometry(r, r, len, seg), mat, x, y, z, parent);
-const WHITE = () => phys({ color: 0xf7f7f5, metalness: 0, roughness: 0.26, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 0.95 });
+const WHITE = () => phys({ color: 0xf5f5f3, metalness: 0, roughness: 0.38, clearcoat: 0.65, clearcoatRoughness: 0.14, sheen: new THREE.Color(0xffffff), envMapIntensity: 0.9 });
 const GRILLE = () => std(0x1a1b1f, 0.4, 0.55);
 const GOLD = () => std(0xd2a94e, 1, 0.3);
 const FLEX = () => std(0xd99a3a, 0.15, 0.45, { side: THREE.DoubleSide });
@@ -363,9 +365,40 @@ const meshTex = canvasTex(256, 256, (x, w, h) => { x.fillStyle = '#121316'; x.fi
 meshTex.wrapS = meshTex.wrapT = THREE.RepeatWrapping; meshTex.repeat.set(2, 2);
 const MESH = () => std(0xffffff, 0.3, 0.6, { map: meshTex });
 
+/* lid + bud controls */
+const CTRL = { lid: 1, lidGoal: 1, out: 1, outGoal: 1 };
+{ const q = new URLSearchParams(location.search).get('state') || ''; if (q.includes('closed')) CTRL.lid = CTRL.lidGoal = 0; if (q.includes('in')) CTRL.out = CTRL.outGoal = 0; }
+let LID_HINGE = null, LEFT_BUD = null, LEFT_X = 0, LEFT_Y = 0, LEFT_Z = 0;
+const BUD_IDS = new Set(['tip', 'sensor', 'driver', 'shell', 'board', 'battery', 'stem']);
+const BUD_DROP = -18, BUD_TURN = 0.95, BUD_TILT = 0.8, BUD_BACK = -3.5;
+const _q = new THREE.Quaternion(), _e = new THREE.Euler(), _pv = new THREE.Vector3();
+function rotAbout(obj, pivot, ex, ey) {   // rotate obj about a pivot given in its own (unrotated) frame
+  _q.setFromEuler(_e.set(ex, ey, 0)); obj.quaternion.copy(_q);
+  obj.position.add(_pv.copy(pivot).sub(pivot.clone().applyQuaternion(_q)));
+}
+function applyExtras(e) {
+  const inn = (1 - CTRL.out) * (1 - e), inL = 1 - CTRL.out;
+  parts.forEach(p => { if (BUD_IDS.has(p.id)) { p.group.position.y += BUD_DROP * inn; p.group.position.z += BUD_BACK * inn; rotAbout(p.group, HEAD, BUD_TILT * inn, -BUD_TURN * inn); } });
+  if (LEFT_BUD) { LEFT_BUD.position.set(LEFT_X, LEFT_Y + BUD_DROP * inL, LEFT_Z + BUD_BACK * inL); rotAbout(LEFT_BUD, HEAD, BUD_TILT * inL, BUD_TURN * inL); }
+  if (LID_HINGE) LID_HINGE.rotation.x = -1.92 * CTRL.lid;
+}
 /* earbud head = ellipsoid; helpers put things on its surface */
 const HEAD = new THREE.Vector3(0, 8, 0), HR = new THREE.Vector3(9.3, 9.8, 8.7);
 function onHead(dir, k = 1) { const d = new THREE.Vector3(...dir).normalize(); return { p: new THREE.Vector3(d.x * HR.x * k, d.y * HR.y * k, d.z * HR.z * k).add(HEAD), n: new THREE.Vector3(d.x / HR.x, d.y / HR.y, d.z / HR.z).normalize() }; }
+function headGeo() {   // egg / teardrop: narrower crown, flatter back, belly swelling toward the stem
+  const g = new THREE.SphereGeometry(1, 128, 96), p = g.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i);
+    let { x, y, z } = v;
+    const crown = Math.max(0, y), belly = Math.max(0, -y);
+    x *= 1 - 0.13 * crown; z *= 1 - 0.1 * crown;           // narrower toward the top
+    if (z < 0) z *= 0.86;                                    // flatter back
+    y = y * (1 + 0.1 * belly);                               // longer lower half, flows into the stem
+    x += 0.12 * belly * belly;                               // belly leans toward the stem
+    p.setXYZ(i, x * HR.x, y * HR.y, z * HR.z);
+  }
+  g.computeVertexNormals(); return g;
+}
 function patch(parent, dir, sx, sy, mat, rot = 0) {
   const { p, n } = onHead(dir, 0.995); const m = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16), mat);
   m.scale.set(sx, sy, 0.35); m.position.copy(p); m.lookAt(p.clone().add(n)); m.rotateZ(rot); parent.add(m); return m;
@@ -384,7 +417,7 @@ function stemShell(f, mat) {
 }
 function budOuter(parent, withTip = true) {
   const w = WHITE();
-  ell(HR.x, HR.y, HR.z, w, HEAD.x, HEAD.y, HEAD.z, parent, 96);
+  mesh(headGeo(), w, HEAD.x, HEAD.y, HEAD.z, parent);
   const noz = mesh(cyl(3.4, 4.0, 64), w, HEAD.x - 0.6, HEAD.y - 1.4, 8.6, parent); noz.scale.set(1, 1.15, 1);
   const ring = mesh(cyl(3.55, 0.7, 64), SILVER(), HEAD.x - 0.6, HEAD.y - 1.4, 10.3, parent); ring.scale.set(1, 1.15, 1);
   patch(parent, [0.42, 0.66, 0.5], 2.0, 1.25, MESH(), 0.6);      // top mic grille, top-front
@@ -509,12 +542,14 @@ addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE
   mesh(pebble(PA, PB, PC, E1, E2, -PB, SEAM), w, CASE.x, cy, CASE.z, g);
   const inner = std(0xeceef0, 0, 0.42);
   for (const sx of [-1, 1]) {   // rounded-square cradles the buds sit in
-    const well = mesh(extrude(rrShape(20, 13.5, 6), 1.0, 0.45, 24), std(0xd2d5da, 0, 0.55), CASE.x + sx * 13.4, top - 0.62, CASE.z + 0.6, g); well.rotation.x = -Math.PI / 2;
+    const well = mesh(extrude(rrShape(20, 13.5, 6), 1.0, 0.45, 24), std(0xc6cad0, 0, 0.6), CASE.x + sx * 13.4, top - 0.62, CASE.z + 0.6, g); well.rotation.x = -Math.PI / 2;
     ell(2.9, 0.35, 2.4, std(0x9a9fa6, 0, 0.6), CASE.x + sx * 13.4, top + 0.1, CASE.z + 0.6, g, 32);
   }
   box(15, 1.6, 2.6, SILVER(), CASE.x, top + 0.3, CASE.z - PC + 3.2, g);   // hinge
   // lid: the top slice of the same pebble, hinged at the back and swung open
   const hinge = new THREE.Group(); hinge.position.set(CASE.x, top, CASE.z - PC + 2.0); hinge.rotation.x = -1.92; g.add(hinge);
+  LID_HINGE = hinge;
+  const seamLine = mesh(pebble(PA * 1.003, PB, PC * 1.006, E1, E2, SEAM - 0.26, SEAM - 0.04), std(0x9aa0a8, 0, 0.6), CASE.x, cy, CASE.z, g);
   const lidGeo = pebble(PA, PB, PC, E1, E2, SEAM, PB); lidGeo.translate(0, -SEAM, PC - 2.0);
   mesh(lidGeo, w, 0, 0.05, 0, hinge);
   ell(0.6, 0.6, 0.2, std(0x1a1d22, 0.2, 0.3, { emissive: 0x2fbf5a, emissiveIntensity: 1.1 }), CASE.x, CASE.y + 3, CASE.z + PC - 0.02, g, 24);
@@ -527,6 +562,7 @@ addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE
   // left earbud (mirror of the right one) floating above the open case
   const left = new THREE.Group(); budOuter(left, true);
   left.scale.set(-1, 1, 1); left.position.set(CASE.x * 2 - 0.0, 0, 0); left.rotation.set(0, 0, 0); g.add(left);
+  LEFT_BUD = left; LEFT_X = left.position.x; LEFT_Y = left.position.y; LEFT_Z = left.position.z;
 });
 
 /* 9. Inside the case */
@@ -563,7 +599,7 @@ function partPose(p, drift = 0) {
 const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const clamp01 = t => Math.min(1, Math.max(0, t));
 
-function applyExplode(e) { parts.forEach(p => p.group.position.copy(p.offset).multiplyScalar(e)); }
+function applyExplode(e) { parts.forEach(p => p.group.position.copy(p.offset).multiplyScalar(e)); applyExtras(e); }
 function applyDim(p, d) {
   p.dim = d;
   p.group.traverse(o => {
@@ -720,6 +756,10 @@ document.getElementById('prev').addEventListener('click', () => select((selected
 document.getElementById('next').addEventListener('click', () => select((selected + 1) % N));
 document.getElementById('overview').addEventListener('click', () => { select(-1); goalExplode = 1; slider.value = 1; });
 slider.addEventListener('input', () => { stopTour(); goalExplode = +slider.value; });
+const lidBtn = document.getElementById('lidBtn'), budBtn = document.getElementById('budBtn');
+function showOnCase() { select(-1); goalExplode = 0; slider.value = 0; goal = { target: new THREE.Vector3(-11.6, -14, 0), az: 0.25, el: 0.42, dist: 205, shift: 0 }; }
+lidBtn.addEventListener('click', () => { showOnCase(); CTRL.lidGoal = CTRL.lidGoal ? 0 : 1; lidBtn.textContent = CTRL.lidGoal ? 'Close lid' : 'Open lid'; });
+budBtn.addEventListener('click', () => { showOnCase(); CTRL.outGoal = CTRL.outGoal ? 0 : 1; budBtn.textContent = CTRL.outGoal ? 'Buds in' : 'Buds out'; });
 
 function startTour() { touring = true; tourT = 0; selected = -1; parts.forEach(p => p.btn.setAttribute('aria-pressed', 'false')); playBtn.textContent = '■ Stop tour'; }
 function stopTour() {
@@ -765,7 +805,7 @@ function loop(now) {
   } else {
     const k = 1 - Math.exp(-dt * 5);
     Object.assign(view, lerpPose(view, goal, k));
-    explode += (goalExplode - explode) * k; applyExplode(explode);
+    CTRL.lid += (CTRL.lidGoal - CTRL.lid) * k; CTRL.out += (CTRL.outGoal - CTRL.out) * k; explode += (goalExplode - explode) * k; applyExplode(explode);
     parts.forEach(p => { const t = selected >= 0 && p.index !== selected ? 1 : 0; const d = p.dim + (t - p.dim) * k; if (Math.abs(d - p.dim) > 1e-4 || (t === 0 && p.dim !== 0)) applyDim(p, Math.abs(d - t) < 1e-3 ? t : d); });
     const lt = selected < 0 && explode > 0.55 ? 1 : 0; labelsAlpha += (lt - labelsAlpha) * k;
     if (!REDUCED && selected < 0 && !ptrs.size && Math.abs(goalExplode - explode) < 0.01) goal.az += dt * 0.04;
