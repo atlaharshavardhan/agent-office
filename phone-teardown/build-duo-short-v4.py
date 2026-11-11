@@ -26,8 +26,8 @@ R("function dimTarget(p, s) { return s.focus >= 0 && p.index !== s.focus ? 1 : 0
   "function dimTarget(p, s) { if (s.dimMap) return p.id in s.dimMap ? s.dimMap[p.id] : (s.dimDefault ?? 0); return s.focus >= 0 && p.index !== s.focus ? 1 : 0; }")
 R("  const dimB = prev ? ease(clamp01(lt / 0.9)) : 1;", "  const dimB = prev ? ease(clamp01(lt / 0.35)) : 1;")
 R("return { fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,",
-  "return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, xr: !!s.xr, wake: s.wake ? s.wake(u) : 1, cb: s.cb ? s.cb(u) : 0, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
-R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake; COVER_BLUR = st.cb; window.XRAY_HINGE = st.xr;")
+  "return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, xr: !!s.xr, pw: s.pw ? s.pw(u) : 0, wake: s.wake ? s.wake(u) : 1, cb: s.cb ? s.cb(u) : 0, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
+R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake; COVER_BLUR = st.cb; window.XRAY_HINGE = st.xr; if (window.chipPower) chipPower(st.time, st.pw);")
 R("const camera = new THREE.PerspectiveCamera(30, 1, 5, 3000);", "const camera = new THREE.PerspectiveCamera(33, 1, 5, 3000);  // ~10% wider so tall shots fit the 450-1500 band")
 R("function composeInner(bl) {\n  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100); x.drawImage(innerSharp, 0, 0);",
   "function composeInner(bl) {\n  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100);\n  const z = 1 + 0.05 * bl; x.save(); x.beginPath(); x.roundRect(0, 0, 1640, 1100, 86); x.clip(); x.translate(1230, 550); x.scale(z, z); x.translate(-1230, -550); x.drawImage(innerSharp, 0, 0); x.restore();")
@@ -184,7 +184,7 @@ sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 1.78) / 1.
   wake: t => 1 + 0.06 * Math.sin(Math.PI * clamp01((t * 2.8 - 2.45) / 0.35)),       // little Apple-style glow as the screen lands flat
   pose: t => { const T = t * 2.8; return T < 0.55 ? lerpPose(BACK1, FRONT_C, ease(T / 0.55)) : lerpPose(FRONT_C, OPEN, ease(clamp01((T - 1.75) / 1.05))); },
   caps: [[0.05, 1.6, L('But glass <em>cracks</em> when you bend it')], [1.6, 2.8, '<div class="big">So how?</div>']] });
-sseg({ dur: 4, gl: t => clamp01((t * 4 - 2.25) / 1.0), glo: t => clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
+sseg({ dur: 4, pw: t => clamp01((t * 4 - 2.0) / 0.7), gl: t => clamp01((t * 4 - 2.25) / 1.0), glo: t => clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
   caps: [[0.05, 1.7, L('Just <em>5.2 mm</em> thin')], [1.7, 4, L('Let’s open it up')]] });
 sseg({ dur: 10, explode: t => EX + (2.1 - EX) * (1 - ease(clamp01(t * 10 / 1.2))), dimMap: { inner: 0.8 }, dimDefault: 0.93,
   stack: lt => [ease(clamp01((lt - 0.5) / 1.6)) * (1 - ease(clamp01((lt - 9.2) / 0.8))), ease(clamp01((lt - 4.4) / 0.8)), lt],
@@ -194,7 +194,7 @@ sseg({ dur: 5.5, explode: () => EX, dimMap: { hinge: 0 }, dimDefault: 0.97, pose
   caps: [[0.25, 5.5, L('Trick 2: a hinge of <em>100+ parts</em>') + '<div class="sub">gears · springs · 3D-printed titanium cover</div>']] });
 // X-ray close: everything ghosted except the hinge, so you watch the hinge strip at the fold while the halves swing shut
 const HMAC_END = P(0, 38, 22 * EX + 1, 0.9, 0.36, 100), XR = P(0, 0, 2, 0.95, 0.42, 470);
-sseg({ dur: 3.0, xr: true, keepOn: true, explode: t => EX * (1 - ease(clamp01(t * 3 / 0.9))), fold: t => 0.55 * ease(clamp01((t * 3 - 0.9) / 2.1)),
+sseg({ dur: 3.0, xr: true, pw: t => clamp01(t * 3 / 0.5), keepOn: true, explode: t => EX * (1 - ease(clamp01(t * 3 / 0.9))), fold: t => 0.55 * ease(clamp01((t * 3 - 0.9) / 2.1)),
   dimMap: { hinge: 0 }, dimDefault: 0.92,
   pose: t => { const T = t * 3; return T < 0.9 ? lerpPose(HMAC_END, XR, ease(T / 0.9)) : Object.assign(clonePose(XR), { az: XR.az + 0.12 * (T - 0.9) / 2.1 }); },
   caps: [[0.25, 3.0, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });
