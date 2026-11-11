@@ -367,10 +367,11 @@ const MESH = () => std(0xd8dade, 0.25, 0.55, { map: meshTex });
 
 /* lid + bud controls */
 const CTRL = { lid: 1, lidGoal: 1, out: 1, outGoal: 1 };
+const POSE_OV = (() => { const q = new URLSearchParams(location.search).get('pose'); if (!q) return null; const [az, el, dist, tx, ty, tz] = q.split(',').map(Number); return { az, el, dist, target: new THREE.Vector3(tx, ty, tz), shift: 0 }; })();
 { const q = new URLSearchParams(location.search).get('state') || ''; if (q.includes('closed')) CTRL.lid = CTRL.lidGoal = 0; if (q.includes('in')) CTRL.out = CTRL.outGoal = 0; }
 let LID_HINGE = null, LEFT_BUD = null, LEFT_X = 0, LEFT_Y = 0, LEFT_Z = 0;
 const BUD_IDS = new Set(['tip', 'sensor', 'driver', 'shell', 'board', 'battery', 'stem']);
-const BUD_DROP = -16, BUD_TURN = 0.95, BUD_TILT = 0.8, BUD_BACK = -3.5;
+const BUD_DROP = -20, BUD_TURN = 0.85, BUD_TILT = 0.3, BUD_BACK = -1.6, BUD_SPREAD = 1.5;
 const _q = new THREE.Quaternion(), _e = new THREE.Euler(), _pv = new THREE.Vector3();
 function rotAbout(obj, pivot, ex, ey) {   // rotate obj about a pivot given in its own (unrotated) frame
   _q.setFromEuler(_e.set(ex, ey, 0)); obj.quaternion.copy(_q);
@@ -378,8 +379,8 @@ function rotAbout(obj, pivot, ex, ey) {   // rotate obj about a pivot given in i
 }
 function applyExtras(e) {
   const inn = (1 - CTRL.out) * (1 - e), inL = 1 - CTRL.out;
-  parts.forEach(p => { if (BUD_IDS.has(p.id)) { p.group.position.y += BUD_DROP * inn; p.group.position.z += BUD_BACK * inn; rotAbout(p.group, HEAD, BUD_TILT * inn, -BUD_TURN * inn); } });
-  if (LEFT_BUD) { LEFT_BUD.position.set(LEFT_X, LEFT_Y + BUD_DROP * inL, LEFT_Z + BUD_BACK * inL); rotAbout(LEFT_BUD, HEAD, BUD_TILT * inL, BUD_TURN * inL); }
+  parts.forEach(p => { if (BUD_IDS.has(p.id)) { p.group.position.y += BUD_DROP * inn; p.group.position.z += BUD_BACK * inn; p.group.position.x += BUD_SPREAD * inn; rotAbout(p.group, HEAD, BUD_TILT * inn, -BUD_TURN * inn); } });
+  if (LEFT_BUD) { LEFT_BUD.position.set(LEFT_X - BUD_SPREAD * inL, LEFT_Y + BUD_DROP * inL, LEFT_Z + BUD_BACK * inL); rotAbout(LEFT_BUD, HEAD, BUD_TILT * inL, BUD_TURN * inL); }
   if (LID_HINGE) LID_HINGE.rotation.x = -1.92 * CTRL.lid;
 }
 /* earbud head = ellipsoid; helpers put things on its surface */
@@ -419,7 +420,7 @@ function budOuter(parent, withTip = true) {
   const w = WHITE();
   mesh(headGeo(), w, HEAD.x, HEAD.y, HEAD.z, parent);
   const noz = mesh(cyl(3.4, 4.0, 64), w, HEAD.x - 0.6, HEAD.y - 1.4, 8.6, parent); noz.scale.set(1, 1.15, 1);
-  const ring = mesh(cyl(3.5, 0.42, 64), std(0xc3c8ce, 0.9, 0.3), HEAD.x - 0.6, HEAD.y - 1.4, 10.4, parent); ring.scale.set(1, 1.15, 1);
+  const ring = mesh(cyl(3.25, 0.35, 64), std(0xc9cdd2, 0.85, 0.32), HEAD.x - 0.6, HEAD.y - 1.4, 10.35, parent); ring.scale.set(1, 1.15, 1);
   patch(parent, [0.38, 0.72, 0.42], 3.1, 0.95, MESH(), 0.55);    // top mic grille, top-front
   patch(parent, [-0.1, 0.88, -0.45], 2.8, 1.0, MESH(), 0.1);      // rear grille
   patch(parent, [0.93, 0.12, -0.3], 0.75, 3.6, MESH(), 0.2);      // side vent, long thin pill
@@ -430,10 +431,10 @@ function budOuter(parent, withTip = true) {
 }
 function tipMesh(parent) {
   const sil = phys({ color: 0xeeeff1, roughness: 0.6, metalness: 0, clearcoat: 0.2, side: THREE.DoubleSide });
-  const pts = [[3.0, 0], [3.3, 0.6], [4.8, 1.3], [6.0, 2.5], [6.5, 3.9], [6.3, 5.1], [5.4, 6.1], [3.9, 6.6], [2.6, 6.7], [2.4, 6.2], [3.1, 1.0]];
+  const pts = [[3.3, 0], [3.9, 0.35], [4.8, 0.9], [5.4, 1.8], [5.65, 2.9], [5.55, 4.0], [5.1, 5.0], [4.3, 5.8], [3.3, 6.35], [2.3, 6.55], [2.1, 6.2], [2.9, 1.2]];
   const geo = new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), 96); geo.rotateX(Math.PI / 2);
   const m = mesh(geo, sil, HEAD.x - 0.6, HEAD.y - 1.4, 10.4, parent); m.scale.set(1, 1.15, 1);
-  const hole = mesh(cyl(2.3, 0.4, 32), new THREE.MeshBasicMaterial({ color: 0x24262b }), HEAD.x - 0.6, HEAD.y - 1.4, 17.2, parent); hole.scale.set(1, 1.15, 1);
+  const hole = mesh(cyl(2.0, 0.4, 32), new THREE.MeshBasicMaterial({ color: 0x24262b }), HEAD.x - 0.6, HEAD.y - 1.4, 17.0, parent); hole.scale.set(0.95, 1.1, 1);
   return m;
 }
 
@@ -445,7 +446,7 @@ addPart('sensor', [-14, -4, 14], { az: 0.35, el: 0.2, k: 2.4 }, [-3.4, 1.8, 8.5]
   const glass = phys({ color: 0x0a0b0e, metalness: 0.2, roughness: 0.08, clearcoat: 1 });
   const { p, n } = onHead([-0.3, -0.42, 0.85], 1.0);
   const win = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16), glass); win.scale.set(2.6, 1.7, 0.45); win.position.copy(p); win.lookAt(p.clone().add(n)); g.add(win);
-  const led = std(0x3a0a12, 0.1, 0.3, { emissive: 0x8a1022, emissiveIntensity: 0.6 });
+  const led = std(0x1c0e12, 0.1, 0.3);
   const l1 = ell(0.45, 0.45, 0.25, led, 0, 0, 0, win, 24); l1.position.set(-0.35, 0, 0.9); l1.scale.set(0.17, 0.26, 0.5);
   const l2 = ell(0.55, 0.55, 0.25, std(0x0f2030, 0.2, 0.2), 0, 0, 0, win, 24); l2.position.set(0.35, 0, 0.9); l2.scale.set(0.2, 0.3, 0.5);
   const fx = box(2.0, 4.5, 0.15, FLEX(), p.x, p.y + 2.4, p.z - 1.2, g); fx.rotation.x = -0.6;
@@ -555,8 +556,8 @@ addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE
   mesh(lidGeo, w, 0, 0.05, 0, hinge);
   ell(0.6, 0.6, 0.2, std(0x1a1d22, 0.2, 0.3, { emissive: 0x2fbf5a, emissiveIntensity: 1.1 }), CASE.x, CASE.y + 3, CASE.z + PC - 0.02, g, 24);
   // lanyard loop on the right side
-  const lp = mesh(extrude(rrShape(3.6, 8.4, 1.8), 1.0, 0.3, 16), SILVER(), CASE.x + PA - 0.35, CASE.y + 1, CASE.z, g); lp.rotation.y = Math.PI / 2;
-  for (const dy of [2, -2]) { const h = mesh(cyl(1.0, 1.2, 24), std(0x2a2c30, 0.5, 0.4), CASE.x + PA - 0.1, CASE.y + 1 + dy, CASE.z, g); h.rotation.y = Math.PI / 2; }
+  const lp = mesh(extrude(rrShape(2.6, 6.0, 1.3), 0.6, 0.2, 16), std(0xd9dce0, 0.8, 0.25), CASE.x + PA - 0.35, CASE.y + 1, CASE.z, g); lp.rotation.y = Math.PI / 2;
+  for (const dy of [1.45, -1.45]) { const h = mesh(cyl(0.7, 0.9, 24), std(0x3a3d42, 0.4, 0.5), CASE.x + PA - 0.1, CASE.y + 1 + dy, CASE.z, g); h.rotation.y = Math.PI / 2; }
   // USB-C and speaker holes underneath
   const port = mesh(extrude(rrShape(8.9, 3.0, 1.5), 1.0, 0.1, 16), std(0x2a2c30, 0.6, 0.35), CASE.x, CASE.y - BODY_H / 2 + 0.25, CASE.z, g); port.rotation.x = Math.PI / 2;
   for (const i of [-3, -2, 2, 3]) yCyl(0.5, 0.6, GRILLE(), CASE.x + i * 2.6, CASE.y - BODY_H / 2 + 0.35, CASE.z + 1, g, 16);
@@ -569,9 +570,9 @@ addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE
 /* 9. Inside the case */
 addPart('caseInside', [76, -48, -2], { az: -0.3, el: -0.3, k: 1.3 }, [CASE.x + 24, CASE.y - 9, CASE.z - 1], g => {
   const cell = std(0x8f99a6, 0.85, 0.32);
-  mesh(extrude(rrShape(44, 14, 3), 5.2, 0.6, 16), cell, CASE.x, CASE.y - 9, CASE.z - 3.5, g);
-  const lbl = new THREE.Mesh(new THREE.PlaneGeometry(30, 9), new THREE.MeshStandardMaterial({ map: labelTex([['1.334 Wh', 70], ['Li-ion', 40]], '#aeb6c0', '#2c3036', 512, 160), metalness: 0.3, roughness: 0.5 }));
-  lbl.position.set(CASE.x, CASE.y - 9, CASE.z - 0.85); g.add(lbl);
+  mesh(extrude(rrShape(40, 10, 3), 4.2, 0.5, 16), cell, CASE.x, CASE.y - 5, CASE.z - 3.0, g);
+  const lbl = new THREE.Mesh(new THREE.PlaneGeometry(28, 7.5), new THREE.MeshStandardMaterial({ map: labelTex([['1.334 Wh', 70], ['Li-ion', 40]], '#aeb6c0', '#2c3036', 512, 160), metalness: 0.3, roughness: 0.5 }));
+  lbl.position.set(CASE.x, CASE.y - 5, CASE.z - 0.85); g.add(lbl);
   mesh(extrude(rrShape(46, 10, 2), 1.0, 0.15, 12), std(0x10201a, 0.2, 0.42), CASE.x, CASE.y + 3, CASE.z - 4.0, g);
   chipOn(g, 5.2, 5.2, 0.7, [['U2', 92], ['UWB', 40]], CASE.x - 12, CASE.y + 4.3, CASE.z - 3.15);
   chipOn(g, 4.2, 3.4, 0.6, [['PMU', 60]], CASE.x + 2, CASE.y + 4.3, CASE.z - 3.2);
@@ -698,7 +699,7 @@ function stateAt(t) {
   return { explode: s.explode(u), pose, dims, labels, card: s.card ? s.focus : -1, cardA, title, focus: s.focus };
 }
 
-function applyState(st) {
+function applyState(st) { if (POSE_OV) st.pose = Object.assign({}, st.pose, POSE_OV);
   explode = st.explode; applyExplode(explode);
   Object.assign(view, clonePose(st.pose));
   parts.forEach((p, i) => applyDim(p, st.dims[i]));
