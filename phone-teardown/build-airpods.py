@@ -72,16 +72,16 @@ const GRILLE = () => std(0x1a1b1f, 0.4, 0.55);
 const GOLD = () => std(0xd2a94e, 1, 0.3);
 const FLEX = () => std(0xd99a3a, 0.15, 0.45, { side: THREE.DoubleSide });
 const SILVER = () => std(0xd5d9de, 1, 0.16);
-const meshTex = canvasTex(256, 256, (x, w, h) => { x.fillStyle = '#121316'; x.fillRect(0, 0, w, h); x.fillStyle = '#3a3c42'; for (let j = 0; j < 32; j++) for (let i = 0; i < 32; i++) { x.beginPath(); x.arc(i * 8 + (j % 2) * 4 + 2, j * 8 + 2, 1.6, 0, Math.PI * 2); x.fill(); } });
+const meshTex = canvasTex(256, 256, (x, w, h) => { x.fillStyle = '#26282d'; x.fillRect(0, 0, w, h); x.fillStyle = '#4d5058'; for (let j = 0; j < 32; j++) for (let i = 0; i < 32; i++) { x.beginPath(); x.arc(i * 8 + (j % 2) * 4 + 2, j * 8 + 2, 1.6, 0, Math.PI * 2); x.fill(); } });
 meshTex.wrapS = meshTex.wrapT = THREE.RepeatWrapping; meshTex.repeat.set(2, 2);
-const MESH = () => std(0xffffff, 0.3, 0.6, { map: meshTex });
+const MESH = () => std(0xd8dade, 0.25, 0.55, { map: meshTex });
 
 /* lid + bud controls */
 const CTRL = { lid: 1, lidGoal: 1, out: 1, outGoal: 1 };
 { const q = new URLSearchParams(location.search).get('state') || ''; if (q.includes('closed')) CTRL.lid = CTRL.lidGoal = 0; if (q.includes('in')) CTRL.out = CTRL.outGoal = 0; }
 let LID_HINGE = null, LEFT_BUD = null, LEFT_X = 0, LEFT_Y = 0, LEFT_Z = 0;
 const BUD_IDS = new Set(['tip', 'sensor', 'driver', 'shell', 'board', 'battery', 'stem']);
-const BUD_DROP = -18, BUD_TURN = 0.95, BUD_TILT = 0.8, BUD_BACK = -3.5;
+const BUD_DROP = -16, BUD_TURN = 0.95, BUD_TILT = 0.8, BUD_BACK = -3.5;
 const _q = new THREE.Quaternion(), _e = new THREE.Euler(), _pv = new THREE.Vector3();
 function rotAbout(obj, pivot, ex, ey) {   // rotate obj about a pivot given in its own (unrotated) frame
   _q.setFromEuler(_e.set(ex, ey, 0)); obj.quaternion.copy(_q);
@@ -116,26 +116,27 @@ function patch(parent, dir, sx, sy, mat, rot = 0) {
 }
 /* stem frame: top tucked into the head, leaning down and slightly forward */
 function stemFrame(parent) { const f = new THREE.Group(); f.position.set(0.6, HEAD.y - 5.0, 0.6); f.rotation.set(-0.05, 0, 0.06); parent.add(f); return f; }
-const STEM_L = 20.5;
+const STEM_L = 17.0;   // total bud height ≈ 30.9 mm, per Apple's spec
 function stemShell(f, mat) {
-  const prof = [[0.01, 0], [2.2, 0.05], [2.75, 0.6], [2.9, 2], [3.0, 10], [3.3, 16], [3.9, 19.6], [4.4, STEM_L + 1.5], [0.01, STEM_L + 1.5]];
+  const L = STEM_L, prof = [[0.01, 0], [2.2, 0.05], [2.75, 0.6], [2.9, 2], [3.0, 0.5 * L], [3.25, 0.78 * L], [3.9, L - 0.6], [4.4, L + 1.5], [0.01, L + 1.5]];
   const geo = new THREE.LatheGeometry(prof.map(([r, y]) => new THREE.Vector2(r, y)), 64); geo.translate(0, -STEM_L, 0);
   const m = mesh(geo, mat, 0, 0, 0, f); m.scale.set(1, 1, 0.84);
   const cap = yCyl(2.45, 0.5, SILVER(), 0, -STEM_L + 0.2, 0, f); cap.scale.set(1, 1, 0.84);
   ell(0.9, 0.3, 0.55, GRILLE(), 0, -STEM_L - 0.05, 0, f, 24);
-  const fm = ell(0.75, 1.3, 0.3, MESH(), 0, -STEM_L + 3.2, 2.48, f, 24);  // bottom mic port on the front
+  const fm = ell(0.55, 1.1, 0.3, MESH(), 0, -STEM_L + 2.6, 2.46, f, 24);  // bottom mic port on the front
   return m;
 }
 function budOuter(parent, withTip = true) {
   const w = WHITE();
   mesh(headGeo(), w, HEAD.x, HEAD.y, HEAD.z, parent);
   const noz = mesh(cyl(3.4, 4.0, 64), w, HEAD.x - 0.6, HEAD.y - 1.4, 8.6, parent); noz.scale.set(1, 1.15, 1);
-  const ring = mesh(cyl(3.55, 0.7, 64), SILVER(), HEAD.x - 0.6, HEAD.y - 1.4, 10.3, parent); ring.scale.set(1, 1.15, 1);
-  patch(parent, [0.42, 0.66, 0.5], 2.0, 1.25, MESH(), 0.6);      // top mic grille, top-front
-  patch(parent, [-0.1, 0.9, -0.42], 3.4, 1.7, MESH(), 0.15);      // rear grille
-  patch(parent, [0.92, 0.2, -0.32], 1.3, 3.8, MESH(), 0.2);       // side vent
-  patch(parent, [0.62, 0.05, 0.72], 0.9, 1.7, MESH(), -0.3);      // front vent by the nozzle
-  stemShell(stemFrame(parent), w);
+  const ring = mesh(cyl(3.5, 0.42, 64), std(0xc3c8ce, 0.9, 0.3), HEAD.x - 0.6, HEAD.y - 1.4, 10.4, parent); ring.scale.set(1, 1.15, 1);
+  patch(parent, [0.38, 0.72, 0.42], 3.1, 0.95, MESH(), 0.55);    // top mic grille, top-front
+  patch(parent, [-0.1, 0.88, -0.45], 2.8, 1.0, MESH(), 0.1);      // rear grille
+  patch(parent, [0.93, 0.12, -0.3], 0.75, 3.6, MESH(), 0.2);      // side vent, long thin pill
+  patch(parent, [0.66, -0.12, 0.7], 0.5, 1.3, MESH(), -0.35);     // small front vent by the nozzle
+  const sf = stemFrame(parent); stemShell(sf, w);
+  ell(4.0, 4.4, 3.5, w, 0, -0.6, 0.1, sf, 48);   // smooth fillet where the stem grows out of the head
   if (withTip) tipMesh(parent);
 }
 function tipMesh(parent) {
@@ -206,17 +207,17 @@ addPart('battery', [0, 4, -32], { az: 2.7, el: 0.35, k: 2.0 }, [0, 13.8, -5.6], 
 /* 7. Stem board: mics, touch strip, charging contacts (slides out the bottom) */
 addPart('stem', [3, -24, 0], { az: 0.6, el: 0.15, k: 1.5 }, [5.2, -10.5, 2.0], g => {
   const f = stemFrame(g);
-  mesh(extrude(rrShape(3.0, 17, 1.2), 0.8, 0.1, 12), std(0x10201a, 0.2, 0.42), 0, -9.5, -0.3, f);
+  mesh(extrude(rrShape(3.0, 13.5, 1.2), 0.8, 0.1, 12), std(0x10201a, 0.2, 0.42), 0, -7.9, -0.3, f);
   const can = std(0x9aa0a8, 1, 0.3);
-  mesh(cyl(0.9, 1.0, 24), can, 0, -16.6, 0.7, f); mesh(cyl(0.9, 1.0, 24), can, 0, -3.0, 0.7, f);
-  box(2.4, 9, 0.15, FLEX(), 0, -9.5, 0.95, f);
-    const mic = chipOn(f, 1.6, 1.6, 0.4, [['MIC', 60]], 0, -12.6, 0.45);
-  const contact = yCyl(1.8, 0.8, std(0xd8dde2, 1, 0.18), 0, -19.4, -0.2, f); contact.scale.set(1, 1, 0.75);
-  box(0.35, 15, 0.1, GOLD(), 1.15, -9.5, -0.75, f);
+  mesh(cyl(0.9, 1.0, 24), can, 0, -13.4, 0.7, f); mesh(cyl(0.9, 1.0, 24), can, 0, -2.6, 0.7, f);
+  box(2.4, 7.5, 0.15, FLEX(), 0, -7.9, 0.95, f);
+    const mic = chipOn(f, 1.6, 1.6, 0.4, [['MIC', 60]], 0, -10.4, 0.45);
+  const contact = yCyl(1.8, 0.8, std(0xd8dde2, 1, 0.18), 0, -15.9, -0.2, f); contact.scale.set(1, 1, 0.75);
+  box(0.35, 12, 0.1, GOLD(), 1.15, -7.9, -0.75, f);
 });
 
 /* 8. MagSafe charging case, lid open, with the left earbud resting above it */
-const CASE = new THREE.Vector3(-11.6, -29.5, 0.8), BODY_H = 33, LID_H = 14.2, CW = 62.2, CD = 21.8;
+const CASE = new THREE.Vector3(-11.6, -26.5, 0.8), BODY_H = 33, LID_H = 14.2, CW = 62.2, CD = 21.8;
 function caseShape(w, h, rb, rt) {   // rounded rectangle with different bottom / top corner radii
   const s = new THREE.Shape(), x = -w / 2, y = -h / 2;
   s.moveTo(x + rb, y); s.lineTo(x + w - rb, y); s.absarc(x + w - rb, y + rb, rb, -Math.PI / 2, 0);
@@ -256,7 +257,7 @@ addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE
     const well = mesh(extrude(rrShape(20, 13.5, 6), 1.0, 0.45, 24), std(0xc6cad0, 0, 0.6), CASE.x + sx * 13.4, top - 0.62, CASE.z + 0.6, g); well.rotation.x = -Math.PI / 2;
     ell(2.9, 0.35, 2.4, std(0x9a9fa6, 0, 0.6), CASE.x + sx * 13.4, top + 0.1, CASE.z + 0.6, g, 32);
   }
-  box(15, 1.6, 2.6, SILVER(), CASE.x, top + 0.3, CASE.z - PC + 3.2, g);   // hinge
+  box(11, 0.9, 1.4, SILVER(), CASE.x, top + 0.25, CASE.z - PC + 2.2, g);   // hinge
   // lid: the top slice of the same pebble, hinged at the back and swung open
   const hinge = new THREE.Group(); hinge.position.set(CASE.x, top, CASE.z - PC + 2.0); hinge.rotation.x = -1.92; g.add(hinge);
   LID_HINGE = hinge;
@@ -313,8 +314,8 @@ reps = [
  ("const OVERVIEW = { target: new THREE.Vector3(0, 0, 0), az: 0.92, el: 0.26, dist: 390, shift: 0 };", "const OVERVIEW = { target: new THREE.Vector3(28, -26, 0), az: -0.55, el: 0.2, dist: 340, shift: 0 };"),
  ("const ASSEMBLED = { target: new THREE.Vector3(0, 0, 0), az: 0.45, el: 0.12, dist: 330, shift: 0 };", ""),
  ("const dist = Math.max(p.radius / Math.sin(FOV / 2) * p.view.k, 70);", "const dist = Math.max(p.radius / Math.sin(FOV / 2) * p.view.k, 28);"),
- ("pose: t => ({ target: new THREE.Vector3(0, 0, 0), az: -0.5 + 0.85 * t, el: 0.1, dist: 300, shift: 0.85 })", "pose: t => ({ target: new THREE.Vector3(-11.6, -14, 0), az: -0.2 + 0.4 * t, el: 0.46, dist: 205, shift: 0.85 })"),
- ("{ target: new THREE.Vector3(0, 0, 0), az: 0.35, el: 0.1, dist: 300, shift: 0.85 }, OVERVIEW", "{ target: new THREE.Vector3(-11.6, -14, 0), az: 0.2, el: 0.46, dist: 205, shift: 0.85 }, OVERVIEW"),
+ ("pose: t => ({ target: new THREE.Vector3(0, 0, 0), az: -0.5 + 0.85 * t, el: 0.1, dist: 300, shift: 0.85 })", "pose: t => ({ target: new THREE.Vector3(-11.6, -12, 0), az: -0.2 + 0.4 * t, el: 0.46, dist: 205, shift: 0.85 })"),
+ ("{ target: new THREE.Vector3(0, 0, 0), az: 0.35, el: 0.1, dist: 300, shift: 0.85 }, OVERVIEW", "{ target: new THREE.Vector3(-11.6, -12, 0), az: 0.2, el: 0.46, dist: 205, shift: 0.85 }, OVERVIEW"),
  ("az: 1.45 + 2.2 * ease(t), el: 0.14, dist: 330, shift: 0.85 * ease(t) })", "az: 1.45 + 2.0 * ease(t), el: 0.22, dist: 210, shift: 0.85 * ease(t) })"),
  ("{ dist: 450, shift: -0.4 } : { dist: 760, shift: 0.15 }", "{ dist: 300, shift: -0.4 } : { dist: 470, shift: 0.15 }"),
  ("goal.dist = Math.max(40, Math.min(900, dist0 * pinch0 / d))", "goal.dist = Math.max(18, Math.min(700, dist0 * pinch0 / d))"),
@@ -337,7 +338,7 @@ src = src.replace('<input type="range" id="explode" min="0" max="1" step="0.01" 
 src = src.replace("slider.addEventListener('input', () => { stopTour(); goalExplode = +slider.value; });",
   """slider.addEventListener('input', () => { stopTour(); goalExplode = +slider.value; });
 const lidBtn = document.getElementById('lidBtn'), budBtn = document.getElementById('budBtn');
-function showOnCase() { select(-1); goalExplode = 0; slider.value = 0; goal = { target: new THREE.Vector3(-11.6, -14, 0), az: 0.25, el: 0.42, dist: 205, shift: 0 }; }
+function showOnCase() { select(-1); goalExplode = 0; slider.value = 0; goal = { target: new THREE.Vector3(-11.6, -12, 0), az: 0.25, el: 0.42, dist: 205, shift: 0 }; }
 lidBtn.addEventListener('click', () => { showOnCase(); CTRL.lidGoal = CTRL.lidGoal ? 0 : 1; lidBtn.textContent = CTRL.lidGoal ? 'Close lid' : 'Open lid'; });
 budBtn.addEventListener('click', () => { showOnCase(); CTRL.outGoal = CTRL.outGoal ? 0 : 1; budBtn.textContent = CTRL.outGoal ? 'Buds in' : 'Buds out'; });""")
 for need in ["applyExtras(e); }", "CTRL.lid += (CTRL.lidGoal", 'id="lidBtn"', "budBtn.addEventListener"]:
