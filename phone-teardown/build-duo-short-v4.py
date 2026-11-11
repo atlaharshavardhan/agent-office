@@ -132,7 +132,7 @@ const L = (h) => `<div class="line">${h}</div>`;
 
 /* --- product-shot look: glossy mirror floor with a fading reflection + cool rim light behind the phone --- */
 const FLOOR_Y = shadow.position.y - 0.15;
-const mirRT = new THREE.WebGLRenderTarget(720, 1280);
+const mirRT = new THREE.WebGLRenderTarget(720 * Math.min(2, devicePixelRatio || 1), 1280 * Math.min(2, devicePixelRatio || 1));  // sharper reflection at 4K
 const mirCam = new THREE.PerspectiveCamera(46, 1080 / 1920, 5, 3000);
 const mirTexM = new THREE.Matrix4();
 const floorMat = new THREE.ShaderMaterial({ transparent: true, depthWrite: false,

@@ -13,7 +13,7 @@ const fontCss = [
 ].flatMap(([fam, pkg, base, ws]) => ws.map(w => `@font-face{font-family:"${fam}";font-weight:${w};font-style:normal;src:url(https://fonts.gstatic.com/local/${pkg}/${base}-latin-${w}-normal.woff2) format("woff2")}`)).join('\n');
 (async () => {
   const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-  const page = await browser.newPage({ viewport: { width: +process.env.VW || 1920, height: +process.env.VH || 1080 }, deviceScaleFactor: 1 });
+  const page = await browser.newPage({ viewport: { width: +process.env.VW || 1920, height: +process.env.VH || 1080 }, deviceScaleFactor: +process.env.DSF || 1 });  // DSF=2 → same layout, 2× pixels (4K from a 1080×1920 viewport)
   page.on('console', m => { if (m.type() === 'error') console.log('console:', m.text()); });
   page.on('pageerror', e => console.log('pageerror:', e.message));
   await page.route('https://cdnjs.cloudflare.com/**', r => r.fulfill({ path: path.join(dir, 'package/build/three.min.js'), contentType: 'application/javascript' }));
@@ -31,10 +31,10 @@ const fontCss = [
       await page.screenshot({ path: `${out}/t${String(t).padStart(5, '0')}.jpg`, quality: 85 });
     }
   } else {
-    const fps = +fpsArg, n = Math.ceil(total * fps);
+    const fps = +fpsArg, n = Math.ceil(total * fps), f0 = +process.env.FROM || 0, f1 = Math.min(n, +process.env.TO || n);  // FROM/TO: render a frame range (for parallel chunks)
     const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-', '-c:v', 'libx264', '-preset', 'medium', '-crf', '20', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out], { stdio: ['pipe', 'inherit', 'inherit'] });
     const t0 = Date.now();
-    for (let i = 0; i < n; i++) {
+    for (let i = f0; i < f1; i++) {
       await page.evaluate(t => window.__tour.renderAt(t), i / fps);
       const buf = await page.screenshot({ type: 'jpeg', quality: 93 });
       if (!ff.stdin.write(buf)) await new Promise(r => ff.stdin.once('drain', r));
