@@ -285,18 +285,18 @@ const EndCard = () => {
   const hp = interpolate(frame - heartAt, [0, 4, 10], [1, 1.3, 1], clamp);
   const filled = frame >= heartAt + 2;
   const cp = interpolate(frame - cmtAt, [0, 4, 10], [1, 1.22, 1], clamp);
-  const ring = (at) => { const u = (frame - at) / 14; return u > 0 && u < 1 ? <div style={{ position: 'absolute', inset: -18, borderRadius: '50%', border: `4px solid rgba(91,200,224,${0.7 * (1 - u)})`, transform: `scale(${0.7 + 0.7 * u})` }} /> : null; };
+  const ring = (at) => { const u = (frame - at) / 14; return u > 0 && u < 1 ? <div style={{ position: 'absolute', inset: -10, borderRadius: '50%', border: `4px solid rgba(91,200,224,${0.7 * (1 - u)})`, transform: `scale(${0.8 + 0.35 * u})` }} /> : null; };
   const slot = (child, i, scale, at) => (
     <div style={{ position: 'relative', transform: `translateY(${(1 - icon(26 + i * 4)) * 50}px) scale(${Math.min(1, icon(26 + i * 4)) * scale})`, opacity: Math.min(1, icon(26 + i * 4)) }}>{ring(at)}{child}</div>
   );
   return (
     <AbsoluteFill style={{ opacity: out }}>
       <AbsoluteFill style={{ opacity: shade, background: 'linear-gradient(rgba(0,0,0,0) 50%, rgba(3,6,14,0.7) 58%, rgba(3,6,14,0.9) 100%)' }} />
-      <div style={{ position: 'absolute', top: 1112, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>  {/* phone sits in 450–1050, card text in 1060–1450 */}
+      <div style={{ position: 'absolute', top: 1066, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>  {/* phone sits in 450–1050, card text in 1060–1450 */}
         <Wordmark frame={frame} />
-        <div style={{ marginTop: 26, fontFamily: 'Sora', fontWeight: 700, fontSize: 54, color: C.white, opacity: Math.min(1, handle), transform: `translateY(${(1 - handle) * 30}px)` }}>@TheInvisiTech</div>
-        <div style={{ marginTop: 16, fontFamily: 'Sora', fontWeight: 600, fontSize: 34, color: C.accent, opacity: Math.min(1, follow), transform: `translateY(${(1 - follow) * 30}px)` }}>Like · follow · comment</div>
-        <div style={{ marginTop: 26, display: 'flex', gap: 110, alignItems: 'center', transform: 'scale(0.7)' }}>
+        <div style={{ marginTop: 14, fontFamily: 'Sora', fontWeight: 700, fontSize: 54, color: C.white, opacity: Math.min(1, handle), transform: `translateY(${(1 - handle) * 30}px)` }}>@TheInvisiTech</div>
+        <div style={{ marginTop: 12, fontFamily: 'Sora', fontWeight: 600, fontSize: 34, color: C.accent, opacity: Math.min(1, follow), transform: `translateY(${(1 - follow) * 30}px)` }}>Like · follow · comment</div>
+        <div style={{ marginTop: 16, display: 'flex', gap: 110, alignItems: 'center', zoom: 0.7 }}>  {/* zoom (not transform) so the row's real height is used for spacing */}
           {slot(<Thumb fill={liked ? '#5bc8e0' : '#ffffff'} />, 0, press, tapAt)}
           {slot(<Heart fill={filled ? '#ff3b5c' : 'none'} stroke={filled ? '#ff3b5c' : '#ffffff'} />, 1, hp, heartAt)}
           {slot(<Bubble stroke="#ffffff" />, 2, cp, cmtAt)}

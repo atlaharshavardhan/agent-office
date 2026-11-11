@@ -18,7 +18,7 @@ Length: about 46.8 s (anything under 50 s is fine — never cut scenes to save t
 7. Teardrop (top-down into the V) → crease glide.
 8. Wide open facing you: "It doesn't fold like paper. It rolls like a poster."
 9. Closes towards you — the "thock" lands in near-silence (~41.95 s) — frosted cover sharpens.
-10. End card over the closed Duo turning to its back: InvisiTech (letter reveal + light sweep), @TheInvisiTech, "Like · follow · comment", like/heart/comment icons, Subscribe → "✓ Subscribed". Layout as approved (no question line; phone at original height).
+10. End card over the closed Duo turning to its back: InvisiTech (letter reveal + light sweep), @TheInvisiTech, "Like · follow · comment", like/heart/comment icons, Subscribe → "✓ Subscribed". Layout as approved (no question line; phone at original height). Subscribe button has a clear gap below the icons (never touching the like/heart/comment row or its tap ring); whole card ends above y 1500.
 11. Glides back to the opening lens shot — last frame = first frame.
 
 ## Internals (match Apple's internal image)
