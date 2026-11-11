@@ -350,8 +350,12 @@ addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g =
 
 /* 3. Hinge */
 let spine;
-let hingeMech; const hingeGears = [];
-window.spinGears = t => hingeGears.forEach((gg, i) => { gg.rotation.z = (i % 2 ? -1 : 1) * t * 1.6; });
+let hingeMech; const hingeGears = [], hingeSprings = [], hingeRollers = [];
+window.spinGears = t => {                                                                    // the hinge keeps moving: cams turn, rollers spin, springs breathe in a slow wave
+  hingeGears.forEach((gg, i) => { gg.rotation.z = (i % 2 ? -1 : 1) * t * 0.9; });
+  hingeRollers.forEach((r, i) => { r.rotation.y = (i % 2 ? -1 : 1) * t * 1.4; });
+  hingeSprings.forEach(s => { s.g.scale.y = 0.84 + 0.16 * (0.5 + 0.5 * Math.sin(t * 2.0 + s.ph)); });
+};
 addPart('hinge', [0, 0, 22], { az: 0.6, el: 0.55, k: 0.72, t: [0, 44, 0.6], dist: 62 }, [0, 58, 0.5], g => {
   // Mechanism (iFixit: gears, springs, interlocking joints; REWA: four springs) under a 3D-printed titanium cover.
   const m = new THREE.Group(); g.add(m); hingeMech = m;
@@ -364,11 +368,14 @@ addPart('hinge', [0, 0, 22], { az: 0.6, el: 0.55, k: 0.72, t: [0, 44, 0.6], dist
   const HL = 55.5, C = 15.5;                                                                  // strip half-length, centre-section half-length
   mesh(extrude(rrShape(9.8, HL * 2, 2.2), 1.2, 0.2), ti, 0, 0, -1.3, m);                      // structural spine plate
   const hole2 = (x, y, z) => [-0.48, 0.48].forEach(dx => { mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.2, 16).rotateX(Math.PI / 2), dark, x + dx, y, z, m); mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.22, 10).rotateX(Math.PI / 2), steel, x + dx, y, z + 0.02, m); });
-  const coilY = (x, y0, y1, z, r, turns) => {
+  const coilY = (x, y0, y1, z, r, turns, parent) => {
     const pts = []; for (let i = 0; i <= 140; i++) { const t = i / 140, aa = t * Math.PI * 2 * turns; pts.push(new THREE.Vector3(x + Math.cos(aa) * r, y0 + t * (y1 - y0), z + Math.sin(aa) * r)); }
-    m.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 280, 0.15, 6), springM));
+    parent.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 280, 0.15, 6), springM));
   };
-  const springs = (y0, y1) => { const n = Math.round(Math.abs(y1 - y0) / 0.62); [-1.6, -0.53, 0.53, 1.6].forEach(x => { coilY(x, y0, y1, 0.55, 0.46, n); mesh(new THREE.CylinderGeometry(0.16, 0.16, Math.abs(y1 - y0), 10), steel, x, (y0 + y1) / 2, 0.55, m); }); };
+  const springs = (y0, y1) => {                                                               // spring pack anchored at y0, so it can breathe (compress/extend)
+    const n = Math.round(Math.abs(y1 - y0) / 0.62), sp = new THREE.Group(); sp.position.set(0, y0, 0); m.add(sp); hingeSprings.push({ g: sp, ph: hingeSprings.length * 0.9 });
+    [-1.6, -0.53, 0.53, 1.6].forEach(x => { coilY(x, 0, y1 - y0, 0.55, 0.46, n, sp); mesh(new THREE.CylinderGeometry(0.16, 0.16, Math.abs(y1 - y0), 10), steel, x, (y0 + y1) / 2, 0.55, m); });
+  };
   const eye = (y) => {                                                                        // square cam block with the round "eye" and cross
     box(4.4, 3.2, 0.9, taupeHi, 0, y, 0.4, m); [-1.5, 1.5].forEach(x => box(0.7, 3.6, 1.0, taupe, x, y, 0.5, m));
     const g2 = new THREE.Group(); g2.position.set(0, y, 0.98); m.add(g2); hingeGears.push(g2);
@@ -383,7 +390,7 @@ addPart('hinge', [0, 0, 22], { az: 0.6, el: 0.55, k: 0.72, t: [0, 44, 0.6], dist
     springs(Y(23.6), Y(30.2));
     box(5.6, 1.0, 0.8, taupe, 0, Y(30.9), 0.35, m);
     box(2.4, 2.4, 0.9, taupeHi, -1.3, Y(33.0), 0.4, m); mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.95, 16).rotateX(Math.PI / 2), dark, -1.3, Y(33.0), 0.45, m); // square hole block
-    [[0.9, 32.3], [2.0, 32.3], [0.9, 34.0], [2.0, 34.0]].forEach(([x, u]) => mesh(new THREE.CylinderGeometry(0.5, 0.5, 2.2, 16), steel, x, Y(u), 0.55, m)); // double rollers
+    [[0.9, 32.3], [2.0, 32.3], [0.9, 34.0], [2.0, 34.0]].forEach(([x, u]) => { const ro = new THREE.Group(); ro.position.set(x, Y(u), 0.55); m.add(ro); hingeRollers.push(ro); mesh(new THREE.CylinderGeometry(0.5, 0.5, 2.2, 16), steel, 0, 0, 0, ro); box(0.12, 2.25, 0.85, dark, 0, 0, 0, ro); }); // double rollers (with a mark so the spin reads)
     box(9.4, 1.2, 0.8, taupe, 0, Y(36.4), 0.15, m);                                           // module end cap
     mesh(new THREE.CylinderGeometry(1.0, 1.0, 0.5, 24).rotateX(Math.PI / 2), taupeHi, 0, Y(38.2), 0.2, m); mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.55, 16).rotateX(Math.PI / 2), dark, 0, Y(38.2), 0.25, m); // end cam
     // side rails: alternating plates with double holes and notches

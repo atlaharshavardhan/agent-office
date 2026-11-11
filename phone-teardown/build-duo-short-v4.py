@@ -211,12 +211,18 @@ sseg({ dur: 2.5, keepOn: true, fold: t => 0.55 + 0.19 * ease(t),
 sseg({ dur: 6, keepOn: true, fold: t => 0.74 * (1 - ease(clamp01(t * 6 / 1.4))), pose: t => P(0, 30 - 60 * t, 2.6, 1.3, 0.17, 330),
   caps: [[0.3, 3.1, L('Bend the same spot <em>again and again</em>')], [3.1, 6, L('…and you get <em>the crease</em> you can feel')]] });
 // v4 ending: open wide facing you → channel card over the open phone → close with the thock → back to the opening lens shot (seamless loop)
-const CREASE_END = P(0, -30, 2.6, 1.3, 0.17, 330), OPEN_HI = P(0, -50, 1, 0.06, 0.12, 800);
-sseg({ dur: 3.5, keepOn: true, fold: () => 0, pose: t => { const T = t * 3.5; return T < 1.0 ? lerpPose(CREASE_END, OPEN, ease(T)) : Object.assign(clonePose(OPEN), { az: OPEN.az + 0.03 * (T - 1) }); },
-  caps: [[0.2, 3.5, L('It doesn’t fold like paper.<br>It <em>rolls like a poster.</em>')]] });
-sseg({ dur: 3.7, keepOn: true, fold: () => 0, pose: t => { const T = t * 3.7; const o = Object.assign(clonePose(OPEN), { az: OPEN.az + 0.075 }); return T < 0.8 ? lerpPose(o, OPEN_HI, ease(T / 0.8)) : Object.assign(clonePose(OPEN_HI), { az: OPEN_HI.az + 0.025 * (T - 0.8) }); }, caps: [] });
-sseg({ dur: 1.8, keepOn: true, cb: () => 1, fold: t => { const T = t * 1.8; const u = clamp01((T - 0.05) / 0.85); return u * u * (1.6 - 0.6 * u); },   // lands at 44.1 s
-  pose: t => { const T = t * 1.8; const hi = Object.assign(clonePose(OPEN_HI), { az: OPEN_HI.az + 0.0725 }); return T < 0.95 ? lerpPose(hi, FRONT_C, ease(T / 0.95)) : lerpPose(FRONT_C, MACRO, ease((T - 0.95) / 0.85)); }, caps: [] });
+const CREASE_END = P(0, -30, 2.6, 1.3, 0.17, 330), BACK_HERO = P(36, -48, 3, -2.45, 0.12, 790), MACRO_W = Object.assign(clonePose(MACRO), { az: MACRO.az - Math.PI * 2 });  // same camera as MACRO, reached the short way round
+// 37.8–41.0  wide open, facing you
+sseg({ dur: 3.2, keepOn: true, fold: () => 0, pose: t => { const T = t * 3.2; return T < 1.0 ? lerpPose(CREASE_END, OPEN, ease(T)) : Object.assign(clonePose(OPEN), { az: OPEN.az + 0.03 * (T - 1) }); },
+  caps: [[0.2, 3.2, L('It doesn’t fold like paper.<br>It <em>rolls like a poster.</em>')]] });
+// 41.0–42.3  closes towards you — the thock lands at 41.95 — then the frosted cover screen sharpens
+sseg({ dur: 1.3, keepOn: true, cb: t => { const T = t * 1.3; return T < 1.0 ? 1 : 1 - ease(clamp01((T - 1.0) / 0.3)); },
+  fold: t => { const u = clamp01(t * 1.3 / 0.95); return u * u * (1.6 - 0.6 * u); },
+  pose: t => { const o = Object.assign(clonePose(OPEN), { az: OPEN.az + 0.066 }); return lerpPose(o, FRONT_C, ease(clamp01(t * 1.3 / 0.95))); }, caps: [] });
+// 42.3–46.8  channel card: the closed Duo turns to show its back, high in the frame (card text underneath),
+//             then glides back to the opening lens shot by 46.6 and holds — last frame = first frame, so it loops
+sseg({ dur: 4.5, fold: () => 1, pose: t => { const T = t * 4.5, H2 = Object.assign(clonePose(BACK_HERO), { az: BACK_HERO.az - 0.3 });
+    return T < 1.2 ? lerpPose(FRONT_C, BACK_HERO, ease(T / 1.2)) : T < 3.5 ? lerpPose(BACK_HERO, H2, (T - 1.2) / 2.3) : lerpPose(H2, MACRO_W, ease(Math.min(1, (T - 3.5) / 0.8))); }, caps: [] });
 '''
 src = src[:a] + tour + src[b:]
 for a_, b_ in [("if (Math.abs(sx) + Math.abs(sy) > 0.5) camera.setViewOffset(w, h, sx, sy, w, h); else camera.clearViewOffset();", "camera.setViewOffset(w, h, sx, sy - 0.085 * h, w, h);")]:

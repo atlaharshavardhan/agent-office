@@ -27,7 +27,7 @@ Promise.all([
   .catch(() => continueRender(fontHandle));
 
 /* ---------- narration (George, Kokoro bm_george) ---------- */
-const VO = [['l1', 0.1], ['l2', 2.85], ['l3', 5.45], ['l4', 9.2], ['l5', 19.2], ['l6', 32.1], ['l7', 38.1], ['l8s', 41.5]];  // v4: one line over the open phone, then the sign-off  // l7 split so the close sound lands in a quiet gap
+const VO = [['l1', 0.1], ['l2', 2.85], ['l3', 5.45], ['l4', 9.2], ['l5', 19.2], ['l6', 32.1], ['l7', 38.1], ['l8s', 42.5]];  // v4: one line over the open phone, then the sign-off  // l7 split so the close sound lands in a quiet gap
 
 /* ---------- on-screen text: one continuous track, each entry replaces the previous one ----------
    *asterisks* = accent colour, '|' = line break */
@@ -67,10 +67,11 @@ const SFX = [   // no hard whooshes: soft 'glide' swells on the camera moves, pl
   ['glide-low.wav', 24.4, 0.35],                                // down into the V
   ['glide.wav', 31.7, 0.35],                                    // the crease
   ['glide.wav', 37.9, 0.3],                                     // turns to face you, wide open
-  ['shimmer.wav', 41.4, 0.4], ['impact-small.wav', 41.45, 0.4], // channel card over the open phone
-  ['tap.wav', 42.95, 0.6], ['pluck7.wav', 43.4, 0.5], ['pluck9.wav', 43.85, 0.45], ['chime.wav', 44.3, 0.3],  // like · heart · comment · subscribe
+  ['shimmer.wav', 42.35, 0.4], ['impact-small.wav', 42.4, 0.4], // channel card, after the close
+  ['tap.wav', 43.9, 0.6], ['pluck7.wav', 44.35, 0.5], ['pluck9.wav', 44.8, 0.45], ['chime.wav', 45.25, 0.3],  // like · heart · comment · subscribe
+  ['glide.wav', 45.75, 0.25],                                    // glides back to the opening shot (loop)
   ['glide-up.wav', 25.15, 0.35], ['shimmer.wav', 25.35, 0.4],  // A20 sends blue power waves through the Duo
-  ['close.wav', 45.9, 1.0],                                     // the close, in the clear — then it loops
+  ['close.wav', 41.95, 1.0],                                    // the close, in the clear — then the channel card
 ];
 // a soft rising pluck as each numbered label appears (exploded phone, then the 10 screen layers)
 const PART_PLUCKS = Array.from({ length: 8 }, (_, i) => [7.27 + i * 0.1, i]);
@@ -81,7 +82,7 @@ const musicVolume = (f) => {
   const t = f / FPS;
   const talking = VO.some(([k, at]) => t > at - 0.15 && t < at + VO_LEN[k] + 0.1);
   const near = VO.reduce((m, [k, at]) => Math.min(m, Math.abs(t - (at - 0.15)), Math.abs(t - (at + VO_LEN[k] + 0.1))), 9);
-  if (t > 45.4) return interpolate(t, [45.4, 45.75, 46.8], [0.16, 0.0, 0.0], clamp);  // near-silence so the close is heard clearly
+  if (t > 41.5 && t < 42.3) return interpolate(t, [41.5, 41.75, 42.1, 42.3], [0.16, 0.0, 0.0, 0.16], clamp);  // near-silence so the close is heard clearly
   const base = talking ? 0.16 : 0.34;
   const other = talking ? 0.34 : 0.16;
   return near < 0.2 ? base + (other - base) * (1 - near / 0.2) * 0.5 : base;
@@ -233,7 +234,7 @@ const Chrome = () => {
 
 /* ---------- the reel ---------- */
 /* 40–45 s: channel end card over the 3D hero shot — InvisiTech wordmark, handle, like · heart · comment */
-const END_AT = 41.35, END_OUT = 44.95;
+const END_AT = 42.3, END_OUT = 45.85;
 const Thumb = ({ fill }) => (
   <svg width="104" height="104" viewBox="0 0 24 24"><path d="M7 10v11H3V10h4zm2 11h9.2a2 2 0 0 0 2-1.6l1.3-6.6A2 2 0 0 0 19.5 10H14l.9-4.3a1.6 1.6 0 0 0-2.9-1.2L9 9.6V21z" fill={fill} /></svg>
 );
@@ -316,7 +317,7 @@ const Disclaimer = () => {
 
 const Watermark = () => {
   const t = useCurrentFrame() / FPS;
-  const k = interpolate(t, [41.1, 41.4, 44.9, 45.2], [1, 0, 0, 1], clamp);  // steps aside while the channel card is up
+  const k = interpolate(t, [42.0, 42.3, 45.8, 46.1], [1, 0, 0, 1], clamp);  // steps aside while the channel card is up
   return (
   <Img src={staticFile('watermark-clear.png')} style={{ position: 'absolute', right: 34, top: 860, height: 50, opacity: 0.42 * k, mixBlendMode: 'screen', filter: 'saturate(0.85)' }} />
   );
