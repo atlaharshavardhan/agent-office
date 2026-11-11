@@ -57,3 +57,8 @@ Round 2 findings, fixed:
 - "It knows if you're asleep / creepier" (it can't detect sleep) → "it can tell if your eyes are shut".
 - "Its own chip" (the Secure Enclave is inside the main chip) → "a vault inside the chip".
 - End card trimmed to ~3 s so the loop comes sooner.
+
+## Production rules (from Harsh, 11 Nov 2026)
+- Canva: thumbnails and covers only. No Canva for storyboard frames or video scenes.
+- No Higgsfield for this Short.
+- Visual style: dark, moody 3D like the dark-bedroom dots shot (`faceid-dots-dark.mp4`): three.js scenes, red = infrared with the small "invisible to the eye" note. Build scenes and storyboard stills in code.
