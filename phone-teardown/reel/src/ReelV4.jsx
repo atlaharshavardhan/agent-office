@@ -98,7 +98,7 @@ const parseWords = (text) => {
 };
 
 const PriceBlock = ({ local }) => {
-  const n = Math.round(interpolate(local, [2, 14], [0, 299900], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 3) }));
+  const n = Math.round(interpolate(local, [0, 14], [250000, 299900], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 3) }));
   const pop = spring({ frame: local - 12, fps: FPS, config: { damping: 9, stiffness: 220 } });
   return (
     <div style={{ textAlign: 'center' }}>
@@ -306,6 +306,13 @@ const EndCard = () => {
 };
 
 /* watermark: right side, just above centre (clear of the like/comment column), softly blended into the scene */
+/* small legal line for the first seconds: this is our own 3D illustration */
+const Disclaimer = () => {
+  const frame = useCurrentFrame();
+  const a = interpolate(frame, [0, 6, s(3.2), s(3.6)], [0, 1, 1, 0], clamp);
+  return a > 0 ? <div style={{ position: 'absolute', left: 0, right: 0, top: 1452, textAlign: 'center', fontFamily: 'Plex Mono', fontWeight: 500, fontSize: 24, letterSpacing: '0.08em', color: 'rgba(255,255,255,0.55)', opacity: a }}>3D ILLUSTRATION · NOT AFFILIATED WITH APPLE</div> : null;
+};
+
 const Watermark = () => {
   const t = useCurrentFrame() / FPS;
   const k = interpolate(t, [39.3, 39.6, 43.1, 43.4], [1, 0, 0, 1], clamp);  // steps aside while the channel card is up
@@ -325,6 +332,7 @@ export const ReelV4 = ({ bg } = {}) => (
     <Sequence from={s(19.45)} durationInFrames={s(5.2)}><CountChip to={100} suffix="+" label="hinge parts" countFrames={s(0.9)} durationInFrames={s(5.2)} /></Sequence>
     <Sequence from={s(END_AT)} durationInFrames={s(END_OUT - END_AT)}><EndCard /></Sequence>
     <Watermark />
+    <Disclaimer />
 
     {/* narration */}
     {VO.map(([f, t]) => <Sequence key={f} from={s(t)}><Audio src={staticFile(`vo/${f}.wav`)} volume={1} /></Sequence>)}

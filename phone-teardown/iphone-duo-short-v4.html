@@ -616,46 +616,52 @@ addPart('frame', [0, 0, 44], { az: 0.85, el: 0.35, k: 0.92 }, [82, 40, 2.6], g =
 /* 3. Hinge */
 let spine;
 let hingeMech; const hingeGears = [];
-window.spinGears = t => hingeGears.forEach((gg, i) => { gg.rotation.y = (i % 2 ? -1 : 1) * t * 2.4; });
+window.spinGears = t => hingeGears.forEach((gg, i) => { gg.rotation.z = (i % 2 ? -1 : 1) * t * 1.6; });
 addPart('hinge', [0, 0, 22], { az: 0.6, el: 0.55, k: 0.72, t: [0, 44, 0.6], dist: 62 }, [0, 58, 0.5], g => {
   // Mechanism (iFixit: gears, springs, interlocking joints; REWA: four springs) under a 3D-printed titanium cover.
   const m = new THREE.Group(); g.add(m); hingeMech = m;
-  const ti = std(0x161b24, 0.8, 0.45, { envMapIntensity: 0.6 }), steel = std(0xa3aab4, 1, 0.24), dark = std(0x3a414c, 0.95, 0.3), springM = std(0xb4bac2, 1, 0.25);
-  mesh(extrude(rrShape(8.5, 110, 3), 1.6, 0.3), ti, 0, 0, -1.4, m);                         // structural spine
-  const gearAt = (x, y, z, r, mat) => {
-    const gg = new THREE.Group(); gg.position.set(x, y, z); m.add(gg); hingeGears.push(gg);
-    mesh(new THREE.CylinderGeometry(r, r, 1.6, 24), mat, 0, 0, 0, gg);
-    for (let t = 0; t < 12; t++) { const a = t / 12 * Math.PI * 2 + (x > 0 ? 0.26 : 0); box(0.32, 1.6, 0.32, mat, Math.cos(a) * (r + 0.14), 0, Math.sin(a) * (r + 0.14), gg); }
+  // Layout follows Apple's iPhone Duo hinge images: a strip down the fold with two identical mechanism blocks (top/bottom) —
+  // titanium-bronze brackets with screw holes, rows of coil springs either side of a centre cam — and a black ribbed centre section.
+  const ti = std(0x161b24, 0.8, 0.45, { envMapIntensity: 0.6 }), steel = std(0xa3aab4, 1, 0.24), dark = std(0x0b0c0f, 0.6, 0.4), springM = std(0x8f949b, 1, 0.22);
+  const bronze = std(0x47372d, 0.95, 0.32, { envMapIntensity: 1.1 }), bronzeHi = std(0x5a4637, 0.95, 0.26, { envMapIntensity: 1.2 });
+  const frameM = std(0x585c62, 1, 0.3), slatM = phys({ color: 0x030304, metalness: 0.4, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.2 });
+  mesh(extrude(rrShape(9.6, 112, 2.2), 1.2, 0.2), ti, 0, 0, -1.3, m);                       // structural spine plate
+  const screwHole = (x, y, z) => { mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.2, 18).rotateX(Math.PI / 2), dark, x, y, z, m); mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.22, 12).rotateX(Math.PI / 2), steel, x, y, z + 0.02, m); };
+  const coilY = (x, y0, y1, z, r, turns) => {                                                // spring with its axis along the hinge
+    const pts = []; for (let i = 0; i <= 160; i++) { const t = i / 160, a = t * Math.PI * 2 * turns; pts.push(new THREE.Vector3(x + Math.cos(a) * r, y0 + t * (y1 - y0), z + Math.sin(a) * r)); }
+    m.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 320, 0.14, 6), springM));
   };
-  const coil = (x, y0, y1, z, r) => {
-    const pts = []; for (let i = 0; i <= 200; i++) { const t = i / 200, a = t * Math.PI * 2 * 8; pts.push(new THREE.Vector3(x + Math.cos(a) * r, y0 + t * (y1 - y0), z + Math.sin(a) * r)); }
-    m.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 400, 0.13, 6), springM));
-  };
-  [46, -46].forEach(y => {
-    const sgn = Math.sign(y);
-    mesh(extrude(rrShape(10, 16, 1.5), 1.2, 0.2), ti, 0, y, -0.2, m);                       // module bracket
-    const xs = [-2.85, -0.95, 0.95, 2.85];
-    xs.forEach((x, k) => {
-      mesh(new THREE.CylinderGeometry(0.32, 0.32, 15, 16), steel, x, y, 0.75, m);          // shaft
-      gearAt(x, y + sgn * 5.5, 0.75, 0.82, k % 2 ? dark : steel);                           // synchronising gear train
-      mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.18, 24), dark, x, y - sgn * 5.9, 0.75, m); // friction washer
+  [39, -39].forEach(yc => {
+    // side bracket columns (bronze plates with screw holes), like the two outer rails in Apple's image
+    [-1, 1].forEach(side => {
+      const x = side * 3.75;
+      [-11.5, -6.2, 0, 6.2, 11.5].forEach((dy, k) => {
+        box(2.1, k === 2 ? 3.6 : 4.4, 0.9, k % 2 ? bronzeHi : bronze, x, yc + dy, 0.2, m);
+        screwHole(x + side * 0.15, yc + dy + (k === 2 ? 0 : 0.8), 0.68);
+      });
+      box(0.5, 27, 0.6, bronze, side * 4.75, yc, 0.05, m);                                    // outer lip
     });
-    [-2.85, 2.85].forEach(x => {
-      mesh(new THREE.CylinderGeometry(0.95, 0.95, 2, 24), dark, x, y + sgn * 1.2, 0.75, m);   // detent cam
-      for (let t = 0; t < 3; t++) { const a = t / 3 * Math.PI * 2; box(0.45, 0.5, 0.45, steel, x + Math.cos(a) * 0.6, y + sgn * 2.4, 0.75 + Math.sin(a) * 0.6, m); }
-      coil(x, y - sgn * 4.8, y - sgn * 0.4, 0.75, 0.82);                                    // detent spring
-      const arm = box(1.4, 12, 0.5, ti, Math.sign(x) * 4.45, y, 1.35, m); arm.rotation.y = Math.sign(x) * 0.12; // swing arm
+    // centre cam with the "eye" (rotates with the fold)
+    box(3.6, 3.6, 1.0, bronzeHi, 0, yc, 0.35, m);
+    const cam = new THREE.Group(); cam.position.set(0, yc, 0.95); m.add(cam); hingeGears.push(cam);
+    mesh(new THREE.CylinderGeometry(1.05, 1.05, 0.3, 28).rotateX(Math.PI / 2), steel, 0, 0, 0, cam);
+    mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.34, 20).rotateX(Math.PI / 2), dark, 0, 0, 0.02, cam);
+    box(2.6, 0.38, 0.32, steel, 0, 0, 0, cam); box(0.38, 2.6, 0.32, steel, 0, 0, 0, cam);
+    // spring rows above and below the cam (4 springs side by side), plus the shafts they ride on
+    [-1, 1].forEach(dir => {
+      const y0 = yc + dir * 2.2, y1 = yc + dir * 9.4;
+      [-1.95, -0.65, 0.65, 1.95].forEach(x => { coilY(x, y0, y1, 0.55, 0.52, 11); mesh(new THREE.CylinderGeometry(0.18, 0.18, Math.abs(y1 - y0), 10), steel, x, (y0 + y1) / 2, 0.55, m); });
+      box(5.2, 1.1, 0.8, bronze, 0, yc + dir * 10.2, 0.35, m);                                 // spring end plate
+      box(5.2, 1.0, 0.8, bronzeHi, 0, yc + dir * 1.75, 0.35, m);                               // cam follower plate
+      [-1.3, 1.3].forEach(x => screwHole(x, yc + dir * 12.4, 0.5));
     });
-    [[-4, 7], [4, 7], [-4, -7], [4, -7]].forEach(([sx, sy]) => {                           // screws
-      mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.35, 16).rotateX(Math.PI / 2), steel, sx, y + sy, 0.5, m);
-      box(0.55, 0.1, 0.05, dark, sx, y + sy, 0.69, m); box(0.1, 0.55, 0.05, dark, sx, y + sy, 0.69, m);
-    });
+    box(9.2, 1.0, 0.7, bronze, 0, yc + Math.sign(yc) * 13.9, 0.1, m);                         // module end cap
   });
-  const fp = [steel, dark, steel, dark, steel];                                             // centre friction stack
-  fp.forEach((mat, k) => box(7, 3.2, 0.22, mat, 0, 0, -0.35 + k * 0.28, m));
-  mesh(new THREE.CylinderGeometry(0.32, 0.32, 5, 16), steel, 0, 0, 0.9, m);
-  [30, 12, -12, -30].forEach(y => { const arc = new THREE.Mesh(new THREE.TorusGeometry(2.3, 0.32, 8, 32, Math.PI), ti); arc.rotation.x = Math.PI / 2; arc.position.set(0, y, -0.25); m.add(arc); }); // waterdrop guide rails
-  box(6.5, 44, 0.4, std(0x1a1f29, 0.85, 0.35), 0, -2, 1.95, m);                             // central support bar
+  // black ribbed centre section in a grey frame (Apple's image: four glossy black slats)
+  mesh(extrude(rrShape(8.8, 42, 2.4), 0.7, 0.2), frameM, 0, 0, -0.3, m);
+  mesh(extrude(rrShape(7.4, 39, 1.8), 0.4, 0.1), dark, 0, 0, 0.2, m);
+  [-2.55, -0.85, 0.85, 2.55].forEach(x => box(1.35, 36, 0.55, slatM, x, 0, 0.75, m));
+  box(7.4, 0.5, 0.6, frameM, 0, 18.6, 0.6, m); box(7.4, 0.5, 0.6, frameM, 0, -18.6, 0.6, m);
 }, false);
 (function makeSpine() {
   const hp = parts[parts.length - 1];
