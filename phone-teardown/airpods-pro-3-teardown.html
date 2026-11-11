@@ -371,12 +371,22 @@ const POSE_OV = (() => { const q = new URLSearchParams(location.search).get('pos
 { const q = new URLSearchParams(location.search).get('state') || ''; if (q.includes('closed')) CTRL.lid = CTRL.lidGoal = 0; if (q.includes('in')) CTRL.out = CTRL.outGoal = 0; }
 let LID_HINGE = null, LEFT_BUD = null, LEFT_X = 0, LEFT_Y = 0, LEFT_Z = 0;
 const BUD_IDS = new Set(['tip', 'sensor', 'driver', 'shell', 'board', 'battery', 'stem']);
-const BUD_DROP = -20, BUD_TURN = 0.85, BUD_TILT = 0.3, BUD_BACK = -1.6, BUD_SPREAD = 1.5;
+let [BUD_DROP, BUD_TURN, BUD_TILT, BUD_BACK, BUD_SPREAD] = (new URLSearchParams(location.search).get('bud') || '-21,1.0,0.3,-1.0,2.5').split(',').map(Number);
 const _q = new THREE.Quaternion(), _e = new THREE.Euler(), _pv = new THREE.Vector3();
 function rotAbout(obj, pivot, ex, ey) {   // rotate obj about a pivot given in its own (unrotated) frame
   _q.setFromEuler(_e.set(ex, ey, 0)); obj.quaternion.copy(_q);
   obj.position.add(_pv.copy(pivot).sub(pivot.clone().applyQuaternion(_q)));
 }
+window.__budCheck = () => {
+  scene.updateMatrixWorld(true);
+  const C = parts.find(p => p.id === 'case'); const c0 = new THREE.Vector3(CASE.x, CASE.y + BODY_H / 2 - (PB - LID_H), CASE.z).add(C.group.position);
+  let out = 0, n = 0, worst = 0; const v = new THREE.Vector3(), rep = {};
+  const test = o => { if (!o.isMesh || !o.geometry.attributes.position) return; const pa = o.geometry.attributes.position; for (let i = 0; i < pa.count; i += 3) { v.fromBufferAttribute(pa, i).applyMatrix4(o.matrixWorld).sub(c0);
+      const F = Math.pow(Math.pow(Math.abs(v.x / PA), 2 / E2) + Math.pow(Math.abs(v.z / PC), 2 / E2), E2 / E1) + Math.pow(Math.abs(v.y / PB), 2 / E1); n++; if (F > 0.985) { out++; const k = (o.userData.part ? o.userData.part.id : 'leftbud'); const r = (rep[k] = rep[k] || { c: 0, x: 0, y: 0, z: 0 }); r.c++; r.x += v.x; r.y += v.y; r.z += v.z; } worst = Math.max(worst, F); } };
+  parts.forEach(p => { if (BUD_IDS.has(p.id) && p.id !== 'tip' || p.id === 'tip') p.group.traverse(test); });
+  if (LEFT_BUD) LEFT_BUD.traverse(test);
+  Object.values(rep).forEach(r => { r.x = +(r.x / r.c).toFixed(1); r.y = +(r.y / r.c).toFixed(1); r.z = +(r.z / r.c).toFixed(1); }); return { out, worst: +worst.toFixed(3), rep };
+};
 function applyExtras(e) {
   const inn = (1 - CTRL.out) * (1 - e), inL = 1 - CTRL.out;
   parts.forEach(p => { if (BUD_IDS.has(p.id)) { p.group.position.y += BUD_DROP * inn; p.group.position.z += BUD_BACK * inn; p.group.position.x += BUD_SPREAD * inn; rotAbout(p.group, HEAD, BUD_TILT * inn, -BUD_TURN * inn); } });
@@ -488,10 +498,10 @@ const budCell = canvasTex(512, 512, (x, w, h) => {
   x.font = '700 70px monospace'; x.fillText('0.221 Wh', w / 2, 220); x.font = '500 46px monospace'; x.fillText('Li-ion', w / 2, 310);
 });
 addPart('battery', [0, 4, -32], { az: 2.7, el: 0.35, k: 2.0 }, [0, 13.8, -5.6], g => {
-  mesh(cyl(5.6, 3.8, 64), std(0xb6bcc2, 1, 0.25), 0, HEAD.y + 0.5, -5.2, g);
-  const face = new THREE.Mesh(new THREE.CircleGeometry(5.5, 64), new THREE.MeshStandardMaterial({ map: budCell, metalness: 0.7, roughness: 0.35 }));
-  face.position.set(0, HEAD.y + 0.5, -7.12); face.rotation.y = Math.PI; g.add(face);
-  box(1.6, 3.0, 0.12, FLEX(), 3.6, HEAD.y + 3.4, -3.6, g);
+  mesh(cyl(5.0, 3.2, 64), std(0xb6bcc2, 1, 0.25), 0, HEAD.y + 0.5, -3.6, g);
+  const face = new THREE.Mesh(new THREE.CircleGeometry(4.9, 64), new THREE.MeshStandardMaterial({ map: budCell, metalness: 0.7, roughness: 0.35 }));
+  face.position.set(0, HEAD.y + 0.5, -5.22); face.rotation.y = Math.PI; g.add(face);
+  box(1.6, 3.0, 0.12, FLEX(), 3.2, HEAD.y + 3.2, -2.2, g);
 });
 
 /* 7. Stem board: mics, touch strip, charging contacts (slides out the bottom) */
@@ -559,8 +569,10 @@ addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE
   const lp = mesh(extrude(rrShape(2.6, 6.0, 1.3), 0.6, 0.2, 16), std(0xd9dce0, 0.8, 0.25), CASE.x + PA - 0.35, CASE.y + 1, CASE.z, g); lp.rotation.y = Math.PI / 2;
   for (const dy of [1.45, -1.45]) { const h = mesh(cyl(0.7, 0.9, 24), std(0x3a3d42, 0.4, 0.5), CASE.x + PA - 0.1, CASE.y + 1 + dy, CASE.z, g); h.rotation.y = Math.PI / 2; }
   // USB-C and speaker holes underneath
-  const port = mesh(extrude(rrShape(8.9, 3.0, 1.5), 1.0, 0.1, 16), std(0x2a2c30, 0.6, 0.35), CASE.x, CASE.y - BODY_H / 2 + 0.25, CASE.z, g); port.rotation.x = Math.PI / 2;
-  for (const i of [-3, -2, 2, 3]) yCyl(0.5, 0.6, GRILLE(), CASE.x + i * 2.6, CASE.y - BODY_H / 2 + 0.35, CASE.z + 1, g, 16);
+  const yBot = (x, z) => -PB * Math.pow(Math.max(0, 1 - Math.pow(Math.pow(Math.abs(x / PA), 2 / E2) + Math.pow(Math.abs(z / PC), 2 / E2), E2 / E1)), E1 / 2);
+  const port = mesh(new THREE.ShapeGeometry(rrShape(8.9, 3.0, 1.5), 16), std(0x1d1f23, 0.5, 0.4), CASE.x, cy + yBot(0, 0) - 0.03, CASE.z, g); port.rotation.x = Math.PI / 2;
+  const portIn = mesh(new THREE.ShapeGeometry(rrShape(6.6, 0.8, 0.4), 8), std(0x6b7078, 0.8, 0.3), CASE.x, cy + yBot(0, 0) - 0.06, CASE.z, g); portIn.rotation.x = Math.PI / 2;
+  for (const i of [-3, -2, 2, 3]) { const hx = i * 2.6; const h = mesh(new THREE.CircleGeometry(0.45, 20), GRILLE(), CASE.x + hx, cy + yBot(hx, 0) - 0.02, CASE.z, g); h.rotation.x = Math.PI / 2; }
   // left earbud (mirror of the right one) floating above the open case
   const left = new THREE.Group(); budOuter(left, true);
   left.scale.set(-1, 1, 1); left.position.set(CASE.x * 2 - 0.0, 0, 0); left.rotation.set(0, 0, 0); g.add(left);
@@ -579,9 +591,9 @@ addPart('caseInside', [76, -48, -2], { az: -0.3, el: -0.3, k: 1.3 }, [CASE.x + 2
   mesh(cyl(4.0, 2.6, 48), std(0x2b2d32, 0.6, 0.4), CASE.x + 16, CASE.y + 3, CASE.z - 2.4, g);
   mesh(cyl(3.1, 0.3, 48), GRILLE(), CASE.x + 16, CASE.y + 3, CASE.z - 1.0, g);
   const copper = std(0xc98552, 1, 0.3);
-  for (let i = 0; i < 4; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(8 + i * 0.35, 0.16, 6, 96), copper); t.position.set(CASE.x, CASE.y + 2, CASE.z - 9.8); g.add(t); }
+  for (let i = 0; i < 4; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(8 + i * 0.35, 0.16, 6, 96), copper); t.position.set(CASE.x, CASE.y + 2, CASE.z - 8.6); g.add(t); }
   const mag = std(0x7e848c, 0.9, 0.35);
-  for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2; const b = box(2.4, 1.2, 0.8, mag, CASE.x + Math.cos(a) * 12.5, CASE.y + 2 + Math.sin(a) * 12.5, CASE.z - 9.9, g); b.rotation.z = a + Math.PI / 2; }
+  for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2; const b = box(2.4, 1.2, 0.8, mag, CASE.x + Math.cos(a) * 11.2, CASE.y + 2 + Math.sin(a) * 11.2, CASE.z - 8.7, g); b.rotation.z = a + Math.PI / 2; }
 });
 
 /* ---------------- View / state ---------------- */
@@ -760,8 +772,20 @@ document.getElementById('overview').addEventListener('click', () => { select(-1)
 slider.addEventListener('input', () => { stopTour(); goalExplode = +slider.value; });
 const lidBtn = document.getElementById('lidBtn'), budBtn = document.getElementById('budBtn');
 function showOnCase() { select(-1); goalExplode = 0; slider.value = 0; goal = { target: new THREE.Vector3(-11.6, -12, 0), az: 0.25, el: 0.42, dist: 205, shift: 0 }; }
-lidBtn.addEventListener('click', () => { showOnCase(); CTRL.lidGoal = CTRL.lidGoal ? 0 : 1; lidBtn.textContent = CTRL.lidGoal ? 'Close lid' : 'Open lid'; });
-budBtn.addEventListener('click', () => { showOnCase(); CTRL.outGoal = CTRL.outGoal ? 0 : 1; budBtn.textContent = CTRL.outGoal ? 'Buds in' : 'Buds out'; });
+let seqTimer = 0;
+function labels() { lidBtn.textContent = CTRL.lidGoal ? 'Close lid' : 'Open lid'; budBtn.textContent = CTRL.outGoal ? 'Buds in' : 'Buds out'; }
+lidBtn.addEventListener('click', () => {
+  showOnCase(); clearTimeout(seqTimer);
+  if (CTRL.lidGoal) { const wait = CTRL.out > 0.05 ? 700 : 0; CTRL.outGoal = 0; seqTimer = setTimeout(() => { CTRL.lidGoal = 0; labels(); }, wait); }   // buds drop in, then the lid shuts
+  else CTRL.lidGoal = 1;
+  labels();
+});
+budBtn.addEventListener('click', () => {
+  showOnCase(); clearTimeout(seqTimer);
+  if (CTRL.outGoal) CTRL.outGoal = 0;
+  else { const wait = CTRL.lid < 0.95 ? 650 : 0; CTRL.lidGoal = 1; seqTimer = setTimeout(() => { CTRL.outGoal = 1; labels(); }, wait); }   // open first, then lift the buds out
+  labels();
+});
 
 function startTour() { touring = true; tourT = 0; selected = -1; parts.forEach(p => p.btn.setAttribute('aria-pressed', 'false')); playBtn.textContent = '■ Stop tour'; }
 function stopTour() {
