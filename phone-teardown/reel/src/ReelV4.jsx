@@ -27,7 +27,7 @@ Promise.all([
   .catch(() => continueRender(fontHandle));
 
 /* ---------- narration (George, Kokoro bm_george) ---------- */
-const VO = [['l1', 0.1], ['l2', 2.85], ['l3', 5.45], ['l4', 9.2], ['l5', 19.2], ['l6', 32.1], ['l7', 38.1], ['l8s', 42.5]];  // v4: one line over the open phone, then the sign-off  // l7 split so the close sound lands in a quiet gap
+const VO = [['l1', 0.1], ['l2', 2.85], ['l3', 5.45], ['l4', 9.2], ['l5', 19.2], ['l6', 32.1], ['l7', 38.1], ['l8s', 42.35]];  // v4: one line over the open phone, then the sign-off  // l7 split so the close sound lands in a quiet gap
 
 /* ---------- on-screen text: one continuous track, each entry replaces the previous one ----------
    *asterisks* = accent colour, '|' = line break */
@@ -39,7 +39,7 @@ const TEXT = [
   { at: 6.75, text: 'Just *5.2 mm* thin', sub: 'open · 11.3 mm closed' },
   { at: 9.2, text: 'Trick 1: the screen is *~10 thin layers*' },
   { at: 13, text: 'They *slide* like paper, so nothing snaps' },
-  { at: 19.2, text: 'Trick 2: a hinge of *100+ parts*', sub: 'gears · springs · 3D-printed titanium cover' },
+  { at: 19.2, text: 'Trick 2: a hinge of *100+ parts*', sub: 'cams · springs · 3D-printed titanium cover' },
   { at: 24.9, text: 'Closing, it *curls into a teardrop* instead of folding flat' },
   { at: 32.1, text: 'Bend the same spot *again and again*' },
   { at: 35, text: '…and you get *the crease* you can feel' },
@@ -76,7 +76,7 @@ const SFX = [   // no hard whooshes: soft 'glide' swells on the camera moves, pl
 // a soft rising pluck as each numbered label appears (exploded phone, then the 10 screen layers)
 const PART_PLUCKS = Array.from({ length: 8 }, (_, i) => [7.27 + i * 0.1, i]);
 const LAYER_PLUCKS = Array.from({ length: 10 }, (_, i) => [10.12 + i * 0.13, i]);
-const VO_LEN = { l1: 2.347, l2: 2.432, l3: 3.392, l4: 8.469, l5: 10.773, l6: 5.76, l7: 3.179, l8s: 3.072, };
+const VO_LEN = { l1: 2.347, l2: 2.432, l3: 3.392, l4: 8.469, l5: 10.773, l6: 5.76, l7: 3.179, l8s: 3.52, };
 // music: louder in the gaps, tucked under George
 const musicVolume = (f) => {
   const t = f / FPS;
