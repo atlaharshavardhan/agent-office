@@ -26,8 +26,8 @@ R("function dimTarget(p, s) { return s.focus >= 0 && p.index !== s.focus ? 1 : 0
   "function dimTarget(p, s) { if (s.dimMap) return p.id in s.dimMap ? s.dimMap[p.id] : (s.dimDefault ?? 0); return s.focus >= 0 && p.index !== s.focus ? 1 : 0; }")
 R("  const dimB = prev ? ease(clamp01(lt / 0.9)) : 1;", "  const dimB = prev ? ease(clamp01(lt / 0.35)) : 1;")
 R("return { fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,",
-  "return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, xr: !!s.xr, pw: s.pw ? s.pw(u) : 0, wake: s.wake ? s.wake(u) : 1, cb: s.cb ? s.cb(u) : 0, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
-R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake; COVER_BLUR = st.cb; if (window.chipPower) chipPower(st.time, st.pw);")
+  "return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, xr: !!s.xr, pw: s.pw ? s.pw(u) : 0, wv: s.wv ? s.wv(u) : 0, wake: s.wake ? s.wake(u) : 1, cb: s.cb ? s.cb(u) : 0, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
+R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake; COVER_BLUR = st.cb; if (window.chipPower) window.chipPower(st.time, st.pw); if (window.chipWaves) window.chipWaves(st.time, st.wv);")
 R("const camera = new THREE.PerspectiveCamera(30, 1, 5, 3000);", "const camera = new THREE.PerspectiveCamera(33, 1, 5, 3000);  // ~10% wider so tall shots fit the 450-1500 band")
 R("function composeInner(bl) {\n  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100); x.drawImage(innerSharp, 0, 0);",
   "function composeInner(bl) {\n  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100);\n  const z = 1 + 0.05 * bl; x.save(); x.beginPath(); x.roundRect(0, 0, 1640, 1100, 86); x.clip(); x.translate(1230, 550); x.scale(z, z); x.translate(-1230, -550); x.drawImage(innerSharp, 0, 0); x.restore();")
@@ -200,7 +200,8 @@ sseg({ dur: 5.5, explode: () => EX, dimMap: { hinge: 0 }, dimDefault: 0.97, pose
   caps: [[0.25, 5.5, L('Trick 2: a hinge of <em>100+ parts</em>') + '<div class="sub">gears · springs · 3D-printed titanium cover</div>']] });
 // X-ray close: everything ghosted except the hinge, so you watch the hinge strip at the fold while the halves swing shut
 const HMAC_END = P(0, 38, 22 * EX + 1, 0.9, 0.36, 100), XR = P(0, 0, 2, 0.95, 0.42, 470);
-sseg({ dur: 4.8, xr: true, pw: t => clamp01(t * 4.8 / 0.6), keepOn: true, explode: t => EX * (1 - ease(clamp01(t * 4.8 / 1.2))), fold: t => 0.55 * ease(clamp01((t * 4.8 - 1.2) / 3.6)),
+sseg({ dur: 4.8, xr: true, pw: t => clamp01(t * 4.8 / 0.6), wv: t => { const T = t * 4.8; return ease(clamp01((T - 0.8) / 0.5)) * (1 - ease(clamp01((T - 2.5) / 0.5))); },  // A20 sends blue power waves through the Duo
+  keepOn: true, explode: t => EX * (1 - ease(clamp01(t * 4.8 / 1.2))), fold: t => 0.55 * ease(clamp01((t * 4.8 - 2.6) / 2.2)),
   dimMap: { hinge: 0 }, dimDefault: 0.92,
   pose: t => { const T = t * 4.8; return T < 1.2 ? lerpPose(HMAC_END, XR, ease(T / 1.2)) : Object.assign(clonePose(XR), { az: XR.az + 0.18 * (T - 1.2) / 3.6 }); },
   caps: [[0.25, 4.8, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });

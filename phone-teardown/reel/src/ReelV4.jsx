@@ -69,6 +69,7 @@ const SFX = [   // no hard whooshes: soft 'glide' swells on the camera moves, pl
   ['glide.wav', 37.9, 0.3],                                     // turns to face you, wide open
   ['shimmer.wav', 41.4, 0.4], ['impact-small.wav', 41.45, 0.4], // channel card over the open phone
   ['tap.wav', 42.95, 0.6], ['pluck7.wav', 43.4, 0.5], ['pluck9.wav', 43.85, 0.45], ['chime.wav', 44.3, 0.3],  // like · heart · comment · subscribe
+  ['glide-up.wav', 25.15, 0.35], ['shimmer.wav', 25.35, 0.4],  // A20 sends blue power waves through the Duo
   ['close.wav', 45.9, 1.0],                                     // the close, in the clear — then it loops
 ];
 // a soft rising pluck as each numbered label appears (exploded phone, then the 10 screen layers)

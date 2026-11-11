@@ -100,7 +100,7 @@ function a20Chip(g, z0, x, y) {
 }
 /* blue power waves: flowing ribbons from the A20 across the board and the hinge into the other half, plus ripple rings.
    Added to the board group after its parts are split into halves, so the ribbons don't swing with the folding half. */
-let chipWaves = null;
+let waveFx = null;
 function addChipWaves(g) {
   if (!chipFx) return; const c = chipFx.lidM.position, z = c.z + 1.4;
   const ribTex = canvasTex(512, 32, (x, w, h) => { const lg = x.createLinearGradient(0, 0, w, 0);
@@ -122,12 +122,12 @@ function addChipWaves(g) {
   const ringTex = canvasTex(256, 256, (x, w, h) => { const rg = x.createRadialGradient(w / 2, h / 2, w * 0.36, w / 2, h / 2, w / 2); rg.addColorStop(0, 'rgba(120,200,255,0)'); rg.addColorStop(0.6, 'rgba(110,190,255,1)'); rg.addColorStop(1, 'rgba(120,200,255,0)'); x.fillStyle = rg; x.fillRect(0, 0, w, h); });
   const rings = [0, 1, 2].map(i => { const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: ringTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, toneMapped: false, opacity: 0 }));
     m.position.set(c.x, c.y, z); m.renderOrder = 998; m.userData.keepLit = true; g.add(m); return { m, ph: i / 3 }; });
-  chipWaves = { ribbons, rings };
+  waveFx = { ribbons, rings };
 }
 window.chipWaves = (t, a) => {
-  if (!chipWaves) return;
-  chipWaves.ribbons.forEach(r => { r.m.visible = a > 0.01; r.m.material.opacity = a * r.k; r.tex.offset.x = -((t * r.sp + r.ph) % 1); });
-  chipWaves.rings.forEach(r => { const u = (t * 0.6 + r.ph) % 1; r.m.visible = a > 0.01; r.m.scale.setScalar(14 + 70 * u); r.m.material.opacity = a * 0.55 * (1 - u); });
+  if (!waveFx) return;
+  waveFx.ribbons.forEach(r => { r.m.visible = a > 0.01; r.m.material.opacity = a * r.k; r.tex.offset.x = -((t * r.sp + r.ph) % 1); });
+  waveFx.rings.forEach(r => { const u = (t * 0.6 + r.ph) % 1; r.m.visible = a > 0.01; r.m.scale.setScalar(14 + 70 * u); r.m.material.opacity = a * 0.55 * (1 - u); });
 };
 window.chipAnchor = v => chipFx ? chipFx.lidM.getWorldPosition(v) : v;
 window.chipPower = (t, a) => {
