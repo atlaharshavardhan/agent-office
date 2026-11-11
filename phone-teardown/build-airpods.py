@@ -84,7 +84,7 @@ function patch(parent, dir, sx, sy, mat, rot = 0) {
   m.scale.set(sx, sy, 0.35); m.position.copy(p); m.lookAt(p.clone().add(n)); m.rotateZ(rot); parent.add(m); return m;
 }
 /* stem frame: top tucked into the head, leaning down and slightly forward */
-function stemFrame(parent) { const f = new THREE.Group(); f.position.set(1.0, HEAD.y - 5.0, 1.2); f.rotation.set(-0.16, 0, 0.2); parent.add(f); return f; }
+function stemFrame(parent) { const f = new THREE.Group(); f.position.set(0.6, HEAD.y - 5.0, 0.6); f.rotation.set(-0.05, 0, 0.06); parent.add(f); return f; }
 const STEM_L = 20.5;
 function stemShell(f, mat) {
   const prof = [[0.01, 0], [2.2, 0.05], [2.75, 0.6], [2.9, 2], [3.0, 10], [3.3, 16], [3.9, 19.6], [4.4, STEM_L + 1.5], [0.01, STEM_L + 1.5]];
@@ -100,7 +100,8 @@ function budOuter(parent, withTip = true) {
   ell(HR.x, HR.y, HR.z, w, HEAD.x, HEAD.y, HEAD.z, parent, 96);
   const noz = mesh(cyl(3.4, 4.0, 64), w, HEAD.x - 0.6, HEAD.y - 1.4, 8.6, parent); noz.scale.set(1, 1.15, 1);
   const ring = mesh(cyl(3.55, 0.7, 64), SILVER(), HEAD.x - 0.6, HEAD.y - 1.4, 10.3, parent); ring.scale.set(1, 1.15, 1);
-  patch(parent, [-0.1, 0.9, -0.42], 3.4, 1.7, MESH(), 0.15);      // top mic grille
+  patch(parent, [0.42, 0.66, 0.5], 2.0, 1.25, MESH(), 0.6);      // top mic grille, top-front
+  patch(parent, [-0.1, 0.9, -0.42], 3.4, 1.7, MESH(), 0.15);      // rear grille
   patch(parent, [0.92, 0.2, -0.32], 1.3, 3.8, MESH(), 0.2);       // side vent
   patch(parent, [0.62, 0.05, 0.72], 0.9, 1.7, MESH(), -0.3);      // front vent by the nozzle
   stemShell(stemFrame(parent), w);
@@ -111,7 +112,7 @@ function tipMesh(parent) {
   const pts = [[3.0, 0], [3.3, 0.6], [4.8, 1.3], [6.0, 2.5], [6.5, 3.9], [6.3, 5.1], [5.4, 6.1], [3.9, 6.6], [2.6, 6.7], [2.4, 6.2], [3.1, 1.0]];
   const geo = new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), 96); geo.rotateX(Math.PI / 2);
   const m = mesh(geo, sil, HEAD.x - 0.6, HEAD.y - 1.4, 10.4, parent); m.scale.set(1, 1.15, 1);
-  const hole = mesh(cyl(2.3, 0.4, 32), std(0xb9bdc3, 0, 0.7), HEAD.x - 0.6, HEAD.y - 1.4, 16.95, parent); hole.scale.set(1, 1.15, 1);
+  const hole = mesh(cyl(2.3, 0.4, 32), new THREE.MeshBasicMaterial({ color: 0x24262b }), HEAD.x - 0.6, HEAD.y - 1.4, 17.2, parent); hole.scale.set(1, 1.15, 1);
   return m;
 }
 
@@ -140,7 +141,7 @@ addPart('driver', [0, 0, 11], { az: 0.85, el: 0.3, k: 1.9 }, [5.5, 8.2, 5.2], g 
   mesh(cyl(1.0, 1.0, 24), std(0x9aa0a8, 1, 0.3), 2.2, y + 2.6, z + 1.6, g);
   mesh(cyl(0.45, 0.2, 16), GRILLE(), 2.2, y + 2.6, z + 2.15, g);
   chipOn(g, 2.4, 2.0, 0.5, [['AMP', 70]], -4.0, y - 3.6, z - 0.8);
-  box(2.0, 6.5, 0.12, FLEX(), -3.8, y - 6.2, z - 0.9, g);
+  box(2.0, 3.0, 0.12, FLEX(), -3.8, y - 4.6, z - 0.9, g);
 });
 
 /* 4. Earbud housing (head + slanted stem + grilles), the reference part */
@@ -153,7 +154,7 @@ addPart('board', [0, 3, -18], { az: 2.5, el: 0.35, k: 1.8 }, [-6, 4.2, -2.6], g 
   const shield = std(0xb8bcc2, 0.95, 0.28);
   box(3.2, 2.4, 0.5, shield, 3.8, HEAD.y + 2.2, -2.8, g); box(2.0, 1.6, 0.4, shield, 3.9, HEAD.y - 1.0, -2.75, g);
   ['ACC', 'ACC'].forEach((l, i) => chipOn(g, 1.6, 1.6, 0.4, [[l, 64]], -4.6, HEAD.y + 2.6 - i * 3.1, -2.7, 0, Math.PI));
-  box(2.4, 11, 0.12, FLEX(), 0, HEAD.y - 8.5, -1.6, g);
+  box(2.4, 6, 0.12, FLEX(), 0, HEAD.y - 6.0, -1.6, g);
 });
 
 /* 6. Earbud battery */
@@ -184,7 +185,7 @@ addPart('stem', [3, -24, 0], { az: 0.6, el: 0.15, k: 1.5 }, [5.2, -10.5, 2.0], g
 });
 
 /* 8. MagSafe charging case, lid open, with the left earbud resting above it */
-const CASE = new THREE.Vector3(14, -48, -10), BODY_H = 33, LID_H = 14.2, CW = 62.2, CD = 21.8;
+const CASE = new THREE.Vector3(-11.6, -29.5, 0.8), BODY_H = 33, LID_H = 14.2, CW = 62.2, CD = 21.8;
 function caseShape(w, h, rb, rt) {   // rounded rectangle with different bottom / top corner radii
   const s = new THREE.Shape(), x = -w / 2, y = -h / 2;
   s.moveTo(x + rb, y); s.lineTo(x + w - rb, y); s.absarc(x + w - rb, y + rb, rb, -Math.PI / 2, 0);
@@ -197,9 +198,13 @@ addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE
   mesh(extrude(caseShape(CW - 2 * bv, BODY_H - 2 * bv, 14, 1.5), CD, bv, 48), w, CASE.x, CASE.y, CASE.z, g);
   const inner = std(0xe9eaec, 0, 0.45);
   box(CW - 5, 0.3, CD - 5, inner, CASE.x, top + 0.05, CASE.z, g);
-  for (const sx of [-1, 1]) { const c = ell(4.4, 0.35, 7.0, std(0x9da2a9, 0, 0.6), CASE.x + sx * 13.5, top + 0.12, CASE.z + 0.5, g, 40); c.rotation.y = sx * 0.25; }
+  for (const sx of [-1, 1]) {   // rounded-square cradles the buds sit in
+    const well = mesh(extrude(rrShape(21, 15.5, 6.5), 1.2, 0.5, 24), std(0xd3d6db, 0, 0.5), CASE.x + sx * 13.2, top - 0.35, CASE.z + 0.5, g); well.rotation.x = -Math.PI / 2;
+    const slot = ell(3.0, 0.4, 2.5, std(0x8f949b, 0, 0.6), CASE.x + sx * 13.2, top + 0.3, CASE.z + 0.5, g, 32);
+  }
+  box(16, 2.2, 3.2, SILVER(), CASE.x, top + 0.6, CASE.z - CD / 2 + 2.4, g);   // hinge
   // lid, hinged at the back top edge and swung open
-  const hinge = new THREE.Group(); hinge.position.set(CASE.x, top, CASE.z - CD / 2 + 1.2); hinge.rotation.x = -2.35; g.add(hinge);
+  const hinge = new THREE.Group(); hinge.position.set(CASE.x, top, CASE.z - CD / 2 + 1.2); hinge.rotation.x = -1.92; g.add(hinge);
   mesh(extrude(caseShape(CW - 2 * bv, LID_H - 2 * bv, 1.5, 12), CD, bv, 48), w, 0, LID_H / 2, CD / 2 - 1.2, hinge);
   box(CW - 5, 0.3, CD - 5, inner, 0, 0.1, CD / 2 - 1.2, hinge);
   ell(0.6, 0.6, 0.2, std(0x1a1d22, 0.2, 0.3, { emissive: 0x2fbf5a, emissiveIntensity: 1.1 }), CASE.x, CASE.y + 5, CASE.z + CD / 2 + 0.02, g, 24);
@@ -211,7 +216,7 @@ addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE
   for (const i of [-3, -2, 2, 3]) yCyl(0.5, 0.6, GRILLE(), CASE.x + i * 2.6, CASE.y - BODY_H / 2 - 0.15, CASE.z + 1, g, 16);
   // left earbud (mirror of the right one) floating above the open case
   const left = new THREE.Group(); budOuter(left, true);
-  left.scale.set(-1, 1, 1); left.position.set(CASE.x - 34, CASE.y + 42, CASE.z + 8); left.rotation.set(0.2, 0.45, -0.28); g.add(left);
+  left.scale.set(-1, 1, 1); left.position.set(CASE.x * 2 - 0.0, 0, 0); left.rotation.set(0, 0, 0); g.add(left);
 });
 
 /* 9. Inside the case */
@@ -248,11 +253,11 @@ reps = [
  ("intro: ['Teardown', 'Inside a modern iPhone', 'Eleven layers, front to back, explained.'],", "intro: ['Teardown', 'Inside AirPods Pro 3', 'One earbud and its case, part by part.'],"),
  ("outro: ['8.25 millimetres', 'Everything, stacked.', 'Glass, display, Face ID, frame, logic board, battery, haptics, audio, cameras, MagSafe and back glass.'],",
   "outro: ['5.55 grams', 'A computer in your ear.', 'Driver, H2 chip, battery, heart-rate sensor and five microphones’ worth of listening, glued into a shell smaller than a grape.'],"),
- ("const OVERVIEW = { target: new THREE.Vector3(0, 0, 0), az: 0.92, el: 0.26, dist: 390, shift: 0 };", "const OVERVIEW = { target: new THREE.Vector3(38, -26, 0), az: -0.55, el: 0.2, dist: 340, shift: 0 };"),
+ ("const OVERVIEW = { target: new THREE.Vector3(0, 0, 0), az: 0.92, el: 0.26, dist: 390, shift: 0 };", "const OVERVIEW = { target: new THREE.Vector3(28, -26, 0), az: -0.55, el: 0.2, dist: 340, shift: 0 };"),
  ("const ASSEMBLED = { target: new THREE.Vector3(0, 0, 0), az: 0.45, el: 0.12, dist: 330, shift: 0 };", ""),
  ("const dist = Math.max(p.radius / Math.sin(FOV / 2) * p.view.k, 70);", "const dist = Math.max(p.radius / Math.sin(FOV / 2) * p.view.k, 28);"),
- ("pose: t => ({ target: new THREE.Vector3(0, 0, 0), az: -0.5 + 0.85 * t, el: 0.1, dist: 300, shift: 0.85 })", "pose: t => ({ target: new THREE.Vector3(-2, -20, 0), az: -0.3 + 0.6 * t, el: 0.18, dist: 185, shift: 0.85 })"),
- ("{ target: new THREE.Vector3(0, 0, 0), az: 0.35, el: 0.1, dist: 300, shift: 0.85 }, OVERVIEW", "{ target: new THREE.Vector3(-2, -20, 0), az: 0.3, el: 0.18, dist: 185, shift: 0.85 }, OVERVIEW"),
+ ("pose: t => ({ target: new THREE.Vector3(0, 0, 0), az: -0.5 + 0.85 * t, el: 0.1, dist: 300, shift: 0.85 })", "pose: t => ({ target: new THREE.Vector3(-11.6, -14, 0), az: -0.2 + 0.4 * t, el: 0.46, dist: 205, shift: 0.85 })"),
+ ("{ target: new THREE.Vector3(0, 0, 0), az: 0.35, el: 0.1, dist: 300, shift: 0.85 }, OVERVIEW", "{ target: new THREE.Vector3(-11.6, -14, 0), az: 0.2, el: 0.46, dist: 205, shift: 0.85 }, OVERVIEW"),
  ("az: 1.45 + 2.2 * ease(t), el: 0.14, dist: 330, shift: 0.85 * ease(t) })", "az: 1.45 + 2.0 * ease(t), el: 0.22, dist: 210, shift: 0.85 * ease(t) })"),
  ("{ dist: 450, shift: -0.4 } : { dist: 760, shift: 0.15 }", "{ dist: 300, shift: -0.4 } : { dist: 470, shift: 0.15 }"),
  ("goal.dist = Math.max(40, Math.min(900, dist0 * pinch0 / d))", "goal.dist = Math.max(18, Math.min(700, dist0 * pinch0 / d))"),
@@ -264,7 +269,7 @@ reps = [
 for x, y in reps:
     assert src.count(x) == 1, x
     src = src.replace(x, y)
-src = src.replace("target: new THREE.Vector3(0, 0, 0), az: 1.45", "target: new THREE.Vector3(-4, -18, 0), az: 1.45")
+src = src.replace("target: new THREE.Vector3(0, 0, 0), az: 1.45", "target: new THREE.Vector3(-11.6, -10, 0), az: 1.45")
 # brighter studio environment, same as the AirTag page
 env = open('build-airtag.py').read()
 env = env[env.index('env = r"""') + 10: env.index('"""', env.index('env = r"""') + 10)]
