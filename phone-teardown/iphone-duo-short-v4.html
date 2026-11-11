@@ -620,48 +620,54 @@ window.spinGears = t => hingeGears.forEach((gg, i) => { gg.rotation.z = (i % 2 ?
 addPart('hinge', [0, 0, 22], { az: 0.6, el: 0.55, k: 0.72, t: [0, 44, 0.6], dist: 62 }, [0, 58, 0.5], g => {
   // Mechanism (iFixit: gears, springs, interlocking joints; REWA: four springs) under a 3D-printed titanium cover.
   const m = new THREE.Group(); g.add(m); hingeMech = m;
-  // Layout follows Apple's iPhone Duo hinge images: a strip down the fold with two identical mechanism blocks (top/bottom) —
-  // titanium-bronze brackets with screw holes, rows of coil springs either side of a centre cam — and a black ribbed centre section.
-  const ti = std(0x161b24, 0.8, 0.45, { envMapIntensity: 0.6 }), steel = std(0xa3aab4, 1, 0.24), dark = std(0x0b0c0f, 0.6, 0.4), springM = std(0x8f949b, 1, 0.22);
-  const bronze = std(0x47372d, 0.95, 0.32, { envMapIntensity: 1.1 }), bronzeHi = std(0x5a4637, 0.95, 0.26, { envMapIntensity: 1.2 });
-  const frameM = std(0x585c62, 1, 0.3), slatM = phys({ color: 0x030304, metalness: 0.4, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.2 });
-  mesh(extrude(rrShape(9.6, 112, 2.2), 1.2, 0.2), ti, 0, 0, -1.3, m);                       // structural spine plate
-  const screwHole = (x, y, z) => { mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.2, 18).rotateX(Math.PI / 2), dark, x, y, z, m); mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.22, 12).rotateX(Math.PI / 2), steel, x, y, z + 0.02, m); };
-  const coilY = (x, y0, y1, z, r, turns) => {                                                // spring with its axis along the hinge
-    const pts = []; for (let i = 0; i <= 160; i++) { const t = i / 160, a = t * Math.PI * 2 * turns; pts.push(new THREE.Vector3(x + Math.cos(a) * r, y0 + t * (y1 - y0), z + Math.sin(a) * r)); }
-    m.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 320, 0.14, 6), springM));
+  // Matches Apple's iPhone Duo hinge images + teardown: full-height strip, a long module at each end and a black ribbed centre.
+  // Each module, from the centre outwards: springs · "eye" cam · springs · "eye" cam · springs · rollers + square hole block.
+  // Pale taupe-bronze side rails with double screw holes and notches run along both sides.
+  const ti = std(0x161b24, 0.8, 0.45, { envMapIntensity: 0.6 }), steel = std(0xa3aab4, 1, 0.24), dark = std(0x0a0b0d, 0.6, 0.4);
+  const taupe = std(0x3a2b22, 0.7, 0.46, { envMapIntensity: 0.8 }), taupeHi = std(0x47352a, 0.7, 0.4, { envMapIntensity: 0.85 }), springM = std(0x54463d, 0.85, 0.36, { envMapIntensity: 0.85 });
+  const frameM = std(0x55595f, 1, 0.3), slatM = phys({ color: 0x020203, metalness: 0.45, roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.15 });
+  const HL = 55.5, C = 15.5;                                                                  // strip half-length, centre-section half-length
+  mesh(extrude(rrShape(9.8, HL * 2, 2.2), 1.2, 0.2), ti, 0, 0, -1.3, m);                      // structural spine plate
+  const hole2 = (x, y, z) => [-0.48, 0.48].forEach(dx => { mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.2, 16).rotateX(Math.PI / 2), dark, x + dx, y, z, m); mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.22, 10).rotateX(Math.PI / 2), steel, x + dx, y, z + 0.02, m); });
+  const coilY = (x, y0, y1, z, r, turns) => {
+    const pts = []; for (let i = 0; i <= 140; i++) { const t = i / 140, aa = t * Math.PI * 2 * turns; pts.push(new THREE.Vector3(x + Math.cos(aa) * r, y0 + t * (y1 - y0), z + Math.sin(aa) * r)); }
+    m.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 280, 0.15, 6), springM));
   };
-  [39, -39].forEach(yc => {
-    // side bracket columns (bronze plates with screw holes), like the two outer rails in Apple's image
+  const springs = (y0, y1) => { const n = Math.round(Math.abs(y1 - y0) / 0.62); [-1.6, -0.53, 0.53, 1.6].forEach(x => { coilY(x, y0, y1, 0.55, 0.46, n); mesh(new THREE.CylinderGeometry(0.16, 0.16, Math.abs(y1 - y0), 10), steel, x, (y0 + y1) / 2, 0.55, m); }); };
+  const eye = (y) => {                                                                        // square cam block with the round "eye" and cross
+    box(4.4, 3.2, 0.9, taupeHi, 0, y, 0.4, m); [-1.5, 1.5].forEach(x => box(0.7, 3.6, 1.0, taupe, x, y, 0.5, m));
+    const g2 = new THREE.Group(); g2.position.set(0, y, 0.98); m.add(g2); hingeGears.push(g2);
+    box(1.6, 1.6, 0.3, steel, 0, 0, 0, g2); mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.34, 20).rotateX(Math.PI / 2), dark, 0, 0, 0.02, g2);
+    box(2.4, 0.3, 0.26, steel, 0, 0, 0, g2); box(0.3, 2.4, 0.26, steel, 0, 0, 0, g2);
+  };
+  [1, -1].forEach(sg => {
+    const Y = u => sg * (C + u);                                                              // u: distance from the centre section
+    box(5.6, 1.0, 0.8, taupe, 0, Y(0.5), 0.35, m);                                            // plate against the centre frame
+    springs(Y(1.2), Y(7.6)); eye(Y(9.4));
+    springs(Y(11.2), Y(20.0)); eye(Y(21.8));
+    springs(Y(23.6), Y(30.2));
+    box(5.6, 1.0, 0.8, taupe, 0, Y(30.9), 0.35, m);
+    box(2.4, 2.4, 0.9, taupeHi, -1.3, Y(33.0), 0.4, m); mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.95, 16).rotateX(Math.PI / 2), dark, -1.3, Y(33.0), 0.45, m); // square hole block
+    [[0.9, 32.3], [2.0, 32.3], [0.9, 34.0], [2.0, 34.0]].forEach(([x, u]) => mesh(new THREE.CylinderGeometry(0.5, 0.5, 2.2, 16), steel, x, Y(u), 0.55, m)); // double rollers
+    box(9.4, 1.2, 0.8, taupe, 0, Y(36.4), 0.15, m);                                           // module end cap
+    mesh(new THREE.CylinderGeometry(1.0, 1.0, 0.5, 24).rotateX(Math.PI / 2), taupeHi, 0, Y(38.2), 0.2, m); mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.55, 16).rotateX(Math.PI / 2), dark, 0, Y(38.2), 0.25, m); // end cam
+    // side rails: alternating plates with double holes and notches
     [-1, 1].forEach(side => {
-      const x = side * 3.75;
-      [-11.5, -6.2, 0, 6.2, 11.5].forEach((dy, k) => {
-        box(2.1, k === 2 ? 3.6 : 4.4, 0.9, k % 2 ? bronzeHi : bronze, x, yc + dy, 0.2, m);
-        screwHole(x + side * 0.15, yc + dy + (k === 2 ? 0 : 0.8), 0.68);
+      const x = side * 3.85;
+      [[2.6, 4.2], [7.6, 4.6], [12.8, 4.2], [17.8, 4.6], [22.8, 4.2], [27.8, 4.6], [33.2, 4.8]].forEach(([u, len], k) => {
+        box(2.0, len, 0.95, k % 2 ? taupeHi : taupe, x, Y(u), 0.2, m);
+        hole2(x, Y(u) + sg * (k % 2 ? -0.9 : 0.9), 0.7);
+        box(0.7, 0.9, 1.0, dark, x - side * 0.65, Y(u) - sg * 1.2, 0.25, m);                 // notch
       });
-      box(0.5, 27, 0.6, bronze, side * 4.75, yc, 0.05, m);                                    // outer lip
+      box(0.45, 37, 0.6, taupe, side * 4.85, Y(18.5), 0.05, m);                               // outer lip
     });
-    // centre cam with the "eye" (rotates with the fold)
-    box(3.6, 3.6, 1.0, bronzeHi, 0, yc, 0.35, m);
-    const cam = new THREE.Group(); cam.position.set(0, yc, 0.95); m.add(cam); hingeGears.push(cam);
-    mesh(new THREE.CylinderGeometry(1.05, 1.05, 0.3, 28).rotateX(Math.PI / 2), steel, 0, 0, 0, cam);
-    mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.34, 20).rotateX(Math.PI / 2), dark, 0, 0, 0.02, cam);
-    box(2.6, 0.38, 0.32, steel, 0, 0, 0, cam); box(0.38, 2.6, 0.32, steel, 0, 0, 0, cam);
-    // spring rows above and below the cam (4 springs side by side), plus the shafts they ride on
-    [-1, 1].forEach(dir => {
-      const y0 = yc + dir * 2.2, y1 = yc + dir * 9.4;
-      [-1.95, -0.65, 0.65, 1.95].forEach(x => { coilY(x, y0, y1, 0.55, 0.52, 11); mesh(new THREE.CylinderGeometry(0.18, 0.18, Math.abs(y1 - y0), 10), steel, x, (y0 + y1) / 2, 0.55, m); });
-      box(5.2, 1.1, 0.8, bronze, 0, yc + dir * 10.2, 0.35, m);                                 // spring end plate
-      box(5.2, 1.0, 0.8, bronzeHi, 0, yc + dir * 1.75, 0.35, m);                               // cam follower plate
-      [-1.3, 1.3].forEach(x => screwHole(x, yc + dir * 12.4, 0.5));
-    });
-    box(9.2, 1.0, 0.7, bronze, 0, yc + Math.sign(yc) * 13.9, 0.1, m);                         // module end cap
   });
-  // black ribbed centre section in a grey frame (Apple's image: four glossy black slats)
-  mesh(extrude(rrShape(8.8, 42, 2.4), 0.7, 0.2), frameM, 0, 0, -0.3, m);
-  mesh(extrude(rrShape(7.4, 39, 1.8), 0.4, 0.1), dark, 0, 0, 0.2, m);
-  [-2.55, -0.85, 0.85, 2.55].forEach(x => box(1.35, 36, 0.55, slatM, x, 0, 0.75, m));
-  box(7.4, 0.5, 0.6, frameM, 0, 18.6, 0.6, m); box(7.4, 0.5, 0.6, frameM, 0, -18.6, 0.6, m);
+  // centre section: grey frame with rounded ends, two wide glossy black ribbed bars
+  mesh(extrude(rrShape(9.2, C * 2, 2.6), 0.75, 0.2), frameM, 0, 0, -0.3, m);
+  mesh(extrude(rrShape(7.8, C * 2 - 2, 2.0), 0.4, 0.1), dark, 0, 0, 0.2, m);
+  [-1.85, 1.85].forEach(x => { box(3.3, C * 2 - 3.6, 0.55, slatM, x, 0, 0.78, m); for (let k = -1; k <= 1; k++) box(0.12, C * 2 - 4, 0.6, dark, x + k * 0.95, 0, 0.8, m); });
+  box(0.35, C * 2 - 3.6, 0.65, frameM, 0, 0, 0.8, m);                                         // thin divider between the bars
+  [-1, 1].forEach(sg => mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.3, 14).rotateX(Math.PI / 2), std(0xd8dce2, 0.5, 0.3), 0, sg * (C - 0.9), 0.9, m)); // light screw dots at the centre ends
 }, false);
 (function makeSpine() {
   const hp = parts[parts.length - 1];
@@ -1041,7 +1047,7 @@ sseg({ dur: 10, explode: t => EX + (2.1 - EX) * (1 - ease(clamp01(t * 10 / 1.2))
   stack: lt => [ease(clamp01((lt - 0.5) / 1.6)) * (1 - ease(clamp01((lt - 9.2) / 0.8))), ease(clamp01((lt - 4.4) / 0.8)), lt],
   pose: t => P(STACK_C.x, STACK_C.y + 2, STACK_C.z, 0.42 + 0.12 * t, 0.2, 430),
   caps: [[0.3, 4.4, L('Trick 1: the screen is <em>~10 thin layers</em>')], [4.4, 10, L('They <em>slide</em> like paper, so nothing snaps')]] });
-sseg({ dur: 5.5, explode: () => EX, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 43 - 5 * t, 22 * EX + 1, 0.05 + 0.85 * t, 0.48 - 0.12 * t, 125 - 25 * t),
+sseg({ dur: 5.5, explode: () => EX, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => { const FULL = P(0, 0, 22 * EX + 1, 0.0, 0.02, 205), MAC = P(0, 43, 22 * EX + 1, 0.05, 0.48, 125); return t < 0.28 ? FULL : t < 0.45 ? lerpPose(FULL, MAC, ease((t - 0.28) / 0.17)) : (u => P(0, 43 - 5 * u, 22 * EX + 1, 0.05 + 0.85 * u, 0.48 - 0.12 * u, 125 - 25 * u))((t - 0.45) / 0.55); },  // whole hinge straight-on (like Apple's image), then into the module
   caps: [[0.25, 5.5, L('Trick 2: a hinge of <em>100+ parts</em>') + '<div class="sub">gears · springs · 3D-printed titanium cover</div>']] });
 sseg({ dur: 5.5, explode: t => EX * (1 - ease(clamp01(t * 5.5 / 1.4))), fold: t => 0.74 * ease(clamp01((t * 5.5 - 1.5) / 2.6)),
   keepOn: true, dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(34, 0, 24, 0.08 + 0.06 * t, 1.3, 430, UP_STACK),  // look down onto the V

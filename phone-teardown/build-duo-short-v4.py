@@ -189,7 +189,7 @@ sseg({ dur: 10, explode: t => EX + (2.1 - EX) * (1 - ease(clamp01(t * 10 / 1.2))
   stack: lt => [ease(clamp01((lt - 0.5) / 1.6)) * (1 - ease(clamp01((lt - 9.2) / 0.8))), ease(clamp01((lt - 4.4) / 0.8)), lt],
   pose: t => P(STACK_C.x, STACK_C.y + 2, STACK_C.z, 0.42 + 0.12 * t, 0.2, 430),
   caps: [[0.3, 4.4, L('Trick 1: the screen is <em>~10 thin layers</em>')], [4.4, 10, L('They <em>slide</em> like paper, so nothing snaps')]] });
-sseg({ dur: 5.5, explode: () => EX, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => P(0, 43 - 5 * t, 22 * EX + 1, 0.05 + 0.85 * t, 0.48 - 0.12 * t, 125 - 25 * t),
+sseg({ dur: 5.5, explode: () => EX, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => { const FULL = P(0, 0, 22 * EX + 1, 0.0, 0.02, 205), MAC = P(0, 43, 22 * EX + 1, 0.05, 0.48, 125); return t < 0.28 ? FULL : t < 0.45 ? lerpPose(FULL, MAC, ease((t - 0.28) / 0.17)) : (u => P(0, 43 - 5 * u, 22 * EX + 1, 0.05 + 0.85 * u, 0.48 - 0.12 * u, 125 - 25 * u))((t - 0.45) / 0.55); },  // whole hinge straight-on (like Apple's image), then into the module
   caps: [[0.25, 5.5, L('Trick 2: a hinge of <em>100+ parts</em>') + '<div class="sub">gears · springs · 3D-printed titanium cover</div>']] });
 sseg({ dur: 5.5, explode: t => EX * (1 - ease(clamp01(t * 5.5 / 1.4))), fold: t => 0.74 * ease(clamp01((t * 5.5 - 1.5) / 2.6)),
   keepOn: true, dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(34, 0, 24, 0.08 + 0.06 * t, 1.3, 430, UP_STACK),  // look down onto the V
