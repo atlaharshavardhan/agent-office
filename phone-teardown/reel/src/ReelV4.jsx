@@ -250,7 +250,7 @@ const Wordmark = ({ frame }) => {
   const track = interpolate(frame, [4, 30], [0.14, -0.03], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 3) });
   const sweep = interpolate(frame, [26, 46], [-30, 130], clamp);
   return (
-    <div style={{ position: 'relative', display: 'flex', fontFamily: 'Sora', fontWeight: 700, fontSize: 124, lineHeight: 1, letterSpacing: `${track}em`, textShadow: '0 8px 40px rgba(0,0,0,0.6)' }}>
+    <div style={{ position: 'relative', display: 'flex', fontFamily: 'Sora', fontWeight: 700, fontSize: 112, lineHeight: 1, letterSpacing: `${track}em`, textShadow: '0 8px 40px rgba(0,0,0,0.6)' }}>
       {letters.map((ch, i) => {
         const p = interpolate(frame, [4 + i * 1.6, 16 + i * 1.6], [0, 1], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 3) });
         return <span key={i} style={{ color: i < 6 ? C.white : '#5bc8e0', opacity: p, filter: `blur(${(1 - p) * 10}px)`, transform: `translateY(${(1 - p) * 26}px)`, display: 'inline-block' }}>{ch}</span>;
@@ -266,7 +266,7 @@ const Subscribe = ({ frame, at }) => {
   const press = interpolate(frame - at, [0, 3, 8, 13], [1, 0.9, 1.06, 1], clamp);
   const done = frame >= at + 3;
   return (
-    <div style={{ marginTop: 6, transform: `translateY(${(1 - Math.min(1, p)) * 40}px) scale(${press})`, opacity: Math.min(1, p),
+    <div style={{ marginTop: 26, transform: `translateY(${(1 - Math.min(1, p)) * 40}px) scale(${press})`, opacity: Math.min(1, p),
       padding: '10px 34px', borderRadius: 999, background: done ? 'rgba(255,255,255,0.14)' : '#ff2d2d', border: done ? '2px solid rgba(255,255,255,0.35)' : '2px solid #ff2d2d',
       fontFamily: 'Sora', fontWeight: 700, fontSize: 32, color: '#fff', letterSpacing: '0.02em' }}>{done ? '✓ Subscribed' : 'Subscribe'}</div>
   );
@@ -292,12 +292,11 @@ const EndCard = () => {
   return (
     <AbsoluteFill style={{ opacity: out }}>
       <AbsoluteFill style={{ opacity: shade, background: 'linear-gradient(rgba(0,0,0,0) 50%, rgba(3,6,14,0.7) 58%, rgba(3,6,14,0.9) 100%)' }} />
-      <div style={{ position: 'absolute', top: 984, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>  {/* phone sits in 450–1050, card text in 1060–1450 */}
-        <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 46, color: C.white, marginBottom: 10, opacity: Math.min(1, sp(0)), transform: `translateY(${(1 - sp(0)) * 24}px)` }}>Worth <span style={{ color: C.accent }}>₹3 lakh</span>?</div>
+      <div style={{ position: 'absolute', top: 1112, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>  {/* phone sits in 450–1050, card text in 1060–1450 */}
         <Wordmark frame={frame} />
-        <div style={{ marginTop: 12, fontFamily: 'Sora', fontWeight: 700, fontSize: 56, color: C.white, opacity: Math.min(1, handle), transform: `translateY(${(1 - handle) * 30}px)` }}>@TheInvisiTech</div>
-        <div style={{ marginTop: 10, fontFamily: 'Sora', fontWeight: 600, fontSize: 38, color: C.accent, opacity: Math.min(1, follow), transform: `translateY(${(1 - follow) * 30}px)` }}>Like · follow · comment</div>
-        <div style={{ marginTop: 6, display: 'flex', gap: 110, alignItems: 'center', transform: 'scale(0.74)' }}>
+        <div style={{ marginTop: 26, fontFamily: 'Sora', fontWeight: 700, fontSize: 54, color: C.white, opacity: Math.min(1, handle), transform: `translateY(${(1 - handle) * 30}px)` }}>@TheInvisiTech</div>
+        <div style={{ marginTop: 16, fontFamily: 'Sora', fontWeight: 600, fontSize: 34, color: C.accent, opacity: Math.min(1, follow), transform: `translateY(${(1 - follow) * 30}px)` }}>Like · follow · comment</div>
+        <div style={{ marginTop: 26, display: 'flex', gap: 110, alignItems: 'center', transform: 'scale(0.7)' }}>
           {slot(<Thumb fill={liked ? '#5bc8e0' : '#ffffff'} />, 0, press, tapAt)}
           {slot(<Heart fill={filled ? '#ff3b5c' : 'none'} stroke={filled ? '#ff3b5c' : '#ffffff'} />, 1, hp, heartAt)}
           {slot(<Bubble stroke="#ffffff" />, 2, cp, cmtAt)}
