@@ -27,7 +27,7 @@ R("function dimTarget(p, s) { return s.focus >= 0 && p.index !== s.focus ? 1 : 0
 R("  const dimB = prev ? ease(clamp01(lt / 0.9)) : 1;", "  const dimB = prev ? ease(clamp01(lt / 0.35)) : 1;")
 R("return { fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,",
   "return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, xr: !!s.xr, pw: s.pw ? s.pw(u) : 0, wake: s.wake ? s.wake(u) : 1, cb: s.cb ? s.cb(u) : 0, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
-R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake; COVER_BLUR = st.cb; window.XRAY_HINGE = st.xr; if (window.chipPower) chipPower(st.time, st.pw);")
+R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake; COVER_BLUR = st.cb; if (window.chipPower) chipPower(st.time, st.pw);")
 R("const camera = new THREE.PerspectiveCamera(30, 1, 5, 3000);", "const camera = new THREE.PerspectiveCamera(33, 1, 5, 3000);  // ~10% wider so tall shots fit the 450-1500 band")
 R("function composeInner(bl) {\n  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100); x.drawImage(innerSharp, 0, 0);",
   "function composeInner(bl) {\n  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100);\n  const z = 1 + 0.05 * bl; x.save(); x.beginPath(); x.roundRect(0, 0, 1640, 1100, 86); x.clip(); x.translate(1230, 550); x.scale(z, z); x.translate(-1230, -550); x.drawImage(innerSharp, 0, 0); x.restore();")
@@ -37,7 +37,7 @@ R("  innerScr.material.color.setScalar(ease(on));", "  innerScr.material.color.s
 R("oon = clamp01((f - 0.86) / 0.12)", "oon = clamp01((f - 0.45) / 0.25)")  # cover screen stays lit (frosted) while it swings, like the real thing
 R("  if (Math.abs(oon - lastOuterP) > 0.004 || (oon !== lastOuterP && (oon === 0 || oon === 1))) { paintScreen(outerCanvas, outerBg, outerItems, oon, [6, 82, 82, 6], OUTER_HOLE); outerTex.needsUpdate = true; lastOuterP = oon; }", "  const ob = Math.max(COVER_BLUR, clamp01((0.995 - f) / 0.05)), okey = Math.round(oon * 250) * 1000 + Math.round(ob * 250);\n  if (okey !== lastOuterP) { paintScreen(outerCanvas, outerBg, outerItems, oon, [6, 82, 82, 6], OUTER_HOLE); if (ob > 0.004) frostOver(outerCanvas, ob); outerTex.needsUpdate = true; lastOuterP = okey; }")
 R("if (hingeMech) hingeMech.visible = f < 0.5;", "if (hingeMech) hingeMech.visible = f < 0.5 || window.XRAY_HINGE;")
-R("  explode = st.explode; applyExplode(explode);", "  KEEP_ON = st.keepOn; COVER_BLUR = st.cb; WAKE = st.wake; explode = st.explode; applyExplode(explode);")
+R("  explode = st.explode; applyExplode(explode);", "  KEEP_ON = st.keepOn; COVER_BLUR = st.cb; WAKE = st.wake; window.XRAY_HINGE = st.xr; explode = st.explode; applyExplode(explode);")
 
 a = src.index("const CLOSED_T = new THREE.Vector3(38, 0, 3);"); b = src.index("const TOTAL = tAcc;")
 tour = r'''/* ---------- Short: "How does a ₹3 lakh iPhone fold?" (9:16, 40 s) ---------- */
@@ -192,11 +192,6 @@ sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 1.78) / 1.
   caps: [[0.05, 1.6, L('But glass <em>cracks</em> when you bend it')], [1.6, 2.8, '<div class="big">So how?</div>']] });
 sseg({ dur: 4, pw: t => clamp01((t * 4 - 2.0) / 0.7), gl: t => clamp01((t * 4 - 2.25) / 1.0), glo: t => clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
   caps: [[0.05, 1.7, L('Just <em>5.2 mm</em> thin')], [1.7, 4, L('Let’s open it up')]] });
-// A20 Pro beat: fly into the logic board, everything else ghosted, the chip powers up
-const CHIP = P(27, 10, 6.2, 0.3, 0.32, 125);  // A20 Pro now sits in the camera half, as in Apple's image
-sseg({ dur: 3.0, explode: () => 2.1, pw: t => 0.25 + 0.5 * ease(clamp01(t * 3 / 1.2)), dimMap: { board: 0 }, dimDefault: 0.96,
-  pose: t => { const T = t * 3; return T < 1.0 ? lerpPose(OVER, CHIP, ease(T)) : Object.assign(clonePose(CHIP), { az: CHIP.az - 0.2 * (T - 1) / 2, dist: CHIP.dist - 14 * (T - 1) / 2 }); },
-  caps: [[0.1, 3.0, L('Powered by the <em>A20 Pro</em> chip')]] });
 sseg({ dur: 10, explode: t => EX + (2.1 - EX) * (1 - ease(clamp01(t * 10 / 1.2))), dimMap: { inner: 0.8 }, dimDefault: 0.93,
   stack: lt => [ease(clamp01((lt - 0.5) / 1.6)) * (1 - ease(clamp01((lt - 9.2) / 0.8))), ease(clamp01((lt - 4.4) / 0.8)), lt],
   pose: t => P(STACK_C.x, STACK_C.y + 2, STACK_C.z, 0.42 + 0.12 * t, 0.2, 430),

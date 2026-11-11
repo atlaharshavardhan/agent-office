@@ -746,7 +746,7 @@ addPart('io', [0, 0, 2], { az: -0.5, el: 0.5, k: 1.0 }, [-78, -42, 1], g => {
   box(17, 10, 1.2, std(0x1c1e22, 0.1, 0.55), -26, -49, 1.0, g); // loudspeaker
   passives(g, 5, 50, z0, r => [-76 + r() * 60, -56 + r() * 13], [[-65.5, -58.5, -51, -45], [-47, -37, -58, -50], [-34.5, -17.5, -54, -44]]);
   const flex = std(0xd99a3a, 0.1, 0.45);
-  box(22, 4, 0.2, flex, 1, -8, 0.9, g);       // logic board → across the hinge
+  box(11, 4, 0.2, flex, 6.5, -8, 0.9, g); box(11, 4, 0.2, flex, -5.5, -8, 0.9, g);  // logic board → across the hinge (one piece per half so each folds with its half)
   box(4, 36, 0.2, flex, -10, -27, 0.9, g);   // down to the I/O board
   box(22, 6, 1.4, std(0x1c1e22, 0.1, 0.55), -42, 50, 1.0, g); box(18, 1.2, 1.5, std(0x0a0b0d, 0.2, 0.6), -42, 50, 1.2, g); // earpiece speaker (top of this half)
 });
@@ -1091,11 +1091,6 @@ sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 1.78) / 1.
   caps: [[0.05, 1.6, L('But glass <em>cracks</em> when you bend it')], [1.6, 2.8, '<div class="big">So how?</div>']] });
 sseg({ dur: 4, pw: t => clamp01((t * 4 - 2.0) / 0.7), gl: t => clamp01((t * 4 - 2.25) / 1.0), glo: t => clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
   caps: [[0.05, 1.7, L('Just <em>5.2 mm</em> thin')], [1.7, 4, L('Let’s open it up')]] });
-// A20 Pro beat: fly into the logic board, everything else ghosted, the chip powers up
-const CHIP = P(27, 10, 6.2, 0.3, 0.32, 125);  // A20 Pro now sits in the camera half, as in Apple's image
-sseg({ dur: 3.0, explode: () => 2.1, pw: t => 0.25 + 0.5 * ease(clamp01(t * 3 / 1.2)), dimMap: { board: 0 }, dimDefault: 0.96,
-  pose: t => { const T = t * 3; return T < 1.0 ? lerpPose(OVER, CHIP, ease(T)) : Object.assign(clonePose(CHIP), { az: CHIP.az - 0.2 * (T - 1) / 2, dist: CHIP.dist - 14 * (T - 1) / 2 }); },
-  caps: [[0.1, 3.0, L('Powered by the <em>A20 Pro</em> chip')]] });
 sseg({ dur: 10, explode: t => EX + (2.1 - EX) * (1 - ease(clamp01(t * 10 / 1.2))), dimMap: { inner: 0.8 }, dimDefault: 0.93,
   stack: lt => [ease(clamp01((lt - 0.5) / 1.6)) * (1 - ease(clamp01((lt - 9.2) / 0.8))), ease(clamp01((lt - 4.4) / 0.8)), lt],
   pose: t => P(STACK_C.x, STACK_C.y + 2, STACK_C.z, 0.42 + 0.12 * t, 0.2, 430),
@@ -1142,12 +1137,12 @@ function stateAt(t) {
 }
 
 function applyState(st) {
-  KEEP_ON = st.keepOn; COVER_BLUR = st.cb; WAKE = st.wake; explode = st.explode; applyExplode(explode); fold = st.fold; applyFold(fold); updateShadow();
+  KEEP_ON = st.keepOn; COVER_BLUR = st.cb; WAKE = st.wake; window.XRAY_HINGE = st.xr; explode = st.explode; applyExplode(explode); fold = st.fold; applyFold(fold); updateShadow();
   Object.assign(view, clonePose(st.pose));
   parts.forEach((p, i) => applyDim(p, st.dims[i]));
   labelsAlpha = st.labels;
   setCard(st.card); card.style.opacity = st.cardA.toFixed(3);
-  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake; COVER_BLUR = st.cb; window.XRAY_HINGE = st.xr; if (window.chipPower) chipPower(st.time, st.pw);
+  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake; COVER_BLUR = st.cb; if (window.chipPower) chipPower(st.time, st.pw);
 }
 
 /* ---------------- Render ---------------- */

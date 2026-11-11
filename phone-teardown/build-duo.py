@@ -412,7 +412,7 @@ addPart('io', [0, 0, 2], { az: -0.5, el: 0.5, k: 1.0 }, [-78, -42, 1], g => {
   box(17, 10, 1.2, std(0x1c1e22, 0.1, 0.55), -26, -49, 1.0, g); // loudspeaker
   passives(g, 5, 50, z0, r => [-76 + r() * 60, -56 + r() * 13], [[-65.5, -58.5, -51, -45], [-47, -37, -58, -50], [-34.5, -17.5, -54, -44]]);
   const flex = std(0xd99a3a, 0.1, 0.45);
-  box(22, 4, 0.2, flex, 1, -8, 0.9, g);       // logic board → across the hinge
+  box(11, 4, 0.2, flex, 6.5, -8, 0.9, g); box(11, 4, 0.2, flex, -5.5, -8, 0.9, g);  // logic board → across the hinge (one piece per half so each folds with its half)
   box(4, 36, 0.2, flex, -10, -27, 0.9, g);   // down to the I/O board
   box(22, 6, 1.4, std(0x1c1e22, 0.1, 0.55), -42, 50, 1.0, g); box(18, 1.2, 1.5, std(0x0a0b0d, 0.2, 0.6), -42, 50, 1.2, g); // earpiece speaker (top of this half)
 });
