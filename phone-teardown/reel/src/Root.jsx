@@ -1,6 +1,6 @@
 import { Composition } from 'remotion';
 import { Reel, FPS, DURATION_S } from './Reel';
-import { ReelV4 } from './ReelV4';
+import { ReelV4, DURATION_S as DURATION_V4 } from './ReelV4';
 
 export const Root = () => (
   <>
@@ -12,6 +12,6 @@ export const Root = () => (
     width={1080}
     height={1920}
   />
-  <Composition id="DuoReelV4" component={ReelV4} durationInFrames={Math.round(DURATION_S * FPS)} fps={FPS} width={1080} height={1920} />
+  <Composition id="DuoReelV4" component={ReelV4} durationInFrames={Math.round(DURATION_V4 * FPS)} fps={FPS} width={1080} height={1920} />
   </>
 );

@@ -4,7 +4,7 @@ import {
 } from 'remotion';
 
 export const FPS = 30;
-export const DURATION_S = 45;
+export const DURATION_S = 49.8;  // v4
 const s = (sec) => Math.round(sec * FPS);
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' };
 
@@ -27,60 +27,63 @@ Promise.all([
   .catch(() => continueRender(fontHandle));
 
 /* ---------- narration (George, Kokoro bm_george) ---------- */
-const VO = [['l1', 0.1], ['l2', 2.85], ['l3', 5.45], ['l4', 9.2], ['l5', 19.2], ['l6', 30.3], ['l7', 36.3], ['l8s', 39.7]];  // v4: one line over the open phone, then the sign-off  // l7 split so the close sound lands in a quiet gap
+const VO = [['l1', 0.1], ['l2', 2.85], ['l3', 5.45], ['lchip', 9.15], ['l4', 12.2], ['l5', 22.2], ['l6', 35.1], ['l7', 41.1], ['l8s', 44.5]];  // v4: one line over the open phone, then the sign-off  // l7 split so the close sound lands in a quiet gap
 
 /* ---------- on-screen text: one continuous track, each entry replaces the previous one ----------
    *asterisks* = accent colour, '|' = line break */
 const TEXT = [
-  { at: 0.0, kind: 'price' },
+  { at: 0, kind: 'price' },
   { at: 2.85, text: 'But glass *cracks* when you bend it' },
   { at: 4.7, kind: 'punch', text: 'So how?' },
   { at: 5.45, text: 'Let’s open it up' },
   { at: 6.75, text: 'Just *5.2 mm* thin', sub: 'open · 11.3 mm closed' },
-  { at: 9.2, text: 'Trick 1: the screen is *~10 thin layers*' },
-  { at: 13.0, text: 'They *slide* like paper, so nothing snaps' },
-  { at: 19.2, text: 'Trick 2: a hinge of *100+ parts*', sub: 'gears · springs · 3D-printed titanium cover' },
-  { at: 24.9, text: 'Closing, it *curls into a teardrop* instead of folding flat' },
-  { at: 30.3, text: 'Bend the same spot *again and again*' },
-  { at: 33.2, text: '…and you get *the crease* you can feel' },
-  { at: 36.4, text: 'It doesn’t fold like paper.|It *rolls like a poster.*', size: 62 },
+  { at: 9.05, text: 'Powered by the *A20 Pro* chip', sub: 'the brain of the iPhone Duo' },
+  { at: 12.2, text: 'Trick 1: the screen is *~10 thin layers*' },
+  { at: 16, text: 'They *slide* like paper, so nothing snaps' },
+  { at: 22.2, text: 'Trick 2: a hinge of *100+ parts*', sub: 'gears · springs · 3D-printed titanium cover' },
+  { at: 27.9, text: 'Closing, it *curls into a teardrop* instead of folding flat' },
+  { at: 35.1, text: 'Bend the same spot *again and again*' },
+  { at: 38, text: '…and you get *the crease* you can feel' },
+  { at: 41.2, text: 'It doesn’t fold like paper.|It *rolls like a poster.*', size: 62 },
 ];
 const SWAP = 7; // frames for the slide-up swap
 
 /* ---------- transitions ---------- */
-const SWEEPS = [9.12, 19.12];                // light sweep on the "trick" reveals
-const PUNCHES = [11.28, 20.48];              // zoom punch when the counters land
+const SWEEPS = [12.12, 22.12];                // light sweep on the "trick" reveals
+const PUNCHES = [14.28, 23.48];              // zoom punch when the counters land
 
 /* ---------- sound design (seconds, volume) — public/sfx2, synthesised by sfx/make_sound.py ---------- */
 const SFX = [   // no hard whooshes: soft 'glide' swells on the camera moves, plus hits, clicks and tones
-  ['impact.wav', 0.0, 0.55], ['shimmer.wav', 0.05, 0.35],      // cold open on the price
+  ['impact.wav', 0, 0.55], ['shimmer.wav', 0.05, 0.35],      // cold open on the price
   ['open.wav', 3.98, 0.75],                                     // magnetic release as it opens
   ['chime.wav', 4.85, 0.4],                                     // screen lands flat
   ['impact.wav', 4.7, 0.5],                                     // "So how?"
-  ['impact-small.wav', 11.28, 0.5],                             // counter lands on 10
-  ['ratchet.wav', 19.55, 0.5], ['impact-small.wav', 20.48, 0.45], // hinge clicks as 100+ counts up
+  ['impact-small.wav', 14.28, 0.5],                             // counter lands on 10
+  ['ratchet.wav', 22.55, 0.5], ['impact-small.wav', 23.48, 0.45], // hinge clicks as 100+ counts up
   ['glide.wav', 2.15, 0.45],                                    // turns to face you
-  ['glide-up.wav', 5.0, 0.4],                                   // opens up into the parts
+  ['glide-up.wav', 5, 0.4],                                   // opens up into the parts
   ['glide.wav', 8.95, 0.4],                                     // into the screen layers
-  ['glide-low.wav', 13.3, 0.35],                                // layers bend
-  ['glide.wav', 18.95, 0.4],                                    // into the hinge
-  ['glide-low.wav', 24.4, 0.35],                                // down into the V
-  ['glide.wav', 29.9, 0.35],                                    // the crease
-  ['glide.wav', 36.1, 0.3],                                     // turns to face you, wide open
-  ['shimmer.wav', 39.6, 0.4], ['impact-small.wav', 39.65, 0.4], // channel card over the open phone
-  ['tap.wav', 41.15, 0.6], ['pluck7.wav', 41.6, 0.5], ['pluck9.wav', 42.05, 0.45], ['chime.wav', 42.5, 0.3],  // like · heart · comment · subscribe
-  ['close.wav', 44.1, 1.0],                                     // the close, in the clear — then it loops
+  ['glide-low.wav', 16.3, 0.35],                                // layers bend
+  ['glide.wav', 21.95, 0.4],                                    // into the hinge
+  ['glide-low.wav', 27.4, 0.35],                                // down into the V
+  ['glide.wav', 34.7, 0.35],                                    // the crease
+  ['glide.wav', 40.9, 0.3],                                     // turns to face you, wide open
+  ['shimmer.wav', 44.4, 0.4], ['impact-small.wav', 44.45, 0.4], // channel card over the open phone
+  ['tap.wav', 45.95, 0.6], ['pluck7.wav', 46.4, 0.5], ['pluck9.wav', 46.85, 0.45], ['chime.wav', 47.3, 0.3],  // like · heart · comment · subscribe
+  ['glide-up.wav', 9.02, 0.4], ['chime.wav', 9.55, 0.4],       // into the A20 Pro, it powers up
+  ['glide.wav', 11.95, 0.4],                                    // into the screen layers
+  ['close.wav', 48.9, 1.0],                                     // the close, in the clear — then it loops
 ];
 // a soft rising pluck as each numbered label appears (exploded phone, then the 10 screen layers)
 const PART_PLUCKS = Array.from({ length: 8 }, (_, i) => [7.27 + i * 0.1, i]);
-const LAYER_PLUCKS = Array.from({ length: 10 }, (_, i) => [10.12 + i * 0.13, i]);
-const VO_LEN = { l1: 2.347, l2: 2.432, l3: 3.392, l4: 8.469, l5: 10.773, l6: 5.76, l7: 3.179, l8s: 3.072 };
+const LAYER_PLUCKS = Array.from({ length: 10 }, (_, i) => [13.12 + i * 0.13, i]);
+const VO_LEN = { l1: 2.347, l2: 2.432, l3: 3.392, l4: 8.469, l5: 10.773, l6: 5.76, l7: 3.179, l8s: 3.072, lchip: 2.837 };
 // music: louder in the gaps, tucked under George
 const musicVolume = (f) => {
   const t = f / FPS;
   const talking = VO.some(([k, at]) => t > at - 0.15 && t < at + VO_LEN[k] + 0.1);
   const near = VO.reduce((m, [k, at]) => Math.min(m, Math.abs(t - (at - 0.15)), Math.abs(t - (at + VO_LEN[k] + 0.1))), 9);
-  if (t > 43.6) return interpolate(t, [43.6, 43.95, 45], [0.16, 0.0, 0.0], clamp);  // near-silence so the close is heard clearly
+  if (t > 48.4) return interpolate(t, [48.4, 48.75, 49.8], [0.16, 0.0, 0.0], clamp);  // near-silence so the close is heard clearly
   const base = talking ? 0.16 : 0.34;
   const other = talking ? 0.34 : 0.16;
   return near < 0.2 ? base + (other - base) * (1 - near / 0.2) * 0.5 : base;
@@ -200,7 +203,7 @@ const LightSweep = ({ at }) => {
 };
 
 /* Trick 1: the 10-layer screen model (separate render), cross-faded over the phone footage */
-const LAYERS_AT = 9.2, LAYERS_DUR = 10;
+const LAYERS_AT = 12.2, LAYERS_DUR = 10;
 const LayersShot = () => {
   const frame = useCurrentFrame();
   const a = interpolate(frame, [0, 8, s(LAYERS_DUR) - 8, s(LAYERS_DUR)], [0, 1, 1, 0], clamp);
@@ -232,7 +235,7 @@ const Chrome = () => {
 
 /* ---------- the reel ---------- */
 /* 40–45 s: channel end card over the 3D hero shot — InvisiTech wordmark, handle, like · heart · comment */
-const END_AT = 39.55, END_OUT = 43.15;
+const END_AT = 44.35, END_OUT = 47.95;
 const Thumb = ({ fill }) => (
   <svg width="104" height="104" viewBox="0 0 24 24"><path d="M7 10v11H3V10h4zm2 11h9.2a2 2 0 0 0 2-1.6l1.3-6.6A2 2 0 0 0 19.5 10H14l.9-4.3a1.6 1.6 0 0 0-2.9-1.2L9 9.6V21z" fill={fill} /></svg>
 );
@@ -315,7 +318,7 @@ const Disclaimer = () => {
 
 const Watermark = () => {
   const t = useCurrentFrame() / FPS;
-  const k = interpolate(t, [39.3, 39.6, 43.1, 43.4], [1, 0, 0, 1], clamp);  // steps aside while the channel card is up
+  const k = interpolate(t, [44.1, 44.4, 47.9, 48.2], [1, 0, 0, 1], clamp);  // steps aside while the channel card is up
   return (
   <Img src={staticFile('watermark-clear.png')} style={{ position: 'absolute', right: 34, top: 860, height: 50, opacity: 0.42 * k, mixBlendMode: 'screen', filter: 'saturate(0.85)' }} />
   );
@@ -328,8 +331,8 @@ export const ReelV4 = ({ bg } = {}) => (
     <Chrome />
     <Sequence durationInFrames={s(END_AT + 0.3)}><TextTrack /></Sequence>
 
-    <Sequence from={s(9.95)} durationInFrames={s(8.9)}><CountChip to={10} label="ultrathin layers" countFrames={s(1.2)} durationInFrames={s(8.9)} /></Sequence>
-    <Sequence from={s(19.45)} durationInFrames={s(5.2)}><CountChip to={100} suffix="+" label="hinge parts" countFrames={s(0.9)} durationInFrames={s(5.2)} /></Sequence>
+    <Sequence from={s(12.95)} durationInFrames={s(8.9)}><CountChip to={10} label="ultrathin layers" countFrames={s(1.2)} durationInFrames={s(8.9)} /></Sequence>
+    <Sequence from={s(22.45)} durationInFrames={s(5.2)}><CountChip to={100} suffix="+" label="hinge parts" countFrames={s(0.9)} durationInFrames={s(5.2)} /></Sequence>
     <Sequence from={s(END_AT)} durationInFrames={s(END_OUT - END_AT)}><EndCard /></Sequence>
     <Watermark />
     <Disclaimer />
@@ -337,7 +340,7 @@ export const ReelV4 = ({ bg } = {}) => (
     {/* narration */}
     {VO.map(([f, t]) => <Sequence key={f} from={s(t)}><Audio src={staticFile(`vo/${f}.wav`)} volume={1} /></Sequence>)}
     {/* music bed (sfx/make_sound.py), ducked under the voice */}
-    <Audio src={staticFile('sfx2/music.wav')} volume={musicVolume} />
+    <Audio src={staticFile('sfx2/music-v4.wav')} volume={musicVolume} />
     {SFX.map(([f, t, v], k) => <Sequence key={'sfx' + k} from={s(t)}><Audio src={staticFile('sfx2/' + f)} volume={v} /></Sequence>)}
     {PART_PLUCKS.map(([t, i]) => <Sequence key={'pp' + i} from={s(t)}><Audio src={staticFile(`sfx2/pluck${i}.wav`)} volume={0.34} /></Sequence>)}
     {LAYER_PLUCKS.map(([t, i]) => <Sequence key={'lp' + i} from={s(t)}><Audio src={staticFile(`sfx2/pluck${i}.wav`)} volume={0.32} /></Sequence>)}

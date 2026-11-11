@@ -186,6 +186,11 @@ sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 1.78) / 1.
   caps: [[0.05, 1.6, L('But glass <em>cracks</em> when you bend it')], [1.6, 2.8, '<div class="big">So how?</div>']] });
 sseg({ dur: 4, pw: t => clamp01((t * 4 - 2.0) / 0.7), gl: t => clamp01((t * 4 - 2.25) / 1.0), glo: t => clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
   caps: [[0.05, 1.7, L('Just <em>5.2 mm</em> thin')], [1.7, 4, L('Let’s open it up')]] });
+// A20 Pro beat: fly into the logic board, everything else ghosted, the chip powers up
+const CHIP = P(-35, 40, 6.2, 0.3, 0.32, 125);
+sseg({ dur: 3.0, explode: () => 2.1, pw: t => 0.25 + 0.5 * ease(clamp01(t * 3 / 1.2)), dimMap: { board: 0 }, dimDefault: 0.96,
+  pose: t => { const T = t * 3; return T < 1.0 ? lerpPose(OVER, CHIP, ease(T)) : Object.assign(clonePose(CHIP), { az: CHIP.az - 0.2 * (T - 1) / 2, dist: CHIP.dist - 14 * (T - 1) / 2 }); },
+  caps: [[0.1, 3.0, L('Powered by the <em>A20 Pro</em> chip')]] });
 sseg({ dur: 10, explode: t => EX + (2.1 - EX) * (1 - ease(clamp01(t * 10 / 1.2))), dimMap: { inner: 0.8 }, dimDefault: 0.93,
   stack: lt => [ease(clamp01((lt - 0.5) / 1.6)) * (1 - ease(clamp01((lt - 9.2) / 0.8))), ease(clamp01((lt - 4.4) / 0.8)), lt],
   pose: t => P(STACK_C.x, STACK_C.y + 2, STACK_C.z, 0.42 + 0.12 * t, 0.2, 430),
@@ -194,10 +199,10 @@ sseg({ dur: 5.5, explode: () => EX, dimMap: { hinge: 0 }, dimDefault: 0.97, pose
   caps: [[0.25, 5.5, L('Trick 2: a hinge of <em>100+ parts</em>') + '<div class="sub">gears · springs · 3D-printed titanium cover</div>']] });
 // X-ray close: everything ghosted except the hinge, so you watch the hinge strip at the fold while the halves swing shut
 const HMAC_END = P(0, 38, 22 * EX + 1, 0.9, 0.36, 100), XR = P(0, 0, 2, 0.95, 0.42, 470);
-sseg({ dur: 3.0, xr: true, pw: t => clamp01(t * 3 / 0.5), keepOn: true, explode: t => EX * (1 - ease(clamp01(t * 3 / 0.9))), fold: t => 0.55 * ease(clamp01((t * 3 - 0.9) / 2.1)),
+sseg({ dur: 4.8, xr: true, pw: t => clamp01(t * 4.8 / 0.6), keepOn: true, explode: t => EX * (1 - ease(clamp01(t * 4.8 / 1.2))), fold: t => 0.55 * ease(clamp01((t * 4.8 - 1.2) / 3.6)),
   dimMap: { hinge: 0 }, dimDefault: 0.92,
-  pose: t => { const T = t * 3; return T < 0.9 ? lerpPose(HMAC_END, XR, ease(T / 0.9)) : Object.assign(clonePose(XR), { az: XR.az + 0.12 * (T - 0.9) / 2.1 }); },
-  caps: [[0.25, 3.0, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });
+  pose: t => { const T = t * 4.8; return T < 1.2 ? lerpPose(HMAC_END, XR, ease(T / 1.2)) : Object.assign(clonePose(XR), { az: XR.az + 0.18 * (T - 1.2) / 3.6 }); },
+  caps: [[0.25, 4.8, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });
 sseg({ dur: 2.5, keepOn: true, fold: t => 0.55 + 0.19 * ease(t),
   dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(34, 0, 24, 0.1 + 0.04 * t, 1.3, 430, UP_STACK),  // look down onto the V
   caps: [[0, 2.5, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });

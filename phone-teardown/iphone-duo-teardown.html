@@ -694,7 +694,7 @@ addPart('hinge', [0, 0, 22], { az: 0.6, el: 0.55, k: 0.72, t: [0, 44, 0.6], dist
 addPart('board', [0, 0, 2], { az: 0.4, el: 0.48, k: 1.05 }, [-79, 27, 1], g => {
   const sh = new THREE.Shape();
   [[-79, 16], [-12, 16], [-12, 54], [-53, 54], [-53, 27], [-79, 27]].forEach(([x, y], i) => i ? sh.lineTo(x, y) : sh.moveTo(x, y));
-  mesh(extrude(sh, 0.8, 0.1, 4), std(0x173226, 0.15, 0.55), 0, 0, 0.6, g);
+  mesh(extrude(sh, 0.8, 0.1, 4), std(0x07100c, 0.2, 0.6), 0, 0, 0.6, g);  // dark board, like Apple's shots
   const z0 = 1.0;
   a20Chip(g, z0, -35, 40);
   chipOn(g, z0, 9, 11, 0.9, [['NAND', 54], ['256 GB', 30]], -20, 44);
