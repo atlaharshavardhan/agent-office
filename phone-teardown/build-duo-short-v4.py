@@ -111,15 +111,21 @@ let GL_OUT = 1;
 let GL_ALPHA = 0; const glV = new THREE.Vector3(), _gb = new THREE.Box3();
 window.groupLabels = (w, h) => {
   glWrap.style.opacity = (GL_ALPHA > 0 ? GL_OUT : 0).toFixed(3); if (GL_ALPHA < 0.01 || GL_OUT < 0.01) return;
-  const pts = glItems.map(it => { _gb.setFromObject(it.p.group); let mx = 1e9, sy = 0; for (let k = 0; k < 8; k++) { glV.set(k & 1 ? _gb.max.x : _gb.min.x, k & 2 ? _gb.max.y : _gb.min.y, k & 4 ? _gb.max.z : _gb.min.z).project(camera); const px = (glV.x * 0.5 + 0.5) * w; sy += (-glV.y * 0.5 + 0.5) * h; if (px < mx) mx = px; } return { it, x: mx + 14, y: sy / 8 }; });
+  const pts = glItems.map(it => { _gb.setFromObject(it.p.group); let mx = 1e9, sy = 0; for (let k = 0; k < 8; k++) { glV.set(k & 1 ? _gb.max.x : _gb.min.x, k & 2 ? _gb.max.y : _gb.min.y, k & 4 ? _gb.max.z : _gb.min.z).project(camera); const px = (glV.x * 0.5 + 0.5) * w; sy += (-glV.y * 0.5 + 0.5) * h; if (px < mx) mx = px; } if (it.p.id === 'batteries') { glV.set(74, 20, 1.2); it.p.group.localToWorld(glV); glV.project(camera); return { it, x: (glV.x * 0.5 + 0.5) * w, y: (-glV.y * 0.5 + 0.5) * h }; }  // visible top corner of cell 2
+    if (it.p.id === 'board' && window.chipAnchor) { chipAnchor(glV); glV.project(camera); return { it, x: (glV.x * 0.5 + 0.5) * w, y: (-glV.y * 0.5 + 0.5) * h }; } return { it, x: mx + 16, y: sy / 8 }; });
   pts.sort((a, b) => a.y - b.y); for (let i = 1; i < pts.length; i++) pts[i].ly = Math.max(pts[i].y, (pts[i - 1].ly ?? pts[i - 1].y) + 62); pts[0].ly = pts[0].y;
-  pts.forEach(({ it, x, ly }) => {
+  if (!window._glsvg) { window._glsvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); _glsvg.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;overflow:visible'); glWrap.appendChild(_glsvg); }
+  let svgs = '';
+  pts.forEach(({ it, x, y, ly }) => {
     const el = it.el, span = el.querySelector('span'), line = el.querySelector('b'), dot = el.querySelector('i');
     const tx = 64 + span.offsetWidth + 18;
     const k = it.n - 1, a = clamp01((GL_ALPHA * 10 - k) / 2), pop = Math.sin(Math.PI * a);  // one by one, top to bottom
     el.style.opacity = a.toFixed(3); dot.style.transform = `scale(${1 + 0.9 * pop})`;
-    el.style.transform = `translateY(${ly}px)`; line.style.left = tx + 'px'; line.style.width = Math.max(0, x - tx - 6) + 'px'; dot.style.left = (x - 6) + 'px';
+    el.style.transform = `translateY(${ly}px)`; line.style.display = 'none'; dot.style.display = 'none';
+    const ex = Math.max(tx + 8, x - 26);
+    svgs += `<g opacity="${a.toFixed(3)}"><polyline points="${tx},${ly} ${ex},${ly} ${x},${y}" fill="none" stroke="rgba(240,166,64,.8)" stroke-width="2"/><circle cx="${x}" cy="${y}" r="${6 * (1 + 0.6 * pop)}" fill="#f0a640"/><circle cx="${x}" cy="${y}" r="${11 * (1 + 0.6 * pop)}" fill="rgba(240,166,64,.22)"/></g>`;
   });
+  _glsvg.innerHTML = svgs;
 };
 const sseg = o => seg(Object.assign({ focus: -1, labels: () => 0, explode: () => 0 }, o));
 const L = (h) => `<div class="line">${h}</div>`;
@@ -187,7 +193,7 @@ sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 1.78) / 1.
 sseg({ dur: 4, pw: t => clamp01((t * 4 - 2.0) / 0.7), gl: t => clamp01((t * 4 - 2.25) / 1.0), glo: t => clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
   caps: [[0.05, 1.7, L('Just <em>5.2 mm</em> thin')], [1.7, 4, L('Let’s open it up')]] });
 // A20 Pro beat: fly into the logic board, everything else ghosted, the chip powers up
-const CHIP = P(-35, 40, 6.2, 0.3, 0.32, 125);
+const CHIP = P(27, 10, 6.2, 0.3, 0.32, 125);  // A20 Pro now sits in the camera half, as in Apple's image
 sseg({ dur: 3.0, explode: () => 2.1, pw: t => 0.25 + 0.5 * ease(clamp01(t * 3 / 1.2)), dimMap: { board: 0 }, dimDefault: 0.96,
   pose: t => { const T = t * 3; return T < 1.0 ? lerpPose(OVER, CHIP, ease(T)) : Object.assign(clonePose(CHIP), { az: CHIP.az - 0.2 * (T - 1) / 2, dist: CHIP.dist - 14 * (T - 1) / 2 }); },
   caps: [[0.1, 3.0, L('Powered by the <em>A20 Pro</em> chip')]] });

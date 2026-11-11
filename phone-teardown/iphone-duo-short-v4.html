@@ -424,6 +424,7 @@ function a20Chip(g, z0, x, y) {
   [subM, lidM, haloM, dots].forEach(o => { o.userData.keepLit = true; });
   chipFx = { lidM, haloM, dots };
 }
+window.chipAnchor = v => chipFx ? chipFx.lidM.getWorldPosition(v) : v;
 window.chipPower = (t, a) => {
   if (!chipFx) return; const pulse = 0.82 + 0.18 * Math.sin(t * 4.6);
   chipFx.haloM.material.opacity = a * 0.7 * pulse;
@@ -716,20 +717,23 @@ addPart('hinge', [0, 0, 22], { az: 0.6, el: 0.55, k: 0.72, t: [0, 44, 0.6], dist
 })();
 
 /* 4. Logic board (left half) */
-addPart('board', [0, 0, 2], { az: 0.4, el: 0.48, k: 1.05 }, [-79, 27, 1], g => {
+// Placement follows Apple's internal image of the iPhone Duo (front view): the logic board sits in the camera half,
+// as a column beside the hinge with the A20 Pro at mid-height and a top bar under the camera module.
+addPart('board', [0, 0, 2], { az: -0.4, el: 0.48, k: 1.05 }, [76, 30, 1], g => {
   const sh = new THREE.Shape();
-  [[-79, 16], [-12, 16], [-12, 54], [-53, 54], [-53, 27], [-79, 27]].forEach(([x, y], i) => i ? sh.lineTo(x, y) : sh.moveTo(x, y));
+  [[11, -14], [42, -14], [42, 32], [77, 32], [77, 55], [11, 55]].forEach(([x, y], i) => i ? sh.lineTo(x, y) : sh.moveTo(x, y));
   mesh(extrude(sh, 0.8, 0.1, 4), std(0x07100c, 0.2, 0.6), 0, 0, 0.6, g);  // dark board, like Apple's shots
   const z0 = 1.0;
-  a20Chip(g, z0, -35, 40);
-  chipOn(g, z0, 9, 11, 0.9, [['NAND', 54], ['256 GB', 30]], -20, 44);
-  chipOn(g, z0, 10, 8, 0.9, [['C2', 64], ['MODEM', 28]], -46, 21.5);
-  chipOn(g, z0, 7, 7, 0.8, [['N1', 70]], -22, 24);
-  chipOn(g, z0, 8, 7, 0.8, [['PMIC', 54]], -69, 21.5);
+  a20Chip(g, z0, 27, 10);
+  chipOn(g, z0, 9, 10, 0.9, [['NAND', 54], ['256 GB', 30]], 27, -6.5);
+  chipOn(g, z0, 10, 8, 0.9, [['C2', 64], ['MODEM', 28]], 62, 43.5);
+  chipOn(g, z0, 7, 7, 0.8, [['N1', 70]], 48, 44);
+  chipOn(g, z0, 8, 7, 0.8, [['PMIC', 54]], 18, 45);
   const shield = std(0xb8bcc2, 0.95, 0.28);
-  box(10, 12, 0.7, shield, -47, 45, z0 + 0.35, g); box(9, 6, 0.7, shield, -32, 22, z0 + 0.35, g);
-  box(3, 8, 0.9, std(0xc9a347, 0.9, 0.3), -14.5, 32, z0 + 0.45, g);
-  passives(g, 21, 170, z0, r => [-78 + r() * 65, 17 + r() * 36.5], [[-79, -53, 27, 60], [-41.5, -28.5, 33.5, 46.5], [-24.5, -15.5, 38.5, 49.5], [-51, -41, 17.5, 25.5], [-25.5, -18.5, 20.5, 27.5], [-73, -65, 18, 25], [-52, -42, 39, 51], [-36.5, -27.5, 19, 25], [-16, -12, 28, 36]]);
+  box(9, 6, 0.7, shield, 34, 45, z0 + 0.35, g); box(8, 5, 0.7, shield, 72, 43.5, z0 + 0.35, g);
+  box(3, 8, 0.9, std(0xc9a347, 0.9, 0.3), 13.5, 26, z0 + 0.45, g);
+  passives(g, 21, 170, z0, r => r() < 0.6 ? [12 + r() * 29, -13 + r() * 45] : [12 + r() * 64, 33 + r() * 21],
+    [[17, 37, 0, 20], [21.5, 32.5, -12, -1], [56, 68, 39, 48], [43.5, 52.5, 40, 48], [13.5, 22.5, 41, 49], [29, 39, 41.5, 48.5], [67.5, 76.5, 40.5, 46.5], [11.5, 15.5, 21.5, 30.5], [29, 38, 44, 54]]);
 });
 
 /* 5. I/O board and flex (right half, linked through the hinge) */
@@ -742,15 +746,16 @@ addPart('io', [0, 0, 2], { az: -0.5, el: 0.5, k: 1.0 }, [-78, -42, 1], g => {
   box(17, 10, 1.2, std(0x1c1e22, 0.1, 0.55), -26, -49, 1.0, g); // loudspeaker
   passives(g, 5, 50, z0, r => [-76 + r() * 60, -56 + r() * 13], [[-65.5, -58.5, -51, -45], [-47, -37, -58, -50], [-34.5, -17.5, -54, -44]]);
   const flex = std(0xd99a3a, 0.1, 0.45);
-  box(14, 4, 0.2, flex, -7, 20, 0.9, g); box(17, 4, 0.2, flex, 8.5, 20, 0.9, g); // across the hinge
-  box(4, 30, 0.2, flex, -10, 5, 0.9, g);     // logic board to I/O board
+  box(22, 4, 0.2, flex, 1, -8, 0.9, g);       // logic board → across the hinge
+  box(4, 36, 0.2, flex, -10, -27, 0.9, g);   // down to the I/O board
+  box(22, 6, 1.4, std(0x1c1e22, 0.1, 0.55), -42, 50, 1.0, g); box(18, 1.2, 1.5, std(0x0a0b0d, 0.2, 0.6), -42, 50, 1.2, g); // earpiece speaker (top of this half)
 });
 
 /* 6. Two batteries */
 function cellLabel(lines) { return canvasTex(640, 640, (x, w, h) => { x.fillStyle = '#1b1e23'; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(240,166,64,0.55)'; x.lineWidth = 3; x.strokeRect(30, 30, w - 60, h - 60); x.fillStyle = '#d9dde2'; x.font = '600 54px monospace'; x.fillText(lines[0], 70, 140); x.font = '400 36px monospace'; lines.slice(1).forEach((t, i) => x.fillText(t, 70, 230 + i * 60)); x.fillStyle = 'rgba(217,221,226,0.5)'; for (let i = 0; i < 24; i++) x.fillRect(70 + i * 17, 520, i % 3 ? 6 : 10, 60); }); }
 addPart('batteries', [0, 0, -18], { az: 0.55, el: 0.42, k: 0.95 }, [-77, -54, 1], g => {
   const wrap = std(0x15171b, 0.25, 0.5);
-  [[-45, -17, 64, 58, ['Li-ion  Cell 1', '3.88 V', '2,962 mAh', '11.56 Wh']], [45, -9, 60, 50, ['Li-ion  Cell 2', '3.88 V', '1,921 mAh', '7.5 Wh']]].forEach(([cx, cy, w, h, lines]) => {
+  [[-45, -1, 66, 70, ['Li-ion  Cell 1', '3.88 V', '2,962 mAh', '11.56 Wh']], [60, -10, 32, 76, ['Li-ion  Cell 2', '3.88 V', '1,921 mAh', '7.5 Wh']]].forEach(([cx, cy, w, h, lines]) => {
     mesh(extrude(rrShape(w, h, 3, cx, cy), 2.6, 0.5, 12), wrap, 0, 0, -0.4, g);
     const lp = new THREE.Mesh(new THREE.PlaneGeometry(w - 8, h - 8), new THREE.MeshStandardMaterial({ map: cellLabel(lines), metalness: 0.2, roughness: 0.6 })); lp.position.set(cx, cy, 0.92); g.add(lp);
     box(5, 4, 0.3, std(0xd99a3a, 0.1, 0.45), cx + (cx < 0 ? 20 : -20), cy + h / 2 + 1.5, 0.6, g);
@@ -1005,15 +1010,21 @@ let GL_OUT = 1;
 let GL_ALPHA = 0; const glV = new THREE.Vector3(), _gb = new THREE.Box3();
 window.groupLabels = (w, h) => {
   glWrap.style.opacity = (GL_ALPHA > 0 ? GL_OUT : 0).toFixed(3); if (GL_ALPHA < 0.01 || GL_OUT < 0.01) return;
-  const pts = glItems.map(it => { _gb.setFromObject(it.p.group); let mx = 1e9, sy = 0; for (let k = 0; k < 8; k++) { glV.set(k & 1 ? _gb.max.x : _gb.min.x, k & 2 ? _gb.max.y : _gb.min.y, k & 4 ? _gb.max.z : _gb.min.z).project(camera); const px = (glV.x * 0.5 + 0.5) * w; sy += (-glV.y * 0.5 + 0.5) * h; if (px < mx) mx = px; } return { it, x: mx + 14, y: sy / 8 }; });
+  const pts = glItems.map(it => { _gb.setFromObject(it.p.group); let mx = 1e9, sy = 0; for (let k = 0; k < 8; k++) { glV.set(k & 1 ? _gb.max.x : _gb.min.x, k & 2 ? _gb.max.y : _gb.min.y, k & 4 ? _gb.max.z : _gb.min.z).project(camera); const px = (glV.x * 0.5 + 0.5) * w; sy += (-glV.y * 0.5 + 0.5) * h; if (px < mx) mx = px; } if (it.p.id === 'batteries') { glV.set(74, 20, 1.2); it.p.group.localToWorld(glV); glV.project(camera); return { it, x: (glV.x * 0.5 + 0.5) * w, y: (-glV.y * 0.5 + 0.5) * h }; }  // visible top corner of cell 2
+    if (it.p.id === 'board' && window.chipAnchor) { chipAnchor(glV); glV.project(camera); return { it, x: (glV.x * 0.5 + 0.5) * w, y: (-glV.y * 0.5 + 0.5) * h }; } return { it, x: mx + 16, y: sy / 8 }; });
   pts.sort((a, b) => a.y - b.y); for (let i = 1; i < pts.length; i++) pts[i].ly = Math.max(pts[i].y, (pts[i - 1].ly ?? pts[i - 1].y) + 62); pts[0].ly = pts[0].y;
-  pts.forEach(({ it, x, ly }) => {
+  if (!window._glsvg) { window._glsvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); _glsvg.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;overflow:visible'); glWrap.appendChild(_glsvg); }
+  let svgs = '';
+  pts.forEach(({ it, x, y, ly }) => {
     const el = it.el, span = el.querySelector('span'), line = el.querySelector('b'), dot = el.querySelector('i');
     const tx = 64 + span.offsetWidth + 18;
     const k = it.n - 1, a = clamp01((GL_ALPHA * 10 - k) / 2), pop = Math.sin(Math.PI * a);  // one by one, top to bottom
     el.style.opacity = a.toFixed(3); dot.style.transform = `scale(${1 + 0.9 * pop})`;
-    el.style.transform = `translateY(${ly}px)`; line.style.left = tx + 'px'; line.style.width = Math.max(0, x - tx - 6) + 'px'; dot.style.left = (x - 6) + 'px';
+    el.style.transform = `translateY(${ly}px)`; line.style.display = 'none'; dot.style.display = 'none';
+    const ex = Math.max(tx + 8, x - 26);
+    svgs += `<g opacity="${a.toFixed(3)}"><polyline points="${tx},${ly} ${ex},${ly} ${x},${y}" fill="none" stroke="rgba(240,166,64,.8)" stroke-width="2"/><circle cx="${x}" cy="${y}" r="${6 * (1 + 0.6 * pop)}" fill="#f0a640"/><circle cx="${x}" cy="${y}" r="${11 * (1 + 0.6 * pop)}" fill="rgba(240,166,64,.22)"/></g>`;
   });
+  _glsvg.innerHTML = svgs;
 };
 const sseg = o => seg(Object.assign({ focus: -1, labels: () => 0, explode: () => 0 }, o));
 const L = (h) => `<div class="line">${h}</div>`;
@@ -1081,7 +1092,7 @@ sseg({ dur: 2.8, keepOn: true, fold: t => 1 - ease(clamp01((t * 2.8 - 1.78) / 1.
 sseg({ dur: 4, pw: t => clamp01((t * 4 - 2.0) / 0.7), gl: t => clamp01((t * 4 - 2.25) / 1.0), glo: t => clamp01((4 - t * 4) / 0.25), explode: t => 2.1 * ease(clamp01((t - 0.12) / 0.5)), pose: t => lerpPose(OPEN, OVER, ease(Math.min(1, t / 0.7))),
   caps: [[0.05, 1.7, L('Just <em>5.2 mm</em> thin')], [1.7, 4, L('Let’s open it up')]] });
 // A20 Pro beat: fly into the logic board, everything else ghosted, the chip powers up
-const CHIP = P(-35, 40, 6.2, 0.3, 0.32, 125);
+const CHIP = P(27, 10, 6.2, 0.3, 0.32, 125);  // A20 Pro now sits in the camera half, as in Apple's image
 sseg({ dur: 3.0, explode: () => 2.1, pw: t => 0.25 + 0.5 * ease(clamp01(t * 3 / 1.2)), dimMap: { board: 0 }, dimDefault: 0.96,
   pose: t => { const T = t * 3; return T < 1.0 ? lerpPose(OVER, CHIP, ease(T)) : Object.assign(clonePose(CHIP), { az: CHIP.az - 0.2 * (T - 1) / 2, dist: CHIP.dist - 14 * (T - 1) / 2 }); },
   caps: [[0.1, 3.0, L('Powered by the <em>A20 Pro</em> chip')]] });

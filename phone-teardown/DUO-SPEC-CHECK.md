@@ -64,3 +64,17 @@ No Action button. Top and bottom speakers per Apple's repair manual (earpiece sl
 | Hinge | | 🔧 caption now "a hinge of 100+ parts" + "gears · springs · 3D-printed titanium cover" |
 | Teardrop / waterdrop curl | iFixit | ✅ |
 | Crease deepens with repeated folds | Android Authority, MacObserver | ✅ |
+
+## Internal layout (checked against Apple's internal image of the iPhone Duo, front view)
+
+| Part | Apple's image | Model (v4) |
+|---|---|---|
+| Hinge | Full-height strip; two long modules (springs, "eye" cams, rollers) + black twin-bar centre | ✓ rebuilt to match |
+| Logic board + A20 Pro | Camera half, column beside the hinge, A20 at mid-height, top bar under the camera module | ✓ moved here (was in the other half) |
+| Battery 1 | Large cell filling most of the non-camera half | ✓ enlarged (66 × 70 mm footprint) |
+| Battery 2 | Camera half, tall cell beside / below the board | ✓ |
+| Rear cameras | Top outer corner of the camera half | ✓ |
+| Under-display selfie camera | Camera half, near the top, ~70% across the open screen | ✓ |
+| Earpiece | Top of the non-camera half | ✓ added |
+| USB-C + loudspeaker | Bottom of the non-camera half (Apple's Duo guide diagram) | ✓ |
+| Board chips besides A20 | NAND, modem, wireless, PMIC — names are typical for 2026 iPhones, not confirmed by Apple for the Duo | ⚠ illustrative |

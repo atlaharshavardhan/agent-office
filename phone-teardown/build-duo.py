@@ -98,6 +98,7 @@ function a20Chip(g, z0, x, y) {
   [subM, lidM, haloM, dots].forEach(o => { o.userData.keepLit = true; });
   chipFx = { lidM, haloM, dots };
 }
+window.chipAnchor = v => chipFx ? chipFx.lidM.getWorldPosition(v) : v;
 window.chipPower = (t, a) => {
   if (!chipFx) return; const pulse = 0.82 + 0.18 * Math.sin(t * 4.6);
   chipFx.haloM.material.opacity = a * 0.7 * pulse;
@@ -382,20 +383,23 @@ addPart('hinge', [0, 0, 22], { az: 0.6, el: 0.55, k: 0.72, t: [0, 44, 0.6], dist
 })();
 
 /* 4. Logic board (left half) */
-addPart('board', [0, 0, 2], { az: 0.4, el: 0.48, k: 1.05 }, [-79, 27, 1], g => {
+// Placement follows Apple's internal image of the iPhone Duo (front view): the logic board sits in the camera half,
+// as a column beside the hinge with the A20 Pro at mid-height and a top bar under the camera module.
+addPart('board', [0, 0, 2], { az: -0.4, el: 0.48, k: 1.05 }, [76, 30, 1], g => {
   const sh = new THREE.Shape();
-  [[-79, 16], [-12, 16], [-12, 54], [-53, 54], [-53, 27], [-79, 27]].forEach(([x, y], i) => i ? sh.lineTo(x, y) : sh.moveTo(x, y));
+  [[11, -14], [42, -14], [42, 32], [77, 32], [77, 55], [11, 55]].forEach(([x, y], i) => i ? sh.lineTo(x, y) : sh.moveTo(x, y));
   mesh(extrude(sh, 0.8, 0.1, 4), std(0x07100c, 0.2, 0.6), 0, 0, 0.6, g);  // dark board, like Apple's shots
   const z0 = 1.0;
-  a20Chip(g, z0, -35, 40);
-  chipOn(g, z0, 9, 11, 0.9, [['NAND', 54], ['256 GB', 30]], -20, 44);
-  chipOn(g, z0, 10, 8, 0.9, [['C2', 64], ['MODEM', 28]], -46, 21.5);
-  chipOn(g, z0, 7, 7, 0.8, [['N1', 70]], -22, 24);
-  chipOn(g, z0, 8, 7, 0.8, [['PMIC', 54]], -69, 21.5);
+  a20Chip(g, z0, 27, 10);
+  chipOn(g, z0, 9, 10, 0.9, [['NAND', 54], ['256 GB', 30]], 27, -6.5);
+  chipOn(g, z0, 10, 8, 0.9, [['C2', 64], ['MODEM', 28]], 62, 43.5);
+  chipOn(g, z0, 7, 7, 0.8, [['N1', 70]], 48, 44);
+  chipOn(g, z0, 8, 7, 0.8, [['PMIC', 54]], 18, 45);
   const shield = std(0xb8bcc2, 0.95, 0.28);
-  box(10, 12, 0.7, shield, -47, 45, z0 + 0.35, g); box(9, 6, 0.7, shield, -32, 22, z0 + 0.35, g);
-  box(3, 8, 0.9, std(0xc9a347, 0.9, 0.3), -14.5, 32, z0 + 0.45, g);
-  passives(g, 21, 170, z0, r => [-78 + r() * 65, 17 + r() * 36.5], [[-79, -53, 27, 60], [-41.5, -28.5, 33.5, 46.5], [-24.5, -15.5, 38.5, 49.5], [-51, -41, 17.5, 25.5], [-25.5, -18.5, 20.5, 27.5], [-73, -65, 18, 25], [-52, -42, 39, 51], [-36.5, -27.5, 19, 25], [-16, -12, 28, 36]]);
+  box(9, 6, 0.7, shield, 34, 45, z0 + 0.35, g); box(8, 5, 0.7, shield, 72, 43.5, z0 + 0.35, g);
+  box(3, 8, 0.9, std(0xc9a347, 0.9, 0.3), 13.5, 26, z0 + 0.45, g);
+  passives(g, 21, 170, z0, r => r() < 0.6 ? [12 + r() * 29, -13 + r() * 45] : [12 + r() * 64, 33 + r() * 21],
+    [[17, 37, 0, 20], [21.5, 32.5, -12, -1], [56, 68, 39, 48], [43.5, 52.5, 40, 48], [13.5, 22.5, 41, 49], [29, 39, 41.5, 48.5], [67.5, 76.5, 40.5, 46.5], [11.5, 15.5, 21.5, 30.5], [29, 38, 44, 54]]);
 });
 
 /* 5. I/O board and flex (right half, linked through the hinge) */
@@ -408,15 +412,16 @@ addPart('io', [0, 0, 2], { az: -0.5, el: 0.5, k: 1.0 }, [-78, -42, 1], g => {
   box(17, 10, 1.2, std(0x1c1e22, 0.1, 0.55), -26, -49, 1.0, g); // loudspeaker
   passives(g, 5, 50, z0, r => [-76 + r() * 60, -56 + r() * 13], [[-65.5, -58.5, -51, -45], [-47, -37, -58, -50], [-34.5, -17.5, -54, -44]]);
   const flex = std(0xd99a3a, 0.1, 0.45);
-  box(14, 4, 0.2, flex, -7, 20, 0.9, g); box(17, 4, 0.2, flex, 8.5, 20, 0.9, g); // across the hinge
-  box(4, 30, 0.2, flex, -10, 5, 0.9, g);     // logic board to I/O board
+  box(22, 4, 0.2, flex, 1, -8, 0.9, g);       // logic board → across the hinge
+  box(4, 36, 0.2, flex, -10, -27, 0.9, g);   // down to the I/O board
+  box(22, 6, 1.4, std(0x1c1e22, 0.1, 0.55), -42, 50, 1.0, g); box(18, 1.2, 1.5, std(0x0a0b0d, 0.2, 0.6), -42, 50, 1.2, g); // earpiece speaker (top of this half)
 });
 
 /* 6. Two batteries */
 function cellLabel(lines) { return canvasTex(640, 640, (x, w, h) => { x.fillStyle = '#1b1e23'; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(240,166,64,0.55)'; x.lineWidth = 3; x.strokeRect(30, 30, w - 60, h - 60); x.fillStyle = '#d9dde2'; x.font = '600 54px monospace'; x.fillText(lines[0], 70, 140); x.font = '400 36px monospace'; lines.slice(1).forEach((t, i) => x.fillText(t, 70, 230 + i * 60)); x.fillStyle = 'rgba(217,221,226,0.5)'; for (let i = 0; i < 24; i++) x.fillRect(70 + i * 17, 520, i % 3 ? 6 : 10, 60); }); }
 addPart('batteries', [0, 0, -18], { az: 0.55, el: 0.42, k: 0.95 }, [-77, -54, 1], g => {
   const wrap = std(0x15171b, 0.25, 0.5);
-  [[-45, -17, 64, 58, ['Li-ion  Cell 1', '3.88 V', '2,962 mAh', '11.56 Wh']], [45, -9, 60, 50, ['Li-ion  Cell 2', '3.88 V', '1,921 mAh', '7.5 Wh']]].forEach(([cx, cy, w, h, lines]) => {
+  [[-45, -1, 66, 70, ['Li-ion  Cell 1', '3.88 V', '2,962 mAh', '11.56 Wh']], [60, -10, 32, 76, ['Li-ion  Cell 2', '3.88 V', '1,921 mAh', '7.5 Wh']]].forEach(([cx, cy, w, h, lines]) => {
     mesh(extrude(rrShape(w, h, 3, cx, cy), 2.6, 0.5, 12), wrap, 0, 0, -0.4, g);
     const lp = new THREE.Mesh(new THREE.PlaneGeometry(w - 8, h - 8), new THREE.MeshStandardMaterial({ map: cellLabel(lines), metalness: 0.2, roughness: 0.6 })); lp.position.set(cx, cy, 0.92); g.add(lp);
     box(5, 4, 0.3, std(0xd99a3a, 0.1, 0.45), cx + (cx < 0 ? 20 : -20), cy + h / 2 + 1.5, 0.6, g);
