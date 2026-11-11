@@ -480,27 +480,50 @@ function caseShape(w, h, rb, rt) {   // rounded rectangle with different bottom 
   s.lineTo(x + rt, y + h); if (rt > 0) s.absarc(x + rt, y + h - rt, rt, Math.PI / 2, Math.PI); else s.lineTo(x, y + h);
   s.lineTo(x, y + rb); s.absarc(x + rb, y + rb, rb, Math.PI, Math.PI * 1.5); return s;
 }
-addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE.y + 4, CASE.z + 10.9], g => {
-  const w = WHITE(), bv = 3.2, top = CASE.y + BODY_H / 2;
-  mesh(extrude(caseShape(CW - 2 * bv, BODY_H - 2 * bv, 14, 1.5), CD, bv, 48), w, CASE.x, CASE.y, CASE.z, g);
-  const inner = std(0xe9eaec, 0, 0.45);
-  box(CW - 5, 0.3, CD - 5, inner, CASE.x, top + 0.05, CASE.z, g);
-  for (const sx of [-1, 1]) {   // rounded-square cradles the buds sit in
-    const well = mesh(extrude(rrShape(21, 15.5, 6.5), 1.2, 0.5, 24), std(0xd3d6db, 0, 0.5), CASE.x + sx * 13.2, top - 0.35, CASE.z + 0.5, g); well.rotation.x = -Math.PI / 2;
-    const slot = ell(3.0, 0.4, 2.5, std(0x8f949b, 0, 0.6), CASE.x + sx * 13.2, top + 0.3, CASE.z + 0.5, g, 32);
+/* pebble = superellipsoid (squircle front, rounded depth); clampY flattens it at the lid line */
+function pebble(a, b, c, e1, e2, clampLo, clampHi, U = 160, V = 120) {
+  const sp = (w, e) => Math.sign(w) * Math.pow(Math.abs(w), e);
+  const pos = [], idx = [];
+  for (let j = 0; j <= V; j++) {
+    const v = -Math.PI / 2 + Math.PI * j / V;
+    for (let i = 0; i <= U; i++) {
+      const u = -Math.PI + 2 * Math.PI * i / U;
+      const x = a * sp(Math.cos(v), e1) * sp(Math.cos(u), e2);
+      let y = b * sp(Math.sin(v), e1);
+      const z = c * sp(Math.cos(v), e1) * sp(Math.sin(u), e2);
+      y = Math.min(Math.max(y, clampLo), clampHi);
+      pos.push(x, y, z);
+    }
   }
-  box(16, 2.2, 3.2, SILVER(), CASE.x, top + 0.6, CASE.z - CD / 2 + 2.4, g);   // hinge
-  // lid, hinged at the back top edge and swung open
-  const hinge = new THREE.Group(); hinge.position.set(CASE.x, top, CASE.z - CD / 2 + 1.2); hinge.rotation.x = -1.92; g.add(hinge);
-  mesh(extrude(caseShape(CW - 2 * bv, LID_H - 2 * bv, 1.5, 12), CD, bv, 48), w, 0, LID_H / 2, CD / 2 - 1.2, hinge);
-  box(CW - 5, 0.3, CD - 5, inner, 0, 0.1, CD / 2 - 1.2, hinge);
-  ell(0.6, 0.6, 0.2, std(0x1a1d22, 0.2, 0.3, { emissive: 0x2fbf5a, emissiveIntensity: 1.1 }), CASE.x, CASE.y + 5, CASE.z + CD / 2 + 0.02, g, 24);
+  for (let j = 0; j < V; j++) for (let i = 0; i < U; i++) {
+    const p = j * (U + 1) + i, q = p + U + 1;
+    idx.push(p, q, p + 1, p + 1, q, q + 1);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+  return g;
+}
+const PA = CW / 2, PB = (BODY_H + LID_H) / 2, PC = CD / 2, SEAM = PB - LID_H, E1 = 0.42, E2 = 0.55;
+addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE.y + 4, CASE.z + PC], g => {
+  const w = WHITE(), cy = CASE.y + BODY_H / 2 - SEAM, top = CASE.y + BODY_H / 2;   // pebble centre so the seam sits at the body top
+  mesh(pebble(PA, PB, PC, E1, E2, -PB, SEAM), w, CASE.x, cy, CASE.z, g);
+  const inner = std(0xeceef0, 0, 0.42);
+  for (const sx of [-1, 1]) {   // rounded-square cradles the buds sit in
+    const well = mesh(extrude(rrShape(20, 13.5, 6), 1.0, 0.45, 24), std(0xd2d5da, 0, 0.55), CASE.x + sx * 13.4, top - 0.62, CASE.z + 0.6, g); well.rotation.x = -Math.PI / 2;
+    ell(2.9, 0.35, 2.4, std(0x9a9fa6, 0, 0.6), CASE.x + sx * 13.4, top + 0.1, CASE.z + 0.6, g, 32);
+  }
+  box(15, 1.6, 2.6, SILVER(), CASE.x, top + 0.3, CASE.z - PC + 3.2, g);   // hinge
+  // lid: the top slice of the same pebble, hinged at the back and swung open
+  const hinge = new THREE.Group(); hinge.position.set(CASE.x, top, CASE.z - PC + 2.0); hinge.rotation.x = -1.92; g.add(hinge);
+  const lidGeo = pebble(PA, PB, PC, E1, E2, SEAM, PB); lidGeo.translate(0, -SEAM, PC - 2.0);
+  mesh(lidGeo, w, 0, 0.05, 0, hinge);
+  ell(0.6, 0.6, 0.2, std(0x1a1d22, 0.2, 0.3, { emissive: 0x2fbf5a, emissiveIntensity: 1.1 }), CASE.x, CASE.y + 3, CASE.z + PC - 0.02, g, 24);
   // lanyard loop on the right side
-  const lp = mesh(extrude(rrShape(3.6, 8.4, 1.8), 1.0, 0.3, 16), SILVER(), CASE.x + CW / 2 + 0.2, CASE.y + 7, CASE.z + 3, g); lp.rotation.y = Math.PI / 2;
-  for (const dy of [2, -2]) { const h = mesh(cyl(1.0, 1.2, 24), std(0x2a2c30, 0.5, 0.4), CASE.x + CW / 2 + 0.5, CASE.y + 7 + dy, CASE.z + 3, g); h.rotation.y = Math.PI / 2; }
+  const lp = mesh(extrude(rrShape(3.6, 8.4, 1.8), 1.0, 0.3, 16), SILVER(), CASE.x + PA - 0.35, CASE.y + 1, CASE.z, g); lp.rotation.y = Math.PI / 2;
+  for (const dy of [2, -2]) { const h = mesh(cyl(1.0, 1.2, 24), std(0x2a2c30, 0.5, 0.4), CASE.x + PA - 0.1, CASE.y + 1 + dy, CASE.z, g); h.rotation.y = Math.PI / 2; }
   // USB-C and speaker holes underneath
-  const port = mesh(extrude(rrShape(8.9, 3.0, 1.5), 1.0, 0.1, 16), std(0x2a2c30, 0.6, 0.35), CASE.x, CASE.y - BODY_H / 2 - 0.2, CASE.z, g); port.rotation.x = Math.PI / 2;
-  for (const i of [-3, -2, 2, 3]) yCyl(0.5, 0.6, GRILLE(), CASE.x + i * 2.6, CASE.y - BODY_H / 2 - 0.15, CASE.z + 1, g, 16);
+  const port = mesh(extrude(rrShape(8.9, 3.0, 1.5), 1.0, 0.1, 16), std(0x2a2c30, 0.6, 0.35), CASE.x, CASE.y - BODY_H / 2 + 0.25, CASE.z, g); port.rotation.x = Math.PI / 2;
+  for (const i of [-3, -2, 2, 3]) yCyl(0.5, 0.6, GRILLE(), CASE.x + i * 2.6, CASE.y - BODY_H / 2 + 0.35, CASE.z + 1, g, 16);
   // left earbud (mirror of the right one) floating above the open case
   const left = new THREE.Group(); budOuter(left, true);
   left.scale.set(-1, 1, 1); left.position.set(CASE.x * 2 - 0.0, 0, 0); left.rotation.set(0, 0, 0); g.add(left);
