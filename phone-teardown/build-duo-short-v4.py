@@ -26,8 +26,8 @@ R("function dimTarget(p, s) { return s.focus >= 0 && p.index !== s.focus ? 1 : 0
   "function dimTarget(p, s) { if (s.dimMap) return p.id in s.dimMap ? s.dimMap[p.id] : (s.dimDefault ?? 0); return s.focus >= 0 && p.index !== s.focus ? 1 : 0; }")
 R("  const dimB = prev ? ease(clamp01(lt / 0.9)) : 1;", "  const dimB = prev ? ease(clamp01(lt / 0.35)) : 1;")
 R("return { fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,",
-  "return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, wake: s.wake ? s.wake(u) : 1, cb: s.cb ? s.cb(u) : 0, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
-R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake; COVER_BLUR = st.cb;")
+  "return { gl: s.gl ? s.gl(u) : 0, glo: s.glo ? s.glo(u) : 1, xr: !!s.xr, wake: s.wake ? s.wake(u) : 1, cb: s.cb ? s.cb(u) : 0, time: t, keepOn: !!s.keepOn, stack: s.stack ? s.stack(lt) : [0, 0, 0], cap: capAt(s, lt), fold: s.fold ? s.fold(u) : 0, explode: s.explode(u), pose,")
+R("  setTitle(st.title[0], st.title[1]);", "  setTitle(st.title[0], st.title[1]); applyStack(st.stack); setCap(st.cap); if (window.spinGears) spinGears(st.time); GL_ALPHA = st.gl; GL_OUT = st.glo; WAKE = st.wake; COVER_BLUR = st.cb; window.XRAY_HINGE = st.xr;")
 R("const camera = new THREE.PerspectiveCamera(30, 1, 5, 3000);", "const camera = new THREE.PerspectiveCamera(33, 1, 5, 3000);  // ~10% wider so tall shots fit the 450-1500 band")
 R("function composeInner(bl) {\n  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100); x.drawImage(innerSharp, 0, 0);",
   "function composeInner(bl) {\n  const x = innerCanvas.getContext('2d'); x.clearRect(0, 0, 1640, 1100);\n  const z = 1 + 0.05 * bl; x.save(); x.beginPath(); x.roundRect(0, 0, 1640, 1100, 86); x.clip(); x.translate(1230, 550); x.scale(z, z); x.translate(-1230, -550); x.drawImage(innerSharp, 0, 0); x.restore();")
@@ -36,6 +36,7 @@ R("  if (bl > 0.003) { x.globalAlpha = bl; x.drawImage(innerBlur, 0, 0); x.globa
 R("  innerScr.material.color.setScalar(ease(on));", "  innerScr.material.color.setScalar(ease(on) * WAKE);")
 R("oon = clamp01((f - 0.86) / 0.12)", "oon = clamp01((f - 0.45) / 0.25)")  # cover screen stays lit (frosted) while it swings, like the real thing
 R("  if (Math.abs(oon - lastOuterP) > 0.004 || (oon !== lastOuterP && (oon === 0 || oon === 1))) { paintScreen(outerCanvas, outerBg, outerItems, oon, [6, 82, 82, 6], OUTER_HOLE); outerTex.needsUpdate = true; lastOuterP = oon; }", "  const ob = Math.max(COVER_BLUR, clamp01((0.995 - f) / 0.05)), okey = Math.round(oon * 250) * 1000 + Math.round(ob * 250);\n  if (okey !== lastOuterP) { paintScreen(outerCanvas, outerBg, outerItems, oon, [6, 82, 82, 6], OUTER_HOLE); if (ob > 0.004) frostOver(outerCanvas, ob); outerTex.needsUpdate = true; lastOuterP = okey; }")
+R("if (hingeMech) hingeMech.visible = f < 0.5;", "if (hingeMech) hingeMech.visible = f < 0.5 || window.XRAY_HINGE;")
 R("  explode = st.explode; applyExplode(explode);", "  KEEP_ON = st.keepOn; COVER_BLUR = st.cb; WAKE = st.wake; explode = st.explode; applyExplode(explode);")
 
 a = src.index("const CLOSED_T = new THREE.Vector3(38, 0, 3);"); b = src.index("const TOTAL = tAcc;")
@@ -191,9 +192,15 @@ sseg({ dur: 10, explode: t => EX + (2.1 - EX) * (1 - ease(clamp01(t * 10 / 1.2))
   caps: [[0.3, 4.4, L('Trick 1: the screen is <em>~10 thin layers</em>')], [4.4, 10, L('They <em>slide</em> like paper, so nothing snaps')]] });
 sseg({ dur: 5.5, explode: () => EX, dimMap: { hinge: 0 }, dimDefault: 0.97, pose: t => { const FULL = P(0, 0, 22 * EX + 1, 0.0, 0.02, 205), MAC = P(0, 43, 22 * EX + 1, 0.05, 0.48, 125); return t < 0.28 ? FULL : t < 0.45 ? lerpPose(FULL, MAC, ease((t - 0.28) / 0.17)) : (u => P(0, 43 - 5 * u, 22 * EX + 1, 0.05 + 0.85 * u, 0.48 - 0.12 * u, 125 - 25 * u))((t - 0.45) / 0.55); },  // whole hinge straight-on (like Apple's image), then into the module
   caps: [[0.25, 5.5, L('Trick 2: a hinge of <em>100+ parts</em>') + '<div class="sub">gears · springs · 3D-printed titanium cover</div>']] });
-sseg({ dur: 5.5, explode: t => EX * (1 - ease(clamp01(t * 5.5 / 1.4))), fold: t => 0.74 * ease(clamp01((t * 5.5 - 1.5) / 2.6)),
-  keepOn: true, dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(34, 0, 24, 0.08 + 0.06 * t, 1.3, 430, UP_STACK),  // look down onto the V
-  caps: [[0.25, 5.5, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });
+// X-ray close: everything ghosted except the hinge, so you watch the hinge strip at the fold while the halves swing shut
+const HMAC_END = P(0, 38, 22 * EX + 1, 0.9, 0.36, 100), XR = P(0, 0, 2, 0.95, 0.42, 470);
+sseg({ dur: 3.0, xr: true, keepOn: true, explode: t => EX * (1 - ease(clamp01(t * 3 / 0.9))), fold: t => 0.55 * ease(clamp01((t * 3 - 0.9) / 2.1)),
+  dimMap: { hinge: 0 }, dimDefault: 0.92,
+  pose: t => { const T = t * 3; return T < 0.9 ? lerpPose(HMAC_END, XR, ease(T / 0.9)) : Object.assign(clonePose(XR), { az: XR.az + 0.12 * (T - 0.9) / 2.1 }); },
+  caps: [[0.25, 3.0, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });
+sseg({ dur: 2.5, keepOn: true, fold: t => 0.55 + 0.19 * ease(t),
+  dimMap: { inner: 0, hinge: 0 }, dimDefault: 0.85, pose: t => P(34, 0, 24, 0.1 + 0.04 * t, 1.3, 430, UP_STACK),  // look down onto the V
+  caps: [[0, 2.5, L('Closing, it <em>curls into a teardrop</em> instead of folding flat')]] });
 sseg({ dur: 6, keepOn: true, fold: t => 0.74 * (1 - ease(clamp01(t * 6 / 1.4))), pose: t => P(0, 30 - 60 * t, 2.6, 1.3, 0.17, 330),
   caps: [[0.3, 3.1, L('Bend the same spot <em>again and again</em>')], [3.1, 6, L('…and you get <em>the crease</em> you can feel')]] });
 // v4 ending: open wide facing you → channel card over the open phone → close with the thock → back to the opening lens shot (seamless loop)
