@@ -137,14 +137,21 @@ const dotMat = new THREE.ShaderMaterial({
 });
 const dots = new THREE.Points(dotGeo, dotMat); dots.frustumCulled = false; scene.add(dots);
 
-/* ---------- beams + soft cone ---------- */
-const NB = 60, beamPos = new Float32Array(NB * 6), beamCol = new Float32Array(NB * 8), beamTarget = [];
+/* ---------- beams: glowing tubes (bright core + soft glow) ---------- */
+const NB = 36, beamTarget = [], beamsCore = [], beamsGlow = [];
 for (let i = 0; i < NB; i++) beamTarget.push(hits[Math.floor(rnd() * M)]);
-const beamGeo = new THREE.BufferGeometry();
-beamGeo.setAttribute('position', new THREE.BufferAttribute(beamPos, 3));
-beamGeo.setAttribute('color', new THREE.BufferAttribute(beamCol, 4));
-const beams = new THREE.LineSegments(beamGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, depthWrite: false }));
-beams.material.onBeforeCompile = s => {}; beams.frustumCulled = false; scene.add(beams);
+const coreGeo = new THREE.CylinderGeometry(1, 1, 1, 8, 1, true), glowGeo = new THREE.CylinderGeometry(1, 1, 1, 12, 1, true);
+const yAxis = new THREE.Vector3(0, 1, 0);
+for (let i = 0; i < NB; i++) {
+  const tg = beamTarget[i], dir = tg.clone().sub(emitter), len = dir.length();
+  const q = new THREE.Quaternion().setFromUnitVectors(yAxis, dir.clone().normalize());
+  const mid = emitter.clone().lerp(tg, 0.5);
+  const core = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: 0xffeaff, transparent: true, opacity: 0, depthWrite: false }));
+  core.scale.set(0.0045, len, 0.0045); core.position.copy(mid); core.quaternion.copy(q);
+  const glow = new THREE.Mesh(glowGeo, new THREE.MeshBasicMaterial({ color: 0xb06cff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+  glow.scale.set(0.016, len, 0.016); glow.position.copy(mid); glow.quaternion.copy(q);
+  scene.add(glow, core); beamsCore.push(core); beamsGlow.push(glow);
+}
 const coneLen = faceCenter.distanceTo(emitter);
 const cone = new THREE.Mesh(new THREE.ConeGeometry(0.75, coneLen, 48, 1, true),
   new THREE.MeshBasicMaterial({ color: 0xc9a2ff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }));
@@ -162,15 +169,13 @@ const tmp = new THREE.Vector3(), look = new THREE.Vector3();
 function renderAt(t) {
   const c = ease(t / TOTAL);
   camera.position.lerpVectors(camA.pos, camB.pos, c); look.lerpVectors(camA.look, camB.look, c); camera.lookAt(look);
-  const on = ease((t - 0.15) / 0.3) * (1 - ease((t - 3.3) / 0.9));
+  const on = ease((t - 0.15) / 0.3) * (1 - 0.65 * ease((t - 3.6) / 1.0));
   for (let i = 0; i < NB; i++) {
-    const fl = 0.6 + 0.4 * Math.sin(t * 21 + i * 2.7) * Math.sin(t * 6.3 + i);
-    const k = on * fl, tg = beamTarget[i];
-    beamPos.set([emitter.x, emitter.y, emitter.z, tg.x, tg.y, tg.z], i * 6);
-    beamCol.set([1.0, 0.92, 1.0, 1.0 * k, 0.8, 0.6, 1.0, 0.55 * k], i * 8);
+    const fl = 0.7 + 0.3 * Math.sin(t * 19 + i * 2.7) * Math.sin(t * 5.3 + i * 1.3);
+    const k = on * fl;
+    beamsCore[i].material.opacity = 0.95 * k; beamsGlow[i].material.opacity = 0.45 * k;
   }
-  beamGeo.attributes.position.needsUpdate = beamGeo.attributes.color.needsUpdate = true;
-  cone.material.opacity = 0.09 * on;
+  cone.material.opacity = 0.12 * on;
   flare.scale.setScalar(0.14 + 0.08 * on + 0.025 * Math.sin(t * 30)); flare.material.opacity = 0.3 + 0.7 * on;
   for (let i = 0; i < M; i++) {
     const u = (t - launch[i]) / travel, h = hits[i];

@@ -1,0 +1,209 @@
+<title>Face ID dots (dark)</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:radial-gradient(90% 60% at 45% 60%,#24212a 0%,#111015 55%,#050507 100%)}
+  canvas{display:block}
+  #note{position:fixed;left:6%;bottom:21%;font:500 30px 'IBM Plex Sans',sans-serif;color:rgba(255,255,255,.8);text-shadow:0 2px 10px rgba(0,0,0,.85)}
+</style>
+<div id="note">Infrared shown in red · invisible to the eye</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="assets/GLTFLoader.js"></script>
+<script src="assets/head-data.js"></script>
+<script>
+(() => {
+const W = innerWidth, H = innerHeight, TOTAL = 5;
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(devicePixelRatio); renderer.setSize(W, H);
+renderer.outputEncoding = THREE.sRGBEncoding;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, W / H, 0.1, 100);
+let ready = false;
+window.__tourReady = () => ready;
+
+/* ---------- dim bedroom light ---------- */
+scene.add(new THREE.HemisphereLight(0x8e96b2, 0x120e12, 0.35));
+const moon = new THREE.DirectionalLight(0xaab6d8, 0.55); moon.position.set(5, 6, -2); scene.add(moon);
+const screenGlow = new THREE.PointLight(0x8aa0d8, 0.7, 6, 2); scene.add(screenGlow);
+const irGlow = new THREE.PointLight(0xff3050, 0, 5, 2); scene.add(irGlow);
+
+/* ---------- bed ---------- */
+const sheet = new THREE.MeshStandardMaterial({ color: 0x8e919c, roughness: 0.92 });
+const cloth = new THREE.MeshStandardMaterial({ color: 0x343947, roughness: 0.95 });
+const pillow = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 32), sheet);
+pillow.scale.set(2.3, 0.42, 1.35); pillow.position.set(0, -0.95, -0.35);
+const mattress = new THREE.Mesh(new THREE.BoxGeometry(9, 0.5, 12), sheet); mattress.position.set(0, -1.45, 1.8);
+const blanket = new THREE.Mesh(new THREE.BoxGeometry(6, 1.1, 5.2), cloth); blanket.position.set(0, -0.55, 4.0); blanket.rotation.x = 0.04;
+scene.add(pillow, mattress, blanket);
+
+/* ---------- phone ---------- */
+function roundedRect(w, h, r) {
+  const s = new THREE.Shape(), x = -w / 2, y = -h / 2;
+  s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r);
+  s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r);
+  s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y); return s;
+}
+const phone = new THREE.Group();
+const body = new THREE.Mesh(new THREE.ExtrudeGeometry(roundedRect(0.74, 1.56, 0.12), { depth: 0.07, bevelEnabled: true, bevelThickness: 0.014, bevelSize: 0.014, bevelSegments: 4, curveSegments: 16 }),
+  new THREE.MeshStandardMaterial({ color: 0x23262d, roughness: 0.4, metalness: 0.5 }));
+body.position.z = -0.07;
+const screen = new THREE.Mesh(new THREE.ShapeGeometry(roundedRect(0.69, 1.51, 0.1), 16), new THREE.MeshStandardMaterial({ color: 0x0a1426, emissive: 0x2a5fb0, emissiveIntensity: 0.6 }));
+screen.position.z = 0.0155;
+const emitterDot = new THREE.Mesh(new THREE.CircleGeometry(0.013, 16), new THREE.MeshBasicMaterial({ color: 0xffb0bc }));
+emitterDot.position.set(0.055, 0.66, 0.018);
+const bump = new THREE.Mesh(new THREE.ExtrudeGeometry(roundedRect(0.3, 0.3, 0.07), { depth: 0.02, bevelEnabled: true, bevelThickness: 0.006, bevelSize: 0.006, bevelSegments: 2 }),
+  new THREE.MeshStandardMaterial({ color: 0x2b2e35, roughness: 0.3, metalness: 0.5 }));
+bump.position.set(-0.17, 0.55, -0.106);
+const lensMat = new THREE.MeshStandardMaterial({ color: 0x07090d, roughness: 0.1, metalness: 0.6 });
+for (const [lx, ly] of [[-0.24, 0.62], [-0.24, 0.48], [-0.1, 0.55]]) { const l = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.052, 0.03, 32), lensMat); l.rotation.x = Math.PI / 2; l.position.set(lx, ly, -0.12); phone.add(l); }
+phone.add(body, screen, emitterDot, bump);
+scene.add(phone);
+
+/* ---------- head (Lee Perry-Smith scan, CC BY 3.0) ---------- */
+const lie = new THREE.Group(), headGroup = new THREE.Group();
+lie.add(headGroup); scene.add(lie);
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0)).buffer;
+const texLoader = new THREE.TextureLoader();
+let head, emitter = new THREE.Vector3(), hits = [], M = 0, launch, ymin, ymax;
+const beamsCore = [], beamsGlow = [], NB = 70, travel = 0.4;
+let dots, dotGeo, dpos, dal, cone, flare;
+
+new THREE.GLTFLoader().parse(b64(window.HEAD_GLB), '', gltf => {
+  head = gltf.scene.children.find(o => o.isMesh) || gltf.scene.getObjectByProperty('type', 'Mesh');
+  const col = texLoader.load(window.HEAD_COL, () => { col.encoding = THREE.sRGBEncoding; });
+  const nrm = texLoader.load(window.HEAD_NRM);
+  head.material = new THREE.MeshStandardMaterial({ map: col, normalMap: nrm, normalScale: new THREE.Vector2(0.8, 0.8), color: 0xa06c50, roughness: 0.62 });
+  head.geometry.computeBoundingBox();
+  const bb = head.geometry.boundingBox, size = new THREE.Vector3(), ctr = new THREE.Vector3();
+  bb.getSize(size); bb.getCenter(ctr);
+  const k = 2.2 / size.y;
+  head.geometry.translate(-ctr.x, -ctr.y, -ctr.z); head.geometry.scale(k, k, k);
+  head.position.set(0, 0, 0); head.rotation.set(0, 0, 0); head.scale.set(1, 1, 1);
+  headGroup.add(head);
+  headGroup.rotation.set(-Math.PI / 2 + 0.1, 0, 0);   // lying on his back
+  lie.rotation.z = -0.42;                              // head rolled slightly toward camera
+  lie.position.set(0, 0.05, 0);
+  // wait for textures, then build everything that depends on the head
+  const wait = () => (col.image && nrm.image) ? setup() : setTimeout(wait, 30);
+  wait();
+}, e => console.error(e));
+
+function dotTexture(core) {
+  const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d');
+  const gr = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, core); gr.addColorStop(0.35, 'rgba(255,70,95,0.95)'); gr.addColorStop(0.7, 'rgba(230,40,70,0.25)'); gr.addColorStop(1, 'rgba(220,30,60,0)');
+  x.fillStyle = gr; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c);
+}
+
+function setup() {
+  scene.updateMatrixWorld(true);
+  // rest the head on the pillow and tuck the neck under the blanket
+  const hb = new THREE.Box3().setFromObject(head);
+  pillow.position.y = hb.min.y + 0.12 - pillow.scale.y; 
+  const alongW = new THREE.Vector3(0, 1, 0).transformDirection(head.matrixWorld), hc = hb.getCenter(new THREE.Vector3());
+  blanket.position.copy(hc).addScaledVector(alongW, -3.75); blanket.position.y = hb.min.y + 0.55;
+  blanket.lookAt(blanket.position.clone().add(alongW)); blanket.scale.set(1, 1, 1);
+  mattress.position.y = pillow.position.y - 0.55;
+  // face centre: front-most point of the head in its own space, mapped to world
+  const faceLocal = new THREE.Vector3(0, 0.05, 0); head.geometry.computeBoundingBox(); faceLocal.z = head.geometry.boundingBox.max.z * 0.7;
+  const faceCenter = head.localToWorld(faceLocal.clone());
+  const faceNormal = new THREE.Vector3(0, 0, 1).transformDirection(head.matrixWorld);
+  phone.position.copy(faceCenter).addScaledVector(faceNormal, 2.45).add(new THREE.Vector3(0.15, 0, 0.35));
+  phone.lookAt(faceCenter); phone.rotateZ(Math.PI * 0.5);
+  scene.updateMatrixWorld(true);
+  emitterDot.getWorldPosition(emitter);
+  screenGlow.position.copy(emitter).lerp(faceCenter, 0.25);
+  irGlow.position.copy(emitter).lerp(faceCenter, 0.7);
+
+  // dot grid: jittered grid of rays from the emitter, kept where they hit the face
+  const ray = new THREE.Raycaster(), fwd = faceCenter.clone().sub(emitter).normalize();
+  const right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 0, 1)).normalize(), up = new THREE.Vector3().crossVectors(right, fwd).normalize();
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const N = 110, gb = head.geometry.boundingBox, zFront = gb.max.z * 0.05, yNeck = gb.min.y + (gb.max.y - gb.min.y) * 0.3;
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+    const a = (i / (N - 1) - 0.5) * 0.62 + (rnd() - 0.5) * 0.004, b = (j / (N - 1) - 0.5) * 0.7 + (rnd() - 0.5) * 0.004;
+    ray.set(emitter, fwd.clone().addScaledVector(right, a).addScaledVector(up, b).normalize());
+    const h = ray.intersectObject(head, false)[0];
+    if (h && head.worldToLocal(h.point.clone()).z > zFront && head.worldToLocal(h.point.clone()).y > yNeck && rnd() < 0.42) hits.push(h.point.clone().addScaledVector(h.face.normal.clone().transformDirection(head.matrixWorld), 0.006));
+  }
+  M = hits.length;
+  // landing order: chin → forehead (along the head's length)
+  const along = new THREE.Vector3(0, 1, 0).transformDirection(head.matrixWorld);
+  const proj = hits.map(h => h.dot(along)); ymin = Math.min(...proj); ymax = Math.max(...proj);
+  launch = new Float32Array(M);
+  for (let i = 0; i < M; i++) launch[i] = 0.4 + 1.5 * (proj[i] - ymin) / (ymax - ymin) + rnd() * 0.15;
+  hits.forEach((h, i) => h.w = (proj[i] - ymin) / (ymax - ymin));
+
+  dotGeo = new THREE.BufferGeometry(); dpos = new Float32Array(M * 3); dal = new Float32Array(M);
+  dotGeo.setAttribute('position', new THREE.BufferAttribute(dpos, 3));
+  dotGeo.setAttribute('alpha', new THREE.BufferAttribute(dal, 1));
+  dots = new THREE.Points(dotGeo, new THREE.ShaderMaterial({
+    uniforms: { map: { value: dotTexture('rgba(255,225,230,1)') }, size: { value: 0.022 * H } },
+    vertexShader: 'attribute float alpha; varying float va; uniform float size; void main(){ va = alpha; vec4 mv = modelViewMatrix * vec4(position,1.0); gl_PointSize = size * (0.9 + 0.5*max(alpha-1.0,0.0)) / -mv.z; gl_Position = projectionMatrix * mv; }',
+    fragmentShader: 'uniform sampler2D map; varying float va; void main(){ vec4 c = texture2D(map, gl_PointCoord); gl_FragColor = vec4(c.rgb * (0.9 + 0.3*max(va-1.0,0.0)), c.a * min(va,1.0)); }',
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  }));
+  dots.frustumCulled = false; scene.add(dots);
+
+  // beams: thin glowing tubes
+  const coreGeo = new THREE.CylinderGeometry(1, 1, 1, 8, 1, true), glowGeo = new THREE.CylinderGeometry(1, 1, 1, 12, 1, true), yAxis = new THREE.Vector3(0, 1, 0);
+  for (let i = 0; i < NB; i++) {
+    const tg = hits[Math.floor(rnd() * M)], dir = tg.clone().sub(emitter), len = dir.length(), mid = emitter.clone().lerp(tg, 0.5);
+    const q = new THREE.Quaternion().setFromUnitVectors(yAxis, dir.normalize());
+    const core = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: 0xffb3bf, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+    core.scale.set(0.0022, len, 0.0022); core.position.copy(mid); core.quaternion.copy(q);
+    const glow = new THREE.Mesh(glowGeo, new THREE.MeshBasicMaterial({ color: 0xff2a4a, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+    glow.scale.set(0.009, len, 0.009); glow.position.copy(mid); glow.quaternion.copy(q);
+    scene.add(glow, core); beamsCore.push(core); beamsGlow.push(glow);
+  }
+  const coneLen = faceCenter.distanceTo(emitter);
+  cone = new THREE.Mesh(new THREE.ConeGeometry(0.8, coneLen, 48, 1, true),
+    new THREE.MeshBasicMaterial({ color: 0xff2a4a, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending }));
+  cone.position.copy(emitter).lerp(faceCenter, 0.5);
+  cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), faceCenter.clone().sub(emitter).normalize());
+  scene.add(cone);
+  flare = new THREE.Sprite(new THREE.SpriteMaterial({ map: dotTexture('rgba(255,255,255,1)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  flare.position.copy(emitter); scene.add(flare);
+
+  // camera: high at his side, phone at the top of frame, face below
+  const side = new THREE.Vector3(1, 0, 0);
+  camA.look.copy(faceCenter).lerp(emitter, 0.42);
+  camB.look.copy(faceCenter).lerp(emitter, 0.36);
+  camA.pos.copy(camA.look).addScaledVector(side, 6.4).add(new THREE.Vector3(0, 1.8, 1.4));
+  camB.pos.copy(camB.look).addScaledVector(side, 5.2).add(new THREE.Vector3(0, 1.5, 1.1));
+  ready = true; renderAt(0);
+}
+
+const ease = t => t < 0 ? 0 : t > 1 ? 1 : t * t * (3 - 2 * t);
+const camA = { pos: new THREE.Vector3(), look: new THREE.Vector3() }, camB = { pos: new THREE.Vector3(), look: new THREE.Vector3() };
+const tmp = new THREE.Vector3(), look = new THREE.Vector3();
+function renderAt(t) {
+  if (!ready) return;
+  const c = ease(t / TOTAL);
+  camera.position.lerpVectors(camA.pos, camB.pos, c); look.lerpVectors(camA.look, camB.look, c); camera.lookAt(look);
+  const on = ease((t - 0.15) / 0.3) * (1 - 0.65 * ease((t - 3.6) / 1.0));
+  for (let i = 0; i < NB; i++) {
+    const k = on * (0.7 + 0.3 * Math.sin(t * 19 + i * 2.7) * Math.sin(t * 5.3 + i * 1.3));
+    beamsCore[i].material.opacity = 0.45 * k; beamsGlow[i].material.opacity = 0.22 * k;
+  }
+  cone.material.opacity = 0.07 * on; irGlow.intensity = 1.1 * on;
+  flare.scale.setScalar(0.14 + 0.08 * on + 0.025 * Math.sin(t * 30)); flare.material.opacity = 0.3 + 0.7 * on;
+  for (let i = 0; i < M; i++) {
+    const u = (t - launch[i]) / travel, h = hits[i];
+    let a = 0;
+    if (u <= 0) tmp.copy(emitter);
+    else if (u < 1) { tmp.copy(emitter).lerp(h, u * u * (3 - 2 * u)); a = 0.7; }
+    else {
+      tmp.copy(h);
+      const wave = t > 3.0 ? Math.max(0, Math.sin((t - 3.0) * 4.0 - h.w * 6.0)) * ease((t - 3.0) / 0.3) : 0;
+      a = 1 + 0.9 * Math.exp(-(u - 1) * 3.5) + 0.9 * wave;
+    }
+    dpos[i * 3] = tmp.x; dpos[i * 3 + 1] = tmp.y; dpos[i * 3 + 2] = tmp.z; dal[i] = a;
+  }
+  dotGeo.attributes.position.needsUpdate = dotGeo.attributes.alpha.needsUpdate = true;
+  renderer.render(scene, camera);
+}
+window.__tour = { total: TOTAL, renderAt };
+if (!/render=1/.test(location.search)) { const t0 = performance.now(); const loop = () => { renderAt(((performance.now() - t0) / 1000) % TOTAL); requestAnimationFrame(loop); }; loop(); }
+})();
+</script>
