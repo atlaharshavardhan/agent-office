@@ -211,7 +211,7 @@ sseg({ dur: 2.5, keepOn: true, fold: t => 0.55 + 0.19 * ease(t),
 sseg({ dur: 6, keepOn: true, fold: t => 0.74 * (1 - ease(clamp01(t * 6 / 1.4))), pose: t => P(0, 30 - 60 * t, 2.6, 1.3, 0.17, 330),
   caps: [[0.3, 3.1, L('Bend the same spot <em>again and again</em>')], [3.1, 6, L('…and you get <em>the crease</em> you can feel')]] });
 // v4 ending: open wide facing you → channel card over the open phone → close with the thock → back to the opening lens shot (seamless loop)
-const CREASE_END = P(0, -30, 2.6, 1.3, 0.17, 330), BACK_HERO = P(36, -48, 3, -2.45, 0.12, 790), MACRO_W = Object.assign(clonePose(MACRO), { az: MACRO.az - Math.PI * 2 });  // same camera as MACRO, reached the short way round
+const CREASE_END = P(0, -30, 2.6, 1.3, 0.17, 330), BACK_HERO = P(36, -88, 3, -2.45, 0.12, 900), MACRO_W = Object.assign(clonePose(MACRO), { az: MACRO.az - Math.PI * 2 });  // same camera as MACRO, reached the short way round
 // 37.8–41.0  wide open, facing you
 sseg({ dur: 3.2, keepOn: true, fold: () => 0, pose: t => { const T = t * 3.2; return T < 1.0 ? lerpPose(CREASE_END, OPEN, ease(T)) : Object.assign(clonePose(OPEN), { az: OPEN.az + 0.03 * (T - 1) }); },
   caps: [[0.2, 3.2, L('It doesn’t fold like paper.<br>It <em>rolls like a poster.</em>')]] });
