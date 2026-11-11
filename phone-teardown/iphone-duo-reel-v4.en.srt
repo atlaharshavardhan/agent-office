@@ -1,0 +1,83 @@
+1
+00:00:00,100 --> 00:00:02,850
+This ₹3 lakh iPhone folds in half.
+
+2
+00:00:02,850 --> 00:00:04,867
+But glass cracks when you bend it.
+
+3
+00:00:04,867 --> 00:00:05,450
+So how?
+
+4
+00:00:05,450 --> 00:00:06,929
+Let's open it up.
+
+5
+00:00:06,929 --> 00:00:09,200
+It's just 5.2 mm thin.
+
+6
+00:00:09,200 --> 00:00:11,404
+Trick one: the screen isn't one sheet.
+
+7
+00:00:11,404 --> 00:00:12,970
+It's about ten thin layers.
+
+8
+00:00:12,970 --> 00:00:15,813
+Like a stack of paper, they slide past each other
+
+9
+00:00:15,813 --> 00:00:17,669
+when it bends, so nothing snaps.
+
+10
+00:00:19,200 --> 00:00:20,523
+Trick two: the hinge.
+
+11
+00:00:20,523 --> 00:00:23,043
+Over a hundred parts, gears and springs,
+
+12
+00:00:23,043 --> 00:00:25,185
+under a 3D-printed titanium cover.
+
+13
+00:00:25,185 --> 00:00:28,020
+When it closes, the screen doesn't fold flat.
+
+14
+00:00:28,020 --> 00:00:29,973
+It curls into a teardrop shape.
+
+15
+00:00:32,100 --> 00:00:34,281
+But bend the same spot again and again,
+
+16
+00:00:34,281 --> 00:00:36,126
+and it never goes perfectly flat.
+
+17
+00:00:36,126 --> 00:00:38,100
+That's the crease you can feel.
+
+18
+00:00:38,100 --> 00:00:39,899
+So it doesn't fold like paper.
+
+19
+00:00:39,899 --> 00:00:41,279
+It rolls like a poster.
+
+20
+00:00:42,350 --> 00:00:44,078
+Follow InvisiTech for more.
+
+21
+00:00:44,078 --> 00:00:46,370
+Like, comment and subscribe.
