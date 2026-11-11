@@ -1,0 +1,201 @@
+<title>Face ID cartoon</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#141114}
+  svg{display:block;width:100vw;height:100vh}
+  #note{position:fixed;left:6%;bottom:20.5%;font:500 30px 'IBM Plex Sans',sans-serif;color:rgba(255,255,255,.85);text-shadow:0 2px 10px rgba(0,0,0,.85);opacity:0}
+</style>
+<div id="note">Infrared shown in red · invisible to the eye</div>
+<svg id="s" viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="floor" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a3427"/><stop offset="1" stop-color="#2c1f18"/></linearGradient>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b3036"/><stop offset="1" stop-color="#2a2226"/></linearGradient>
+    <linearGradient id="sheet" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3d2b3"/><stop offset="1" stop-color="#c7b393"/></linearGradient>
+    <linearGradient id="pillow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#efe3cb"/><stop offset="1" stop-color="#d6c5a6"/></linearGradient>
+    <linearGradient id="blanket" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a5266"/><stop offset="1" stop-color="#2e3443"/></linearGradient>
+    <linearGradient id="fold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9c9ab"/><stop offset="1" stop-color="#bba98a"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b4934"/><stop offset="1" stop-color="#4c3324"/></linearGradient>
+    <radialGradient id="skin" cx="0.45" cy="0.4" r="0.7"><stop offset="0" stop-color="#b07856"/><stop offset="1" stop-color="#83533a"/></radialGradient>
+    <radialGradient id="lampShade" cx="0.4" cy="0.4" r="0.6"><stop offset="0" stop-color="#fff3d6"/><stop offset="0.7" stop-color="#f0c98a"/><stop offset="1" stop-color="#c9975a"/></radialGradient>
+    <radialGradient id="lampGlow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffd9a0" stop-opacity="0.55"/><stop offset="1" stop-color="#ffd9a0" stop-opacity="0"/></radialGradient>
+    <radialGradient id="screenGlow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#9dbcff" stop-opacity="0.6"/><stop offset="1" stop-color="#7fa8ff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="irGlow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ff2848" stop-opacity="0.16"/><stop offset="1" stop-color="#ff2848" stop-opacity="0"/></radialGradient>
+    <linearGradient id="fan" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4a64" stop-opacity="0.55"/><stop offset="1" stop-color="#ff2848" stop-opacity="0.06"/></linearGradient>
+    <radialGradient id="vig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.65"/></radialGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="faceClip"><ellipse cx="640" cy="800" rx="66" ry="84"/></clipPath>
+  </defs>
+
+  <!-- room -->
+  <rect width="1080" height="1920" fill="url(#floor)"/>
+  <g stroke="#000" stroke-opacity="0.18" stroke-width="3">
+    <line x1="0" y1="1500" x2="1080" y2="1500"/><line x1="0" y1="1660" x2="1080" y2="1660"/><line x1="0" y1="1820" x2="1080" y2="1820"/>
+    <line x1="0" y1="1340" x2="300" y2="1340"/><line x1="0" y1="1180" x2="300" y2="1180"/><line x1="0" y1="1020" x2="300" y2="1020"/>
+  </g>
+  <rect x="0" y="0" width="1080" height="470" fill="url(#wall)"/>
+  <rect x="0" y="455" width="1080" height="18" fill="#000" opacity="0.25"/>
+
+  <!-- rug + slippers -->
+  <rect x="110" y="880" width="185" height="560" rx="6" fill="#bfa98a"/>
+  <rect x="124" y="894" width="157" height="532" rx="4" fill="none" stroke="#8c7558" stroke-width="4" stroke-dasharray="2 8"/>
+  <path d="M202 950 l40 70 -40 70 -40 -70z M202 1110 l40 70 -40 70 -40 -70z M202 1270 l40 70 -40 70 -40 -70z" fill="none" stroke="#8c7558" stroke-width="3"/>
+  <g fill="#23201f"><ellipse cx="180" cy="1040" rx="26" ry="58" transform="rotate(-8 180 1040)"/><ellipse cx="238" cy="1052" rx="26" ry="58" transform="rotate(6 238 1052)"/></g>
+  <g fill="#3a3533"><ellipse cx="180" cy="1012" rx="20" ry="22"/><ellipse cx="238" cy="1024" rx="20" ry="22"/></g>
+
+  <!-- nightstand -->
+  <rect x="50" y="545" width="250" height="270" rx="10" fill="url(#wood)"/>
+  <rect x="50" y="800" width="250" height="18" rx="6" fill="#3a271c"/>
+  <rect x="70" y="690" width="70" height="95" rx="6" fill="#2e5a48" transform="rotate(-6 105 737)"/>
+  <circle cx="232" cy="600" r="24" fill="#2c2420" stroke="#8a7b6e" stroke-width="5"/>
+
+  <!-- bed -->
+  <rect x="300" y="470" width="760" height="100" rx="8" fill="#3a281f"/>
+  <rect x="300" y="560" width="760" height="1360" fill="url(#sheet)"/>
+  <rect x="300" y="560" width="14" height="1360" fill="#000" opacity="0.15"/>
+  <path d="M370 600 h540 q22 0 22 22 v190 q0 22 -22 22 h-540 q-22 0 -22 -22 v-190 q0 -22 22 -22z" fill="url(#pillow)"/>
+  <g stroke="#b9a684" stroke-width="3" fill="none" opacity="0.8">
+    <path d="M420 640 q30 40 20 90"/><path d="M500 615 q10 30 -10 60"/><path d="M860 640 q-30 40 -20 90"/><path d="M780 615 q-10 30 10 60"/><path d="M600 700 q40 -40 80 0"/>
+  </g>
+
+  <!-- character -->
+  <g id="char">
+    <ellipse cx="640" cy="905" rx="190" ry="70" fill="#1d1f25"/>
+    <path d="M612 860 h56 v40 h-56z" fill="#83533a"/>
+    <ellipse cx="572" cy="805" rx="12" ry="20" fill="#83533a"/><ellipse cx="708" cy="805" rx="12" ry="20" fill="#83533a"/>
+    <ellipse cx="640" cy="800" rx="66" ry="84" fill="url(#skin)"/>
+    <!-- hair: top of head on the pillow -->
+    <path d="M574 790 q-6 -92 66 -96 q74 4 66 96 q-8 -46 -30 -58 q-20 14 -50 4 q-30 -10 -44 10 q-6 20 -8 44z" fill="#1a1412"/>
+    <path d="M590 712 q30 -30 70 -18 q-24 8 -36 26z" fill="#2b221e"/>
+    <!-- brows -->
+    <path id="browL" d="M600 770 q16 -8 30 -2" stroke="#1a1412" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path id="browR" d="M650 768 q16 -6 30 2" stroke="#1a1412" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <!-- eyes (closed lids / open) -->
+    <g id="eyesClosed" stroke="#3b2418" stroke-width="4" stroke-linecap="round" fill="none"><path d="M603 790 q13 8 26 0"/><path d="M651 790 q13 8 26 0"/></g>
+    <g id="eyesOpen" opacity="0"><ellipse cx="616" cy="790" rx="12" ry="8" fill="#f2ece4"/><ellipse cx="664" cy="790" rx="12" ry="8" fill="#f2ece4"/><circle cx="616" cy="790" r="5.5" fill="#22140c"/><circle cx="664" cy="790" r="5.5" fill="#22140c"/></g>
+    <path d="M640 792 q-10 26 -4 36 q8 4 14 0" stroke="#6e4430" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- beard + mouth -->
+    <path d="M582 820 q6 52 58 64 q52 -12 58 -64 q-10 26 -30 30 q-28 -10 -56 0 q-20 -4 -30 -30z" fill="#1d1612" opacity="0.88"/>
+    <path d="M622 852 q18 8 36 0" stroke="#5a3424" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M618 838 q22 -8 44 0" stroke="#1d1612" stroke-width="7" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- blanket -->
+  <path d="M312 930 q330 -30 748 10 v980 h-748z" fill="url(#blanket)"/>
+  <path d="M312 930 q330 -30 748 10 v38 q-418 -40 -748 -8z" fill="url(#fold)"/>
+  <g stroke="#262b38" stroke-width="5" fill="none" opacity="0.6"><path d="M450 1100 q60 300 10 600"/><path d="M820 1080 q-40 260 30 640"/><path d="M640 1250 q30 120 -20 300"/></g>
+
+  <!-- arm (pivots at the shoulder) -->
+  <g id="arm">
+    <path d="M0 0 q-110 -10 -200 -60" stroke="#1d1f25" stroke-width="58" stroke-linecap="round" fill="none"/>
+    <path d="M-200 -60 q-60 -40 -110 -110" stroke="#83533a" stroke-width="40" stroke-linecap="round" fill="none"/>
+    <g id="hand" transform="translate(-318 -182)">
+      <ellipse cx="0" cy="0" rx="30" ry="24" fill="#8c5a3e"/>
+      <path d="M-14 -18 q-4 -22 4 -26 M2 -22 q0 -22 8 -24 M16 -16 q6 -18 12 -16" stroke="#8c5a3e" stroke-width="12" stroke-linecap="round" fill="none"/>
+    </g>
+  </g>
+
+  <!-- lamp + pull cord -->
+  <circle id="lampHalo" cx="160" cy="610" r="330" fill="url(#lampGlow)"/>
+  <circle id="lampShade" cx="160" cy="610" r="100" fill="url(#lampShade)"/>
+  <circle cx="160" cy="610" r="34" fill="#fff8e6" id="bulb" opacity="0.9"/>
+  <path id="cord" d="M205 650 Q225 700 236 735" stroke="#e8dccb" stroke-width="3" fill="none"/>
+  <circle id="cordBead" cx="236" cy="735" r="7" fill="#e8dccb"/>
+
+  <!-- phone (back faces us; screen faces his face) -->
+  <g id="phone">
+    <rect x="-46" y="-92" width="92" height="184" rx="16" fill="#e6e4df" stroke="#b9b6b0" stroke-width="3"/>
+    <rect x="-36" y="-80" width="34" height="34" rx="9" fill="#cfccc6"/>
+    <circle cx="-26" cy="-70" r="7" fill="#2a2a2e"/><circle cx="-26" cy="-55" r="7" fill="#2a2a2e"/><circle cx="-12" cy="-62" r="7" fill="#2a2a2e"/>
+    <path d="M0 -6 q-7 -8 -2 -14 q6 0 6 6 q-2 4 -4 8z" fill="#b9b6b0"/>
+  </g>
+
+  <!-- darkness + lights -->
+  <rect id="dark" width="1080" height="1920" fill="#070611" opacity="0"/>
+  <circle id="scrGlow" cx="640" cy="800" r="260" fill="url(#screenGlow)" opacity="0"/>
+  <g id="ir" opacity="0">
+    <circle cx="640" cy="800" r="220" fill="url(#irGlow)"/>
+    <path id="fanPoly" fill="url(#fan)"/>
+    <g id="rays" stroke="#ff5068" stroke-width="2" stroke-linecap="round"></g>
+  </g>
+  <g id="dots" filter="url(#glow)" clip-path="url(#faceClip)"></g>
+  <rect width="1080" height="1920" fill="url(#vig)"/>
+</svg>
+<script>
+(() => {
+const S = document.getElementById('s'), $ = id => document.getElementById(id), NS = 'http://www.w3.org/2000/svg';
+const TOTAL = 5, ease = t => t < 0 ? 0 : t > 1 ? 1 : t * t * (3 - 2 * t), lerp = (a, b, k) => a + (b - a) * k;
+const FACE = { x: 640, y: 800, rx: 66, ry: 84 };
+const SHOULDER = { x: 560, y: 930 };
+// arm poses: angle (deg) of the whole arm around the shoulder; hand end ≈ (-318,-182) local
+const POSE_REST = 18, POSE_CORD = -2, POSE_PHONE = 30;
+// dot grid over the face, squeezed toward the edges so it reads as a curved surface
+let seed = 5; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const dots = [];
+for (let gy = -1; gy <= 1.0001; gy += 0.105) for (let gx = -1; gx <= 1.0001; gx += 0.12) {
+  const r2 = gx * gx + gy * gy; if (r2 > 1) continue;
+  const x = FACE.x + FACE.rx * Math.sin(gx * Math.PI / 2) + (rnd() - 0.5) * 2.5;
+  const y = FACE.y + FACE.ry * Math.sin(gy * Math.PI / 2) + (rnd() - 0.5) * 2.5;
+  const c = document.createElementNS(NS, 'circle');
+  c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', 2.0 + (1 - r2) * 0.8); c.setAttribute('fill', '#ff5a70');
+  $('dots').appendChild(c);
+  dots.push({ el: c, x, y, k: (FACE.y + FACE.ry - y) / (2 * FACE.ry) + rnd() * 0.08 });
+}
+const rays = [];
+for (let i = 0; i < 26; i++) {
+  const l = document.createElementNS(NS, 'line'); $('rays').appendChild(l);
+  const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd());
+  rays.push({ el: l, tx: FACE.x + FACE.rx * 0.9 * rr * Math.cos(a), ty: FACE.y + FACE.ry * 0.9 * rr * Math.sin(a), ph: rnd() * 6 });
+}
+
+function renderAt(t) {
+  // arm: rest → pull the cord (0.35–0.9) → back → reach for the phone (1.3–2.0)
+  let ang = POSE_REST;
+  ang = lerp(ang, POSE_CORD, ease((t - 0.25) / 0.45));
+  ang = lerp(ang, POSE_REST + 4, ease((t - 0.95) / 0.3));
+  ang = lerp(ang, POSE_PHONE, ease((t - 1.35) / 0.6));
+  $('arm').setAttribute('transform', `translate(${SHOULDER.x} ${SHOULDER.y}) rotate(${ang})`);
+  const pull = Math.sin(Math.PI * ease((t - 0.62) / 0.3)) * 18;
+  $('cord').setAttribute('d', `M205 650 Q225 ${700 + pull * 0.5} 236 ${735 + pull}`); $('cordBead').setAttribute('cy', 735 + pull);
+  // lights off at 0.8 s
+  const off = ease((t - 0.78) / 0.18);
+  $('dark').setAttribute('opacity', 0.5 * off);
+  $('lampHalo').setAttribute('opacity', 1 - off); $('bulb').setAttribute('opacity', 0.9 * (1 - off));
+  $('lampShade').setAttribute('opacity', 1 - 0.55 * off);
+  // phone: on the nightstand, then lifted by the hand and held above-left of the face
+  const hand = (() => { const a = ang * Math.PI / 180, x = -318, y = -182; return { x: SHOULDER.x + x * Math.cos(a) - y * Math.sin(a), y: SHOULDER.y + x * Math.sin(a) + y * Math.cos(a) }; })();
+  const lift = ease((t - 1.55) / 0.5);
+  const px = t < 1.55 ? 232 : lerp(232, hand.x + 10, lift), py = t < 1.55 ? 700 : lerp(700, hand.y - 30, lift);
+  const holdX = t < 1.55 ? px : lerp(px, hand.x + 34, ease((t - 1.75) / 0.35)), holdY = t < 1.55 ? py : lerp(py, hand.y + 40, ease((t - 1.75) / 0.35));
+  const pr = lerp(-8, -40, ease((t - 1.6) / 0.8)), ps = lerp(0.62, 1.15, ease((t - 1.6) / 0.8));
+  $('phone').setAttribute('transform', `translate(${holdX} ${holdY}) rotate(${pr}) scale(${ps})`);
+  // screen glow on his face once he holds it
+  $('scrGlow').setAttribute('opacity', 1 * ease((t - 1.9) / 0.4));
+  $('eyesOpen').setAttribute('opacity', ease((t - 1.8) / 0.25)); $('eyesClosed').setAttribute('opacity', 1 - ease((t - 1.8) / 0.25));
+  // emitter = top edge of the phone, nearest the face
+  const a = pr * Math.PI / 180, ex = holdX + (30 * Math.cos(a) - (-92 * ps) * Math.sin(a)), ey = holdY + (30 * Math.sin(a) + (-92 * ps) * Math.cos(a));
+  const on = ease((t - 2.2) / 0.25) * (1 - 0.5 * ease((t - 4.3) / 0.6));
+  $('ir').setAttribute('opacity', on);
+  $('fanPoly').setAttribute('d', `M${ex} ${ey} L${FACE.x - FACE.rx * 0.95} ${FACE.y - FACE.ry * 0.55} Q${FACE.x} ${FACE.y + FACE.ry * 1.25} ${FACE.x + FACE.rx * 0.95} ${FACE.y + FACE.ry * 0.25} Z`);
+  for (const r of rays) {
+    r.el.setAttribute('x1', ex); r.el.setAttribute('y1', ey); r.el.setAttribute('x2', r.tx); r.el.setAttribute('y2', r.ty);
+    r.el.setAttribute('stroke-opacity', 0.35 + 0.4 * Math.abs(Math.sin(t * 9 + r.ph)));
+  }
+  // dots land chin → forehead, pop, then shimmer
+  for (const d of dots) {
+    const u = (t - (2.35 + 1.3 * d.k)) / 0.25;
+    let o = 0, sc = 1;
+    if (u > 0) { o = Math.min(1, u); sc = 1 + 0.8 * Math.exp(-u * 2.5); }
+    if (t > 3.9) o *= 0.75 + 0.25 * Math.sin((t - 3.9) * 9 - d.k * 8);
+    d.el.setAttribute('opacity', o.toFixed(3));
+    d.el.setAttribute('transform', sc === 1 ? '' : `translate(${d.x} ${d.y}) scale(${sc}) translate(${-d.x} ${-d.y})`);
+  }
+  $('note').style.opacity = ease((t - 2.4) / 0.4);
+  // slow zoom onto the face as the dots arrive
+  const z = ease((t - 1.9) / 1.4), vw = lerp(1080, 760, z), vh = vw * 1920 / 1080;
+  S.setAttribute('viewBox', `${lerp(0, 590 - vw / 2, z)} ${lerp(0, 760 - vh * 0.42, z)} ${vw} ${vh}`);
+}
+window.__tour = { total: TOTAL, renderAt };
+if (!/render=1/.test(location.search)) { const t0 = performance.now(); const loop = () => { renderAt(((performance.now() - t0) / 1000) % TOTAL); requestAnimationFrame(loop); }; loop(); }
+else renderAt(0);
+})();
+</script>
