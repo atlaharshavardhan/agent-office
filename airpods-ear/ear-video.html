@@ -25,13 +25,13 @@
   .tag.red { border-color: var(--red); color: #ffdbe0; } .tag.green { border-color: var(--green); color: #d6ffe4; }
   #lines { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: 2; pointer-events: none; overflow: visible; }
   #big { position: fixed; z-index: 3; transform: translate(-50%, -50%); font: 800 26vw Sora, Arial, sans-serif; color: var(--red); text-shadow: 0 0 40px rgba(255,59,85,.5); opacity: 0; pointer-events: none; }
-  #hud { position: fixed; z-index: 3; left: 13%; right: 13%; top: 53.6%; padding: 2.2vw 3.4vw 2vw; border-radius: 4.5vw; background: linear-gradient(160deg, rgba(36,36,46,.86), rgba(16,16,22,.9));
+  #hud { position: fixed; z-index: 3; left: 15%; right: 15%; top: 51.9%; padding: 1.8vw 3vw 1.6vw; border-radius: 3.6vw; border-radius: 4.5vw; background: linear-gradient(160deg, rgba(36,36,46,.86), rgba(16,16,22,.9));
     border: 1px solid rgba(255,255,255,.14); box-shadow: 0 24px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08); color: #fff; opacity: 0; pointer-events: none; }
-  #hud .h1 { font: 600 2.7vw 'IBM Plex Mono', monospace; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.6); }
-  #hud svg { display: block; width: 100%; height: 8vw; margin: 0.8vw 0 0.6vw; }
-  #hud .leg { display: flex; gap: 4vw; font: 500 2.8vw 'IBM Plex Sans', sans-serif; color: rgba(255,255,255,.75); }
+  #hud .h1 { font: 600 2.3vw 'IBM Plex Mono', monospace; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.6); }
+  #hud svg { display: block; width: 100%; height: 6vw; margin: 0.6vw 0 0.4vw; }
+  #hud .leg { display: flex; gap: 4vw; font: 500 2.4vw 'IBM Plex Sans', sans-serif; color: rgba(255,255,255,.75); }
   #hud .leg i { display: inline-block; width: 4vw; height: .7vw; border-radius: 1vw; margin-right: 1.4vw; vertical-align: middle; } #hud .leg i.g { background: #2fd36b; } #hud .leg i.r { background: #ff3b55; }
-  #hud .badge { position: absolute; right: 3.4vw; top: 2.6vw; font: 700 3vw Sora, Arial, sans-serif; letter-spacing: .06em; color: #fff; background: #ff3b55; padding: 1vw 2.6vw; border-radius: 3vw; box-shadow: 0 0 24px rgba(255,59,85,.6); }
+  #hud .badge { position: absolute; right: 3vw; top: 1.6vw; font: 700 2.6vw Sora, Arial, sans-serif; letter-spacing: .06em; color: #fff; background: #ff3b55; padding: 1vw 2.6vw; border-radius: 3vw; box-shadow: 0 0 24px rgba(255,59,85,.6); }
   #endcard { position: fixed; z-index: 4; left: 8%; right: 16%; top: 23.5%; height: 34.5%; border-radius: 5vw; overflow: hidden; border: 1px solid rgba(255,255,255,.22);
     box-shadow: 0 30px 80px rgba(0,0,0,.6); opacity: 0; pointer-events: none; background: #0b1230; }
   #ecScene { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -4033,7 +4033,7 @@ function title(lines, times, u) { // lines reveal one by one
   const key = lines.join('|'); if (key !== lastTitle) { lastTitle = key; $('title').innerHTML = lines.map(l => `<span class="ln">${l}</span>`).join(''); }
   [...$('title').children].forEach((el, i) => { const a = easeOut(ramp(u, times[i], times[i] + 0.35)); el.style.opacity = a; el.style.transform = `translateY(${(1 - a) * 2.2}vh)`; });
 }
-function note(text, a, mid = false) { $('note').textContent = text; $('note').style.opacity = a; $('note').style.left = mid ? '6%' : '3.7%'; $('note').style.right = mid ? '6%' : '16.7%'; }
+function note(text, a, mid = false) { $('note').textContent = text; $('note').style.opacity = a; $('note').style.left = mid ? '13%' : '3.7%'; $('note').style.right = mid ? '13%' : '16.7%'; }
 const TAGS = {}; const svg = $('lines');
 function tagEl(id, text, cls) { if (!TAGS[id]) { const el = document.createElement('div'); el.className = 'tag ' + (cls || ''); document.body.appendChild(el);
   const l = document.createElementNS('http://www.w3.org/2000/svg', 'line'), c = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); svg.append(l, c); TAGS[id] = { el, l, c }; }
