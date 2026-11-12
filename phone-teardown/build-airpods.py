@@ -80,7 +80,7 @@ const MESH = () => std(0xd8dade, 0.25, 0.55, { map: meshTex });
 const CTRL = { lid: 1, lidGoal: 1, out: 1, outGoal: 1 };
 const POSE_OV = (() => { const q = new URLSearchParams(location.search).get('pose'); if (!q) return null; const [az, el, dist, tx, ty, tz] = q.split(',').map(Number); return { az, el, dist, target: new THREE.Vector3(tx, ty, tz), shift: 0 }; })();
 { const q = new URLSearchParams(location.search).get('state') || ''; if (q.includes('closed')) CTRL.lid = CTRL.lidGoal = 0; if (q.includes('in')) CTRL.out = CTRL.outGoal = 0; }
-let LID_HINGE = null, LEFT_BUD = null, LEFT_X = 0, LEFT_Y = 0, LEFT_Z = 0;
+let LID_HINGE = null, LEFT_BUD = null, LEFT_X = 0, LEFT_Y = 0, LEFT_Z = 0, TIP_G = null, SHELL_G = null, CASE_G = null, SENSOR_WIN = null, MODEL = null; const LANYARD = [];
 const BUD_IDS = new Set(['tip', 'sensor', 'driver', 'shell', 'board', 'battery', 'stem']);
 let [BUD_DROP, BUD_TURN, BUD_TILT, BUD_BACK, BUD_SPREAD] = (new URLSearchParams(location.search).get('bud') || '-21,1.0,0.3,-1.0,2.5').split(',').map(Number);
 const _q = new THREE.Quaternion(), _e = new THREE.Euler(), _pv = new THREE.Vector3();
@@ -98,10 +98,21 @@ window.__budCheck = () => {
   if (LEFT_BUD) LEFT_BUD.traverse(test);
   Object.values(rep).forEach(r => { r.x = +(r.x / r.c).toFixed(1); r.y = +(r.y / r.c).toFixed(1); r.z = +(r.z / r.c).toFixed(1); }); return { out, worst: +worst.toFixed(3), rep };
 };
+const _qa = new THREE.Quaternion(), _hc = new THREE.Vector3(), INTERNAL = new Set(['sensor', 'driver', 'board', 'battery', 'stem']);
+function seat(obj, P, t, base) {   // t = 0 → out pose (as baked), 1 → seated in the case; rotate about the head centre
+  _qa.identity().slerp(P.q, t); obj.quaternion.copy(_qa);
+  _hc.copy(P.h).lerp(P.c, t);
+  obj.position.copy(base).add(_hc).sub(P.h.clone().applyQuaternion(_qa));
+}
 function applyExtras(e) {
   const inn = (1 - CTRL.out) * (1 - e), inL = 1 - CTRL.out;
-  parts.forEach(p => { if (BUD_IDS.has(p.id)) { p.group.position.y += BUD_DROP * inn; p.group.position.z += BUD_BACK * inn; p.group.position.x += BUD_SPREAD * inn; rotAbout(p.group, HEAD, BUD_TILT * inn, -BUD_TURN * inn); } });
-  if (LEFT_BUD) { LEFT_BUD.position.set(LEFT_X - BUD_SPREAD * inL, LEFT_Y + BUD_DROP * inL, LEFT_Z + BUD_BACK * inL); rotAbout(LEFT_BUD, HEAD, BUD_TILT * inL, BUD_TURN * inL); }
+  if (MODEL) {
+    parts.forEach(p => { if (BUD_IDS.has(p.id)) seat(p.group, MODEL.R, inn, p.group.position.clone()); if (INTERNAL.has(p.id)) p.group.visible = e > 0.02; });
+    seat(LEFT_BUD, MODEL.L, inL, new THREE.Vector3());
+  } else {
+    parts.forEach(p => { if (BUD_IDS.has(p.id)) { p.group.position.y += BUD_DROP * inn; p.group.position.z += BUD_BACK * inn; p.group.position.x += BUD_SPREAD * inn; rotAbout(p.group, HEAD, BUD_TILT * inn, -BUD_TURN * inn); } });
+    if (LEFT_BUD) { LEFT_BUD.position.set(LEFT_X - BUD_SPREAD * inL, LEFT_Y + BUD_DROP * inL, LEFT_Z + BUD_BACK * inL); rotAbout(LEFT_BUD, HEAD, BUD_TILT * inL, BUD_TURN * inL); }
+  }
   if (LID_HINGE) LID_HINGE.rotation.x = -1.92 * CTRL.lid;
 }
 /* earbud head = ellipsoid; helpers put things on its surface */
@@ -160,13 +171,13 @@ function tipMesh(parent) {
 }
 
 /* 1. Ear tip */
-addPart('tip', [0, 0, 22], { az: 0.75, el: 0.25, k: 1.6 }, [5.6, 7.0, 14], g => tipMesh(g));
+addPart('tip', [0, 0, 22], { az: 0.75, el: 0.25, k: 1.6 }, [5.6, 7.0, 14], g => { TIP_G = g; tipMesh(g); });
 
 /* 2. Heart-rate sensor (on the surface that touches the ear) */
 addPart('sensor', [-14, -4, 14], { az: 0.35, el: 0.2, k: 2.4 }, [-3.4, 1.8, 8.5], g => {
   const glass = phys({ color: 0x0a0b0e, metalness: 0.2, roughness: 0.08, clearcoat: 1 });
   const { p, n } = onHead([-0.3, -0.42, 0.85], 1.0);
-  const win = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16), glass); win.scale.set(2.6, 1.7, 0.45); win.position.copy(p); win.lookAt(p.clone().add(n)); g.add(win);
+  const win = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16), glass); win.scale.set(2.6, 1.7, 0.45); win.position.copy(p); win.lookAt(p.clone().add(n)); g.add(win); SENSOR_WIN = win;
   const led = std(0x1c0e12, 0.1, 0.3);
   const l1 = ell(0.45, 0.45, 0.25, led, 0, 0, 0, win, 24); l1.position.set(-0.35, 0, 0.9); l1.scale.set(0.17, 0.26, 0.5);
   const l2 = ell(0.55, 0.55, 0.25, std(0x0f2030, 0.2, 0.2), 0, 0, 0, win, 24); l2.position.set(0.35, 0, 0.9); l2.scale.set(0.2, 0.3, 0.5);
@@ -188,7 +199,7 @@ addPart('driver', [0, 0, 11], { az: 0.85, el: 0.3, k: 1.9 }, [5.5, 8.2, 5.2], g 
 });
 
 /* 4. Earbud housing (head + slanted stem + grilles), the reference part */
-addPart('shell', [0, 0, 0], { az: 0.65, el: 0.2, k: 1.25 }, [-7.5, 11.5, 4], g => budOuter(g, false));
+addPart('shell', [0, 0, 0], { az: 0.65, el: 0.2, k: 1.25 }, [-7.5, 11.5, 4], g => { SHELL_G = g; budOuter(g, false); });
 
 /* 5. H2 chip board (out the back) */
 addPart('board', [0, 3, -18], { az: 2.5, el: 0.35, k: 1.8 }, [-6, 4.2, -2.6], g => {
@@ -261,6 +272,7 @@ function pebble(a, b, c, e1, e2, clampLo, clampHi, U = 160, V = 120) {
 }
 const PA = CW / 2, PB = (BODY_H + LID_H) / 2, PC = CD / 2, SEAM = PB - LID_H, E1 = 0.42, E2 = 0.55;
 addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE.y + 4, CASE.z + PC], g => {
+  CASE_G = g;
   const w = WHITE(), cy = CASE.y + BODY_H / 2 - SEAM, top = CASE.y + BODY_H / 2;   // pebble centre so the seam sits at the body top
   mesh(pebble(PA, PB, PC, E1, E2, -PB, SEAM), w, CASE.x, cy, CASE.z, g);
   const inner = std(0xeceef0, 0, 0.42);
@@ -277,8 +289,8 @@ addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE
   mesh(lidGeo, w, 0, 0.05, 0, hinge);
   ell(0.6, 0.6, 0.2, std(0x1a1d22, 0.2, 0.3, { emissive: 0x2fbf5a, emissiveIntensity: 1.1 }), CASE.x, CASE.y + 3, CASE.z + PC - 0.02, g, 24);
   // lanyard loop on the right side
-  const lp = mesh(extrude(rrShape(2.6, 6.0, 1.3), 0.6, 0.2, 16), std(0xd9dce0, 0.8, 0.25), CASE.x + PA - 0.35, CASE.y + 1, CASE.z, g); lp.rotation.y = Math.PI / 2;
-  for (const dy of [1.45, -1.45]) { const h = mesh(cyl(0.7, 0.9, 24), std(0x3a3d42, 0.4, 0.5), CASE.x + PA - 0.1, CASE.y + 1 + dy, CASE.z, g); h.rotation.y = Math.PI / 2; }
+  const lp = mesh(extrude(rrShape(2.6, 6.0, 1.3), 0.6, 0.2, 16), std(0xd9dce0, 0.8, 0.25), CASE.x + PA - 0.35, CASE.y + 1, CASE.z, g); lp.rotation.y = Math.PI / 2; lp.userData.keep = true; LANYARD.push(lp);
+  for (const dy of [1.45, -1.45]) { const h = mesh(cyl(0.7, 0.9, 24), std(0x3a3d42, 0.4, 0.5), CASE.x + PA - 0.1, CASE.y + 1 + dy, CASE.z, g); h.rotation.y = Math.PI / 2; h.userData.keep = true; LANYARD.push(h); }
   // USB-C and speaker holes underneath
   const yBot = (x, z) => -PB * Math.pow(Math.max(0, 1 - Math.pow(Math.pow(Math.abs(x / PA), 2 / E2) + Math.pow(Math.abs(z / PC), 2 / E2), E2 / E1)), E1 / 2);
   const port = mesh(new THREE.ShapeGeometry(rrShape(8.9, 3.0, 1.5), 16), std(0x1d1f23, 0.5, 0.4), CASE.x, cy + yBot(0, 0) - 0.03, CASE.z, g); port.rotation.x = Math.PI / 2;
@@ -307,6 +319,89 @@ addPart('caseInside', [76, -48, -2], { az: -0.3, el: -0.3, k: 1.3 }, [CASE.x + 2
   for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2; const b = box(2.4, 1.2, 0.8, mag, CASE.x + Math.cos(a) * 11.2, CASE.y + 2 + Math.sin(a) * 11.2, CASE.z - 8.7, g); b.rotation.z = a + Math.PI / 2; }
 });
 
+
+/* ---------------- Real AirPods Pro model ----------------
+   "AirPods Pro" by Jed Falcone (sketchfab.com/jedlas012), CC-BY 4.0. Replaces the hand-built case, lid and bud shells;
+   the exploded internals stay. Case scaled to Apple's 62.2 mm width; buds scaled to Apple's 30.9 mm height. */
+let MODEL_READY = !window.AIRPODS_MODEL; window.__tourReady = () => MODEL_READY;
+function splitGeo(geo, keep) {   // keep triangles whose centroid passes the test
+  const g = geo.index ? geo.toNonIndexed() : geo, pa = g.attributes.position, out = {}, names = Object.keys(g.attributes), c = new THREE.Vector3(), v = new THREE.Vector3();
+  names.forEach(n => out[n] = []);
+  for (let t = 0; t < pa.count; t += 3) {
+    c.set(0, 0, 0); for (let k = 0; k < 3; k++) c.add(v.fromBufferAttribute(pa, t + k)); c.multiplyScalar(1 / 3);
+    if (!keep(c)) continue;
+    names.forEach(n => { const a = g.attributes[n]; for (let k = 0; k < 3; k++) for (let j = 0; j < a.itemSize; j++) out[n].push(a.array[(t + k) * a.itemSize + j]); });
+  }
+  const r = new THREE.BufferGeometry(); names.forEach(n => r.setAttribute(n, new THREE.Float32BufferAttribute(out[n], g.attributes[n].itemSize))); return r;
+}
+if (window.AIRPODS_MODEL) new THREE.GLTFLoader().parse(window.AIRPODS_MODEL, '', gltf => {
+  const src = gltf.scene; src.updateMatrixWorld(true);
+  const byName = n => src.getObjectByName(n);
+  const caseNode = byName('Case_1'), lidNode = byName('Lid'), budsNode = byName('Airpods');
+  const cb = new THREE.Box3().setFromObject(caseNode), lb = new THREE.Box3().setFromObject(lidNode);
+  const k = CW / (cb.max.x - cb.min.x), seamM = lb.min.y;                       // model units → mm
+  const Om = new THREE.Vector3((cb.min.x + cb.max.x) / 2, seamM, (cb.min.z + cb.max.z) / 2);
+  const top = CASE.y + BODY_H / 2, Ow = new THREE.Vector3(CASE.x, top, CASE.z);
+  const W = new THREE.Matrix4().makeTranslation(Ow.x, Ow.y, Ow.z).multiply(new THREE.Matrix4().makeScale(k, k, k)).multiply(new THREE.Matrix4().makeTranslation(-Om.x, -Om.y, -Om.z));
+  const under = (o, anc) => { for (let a = o; a; a = a.parent) if (a === anc) return true; return false; };
+  // materials: crisp white plastic for the white parts, keep the rest (grilles, metal, tips)
+  const fixMat = m => { const c = m.color || new THREE.Color(1, 1, 1); const lum = c.r * 0.3 + c.g * 0.59 + c.b * 0.11;
+    if (!m.map && lum > 0.75) return WHITE(); m.envMapIntensity = 1; return m; };
+  const meshesUnder = anc => { const l = []; anc.traverse(o => { if (o.isMesh) l.push(o); }); return l; };
+  // hide the hand-built shells (keep the lanyard loop) and the hand-built left bud
+  SHELL_G.children.forEach(o => o.visible = false); TIP_G.children.forEach(o => o.visible = false);
+  CASE_G.children.slice().forEach(o => { if (!o.userData.keep) o.visible = false; });
+
+  /* case body (no back pairing button: AirPods Pro 3 has none) + lid on its hinge */
+  meshesUnder(caseNode).forEach(o => {
+    if (under(o, lidNode)) return;
+    const bb = new THREE.Box3().setFromObject(o);
+    if (o.name.startsWith('Cylinder_2') || (bb.max.z < cb.min.z + 0.15 && bb.max.x - bb.min.x < 1)) return;   // back button
+    const geo = o.geometry.clone().applyMatrix4(o.matrixWorld).applyMatrix4(W);
+    const m = new THREE.Mesh(geo, fixMat(o.material)); CASE_G.add(m);
+  });
+  const pivot = new THREE.Vector3(Om.x, seamM, cb.min.z + 0.06).applyMatrix4(W);
+  const hinge = new THREE.Group(); hinge.position.copy(pivot); CASE_G.add(hinge);
+  meshesUnder(lidNode).forEach(o => { const geo = o.geometry.clone().applyMatrix4(o.matrixWorld).applyMatrix4(W); geo.translate(-pivot.x, -pivot.y, -pivot.z); hinge.add(new THREE.Mesh(geo, fixMat(o.material))); });
+  LID_HINGE = hinge;
+
+  /* buds: split left / right, find each head centre and tip direction */
+  const budMeshes = meshesUnder(budsNode).map(o => ({ o, geo: o.geometry.clone().applyMatrix4(o.matrixWorld).applyMatrix4(W), isTip: o.name.startsWith('Capsule') }));
+  const sides = { R: c => c.x > Ow.x, L: c => c.x <= Ow.x };
+  const pose = {};
+  for (const side of ['R', 'L']) {
+    const pieces = budMeshes.map(b => ({ ...b, geo: splitGeo(b.geo, sides[side]) })).filter(b => b.geo.attributes.position.count);
+    const bb = new THREE.Box3(); pieces.forEach(b => { b.geo.computeBoundingBox(); bb.union(b.geo.boundingBox); });
+    const hh = bb.max.y - bb.min.y, headBox = new THREE.Box3(), tipBox = new THREE.Box3(), v = new THREE.Vector3();
+    pieces.forEach(b => { const pa = b.geo.attributes.position; for (let i = 0; i < pa.count; i++) { v.fromBufferAttribute(pa, i); if (!b.isTip && v.y > bb.max.y - hh * 0.42) headBox.expandByPoint(v); if (b.isTip) tipBox.expandByPoint(v); } });
+    const c = headBox.getCenter(new THREE.Vector3()), tipC = tipBox.getCenter(new THREE.Vector3());
+    const s = 30.9 / hh;                                                                   // Apple's earbud height
+    const d = tipC.clone().sub(c); d.y = 0; d.normalize();
+    const R = new THREE.Quaternion().setFromUnitVectors(d, new THREE.Vector3(0, 0, 1));   // tip turned to face the viewer when out
+    const H = side === 'R' ? HEAD.clone() : new THREE.Vector3(2 * CASE.x - HEAD.x, HEAD.y, HEAD.z);
+    // bake the out pose: x_out = H + R·s·(x − c); seated pose = c + s·(x − c) = c' + R⁻¹(x_out − H)
+    const A = new THREE.Matrix4().makeTranslation(H.x, H.y, H.z).multiply(new THREE.Matrix4().makeRotationFromQuaternion(R)).multiply(new THREE.Matrix4().makeScale(s, s, s)).multiply(new THREE.Matrix4().makeTranslation(-c.x, -c.y, -c.z));
+    const grp = side === 'R' ? null : new THREE.Group();
+    pieces.forEach(b => { b.geo.applyMatrix4(A); b.geo.computeVertexNormals(); const m = new THREE.Mesh(b.geo, fixMat(b.o.material));
+      if (side === 'R') (b.isTip ? TIP_G : SHELL_G).add(m); else grp.add(m); });
+    if (grp) { CASE_G.add(grp); LEFT_BUD = grp; }
+    pose[side] = { h: H, c: c, q: R.clone().invert() };
+  }
+  MODEL = { R: pose.R, L: pose.L };
+  // heart-rate window onto the real shell: cast from outside toward the head centre
+  if (SENSOR_WIN) { SHELL_G.updateMatrixWorld(true); const dir = SENSOR_WIN.position.clone().sub(HEAD).normalize(); const rc = new THREE.Raycaster(HEAD.clone().addScaledVector(dir, 40), dir.clone().negate());
+    const hit = rc.intersectObjects(SHELL_G.children.filter(o => o.visible), false)[0]; if (hit) { SENSOR_WIN.position.copy(hit.point); SENSOR_WIN.lookAt(hit.point.clone().add(hit.face.normal)); } }
+  // speaker holes + USB-C on the real underside (cast up from below)
+  CASE_G.updateMatrixWorld(true); const body = CASE_G.children.filter(o => o.isMesh && o.visible && !o.userData.keep);
+  const under2 = (x, z) => { const h = new THREE.Raycaster(new THREE.Vector3(x, CASE.y - 60, z), new THREE.Vector3(0, 1, 0)).intersectObjects(body, false)[0]; return h ? h.point.y : null; };
+  const yb = under2(CASE.x, CASE.z);
+  if (yb !== null) {
+    const port = mesh(new THREE.ShapeGeometry(rrShape(8.9, 3.0, 1.5), 16), std(0x1d1f23, 0.5, 0.4), CASE.x, yb - 0.05, CASE.z, CASE_G); port.rotation.x = Math.PI / 2;
+    for (const i of [-3, -2, 2, 3]) { const y = under2(CASE.x + i * 2.6, CASE.z); if (y === null) continue; const h = mesh(new THREE.CircleGeometry(0.45, 20), GRILLE(), CASE.x + i * 2.6, y - 0.04, CASE.z, CASE_G); h.rotation.x = Math.PI / 2; }
+  }
+  parts.forEach(p => p.group.traverse(o => { if (o.isMesh) { o.userData.part = p; const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach(m => { if (m.userData.baseOpacity === undefined) { m.userData.baseOpacity = m.opacity; m.userData.baseTransparent = m.transparent; m.userData.baseDepthWrite = m.depthWrite; } }); } }));
+  MODEL_READY = true;
+}, err => { console.error('model', err); MODEL_READY = true; });
 '''
 a = src.index('/* ---------------- Phone dimensions (mm) ---------------- */')
 b = src.index('/* ---------------- View / state ---------------- */')
@@ -335,7 +430,7 @@ reps = [
  ("goal.dist = Math.max(40, Math.min(900, goal.dist * Math.exp(e.deltaY * 0.0012)))", "goal.dist = Math.max(18, Math.min(700, goal.dist * Math.exp(e.deltaY * 0.0012)))"),
  ("new THREE.PerspectiveCamera(30, 1, 1, 4000)", "new THREE.PerspectiveCamera(30, 1, 0.5, 2000)"),
  ("'  ·  Layer'", "'  ·  Part'"),
- ("Illustrative model built from public teardown layouts. Proportions are approximate and specs vary by model.", "Illustrative model of AirPods Pro 3 built from Apple’s specs and the iFixit and Lumafield teardowns. Internal proportions are approximate. Not affiliated with Apple."),
+ ("Illustrative model built from public teardown layouts. Proportions are approximate and specs vary by model.", "Illustrative model of AirPods Pro 3 built from Apple’s specs and the iFixit and Lumafield teardowns. Internal proportions are approximate. Case and earbud model: “AirPods Pro” by Jed Falcone (sketchfab.com/jedlas012), CC-BY 4.0. Not affiliated with Apple."),
 ]
 for x, y in reps:
     assert src.count(x) == 1, x
@@ -370,6 +465,12 @@ for need in ["applyExtras(e); }", "CTRL.lid += (CTRL.lidGoal", 'id="lidBtn"', "b
     assert need in src, need
 src = src.replace("function applyState(st) {", "function applyState(st) { if (POSE_OV) st.pose = Object.assign({}, st.pose, POSE_OV);")
 assert "if (POSE_OV)" in src
+
+loader_js = open('assets/GLTFLoader.js').read()
+model_data = open('assets/airpods-pro-model.js').read()
+src = src.replace('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>',
+  '<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>\n<script>' + loader_js + '</script>\n<script>' + model_data + '</script>', 1)
+assert 'window.AIRPODS_MODEL=' in src
 # brighter studio environment, same as the AirTag page
 env = open('build-airtag.py').read()
 env = env[env.index('env = r"""') + 10: env.index('"""', env.index('env = r"""') + 10)]
