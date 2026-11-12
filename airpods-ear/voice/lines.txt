@@ -4,3 +4,4 @@
 25.4|A table, or a pocket, doesn't match. Older AirPods used simpler sensors that a pocket could fool. This one can tell skin apart.
 35.5|The moment it stops seeing skin, the H2 chip knows, and tells your phone to pause.
 45.4|Put it back, it sees skin, and the music plays on.
+50.9|Follow InvisiTech for more.

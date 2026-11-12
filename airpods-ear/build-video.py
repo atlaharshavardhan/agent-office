@@ -7,5 +7,8 @@ def inline(m):
     return '<script>\n' + open(path, encoding='utf-8').read() + '\n</script>'
 out = re.sub(r'<script src="(\.\./[^"]+)"></script>', inline, src)
 assert '../' not in re.findall(r'<script src="([^"]+)"', out).__str__()
+import base64
+logo = base64.b64encode(open(os.path.join(here, 'assets', 'invisitech-logo.png'), 'rb').read()).decode()
+out = out.replace('__LOGO__', 'data:image/png;base64,' + logo)
 open(os.path.join(here, 'ear-video.html'), 'w', encoding='utf-8').write(out)
 print('ok', len(out) // 1024, 'KB')

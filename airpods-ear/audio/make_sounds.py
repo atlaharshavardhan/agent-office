@@ -1,7 +1,7 @@
 """Synthesise the music and sound effects for the AirPods ear-detection Short (all original, no samples).
 Writes song.wav (the track in the player), bed.wav (quiet music under the voice) and sfx.wav, 48 kHz stereo, 50 s."""
 import numpy as np, soundfile as sf
-SR = 48000; DUR = 50.0; N = int(SR * DUR)
+SR = 48000; DUR = 53.0; N = int(SR * DUR)
 rng = np.random.default_rng(7)
 t_all = np.arange(N) / SR
 def env(n, a=0.005, r=0.2, shape=4.0):
@@ -44,7 +44,7 @@ cut = int(1.30 * SR); fade = int(0.03 * SR)
 a = S[:cut].copy(); a[-fade:] *= np.linspace(1, 0, fade)[:, None]; song_track[:cut] += a          # plays, then stops when the bud comes out
 res = int(46.70 * SR); b = S[int(1.30 * SR): int(1.30 * SR) + (N - res)].copy()                   # resumes where it left off
 b[:fade] *= np.linspace(0, 1, fade)[:, None]; song_track[res:] += b
-song_track[-int(0.4 * SR):] *= np.linspace(1, 0.55, int(0.4 * SR))[:, None]                       # ease into the loop point
+fo = int(1.6 * SR); song_track[-fo:] *= np.linspace(1, 0.0, fo)[:, None] ** 1.5                   # fade out under the end card
 sf.write('song.wav', song_track.astype(np.float32), SR)
 
 # ---------- quiet bed under the narration: soft pad + slow pulse ----------
@@ -134,5 +134,10 @@ place(fx, whoosh(0.9, False, 0.25), 45.2, 0.45)          # back in
 place(fx, thump(), 46.25, 0.3)
 place(fx, click(1600, 0.05), 46.68, 0.5); place(fx, click(1100, 0.06), 46.71, 0.4)  # play tap
 place(fx, chime([76, 79, 84]), 47.4, 0.16)
+# end card
+place(fx, whoosh(0.8, True, 0.3), 49.7, 0.4)
+place(fx, chime([72, 79, 84, 88], 1.2), 50.75, 0.2); place(fx, thump(), 50.75, 0.3)     # logo
+for k in range(3): place(fx, blip(1300 + 200 * k, 0.07), 51.37 + k * 0.08 * 2.4, 0.14)   # like / comment / follow
+place(fx, click(1800, 0.05), 51.95, 0.4); place(fx, blip(1600, 0.12, 2200), 51.97, 0.15)  # subscribe
 sf.write('sfx.wav', fx.astype(np.float32), SR)
 print('song', np.abs(song_track).max(), 'bed', np.abs(bed).max(), 'sfx', np.abs(fx).max())

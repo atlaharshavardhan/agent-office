@@ -25,13 +25,26 @@
   .tag.red { border-color: var(--red); color: #ffdbe0; } .tag.green { border-color: var(--green); color: #d6ffe4; }
   #lines { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
   #big { position: fixed; z-index: 3; transform: translate(-50%, -50%); font: 800 26vw Sora, Arial, sans-serif; color: var(--red); text-shadow: 0 0 40px rgba(255,59,85,.5); opacity: 0; pointer-events: none; }
-  #hud { position: fixed; z-index: 3; left: 7%; right: 20%; top: 48.5%; padding: 2.8vw 3.6vw 2.6vw; border-radius: 4.5vw; background: linear-gradient(160deg, rgba(36,36,46,.86), rgba(16,16,22,.9));
+  #hud { position: fixed; z-index: 3; left: 4%; right: 17%; top: 53.6%; padding: 2.2vw 3.4vw 2vw; border-radius: 4.5vw; background: linear-gradient(160deg, rgba(36,36,46,.86), rgba(16,16,22,.9));
     border: 1px solid rgba(255,255,255,.14); box-shadow: 0 24px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08); color: #fff; opacity: 0; pointer-events: none; }
   #hud .h1 { font: 600 2.7vw 'IBM Plex Mono', monospace; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.6); }
-  #hud svg { display: block; width: 100%; height: 11vw; margin: 1.2vw 0 1vw; }
+  #hud svg { display: block; width: 100%; height: 8vw; margin: 0.8vw 0 0.6vw; }
   #hud .leg { display: flex; gap: 4vw; font: 500 2.8vw 'IBM Plex Sans', sans-serif; color: rgba(255,255,255,.75); }
   #hud .leg i { display: inline-block; width: 4vw; height: .7vw; border-radius: 1vw; margin-right: 1.4vw; vertical-align: middle; } #hud .leg i.g { background: #2fd36b; } #hud .leg i.r { background: #ff3b55; }
   #hud .badge { position: absolute; right: 3.4vw; top: 2.6vw; font: 700 3vw Sora, Arial, sans-serif; letter-spacing: .06em; color: #fff; background: #ff3b55; padding: 1vw 2.6vw; border-radius: 3vw; box-shadow: 0 0 24px rgba(255,59,85,.6); }
+  #endcard { position: fixed; z-index: 4; left: 8%; right: 16%; top: 23.5%; height: 34.5%; border-radius: 5vw; overflow: hidden; border: 1px solid rgba(255,255,255,.22);
+    box-shadow: 0 30px 80px rgba(0,0,0,.6); opacity: 0; pointer-events: none; background: #0b1230; }
+  #ecScene { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #ecShade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,18,60,.25), rgba(10,18,60,.78) 55%, rgba(8,12,40,.92)); opacity: 0; }
+  #ecBrand { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; }
+  #ecLogo { width: 17vw; height: 17vw; border-radius: 50%; box-shadow: 0 0 0 1.4vw rgba(74,168,255,.12), 0 0 50px rgba(74,168,255,.55); }
+  #ecName { margin-top: 2vw; font: 800 9vw/1 Sora, Arial, sans-serif; letter-spacing: -0.02em; } #ecName b { color: #4fc3f7; font-weight: 800; }
+  #ecHandle { margin-top: 1.4vw; font: 600 4.2vw Sora, Arial, sans-serif; color: rgba(255,255,255,.9); }
+  #ecIcons { display: flex; gap: 7vw; margin-top: 2.6vw; } #ecIcons div { display: flex; flex-direction: column; align-items: center; font: 600 3.2vw 'IBM Plex Sans', sans-serif; }
+  #ecIcons svg { width: 6.4vw; height: 6.4vw; margin-bottom: .6vw; }
+  #ecSub { margin-top: 2.6vw; padding: 1.8vw 7vw; border-radius: 6vw; background: #e53935; font: 700 4.4vw Sora, Arial, sans-serif; box-shadow: 0 0 30px rgba(229,57,53,.55); }
+  #ecPill { position: fixed; z-index: 4; left: 46%; top: 59.2%; transform: translateX(-50%); display: flex; border-radius: 2.4vw; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.45); opacity: 0; font: 800 7.4vw/1 Sora, Arial, sans-serif; }
+  #ecPill .a { background: #f4f4f6; color: #10142a; padding: 2vw 1.6vw 2vw 3.2vw; } #ecPill .b { background: #2fd36b; color: #fff; padding: 2vw 3.2vw 2vw 1.6vw; }
   #fade { position: fixed; inset: 0; z-index: 5; background: #000; opacity: 0; pointer-events: none; }
 </style>
 <div class="shade" id="shTop"></div><div class="shade" id="shBot"></div>
@@ -46,6 +59,13 @@
 <path id="hMeas" d="M0,60 C40,58 70,62 100,57 C135,52 160,66 200,62 C240,58 270,64 300,60" fill="none" stroke="#ff3b55" stroke-width="4" stroke-linecap="round"/></svg>
 <div class="leg"><span><i class="g"></i>Skin pattern</span><span><i class="r"></i>What came back</span></div>
 <div class="badge">✕&nbsp; NOT SKIN</div></div>
+<div id="endcard"><canvas id="ecScene"></canvas><div id="ecShade"></div>
+  <div id="ecBrand"><img id="ecLogo" src="__LOGO__" alt=""><div id="ecName"><span>Invisi</span><b>Tech</b></div><div id="ecHandle">@TheInvisiTech</div>
+  <div id="ecIcons"><div><svg viewBox="0 0 24 24"><path d="M2 10h4v11H2zM8 21h9.5a2 2 0 0 0 2-1.6l1.4-7A2 2 0 0 0 19 10h-5.5l.8-4.2A2 2 0 0 0 12.4 3.5L8 9z" fill="#4aa8ff"/></svg>Like</div>
+  <div><svg viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.3 1.1 4.4 2.9 6L4 21l4.3-2c1.1.4 2.4.6 3.7.6 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" fill="none" stroke="#f5a623" stroke-width="2"/><circle cx="8" cy="11.5" r="1.2" fill="#f5a623"/><circle cx="12" cy="11.5" r="1.2" fill="#f5a623"/><circle cx="16" cy="11.5" r="1.2" fill="#f5a623"/></svg>Comment</div>
+  <div><svg viewBox="0 0 24 24"><circle cx="9" cy="7.5" r="4" fill="#4aa8ff"/><path d="M1.5 21c0-4.4 3.4-7.5 7.5-7.5s7.5 3.1 7.5 7.5z" fill="#4aa8ff"/><path d="M19 4v6M16 7h6" stroke="#4aa8ff" stroke-width="2.2" stroke-linecap="round"/></svg>Follow</div></div>
+  <div id="ecSub">Subscribe</div></div></div>
+<div id="ecPill"><span class="a">Skin</span><span class="b">= play.</span></div>
 <div id="fade"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="../face-id/assets/GLTFLoader.js"></script>
@@ -53,7 +73,7 @@
 <script src="../phone-teardown/assets/airpods-pro-model.compact.js"></script>
 <script>
 (() => {
-const W = innerWidth, H = innerHeight, TOTAL = 50, RED = 0xff3b55;
+const W = innerWidth, H = innerHeight, TOTAL = 53, RED = 0xff3b55;
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
 const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3), lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
@@ -347,7 +367,7 @@ function prepare() {
   FX.sigHead = sprite(HALO, 7); scene.add(FX.sigHead);
   FX.waves = []; const h2w = BUD.localToWorld(H2P.position.clone());
   for (let i = 0; i < 3; i++) { const r = new THREE.Mesh(new THREE.TorusGeometry(4.5, 0.35, 8, 64, Math.PI * 0.62), new THREE.MeshBasicMaterial({ color: 0x7cc8ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
-    r.position.copy(h2w).add(new THREE.Vector3(3.5, -1, 0)); r.rotation.z = -Math.PI * 0.31; scene.add(r); FX.waves.push(r); }
+    r.position.copy(h2w).add(new THREE.Vector3(3.5, 2, 0)); r.rotation.z = -Math.PI * 0.31 + 0.75; scene.add(r); FX.waves.push(r); }
   POSE.sigP = BUD.position.clone(); POSE.sigR = BUD.rotation.clone();
   // x-ray shot: yaw that turns the sensor toward the camera
   BUD.position.set(0, 0, 0); BUD.rotation.set(0, 0, 0); BUD.updateMatrixWorld(true);
@@ -364,7 +384,7 @@ const ICON = { pause: '<svg viewBox="0 0 24 24"><rect x="5" y="4" width="5" heig
 let lastPlayer = '';
 function player(a, state, progress, pop = 0, dock = false) {
   const p = $('player'); p.style.opacity = a;
-  p.style.left = dock ? '50%' : '3.7%'; p.style.right = dock ? '-20%' : '16.7%'; p.style.top = dock ? '43%' : '55.2%'; p.style.transformOrigin = dock ? '0 50%' : '50% 100%';
+  p.style.left = dock ? '50%' : '3.7%'; p.style.right = dock ? '-20%' : '16.7%'; p.style.top = dock ? '29%' : '55.2%'; p.style.transformOrigin = dock ? '0 50%' : '50% 100%';
   p.style.transform = dock ? `translateX(${(1 - a) * 6}vw) scale(${0.66 * (1 + 0.05 * pop)})` : `translateY(${(1 - a) * 4}vh) scale(${1 + 0.04 * pop})`;
   if (state !== lastPlayer) { lastPlayer = state; $('btn').innerHTML = state === 'paused' ? ICON.play : ICON.pause; $('meta').querySelector('span').textContent = state === 'paused' ? 'Paused' : 'Now playing';
     const s = $('state'); s.textContent = state === 'paused' ? '❚❚  PAUSED' : '▶  PLAYING'; s.style.background = state === 'paused' ? '#ff3b55' : '#2fd36b'; s.style.color = state === 'paused' ? '#fff' : '#05210f'; }
@@ -388,21 +408,21 @@ function tag(id, text, world, dx, dy, a, cls) {
   T.c.setAttribute('cx', x); T.c.setAttribute('cy', y); T.c.setAttribute('r', 6); T.c.setAttribute('fill', col); T.c.style.opacity = a;
 }
 function hideTags(except = []) { for (const id in TAGS) if (!except.includes(id)) { TAGS[id].el.style.opacity = 0; TAGS[id].l.style.opacity = 0; TAGS[id].c.style.opacity = 0; } }
-let VO = 0.06;
-function look(pos, target) { camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix(); camera.position.copy(pos); camera.lookAt(target); camera.updateMatrixWorld(); }
+let VO = 0.06, HO = 0;
+function look(pos, target) { camera.setViewOffset(W, H, W * HO, H * VO, W, H); camera.updateProjectionMatrix(); camera.position.copy(pos); camera.lookAt(target); camera.updateMatrixWorld(); }
 const vlerp = (a, b, k) => a.clone().lerp(b, k);
 function hud(a, draw, badge) { const h = $('hud'); h.style.opacity = a; h.style.transform = `translateY(${(1 - a) * 3}vh)`;
   for (const id of ['hSkin', 'hMeas']) { const p = $(id), L = p.getTotalLength(); if (id === 'hMeas') { p.style.strokeDasharray = L; p.style.strokeDashoffset = L * (1 - draw); } }
   const b = h.querySelector('.badge'); b.style.opacity = badge; b.style.transform = `scale(${1.25 - 0.25 * badge})`; }
 
 /* ---------- timeline ---------- */
-const CUTS = [4, 15, 25, 35, 45];
-const CAPS = [[0.15, 1.39, "Pull one AirPod out"], [1.39, 2.67, "and your music stops"], [2.67, 3.86, "So how did it know?"], [4.6, 5.23, "Inside"], [5.23, 7.16, "there's a tiny skin-detect sensor"], [7.16, 7.93, "on the side that"], [7.93, 9.04, "touches your ear"], [9.04, 10.2, "An infrared light"], [10.2, 11.11, "with a light sensor"], [11.11, 12.17, "right beside it"], [15.4, 16.83, "When it's in your ear"], [16.83, 18.11, "it shines invisible light"], [18.11, 19.18, "into your skin"], [19.18, 20.92, "and reads what bounces back"], [20.92, 21.84, "Skin sends it back"], [21.84, 22.91, "in its own way"], [25.4, 26.13, "A table"], [26.13, 27.07, "or a pocket"], [27.07, 28.11, "doesn't match"], [28.11, 29.88, "Older AirPods used simpler sensors"], [29.88, 31.49, "that a pocket could fool"], [31.49, 33.31, "This one can tell skin apart"], [35.5, 37.39, "The moment it stops seeing skin"], [37.39, 38.58, "the H2 chip knows"], [38.58, 40.36, "and tells your phone to pause"], [45.4, 46.22, "Put it back"], [46.22, 47.09, "it sees skin"], [47.09, 48.41, "and the music plays on"]];
+const CUTS = [4, 15, 25, 35, 45, 50];
+const CAPS = [[0.15, 1.39, "Pull one AirPod out"], [1.39, 2.67, "and your music stops"], [2.67, 3.86, "So how did it know?"], [4.6, 5.23, "Inside"], [5.23, 7.16, "there's a tiny skin-detect sensor"], [7.16, 7.93, "on the side that"], [7.93, 9.04, "touches your ear"], [9.04, 10.2, "An infrared light"], [10.2, 11.11, "with a light sensor"], [11.11, 12.17, "right beside it"], [15.4, 16.83, "When it's in your ear"], [16.83, 18.11, "it shines invisible light"], [18.11, 19.18, "into your skin"], [19.18, 20.92, "and reads what bounces back"], [20.92, 21.84, "Skin sends it back"], [21.84, 22.91, "in its own way"], [25.4, 26.13, "A table"], [26.13, 27.07, "or a pocket"], [27.07, 28.11, "doesn't match"], [28.11, 29.88, "Older AirPods used simpler sensors"], [29.88, 31.49, "that a pocket could fool"], [31.49, 33.31, "This one can tell skin apart"], [35.5, 37.39, "The moment it stops seeing skin"], [37.39, 38.58, "the H2 chip knows"], [38.58, 40.36, "and tells your phone to pause"], [45.4, 46.22, "Put it back"], [46.22, 47.09, "it sees skin"], [47.09, 48.41, "and the music plays on"], [50.9, 52.86, "Follow InvisiTech for more"]];
 const SHOTS = [
   [0, 4, (u, t) => { // hook: pull one out, music stops
     HEAD.visible = true; TABLE.visible = false; setXray(0); sensorGlow(0);
-    const k = easeOut(ramp(u, 0.7, 1.5)); seatInEar(52 * k, k);
-    const [p, tg] = EAR_VIEW(); look(vlerp(p, tg, 0.06 * u / 4), tg);
+    const k = easeOut(ramp(u, 0.7, 1.5)); seatInEar(52 * k, k); VO = -0.03 + 0.18 * ease(ramp(u, 0.7, 1.7));
+    const [p, tg] = EAR_VIEW(); look(vlerp(p, tg, 0.06 * u / 4 - 0.1), tg);
     const sa = ramp(u, 0.75, 0.95) * (1 - ramp(u, 1.5, 2.0)); fadeGroup(FX.streaks, sa); FX.streaks.visible = sa > 0.01;
     FX.streaks.children.forEach((m, i) => { const a = BUD.position.clone().add(new THREE.Vector3(-16, 13 - i * 4.5, -9)); m.position.copy(a); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(1, -0.25, 0.45).normalize()); });
     const paused = u > 1.3; player(1, paused ? 'paused' : 'playing', 0.3 + (paused ? 1.3 : u) * 0.004, Math.exp(-Math.pow((u - 1.35) * 6, 2)));
@@ -415,23 +435,23 @@ const SHOTS = [
     BUD.position.set(0, 0, 0); BUD.rotation.set(0, POSE.xrayYaw - 1.1 * (1 - ease(ramp(u, 0, 7))), 0); BUD.updateMatrixWorld(true);
     setXray(ease(ramp(u, 0.8, 2.6))); const glow = ease(ramp(u, 3.2, 4.2)) * (0.75 + 0.25 * Math.sin(t * 6)) * (1 - 0.7 * ease(ramp(u, 5.6, 8.0))); sensorGlow(glow);
     const s = new THREE.Vector3(); SENSOR.getWorldPosition(s); const n = SENSOR_N.clone().transformDirection(BUD.matrixWorld);
-    const far = new THREE.Vector3(8, 12, 118), near = s.clone().addScaledVector(n.clone().add(new THREE.Vector3(0.35, 0.2, 0.25)).normalize(), 36);
+    const far = new THREE.Vector3(9, 13.5, 134), near = s.clone().addScaledVector(n.clone().add(new THREE.Vector3(0.35, 0.2, 0.25)).normalize(), 44);
     const k = ease(ramp(u, 5.6, 8.6)); look(vlerp(far, near, k), vlerp(new THREE.Vector3(0, -1, 0), s, k));
     player(0, 'paused', 0.305); title(['Inside: a <em>skin-detect</em>', 'sensor'], [0.6, 0.6], u);
     const a1 = ease(ramp(u, 2.6, 3.0)) * (1 - ease(ramp(u, 5.2, 5.6)));
     tag('bat', 'Battery', BUD.localToWorld(BATT_P.position.clone()), W * 0.17, H * 0.01, a1);
     tag('drv', 'Driver', BUD.localToWorld(DRV_P.position.clone()), -W * 0.2, -H * 0.05, a1);
-    tag('h2a', 'H2 chip', BUD.localToWorld(H2P.position.clone()), W * 0.15, H * 0.04, a1);
+    tag('h2a', 'H2 chip', BUD.localToWorld(H2P.position.clone()), W * 0.17, -H * 0.03, a1);
     tag('sen', 'Skin-detect sensor', s, -W * 0.2, H * 0.1, ease(ramp(u, 3.4, 3.8)) * (1 - ease(ramp(u, 5.4, 5.8))), 'red');
     const a2 = ease(ramp(u, 8.4, 8.8));
-    tag('emit', 'Infrared light', EMIT.getWorldPosition(new THREE.Vector3()), -W * 0.12, -H * 0.13, a2, 'red');
-    tag('det', 'Light sensor', DETECT.getWorldPosition(new THREE.Vector3()), W * 0.12, H * 0.13, ease(ramp(u, 9.0, 9.4)));
+    tag('emit', 'Infrared light', EMIT.getWorldPosition(new THREE.Vector3()), -W * 0.14, -H * 0.12, a2, 'red');
+    tag('det', 'Light sensor', DETECT.getWorldPosition(new THREE.Vector3()), W * 0.14, -H * 0.12, ease(ramp(u, 9.0, 9.4)));
     note('Illustrative · not to scale', 1);
   }],
   [15, 25, (u, t) => { // skin: light out, reflection back
     HEAD.visible = true; TABLE.visible = false; seatInEar(0); setXray(0.82); sensorGlow(0.9 + 0.1 * Math.sin(t * 6));
     const s = POSE.skinS, orbit = 0.25 * (u / 10 - 0.5);
-    look(s.clone().add(new THREE.Vector3(70, 40, 95).applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit)), s.clone().add(new THREE.Vector3(-2, -2, 0)));
+    look(s.clone().add(new THREE.Vector3(70, 40, 95).applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit).multiplyScalar(1.45)), s.clone().add(new THREE.Vector3(-2, -6, 0)));
     const ao = ease(ramp(u, 0.8, 1.6)), ab = ease(ramp(u, 4.0, 4.8)); fadeGroup(FX.skinOut, ao); fadeGroup(FX.skinBack, ab);
     FX.skinPhOut.update(t, 0.9, ao); FX.skinPhBack.update(t, 0.9, ab);
     player(0, 'paused', 0.305);
@@ -443,7 +463,8 @@ const SHOTS = [
     HEAD.visible = false; TABLE.visible = true; SHADOW.visible = true; scene.fog.near = 160; scene.fog.far = 460; BUD.position.copy(POSE.tableP); BUD.quaternion.copy(POSE.tableQ); BUD.updateMatrixWorld(true);
     setXray(ease(ramp(u, 0.0, 0.8)) * 0.9 + 0.1); sensorGlow(0.9 + 0.1 * Math.sin(t * 6));
     key.intensity = 0.85; rim.intensity = 1.6;
-    const orbit = -0.42 + 0.3 * ease(u / 10); look(new THREE.Vector3(70, 46, 132).applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit), new THREE.Vector3(0, 15, 0));
+    const orbit = -0.42 + 0.3 * ease(u / 10), pb = ease(ramp(u, 2.8, 3.8)); VO = 0.12;
+    look(new THREE.Vector3(70, 46, 132).applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit).multiplyScalar(1.15 + 0.32 * pb), new THREE.Vector3(0, 15, 0));
     const ao = ease(ramp(u, 0.6, 1.4)), ab = ease(ramp(u, 2.4, 3.2)); fadeGroup(FX.tableOut, ao); FX.cone.material.uniforms.op.value = ao; fadeGroup(FX.tableBack, ab);
     FX.tablePhOut.update(t, 0.9, ao); FX.tablePhBack.update(t, 0.55, ab);
     hud(ease(ramp(u, 3.4, 3.9)), ramp(u, 3.6, 5.4), ease(ramp(u, 5.4, 5.8)));
@@ -467,11 +488,19 @@ const SHOTS = [
   }],
   [45, 50, (u, t) => { // payoff: back in, music resumes
     HEAD.visible = true; TABLE.visible = false; setXray(0); sensorGlow(0);
-    const k = 1 - ease(ramp(u, 0.2, 1.2)); seatInEar(52 * k, k);
-    const [p, tg] = EAR_VIEW(); look(vlerp(p, tg, 0.06 * (1 - u / 5)), tg);
+    const k = 1 - ease(ramp(u, 0.2, 1.2)); seatInEar(52 * k, k); VO = -0.03 + 0.16 * k;
+    const [p, tg] = EAR_VIEW(); look(vlerp(p, tg, -0.1), tg);
     const play = u > 1.3; player(1, play ? 'playing' : 'paused', 0.305 + (play ? (u - 1.3) * 0.004 : 0), Math.exp(-Math.pow((u - 1.35) * 6, 2)));
     title(['Skin = <em class="g">play</em>.', 'Anything else = <em>pause</em>.'], [1.4, 2.4], u);
     note('', 0);
+  }],
+  [50, 53, (u, t) => { // end card: themed panel, then the channel brand
+    HEAD.visible = false; TABLE.visible = false; BUD.position.set(0, 0, 0); BUD.rotation.set(0.15, 0.6 + 0.35 * u, 0.12); BUD.updateMatrixWorld(true);
+    setXray(1); sensorGlow(0.8 + 0.2 * Math.sin(t * 5));
+    look(new THREE.Vector3(0, 6, 112), new THREE.Vector3(0, 0, 0));
+    renderer.domElement.style.filter = 'blur(12px) brightness(0.85) saturate(1.4)';
+    player(0, 'paused', 0.305); title([], [], u); note('', 0);
+    END.a = easeOut(ramp(u, 0, 0.45)); END.brand = ramp(u, 0.75, 2.4);
   }],
 ];
 function renderAt(t) {
@@ -480,11 +509,26 @@ function renderAt(t) {
   hideTags(); $('big').style.opacity = 0; $('hud').style.opacity = 0; SHADOW.visible = false; key.intensity = 1.35; rim.intensity = 1.0; scene.fog.near = 5000; scene.fog.far = 8000;
   for (const g of [FX.skinOut, FX.skinBack, FX.tableOut, FX.tableBack, FX.sigTube, FX.sigHead, H2_HALO, FX.streaks]) g.visible = false;
   [FX.skinPhOut, FX.skinPhBack, FX.tablePhOut, FX.tablePhBack].forEach(p => p.g.visible = false); FX.waves.forEach(w => w.visible = false);
-  VO = [0.04, -0.03, 0.06, 0.15, 0.05, 0.04][i];
+  VO = [0.13, 0.03, 0.13, 0.15, 0.05, 0.04, 0.09][i]; HO = [0.07, 0, 0, 0, 0, 0.07, 0][i];
+  renderer.domElement.style.filter = ''; END.a = 0; END.brand = 0;
   fn(t - a, t);
   const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
   $('fade').style.opacity = Math.max(0, ...CUTS.map(c => 1 - Math.abs(t - c) / 0.22));
   renderer.render(scene, camera);
+  endCard();
+}
+const END = { a: 0, brand: 0 };
+function endCard() {
+  const ec = $('endcard'), pill = $('ecPill'), a = END.a, b = END.brand; ec.style.opacity = a; ec.style.transform = `scale(${0.9 + 0.1 * a})`;
+  pill.style.opacity = ease(ramp(b, 0.05, 0.25)); pill.style.transform = `translateX(-50%) translateY(${(1 - ease(ramp(b, 0.05, 0.25))) * 3}vh)`;
+  if (a < 0.01) return;
+  const cv = $('ecScene'), r = ec.getBoundingClientRect(), dpr = renderer.getPixelRatio(); cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+  cv.getContext('2d').drawImage(renderer.domElement, r.left * dpr, r.top * dpr, r.width * dpr, r.height * dpr, 0, 0, cv.width, cv.height);   // sharp window into the blurred scene
+  $('ecShade').style.opacity = ease(ramp(b, 0, 0.2));
+  const pop = (el, k) => { const v = easeOut(k); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 2}vh) scale(${0.85 + 0.15 * v})`; };
+  pop($('ecLogo'), ramp(b, 0.0, 0.18)); pop($('ecName'), ramp(b, 0.12, 0.3)); pop($('ecHandle'), ramp(b, 0.22, 0.4));
+  [...$('ecIcons').children].forEach((el, i) => pop(el, ramp(b, 0.35 + i * 0.08, 0.5 + i * 0.08)));
+  pop($('ecSub'), ramp(b, 0.62, 0.8));
 }
 Promise.all([loadBud(), loadHead()]).then(() => {
   buildInternals(); prepare(); renderAt(0); ready = true;
