@@ -1,0 +1,200 @@
+[
+ {
+  "start": 0.1,
+  "end": 2.85,
+  "en": "This ₹3 lakh iPhone folds in half.",
+  "hi_sarvam": "यह ₹3 lakh वाला iPhone आधा fold हो जाता है।",
+  "te_sarvam": "ఈ 3 lakh rupees iPhone half-కి fold అవుతుంది.",
+  "hi": "ये तीन लाख रुपये वाला iPhone आधा fold हो जाता है।",
+  "te": "ఈ మూడు లక్షల rupees iPhone సగానికి fold అవుతుంది.",
+  "hi_dur": 3.07,
+  "te_dur": 2.9
+ },
+ {
+  "start": 2.85,
+  "end": 4.867,
+  "en": "But glass cracks when you bend it.",
+  "hi_sarvam": "लेकिन glass bend करने पर crack हो जाता है।",
+  "te_sarvam": "కానీ glass bend చేసినప్పుడు crack అవుతుంది.",
+  "hi": "लेकिन glass को bend करो, तो वो crack हो जाता है।",
+  "te": "కానీ glass ని bend చేస్తే crack అవుతుంది కదా.",
+  "hi_dur": 2.82,
+  "te_dur": 2.65
+ },
+ {
+  "start": 4.867,
+  "end": 5.45,
+  "en": "So how?",
+  "hi_sarvam": "तो कैसे?",
+  "te_sarvam": "మరి ఎలా?",
+  "hi": "तो फिर कैसे?",
+  "te": "మరి ఎలా?",
+  "hi_dur": 1.19,
+  "te_dur": 1.02
+ },
+ {
+  "start": 5.45,
+  "end": 6.929,
+  "en": "Let's open it up.",
+  "hi_sarvam": "चलो इसे open करते हैं।",
+  "te_sarvam": "దాన్ని open చేద్దాం.",
+  "hi": "चलो, इसे open करते हैं।",
+  "te": "దీన్ని open చేసి చూద్దాం.",
+  "hi_dur": 1.88,
+  "te_dur": 1.62
+ },
+ {
+  "start": 6.929,
+  "end": 9.2,
+  "en": "It's just 5.2 mm thin.",
+  "hi_sarvam": "यह सिर्फ़ 5.2 mm पतला है।",
+  "te_sarvam": "ఇది 5.2 mm మాత్రమే thin.",
+  "hi": "ये सिर्फ़ five point two millimetre thin है।",
+  "te": "ఇది కేవలం five point two millimetre thin.",
+  "hi_dur": 2.39,
+  "te_dur": 2.47
+ },
+ {
+  "start": 9.2,
+  "end": 11.404,
+  "en": "Trick one: the screen isn't one sheet.",
+  "hi_sarvam": "Trick one: screen एक sheet नहीं है।",
+  "te_sarvam": "Trick one: screen ఒక sheet కాదు.",
+  "hi": "Trick number one: screen एक single sheet नहीं है।",
+  "te": "Trick number one: screen ఒకే sheet కాదు.",
+  "hi_dur": 2.56,
+  "te_dur": 2.3
+ },
+ {
+  "start": 11.404,
+  "end": 12.97,
+  "en": "It's about ten thin layers.",
+  "hi_sarvam": "यह ten thin layers का है।",
+  "te_sarvam": "ఇది ten thin layers ఉంటుంది.",
+  "hi": "ये लगभग ten thin layers से बनी है।",
+  "te": "ఇందులో దాదాపు ten thin layers ఉంటాయి.",
+  "hi_dur": 2.05,
+  "te_dur": 2.39
+ },
+ {
+  "start": 12.97,
+  "end": 17.669,
+  "en": "Like a stack of paper, they slide past each other when it bends, so nothing snaps.",
+  "hi_sarvam": "जैसे paper का stack, जब bend होता है, तो एक-दूसरे के आगे slide करता है, इसलिए कुछ भी snap नहीं होता।",
+  "te_sarvam": "ఒక stack of paper లాగా, bend అయినప్పుడు అవి ఒకదానికొకటి slide అవుతాయి, కాబట్టి ఏమీ snap అవ్వదు.",
+  "hi": "Paper के stack की तरह, bend होने पर ये layers एक-दूसरे पर slide करती हैं, इसलिए कुछ नहीं टूटता।",
+  "te": "Paper stack లాగా, bend అయినప్పుడు ఈ layers ఒకదానిపై ఒకటి slide అవుతాయి, అందుకే ఏదీ విరగదు.",
+  "hi_dur": 6.14,
+  "te_dur": 5.89
+ },
+ {
+  "start": 19.2,
+  "end": 20.523,
+  "en": "Trick two: the hinge.",
+  "hi_sarvam": "Trick two: hinge.",
+  "te_sarvam": "Trick two: hinge.",
+  "hi": "Trick number two: hinge।",
+  "te": "Trick number two: hinge.",
+  "hi_dur": 1.54,
+  "te_dur": 1.71
+ },
+ {
+  "start": 20.523,
+  "end": 25.185,
+  "en": "Over a hundred parts, gears and springs, under a 3D-printed titanium cover.",
+  "hi_sarvam": "3D-printed titanium cover के नीचे, hundred parts, gears और springs हैं।",
+  "te_sarvam": "3D-printed titanium cover కింద, వందకు పైగా parts, gears, springs ఉన్నాయి.",
+  "hi": "Hundred से ज़्यादा parts, gears और springs, एक 3D-printed titanium cover के नीचे।",
+  "te": "Hundred కి పైగా parts, gears, springs, ఒక 3D-printed titanium cover కింద ఉంటాయి.",
+  "hi_dur": 6.23,
+  "te_dur": 7.0
+ },
+ {
+  "start": 25.185,
+  "end": 28.02,
+  "en": "When it closes, the screen doesn't fold flat.",
+  "hi_sarvam": "जब ये close होता है, screen flat fold नहीं होती।",
+  "te_sarvam": "అది close అయినప్పుడు, screen flat-గా fold అవ్వదు.",
+  "hi": "जब phone close होता है, तो screen बिल्कुल flat fold नहीं होती।",
+  "te": "Phone close అయినప్పుడు, screen పూర్తిగా flat గా fold అవ్వదు.",
+  "hi_dur": 3.41,
+  "te_dur": 3.5
+ },
+ {
+  "start": 28.02,
+  "end": 29.973,
+  "en": "It curls into a teardrop shape.",
+  "hi_sarvam": "यह teardrop shape में curl हो जाता है।",
+  "te_sarvam": "ఇది teardrop shape-లోకి curl అవుతుంది.",
+  "hi": "वो एक teardrop shape में curl हो जाती है।",
+  "te": "అది ఒక teardrop shape లో curl అవుతుంది.",
+  "hi_dur": 1.96,
+  "te_dur": 2.3
+ },
+ {
+  "start": 32.1,
+  "end": 36.126,
+  "en": "But bend the same spot again and again, and it never goes perfectly flat.",
+  "hi_sarvam": "लेकिन same spot को बार-बार bend करो, और वो कभी perfectly flat नहीं होता।",
+  "te_sarvam": "కానీ అదే spot-ని మళ్ళీ మళ్ళీ bend చేస్తే, అది perfect-గా flat-కి వెళ్ళదు.",
+  "hi": "लेकिन same spot को बार-बार bend करो, तो वो कभी perfectly flat नहीं होती।",
+  "te": "కానీ same spot ని మళ్ళీ మళ్ళీ bend చేస్తే, అది ఎప్పటికీ perfect గా flat అవ్వదు.",
+  "hi_dur": 3.93,
+  "te_dur": 4.86
+ },
+ {
+  "start": 36.126,
+  "end": 38.1,
+  "en": "That's the crease you can feel.",
+  "hi_sarvam": "वो crease है जो आप feel कर सकते हैं।",
+  "te_sarvam": "అదే మీరు feel చేయగలిగే crease.",
+  "hi": "यही वो crease है जो आप feel कर सकते हो।",
+  "te": "అదే మీరు feel చేసే crease.",
+  "hi_dur": 2.05,
+  "te_dur": 1.88
+ },
+ {
+  "start": 38.1,
+  "end": 39.899,
+  "en": "So it doesn't fold like paper.",
+  "hi_sarvam": "तो ये paper की तरह fold नहीं होता।",
+  "te_sarvam": "కాబట్టి ఇది paper లాగా fold కాదు.",
+  "hi": "तो ये paper की तरह fold नहीं होता।",
+  "te": "అంటే ఇది paper లాగా fold అవ్వదు.",
+  "hi_dur": 1.96,
+  "te_dur": 2.05
+ },
+ {
+  "start": 39.899,
+  "end": 41.279,
+  "en": "It rolls like a poster.",
+  "hi_sarvam": "ये poster की तरह roll करता है।",
+  "te_sarvam": "ఇది poster లాగా roll అవుతుంది.",
+  "hi": "ये एक poster की तरह roll होता है।",
+  "te": "ఇది ఒక poster లాగా roll అవుతుంది.",
+  "hi_dur": 1.88,
+  "te_dur": 2.05
+ },
+ {
+  "start": 42.35,
+  "end": 44.078,
+  "en": "Follow InvisiTech for more.",
+  "hi_sarvam": "और information के लिए InvisiTech follow कीजिए।",
+  "te_sarvam": "ఇంకా information కోసం InvisiTech follow అవ్వండి.",
+  "hi": "ऐसे और videos के लिए InvisiTech को follow करो।",
+  "te": "ఇలాంటి మరిన్ని videos కోసం InvisiTech ని follow చేయండి.",
+  "hi_dur": 2.05,
+  "te_dur": 3.33
+ },
+ {
+  "start": 44.078,
+  "end": 46.37,
+  "en": "Like, comment and subscribe.",
+  "hi_sarvam": "Like, comment और subscribe कीजिए।",
+  "te_sarvam": "Like, comment, subscribe చేయండి.",
+  "hi": "Like, comment और subscribe ज़रूर करना।",
+  "te": "Like, comment, subscribe చేయండి.",
+  "hi_dur": 2.3,
+  "te_dur": 2.99
+ }
+]
