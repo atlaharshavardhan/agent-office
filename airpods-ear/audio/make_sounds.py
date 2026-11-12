@@ -1,7 +1,9 @@
 """Synthesise the music and sound effects for the AirPods ear-detection Short (all original, no samples).
 Writes song.wav (the track in the player), bed.wav (quiet music under the voice) and sfx.wav, 48 kHz stereo, 50 s."""
 import numpy as np, soundfile as sf
-SR = 48000; DUR = 53.0; N = int(SR * DUR)
+import json
+B = json.load(open('../voice/timeline2.json'))['B']
+SR = 48000; DUR = B[-1]; N = int(SR * DUR)
 rng = np.random.default_rng(7)
 t_all = np.arange(N) / SR
 def env(n, a=0.005, r=0.2, shape=4.0):
@@ -42,7 +44,7 @@ S = song(12.0)
 song_track = np.zeros((N, 2))
 cut = int(1.30 * SR); fade = int(0.03 * SR)
 a = S[:cut].copy(); a[-fade:] *= np.linspace(1, 0, fade)[:, None]; song_track[:cut] += a          # plays, then stops when the bud comes out
-res = int(46.70 * SR); b = S[int(1.30 * SR): int(1.30 * SR) + (N - res)].copy()                   # resumes where it left off
+res = int((B[5] + 1.3) * SR); b = S[int(1.30 * SR): int(1.30 * SR) + (N - res)].copy()                   # resumes where it left off
 b[:fade] *= np.linspace(0, 1, fade)[:, None]; song_track[res:] += b
 fo = int(1.6 * SR); song_track[-fo:] *= np.linspace(1, 0.0, fo)[:, None] ** 1.5                   # fade out under the end card
 sf.write('song.wav', song_track.astype(np.float32), SR)
@@ -53,7 +55,7 @@ pads = [[45, 52, 57, 60], [41, 48, 53, 57], [43, 50, 55, 59], [40, 47, 52, 55]]
 seg = 5.5
 for i in range(int(DUR / seg) + 1):
     at = 1.6 + i * seg
-    if at > 46.2: break
+    if at > B[5] - 0.6: break
     L = int((seg + 2.0) * SR); tt = np.arange(L) / SR
     sw = np.minimum(1, tt / 1.8) * np.minimum(1, (L / SR - tt) / 1.8)
     for k, m in enumerate(pads[i % 4]):
@@ -62,13 +64,19 @@ for i in range(int(DUR / seg) + 1):
 beat = 60 / 88
 for k in range(int(44 / beat)):   # soft heartbeat pulse
     at = 2.2 + k * beat
-    if at > 45.6: break
+    if at > B[5]: break
     L = int(0.3 * SR); tt = np.arange(L) / SR; place(bed, np.sin(2 * np.pi * (50 + 40 * np.exp(-tt * 25)) * tt) * env(L, 0.003, 0.2, 6), at, 0.12)
 fi = int(0.8 * SR); s0 = int(1.6 * SR); bed[s0:s0 + fi] *= np.linspace(0, 1, fi)[:, None]
-e0 = int(45.4 * SR); bed[e0:e0 + int(1.2 * SR)] *= np.linspace(1, 0, int(1.2 * SR))[:, None]; bed[e0 + int(1.2 * SR):] = 0
+e0 = int((B[5] - 0.6) * SR); bed[e0:e0 + int(1.2 * SR)] *= np.linspace(1, 0, int(1.2 * SR))[:, None]; bed[e0 + int(1.2 * SR):] = 0
 sf.write('bed.wav', bed.astype(np.float32), SR)
 
 # ---------- sound effects ----------
+OLD = [(0, 4), (4, 15), (15, 25), (25, 35), (35, 45), (45, 50), (50, 53)]
+def remap(t):   # effect times were written for the first cut; map them onto the retimed scenes
+    for k, (a, b) in enumerate(OLD):
+        if a <= t < b or k == len(OLD) - 1:
+            return B[k] + (t - a) * ((B[k + 1] - B[k]) / (b - a) if 1 <= k <= 4 else 1)
+    return t
 fx = np.zeros((N, 2))
 def whoosh(d, up=True, bright=0.25):
     L = int(d * SR); x = noise(L); e = np.sin(np.pi * np.arange(L) / L) ** 2
@@ -100,44 +108,45 @@ def zap(d=0.45, f0=1400, f1=600):
     L = int(d * SR); tt = np.arange(L) / SR; return (sine(np.linspace(f0, f1, L), L) * 0.6 + lp(noise(L), 0.3) * 0.3) * env(L, 0.004, d, 3)
 def thump(): L = int(0.4 * SR); tt = np.arange(L) / SR; return np.sin(2 * np.pi * (40 + 70 * np.exp(-tt * 18)) * tt) * env(L, 0.002, 0.3, 5)
 
+def pfx(sig, at, gain=1.0, pan=0.0): place(fx, sig, remap(at), gain, pan)
 # hook
-place(fx, whoosh(0.7, True, 0.3), 0.75, 0.5, 0.3)          # bud pulled out
-place(fx, click(1600, 0.05), 1.30, 0.55); place(fx, click(900, 0.06), 1.33, 0.4)   # pause tap
-place(fx, blip(880, 0.12, 1320), 2.25, 0.25)             # "How did it know?"
+pfx(whoosh(0.7, True, 0.3), 0.75, 0.5, 0.3)          # bud pulled out
+pfx(click(1600, 0.05), 1.30, 0.55); pfx(click(900, 0.06), 1.33, 0.4)   # pause tap
+place(fx, blip(880, 0.12, 1320), 3.5, 0.25)             # "How did it know?"
 # cuts
-for c in (4.0, 15.0, 25.0, 35.0, 45.0): place(fx, whoosh(0.5, False, 0.2), c - 0.25, 0.35)
+for c in B[1:6]: place(fx, whoosh(0.5, False, 0.2), c - 0.25, 0.35)
 # x-ray
-place(fx, shimmer(2.2), 4.8, 0.22)                        # shell turns to glass
-place(fx, hum(7.6, 150), 7.2, 0.10)                      # sensor glows
-for k, at in enumerate((6.6, 6.7, 6.8)): place(fx, blip(1000 + 200 * k, 0.07), at, 0.16, (k - 1) * 0.4)   # part labels
-place(fx, blip(1300, 0.08), 7.4, 0.2)
-place(fx, whoosh(3.0, True, 0.12), 9.6, 0.3)             # fly in
-place(fx, blip(1500, 0.09), 12.4, 0.2, -0.3); place(fx, blip(1700, 0.09), 13.0, 0.2, 0.3)
+pfx(shimmer(2.2), 4.8, 0.22)                        # shell turns to glass
+pfx(hum(7.6, 150), 7.2, 0.10)                      # sensor glows
+for k, at in enumerate((6.6, 6.7, 6.8)): pfx(blip(1000 + 200 * k, 0.07), at, 0.16, (k - 1) * 0.4)   # part labels
+pfx(blip(1300, 0.08), 7.4, 0.2)
+pfx(whoosh(3.0, True, 0.12), 9.6, 0.3)             # fly in
+pfx(blip(1500, 0.09), 12.4, 0.2, -0.3); pfx(blip(1700, 0.09), 13.0, 0.2, 0.3)
 # skin
-place(fx, zap(0.5, 1200, 700), 15.8, 0.2); place(fx, hum(8.6, 180), 15.9, 0.06)
-for k in range(5): place(fx, blip(900 - 60 * k, 0.06), 19.0 + k * 0.28, 0.12, 0.3)   # light coming back
-place(fx, chime([72, 76, 79]), 21.5, 0.22)                # Skin ✓
+pfx(zap(0.5, 1200, 700), 15.8, 0.2); pfx(hum(8.6, 180), 15.9, 0.06)
+for k in range(5): pfx(blip(900 - 60 * k, 0.06), 19.0 + k * 0.28, 0.12, 0.3)   # light coming back
+pfx(chime([72, 76, 79]), 21.5, 0.22)                # Skin ✓
 # table
-place(fx, zap(0.5, 1200, 700), 25.6, 0.2); place(fx, hum(8.6, 180), 25.7, 0.05)
-for k in range(3): place(fx, blip(700 - 80 * k, 0.06), 27.7 + k * 0.33, 0.1, -0.3)
-place(fx, blip(1100, 0.1, 1500), 28.4, 0.2)                # reflection-check card
-L = int(1.8 * SR); tt = np.arange(L) / SR; place(fx, np.sin(2 * np.pi * np.cumsum(np.linspace(500, 900, L)) / SR) * np.minimum(1, tt / 0.1) * np.minimum(1, (1.8 - tt) / 0.2) * 0.5, 28.6, 0.08)   # line draws
-place(fx, buzz(0.38), 30.4, 0.28); place(fx, thump(), 30.4, 0.4)   # NOT SKIN
+pfx(zap(0.5, 1200, 700), 25.6, 0.2); pfx(hum(8.6, 180), 25.7, 0.05)
+for k in range(3): pfx(blip(700 - 80 * k, 0.06), 27.7 + k * 0.33, 0.1, -0.3)
+pfx(blip(1100, 0.1, 1500), 28.4, 0.2)                # reflection-check card
+L = int(1.8 * SR); tt = np.arange(L) / SR; pfx(np.sin(2 * np.pi * np.cumsum(np.linspace(500, 900, L)) / SR) * np.minimum(1, tt / 0.1) * np.minimum(1, (1.8 - tt) / 0.2) * 0.5, 28.6, 0.08)   # line draws
+pfx(buzz(0.38), 30.4, 0.28); pfx(thump(), 30.4, 0.4)   # NOT SKIN
 # (no player on the table shot)
 # signal
-for k in range(12): place(fx, blip(700 + 70 * k, 0.05), 36.0 + k * 0.22, 0.12)   # signal runs along the flex
-place(fx, chime([79, 84], 0.6), 38.5, 0.16)              # H2 lights up
-for k in range(4): place(fx, blip(2400, 0.12, 1800), 39.0 + k * 0.55, 0.1, 0.2)  # radio pings
-place(fx, click(1600, 0.05), 41.0, 0.45); place(fx, click(900, 0.06), 41.03, 0.35)   # pause
+for k in range(12): pfx(blip(700 + 70 * k, 0.05), 36.0 + k * 0.22, 0.12)   # signal runs along the flex
+pfx(chime([79, 84], 0.6), 38.5, 0.16)              # H2 lights up
+for k in range(4): pfx(blip(2400, 0.12, 1800), 39.0 + k * 0.55, 0.1, 0.2)  # radio pings
+pfx(click(1600, 0.05), 41.0, 0.45); pfx(click(900, 0.06), 41.03, 0.35)   # pause
 # payoff
-place(fx, whoosh(0.9, False, 0.25), 45.2, 0.45)          # back in
-place(fx, thump(), 46.25, 0.3)
-place(fx, click(1600, 0.05), 46.68, 0.5); place(fx, click(1100, 0.06), 46.71, 0.4)  # play tap
-place(fx, chime([76, 79, 84]), 47.4, 0.16)
+pfx(whoosh(0.9, False, 0.25), 45.2, 0.45)          # back in
+pfx(thump(), 46.25, 0.3)
+pfx(click(1600, 0.05), 46.68, 0.5); pfx(click(1100, 0.06), 46.71, 0.4)  # play tap
+pfx(chime([76, 79, 84]), 47.4, 0.16)
 # end card
-place(fx, whoosh(0.8, True, 0.3), 49.7, 0.4)
-place(fx, chime([72, 79, 84, 88], 1.2), 50.75, 0.2); place(fx, thump(), 50.75, 0.3)     # logo
-for k in range(3): place(fx, blip(1300 + 200 * k, 0.07), 51.37 + k * 0.08 * 2.4, 0.14)   # like / comment / follow
-place(fx, click(1800, 0.05), 51.95, 0.4); place(fx, blip(1600, 0.12, 2200), 51.97, 0.15)  # subscribe
+place(fx, whoosh(0.8, True, 0.3), B[6] - 0.3, 0.4)
+pfx(chime([72, 79, 84, 88], 1.2), 50.75, 0.2); pfx(thump(), 50.75, 0.3)     # logo
+for k in range(3): pfx(blip(1300 + 200 * k, 0.07), 51.37 + k * 0.08 * 2.4, 0.14)   # like / comment / follow
+pfx(click(1800, 0.05), 51.95, 0.4); pfx(blip(1600, 0.12, 2200), 51.97, 0.15)  # subscribe
 sf.write('sfx.wav', fx.astype(np.float32), SR)
 print('song', np.abs(song_track).max(), 'bed', np.abs(bed).max(), 'sfx', np.abs(fx).max())

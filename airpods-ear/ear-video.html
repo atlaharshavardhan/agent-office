@@ -3711,7 +3711,7 @@ window.AIRPODS_COMPACT={"meshes":[{"name":"Cylinder_1_Mat.4_0","grp":"case","n":
 </script>
 <script>
 (() => {
-const W = innerWidth, H = innerHeight, TOTAL = 53, RED = 0xff3b55;
+const W = innerWidth, H = innerHeight, TOTAL = 44.81, RED = 0xff3b55;
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
 const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3), lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
@@ -4054,10 +4054,10 @@ function hud(a, draw, badge) { const h = $('hud'); h.style.opacity = a; h.style.
   const b = h.querySelector('.badge'); b.style.opacity = badge; b.style.transform = `scale(${1.25 - 0.25 * badge})`; }
 
 /* ---------- timeline ---------- */
-const CUTS = [4, 15, 25, 35, 45, 50];
-const CAPS = [[0.15, 1.39, "Pull one AirPod out"], [1.39, 2.67, "and your music stops"], [2.67, 3.86, "So how did it know?"], [4.6, 5.23, "Inside"], [5.23, 7.16, "there's a tiny skin-detect sensor"], [7.16, 7.93, "on the side that"], [7.93, 9.04, "touches your ear"], [9.04, 10.2, "An infrared light"], [10.2, 11.11, "with a light sensor"], [11.11, 12.17, "right beside it"], [15.4, 16.83, "When it's in your ear"], [16.83, 18.11, "it shines invisible light"], [18.11, 19.18, "into your skin"], [19.18, 20.92, "and reads what bounces back"], [20.92, 21.84, "Skin sends it back"], [21.84, 22.91, "in its own way"], [25.4, 26.13, "A table"], [26.13, 27.07, "or a pocket"], [27.07, 28.11, "doesn't match"], [28.11, 29.88, "Older AirPods used simpler sensors"], [29.88, 31.49, "that a pocket could fool"], [31.49, 33.31, "This one can tell skin apart"], [35.5, 37.39, "The moment it stops seeing skin"], [37.39, 38.58, "the H2 chip knows"], [38.58, 40.36, "and tells your phone to pause"], [45.4, 46.22, "Put it back"], [46.22, 47.09, "it sees skin"], [47.09, 48.41, "and the music plays on"], [50.9, 52.86, "Follow InvisiTech for more"]];
+const CUTS = [5.91, 13.86, 22.09, 31.13, 37.35, 41.41];
+const CAPS = [[1.75, 3.18, "Your music just stopped"], [3.18, 4.28, "So how did your AirPods"], [4.28, 5.61, "know you took one out?"], [6.16, 6.78, "Inside"], [6.78, 8.69, "there's a tiny skin-detect sensor"], [8.69, 9.6, "right where the bud"], [9.6, 10.7, "touches your ear"], [10.7, 11.84, "An infrared light"], [11.84, 13.56, "with a light sensor beside it"], [14.11, 15.52, "When it's in your ear"], [15.52, 16.79, "it shines invisible light"], [16.79, 17.85, "into your skin"], [17.85, 19.57, "and reads what bounces back"], [19.57, 20.73, "Your skin sends it back"], [20.73, 21.79, "in its own way"], [22.34, 23.06, "A table"], [23.06, 23.99, "or a pocket"], [23.99, 25.68, "doesn't match that pattern"], [25.68, 27.43, "Older AirPods used simpler sensors"], [27.43, 29.03, "that a pocket could fool"], [29.03, 30.83, "This one can tell skin apart"], [31.38, 33.31, "The moment it stops seeing skin"], [33.31, 34.52, "the H2 chip knows"], [34.52, 35.53, "and tells your phone"], [35.53, 37.05, "over Bluetooth to pause"], [37.5, 38.48, "Put it back in"], [38.48, 39.66, "it sees skin again"], [39.66, 41.06, "and your music plays on"], [42.21, 44.17, "Follow InvisiTech for more"]];
 const SHOTS = [
-  [0, 4, (u, t) => { // hook: pull one out, music stops
+  [0, 5.91, (u, t) => { // hook: pull one out, music stops
     HEAD.visible = true; TABLE.visible = false; setXray(0); sensorGlow(0);
     const k = easeOut(ramp(u, 0.7, 1.5)); seatInEar(52 * k, k); VO = -0.03 + 0.18 * ease(ramp(u, 0.7, 1.7));
     const [p, tg] = EAR_VIEW(); look(vlerp(p, tg, 0.06 * u / 4 - 0.1), tg);
@@ -4065,10 +4065,10 @@ const SHOTS = [
     FX.streaks.children.forEach((m, i) => { const a = BUD.position.clone().add(new THREE.Vector3(-16, 13 - i * 4.5, -9)); m.position.copy(a); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(1, -0.25, 0.45).normalize()); });
     const paused = u > 1.3; player(1, paused ? 'paused' : 'playing', 0.3 + (paused ? 1.3 : u) * 0.004, Math.exp(-Math.pow((u - 1.35) * 6, 2)));
     title(['Pull one out…', '<em>Music stops.</em>'], [0.15, 1.3], u);
-    tag('how', 'How did it know?', BUD.position.clone().add(new THREE.Vector3(0, 8, 0)), -W * 0.24, H * 0.02, easeOut(ramp(u, 2.2, 2.6)), 'red');
-    note('3D illustration · not affiliated with Apple', 1 - ramp(u, 3.2, 3.6));
+    tag('how', 'How did it know?', BUD.position.clone().add(new THREE.Vector3(0, 8, 0)), -W * 0.24, H * 0.02, easeOut(ramp(u, 3.5, 3.9)), 'red');
+    note('3D illustration · not affiliated with Apple', 1 - ramp(u, 5.0, 5.5));
   }],
-  [4, 15, (u, t) => { // x-ray: fly to the skin-detect sensor
+  [5.91, 13.86, (u, t) => { // x-ray: fly to the skin-detect sensor
     HEAD.visible = false; TABLE.visible = false; FX.streaks.visible = false;
     BUD.position.set(0, 0, 0); BUD.rotation.set(0, POSE.xrayYaw - 1.1 * (1 - ease(ramp(u, 0, 7))), 0); BUD.updateMatrixWorld(true);
     setXray(ease(ramp(u, 0.8, 2.6))); const glow = ease(ramp(u, 3.2, 4.2)) * (0.75 + 0.25 * Math.sin(t * 6)) * (1 - 0.7 * ease(ramp(u, 5.6, 8.0))); sensorGlow(glow);
@@ -4086,7 +4086,7 @@ const SHOTS = [
     tag('det', 'Light sensor', DETECT.getWorldPosition(new THREE.Vector3()), W * 0.14, -H * 0.12, ease(ramp(u, 9.0, 9.4)));
     note('Illustrative · not to scale', 1);
   }],
-  [15, 25, (u, t) => { // skin: light out, reflection back
+  [13.86, 22.09, (u, t) => { // skin: light out, reflection back
     HEAD.visible = true; TABLE.visible = false; seatInEar(0); setXray(0.82); sensorGlow(0.9 + 0.1 * Math.sin(t * 6));
     const s = POSE.skinS, orbit = 0.25 * (u / 10 - 0.5);
     look(s.clone().add(new THREE.Vector3(70, 40, 95).applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit).multiplyScalar(1.45)), s.clone().add(new THREE.Vector3(-2, -6, 0)));
@@ -4097,7 +4097,7 @@ const SHOTS = [
     tag('skin', 'Skin ✓', POSE.skinT.clone().addScaledVector(POSE.skinN, 2), W * 0.14, H * 0.09, ease(ramp(u, 6.5, 6.9)), 'green');
     note('Short-wave infrared shown in red · invisible to the eye', 1);
   }],
-  [25, 35, (u, t) => { // table: not skin
+  [22.09, 31.13, (u, t) => { // table: not skin
     HEAD.visible = false; TABLE.visible = true; SHADOW.visible = true; scene.fog.near = 160; scene.fog.far = 460; BUD.position.copy(POSE.tableP); BUD.quaternion.copy(POSE.tableQ); BUD.updateMatrixWorld(true);
     setXray(ease(ramp(u, 0.0, 0.8)) * 0.9 + 0.1); sensorGlow(0.9 + 0.1 * Math.sin(t * 6));
     key.intensity = 0.85; rim.intensity = 1.6;
@@ -4110,7 +4110,7 @@ const SHOTS = [
     title(['Table or pocket?', '<em>Doesn’t match skin</em>'], [0.3, 3.2], u);
     note('Older AirPods used simpler optical sensors that a pocket could fool', ease(ramp(u, 6.2, 6.6)));
   }],
-  [35, 45, (u, t) => { // signal: sensor → H2 → phone
+  [31.13, 37.35, (u, t) => { // signal: sensor → H2 → phone
     HEAD.visible = false; TABLE.visible = false; BUD.position.copy(POSE.sigP); BUD.rotation.copy(POSE.sigR); BUD.updateMatrixWorld(true);
     setXray(1); sensorGlow(0.85);
     look(new THREE.Vector3(2, 6, 197).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.12 * (u / 10 - 0.5)), new THREE.Vector3(5, 9, 0));
@@ -4124,7 +4124,7 @@ const SHOTS = [
     tag('h2b', 'H2 chip', BUD.localToWorld(H2P.position.clone()), -W * 0.2, H * 0.05, ease(ramp(u, 3.6, 4.0)));
     note('', 0);
   }],
-  [45, 50, (u, t) => { // payoff: back in, music resumes
+  [37.35, 41.41, (u, t) => { // payoff: back in, music resumes
     HEAD.visible = true; TABLE.visible = false; setXray(0); sensorGlow(0);
     const k = 1 - ease(ramp(u, 0.2, 1.2)); seatInEar(52 * k, k); VO = -0.03 + 0.16 * k;
     const [p, tg] = EAR_VIEW(); look(vlerp(p, tg, -0.1), tg);
@@ -4132,7 +4132,7 @@ const SHOTS = [
     title(['Skin = <em class="g">play</em>.', 'Anything else = <em>pause</em>.'], [1.4, 2.4], u);
     note('', 0);
   }],
-  [50, 53, (u, t) => { // end card: themed panel, then the channel brand
+  [41.41, 44.81, (u, t) => { // end card: themed panel, then the channel brand
     HEAD.visible = false; TABLE.visible = false; BUD.position.set(0, 0, 0); BUD.rotation.set(0.15, 0.6 + 0.35 * u, 0.12); BUD.updateMatrixWorld(true);
     setXray(1); sensorGlow(0.8 + 0.2 * Math.sin(t * 5));
     look(new THREE.Vector3(0, 6, 112), new THREE.Vector3(0, 0, 0));
@@ -4149,7 +4149,8 @@ function renderAt(t) {
   [FX.skinPhOut, FX.skinPhBack, FX.tablePhOut, FX.tablePhBack].forEach(p => p.g.visible = false); FX.waves.forEach(w => w.visible = false);
   VO = [0.13, 0.03, 0.13, 0.15, 0.05, 0.04, 0.09][i]; HO = [0.07, 0, 0, 0, 0, 0.07, 0][i];
   renderer.domElement.style.filter = ''; END.a = 0; END.brand = 0;
-  fn(t - a, t);
+  const ORIG = [4, 11, 10, 10, 10, 5, 3], span = SHOTS[i][1] - a, uu = (i >= 1 && i <= 4) ? (t - a) * ORIG[i] / span : t - a;
+  fn(uu, t);
   const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
   $('fade').style.opacity = Math.max(0, ...CUTS.map(c => 1 - Math.abs(t - c) / 0.22));
   renderer.render(scene, camera);

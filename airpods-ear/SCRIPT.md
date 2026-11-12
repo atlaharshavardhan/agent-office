@@ -1,19 +1,20 @@
 # How do AirPods know they're in your ear? — narration (George, Kokoro bm_george, speed 1.18)
 
-| Start | Shot | Narration | On-screen title |
+Continuous narration, about 45 s. Scenes are timed to the voice (`voice/timeline2.json`).
+
+| Scene | Time | Voice starts | Narration |
 |---|---|---|---|
-| 0.15 s | Bud pulled out, player → Paused | Pull one AirPod out, and your music stops. So how did it know? | Pull one out… Music stops. |
-| 4.6 s | Glass x-ray, fly to the sensor | Inside, there's a tiny skin-detect sensor, on the side that touches your ear. An infrared light, with a light sensor right beside it. | Inside: a skin-detect sensor |
-| 15.4 s | Light into skin and back | When it's in your ear, it shines invisible light into your skin, and reads what bounces back. Skin sends it back in its own way. | It shines invisible light and reads what comes back |
-| 25.4 s | Bud on a table, ✕ | A table, or a pocket, doesn't match. Older AirPods used simpler sensors that a pocket could fool. This one can tell skin apart. | Table or pocket? Doesn't match skin |
-| 35.5 s | Sensor → H2 → phone | The moment it stops seeing skin, the H2 chip knows, and tells your phone to pause. | Sensor → H2 chip → your phone |
-| 45.4 s | Back in, player → Playing | Put it back, it sees skin, and the music plays on. | Skin = play. Anything else = pause. |
+| Hook: song plays, bud pulled out, song cuts | 0.0–5.9 s | 1.75 s | Your music just stopped. So how did your AirPods know you took one out? |
+| Glass x-ray, fly to the sensor | 5.9–13.9 s | 6.16 s | Inside, there's a tiny skin-detect sensor, right where the bud touches your ear. An infrared light, with a light sensor beside it. |
+| Light into skin and back | 13.9–22.1 s | 14.11 s | When it's in your ear, it shines invisible light into your skin, and reads what bounces back. Your skin sends it back in its own way. |
+| Table: reflection check, NOT SKIN | 22.1–31.1 s | 22.34 s | A table, or a pocket, doesn't match that pattern. Older AirPods used simpler sensors that a pocket could fool. This one can tell skin apart. |
+| Sensor → H2 → phone | 31.1–37.4 s | 31.38 s | The moment it stops seeing skin, the H2 chip knows, and tells your phone over Bluetooth to pause. |
+| Back in, music resumes | 37.4–41.4 s | 37.50 s | Put it back in, it sees skin again, and your music plays on. |
+| End card | 41.4–44.8 s | 42.21 s | Follow InvisiTech for more. |
 
-About 108 words, voice ends at 48.4 s of 50 s. Subtitles are burned in from `voice/captions.json`.
+Hook: the player's song plays on its own from 0 s, the bud comes out at 0.8–1.4 s, the song cuts at 1.3 s with a tap, a short silence, then the voice.
 
-Layout follows the Instagram Reel safe zones (1080×1920): top bar 0–220 empty, titles 220–450,
-main object 450–1500 (nothing important right of x 940 below y 1100), subtitles 1250–1450,
-caption/username area 1500–1920 empty. Watermark top-left at y 211.
+Layout follows the Instagram Reel safe zones (1080×1920). Watermark right-middle, hidden on the end card.
 
 Credits for the description:
 - "AirPods Pro" 3D model by Jed Falcone (sketchfab.com/jedlas012), CC BY 4.0, modified.
