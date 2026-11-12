@@ -636,7 +636,7 @@ reps = [
  ("goal.dist = Math.max(40, Math.min(900, goal.dist * Math.exp(e.deltaY * 0.0012)))", "goal.dist = Math.max(18, Math.min(700, goal.dist * Math.exp(e.deltaY * 0.0012)))"),
  ("new THREE.PerspectiveCamera(30, 1, 1, 4000)", "new THREE.PerspectiveCamera(30, 1, 0.5, 2000)"),
  ("'  ·  Layer'", "'  ·  Part'"),
- ("Illustrative model built from public teardown layouts. Proportions are approximate and specs vary by model.", "Illustrative model of AirPods Pro 3 built from Apple’s specs and the iFixit and Lumafield teardowns. Internal proportions are approximate. Case and earbud model: “AirPods Pro” by Jed Falcone (sketchfab.com/jedlas012), CC-BY 4.0. Not affiliated with Apple."),
+ ("Illustrative model built from public teardown layouts. Proportions are approximate and specs vary by model.", "Illustrative model of AirPods Pro 3 built from Apple’s specs and the iFixit and Lumafield teardowns. Internal proportions are approximate. Case and earbud model: <a href=\"https://sketchfab.com/3d-models/airpods-pro-3f84ddc3d87a4ec0a5e5f379abfecd9c\" target=\"_blank\" rel=\"noopener\">“AirPods Pro”</a> by <a href=\"https://sketchfab.com/jedlas012\" target=\"_blank\" rel=\"noopener\">Jed Falcone</a>, <a href=\"https://creativecommons.org/licenses/by/4.0/\" target=\"_blank\" rel=\"noopener\">CC BY 4.0</a>, modified (compressed, earbuds split and posed). Not affiliated with Apple."),
 ]
 for x, y in reps:
     assert src.count(x) == 1, x
@@ -704,6 +704,7 @@ for need in ["mode: s.mode || 'bud'", "if (st.mode !== MODE)", "parts[i].grp !==
     assert need in src, need
 
 src = src.replace("</style>", "@media (max-width: 820px) { #controls { flex-wrap: wrap; justify-content: center; gap: 8px; border-radius: 22px; width: calc(100% - 24px); } #controls label { display: none; } #controls .btn { padding: 8px 12px; } }\n</style>", 1)
+src = src.replace("</style>", ".note a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }\n</style>", 1)
 # brighter studio environment, same as the AirTag page
 env = open('build-airtag.py').read()
 env = env[env.index('env = r"""') + 10: env.index('"""', env.index('env = r"""') + 10)]
