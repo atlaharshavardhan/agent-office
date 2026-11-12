@@ -1,0 +1,442 @@
+<title>How do AirPods know they're in your ear</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root { --red: #ff3b55; --green: #2fd36b; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #08080b; font-family: 'IBM Plex Sans', Arial, sans-serif; }
+  canvas { display: block; position: fixed; inset: 0; }
+  .shade { position: fixed; left: 0; right: 0; pointer-events: none; z-index: 1; }
+  #shTop { top: 0; height: 40%; background: linear-gradient(rgba(5,5,8,.85), rgba(5,5,8,.45) 60%, transparent); }
+  #shBot { bottom: 0; height: 14%; background: linear-gradient(transparent, rgba(5,5,8,.75)); }
+  .ov { position: fixed; z-index: 3; pointer-events: none; }
+  #title { top: 15.5%; left: 6%; right: 6%; text-align: center; color: #fff; font: 700 7.2vw/1.14 Sora, Arial, sans-serif; letter-spacing: -0.015em; text-shadow: 0 4px 24px rgba(0,0,0,.8); }
+  #title .ln { display: block; }
+  #title em { font-style: normal; color: var(--red); } #title em.g { color: var(--green); }
+  #note { bottom: 4.6%; left: 6%; right: 6%; text-align: center; font-size: 3vw; color: rgba(255,255,255,.66); }
+  #player { position: fixed; z-index: 3; left: 8%; right: 8%; bottom: 11%; display: flex; align-items: center; gap: 3.6vw; padding: 3.4vw 4vw; border-radius: 6vw;
+    background: rgba(28,28,34,.82); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 20px 60px rgba(0,0,0,.6); color: #fff; }
+  #art { width: 14vw; height: 14vw; border-radius: 3vw; background: linear-gradient(135deg, #ff8a3c, #c2185b 60%, #4a148c); flex: none; }
+  #meta { flex: 1; min-width: 0; } #meta b { display: block; font: 600 4.2vw Sora, Arial, sans-serif; } #meta span { font-size: 3.4vw; color: rgba(255,255,255,.6); }
+  #bar { margin-top: 2vw; height: 1vw; border-radius: 1vw; background: rgba(255,255,255,.18); overflow: hidden; } #bar i { display: block; height: 100%; width: 38%; background: #fff; }
+  #btn { width: 13vw; height: 13vw; border-radius: 50%; background: #fff; flex: none; display: grid; place-items: center; } #btn svg { width: 6vw; height: 6vw; }
+  #state { position: absolute; right: 5vw; top: -6.4vw; font: 700 3.2vw Sora, Arial, sans-serif; letter-spacing: .06em; padding: 1vw 2.6vw; border-radius: 3vw; }
+  .tag { position: fixed; z-index: 3; transform: translate(-50%, -50%); pointer-events: none; color: #fff; font: 600 3.5vw 'IBM Plex Sans', Arial, sans-serif; white-space: nowrap;
+    padding: 1.3vw 2.8vw; border-radius: 3vw; background: rgba(14,14,20,.85); border: 1px solid rgba(255,255,255,.22); opacity: 0; }
+  .tag.red { border-color: var(--red); color: #ffdbe0; } .tag.green { border-color: var(--green); color: #d6ffe4; }
+  #lines { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+  #big { position: fixed; z-index: 3; transform: translate(-50%, -50%); font: 800 26vw Sora, Arial, sans-serif; color: var(--red); text-shadow: 0 0 40px rgba(255,59,85,.5); opacity: 0; pointer-events: none; }
+  #fade { position: fixed; inset: 0; z-index: 5; background: #000; opacity: 0; pointer-events: none; }
+</style>
+<div class="shade" id="shTop"></div><div class="shade" id="shBot"></div>
+<svg id="lines"></svg>
+<div class="ov" id="title"></div>
+<div class="ov" id="note"></div>
+<div id="player"><div id="state"></div><div id="art"></div><div id="meta"><b>Midnight Drive</b><span>Now playing</span><div id="bar"><i></i></div></div><div id="btn"></div></div>
+<div id="big">✕</div>
+<div id="fade"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../face-id/assets/GLTFLoader.js"></script>
+<script src="../face-id/assets/head-data.js"></script>
+<script src="../phone-teardown/assets/airpods-pro-model.compact.js"></script>
+<script>
+(() => {
+const W = innerWidth, H = innerHeight, TOTAL = 50, RED = 0xff3b55;
+const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
+const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3), lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(devicePixelRatio); renderer.setSize(W, H);
+renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+document.body.prepend(renderer.domElement);
+const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, W / H, 1, 8000);
+let ready = false;
+
+/* background + studio environment */
+{
+  const c = document.createElement('canvas'); c.width = 64; c.height = 512; const x = c.getContext('2d');
+  const g = x.createRadialGradient(32, 210, 10, 32, 210, 420); g.addColorStop(0, '#26232e'); g.addColorStop(0.45, '#131218'); g.addColorStop(1, '#050507');
+  x.fillStyle = g; x.fillRect(0, 0, 64, 512); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; scene.background = t;
+  const pm = new THREE.PMREMGenerator(renderer), env = new THREE.Scene(), e = document.createElement('canvas'); e.width = 16; e.height = 256; const ex = e.getContext('2d');
+  const eg = ex.createLinearGradient(0, 0, 0, 256); eg.addColorStop(0, '#9aa3b8'); eg.addColorStop(0.5, '#2a2c34'); eg.addColorStop(1, '#0b0b0e'); ex.fillStyle = eg; ex.fillRect(0, 0, 16, 256);
+  env.add(new THREE.Mesh(new THREE.SphereGeometry(100, 32, 16), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(e), side: THREE.BackSide })));
+  for (const [px, py, pz, s] of [[60, 50, 40, 40], [-70, 30, -30, 30], [0, 80, -60, 50], [40, -10, 80, 25]]) { const q = new THREE.Mesh(new THREE.PlaneGeometry(s, s), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })); q.position.set(px, py, pz); q.lookAt(0, 0, 0); env.add(q); }
+  scene.environment = pm.fromScene(env, 0.04).texture;
+}
+scene.fog = new THREE.Fog(0x09090c, 5000, 8000);
+scene.add(new THREE.HemisphereLight(0x9aa4c0, 0x120e12, 0.45));
+const key = new THREE.DirectionalLight(0xfff1e6, 1.35); key.position.set(300, 260, 380); scene.add(key);
+const rim = new THREE.DirectionalLight(0x8fa8ff, 1.0); rim.position.set(-200, 160, -400); scene.add(rim);
+const redLight = new THREE.PointLight(RED, 0, 70, 2); scene.add(redLight);
+
+/* shared textures */
+function radial(stops, size = 128) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'), g = x.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2); stops.forEach(([o, col]) => g.addColorStop(o, col)); x.fillStyle = g; x.fillRect(0, 0, size, size); return new THREE.CanvasTexture(c); }
+const HALO = radial([[0, 'rgba(255,235,240,1)'], [0.18, 'rgba(255,90,115,0.9)'], [0.5, 'rgba(255,50,80,0.25)'], [1, 'rgba(255,40,70,0)']]);
+const HALO_B = radial([[0, 'rgba(235,248,255,1)'], [0.2, 'rgba(120,200,255,0.85)'], [0.55, 'rgba(80,170,255,0.2)'], [1, 'rgba(80,170,255,0)']]);
+function sprite(tex, s) { const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false })); m.scale.set(s, s, 1); return m; }
+
+/* materials: dark navy boards, gold, steel, black glass, amber flex — no green */
+const MAT = {
+  steel: new THREE.MeshStandardMaterial({ color: 0xd3d8df, metalness: 1, roughness: 0.26 }),
+  dsteel: new THREE.MeshStandardMaterial({ color: 0x4a505a, metalness: 1, roughness: 0.32 }),
+  black: new THREE.MeshStandardMaterial({ color: 0x0d0e11, metalness: 0.25, roughness: 0.32, envMapIntensity: 0.8 }),
+  navy: new THREE.MeshStandardMaterial({ color: 0x12204a, metalness: 0.2, roughness: 0.4 }),
+  gold: new THREE.MeshStandardMaterial({ color: 0xe6b85c, metalness: 1, roughness: 0.2 }),
+  copper: new THREE.MeshStandardMaterial({ color: 0xd6874a, metalness: 1, roughness: 0.26 }),
+  ceramic: new THREE.MeshStandardMaterial({ color: 0xc9b48f, metalness: 0, roughness: 0.5 }),
+  glass: new THREE.MeshPhysicalMaterial({ color: 0x050507, metalness: 0, roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.8, transparent: true }),
+  ingaas: new THREE.MeshStandardMaterial({ color: 0x4a3c9a, metalness: 0.8, roughness: 0.18, envMapIntensity: 1.4 }),
+  redDie: new THREE.MeshStandardMaterial({ color: 0x40121a, emissive: RED, emissiveIntensity: 0.4, roughness: 0.3 }),
+};
+function etched(text, w, h, sub) {   // laser-etched marking on a matte black package
+  const c = document.createElement('canvas'); c.width = w * 40; c.height = h * 40; const x = c.getContext('2d');
+  x.fillStyle = '#0e0f12'; x.fillRect(0, 0, c.width, c.height); x.fillStyle = 'rgba(255,255,255,0.025)'; for (let i = 0; i < 400; i++) x.fillRect(Math.random() * c.width, Math.random() * c.height, 2, 2);
+  x.fillStyle = '#9ea4ae'; x.textAlign = 'center'; x.font = `600 ${c.height * 0.36}px Sora, Arial`; x.fillText(text, c.width / 2, c.height * (sub ? 0.5 : 0.62));
+  if (sub) { x.font = `500 ${c.height * 0.13}px 'IBM Plex Mono', monospace`; x.fillStyle = '#6f7580'; x.fillText(sub, c.width / 2, c.height * 0.76); }
+  x.beginPath(); x.arc(c.width * 0.12, c.height * 0.14, c.height * 0.045, 0, 7); x.fillStyle = '#5c616b'; x.fill();
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
+}
+function cellTop() { // battery face: brushed steel rings + marking
+  const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
+  for (let r = 128; r > 0; r -= 1.5) { const v = 170 + Math.random() * 40; x.strokeStyle = `rgb(${v},${v + 3},${v + 8})`; x.lineWidth = 2; x.beginPath(); x.arc(128, 128, r, 0, 7); x.stroke(); }
+  x.fillStyle = 'rgba(30,32,38,.8)'; x.textAlign = 'center'; x.font = '600 26px Sora, Arial'; x.fillText('Li-ion', 128, 120); x.font = '500 18px monospace'; x.fillText('RECHARGEABLE', 128, 150);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+}
+function flexTex() { // amber polyimide with gold traces
+  const c = document.createElement('canvas'); c.width = 64; c.height = 512; const x = c.getContext('2d');
+  x.fillStyle = '#b8691c'; x.fillRect(0, 0, 64, 512); x.fillStyle = '#f0c46a'; for (let i = 0; i < 5; i++) x.fillRect(8 + i * 11, 0, 4, 512);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.wrapT = THREE.RepeatWrapping; t.repeat.set(1, 6); return t;
+}
+
+/* ---------- earbud: right bud of "AirPods Pro" by Jed Falcone (CC BY 4.0), modified ---------- */
+const BUD = new THREE.Group(); scene.add(BUD);
+const INNER = new THREE.Group(); BUD.add(INNER);
+const SOLID = [], GHOST = [];
+const SENSOR = new THREE.Group(), SENSOR_N = new THREE.Vector3(), EMIT = new THREE.Object3D(), DETECT = new THREE.Object3D();
+const H2P = new THREE.Object3D(), BATT_P = new THREE.Object3D(), DRV_P = new THREE.Object3D();
+let SENSOR_HALO, H2_HALO, WINDOW_GLASS, RED_DIE;
+const ghostMat = () => new THREE.ShaderMaterial({
+  uniforms: { col: { value: new THREE.Color(0xe9eef8) }, alpha: { value: 0 } }, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+  vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
+  fragmentShader: 'uniform vec3 col; uniform float alpha; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.4); gl_FragColor = vec4(col * (0.55 + 0.7 * f), (0.035 + 0.62 * f) * alpha); }'
+});
+function loadBud() {
+  const C = window.AIRPODS_COMPACT, bytes = Uint8Array.from(atob(C.bin), c => c.charCodeAt(0));
+  return new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer().then(ab => {
+    const raw = [], tex = new THREE.TextureLoader().load(C.tex); tex.encoding = THREE.sRGBEncoding; tex.flipY = false;
+    C.meshes.forEach(m => {
+      if (m.grp !== 'buds' || m.side !== 'R') return;
+      const q = new Uint16Array(ab, m.po, m.n * 3), pos = new Float32Array(m.n * 3);
+      for (let i = 0; i < m.n; i++) for (let j = 0; j < 3; j++) pos[i * 3 + j] = m.min[j] + q[i * 3 + j] / 65535 * m.sc[j];
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      g.setIndex(new THREE.BufferAttribute(m.i32 ? new Uint32Array(ab, m.io, m.ni) : new Uint16Array(ab, m.io, m.ni), 1));
+      if (m.tex) { const uq = new Uint16Array(ab, m.uo, m.n * 2), uv = new Float32Array(m.n * 2); for (let i = 0; i < m.n * 2; i++) uv[i] = uq[i] / 65535; g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); }
+      g.computeVertexNormals();
+      const white = m.col[0] > 0.9;
+      const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(m.col[0], m.col[1], m.col[2]), metalness: white ? 0 : 0.2, roughness: white ? 0.3 : 0.55, map: m.tex ? tex : null, envMapIntensity: white ? 0.9 : 0.4 });
+      if (white) mat.color.setRGB(0.93, 0.93, 0.94);
+      const mesh = new THREE.Mesh(g, mat); mesh.name = m.name; raw.push(mesh);
+    });
+    const box = new THREE.Box3(); raw.forEach(o => box.expandByObject(o));
+    const c = box.getCenter(new THREE.Vector3()), k = 30.9 / (box.max.y - box.min.y);
+    raw.forEach(o => { o.geometry.translate(-c.x, -c.y, -c.z); o.geometry.scale(k, k, k); o.geometry.computeBoundingSphere(); BUD.add(o); SOLID.push(o);
+      const gm = new THREE.Mesh(o.geometry, ghostMat()); gm.renderOrder = 5; BUD.add(gm); GHOST.push(gm); });
+  });
+}
+function box(w, h, d, mat, x, y, z, parent) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); parent.add(m); return m; }
+function cylX(r, len, mat, x, y, z, parent, seg = 48) { const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, seg), mat); m.rotation.z = Math.PI / 2; m.position.set(x, y, z); parent.add(m); return m; }
+function caps(parent, pts) { // tiny SMD capacitors: ceramic body, silver ends
+  pts.forEach(([x, y, z, rot]) => { const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.z = rot || 0; parent.add(g);
+    box(0.5, 0.26, 0.26, MAT.ceramic, 0, 0, 0, g); box(0.12, 0.28, 0.28, MAT.steel, -0.3, 0, 0, g); box(0.12, 0.28, 0.28, MAT.steel, 0.3, 0, 0, g); });
+}
+function buildInternals() {
+  BUD.updateMatrixWorld(true);
+  /* skin-detect sensor on the inner face of the bud (the side that rests in your ear) */
+  const shell = BUD.getObjectByName('Cube_2_Mat.1_0'), rc = new THREE.Raycaster();
+  const from = new THREE.Vector3(1.5, 6.5, 0.5), dir = new THREE.Vector3(-0.55, 0.45, -0.7).normalize();
+  rc.set(from, dir); const hit = rc.intersectObject(shell, false)[0];
+  const p = hit ? hit.point : from.clone().addScaledVector(dir, 8), n = hit ? hit.face.normal.clone() : dir.clone();
+  if (n.dot(dir) < 0) n.negate(); SENSOR_N.copy(n);
+  SENSOR.position.copy(p).addScaledVector(n, 0.1); SENSOR.lookAt(p.clone().add(n)); BUD.add(SENSOR);
+  WINDOW_GLASS = new THREE.Mesh(new THREE.CircleGeometry(2.2, 48), MAT.glass); WINDOW_GLASS.scale.set(1.5, 1, 1); SENSOR.add(WINDOW_GLASS);
+  const bezel = new THREE.Mesh(new THREE.RingGeometry(2.2, 2.45, 48), MAT.dsteel); bezel.scale.set(1.5, 1, 1); bezel.position.z = 0.01; SENSOR.add(bezel);
+  const mod = new THREE.Group(); mod.position.z = -0.9; SENSOR.add(mod);
+  box(6.0, 3.9, 0.35, MAT.navy, 0, 0, 0, mod);
+  for (let i = 0; i < 8; i++) box(0.35, 0.2, 0.05, MAT.gold, -2.6 + i * 0.75, -1.75, 0.2, mod);       // edge pads
+  // emitter: black package, glowing short-wave infrared die
+  box(1.7, 1.7, 0.6, MAT.black, -1.45, 0.1, 0.45, mod); RED_DIE = box(0.7, 0.7, 0.1, MAT.redDie, -1.45, 0.1, 0.8, mod);
+  box(0.3, 0.3, 0.05, MAT.gold, -2.05, 0.7, 0.78, mod); EMIT.position.set(-1.45, 0.1, 0.9); mod.add(EMIT);
+  // detector: InGaAs photodiode with its purple sheen
+  box(1.9, 1.9, 0.6, MAT.black, 1.45, 0.1, 0.45, mod); box(1.0, 1.0, 0.1, MAT.ingaas, 1.45, 0.1, 0.8, mod);
+  box(0.3, 0.3, 0.05, MAT.gold, 2.15, 0.75, 0.78, mod); DETECT.position.set(1.45, 0.1, 0.9); mod.add(DETECT);
+  box(0.22, 2.4, 0.9, MAT.black, 0, 0.1, 0.55, mod);                                                     // light barrier
+  caps(mod, [[-0.2, -1.2, 0.35], [0.5, -1.2, 0.35], [-2.6, 1.2, 0.35, 1.57], [2.6, -0.9, 0.35, 1.57]]);
+  SENSOR_HALO = sprite(HALO, 9); SENSOR_HALO.position.z = 0.6; SENSOR.add(SENSOR_HALO);
+
+  /* battery: stainless button cell in the head */
+  const bat = new THREE.Group(); bat.position.set(4.6, 9.4, 0.3); INNER.add(bat); BATT_P.position.copy(bat.position); INNER.add(BATT_P);
+  cylX(4.0, 4.2, MAT.steel, 0, 0, 0, bat, 64);
+  const top = new THREE.Mesh(new THREE.CircleGeometry(3.85, 64), new THREE.MeshStandardMaterial({ map: cellTop(), metalness: 1, roughness: 0.3 })); top.rotation.y = Math.PI / 2; top.position.x = 2.11; bat.add(top);
+  const seam = new THREE.Mesh(new THREE.TorusGeometry(4.0, 0.12, 8, 64), MAT.dsteel); seam.rotation.y = Math.PI / 2; seam.position.x = -0.9; bat.add(seam);
+  box(0.25, 1.4, 5.4, MAT.gold, 2.2, -3.2, 0, bat);                                                      // nickel tab
+  /* driver behind the tip */
+  const drv = new THREE.Group(); drv.position.set(-2.4, 4.4, 0.2); INNER.add(drv); DRV_P.position.copy(drv.position); INNER.add(DRV_P);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(3.3, 0.45, 16, 64), MAT.dsteel); ring.rotation.y = Math.PI / 2; drv.add(ring);
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(3.0, 48, 16, 0, Math.PI * 2, 0, 0.55), new THREE.MeshPhysicalMaterial({ color: 0x15161a, roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.1 }));
+  dome.rotation.z = Math.PI / 2; dome.position.x = 1.8; drv.add(dome);
+  const coil = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.28, 12, 48), MAT.copper); coil.rotation.y = Math.PI / 2; coil.position.x = -0.5; drv.add(coil);
+  cylX(2.2, 1.3, MAT.steel, -1.2, 0, 0, drv);
+  /* microphones: steel cans with dark ports */
+  for (const [x, y, z] of [[-6.0, 5.2, 2.6], [9.2, 12.6, 2.4], [7.1, -13.6, 1.6]]) { const g = new THREE.Group(); g.position.set(x, y, z); INNER.add(g); box(1.7, 1.2, 1.7, MAT.steel, 0, 0, 0, g); const port = new THREE.Mesh(new THREE.CircleGeometry(0.35, 20), MAT.black); port.position.z = 0.86; g.add(port); }
+  /* logic board in the head: navy solder mask, gold pads, tiny parts */
+  const lb = new THREE.Group(); lb.position.set(7.4, 3.6, 0.2); lb.rotation.y = Math.PI / 2; INNER.add(lb);
+  box(8.4, 5.4, 0.45, MAT.navy, 0, 0, 0, lb);
+  const chipA = box(2.6, 2.6, 0.55, new THREE.MeshStandardMaterial({ map: etched('', 2.6, 2.6), roughness: 0.4, metalness: 0.2 }), -1.8, 0.6, 0.45, lb);
+  box(1.6, 1.2, 0.5, MAT.black, 1.6, 1.2, 0.45, lb); box(1.2, 1.2, 0.5, MAT.dsteel, 2.4, -1.3, 0.45, lb);
+  caps(lb, [[0.2, -1.6, 0.35], [0.9, -1.6, 0.35], [-0.5, -1.6, 0.35], [-3.4, -1.5, 0.35, 1.57], [3.5, 0.3, 0.35, 1.57], [0.4, 2.2, 0.35]]);
+  for (let i = 0; i < 10; i++) box(0.3, 0.18, 0.05, MAT.gold, -3.6 + i * 0.8, -2.5, 0.25, lb);
+  /* H2: modules spread down the stem on a navy strip (per Lumafield CT scans of Pro 3) */
+  const st = new THREE.Group(); st.position.set(7.1, -8.4, 1.4); INNER.add(st);
+  box(2.6, 11.0, 0.4, MAT.navy, 0, 0, 0, st);
+  const h2 = box(2.3, 3.2, 0.6, new THREE.MeshStandardMaterial({ map: etched('H2', 2.3, 3.2, 'APL'), roughness: 0.42, metalness: 0.2 }), 0, 3.0, 0.5, st);
+  box(2.0, 2.2, 0.55, new THREE.MeshStandardMaterial({ map: etched('', 2, 2.2), roughness: 0.42, metalness: 0.2 }), 0, -0.4, 0.48, st);
+  box(1.8, 1.8, 0.5, new THREE.MeshStandardMaterial({ map: etched('', 1.8, 1.8), roughness: 0.42, metalness: 0.2 }), 0, -3.2, 0.45, st);
+  caps(st, [[-0.9, 1.0, 0.3, 1.57], [0.9, 1.0, 0.3, 1.57], [-0.9, -2.0, 0.3, 1.57], [0.9, -2.0, 0.3, 1.57], [0, -4.6, 0.3]]);
+  box(0.25, 10.4, 0.06, MAT.gold, -1.1, 0, -0.25, st); box(0.25, 10.4, 0.06, MAT.gold, 1.1, 0, -0.25, st);  // antenna traces
+  H2P.position.set(7.1, -5.4, 2.0); INNER.add(H2P);
+  H2_HALO = sprite(HALO_B, 12); H2_HALO.position.set(7.1, -5.4, 2.3); INNER.add(H2_HALO);
+  /* amber flex from the sensor to the board and down the stem */
+  const sLocal = SENSOR.position.clone().addScaledVector(SENSOR_N, -1.4);
+  const curve = new THREE.CatmullRomCurve3([sLocal, new THREE.Vector3(2.5, 6.2, -2.2), new THREE.Vector3(6.6, 4.0, -0.8), new THREE.Vector3(7.0, -1.5, 0.6), new THREE.Vector3(7.1, -4.0, 1.2)]);
+  INNER.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 64, 0.32, 8), new THREE.MeshStandardMaterial({ map: flexTex(), roughness: 0.35, metalness: 0.2 })));
+  window.__flexCurve = curve;
+}
+function setXray(x) {
+  SOLID.forEach(o => { const m = o.material; m.transparent = x > 0.001; m.opacity = 1 - x; m.depthWrite = x < 0.5; });
+  GHOST.forEach(o => { o.material.uniforms.alpha.value = x; o.visible = x > 0.001; });
+  INNER.visible = x > 0.02;
+  WINDOW_GLASS.material.opacity = 1 - 0.7 * x;
+}
+function sensorGlow(v) {
+  SENSOR_HALO.material.opacity = v; SENSOR_HALO.visible = v > 0.01; RED_DIE.material.emissiveIntensity = 0.4 + 2.6 * v;
+  SENSOR.getWorldPosition(redLight.position); redLight.position.addScaledVector(SENSOR_N.clone().transformDirection(BUD.matrixWorld), 4); redLight.intensity = v * 2.2;
+}
+
+/* ---------- head: "Lee Perry-Smith" scan by Infinite Realities (CC BY 3.0) ---------- */
+let HEAD = null; const EAR = new THREE.Vector3(), CANAL = new THREE.Vector3();
+function loadHead() {
+  return new Promise(res => {
+    const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0)).buffer, tl = new THREE.TextureLoader();
+    new THREE.GLTFLoader().parse(b64(window.HEAD_GLB), '', gltf => {
+      const head = gltf.scene.getObjectByProperty('type', 'Mesh') || gltf.scene.children.find(o => o.isMesh);
+      const col = tl.load(window.HEAD_COL); col.encoding = THREE.sRGBEncoding; const nrm = tl.load(window.HEAD_NRM);
+      head.material = new THREE.MeshStandardMaterial({ map: col, normalMap: nrm, normalScale: new THREE.Vector2(0.8, 0.8), color: 0xb07a5c, roughness: 0.6, envMapIntensity: 0.35 });
+      const g = head.geometry; g.computeBoundingBox(); const bb = g.boundingBox, ctr = bb.getCenter(new THREE.Vector3()), sz = bb.getSize(new THREE.Vector3());
+      g.translate(-ctr.x, -ctr.y, -ctr.z); const pa = g.attributes.position, yTop = bb.max.y - ctr.y, hReg = y => y > yTop - 0.42 * sz.y;
+      let mx = 0; for (let i = 0; i < pa.count; i++) if (hReg(pa.getY(i))) mx = Math.max(mx, pa.getX(i));
+      const acc = new THREE.Vector3(); let n = 0;
+      for (let i = 0; i < pa.count; i++) if (hReg(pa.getY(i)) && pa.getX(i) > mx * 0.95) { acc.x += pa.getX(i); acc.y += pa.getY(i); acc.z += pa.getZ(i); n++; }
+      const k = 80 / mx; g.scale(k, k, k); g.computeBoundingBox(); g.computeBoundingSphere();
+      EAR.copy(acc.multiplyScalar(k / n)); CANAL.copy(EAR).add(new THREE.Vector3(-12, -13, 22));
+      head.position.set(0, 0, 0); head.rotation.set(0, 0, 0); head.scale.set(1, 1, 1); HEAD = head; scene.add(head);
+      const wait = () => (col.image && nrm.image) ? res() : setTimeout(wait, 30); wait();
+    });
+  });
+}
+function seatInEar(out = 0, twist = 0) {
+  BUD.position.copy(CANAL).add(new THREE.Vector3(3, 0, 3)).add(new THREE.Vector3(out, -out * 0.25, out * 0.45));
+  BUD.rotation.set(0, 0, 0); BUD.rotateX(-0.3 + 0.25 * twist); BUD.rotateZ(-0.12 + 0.45 * twist); BUD.rotateY(-0.15);
+  BUD.updateMatrixWorld(true);
+}
+const EAR_VIEW = () => [CANAL.clone().add(new THREE.Vector3(1, 0.08, 0.5).normalize().multiplyScalar(230)), CANAL.clone().add(new THREE.Vector3(14, -14, 14))];
+
+/* ---------- effects ---------- */
+function beam(a, b, w, op, dashed) {
+  const grp = new THREE.Group(), d = b.clone().sub(a), len = d.length(), segs = dashed ? Math.max(2, Math.round(len / 2.6)) : 1;
+  for (let i = 0; i < segs; i++) { if (dashed && i % 2) continue; const l0 = len * i / segs, l1 = len * (i + 1) / segs;
+    for (const [r, o] of [[w, op], [w * 3.4, op * 0.16]]) { const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, l1 - l0, 12), new THREE.MeshBasicMaterial({ color: RED, transparent: true, opacity: o, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
+      m.userData.o = o; m.renderOrder = 10; m.position.copy(a).addScaledVector(d, (l0 + l1) / 2 / len); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize()); grp.add(m); } }
+  return grp;
+}
+function fadeGroup(g, a) { g.visible = a > 0.01; g.traverse(o => { if (o.material && o.userData.o !== undefined) o.material.opacity = o.userData.o * a; }); }
+class Photons { // glowing packets of light moving along paths
+  constructor(paths, n, size, tex = HALO) { this.paths = paths; this.sp = []; this.g = new THREE.Group(); scene.add(this.g);
+    paths.forEach((p, i) => { for (let k = 0; k < n; k++) { const s = sprite(tex, size); s.userData = { p, ph: k / n + i * 0.137 }; this.sp.push(s); this.g.add(s); } }); }
+  update(t, speed, a) { this.g.visible = a > 0.01; this.sp.forEach(s => { const f = (t * speed + s.userData.ph) % 1, [A, B] = s.userData.p; s.position.copy(A).lerp(B, f); s.material.opacity = a * Math.sin(Math.PI * f); }); }
+}
+let FX = {};
+function wood() {
+  const c = document.createElement('canvas'); c.width = c.height = 512; const x = c.getContext('2d'); x.fillStyle = '#2e1d12'; x.fillRect(0, 0, 512, 512);
+  let s = 7; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 140; i++) { x.strokeStyle = `rgba(${20 + r() * 40},${12 + r() * 20},6,${0.15 + r() * 0.25})`; x.lineWidth = 1 + r() * 3; x.beginPath(); const y = r() * 512; x.moveTo(0, y); for (let k = 0; k <= 8; k++) x.lineTo(k * 64, y + Math.sin(k * 0.9 + i) * 6); x.stroke(); }
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(14, 14); return t;
+}
+const TABLE = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000), new THREE.MeshStandardMaterial({ map: wood(), roughness: 0.9, envMapIntensity: 0 })); TABLE.rotation.x = -Math.PI / 2; scene.add(TABLE);
+
+/* fixed poses computed once */
+const POSE = {};
+function prepare() {
+  // skin shot: rays from the sensor into the skin and back
+  seatInEar(0); const s = new THREE.Vector3(); SENSOR.getWorldPosition(s); const n = SENSOR_N.clone().transformDirection(BUD.matrixWorld);
+  const side = new THREE.Vector3().crossVectors(n, new THREE.Vector3(0, 1, 0)).normalize(), tgt = s.clone().addScaledVector(n, 7);
+  FX.skinOut = new THREE.Group(); FX.skinBack = new THREE.Group(); scene.add(FX.skinOut, FX.skinBack);
+  const outP = [], backP = [];
+  for (let i = -1; i <= 1; i++) { const a = s.clone().addScaledVector(side, i * 1.2 - 0.8), b = tgt.clone().addScaledVector(side, i * 2.8); FX.skinOut.add(beam(a, b, 0.3, 0.9)); outP.push([a, b]); }
+  for (let i = -1; i <= 1; i += 2) { const b = tgt.clone().addScaledVector(side, i * 2.2 + 1.5), a = s.clone().addScaledVector(side, 1.5 + i * 0.4); FX.skinBack.add(beam(b, a, 0.24, 0.8, true)); backP.push([b, a]); }
+  FX.skinPhOut = new Photons(outP, 3, 3.2); FX.skinPhBack = new Photons(backP, 3, 2.6);
+  POSE.skinS = s; POSE.skinT = tgt; POSE.skinN = n;
+  // table shot: bud lying on its side, sensor facing the wood
+  BUD.position.set(0, 0, 0); BUD.rotation.set(0, 0, 0); BUD.updateMatrixWorld(true);
+  const n0 = SENSOR_N.clone().transformDirection(BUD.matrixWorld);
+  BUD.quaternion.premultiply(new THREE.Quaternion().setFromUnitVectors(n0, new THREE.Vector3(0, -1, 0))); BUD.updateMatrixWorld(true);
+  const bb = new THREE.Box3().setFromObject(BUD.getObjectByName('Cube_2_Mat.1_0')); BUD.position.y = -bb.min.y + 0.2; BUD.updateMatrixWorld(true);
+  POSE.tableQ = BUD.quaternion.clone(); POSE.tableP = BUD.position.clone();
+  const ts = new THREE.Vector3(); SENSOR.getWorldPosition(ts); const fl = new THREE.Vector3(ts.x, 0.1, ts.z);
+  FX.tableOut = new THREE.Group(); FX.tableBack = new THREE.Group(); scene.add(FX.tableOut, FX.tableBack); const tO = [], tB = [];
+  for (let i = -1; i <= 1; i++) { const a = ts.clone().add(new THREE.Vector3(i * 1.2, 0, 0)), b = fl.clone().add(new THREE.Vector3(i * 4, 0, 2)); FX.tableOut.add(beam(a, b, 0.3, 0.9)); tO.push([a, b]); }
+  for (let i = -1; i <= 1; i += 2) { const a = fl.clone().add(new THREE.Vector3(i * 4, 0, 2)), b = fl.clone().add(new THREE.Vector3(i * 16, 9, -6)); FX.tableBack.add(beam(a, b, 0.2, 0.55, true)); tB.push([a, b]); }
+  FX.tablePhOut = new Photons(tO, 3, 3.0); FX.tablePhBack = new Photons(tB, 2, 2.4);
+  const pool = new THREE.Mesh(new THREE.CircleGeometry(9, 40), new THREE.MeshBasicMaterial({ color: RED, transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending, depthWrite: false })); pool.userData.o = 0.28;
+  pool.rotation.x = -Math.PI / 2; pool.position.copy(fl); FX.tableOut.add(pool);
+  // signal shot: path sensor → board → H2, then radio waves
+  BUD.position.set(-4, 14, 0); BUD.rotation.set(0.05, 0.35, 0.1); BUD.updateMatrixWorld(true);
+  const pts = window.__flexCurve.getPoints(80).map(v => BUD.localToWorld(v.clone()));
+  FX.sigCurve = new THREE.CatmullRomCurve3(pts);
+  FX.sigTube = new THREE.Mesh(new THREE.TubeGeometry(FX.sigCurve, 120, 0.42, 8), new THREE.MeshBasicMaterial({ color: 0xff6a82, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false })); scene.add(FX.sigTube);
+  FX.sigHead = sprite(HALO, 7); scene.add(FX.sigHead);
+  FX.waves = []; const h2w = BUD.localToWorld(H2P.position.clone());
+  for (let i = 0; i < 3; i++) { const r = new THREE.Mesh(new THREE.TorusGeometry(6, 0.4, 8, 64, Math.PI * 0.62), new THREE.MeshBasicMaterial({ color: 0x7cc8ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+    r.position.copy(h2w).add(new THREE.Vector3(1, -11, 0)); r.rotation.z = -Math.PI * 0.81; scene.add(r); FX.waves.push(r); }
+  POSE.sigP = BUD.position.clone(); POSE.sigR = BUD.rotation.clone();
+  // x-ray shot: yaw that turns the sensor toward the camera
+  BUD.position.set(0, 0, 0); BUD.rotation.set(0, 0, 0); BUD.updateMatrixWorld(true);
+  const nn = SENSOR_N.clone(); POSE.xrayYaw = -Math.atan2(nn.x, nn.z) + 0.35;
+  // motion streaks for the pull-out
+  FX.streaks = new THREE.Group(); scene.add(FX.streaks);
+  for (let i = 0; i < 4; i++) { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 18, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 })); m.userData.o = 0.32 - i * 0.05; FX.streaks.add(m); }
+}
+
+/* ---------- overlays ---------- */
+const $ = id => document.getElementById(id);
+const ICON = { pause: '<svg viewBox="0 0 24 24"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="#111"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="#111"/></svg>',
+               play: '<svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z" fill="#111"/></svg>' };
+let lastPlayer = '';
+function player(a, state, progress, pop = 0) {
+  const p = $('player'); p.style.opacity = a; p.style.transform = `translateY(${(1 - a) * 4}vh) scale(${1 + 0.04 * pop})`;
+  if (state !== lastPlayer) { lastPlayer = state; $('btn').innerHTML = state === 'paused' ? ICON.play : ICON.pause; $('meta').querySelector('span').textContent = state === 'paused' ? 'Paused' : 'Now playing';
+    const s = $('state'); s.textContent = state === 'paused' ? '❚❚  PAUSED' : '▶  PLAYING'; s.style.background = state === 'paused' ? '#ff3b55' : '#2fd36b'; s.style.color = state === 'paused' ? '#fff' : '#05210f'; }
+  $('bar').firstChild.style.width = (progress * 100).toFixed(2) + '%';
+}
+let lastTitle = '';
+function title(lines, times, u) { // lines reveal one by one
+  const key = lines.join('|'); if (key !== lastTitle) { lastTitle = key; $('title').innerHTML = lines.map(l => `<span class="ln">${l}</span>`).join(''); }
+  [...$('title').children].forEach((el, i) => { const a = easeOut(ramp(u, times[i], times[i] + 0.35)); el.style.opacity = a; el.style.transform = `translateY(${(1 - a) * 2.2}vh)`; });
+}
+function note(text, a) { $('note').textContent = text; $('note').style.opacity = a; }
+const TAGS = {}; const svg = $('lines');
+function tagEl(id, text, cls) { if (!TAGS[id]) { const el = document.createElement('div'); el.className = 'tag ' + (cls || ''); document.body.appendChild(el);
+  const l = document.createElementNS('http://www.w3.org/2000/svg', 'line'), c = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); svg.append(l, c); TAGS[id] = { el, l, c }; }
+  const T = TAGS[id]; T.el.textContent = text; T.el.className = 'tag ' + (cls || ''); return T; }
+function proj(v) { const p = v.clone().project(camera); return [(p.x + 1) / 2 * W, (1 - p.y) / 2 * H]; }
+function tag(id, text, world, dx, dy, a, cls) {
+  const T = tagEl(id, text, cls), [x, y] = proj(world), col = cls === 'red' ? '#ff3b55' : cls === 'green' ? '#2fd36b' : 'rgba(255,255,255,.75)';
+  T.el.style.left = (x + dx) + 'px'; T.el.style.top = (y + dy) + 'px'; T.el.style.opacity = a;
+  T.l.setAttribute('x1', x); T.l.setAttribute('y1', y); T.l.setAttribute('x2', x + dx * 0.8); T.l.setAttribute('y2', y + dy * 0.8); T.l.setAttribute('stroke', col); T.l.setAttribute('stroke-width', 2.5); T.l.style.opacity = a;
+  T.c.setAttribute('cx', x); T.c.setAttribute('cy', y); T.c.setAttribute('r', 6); T.c.setAttribute('fill', col); T.c.style.opacity = a;
+}
+function hideTags(except = []) { for (const id in TAGS) if (!except.includes(id)) { TAGS[id].el.style.opacity = 0; TAGS[id].l.style.opacity = 0; TAGS[id].c.style.opacity = 0; } }
+function look(pos, target) { camera.position.copy(pos); camera.lookAt(target); camera.updateMatrixWorld(); }
+const vlerp = (a, b, k) => a.clone().lerp(b, k);
+
+/* ---------- timeline ---------- */
+const CUTS = [4, 15, 25, 35, 45];
+const SHOTS = [
+  [0, 4, (u, t) => { // hook: pull one out, music stops
+    HEAD.visible = true; TABLE.visible = false; setXray(0); sensorGlow(0);
+    const k = easeOut(ramp(u, 0.7, 1.5)); seatInEar(52 * k, k);
+    const [p, tg] = EAR_VIEW(); look(vlerp(p, tg, 0.06 * u / 4), tg);
+    const sa = ramp(u, 0.75, 0.95) * (1 - ramp(u, 1.5, 2.0)); fadeGroup(FX.streaks, sa); FX.streaks.visible = sa > 0.01;
+    FX.streaks.children.forEach((m, i) => { const a = BUD.position.clone().add(new THREE.Vector3(-16, 13 - i * 4.5, -9)); m.position.copy(a); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(1, -0.25, 0.45).normalize()); });
+    const paused = u > 1.3; player(1, paused ? 'paused' : 'playing', 0.3 + (paused ? 1.3 : u) * 0.004, Math.exp(-Math.pow((u - 1.35) * 6, 2)));
+    title(['Pull one out…', '<em>Music stops.</em>'], [0.15, 1.3], u);
+    tag('how', 'How did it know?', BUD.position.clone().add(new THREE.Vector3(0, 12, 0)), W * 0.02, -H * 0.13, easeOut(ramp(u, 2.2, 2.6)), 'red');
+    note('3D illustration · not affiliated with Apple', 1 - ramp(u, 3.2, 3.6));
+  }],
+  [4, 15, (u, t) => { // x-ray: fly to the skin-detect sensor
+    HEAD.visible = false; TABLE.visible = false; FX.streaks.visible = false;
+    BUD.position.set(0, 0, 0); BUD.rotation.set(0, POSE.xrayYaw - 1.1 * (1 - ease(ramp(u, 0, 7))), 0); BUD.updateMatrixWorld(true);
+    setXray(ease(ramp(u, 0.8, 2.6))); const glow = ease(ramp(u, 3.2, 4.2)) * (0.75 + 0.25 * Math.sin(t * 6)) * (1 - 0.7 * ease(ramp(u, 5.6, 8.0))); sensorGlow(glow);
+    const s = new THREE.Vector3(); SENSOR.getWorldPosition(s); const n = SENSOR_N.clone().transformDirection(BUD.matrixWorld);
+    const far = new THREE.Vector3(8, 12, 118), near = s.clone().addScaledVector(n.clone().add(new THREE.Vector3(0.35, 0.2, 0.25)).normalize(), 50);
+    const k = ease(ramp(u, 5.6, 8.6)); look(vlerp(far, near, k), vlerp(new THREE.Vector3(0, -1, 0), s, k));
+    player(0, 'paused', 0.305); title(['Inside: a <em>skin-detect</em>', 'sensor'], [0.6, 0.6], u);
+    const a1 = ease(ramp(u, 2.6, 3.0)) * (1 - ease(ramp(u, 5.2, 5.6)));
+    tag('bat', 'Battery', BUD.localToWorld(BATT_P.position.clone()), W * 0.2, -H * 0.06, a1);
+    tag('drv', 'Driver', BUD.localToWorld(DRV_P.position.clone()), -W * 0.2, -H * 0.05, a1);
+    tag('h2a', 'H2 chip', BUD.localToWorld(H2P.position.clone()), W * 0.2, H * 0.04, a1);
+    tag('sen', 'Skin-detect sensor', s, -W * 0.2, H * 0.1, ease(ramp(u, 3.4, 3.8)) * (1 - ease(ramp(u, 5.4, 5.8))), 'red');
+    const a2 = ease(ramp(u, 8.4, 8.8));
+    tag('emit', 'Infrared light', EMIT.getWorldPosition(new THREE.Vector3()), -W * 0.12, -H * 0.13, a2, 'red');
+    tag('det', 'Light sensor', DETECT.getWorldPosition(new THREE.Vector3()), W * 0.12, H * 0.13, ease(ramp(u, 9.0, 9.4)));
+    note('Illustrative · not to scale', 1);
+  }],
+  [15, 25, (u, t) => { // skin: light out, reflection back
+    HEAD.visible = true; TABLE.visible = false; seatInEar(0); setXray(0.82); sensorGlow(0.9 + 0.1 * Math.sin(t * 6));
+    const s = POSE.skinS, orbit = 0.25 * (u / 10 - 0.5);
+    look(s.clone().add(new THREE.Vector3(70, 40, 95).applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit)), s.clone().add(new THREE.Vector3(-2, -2, 0)));
+    const ao = ease(ramp(u, 0.8, 1.6)), ab = ease(ramp(u, 4.0, 4.8)); fadeGroup(FX.skinOut, ao); fadeGroup(FX.skinBack, ab);
+    FX.skinPhOut.update(t, 0.9, ao); FX.skinPhBack.update(t, 0.9, ab);
+    player(0, 'paused', 0.305);
+    title(['It shines <em>invisible light</em>', 'and reads what bounces back'], [0.5, 4.0], u);
+    tag('skin', 'Skin ✓', POSE.skinT.clone().addScaledVector(POSE.skinN, 2), W * 0.2, H * 0.09, ease(ramp(u, 6.5, 6.9)), 'green');
+    note('Short-wave infrared shown in red · invisible to the eye', 1);
+  }],
+  [25, 35, (u, t) => { // table: not skin
+    HEAD.visible = false; TABLE.visible = true; scene.fog.near = 140; scene.fog.far = 420; BUD.position.copy(POSE.tableP); BUD.quaternion.copy(POSE.tableQ); BUD.updateMatrixWorld(true);
+    setXray(0); sensorGlow(0.9 + 0.1 * Math.sin(t * 6));
+    const orbit = -0.3 + 0.35 * u / 10; look(new THREE.Vector3(70, 60, 125).applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit), new THREE.Vector3(0, 15, 0));
+    const ao = ease(ramp(u, 0.6, 1.4)), ab = ease(ramp(u, 2.6, 3.4)); fadeGroup(FX.tableOut, ao); fadeGroup(FX.tableBack, ab);
+    FX.tablePhOut.update(t, 0.9, ao); FX.tablePhBack.update(t, 0.7, ab);
+    const x = $('big'), xa = easeOut(ramp(u, 4.4, 4.8)); x.style.opacity = xa; x.style.left = 0.75 * W + 'px'; x.style.top = 0.43 * H + 'px'; x.style.transform = `translate(-50%,-50%) scale(${1.6 - 0.6 * xa})`;
+    player(ease(ramp(u, 5.4, 5.9)), 'paused', 0.305);
+    title(['Table or pocket?', 'The light <em>doesn’t match skin</em>'], [0.3, 3.2], u);
+    note('Older AirPods used simpler optical sensors that a pocket could fool', ease(ramp(u, 6.2, 6.6)));
+  }],
+  [35, 45, (u, t) => { // signal: sensor → H2 → phone
+    HEAD.visible = false; TABLE.visible = false; BUD.position.copy(POSE.sigP); BUD.rotation.copy(POSE.sigR); BUD.updateMatrixWorld(true);
+    setXray(1); sensorGlow(0.85);
+    look(new THREE.Vector3(2, 6, 128).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.12 * (u / 10 - 0.5)), new THREE.Vector3(0, 9, 0));
+    const pr = ease(ramp(u, 1.0, 3.6)), idx = FX.sigTube.geometry.index.count; FX.sigTube.geometry.setDrawRange(0, Math.floor(idx * pr / 6) * 6); FX.sigTube.visible = pr > 0.01;
+    FX.sigHead.visible = pr > 0.01 && pr < 0.999; FX.sigHead.position.copy(FX.sigCurve.getPoint(pr));
+    const hg = ease(ramp(u, 3.4, 4.0)); H2_HALO.visible = hg > 0.01; H2_HALO.material.opacity = hg * (0.75 + 0.25 * Math.sin(t * 7));
+    FX.waves.forEach((w, i) => { const f = ((u - 4.0) * 0.6 - i / 3); const ph = f - Math.floor(f); const on = u > 4.0 + i * 0.55; w.visible = on; w.scale.setScalar(1 + ph * 2.8); w.material.opacity = on ? 0.9 * (1 - ph) : 0; });
+    const pa = ease(ramp(u, 5.6, 6.1)); player(pa, 'paused', 0.305, Math.exp(-Math.pow((u - 6.0) * 5, 2)));
+    title(['Sensor → <em>H2 chip</em> →', 'your phone'], [0.4, 5.5], u);
+    tag('sen2', 'Sensor', SENSOR.getWorldPosition(new THREE.Vector3()), -W * 0.16, H * 0.07, ease(ramp(u, 0.6, 1.0)), 'red');
+    tag('h2b', 'H2 chip', BUD.localToWorld(H2P.position.clone()), W * 0.22, -H * 0.02, ease(ramp(u, 3.6, 4.0)));
+    note('', 0);
+  }],
+  [45, 50, (u, t) => { // payoff: back in, music resumes
+    HEAD.visible = true; TABLE.visible = false; setXray(0); sensorGlow(0);
+    const k = 1 - ease(ramp(u, 0.2, 1.2)); seatInEar(52 * k, k);
+    const [p, tg] = EAR_VIEW(); look(vlerp(p, tg, 0.06 * (1 - u / 5)), tg);
+    const play = u > 1.3; player(1, play ? 'playing' : 'paused', 0.305 + (play ? (u - 1.3) * 0.004 : 0), Math.exp(-Math.pow((u - 1.35) * 6, 2)));
+    title(['Skin = <em class="g">play</em>.', 'Anything else = <em>pause</em>.'], [1.4, 2.4], u);
+    note('', 0);
+  }],
+];
+function renderAt(t) {
+  t = Math.max(0, Math.min(TOTAL - 1e-3, t));
+  const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, , fn] = SHOTS[i];
+  hideTags(); $('big').style.opacity = 0; scene.fog.near = 5000; scene.fog.far = 8000;
+  for (const g of [FX.skinOut, FX.skinBack, FX.tableOut, FX.tableBack, FX.sigTube, FX.sigHead, H2_HALO, FX.streaks]) g.visible = false;
+  [FX.skinPhOut, FX.skinPhBack, FX.tablePhOut, FX.tablePhBack].forEach(p => p.g.visible = false); FX.waves.forEach(w => w.visible = false);
+  fn(t - a, t);
+  $('fade').style.opacity = Math.max(0, ...CUTS.map(c => 1 - Math.abs(t - c) / 0.22));
+  renderer.render(scene, camera);
+}
+Promise.all([loadBud(), loadHead()]).then(() => {
+  buildInternals(); prepare(); renderAt(0); ready = true;
+  window.__tour = { total: TOTAL, renderAt };
+  if (!/render=1/.test(location.search)) { const t0 = performance.now(); const loop = () => { renderAt(((performance.now() - t0) / 1000) % TOTAL); requestAnimationFrame(loop); }; loop(); }
+});
+window.__tourReady = () => ready;
+})();
+</script>
