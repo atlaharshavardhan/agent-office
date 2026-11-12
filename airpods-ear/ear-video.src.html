@@ -506,8 +506,8 @@ const SHOTS = [
     FX.waves.forEach((w, i) => { const f = ((u - 4.0) * 0.6 - i / 3); const ph = f - Math.floor(f); const on = u > 4.0 + i * 0.55; w.visible = on; w.scale.setScalar(1 + ph * 2.0); w.material.opacity = on ? 0.9 * (1 - ph) : 0; });
     const pa = ease(ramp(u, 5.6, 6.1)); player(pa, 'paused', 0.305, Math.exp(-Math.pow((u - 6.0) * 5, 2)), true);
     title(['Sensor → <em>H2 chip</em> →', 'your phone'], [0.4, 5.5], u);
-    tag('sen2', 'Sensor', SENSOR.getWorldPosition(new THREE.Vector3()), -W * 0.06, H * 0.1, ease(ramp(u, 0.6, 1.0)), 'red');
-    tag('h2b', 'H2 chip', BUD.localToWorld(H2P.position.clone()), -W * 0.2, H * 0.05, ease(ramp(u, 3.6, 4.0)));
+    sideTags([['sen2', 'Sensor', SENSOR.getWorldPosition(new THREE.Vector3()), -1, ease(ramp(u, 0.6, 1.0)), 'red'], ['h2b', 'H2 chip', BUD.localToWorld(H2P.position.clone()), -1, ease(ramp(u, 3.6, 4.0))]]);
+
     note('', 0);
   }],
   [39.53, 43.53, (u, t) => { // payoff: back in, music resumes
