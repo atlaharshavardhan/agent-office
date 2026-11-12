@@ -15,33 +15,36 @@ import re
 src = open('iphone-teardown.html').read()
 
 info = r'''const INFO = {
-  tip: { name: 'Foam-infused ear tip', role: 'The seal that makes noise cancelling work.',
-    body: 'The tip is soft silicone with foam inside it. It squashes gently to fit the shape of your ear canal and seals it, so outside noise cannot leak in around the edge. That seal does a lot of the quiet before any electronics start working. It clicks onto the nozzle and comes in several sizes.',
-    specs: ['Silicone with foam inside', 'Seals the ear canal', 'Swappable sizes'] },
-  sensor: { name: 'Heart-rate sensor', role: 'Reads your pulse from inside your ear.',
-    body: 'A tiny optical sensor sits behind a dark window on the part that touches your ear. It shines invisible infrared light into the skin and measures how much bounces back. Each heartbeat pushes more blood through, which changes that reflection, so the earbuds can count your heart rate during workouts. A skin-detect sensor also tells the bud when it is in your ear.',
-    specs: ['Infrared optical window', 'Heart rate during workouts', 'Skin-detect for in-ear sensing'] },
-  driver: { name: 'Driver and inward mic', role: 'Makes the sound, and listens to it.',
-    body: 'An Apple-designed driver, powered by its own amplifier, pushes air through the nozzle into your ear. Right in front of it is a microphone that faces inward. It hears what actually reaches your ear, so the chip can fix the sound and cancel any noise that slipped past the tip.',
-    specs: ['Apple-designed driver', 'Custom amplifier', 'Inward-facing microphone'] },
-  shell: { name: 'Earbud housing', role: 'Everything has to fit in here.',
-    body: 'The glossy white shell holds every part in a space smaller than a grape. The parts are glued in place, which keeps out sweat and water but also means the earbud cannot be opened without damage. iFixit gave it 0 out of 10 for repairability.',
-    specs: ['30.9 × 19.2 × 27.0 mm, 5.55 g', 'IP57 sweat and water resistant', 'Glued, 0/10 repairability'] },
-  board: { name: 'H2 chip', role: 'The brain doing the noise cancelling.',
-    body: 'The H2 chip listens to all the microphones many thousands of times a second and creates an opposite sound wave that cancels the noise before you hear it. Apple says it removes up to twice as much noise as AirPods Pro 2. It also runs Transparency mode, Live Translation and the motion and speech-detecting accelerometers.',
-    specs: ['Apple H2 chip', 'Up to 2× more noise cancelled than Pro 2', 'Motion and speech accelerometers'] },
+  tip: { name: 'Foam-infused ear tip', role: 'The seal that does half the noise cancelling.',
+    body: 'Soft silicone with foam inside. It squashes to fit your ear canal and seals it, so outside noise cannot leak in around the edge before any electronics start working. Apple includes five sizes, from a new extra-extra-small to large, and the ear-tip fit test checks the seal for you.',
+    specs: ['Silicone with foam inside', 'Five sizes: XXS, XS, S, M, L', 'Seals the ear canal'] },
+  sensor: { name: 'Heart-rate sensor', role: 'Reads your pulse through your skin.',
+    body: 'Behind a dark window on the surface that touches your ear sits a tiny infrared LED with a light detector below it. Apple says it pulses invisible infrared light 256 times a second and measures how much the blood in your skin absorbs. Each heartbeat changes that, so the earbud can count your heart rate during workouts. A skin-detect sensor tells it when the bud is in your ear.',
+    specs: ['Infrared LED + photodetector', 'Pulses 256 times a second', 'Skin-detect sensor'] },
+  inmic: { name: 'Inward-facing mic and mesh', role: 'Listens to what actually reaches your ear.',
+    body: 'A microphone sits in front of the driver, facing into your ear canal behind a fine mesh. It hears the sound that really arrives at your eardrum, including any noise that slipped past the tip, so the chip can cancel it and tune the music to the shape of your ear in real time (Adaptive EQ).',
+    specs: ['Faces into the ear canal', 'Feeds noise cancelling', 'Feeds Adaptive EQ'] },
+  driver: { name: 'Driver and amplifier', role: 'The speaker that makes the sound.',
+    body: 'Apple designs its own driver for AirPods Pro: a high-excursion speaker whose diaphragm can travel further, so bass stays clean without distorting. A custom high-dynamic-range amplifier powers it. iFixit found that pulling the driver out destroys it.',
+    specs: ['Custom high-excursion Apple driver', 'Custom high-dynamic-range amplifier', 'Destroyed if removed (iFixit)'] },
   battery: { name: 'Earbud battery', role: 'A coin-sized cell that lasts a workday.',
-    body: 'Each earbud runs on a small 0.221 watt-hour cell, about the energy of a thumbnail-sized coin cell. It gives up to eight hours of listening with noise cancelling on. The cell is glued in and joined by a tiny connector, so it cannot easily be replaced.',
-    specs: ['0.221 Wh per earbud', 'Up to 8 h with noise cancelling', 'Glued in place'] },
-  stem: { name: 'Stem: mics and touch', role: 'Your controls, and the microphones for calls.',
-    body: 'The stem holds two beamforming microphones that point toward your mouth and ignore sounds from other directions, so your voice stays clear on calls. Its flat side is a touch control: press to play or pause, swipe to change the volume, and press and hold to switch noise modes. Metal contacts at the tip charge the bud in its case.',
-    specs: ['Dual beamforming microphones', 'Touch control: press, swipe, hold', 'Charging contacts at the tip'] },
-  case: { name: 'MagSafe charging case', role: 'A pocket charger that can call for help.',
-    body: 'The case recharges the earbuds several times over. It charges with USB-C, MagSafe, Qi2 or an Apple Watch charger. It has a lanyard loop on the side and a speaker that can play a sound so you can find it.',
-    specs: ['47.2 × 62.2 × 21.8 mm, 43.99 g', 'USB-C, MagSafe and Qi2', 'IP57, speaker and lanyard loop'] },
-  caseInside: { name: 'Inside the case', role: 'One big cell and a radio for finding it.',
-    body: 'A single 1.334 watt-hour cell fills most of the case. The previous Pro case used two cells. A second-generation Ultra Wideband chip lets your iPhone point straight to the case with Precision Finding. A ring of magnets on the back snaps it onto MagSafe and Qi2 chargers.',
-    specs: ['One 1.334 Wh cell (Pro 2 had two)', 'Ultra Wideband chip (2nd gen)', 'Magnet ring for MagSafe and Qi2'] },
+    body: 'A small 0.221 watt-hour cell sits in the head. It gives up to eight hours of listening with noise cancelling on, or 7.5 hours with Spatial Audio and head tracking. iFixit found it now joins the board with a tiny press connector instead of solder, but it is still glued in.',
+    specs: ['0.221 Wh', 'Up to 8 h with noise cancelling', 'Press connector, glued in'] },
+  accel: { name: 'Motion and speech accelerometers', role: 'Feels your head move and your jaw talk.',
+    body: 'Two tiny accelerometers sense movement. The motion one tracks your head for Spatial Audio and workouts. The speech one feels the vibration of your jaw when you talk, so the earbud knows the voice it hears is yours and not someone nearby.',
+    specs: ['Motion-detecting accelerometer', 'Speech-detecting accelerometer', 'Head tracking and voice detection'] },
+  topmic: { name: 'Outward mic and vent', role: 'Hears the world, and lets the ear breathe.',
+    body: 'Under the top mesh, an outward-facing microphone listens to the noise around you. The chip flips that sound and plays it back to cancel it, or lets it through in Transparency mode. Behind the other mesh is a vent that balances air pressure, so a sealed ear never feels blocked. Apple calls the whole airflow design a multiport acoustic architecture.',
+    specs: ['Outward beamforming microphone', 'Pressure-equalising vent', 'Multiport acoustic architecture'] },
+  shell: { name: 'Earbud housing', role: 'Everything has to fit in here.',
+    body: 'The glossy white shell holds every part in a space smaller than a grape. The parts are glued in place, which keeps out sweat and water but means the earbud cannot be opened without damage. iFixit gave it 0 out of 10 for repairability.',
+    specs: ['30.9 × 19.2 × 27.0 mm, 5.55 g', 'IP57 sweat and water resistant', 'Glued, 0/10 repairability'] },
+  h2: { name: 'H2 chip modules', role: 'The brain, spread down the stem.',
+    body: 'The Apple H2 chip runs the noise cancelling, Transparency, Adaptive EQ, Live Translation and the wireless link. In AirPods Pro 2 it was one compact package; CT scans by Lumafield show AirPods Pro 3 spreads its functions across several small modules lined up along the stem. Apple says the result removes up to twice as much noise as AirPods Pro 2.',
+    specs: ['Apple H2', 'Split into several modules along the stem', 'Up to 2× more noise cancelled than Pro 2'] },
+  stembase: { name: 'Stem: mic, contacts and touch', role: 'Your controls, and the mic nearest your mouth.',
+    body: 'The flat side of the stem is the touch control: press to play or pause, swipe to change volume, press and hold to switch noise modes. At the very bottom, a beamforming microphone sits between the two metal charging contacts, pointing down toward your mouth. Paired with the top mic it focuses on your voice during calls.',
+    specs: ['Touch control: press, swipe, hold', 'Bottom beamforming mic', 'Two charging contacts'] },
 };
 '''
 src = re.sub(r"const INFO = \{.*?\n\};\n", lambda m: info, src, count=1, flags=re.S)
@@ -81,7 +84,7 @@ const CTRL = { lid: 1, lidGoal: 1, out: 1, outGoal: 1 };
 const POSE_OV = (() => { const q = new URLSearchParams(location.search).get('pose'); if (!q) return null; const [az, el, dist, tx, ty, tz] = q.split(',').map(Number); return { az, el, dist, target: new THREE.Vector3(tx, ty, tz), shift: 0 }; })();
 { const q = new URLSearchParams(location.search).get('state') || ''; if (q.includes('closed')) CTRL.lid = CTRL.lidGoal = 0; if (q.includes('in')) CTRL.out = CTRL.outGoal = 0; }
 let LID_HINGE = null, LEFT_BUD = null, LEFT_X = 0, LEFT_Y = 0, LEFT_Z = 0, TIP_G = null, SHELL_G = null, CASE_G = null, SENSOR_WIN = null, MODEL = null; const LANYARD = [];
-const BUD_IDS = new Set(['tip', 'sensor', 'driver', 'shell', 'board', 'battery', 'stem']);
+const BUD_IDS = new Set(['tip', 'sensor', 'inmic', 'driver', 'battery', 'accel', 'topmic', 'shell', 'h2', 'stembase']);
 let [BUD_DROP, BUD_TURN, BUD_TILT, BUD_BACK, BUD_SPREAD] = (new URLSearchParams(location.search).get('bud') || '-21,1.0,0.3,-1.0,2.5').split(',').map(Number);
 const _q = new THREE.Quaternion(), _e = new THREE.Euler(), _pv = new THREE.Vector3();
 function rotAbout(obj, pivot, ex, ey) {   // rotate obj about a pivot given in its own (unrotated) frame
@@ -90,7 +93,7 @@ function rotAbout(obj, pivot, ex, ey) {   // rotate obj about a pivot given in i
 }
 window.__budCheck = () => {
   scene.updateMatrixWorld(true);
-  const C = parts.find(p => p.id === 'case'); const c0 = new THREE.Vector3(CASE.x, CASE.y + BODY_H / 2 - (PB - LID_H), CASE.z).add(C.group.position);
+  const c0 = new THREE.Vector3(CASE.x, CASE.y + BODY_H / 2 - (PB - LID_H), CASE.z).add(CASE_G.position);
   let out = 0, n = 0, worst = 0; const v = new THREE.Vector3(), rep = {};
   const test = o => { if (!o.isMesh || !o.geometry.attributes.position) return; const pa = o.geometry.attributes.position; for (let i = 0; i < pa.count; i += 3) { v.fromBufferAttribute(pa, i).applyMatrix4(o.matrixWorld).sub(c0);
       const F = Math.pow(Math.pow(Math.abs(v.x / PA), 2 / E2) + Math.pow(Math.abs(v.z / PC), 2 / E2), E2 / E1) + Math.pow(Math.abs(v.y / PB), 2 / E1); n++; if (F > 0.985) { out++; const k = (o.userData.part ? o.userData.part.id : 'leftbud'); const r = (rep[k] = rep[k] || { c: 0, x: 0, y: 0, z: 0 }); r.c++; r.x += v.x; r.y += v.y; r.z += v.z; } worst = Math.max(worst, F); } };
@@ -98,7 +101,7 @@ window.__budCheck = () => {
   if (LEFT_BUD) LEFT_BUD.traverse(test);
   Object.values(rep).forEach(r => { r.x = +(r.x / r.c).toFixed(1); r.y = +(r.y / r.c).toFixed(1); r.z = +(r.z / r.c).toFixed(1); }); return { out, worst: +worst.toFixed(3), rep };
 };
-const _qa = new THREE.Quaternion(), _hc = new THREE.Vector3(), INTERNAL = new Set(['sensor', 'driver', 'board', 'battery', 'stem']);
+const _qa = new THREE.Quaternion(), _hc = new THREE.Vector3(), INTERNAL = new Set(['sensor', 'inmic', 'driver', 'battery', 'accel', 'topmic', 'h2', 'stembase']);
 function seat(obj, P, t, base) {   // t = 0 → out pose (as baked), 1 → seated in the case; rotate about the head centre
   _qa.identity().slerp(P.q, t); obj.quaternion.copy(_qa);
   _hc.copy(P.h).lerp(P.c, t);
@@ -114,6 +117,7 @@ function applyExtras(e) {
     if (LEFT_BUD) { LEFT_BUD.position.set(LEFT_X - BUD_SPREAD * inL, LEFT_Y + BUD_DROP * inL, LEFT_Z + BUD_BACK * inL); rotAbout(LEFT_BUD, HEAD, BUD_TILT * inL, BUD_TURN * inL); }
   }
   if (LID_HINGE) LID_HINGE.rotation.x = -1.92 * CTRL.lid;
+  if (CASE_G) CASE_G.visible = e < 0.04;
 }
 /* earbud head = ellipsoid; helpers put things on its surface */
 const HEAD = new THREE.Vector3(0, 8, 0), HR = new THREE.Vector3(9.3, 9.8, 8.7);
@@ -170,48 +174,58 @@ function tipMesh(parent) {
   return m;
 }
 
-/* 1. Ear tip */
-addPart('tip', [0, 0, 22], { az: 0.75, el: 0.25, k: 1.6 }, [5.6, 7.0, 14], g => { TIP_G = g; tipMesh(g); });
+/* Earbud internals, placed inside the real AirPods Pro shell (out pose: tip faces +z, stem hangs from the back of the head).
+   Measured on the model: head centre ≈ (0.2, 6.5, −1.5); stem axis from (−2.4, −1.5, −7.7) to (1.3, −14, −6.9). */
+const BC = new THREE.Vector3(0.2, 6.5, -1.5), AX = new THREE.Vector3(-0.2, -3.4, 8.8).normalize();
+const ST0 = new THREE.Vector3(-2.4, -1.5, -7.7), ST1 = new THREE.Vector3(1.3, -14.0, -6.9), SAX = ST1.clone().sub(ST0).normalize();
+const at = (v, d, k) => v.clone().addScaledVector(d, k);
+const ZV = new THREE.Vector3(0, 0, 1), YV = new THREE.Vector3(0, 1, 0);
+function aim(obj, dir, from = ZV) { obj.quaternion.setFromUnitVectors(from, dir.clone().normalize()); return obj; }
+function grp(parent, pos, dir, from) { const g = new THREE.Group(); g.position.copy(pos); if (dir) aim(g, dir, from); parent.add(g); return g; }
+const meshMat = () => std(0x9ea3aa, 0.6, 0.45, { map: meshTex });
+const PCB = () => std(0x14302a, 0.25, 0.45);
+let SENSOR_MOUNT = null;
 
-/* 2. Heart-rate sensor (on the surface that touches the ear) */
-addPart('sensor', [-14, -4, 14], { az: 0.35, el: 0.2, k: 2.4 }, [-3.4, 1.8, 8.5], g => {
-  const glass = phys({ color: 0x0a0b0e, metalness: 0.2, roughness: 0.08, clearcoat: 1 });
-  const { p, n } = onHead([-0.3, -0.42, 0.85], 1.0);
-  const win = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16), glass); win.scale.set(2.6, 1.7, 0.45); win.position.copy(p); win.lookAt(p.clone().add(n)); g.add(win); SENSOR_WIN = win;
-  const led = std(0x1c0e12, 0.1, 0.3);
-  const l1 = ell(0.45, 0.45, 0.25, led, 0, 0, 0, win, 24); l1.position.set(-0.35, 0, 0.9); l1.scale.set(0.17, 0.26, 0.5);
-  const l2 = ell(0.55, 0.55, 0.25, std(0x0f2030, 0.2, 0.2), 0, 0, 0, win, 24); l2.position.set(0.35, 0, 0.9); l2.scale.set(0.2, 0.3, 0.5);
-  const fx = box(2.0, 4.5, 0.15, FLEX(), p.x, p.y + 2.4, p.z - 1.2, g); fx.rotation.x = -0.6;
+/* 1. Ear tip (the real model's tip) */
+addPart('tip', [-0.5, -8.6, 22.4], { az: 0.75, el: 0.2, k: 1.7 }, [4.8, 3.0, 9.0], g => { TIP_G = g; tipMesh(g); });
+
+/* 2. Heart-rate sensor: IR LED (wire-bonded die) above a photodetector, behind an IR window */
+addPart('sensor', [-18, -5, 12], { az: 0.25, el: 0.15, k: 2.6 }, [-4.6, 2.2, 6.0], g => {
+  const m = grp(g, new THREE.Vector3(-4.2, 2.4, 5.6), new THREE.Vector3(-0.55, -0.35, 0.76)); SENSOR_MOUNT = m;
+  const glass = phys({ color: 0x07080b, metalness: 0.1, roughness: 0.05, clearcoat: 1, transparent: true, opacity: 0.82 });
+  ell(2.5, 1.6, 0.28, glass, 0, 0, 0.35, m, 40);                                   // IR window
+  box(3.4, 2.6, 0.3, PCB(), 0, 0, -0.35, m);                                          // module board
+  box(0.55, 0.55, 0.25, std(0x3b0c14, 0.2, 0.3), -0.7, 0.2, -0.08, m);              // IR LED die
+  const wb = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.03, 6, 16, Math.PI), std(0xe8c46a, 1, 0.25)); wb.position.set(-0.35, 0.2, 0.05); g.add(wb); m.add(wb);   // wire bond
+  box(1.2, 1.2, 0.2, std(0x0d1f3a, 0.3, 0.25), 0.7, -0.25, -0.12, m);              // photodetector
+  box(0.5, 0.5, 0.2, std(0x2a2c30, 0.3, 0.4), 0.9, 0.85, -0.12, m);                // skin-detect sensor
+  box(1.4, 3.6, 0.1, FLEX(), 0.2, -2.6, -0.45, m);
 });
 
-/* 3. Driver + inward-facing mic */
-addPart('driver', [0, 0, 11], { az: 0.85, el: 0.3, k: 1.9 }, [5.5, 8.2, 5.2], g => {
-  const z = 5.0, y = HEAD.y - 1.2;
-  mesh(cyl(5.4, 2.2, 64), std(0x2b2d32, 0.6, 0.4), -0.4, y, z, g);
-  mesh(cyl(4.7, 0.3, 64), std(0x111216, 0.2, 0.6), -0.4, y, z + 1.2, g);
+/* 3. Inward-facing mic + acoustic mesh in the nozzle, in front of the driver */
+addPart('inmic', [5.6, -6.1, 15.9], { az: 0.6, el: 0.25, k: 3.0 }, [2.4, 4.0, 7.6], g => {
+  const mesh1 = mesh(cyl(2.35, 0.12, 48), meshMat(), 0, 0, 0, grp(g, at(BC, AX, 9.3), AX)); 
+  const mg = grp(g, at(BC, AX, 7.4), AX);
+  box(1.7, 1.2, 0.85, std(0xb9bec4, 1, 0.25), 0.8, 0.6, 0, mg);                   // MEMS mic can
+  mesh(cyl(0.22, 0.2, 12), GRILLE(), 0.8, 0.6, 0.5, mg);                            // acoustic port
+  box(1.1, 3.0, 0.08, FLEX(), 0.8, -1.4, -0.3, mg);
+});
+
+/* 4. Driver + amplifier */
+addPart('driver', [-6.2, -3.2, 8.4], { az: 0.85, el: 0.3, k: 1.9 }, [5.6, 6.0, 1.6], g => {
+  const d = grp(g, at(BC, AX, 3.4), AX);
+  mesh(cyl(5.2, 2.2, 64), std(0x2b2d32, 0.6, 0.4), 0, 0, 0, d);                     // basket
+  mesh(cyl(4.6, 0.25, 64), std(0x1a1b1f, 0.15, 0.6), 0, 0, 1.15, d);              // diaphragm
+  const dome = ell(1.6, 1.6, 0.5, std(0xc7ccd2, 0.9, 0.25), 0, 0, 1.25, d, 32);   // centre dome
+  mesh(cyl(2.4, 1.4, 48), std(0x7a7f87, 0.9, 0.3), 0, 0, -1.5, d);                 // magnet
   const copper = std(0xc98552, 1, 0.3);
-  for (let i = 0; i < 3; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(3.2 + i * 0.25, 0.12, 6, 64), copper); t.position.set(-0.4, y, z - 1.15); g.add(t); }
-  mesh(cyl(1.3, 0.6, 24), std(0xb8bcc2, 1, 0.2), -0.4, y, z + 1.4, g);
-  mesh(cyl(1.0, 1.0, 24), std(0x9aa0a8, 1, 0.3), 2.2, y + 2.6, z + 1.6, g);
-  mesh(cyl(0.45, 0.2, 16), GRILLE(), 2.2, y + 2.6, z + 2.15, g);
-  chipOn(g, 2.4, 2.0, 0.5, [['AMP', 70]], -4.0, y - 3.6, z - 0.8);
-  box(2.0, 3.0, 0.12, FLEX(), -3.8, y - 4.6, z - 0.9, g);
+  for (let i = 0; i < 3; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(2.9 + i * 0.22, 0.11, 6, 64), copper); t.position.z = -0.6; d.add(t); }
+  const amp = grp(g, at(at(BC, AX, 0.6), YV, -4.4), AX);
+  box(2.6, 2.6, 0.5, std(0x111215, 0.3, 0.45), 0, 0, 0, amp); chipOn(amp, 2.2, 2.2, 0.15, [['AMP', 70]], 0, 0, 0.3);
+  box(1.4, 3.2, 0.08, FLEX(), 0, 2.4, -0.3, amp);
 });
 
-/* 4. Earbud housing (head + slanted stem + grilles), the reference part */
-addPart('shell', [0, 0, 0], { az: 0.65, el: 0.2, k: 1.25 }, [-7.5, 11.5, 4], g => { SHELL_G = g; budOuter(g, false); });
-
-/* 5. H2 chip board (out the back) */
-addPart('board', [0, 3, -18], { az: 2.5, el: 0.35, k: 1.8 }, [-6, 4.2, -2.6], g => {
-  mesh(extrude(rrShape(12, 8.5, 3.2), 1.0, 0.15, 24), std(0x10201a, 0.2, 0.42), 0, HEAD.y + 1.0, -2.0, g);
-  chipOn(g, 6.2, 5.2, 0.8, [['H2', 96], ['Apple', 36]], -0.6, HEAD.y + 1.0, -2.95, 0, Math.PI);
-  const shield = std(0xb8bcc2, 0.95, 0.28);
-  box(3.2, 2.4, 0.5, shield, 3.8, HEAD.y + 2.2, -2.8, g); box(2.0, 1.6, 0.4, shield, 3.9, HEAD.y - 1.0, -2.75, g);
-  ['ACC', 'ACC'].forEach((l, i) => chipOn(g, 1.6, 1.6, 0.4, [[l, 64]], -4.6, HEAD.y + 2.6 - i * 3.1, -2.7, 0, Math.PI));
-  box(2.4, 6, 0.12, FLEX(), 0, HEAD.y - 6.0, -1.6, g);
-});
-
-/* 6. Earbud battery */
+/* 5. Battery: coin-style cell in the head, press connector */
 const budCell = canvasTex(512, 512, (x, w, h) => {
   const gr = x.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 2);
   gr.addColorStop(0, '#d6dade'); gr.addColorStop(0.85, '#b0b6bc'); gr.addColorStop(1, '#8e959b');
@@ -219,23 +233,57 @@ const budCell = canvasTex(512, 512, (x, w, h) => {
   x.fillStyle = '#3c4148'; x.textAlign = 'center'; x.textBaseline = 'middle';
   x.font = '700 70px monospace'; x.fillText('0.221 Wh', w / 2, 220); x.font = '500 46px monospace'; x.fillText('Li-ion', w / 2, 310);
 });
-addPart('battery', [0, 4, -32], { az: 2.7, el: 0.35, k: 2.0 }, [0, 13.8, -5.6], g => {
-  mesh(cyl(5.0, 3.2, 64), std(0xb6bcc2, 1, 0.25), 0, HEAD.y + 0.5, -3.6, g);
-  const face = new THREE.Mesh(new THREE.CircleGeometry(4.9, 64), new THREE.MeshStandardMaterial({ map: budCell, metalness: 0.7, roughness: 0.35 }));
-  face.position.set(0, HEAD.y + 0.5, -5.22); face.rotation.y = Math.PI; g.add(face);
-  box(1.6, 3.0, 0.12, FLEX(), 3.2, HEAD.y + 3.2, -2.2, g);
+addPart('battery', [0, 6, -24], { az: 2.7, el: 0.35, k: 2.0 }, [0.2, 13.0, -5.6], g => {
+  const b = grp(g, new THREE.Vector3(0.2, 7.4, -5.4), AX);
+  mesh(cyl(5.4, 4.6, 64), std(0xb6bcc2, 1, 0.25), 0, 0, 0, b);
+  const face = new THREE.Mesh(new THREE.CircleGeometry(5.3, 64), new THREE.MeshStandardMaterial({ map: budCell, metalness: 0.7, roughness: 0.35 }));
+  face.position.z = -2.32; face.rotation.y = Math.PI; b.add(face);
+  box(2.2, 1.2, 0.8, std(0x2a2c30, 0.4, 0.4), 3.2, 3.6, 1.2, b);                  // press connector
+  box(1.6, 4.0, 0.1, FLEX(), 3.2, 1.6, 1.7, b);
 });
 
-/* 7. Stem board: mics, touch strip, charging contacts (slides out the bottom) */
-addPart('stem', [3, -24, 0], { az: 0.6, el: 0.15, k: 1.5 }, [5.2, -10.5, 2.0], g => {
-  const f = stemFrame(g);
-  mesh(extrude(rrShape(3.0, 13.5, 1.2), 0.8, 0.1, 12), std(0x10201a, 0.2, 0.42), 0, -7.9, -0.3, f);
-  const can = std(0x9aa0a8, 1, 0.3);
-  mesh(cyl(0.9, 1.0, 24), can, 0, -13.4, 0.7, f); mesh(cyl(0.9, 1.0, 24), can, 0, -2.6, 0.7, f);
-  box(2.4, 7.5, 0.15, FLEX(), 0, -7.9, 0.95, f);
-    const mic = chipOn(f, 1.6, 1.6, 0.4, [['MIC', 60]], 0, -10.4, 0.45);
-  const contact = yCyl(1.8, 0.8, std(0xd8dde2, 1, 0.18), 0, -15.9, -0.2, f); contact.scale.set(1, 1, 0.75);
-  box(0.35, 12, 0.1, GOLD(), 1.15, -7.9, -0.75, f);
+/* 6. Motion + speech-detecting accelerometers on a small flex */
+addPart('accel', [16, 8, -8], { az: 1.6, el: 0.35, k: 2.6 }, [3.2, 11.5, -3.0], g => {
+  const a = grp(g, new THREE.Vector3(1.4, 11.0, -2.6), new THREE.Vector3(0.3, 0.9, -0.3));
+  box(5.0, 3.0, 0.1, FLEX(), 0, 0, -0.1, a);
+  chipOn(a, 1.6, 1.6, 0.6, [['MOTION', 34]], -1.2, 0, 0.3);
+  chipOn(a, 1.6, 1.6, 0.6, [['SPEECH', 34]], 1.2, 0, 0.3);
+});
+
+/* 7. Outward beamforming mic under the top mesh + pressure-equalising vent */
+addPart('topmic', [0, 20, 2], { az: 0.9, el: 0.6, k: 2.4 }, [4.6, 12.2, 1.0], g => {
+  const tm = grp(g, new THREE.Vector3(2.4, 11.6, 0.4), new THREE.Vector3(0.3, 0.8, 0.4));
+  box(1.7, 1.2, 0.85, std(0xb9bec4, 1, 0.25), 0, 0, -0.5, tm); mesh(cyl(0.22, 0.2, 12), GRILLE(), 0, 0, 0, tm);
+  ell(2.2, 1.0, 0.12, meshMat(), 0, 0, 0.15, tm, 32);                                   // its mesh
+  box(1.1, 3.0, 0.08, FLEX(), 0, -1.8, -0.8, tm);
+  const vt = grp(g, new THREE.Vector3(4.6, 8.6, -6.2), new THREE.Vector3(0.65, 0.25, -0.7));
+  ell(0.9, 2.6, 0.12, meshMat(), 0, 0, 0.1, vt, 32);                                   // vent mesh
+  ell(0.75, 2.3, 0.08, std(0xe9e4d6, 0, 0.9), 0, 0, -0.15, vt, 32);                  // breathable membrane
+  box(1.6, 3.4, 0.9, std(0xd8d8d4, 0, 0.6), 0, 0, -0.8, vt);                          // vent channel
+});
+
+/* 8. Earbud housing (the real model's shell) */
+addPart('shell', [0, 0, 0], { az: 0.65, el: 0.2, k: 1.25 }, [-7.4, 11.0, 2.0], g => { SHELL_G = g; budOuter(g, false); });
+
+/* 9. H2 functions split into several BGA modules along the stem (Lumafield CT) + antenna */
+addPart('h2', [-14, -20, -4], { az: 0.55, el: 0.15, k: 1.6 }, [-3.4, -6.0, -7.0], g => {
+  const sg = grp(g, ST0.clone().lerp(ST1, 0.45), SAX, new THREE.Vector3(0, -1, 0));
+  box(3.0, 11.5, 0.45, PCB(), 0, 0, 0, sg);                                           // rigid-flex spine
+  const mods = [['H2', 4.0], ['BGA', 0.4], ['BGA', -3.4]];
+  mods.forEach(([l, y], i) => chipOn(sg, 2.6, i ? 2.4 : 3.0, 0.9, [[l, i ? 56 : 86]], 0, y, 0.68));
+  box(0.3, 11, 0.1, GOLD(), -1.35, 0, -0.3, sg);                                      // antenna trace
+  box(1.6, 3.4, 0.08, FLEX(), 0, 7.2, 0.2, sg);                                       // flex up into the head
+});
+
+/* 10. Stem base: bottom beamforming mic between the charging contacts + touch control strip */
+addPart('stembase', [10, -30, 2], { az: 0.4, el: -0.2, k: 1.8 }, [3.4, -14.8, -5.0], g => {
+  const bt = grp(g, new THREE.Vector3(1.45, -15.2, -6.85), SAX, new THREE.Vector3(0, -1, 0));
+  for (const sx of [-1, 1]) { const c = mesh(new THREE.CylinderGeometry(1.0, 1.0, 0.5, 24, 1, false, sx > 0 ? 0 : Math.PI, Math.PI), std(0xd8dde2, 1, 0.18), sx * 0.45, 0, 0, bt); }
+  box(1.4, 0.9, 1.1, std(0xb9bec4, 1, 0.25), 0, 1.0, 0, bt);                          // bottom MEMS mic
+  mesh(new THREE.CircleGeometry(0.3, 16), GRILLE(), 0, -0.27, 0, bt).rotation.x = Math.PI / 2;
+  const ts = grp(g, ST0.clone().lerp(ST1, 0.5).add(new THREE.Vector3(0, 0, 2.3)), SAX, new THREE.Vector3(0, -1, 0));
+  box(2.4, 9.5, 0.12, FLEX(), 0, 0, 0, ts);                                           // touch / force sensor strip
+  for (let i = 0; i < 5; i++) box(1.8, 0.25, 0.05, GOLD(), 0, -3.6 + i * 1.8, 0.08, ts);
 });
 
 /* 8. MagSafe charging case, lid open, with the left earbud resting above it */
@@ -271,7 +319,8 @@ function pebble(a, b, c, e1, e2, clampLo, clampHi, U = 160, V = 120) {
   return g;
 }
 const PA = CW / 2, PB = (BODY_H + LID_H) / 2, PC = CD / 2, SEAM = PB - LID_H, E1 = 0.42, E2 = 0.55;
-addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE.y + 4, CASE.z + PC], g => {
+const decor = build => { const g = new THREE.Group(); build(g); root.add(g); return g; };
+decor(g => {
   CASE_G = g;
   const w = WHITE(), cy = CASE.y + BODY_H / 2 - SEAM, top = CASE.y + BODY_H / 2;   // pebble centre so the seam sits at the body top
   mesh(pebble(PA, PB, PC, E1, E2, -PB, SEAM), w, CASE.x, cy, CASE.z, g);
@@ -302,24 +351,6 @@ addPart('case', [76, -4, -2], { az: -0.4, el: 0.3, k: 1.25 }, [CASE.x - 24, CASE
   LEFT_BUD = left; LEFT_X = left.position.x; LEFT_Y = left.position.y; LEFT_Z = left.position.z;
 });
 
-/* 9. Inside the case */
-addPart('caseInside', [76, -48, -2], { az: -0.3, el: -0.3, k: 1.3 }, [CASE.x + 24, CASE.y - 9, CASE.z - 1], g => {
-  const cell = std(0x8f99a6, 0.85, 0.32);
-  mesh(extrude(rrShape(40, 10, 3), 4.2, 0.5, 16), cell, CASE.x, CASE.y - 5, CASE.z - 3.0, g);
-  const lbl = new THREE.Mesh(new THREE.PlaneGeometry(28, 7.5), new THREE.MeshStandardMaterial({ map: labelTex([['1.334 Wh', 70], ['Li-ion', 40]], '#aeb6c0', '#2c3036', 512, 160), metalness: 0.3, roughness: 0.5 }));
-  lbl.position.set(CASE.x, CASE.y - 5, CASE.z - 0.85); g.add(lbl);
-  mesh(extrude(rrShape(46, 10, 2), 1.0, 0.15, 12), std(0x10201a, 0.2, 0.42), CASE.x, CASE.y + 3, CASE.z - 4.0, g);
-  chipOn(g, 5.2, 5.2, 0.7, [['U2', 92], ['UWB', 40]], CASE.x - 12, CASE.y + 4.3, CASE.z - 3.15);
-  chipOn(g, 4.2, 3.4, 0.6, [['PMU', 60]], CASE.x + 2, CASE.y + 4.3, CASE.z - 3.2);
-  mesh(cyl(4.0, 2.6, 48), std(0x2b2d32, 0.6, 0.4), CASE.x + 16, CASE.y + 3, CASE.z - 2.4, g);
-  mesh(cyl(3.1, 0.3, 48), GRILLE(), CASE.x + 16, CASE.y + 3, CASE.z - 1.0, g);
-  const copper = std(0xc98552, 1, 0.3);
-  for (let i = 0; i < 4; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(8 + i * 0.35, 0.16, 6, 96), copper); t.position.set(CASE.x, CASE.y + 2, CASE.z - 8.6); g.add(t); }
-  const mag = std(0x7e848c, 0.9, 0.35);
-  for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2; const b = box(2.4, 1.2, 0.8, mag, CASE.x + Math.cos(a) * 11.2, CASE.y + 2 + Math.sin(a) * 11.2, CASE.z - 8.7, g); b.rotation.z = a + Math.PI / 2; }
-});
-
-
 /* ---------------- Real AirPods Pro model ----------------
    "AirPods Pro" by Jed Falcone (sketchfab.com/jedlas012), CC-BY 4.0. Replaces the hand-built case, lid and bud shells;
    the exploded internals stay. Case scaled to Apple's 62.2 mm width; buds scaled to Apple's 30.9 mm height. */
@@ -339,7 +370,7 @@ function loadCompact(done, fail) {   // unpack the compact model (gzip + 16-bit 
       if (m.tex) { const uq = new Uint16Array(ab, m.uo, m.n * 2), uv = new Float32Array(m.n * 2); for (let i = 0; i < m.n * 2; i++) uv[i] = uq[i] / 65535; g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); }
       g.computeVertexNormals();
       const mat = new THREE.MeshStandardMaterial({ metalness: m.met, roughness: m.rou, map: m.tex ? tex : null }); mat.color.setRGB(m.col[0], m.col[1], m.col[2]); mat.name = m.mname;
-      const mesh = new THREE.Mesh(g, mat); mesh.name = m.name;
+      const mesh = new THREE.Mesh(g, mat); mesh.name = m.name; mesh.userData.side = m.side;
       (m.grp === 'lid' ? lidG : m.grp === 'buds' ? budsG : caseG).add(mesh);
     });
     root.updateMatrixWorld(true); done({ scene: root });
@@ -392,7 +423,7 @@ if (window.AIRPODS_COMPACT) loadCompact(gltf => {
   const sides = { R: c => c.x > Ow.x, L: c => c.x <= Ow.x };
   const pose = {};
   for (const side of ['R', 'L']) {
-    const pieces = budMeshes.map(b => ({ ...b, geo: splitGeo(b.geo, sides[side]) })).filter(b => b.geo.attributes.position.count);
+    const pieces = (budMeshes.some(b => b.o.userData.side) ? budMeshes.filter(b => b.o.userData.side === side).map(b => ({ ...b, geo: b.geo.clone() })) : budMeshes.map(b => ({ ...b, geo: splitGeo(b.geo, sides[side]) }))).filter(b => b.geo.attributes.position.count);
     const bb = new THREE.Box3(); pieces.forEach(b => { b.geo.computeBoundingBox(); bb.union(b.geo.boundingBox); });
     const hh = bb.max.y - bb.min.y, headBox = new THREE.Box3(), tipBox = new THREE.Box3(), v = new THREE.Vector3();
     pieces.forEach(b => { const pa = b.geo.attributes.position; for (let i = 0; i < pa.count; i++) { v.fromBufferAttribute(pa, i); if (!b.isTip && v.y > bb.max.y - hh * 0.42) headBox.expandByPoint(v); if (b.isTip) tipBox.expandByPoint(v); } });
@@ -410,9 +441,18 @@ if (window.AIRPODS_COMPACT) loadCompact(gltf => {
     pose[side] = { h: H, c: c, q: R.clone().invert() };
   }
   MODEL = { R: pose.R, L: pose.L };
-  // heart-rate window onto the real shell: cast from outside toward the head centre
-  if (SENSOR_WIN) { SHELL_G.updateMatrixWorld(true); const dir = SENSOR_WIN.position.clone().sub(HEAD).normalize(); const rc = new THREE.Raycaster(HEAD.clone().addScaledVector(dir, 40), dir.clone().negate());
-    const hit = rc.intersectObjects(SHELL_G.children.filter(o => o.visible), false)[0]; if (hit) { SENSOR_WIN.position.copy(hit.point); SENSOR_WIN.lookAt(hit.point.clone().add(hit.face.normal)); } }
+  window.__shellG = SHELL_G; window.__anchors = () => {   // measured on the real right earbud, in the out-pose frame
+    const pts = []; const v = new THREE.Vector3();
+    SHELL_G.children.forEach(o => { if (!o.visible || !o.geometry) return; const pa = o.geometry.attributes.position; for (let i = 0; i < pa.count; i += 2) pts.push(v.fromBufferAttribute(pa, i).clone()); });
+    const bb = new THREE.Box3().setFromPoints(pts); const out = { bb: [bb.min.toArray().map(x => +x.toFixed(2)), bb.max.toArray().map(x => +x.toFixed(2))], slices: [] };
+    for (let y = Math.floor(bb.min.y); y <= bb.max.y; y += 2) { const s = pts.filter(p => Math.abs(p.y - y) < 0.6); if (!s.length) continue; const b2 = new THREE.Box3().setFromPoints(s);
+      out.slices.push([y, +b2.min.x.toFixed(1), +b2.max.x.toFixed(1), +b2.min.z.toFixed(1), +b2.max.z.toFixed(1)]); }
+    const tb = new THREE.Box3(); TIP_G.children.forEach(o => { if (o.visible && o.geometry) tb.expandByObject(o); }); out.tip = [tb.min.toArray().map(x => +x.toFixed(1)), tb.max.toArray().map(x => +x.toFixed(1))];
+    return out;
+  };
+  // heart-rate module onto the real shell: cast from outside toward the head centre along its direction
+  if (SENSOR_MOUNT) { SHELL_G.updateMatrixWorld(true); const dir = SENSOR_MOUNT.position.clone().sub(BC).normalize(); const rc = new THREE.Raycaster(BC.clone().addScaledVector(dir, 40), dir.clone().negate());
+    const hit = rc.intersectObjects(SHELL_G.children.filter(o => o.visible), false)[0]; if (hit) { SENSOR_MOUNT.position.copy(hit.point).addScaledVector(hit.face.normal, -0.35); SENSOR_MOUNT.lookAt(hit.point.clone().add(hit.face.normal)); } }
   // speaker holes + USB-C on the real underside (cast up from below)
   CASE_G.updateMatrixWorld(true); const body = CASE_G.children.filter(o => o.isMesh && o.visible && !o.userData.keep);
   const under2 = (x, z) => { const h = new THREE.Raycaster(new THREE.Vector3(x, CASE.y - 60, z), new THREE.Vector3(0, 1, 0)).intersectObjects(body, false)[0]; return h ? h.point.y : null; };
@@ -431,17 +471,17 @@ src = src[:a] + build + src[b:]
 
 reps = [
  ('<title>iPhone Teardown Explorer</title>', '<title>AirPods Pro 3 Teardown Explorer</title>'),
- ('aria-label="3D exploded view of a smartphone.', 'aria-label="3D exploded view of an AirPods Pro 3 earbud and its case.'),
- ('Teardown · 11 layers · 8.25 mm', 'Teardown · 9 parts · 5.55 g'),
+ ('aria-label="3D exploded view of a smartphone.', 'aria-label="3D exploded view of an AirPods Pro 3 earbud.'),
+ ('Teardown · 11 layers · 8.25 mm', 'Teardown · 10 parts · 5.55 g'),
  ('<h1>Inside a modern iPhone</h1>', '<h1>Inside AirPods Pro 3</h1>'),
  ('<h2 id="tc-title">Inside a modern iPhone</h2>', '<h2 id="tc-title">Inside AirPods Pro 3</h2>'),
- ('<p id="tc-sub">Eleven layers, front to back, explained.</p>', '<p id="tc-sub">One earbud and its case, part by part.</p>'),
- ('Layers, front to back', 'Parts, earbud then case'),
+ ('<p id="tc-sub">Eleven layers, front to back, explained.</p>', '<p id="tc-sub">One earbud, ten parts, explained.</p>'),
+ ('Layers, front to back', 'Parts, tip to stem'),
  ('aria-label="Phone layers"', 'aria-label="AirPods parts"'),
- ("intro: ['Teardown', 'Inside a modern iPhone', 'Eleven layers, front to back, explained.'],", "intro: ['Teardown', 'Inside AirPods Pro 3', 'One earbud and its case, part by part.'],"),
+ ("intro: ['Teardown', 'Inside a modern iPhone', 'Eleven layers, front to back, explained.'],", "intro: ['Teardown', 'Inside AirPods Pro 3', 'One earbud, ten parts, explained.'],"),
  ("outro: ['8.25 millimetres', 'Everything, stacked.', 'Glass, display, Face ID, frame, logic board, battery, haptics, audio, cameras, MagSafe and back glass.'],",
-  "outro: ['5.55 grams', 'A computer in your ear.', 'Driver, H2 chip, battery, heart-rate sensor and five microphones’ worth of listening, glued into a shell smaller than a grape.'],"),
- ("const OVERVIEW = { target: new THREE.Vector3(0, 0, 0), az: 0.92, el: 0.26, dist: 390, shift: 0 };", "const OVERVIEW = { target: new THREE.Vector3(28, -26, 0), az: -0.55, el: 0.2, dist: 340, shift: 0 };"),
+  "outro: ['5.55 grams', 'A computer in your ear.', 'Driver, amplifier, battery, three microphones, two accelerometers, a heart-rate sensor and the H2 chip, glued into a shell smaller than a grape.'],"),
+ ("const OVERVIEW = { target: new THREE.Vector3(0, 0, 0), az: 0.92, el: 0.26, dist: 390, shift: 0 };", "const OVERVIEW = { target: new THREE.Vector3(-1, 0, 2), az: -0.6, el: 0.18, dist: 175, shift: 0 };"),
  ("const ASSEMBLED = { target: new THREE.Vector3(0, 0, 0), az: 0.45, el: 0.12, dist: 330, shift: 0 };", ""),
  ("const dist = Math.max(p.radius / Math.sin(FOV / 2) * p.view.k, 70);", "const dist = Math.max(p.radius / Math.sin(FOV / 2) * p.view.k, 28);"),
  ("pose: t => ({ target: new THREE.Vector3(0, 0, 0), az: -0.5 + 0.85 * t, el: 0.1, dist: 300, shift: 0.85 })", "pose: t => ({ target: new THREE.Vector3(-11.6, -12, 0), az: -0.2 + 0.4 * t, el: 0.46, dist: 205, shift: 0.85 })"),
