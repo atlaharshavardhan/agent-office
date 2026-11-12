@@ -121,7 +121,7 @@ place(fx, chime([72, 76, 79]), 21.5, 0.22)                # Skin ✓
 place(fx, zap(0.5, 1200, 700), 25.6, 0.2); place(fx, hum(8.6, 180), 25.7, 0.05)
 for k in range(3): place(fx, blip(700 - 80 * k, 0.06), 27.7 + k * 0.33, 0.1, -0.3)
 place(fx, buzz(0.38), 29.4, 0.28); place(fx, thump(), 29.4, 0.4)   # ✕
-place(fx, click(1600, 0.05), 30.4, 0.3)                   # player stays paused
+# (no player on the table shot)
 # signal
 for k in range(12): place(fx, blip(700 + 70 * k, 0.05), 36.0 + k * 0.22, 0.12)   # signal runs along the flex
 place(fx, chime([79, 84], 0.6), 38.5, 0.16)              # H2 lights up
