@@ -107,7 +107,7 @@ const MESH = () => std(0xd8dade, 0.25, 0.55, { map: meshTex });
 const CTRL = { lid: 1, lidGoal: 1, out: 1, outGoal: 1 };
 const POSE_OV = (() => { const q = new URLSearchParams(location.search).get('pose'); if (!q) return null; const [az, el, dist, tx, ty, tz] = q.split(',').map(Number); return { az, el, dist, target: new THREE.Vector3(tx, ty, tz), shift: 0 }; })();
 { const q = new URLSearchParams(location.search).get('state') || ''; if (q.includes('closed')) CTRL.lid = CTRL.lidGoal = 0; if (q.includes('in')) CTRL.out = CTRL.outGoal = 0; }
-let LID_HINGE = null, LEFT_BUD = null, LEFT_X = 0, LEFT_Y = 0, LEFT_Z = 0, TIP_G = null, SHELL_G = null, CASE_G = null, SENSOR_WIN = null, MODEL = null; const LANYARD = [];
+let LID_HINGE = null, LEFT_BUD = null, LEFT_X = 0, LEFT_Y = 0, LEFT_Z = 0, TIP_G = null, SHELL_G = null, CASE_G = null, SENSOR_WIN = null, MODEL = null, COIL_C = null; const LANYARD = [];
 const BUD_IDS = new Set(['tip', 'sensor', 'inmic', 'driver', 'battery', 'accel', 'topmic', 'shell', 'h2', 'stembase']), CASE_INTERNAL = new Set(['caseBattery', 'caseBoard', 'coil', 'caseSpeaker', 'usbc']);
 let [BUD_DROP, BUD_TURN, BUD_TILT, BUD_BACK, BUD_SPREAD] = (new URLSearchParams(location.search).get('bud') || '-21,1.0,0.3,-1.0,2.5').split(',').map(Number);
 const _q = new THREE.Quaternion(), _e = new THREE.Euler(), _pv = new THREE.Vector3();
@@ -144,6 +144,7 @@ function applyExtras(e) {
     if (LEFT_BUD) { LEFT_BUD.position.set(LEFT_X - BUD_SPREAD * inL, LEFT_Y + BUD_DROP * inL, LEFT_Z + BUD_BACK * inL); rotAbout(LEFT_BUD, HEAD, BUD_TILT * inL, BUD_TURN * inL); }
   }
   if (LID_HINGE) LID_HINGE.rotation.x = -1.92 * CTRL.lid;
+  if (COIL_C) COIL_C.rotation.y = Math.PI * Math.min(1, Math.max(0, (e - 0.15) / 0.6)); // show the copper side once exploded
   if (LEFT_DECOR) LEFT_DECOR.visible = e < 0.04;
 }
 /* earbud head = ellipsoid; helpers put things on its surface */
@@ -405,10 +406,13 @@ addPart('caseBoard', [CX, -4, 0], { az: 0.35, el: 0.55, k: 1.5 }, [CASE.x - 22, 
 });
 
 /* 15. MagSafe / Qi2 coil and magnet ring */
-addPart('coil', [CX, -18, -6], { az: 3.0, el: 0.2, k: 1.6 }, [CASE.x + 14, CASE.y + 4, CASE.z - 9], g => {
-  const c = new THREE.Group(); c.position.set(CASE.x, CASE.y + 1, CASE.z - 8.4); g.add(c);
-  const copper = std(0xc98552, 1, 0.28);
-  for (let i = 0; i < 9; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(3.2 + i * 0.62, 0.22, 8, 96), copper); c.add(t); }
+addPart('coil', [CX, -18, -6], { az: 0.25, el: 0.2, k: 1.6 }, [CASE.x + 14, CASE.y + 4, CASE.z - 9], g => {
+  const c = new THREE.Group(); c.position.set(CASE.x, CASE.y + 1, CASE.z - 8.4); g.add(c); COIL_C = c;
+  const copper = std(0xd2864a, 1, 0.26, { envMapIntensity: 1.2 }), copperDk = std(0xa8612f, 1, 0.34);
+  for (let i = 0; i < 18; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(2.6 + i * 0.36, 0.2, 8, 96), i % 2 ? copperDk : copper); t.position.z = -0.05; c.add(t); }
+  mesh(cyl(1.4, 0.2, 32), std(0x15171b, 0.3, 0.6), 0, 0, -0.02, c);     // centre hub
+  box(0.8, 5.0, 0.25, copper, 8.7, -4.6, -0.05, c);                                              // lead-out tabs
+  box(0.8, 5.0, 0.25, copperDk, 9.6, -4.6, -0.05, c);
   mesh(cyl(9.2, 0.3, 64), std(0x15171b, 0.3, 0.6), 0, 0, 0.45, c);                     // ferrite backing (inside face)
   const mag = std(0x9aa0a8, 0.95, 0.25);
   for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2; const m = box(2.4, 1.3, 0.9, mag, Math.cos(a) * 11.4, Math.sin(a) * 11.4, 0.2, c); m.rotation.z = a + Math.PI / 2; }
