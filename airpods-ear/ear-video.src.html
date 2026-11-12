@@ -23,9 +23,9 @@
   .tag { position: fixed; z-index: 3; transform: translate(-50%, -50%); pointer-events: none; color: #fff; font: 600 3.5vw 'IBM Plex Sans', Arial, sans-serif; white-space: nowrap;
     padding: 1.3vw 2.8vw; border-radius: 3vw; background: rgba(14,14,20,.85); border: 1px solid rgba(255,255,255,.22); opacity: 0; }
   .tag.red { border-color: var(--red); color: #ffdbe0; } .tag.green { border-color: var(--green); color: #d6ffe4; }
-  #lines { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+  #lines { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: 2; pointer-events: none; overflow: visible; }
   #big { position: fixed; z-index: 3; transform: translate(-50%, -50%); font: 800 26vw Sora, Arial, sans-serif; color: var(--red); text-shadow: 0 0 40px rgba(255,59,85,.5); opacity: 0; pointer-events: none; }
-  #hud { position: fixed; z-index: 3; left: 4%; right: 17%; top: 53.6%; padding: 2.2vw 3.4vw 2vw; border-radius: 4.5vw; background: linear-gradient(160deg, rgba(36,36,46,.86), rgba(16,16,22,.9));
+  #hud { position: fixed; z-index: 3; left: 13%; right: 13%; top: 53.6%; padding: 2.2vw 3.4vw 2vw; border-radius: 4.5vw; background: linear-gradient(160deg, rgba(36,36,46,.86), rgba(16,16,22,.9));
     border: 1px solid rgba(255,255,255,.14); box-shadow: 0 24px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08); color: #fff; opacity: 0; pointer-events: none; }
   #hud .h1 { font: 600 2.7vw 'IBM Plex Mono', monospace; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.6); }
   #hud svg { display: block; width: 100%; height: 8vw; margin: 0.8vw 0 0.6vw; }
@@ -395,7 +395,7 @@ function title(lines, times, u) { // lines reveal one by one
   const key = lines.join('|'); if (key !== lastTitle) { lastTitle = key; $('title').innerHTML = lines.map(l => `<span class="ln">${l}</span>`).join(''); }
   [...$('title').children].forEach((el, i) => { const a = easeOut(ramp(u, times[i], times[i] + 0.35)); el.style.opacity = a; el.style.transform = `translateY(${(1 - a) * 2.2}vh)`; });
 }
-function note(text, a) { $('note').textContent = text; $('note').style.opacity = a; }
+function note(text, a, mid = false) { $('note').textContent = text; $('note').style.opacity = a; $('note').style.left = mid ? '6%' : '3.7%'; $('note').style.right = mid ? '6%' : '16.7%'; }
 const TAGS = {}; const svg = $('lines');
 function tagEl(id, text, cls) { if (!TAGS[id]) { const el = document.createElement('div'); el.className = 'tag ' + (cls || ''); document.body.appendChild(el);
   const l = document.createElementNS('http://www.w3.org/2000/svg', 'line'), c = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); svg.append(l, c); TAGS[id] = { el, l, c }; }
@@ -403,9 +403,23 @@ function tagEl(id, text, cls) { if (!TAGS[id]) { const el = document.createEleme
 function proj(v) { const p = v.clone().project(camera); return [(p.x + 1) / 2 * W, (1 - p.y) / 2 * H]; }
 function tag(id, text, world, dx, dy, a, cls) {
   const T = tagEl(id, text, cls), [x, y] = proj(world), col = cls === 'red' ? '#ff3b55' : cls === 'green' ? '#2fd36b' : 'rgba(255,255,255,.75)';
-  T.el.style.left = (x + dx) + 'px'; T.el.style.top = (y + dy) + 'px'; T.el.style.opacity = a;
+  T.el.style.transform = 'translate(-50%,-50%)'; T.el.style.left = (x + dx) + 'px'; T.el.style.top = (y + dy) + 'px'; T.el.style.opacity = a;
   T.l.setAttribute('x1', x); T.l.setAttribute('y1', y); T.l.setAttribute('x2', x + dx * 0.8); T.l.setAttribute('y2', y + dy * 0.8); T.l.setAttribute('stroke', col); T.l.setAttribute('stroke-width', 2.5); T.l.style.opacity = a;
   T.c.setAttribute('cx', x); T.c.setAttribute('cy', y); T.c.setAttribute('r', 6); T.c.setAttribute('fill', col); T.c.style.opacity = a;
+}
+function sideTags(list) { // callouts in the side margins: [id, text, world, side(-1 left / 1 right), alpha, cls]
+  const gap = H * 0.055, cols = { '-1': [], '1': [] };
+  list.forEach(L => { const [x, y] = proj(L[2]); cols[L[3]].push({ L, x, y, ty: y }); });
+  for (const k in cols) { const c = cols[k].filter(o => o.L[4] > 0.01).sort((a, b) => a.y - b.y); for (let i = 1; i < c.length; i++) c[i].ty = Math.max(c[i].ty, c[i - 1].ty + gap);
+    if (k === '1') c.forEach(o => { if (o.ty > H * 0.44 && o.ty < H * 0.56) o.ty = o.ty < H * 0.5 ? H * 0.435 : H * 0.565; }); }   // keep clear of the right-middle watermark
+  for (const k in cols) cols[k].forEach(({ L, x, y, ty }) => {
+    const [id, text, , side, a, cls] = L, T = tagEl(id, text, cls), col = cls === 'red' ? '#ff3b55' : 'rgba(255,255,255,.75)';
+    const edge = side < 0 ? W * 0.04 : W * 0.96; T.el.style.left = edge + 'px'; T.el.style.top = ty + 'px'; T.el.style.opacity = a;
+    T.el.style.transform = side < 0 ? 'translate(0,-50%)' : 'translate(-100%,-50%)';
+    const w = T.el.offsetWidth, tx = side < 0 ? edge + w : edge - w;
+    T.l.setAttribute('x1', x); T.l.setAttribute('y1', y); T.l.setAttribute('x2', tx); T.l.setAttribute('y2', ty); T.l.setAttribute('stroke', col); T.l.setAttribute('stroke-width', 2.5); T.l.style.opacity = a;
+    T.c.setAttribute('cx', x); T.c.setAttribute('cy', y); T.c.setAttribute('r', 6); T.c.setAttribute('fill', col); T.c.style.opacity = a;
+  });
 }
 function hideTags(except = []) { for (const id in TAGS) if (!except.includes(id)) { TAGS[id].el.style.opacity = 0; TAGS[id].l.style.opacity = 0; TAGS[id].c.style.opacity = 0; } }
 let VO = 0.06, HO = 0;
@@ -439,13 +453,13 @@ const SHOTS = [
     const k = ease(ramp(u, 5.6, 8.6)); look(vlerp(far, near, k), vlerp(new THREE.Vector3(0, -1, 0), s, k));
     player(0, 'paused', 0.305); title(['Inside: a <em>skin-detect</em>', 'sensor'], [0.6, 0.6], u);
     const a1 = ease(ramp(u, 2.6, 3.0)) * (1 - ease(ramp(u, 5.2, 5.6)));
-    tag('bat', 'Battery', BUD.localToWorld(BATT_P.position.clone()), W * 0.17, H * 0.01, a1);
-    tag('drv', 'Driver', BUD.localToWorld(DRV_P.position.clone()), -W * 0.2, -H * 0.05, a1);
-    tag('h2a', 'H2 chip', BUD.localToWorld(H2P.position.clone()), W * 0.17, -H * 0.03, a1);
-    tag('sen', 'Skin-detect sensor', s, -W * 0.2, H * 0.1, ease(ramp(u, 3.4, 3.8)) * (1 - ease(ramp(u, 5.4, 5.8))), 'red');
+    sideTags([['sen', 'Skin-detect sensor', s, -1, ease(ramp(u, 3.4, 3.8)) * (1 - ease(ramp(u, 5.4, 5.8))), 'red'],
+              ['drv', 'Driver', BUD.localToWorld(DRV_P.position.clone()), 1, a1],
+              ['h2a', 'H2 chip', BUD.localToWorld(H2P.position.clone()), -1, a1],
+              ['bat', 'Battery', BUD.localToWorld(BATT_P.position.clone()), -1, a1]]);
     const a2 = ease(ramp(u, 8.4, 8.8));
-    tag('emit', 'Infrared light', EMIT.getWorldPosition(new THREE.Vector3()), -W * 0.14, -H * 0.12, a2, 'red');
-    tag('det', 'Light sensor', DETECT.getWorldPosition(new THREE.Vector3()), W * 0.14, -H * 0.12, ease(ramp(u, 9.0, 9.4)));
+
+    sideTags([['emit', 'Infrared light', EMIT.getWorldPosition(new THREE.Vector3()), -1, a2, 'red'], ['det', 'Light sensor', DETECT.getWorldPosition(new THREE.Vector3()), 1, ease(ramp(u, 9.0, 9.4))]]);
     note('Illustrative · not to scale', 1);
   }],
   [13.86, 22.09, (u, t) => { // skin: light out, reflection back
@@ -470,7 +484,7 @@ const SHOTS = [
     hud(ease(ramp(u, 3.4, 3.9)), ramp(u, 3.6, 5.4), ease(ramp(u, 5.4, 5.8)));
     player(0, 'paused', 0.305);
     title(['Table or pocket?', '<em>Doesn’t match skin</em>'], [0.3, 3.2], u);
-    note('Older AirPods used simpler optical sensors that a pocket could fool', ease(ramp(u, 6.2, 6.6)));
+    note('Older AirPods used simpler optical sensors that a pocket could fool', ease(ramp(u, 6.2, 6.6)), true);
   }],
   [31.13, 37.35, (u, t) => { // signal: sensor → H2 → phone
     HEAD.visible = false; TABLE.visible = false; BUD.position.copy(POSE.sigP); BUD.rotation.copy(POSE.sigR); BUD.updateMatrixWorld(true);
