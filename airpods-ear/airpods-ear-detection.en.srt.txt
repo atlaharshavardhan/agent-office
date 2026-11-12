@@ -1,0 +1,115 @@
+1
+00:00:01,750 --> 00:00:03,300
+Your music just stopped
+
+2
+00:00:03,320 --> 00:00:04,510
+So how did your AirPods
+
+3
+00:00:04,530 --> 00:00:06,100
+know you took one out?
+
+4
+00:00:06,550 --> 00:00:07,190
+Inside
+
+5
+00:00:07,210 --> 00:00:09,230
+there's a tiny skin-detect sensor
+
+6
+00:00:09,250 --> 00:00:10,200
+right where the bud
+
+7
+00:00:10,220 --> 00:00:11,370
+touches your ear
+
+8
+00:00:11,390 --> 00:00:12,590
+An infrared light
+
+9
+00:00:12,610 --> 00:00:14,540
+with a light sensor beside it
+
+10
+00:00:14,990 --> 00:00:16,480
+When it's in your ear
+
+11
+00:00:16,500 --> 00:00:17,820
+it shines invisible light
+
+12
+00:00:17,840 --> 00:00:18,950
+into your skin
+
+13
+00:00:18,970 --> 00:00:20,780
+and reads what bounces back
+
+14
+00:00:20,800 --> 00:00:22,010
+Your skin sends it back
+
+15
+00:00:22,030 --> 00:00:23,260
+in its own way
+
+16
+00:00:23,710 --> 00:00:24,450
+A table
+
+17
+00:00:24,470 --> 00:00:25,430
+or a pocket
+
+18
+00:00:25,450 --> 00:00:27,230
+doesn't match that pattern
+
+19
+00:00:27,250 --> 00:00:29,080
+Older AirPods used simpler sensors
+
+20
+00:00:29,100 --> 00:00:30,770
+that a pocket could fool
+
+21
+00:00:30,790 --> 00:00:32,790
+This one can tell skin apart
+
+22
+00:00:33,240 --> 00:00:35,250
+The moment it stops seeing skin
+
+23
+00:00:35,270 --> 00:00:36,540
+the H2 chip knows
+
+24
+00:00:36,560 --> 00:00:37,610
+and tells your phone
+
+25
+00:00:37,630 --> 00:00:39,330
+over Bluetooth to pause
+
+26
+00:00:39,680 --> 00:00:40,620
+Put it back in
+
+27
+00:00:40,640 --> 00:00:41,760
+it sees skin again
+
+28
+00:00:41,780 --> 00:00:43,260
+and your music plays on
+
+29
+00:00:44,330 --> 00:00:46,520
+Follow InvisiTech for more
