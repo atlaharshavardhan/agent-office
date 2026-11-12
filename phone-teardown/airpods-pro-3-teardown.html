@@ -139,6 +139,7 @@ body.render .tag span { font-size: 17px; padding: 4px 10px; }
   .top .note { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { #card { transition: none; } }
+@media (max-width: 820px) { #controls { flex-wrap: wrap; justify-content: center; gap: 8px; border-radius: 22px; width: calc(100% - 24px); } #controls label { display: none; } #controls .btn { padding: 8px 12px; } }
 </style>
 
 <div id="app">
@@ -182,6 +183,8 @@ body.render .tag span { font-size: 17px; padding: 4px 10px; }
     <button class="btn primary" id="play" type="button">▶ Play tour</button>
     <label for="explode">Explode</label>
     <input type="range" id="explode" min="0" max="1" step="0.01" value="1">
+    <button class="btn primary" id="budMode" type="button">Earbud</button>
+    <button class="btn" id="caseMode" type="button">Case</button>
     <button class="btn" id="lidBtn" type="button">Close lid</button>
     <button class="btn" id="budBtn" type="button">Buds in</button>
     <button class="btn" id="overview" type="button">Overview</button>
@@ -424,7 +427,10 @@ function seat(obj, P, t, base) {   // t = 0 → out pose (as baked), 1 → seate
 function applyExtras(e) {
   const inn = (1 - CTRL.out) * (1 - e), inL = 1 - CTRL.out;
   if (MODEL) {
-    parts.forEach(p => { if (BUD_IDS.has(p.id)) seat(p.group, MODEL.R, inn, p.group.position.clone()); if (INTERNAL.has(p.id)) p.group.visible = e > 0.02; }); parts.forEach(p => { if (CASE_INTERNAL.has(p.id)) p.group.visible = e > 0.02; });
+    parts.forEach(p => { if (BUD_IDS.has(p.id)) seat(p.group, MODEL.R, inn, p.group.position.clone()); });
+    const asm = e < 0.04;
+    parts.forEach(p => { const mine = (p.grp || 'bud') === MODE, internal = INTERNAL.has(p.id) || CASE_INTERNAL.has(p.id);
+      p.group.visible = internal ? (!asm && mine) : (asm || mine); });
     seat(LEFT_BUD, MODEL.L, inL, new THREE.Vector3());
   } else {
     parts.forEach(p => { if (BUD_IDS.has(p.id)) { p.group.position.y += BUD_DROP * inn; p.group.position.z += BUD_BACK * inn; p.group.position.x += BUD_SPREAD * inn; rotAbout(p.group, HEAD, BUD_TILT * inn, -BUD_TURN * inn); } });
@@ -850,9 +856,50 @@ if (window.AIRPODS_COMPACT) loadCompact(gltf => {
   parts.forEach(p => p.group.traverse(o => { if (o.isMesh) { o.userData.part = p; const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach(m => { if (m.userData.baseOpacity === undefined) { m.userData.baseOpacity = m.opacity; m.userData.baseTransparent = m.transparent; m.userData.baseDepthWrite = m.depthWrite; } }); } }));
   MODEL_READY = true;
 }, err => { console.error('model', err); MODEL_READY = true; });
+
+/* ---------------- Exploded layout: earbud in one row (tip → housing), case in one column (lid → shell) ---------------- */
+let MODE = 'bud';
+const BUD_ROW = ['tip', 'inmic', 'driver', 'sensor', 'topmic', 'accel', 'battery', 'h2', 'stembase', 'shell'];
+const CASE_COL = ['lid', 'wells', 'caseBattery', 'caseBoard', 'coil', ['usbc', 'caseSpeaker'], 'caseShell'];
+const byId = id => parts.find(p => p.id === id);
+parts.forEach(p => { p.grp = BUD_IDS.has(p.id) ? 'bud' : 'case'; const b = new THREE.Box3().setFromObject(p.group); p.size = b.getSize(new THREE.Vector3()); p.bc = b.getCenter(new THREE.Vector3()); });
+const OV_BUD = { target: new THREE.Vector3(), az: 0.18, el: 0.1, dist: 260, shift: 0 }, OV_CASE = { target: new THREE.Vector3(), az: 0.32, el: 0.14, dist: 300, shift: 0 };
+let BUD_VERT = null;
+function layoutBud(vert) { // earbud parts in assembly order: a column on tall screens, a 2 x 5 grid on wide ones
+  if (vert === BUD_VERT) return; BUD_VERT = vert;
+  const H = byId('shell').bc, place = (p, x, y) => p.offset.set(x - p.bc.x, y - p.bc.y, -p.bc.z);
+  if (vert) {
+    const MIN = 14, GAP = 5, pos = {}; let c = 0, prev = null;
+    for (let i = BUD_ROW.length - 1; i >= 0; i--) { const p = byId(BUD_ROW[i]), half = q => q.size.y / 2;
+      c = prev ? c - Math.max(half(prev) + half(p) + GAP, MIN) : 0; pos[p.id] = c; prev = p; }
+    BUD_ROW.forEach((id, k) => place(byId(id), H.x + (id === 'shell' ? 0 : (k % 2 ? 4 : -4)), H.y - pos[id]));
+    const span = -pos[BUD_ROW[0]];
+    OV_BUD.target.set(H.x, H.y + span / 2 - 5, 0); OV_BUD.dist = (span + 32) * 1.3 + 30; OV_BUD.az = 0.2; OV_BUD.el = 0.08;
+  } else {
+    const SX = 34, SY = 40, COLS = 5;
+    BUD_ROW.forEach((id, k) => { const col = k % COLS, row = Math.floor(k / COLS);
+      place(byId(id), H.x - (COLS - 1 - col) * SX, H.y + (row ? -SY / 2 : SY / 2) + (id === 'shell' ? -2 : 0)); });
+    OV_BUD.target.set(H.x - (COLS - 1) * SX / 2 - 4, H.y - 2, 0); OV_BUD.dist = (COLS - 1) * SX * 1.95 + 70; OV_BUD.az = 0.1; OV_BUD.el = 0.12;
+  }
+}
+layoutBud(innerWidth < innerHeight);
+addEventListener('resize', () => { const was = BUD_VERT; layoutBud(innerWidth < innerHeight); if (was !== BUD_VERT && MODE === 'bud') { setMode('bud'); if (selected < 0 && !touring) goal = ovI(); } });
+{ // case column, top to bottom
+  const GAP = 7; let y = CTOP + 46, prevH = 0; let first = true;
+  CASE_COL.forEach(entry => {
+    const ids = Array.isArray(entry) ? entry : [entry], ps = ids.map(byId), h = Math.max(...ps.map(p => p.size.y));
+    y = first ? y : y - (prevH / 2 + h / 2 + GAP); first = false;
+    ps.forEach((p, k) => { const xx = ids.length > 1 ? CASE.x + (k ? 1 : -1) * 15 : CASE.x; p.offset.set(xx - p.center.x, y - p.center.y, CASE.z - p.center.z); });
+    prevH = h;
+  });
+  const top = CTOP + 46 + byId('lid').size.y / 2, bot = y - prevH / 2;
+  OV_CASE.target.set(CASE.x, (top + bot) / 2 - (top - bot) * 0.06, 0); OV_CASE.dist = (top - bot) * 2.0 + 40;
+}
+const HERO = { target: new THREE.Vector3(-11.6, -12, 0), az: 0.2, el: 0.24, dist: 205, shift: 0.85 };
+function setMode(m) { MODE = m; Object.assign(OVERVIEW, clonePose(m === 'bud' ? OV_BUD : OV_CASE)); const b1 = document.getElementById('budMode'), b2 = document.getElementById('caseMode'); if (b1) { b1.classList.toggle('primary', m === 'bud'); b2.classList.toggle('primary', m === 'case'); } }
 /* ---------------- View / state ---------------- */
 const N = parts.length;
-const OVERVIEW = { target: new THREE.Vector3(30, -16, 0), az: -0.5, el: 0.15, dist: 330, shift: 0 };
+const OVERVIEW = clonePose(OV_BUD);
 
 const view = clonePose(OVERVIEW);
 let explode = 1;
@@ -897,7 +944,7 @@ function updateLabels(w, h) {
     const x = (tmpV.x * 0.5 + 0.5) * w, y = (-tmpV.y * 0.5 + 0.5) * h;
     const left = x < w * 0.5; p.tag.classList.toggle('left', left);
     p.tag.style.transform = `translate(${left ? 'calc(' + x + 'px - 100% + 3.5px)' : (x - 3.5) + 'px'}, ${y - 12}px)`;
-    p.tag.style.visibility = tmpV.z < 1 ? 'visible' : 'hidden';
+    p.tag.style.visibility = tmpV.z < 1 && p.group.visible ? 'visible' : 'hidden';
   });
 }
 
@@ -938,11 +985,13 @@ seg({ kind: 'explode', dur: 4.5, focus: -1, explode: t => ease(clamp01(t * 1.15)
   pose: t => lerpPose({ target: new THREE.Vector3(-11.6, -12, 0), az: 0.2, el: 0.46, dist: 205, shift: 0.85 }, OVERVIEW, ease(t)), labels: t => clamp01((t - 0.75) / 0.25) });
 seg({ kind: 'overview', dur: 3.5, focus: -1, explode: () => 1,
   pose: t => Object.assign(clonePose(OVERVIEW), { az: OVERVIEW.az + 0.12 * t }), labels: () => 1 });
-parts.forEach((p, i) => seg({ kind: 'part', dur: PART_DUR, focus: i, explode: () => 1, pose: t => partPose(p, 0.16 * t - 0.08), labels: () => 0, card: true }));
-seg({ kind: 'overview2', dur: 3.5, focus: -1, explode: () => 1,
-  pose: t => Object.assign(clonePose(OVERVIEW), { az: 1.2 + 0.25 * t }), labels: () => 1 });
-seg({ kind: 'collapse', dur: 5.5, focus: -1, explode: t => 1 - ease(clamp01(t * 1.4)),
-  pose: t => ({ target: new THREE.Vector3(-11.6, -10, 0), az: 1.45 + 2.0 * ease(t), el: 0.22, dist: 210, shift: 0.85 * ease(t) }), labels: () => 0,
+parts.forEach((p, i) => { if (p.grp === 'bud') seg({ kind: 'part', mode: 'bud', dur: PART_DUR, focus: i, explode: () => 1, pose: t => partPose(p, 0.16 * t - 0.08), labels: () => 0, card: true }); });
+seg({ kind: 'budClose', mode: 'bud', dur: 3.2, focus: -1, explode: t => 1 - ease(clamp01(t * 1.25)), pose: t => lerpPose(OV_BUD, HERO, ease(t)), labels: () => 0 });
+seg({ kind: 'caseExplode', mode: 'case', dur: 4.2, focus: -1, explode: t => ease(clamp01(t * 1.15)), pose: t => lerpPose(HERO, OV_CASE, ease(t)), labels: t => clamp01((t - 0.75) / 0.25) });
+seg({ kind: 'caseOverview', mode: 'case', dur: 3.2, focus: -1, explode: () => 1, pose: t => Object.assign(clonePose(OV_CASE), { az: OV_CASE.az + 0.12 * t }), labels: () => 1 });
+parts.forEach((p, i) => { if (p.grp === 'case') seg({ kind: 'part', mode: 'case', dur: PART_DUR, focus: i, explode: () => 1, pose: t => partPose(p, 0.16 * t - 0.08), labels: () => 0, card: true }); });
+seg({ kind: 'collapse', mode: 'case', dur: 5.5, focus: -1, explode: t => 1 - ease(clamp01(t * 1.4)),
+  pose: t => lerpPose(OV_CASE, Object.assign(clonePose(HERO), { az: HERO.az + 6.283 }), ease(t)), labels: () => 0,
   title: t => ['outro', clamp01((t - 0.45) / 0.15)] });
 const TOTAL = tAcc;
 
@@ -962,10 +1011,10 @@ function stateAt(t) {
   if (prev && lt < 0.6) labels = Math.min(labels, prev.labels(1) * (1 - lt / 0.6) + labels * (lt / 0.6));
   const cardA = s.card ? clamp01(Math.min((lt - 0.5) / 0.6, (s.dur - lt) / 0.45)) : 0;
   const title = s.title ? s.title(u) : [null, 0];
-  return { explode: s.explode(u), pose, dims, labels, card: s.card ? s.focus : -1, cardA, title, focus: s.focus };
+  return { explode: s.explode(u), pose, dims, labels, card: s.card ? s.focus : -1, cardA, title, focus: s.focus, mode: s.mode || 'bud' };
 }
 
-function applyState(st) { if (POSE_OV) st.pose = Object.assign({}, st.pose, POSE_OV);
+function applyState(st) { if (st.mode !== MODE) setMode(st.mode); if (POSE_OV) st.pose = Object.assign({}, st.pose, POSE_OV);
   explode = st.explode; applyExplode(explode);
   Object.assign(view, clonePose(st.pose));
   parts.forEach((p, i) => applyDim(p, st.dims[i]));
@@ -1007,7 +1056,7 @@ parts.forEach((p, i) => {
 });
 
 let selected = -1, touring = false, tourT = 0;
-const ovI = () => Object.assign(clonePose(OVERVIEW), innerWidth > 820 ? { dist: 300, shift: -0.4 } : { dist: 470, shift: 0.15 });
+const ovI = () => Object.assign(clonePose(OVERVIEW), { dist: OVERVIEW.dist * (innerWidth > 820 ? 1 : (MODE === 'case' ? 1.4 : 1.6)), shift: innerWidth > 820 ? -0.4 : 0.15 });
 let goal = ovI(), goalExplode = 1;
 Object.assign(view, ovI());
 const slider = document.getElementById('explode');
@@ -1015,7 +1064,7 @@ const playBtn = document.getElementById('play');
 
 function select(i) {
   stopTour();
-  selected = i;
+  selected = i; if (i >= 0 && parts[i].grp !== MODE) setMode(parts[i].grp);
   parts.forEach(p => p.btn.setAttribute('aria-pressed', String(p.index === i)));
   if (i >= 0) { if (goalExplode < 0.6) goalExplode = 1; slider.value = goalExplode; goal = partPose(parts[i]); setCard(i); card.style.opacity = 1; }
   else { goal = ovI(); setCard(-1); }
@@ -1025,6 +1074,7 @@ document.getElementById('next').addEventListener('click', () => select((selected
 document.getElementById('overview').addEventListener('click', () => { select(-1); goalExplode = 1; slider.value = 1; });
 slider.addEventListener('input', () => { stopTour(); goalExplode = +slider.value; });
 const lidBtn = document.getElementById('lidBtn'), budBtn = document.getElementById('budBtn');
+for (const [id, m] of [['budMode', 'bud'], ['caseMode', 'case']]) document.getElementById(id).addEventListener('click', () => { select(-1); setMode(m); goalExplode = 1; slider.value = 1; goal = ovI(); });
 function showOnCase() { select(-1); goalExplode = 0; slider.value = 0; goal = { target: new THREE.Vector3(-11.6, -12, 0), az: 0.25, el: 0.42, dist: 205, shift: 0 }; }
 let seqTimer = 0;
 function labels() { lidBtn.textContent = CTRL.lidGoal ? 'Close lid' : 'Open lid'; budBtn.textContent = CTRL.outGoal ? 'Buds in' : 'Buds out'; }

@@ -134,7 +134,10 @@ function seat(obj, P, t, base) {   // t = 0 → out pose (as baked), 1 → seate
 function applyExtras(e) {
   const inn = (1 - CTRL.out) * (1 - e), inL = 1 - CTRL.out;
   if (MODEL) {
-    parts.forEach(p => { if (BUD_IDS.has(p.id)) seat(p.group, MODEL.R, inn, p.group.position.clone()); if (INTERNAL.has(p.id)) p.group.visible = e > 0.02; }); parts.forEach(p => { if (CASE_INTERNAL.has(p.id)) p.group.visible = e > 0.02; });
+    parts.forEach(p => { if (BUD_IDS.has(p.id)) seat(p.group, MODEL.R, inn, p.group.position.clone()); });
+    const asm = e < 0.04;
+    parts.forEach(p => { const mine = (p.grp || 'bud') === MODE, internal = INTERNAL.has(p.id) || CASE_INTERNAL.has(p.id);
+      p.group.visible = internal ? (!asm && mine) : (asm || mine); });
     seat(LEFT_BUD, MODEL.L, inL, new THREE.Vector3());
   } else {
     parts.forEach(p => { if (BUD_IDS.has(p.id)) { p.group.position.y += BUD_DROP * inn; p.group.position.z += BUD_BACK * inn; p.group.position.x += BUD_SPREAD * inn; rotAbout(p.group, HEAD, BUD_TILT * inn, -BUD_TURN * inn); } });
@@ -560,6 +563,47 @@ if (window.AIRPODS_COMPACT) loadCompact(gltf => {
   parts.forEach(p => p.group.traverse(o => { if (o.isMesh) { o.userData.part = p; const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach(m => { if (m.userData.baseOpacity === undefined) { m.userData.baseOpacity = m.opacity; m.userData.baseTransparent = m.transparent; m.userData.baseDepthWrite = m.depthWrite; } }); } }));
   MODEL_READY = true;
 }, err => { console.error('model', err); MODEL_READY = true; });
+
+/* ---------------- Exploded layout: earbud in one row (tip → housing), case in one column (lid → shell) ---------------- */
+let MODE = 'bud';
+const BUD_ROW = ['tip', 'inmic', 'driver', 'sensor', 'topmic', 'accel', 'battery', 'h2', 'stembase', 'shell'];
+const CASE_COL = ['lid', 'wells', 'caseBattery', 'caseBoard', 'coil', ['usbc', 'caseSpeaker'], 'caseShell'];
+const byId = id => parts.find(p => p.id === id);
+parts.forEach(p => { p.grp = BUD_IDS.has(p.id) ? 'bud' : 'case'; const b = new THREE.Box3().setFromObject(p.group); p.size = b.getSize(new THREE.Vector3()); p.bc = b.getCenter(new THREE.Vector3()); });
+const OV_BUD = { target: new THREE.Vector3(), az: 0.18, el: 0.1, dist: 260, shift: 0 }, OV_CASE = { target: new THREE.Vector3(), az: 0.32, el: 0.14, dist: 300, shift: 0 };
+let BUD_VERT = null;
+function layoutBud(vert) { // earbud parts in assembly order: a column on tall screens, a 2 x 5 grid on wide ones
+  if (vert === BUD_VERT) return; BUD_VERT = vert;
+  const H = byId('shell').bc, place = (p, x, y) => p.offset.set(x - p.bc.x, y - p.bc.y, -p.bc.z);
+  if (vert) {
+    const MIN = 14, GAP = 5, pos = {}; let c = 0, prev = null;
+    for (let i = BUD_ROW.length - 1; i >= 0; i--) { const p = byId(BUD_ROW[i]), half = q => q.size.y / 2;
+      c = prev ? c - Math.max(half(prev) + half(p) + GAP, MIN) : 0; pos[p.id] = c; prev = p; }
+    BUD_ROW.forEach((id, k) => place(byId(id), H.x + (id === 'shell' ? 0 : (k % 2 ? 4 : -4)), H.y - pos[id]));
+    const span = -pos[BUD_ROW[0]];
+    OV_BUD.target.set(H.x, H.y + span / 2 - 5, 0); OV_BUD.dist = (span + 32) * 1.3 + 30; OV_BUD.az = 0.2; OV_BUD.el = 0.08;
+  } else {
+    const SX = 34, SY = 40, COLS = 5;
+    BUD_ROW.forEach((id, k) => { const col = k % COLS, row = Math.floor(k / COLS);
+      place(byId(id), H.x - (COLS - 1 - col) * SX, H.y + (row ? -SY / 2 : SY / 2) + (id === 'shell' ? -2 : 0)); });
+    OV_BUD.target.set(H.x - (COLS - 1) * SX / 2 - 4, H.y - 2, 0); OV_BUD.dist = (COLS - 1) * SX * 1.95 + 70; OV_BUD.az = 0.1; OV_BUD.el = 0.12;
+  }
+}
+layoutBud(innerWidth < innerHeight);
+addEventListener('resize', () => { const was = BUD_VERT; layoutBud(innerWidth < innerHeight); if (was !== BUD_VERT && MODE === 'bud') { setMode('bud'); if (selected < 0 && !touring) goal = ovI(); } });
+{ // case column, top to bottom
+  const GAP = 7; let y = CTOP + 46, prevH = 0; let first = true;
+  CASE_COL.forEach(entry => {
+    const ids = Array.isArray(entry) ? entry : [entry], ps = ids.map(byId), h = Math.max(...ps.map(p => p.size.y));
+    y = first ? y : y - (prevH / 2 + h / 2 + GAP); first = false;
+    ps.forEach((p, k) => { const xx = ids.length > 1 ? CASE.x + (k ? 1 : -1) * 15 : CASE.x; p.offset.set(xx - p.center.x, y - p.center.y, CASE.z - p.center.z); });
+    prevH = h;
+  });
+  const top = CTOP + 46 + byId('lid').size.y / 2, bot = y - prevH / 2;
+  OV_CASE.target.set(CASE.x, (top + bot) / 2 - (top - bot) * 0.06, 0); OV_CASE.dist = (top - bot) * 2.0 + 40;
+}
+const HERO = { target: new THREE.Vector3(-11.6, -12, 0), az: 0.2, el: 0.24, dist: 205, shift: 0.85 };
+function setMode(m) { MODE = m; Object.assign(OVERVIEW, clonePose(m === 'bud' ? OV_BUD : OV_CASE)); const b1 = document.getElementById('budMode'), b2 = document.getElementById('caseMode'); if (b1) { b1.classList.toggle('primary', m === 'bud'); b2.classList.toggle('primary', m === 'case'); } }
 '''
 a = src.index('/* ---------------- Phone dimensions (mm) ---------------- */')
 b = src.index('/* ---------------- View / state ---------------- */')
@@ -628,6 +672,34 @@ model_data = open('assets/airpods-pro-model.compact.js').read()
 src = src.replace('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>',
   '<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>\n<script>' + model_data + '</script>', 1)
 assert 'window.AIRPODS_COMPACT=' in src
+
+src = src.replace('"const OVERVIEW = { target: new THREE.Vector3(30, -16, 0), az: -0.5, el: 0.15, dist: 330, shift: 0 };"', '')
+import re as _re
+src = _re.sub(r"const OVERVIEW = \{[^\n]*\};", "const OVERVIEW = clonePose(OV_BUD);", src, count=1)
+src = _re.sub(r"const ovI = \(\) => [^\n]*;", "const ovI = () => Object.assign(clonePose(OVERVIEW), { dist: OVERVIEW.dist * (innerWidth > 820 ? 1 : (MODE === 'case' ? 1.4 : 1.6)), shift: innerWidth > 820 ? -0.4 : 0.15 });", src, count=1)
+a = src.index("parts.forEach((p, i) => seg({ kind: 'part'")
+b = src.index("const TOTAL = tAcc;")
+src = src[:a] + """parts.forEach((p, i) => { if (p.grp === 'bud') seg({ kind: 'part', mode: 'bud', dur: PART_DUR, focus: i, explode: () => 1, pose: t => partPose(p, 0.16 * t - 0.08), labels: () => 0, card: true }); });
+seg({ kind: 'budClose', mode: 'bud', dur: 3.2, focus: -1, explode: t => 1 - ease(clamp01(t * 1.25)), pose: t => lerpPose(OV_BUD, HERO, ease(t)), labels: () => 0 });
+seg({ kind: 'caseExplode', mode: 'case', dur: 4.2, focus: -1, explode: t => ease(clamp01(t * 1.15)), pose: t => lerpPose(HERO, OV_CASE, ease(t)), labels: t => clamp01((t - 0.75) / 0.25) });
+seg({ kind: 'caseOverview', mode: 'case', dur: 3.2, focus: -1, explode: () => 1, pose: t => Object.assign(clonePose(OV_CASE), { az: OV_CASE.az + 0.12 * t }), labels: () => 1 });
+parts.forEach((p, i) => { if (p.grp === 'case') seg({ kind: 'part', mode: 'case', dur: PART_DUR, focus: i, explode: () => 1, pose: t => partPose(p, 0.16 * t - 0.08), labels: () => 0, card: true }); });
+seg({ kind: 'collapse', mode: 'case', dur: 5.5, focus: -1, explode: t => 1 - ease(clamp01(t * 1.4)),
+  pose: t => lerpPose(OV_CASE, Object.assign(clonePose(HERO), { az: HERO.az + 6.283 }), ease(t)), labels: () => 0,
+  title: t => ['outro', clamp01((t - 0.45) / 0.15)] });
+""" + src[b:]
+src = src.replace("return { explode: s.explode(u), pose, dims, labels, card: s.card ? s.focus : -1, cardA, title, focus: s.focus };",
+                  "return { explode: s.explode(u), pose, dims, labels, card: s.card ? s.focus : -1, cardA, title, focus: s.focus, mode: s.mode || 'bud' };")
+src = src.replace("function applyState(st) {", "function applyState(st) { if (st.mode !== MODE) setMode(st.mode);")
+src = src.replace("  selected = i;\n", "  selected = i; if (i >= 0 && parts[i].grp !== MODE) setMode(parts[i].grp);\n")
+src = src.replace("p.tag.style.visibility = tmpV.z < 1 ? 'visible' : 'hidden';", "p.tag.style.visibility = tmpV.z < 1 && p.group.visible ? 'visible' : 'hidden';")
+src = src.replace('<button class="btn" id="lidBtn" type="button">Close lid</button>', '<button class="btn primary" id="budMode" type="button">Earbud</button>\n    <button class="btn" id="caseMode" type="button">Case</button>\n    <button class="btn" id="lidBtn" type="button">Close lid</button>')
+src = src.replace("const lidBtn = document.getElementById('lidBtn'), budBtn = document.getElementById('budBtn');",
+  "const lidBtn = document.getElementById('lidBtn'), budBtn = document.getElementById('budBtn');\nfor (const [id, m] of [['budMode', 'bud'], ['caseMode', 'case']]) document.getElementById(id).addEventListener('click', () => { select(-1); setMode(m); goalExplode = 1; slider.value = 1; goal = ovI(); });")
+for need in ["mode: s.mode || 'bud'", "if (st.mode !== MODE)", "parts[i].grp !== MODE", "p.group.visible ? 'visible'", 'id="budMode"', "['caseMode', 'case']", "kind: 'caseExplode'", "OVERVIEW = clonePose(OV_BUD)", "OVERVIEW.dist * (innerWidth"]:
+    assert need in src, need
+
+src = src.replace("</style>", "@media (max-width: 820px) { #controls { flex-wrap: wrap; justify-content: center; gap: 8px; border-radius: 22px; width: calc(100% - 24px); } #controls label { display: none; } #controls .btn { padding: 8px 12px; } }\n</style>", 1)
 # brighter studio environment, same as the AirTag page
 env = open('build-airtag.py').read()
 env = env[env.index('env = r"""') + 10: env.index('"""', env.index('env = r"""') + 10)]
