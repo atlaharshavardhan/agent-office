@@ -323,7 +323,29 @@ addPart('caseInside', [76, -48, -2], { az: -0.3, el: -0.3, k: 1.3 }, [CASE.x + 2
 /* ---------------- Real AirPods Pro model ----------------
    "AirPods Pro" by Jed Falcone (sketchfab.com/jedlas012), CC-BY 4.0. Replaces the hand-built case, lid and bud shells;
    the exploded internals stay. Case scaled to Apple's 62.2 mm width; buds scaled to Apple's 30.9 mm height. */
-let MODEL_READY = !window.AIRPODS_MODEL; window.__tourReady = () => MODEL_READY;
+let MODEL_READY = !window.AIRPODS_COMPACT; window.__tourReady = () => MODEL_READY;
+function loadCompact(done, fail) {   // unpack the compact model (gzip + 16-bit positions) into a three.js scene
+  const C = window.AIRPODS_COMPACT, bytes = Uint8Array.from(atob(C.bin), c => c.charCodeAt(0));
+  if (!('DecompressionStream' in window)) { fail('no DecompressionStream'); return; }
+  new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer().then(ab => {
+    const root = new THREE.Group(), caseG = new THREE.Group(), lidG = new THREE.Group(), budsG = new THREE.Group();
+    caseG.name = 'Case_1'; lidG.name = 'Lid'; budsG.name = 'Airpods'; caseG.add(lidG); root.add(caseG, budsG);
+    const tex = new THREE.TextureLoader().load(C.tex); tex.encoding = THREE.sRGBEncoding; tex.flipY = false;
+    C.meshes.forEach(m => {
+      const q = new Uint16Array(ab, m.po, m.n * 3), pos = new Float32Array(m.n * 3);
+      for (let i = 0; i < m.n; i++) for (let j = 0; j < 3; j++) pos[i * 3 + j] = m.min[j] + q[i * 3 + j] / 65535 * m.sc[j];
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      g.setIndex(new THREE.BufferAttribute(m.i32 ? new Uint32Array(ab, m.io, m.ni) : new Uint16Array(ab, m.io, m.ni), 1));
+      if (m.tex) { const uq = new Uint16Array(ab, m.uo, m.n * 2), uv = new Float32Array(m.n * 2); for (let i = 0; i < m.n * 2; i++) uv[i] = uq[i] / 65535; g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); }
+      g.computeVertexNormals();
+      const mat = new THREE.MeshStandardMaterial({ metalness: m.met, roughness: m.rou, map: m.tex ? tex : null }); mat.color.setRGB(m.col[0], m.col[1], m.col[2]); mat.name = m.mname;
+      const mesh = new THREE.Mesh(g, mat); mesh.name = m.name;
+      (m.grp === 'lid' ? lidG : m.grp === 'buds' ? budsG : caseG).add(mesh);
+    });
+    root.updateMatrixWorld(true); done({ scene: root });
+  }).catch(fail);
+}
+
 function splitGeo(geo, keep) {   // keep triangles whose centroid passes the test
   const g = geo.index ? geo.toNonIndexed() : geo, pa = g.attributes.position, out = {}, names = Object.keys(g.attributes), c = new THREE.Vector3(), v = new THREE.Vector3();
   names.forEach(n => out[n] = []);
@@ -334,7 +356,7 @@ function splitGeo(geo, keep) {   // keep triangles whose centroid passes the tes
   }
   const r = new THREE.BufferGeometry(); names.forEach(n => r.setAttribute(n, new THREE.Float32BufferAttribute(out[n], g.attributes[n].itemSize))); return r;
 }
-if (window.AIRPODS_MODEL) new THREE.GLTFLoader().parse(window.AIRPODS_MODEL, '', gltf => {
+if (window.AIRPODS_COMPACT) loadCompact(gltf => {
   const src = gltf.scene; src.updateMatrixWorld(true);
   const byName = n => src.getObjectByName(n);
   const caseNode = byName('Case_1'), lidNode = byName('Lid'), budsNode = byName('Airpods');
@@ -466,11 +488,10 @@ for need in ["applyExtras(e); }", "CTRL.lid += (CTRL.lidGoal", 'id="lidBtn"', "b
 src = src.replace("function applyState(st) {", "function applyState(st) { if (POSE_OV) st.pose = Object.assign({}, st.pose, POSE_OV);")
 assert "if (POSE_OV)" in src
 
-loader_js = open('assets/GLTFLoader.js').read()
-model_data = open('assets/airpods-pro-model.js').read()
+model_data = open('assets/airpods-pro-model.compact.js').read()
 src = src.replace('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>',
-  '<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>\n<script>' + loader_js + '</script>\n<script>' + model_data + '</script>', 1)
-assert 'window.AIRPODS_MODEL=' in src
+  '<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>\n<script>' + model_data + '</script>', 1)
+assert 'window.AIRPODS_COMPACT=' in src
 # brighter studio environment, same as the AirTag page
 env = open('build-airtag.py').read()
 env = env[env.index('env = r"""') + 10: env.index('"""', env.index('env = r"""') + 10)]

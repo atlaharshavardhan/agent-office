@@ -9,6 +9,6 @@ Model License:
 
 If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
 This work is based on "AirPods Pro" (https://sketchfab.com/3d-models/airpods-pro-3f84ddc3d87a4ec0a5e5f379abfecd9c) by Jed Falcone (https://sketchfab.com/jedlas012) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
-Used in airpods-pro-3-teardown.html (case, lid and earbud shells). Credit line for videos and posts:
+Used in airpods-pro-3-teardown.html (case, lid and earbud shells), repacked as airpods-pro-model.compact.js (16-bit positions, gzip). Credit line for videos and posts:
 "AirPods Pro" 3D model by Jed Falcone (https://sketchfab.com/jedlas012), CC-BY 4.0.
 Obtained from the Sketchfab export re-shared at github.com/rakshit-ayachit/Code-Castle-deco.cx (airpods/), license file included unchanged above.
