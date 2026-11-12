@@ -5,7 +5,7 @@ src = open(os.path.join(here, 'ear-video.src.html'), encoding='utf-8').read()
 def inline(m):
     path = os.path.normpath(os.path.join(here, m.group(1)))
     return '<script>\n' + open(path, encoding='utf-8').read() + '\n</script>'
-out = re.sub(r'<script src="(\.\./[^"]+)"></script>', inline, src)
+out = re.sub(r'<script src="((?:\.\./|assets/)[^"]+)"></script>', inline, src)
 assert '../' not in re.findall(r'<script src="([^"]+)"', out).__str__()
 import base64
 logo = base64.b64encode(open(os.path.join(here, 'assets', 'invisitech-logo.png'), 'rb').read()).decode()

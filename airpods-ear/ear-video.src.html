@@ -69,10 +69,12 @@
 <div id="fade"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="../face-id/assets/GLTFLoader.js"></script>
+<script src="assets/DecalGeometry.js"></script>
 <script src="../face-id/assets/head-data.js"></script>
 <script src="../phone-teardown/assets/airpods-pro-model.compact.js"></script>
 <script>
 (() => {
+const Q = new URLSearchParams(location.search);
 const W = innerWidth, H = innerHeight, TOTAL = 46.93, RED = 0xff3b55;
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
 const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3), lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
@@ -184,14 +186,22 @@ function buildInternals() {
   BUD.updateMatrixWorld(true);
   /* skin-detect sensor on the inner face of the bud (the side that rests in your ear) */
   const shell = BUD.getObjectByName('Cube_2_Mat.1_0'), rc = new THREE.Raycaster();
-  const from = new THREE.Vector3(1.5, 6.5, 0.5), dir = new THREE.Vector3(-0.55, 0.45, -0.7).normalize();
-  rc.set(from, dir); const hit = rc.intersectObject(shell, false)[0];
+  const from = new THREE.Vector3(Number(Q.get('sx') || 2), Number(Q.get('sy') || 3), Number(Q.get('sz') || 0)), dir = new THREE.Vector3(Number(Q.get('dx') || -0.5), Number(Q.get('dy') || -0.5), Number(Q.get('dz') || -0.7)).normalize();
+  // shoot from outside toward the body so we land on the OUTER surface (the shell has an inner wall too)
+  const sideM = shell.material.side; shell.material.side = THREE.DoubleSide;
+  rc.set(from.clone().addScaledVector(dir, 40), dir.clone().negate()); const hit = rc.intersectObject(shell, false)[0];
+  shell.material.side = sideM;
   const p = hit ? hit.point : from.clone().addScaledVector(dir, 8), n = hit ? hit.face.normal.clone() : dir.clone();
-  if (n.dot(dir) < 0) n.negate(); SENSOR_N.copy(n);
+  if (n.dot(dir) < 0) n.negate(); SENSOR_N.copy(n); window.__sens = [p.toArray(), n.toArray()];
   SENSOR.position.copy(p).addScaledVector(n, 0.03); SENSOR.lookAt(p.clone().add(n)); BUD.add(SENSOR);
-  WINDOW_GLASS = new THREE.Mesh(new THREE.CircleGeometry(1.5, 48), MAT.glass); WINDOW_GLASS.scale.set(1.45, 1, 1); SENSOR.add(WINDOW_GLASS);
-  const bezel = new THREE.Mesh(new THREE.RingGeometry(1.5, 1.62, 48), MAT.black); bezel.scale.set(1.45, 1, 1); bezel.position.z = 0.01; SENSOR.add(bezel);
-  const mod = new THREE.Group(); mod.position.z = -1.5; mod.scale.setScalar(0.62); SENSOR.add(mod);
+  { // the window is a decal on the shell itself, so it sits flush on the curve like the real one
+    const c = document.createElement('canvas'); c.width = 128; c.height = 96; const x = c.getContext('2d');
+    x.fillStyle = '#fff'; x.beginPath(); x.ellipse(64, 48, 60, 44, 0, 0, 7); x.fill();
+    const al = new THREE.CanvasTexture(c);
+    const dec = new THREE.Mesh(new THREE.DecalGeometry(shell, p, new THREE.Euler().setFromRotationMatrix(new THREE.Matrix4().lookAt(p, p.clone().sub(n), new THREE.Vector3(0, 1, 0))), new THREE.Vector3(3.4, 2.4, 3)),
+      new THREE.MeshPhysicalMaterial({ color: 0x050506, roughness: 0.06, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.6, alphaMap: al, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 }));
+    BUD.add(dec); WINDOW_GLASS = dec; }
+  const mod = new THREE.Group(); mod.position.z = -2.0; mod.scale.setScalar(0.5); SENSOR.add(mod);
   box(6.0, 3.9, 0.35, MAT.navy, 0, 0, 0, mod);
   for (let i = 0; i < 8; i++) box(0.35, 0.2, 0.05, MAT.gold, -2.6 + i * 0.75, -1.75, 0.2, mod);       // edge pads
   // emitter: black package, glowing short-wave infrared die
@@ -265,7 +275,7 @@ function setXray(x) {
   SOLID.forEach(o => { const m = o.material; m.transparent = x > 0.001; m.opacity = 1 - x; m.depthWrite = x < 0.5; });
   GHOST.forEach(o => { o.material.uniforms.alpha.value = x; o.visible = x > 0.001; });
   INNER.visible = x > 0.55;
-  WINDOW_GLASS.material.opacity = 1 - 0.7 * x;
+  WINDOW_GLASS.material.opacity = 1 - 0.75 * x;
 }
 function sensorGlow(v) {
   SENSOR_HALO.material.opacity = v; SENSOR_HALO.visible = v > 0.01; RED_DIE.material.emissiveIntensity = 0.4 + 2.6 * v;
@@ -449,7 +459,7 @@ const SHOTS = [
     BUD.position.set(0, 0, 0); BUD.rotation.set(0, POSE.xrayYaw - 1.1 * (1 - ease(ramp(u, 0, 7))), 0); BUD.updateMatrixWorld(true);
     setXray(ease(ramp(u, 0.8, 2.6))); const glow = ease(ramp(u, 3.2, 4.2)) * (0.75 + 0.25 * Math.sin(t * 6)) * (1 - 0.7 * ease(ramp(u, 5.6, 8.0))); sensorGlow(glow);
     const s = new THREE.Vector3(); SENSOR.getWorldPosition(s); const n = SENSOR_N.clone().transformDirection(BUD.matrixWorld);
-    const far = new THREE.Vector3(9, 13.5, 134), near = s.clone().addScaledVector(n.clone().add(new THREE.Vector3(0.35, 0.2, 0.25)).normalize(), 44);
+    const far = new THREE.Vector3(9, 13.5, 134), near = s.clone().addScaledVector(n.clone().add(new THREE.Vector3(0.35, 0.2, 0.25)).normalize(), 30);
     const k = ease(ramp(u, 5.6, 8.6)); look(vlerp(far, near, k), vlerp(new THREE.Vector3(0, -1, 0), s, k));
     player(0, 'paused', 0.305); title(['Inside: a <em>skin-detect</em>', 'sensor'], [0.6, 0.6], u);
     const a1 = ease(ramp(u, 2.6, 3.0)) * (1 - ease(ramp(u, 5.2, 5.6)));
@@ -465,7 +475,7 @@ const SHOTS = [
   [14.74, 23.46, (u, t) => { // skin: light out, reflection back
     HEAD.visible = true; TABLE.visible = false; seatInEar(0); setXray(0.82); sensorGlow(0.9 + 0.1 * Math.sin(t * 6));
     const s = POSE.skinS, orbit = 0.25 * (u / 10 - 0.5);
-    look(s.clone().add(new THREE.Vector3(70, 40, 95).applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit).multiplyScalar(1.45)), s.clone().add(new THREE.Vector3(-2, -6, 0)));
+    look(s.clone().add(new THREE.Vector3(70, 40, 95).applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit).multiplyScalar(1.45)), s.clone().add(new THREE.Vector3(-2, 3, 0)));
     const ao = ease(ramp(u, 0.8, 1.6)), ab = ease(ramp(u, 4.0, 4.8)); fadeGroup(FX.skinOut, ao); fadeGroup(FX.skinBack, ab);
     FX.skinPhOut.update(t, 0.9, ao); FX.skinPhBack.update(t, 0.9, ab);
     player(0, 'paused', 0.305);
@@ -548,6 +558,10 @@ function endCard() {
 Promise.all([loadBud(), loadHead()]).then(() => {
   buildInternals(); prepare(); renderAt(0); ready = true;
   window.__tour = { total: TOTAL, renderAt };
+  window.__dbgBud = (yaw, pitch, hide) => { HEAD.visible = false; TABLE.visible = false; SHADOW.visible = false; hideTags(); $('title').innerHTML = ''; $('sub').textContent = ''; note('', 0); player(0, 'paused', 0); $('endcard').style.opacity = 0; $('ecPill').style.opacity = 0; $('hud').style.opacity = 0; $('fade').style.opacity = 0; renderer.domElement.style.filter = '';
+    BUD.position.set(0, 0, 0); BUD.rotation.set(pitch, yaw, 0); BUD.updateMatrixWorld(true); setXray(0); sensorGlow(0); SENSOR.visible = !hide; VO = 0; HO = 0;
+    for (const k in FX) { const o = FX[k]; if (o && o.isObject3D) o.visible = false; else if (o && o.g) o.g.visible = false; else if (Array.isArray(o)) o.forEach(w => w.visible = false); }
+    look(new THREE.Vector3(0, 0, 95), new THREE.Vector3(0, 0, 0)); renderer.render(scene, camera); };
   if (!/render=1/.test(location.search)) { const t0 = performance.now(); const loop = () => { renderAt(((performance.now() - t0) / 1000) % TOTAL); requestAnimationFrame(loop); }; loop(); }
 });
 window.__tourReady = () => ready;
