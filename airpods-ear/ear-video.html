@@ -3711,7 +3711,7 @@ window.AIRPODS_COMPACT={"meshes":[{"name":"Cylinder_1_Mat.4_0","grp":"case","n":
 </script>
 <script>
 (() => {
-const W = innerWidth, H = innerHeight, TOTAL = 44.81, RED = 0xff3b55;
+const W = innerWidth, H = innerHeight, TOTAL = 46.93, RED = 0xff3b55;
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
 const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3), lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
@@ -4068,10 +4068,10 @@ function hud(a, draw, badge) { const h = $('hud'); h.style.opacity = a; h.style.
   const b = h.querySelector('.badge'); b.style.opacity = badge; b.style.transform = `scale(${1.25 - 0.25 * badge})`; }
 
 /* ---------- timeline ---------- */
-const CUTS = [5.91, 13.86, 22.09, 31.13, 37.35, 41.41];
-const CAPS = [[1.75, 3.18, "Your music just stopped"], [3.18, 4.28, "So how did your AirPods"], [4.28, 5.61, "know you took one out?"], [6.16, 6.78, "Inside"], [6.78, 8.69, "there's a tiny skin-detect sensor"], [8.69, 9.6, "right where the bud"], [9.6, 10.7, "touches your ear"], [10.7, 11.84, "An infrared light"], [11.84, 13.56, "with a light sensor beside it"], [14.11, 15.52, "When it's in your ear"], [15.52, 16.79, "it shines invisible light"], [16.79, 17.85, "into your skin"], [17.85, 19.57, "and reads what bounces back"], [19.57, 20.73, "Your skin sends it back"], [20.73, 21.79, "in its own way"], [22.34, 23.06, "A table"], [23.06, 23.99, "or a pocket"], [23.99, 25.68, "doesn't match that pattern"], [25.68, 27.43, "Older AirPods used simpler sensors"], [27.43, 29.03, "that a pocket could fool"], [29.03, 30.83, "This one can tell skin apart"], [31.38, 33.31, "The moment it stops seeing skin"], [33.31, 34.52, "the H2 chip knows"], [34.52, 35.53, "and tells your phone"], [35.53, 37.05, "over Bluetooth to pause"], [37.5, 38.48, "Put it back in"], [38.48, 39.66, "it sees skin again"], [39.66, 41.06, "and your music plays on"], [42.21, 44.17, "Follow InvisiTech for more"]];
+const CUTS = [6.3, 14.74, 23.46, 32.99, 39.53, 43.53];
+const CAPS = [[1.75, 3.32, "Your music just stopped"], [3.32, 4.53, "So how did your AirPods"], [4.53, 6.0, "know you took one out?"], [6.55, 7.21, "Inside"], [7.21, 9.25, "there's a tiny skin-detect sensor"], [9.25, 10.22, "right where the bud"], [10.22, 11.39, "touches your ear"], [11.39, 12.61, "An infrared light"], [12.61, 14.44, "with a light sensor beside it"], [14.99, 16.5, "When it's in your ear"], [16.5, 17.84, "it shines invisible light"], [17.84, 18.97, "into your skin"], [18.97, 20.8, "and reads what bounces back"], [20.8, 22.03, "Your skin sends it back"], [22.03, 23.16, "in its own way"], [23.71, 24.47, "A table"], [24.47, 25.45, "or a pocket"], [25.45, 27.25, "doesn't match that pattern"], [27.25, 29.1, "Older AirPods used simpler sensors"], [29.1, 30.79, "that a pocket could fool"], [30.79, 32.69, "This one can tell skin apart"], [33.24, 35.27, "The moment it stops seeing skin"], [35.27, 36.56, "the H2 chip knows"], [36.56, 37.63, "and tells your phone"], [37.63, 39.23, "over Bluetooth to pause"], [39.68, 40.64, "Put it back in"], [40.64, 41.78, "it sees skin again"], [41.78, 43.16, "and your music plays on"], [44.33, 46.12, "Follow InvisiTech for more"]];
 const SHOTS = [
-  [0, 5.91, (u, t) => { // hook: pull one out, music stops
+  [0, 6.3, (u, t) => { // hook: pull one out, music stops
     HEAD.visible = true; TABLE.visible = false; setXray(0); sensorGlow(0);
     const k = easeOut(ramp(u, 0.7, 1.5)); seatInEar(52 * k, k); VO = -0.03 + 0.18 * ease(ramp(u, 0.7, 1.7));
     const [p, tg] = EAR_VIEW(); look(vlerp(p, tg, 0.06 * u / 4 - 0.1), tg);
@@ -4082,7 +4082,7 @@ const SHOTS = [
     tag('how', 'How did it know?', BUD.position.clone().add(new THREE.Vector3(0, 8, 0)), -W * 0.24, H * 0.02, easeOut(ramp(u, 3.5, 3.9)), 'red');
     note('3D illustration · not affiliated with Apple', 1 - ramp(u, 5.0, 5.5));
   }],
-  [5.91, 13.86, (u, t) => { // x-ray: fly to the skin-detect sensor
+  [6.3, 14.74, (u, t) => { // x-ray: fly to the skin-detect sensor
     HEAD.visible = false; TABLE.visible = false; FX.streaks.visible = false;
     BUD.position.set(0, 0, 0); BUD.rotation.set(0, POSE.xrayYaw - 1.1 * (1 - ease(ramp(u, 0, 7))), 0); BUD.updateMatrixWorld(true);
     setXray(ease(ramp(u, 0.8, 2.6))); const glow = ease(ramp(u, 3.2, 4.2)) * (0.75 + 0.25 * Math.sin(t * 6)) * (1 - 0.7 * ease(ramp(u, 5.6, 8.0))); sensorGlow(glow);
@@ -4100,7 +4100,7 @@ const SHOTS = [
     sideTags([['emit', 'Infrared light', EMIT.getWorldPosition(new THREE.Vector3()), -1, a2, 'red'], ['det', 'Light sensor', DETECT.getWorldPosition(new THREE.Vector3()), 1, ease(ramp(u, 9.0, 9.4))]]);
     note('Illustrative · not to scale', 1);
   }],
-  [13.86, 22.09, (u, t) => { // skin: light out, reflection back
+  [14.74, 23.46, (u, t) => { // skin: light out, reflection back
     HEAD.visible = true; TABLE.visible = false; seatInEar(0); setXray(0.82); sensorGlow(0.9 + 0.1 * Math.sin(t * 6));
     const s = POSE.skinS, orbit = 0.25 * (u / 10 - 0.5);
     look(s.clone().add(new THREE.Vector3(70, 40, 95).applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit).multiplyScalar(1.45)), s.clone().add(new THREE.Vector3(-2, -6, 0)));
@@ -4111,7 +4111,7 @@ const SHOTS = [
     tag('skin', 'Skin ✓', POSE.skinT.clone().addScaledVector(POSE.skinN, 2), W * 0.14, H * 0.09, ease(ramp(u, 6.5, 6.9)), 'green');
     note('Short-wave infrared shown in red · invisible to the eye', 1);
   }],
-  [22.09, 31.13, (u, t) => { // table: not skin
+  [23.46, 32.99, (u, t) => { // table: not skin
     HEAD.visible = false; TABLE.visible = true; SHADOW.visible = true; scene.fog.near = 160; scene.fog.far = 460; BUD.position.copy(POSE.tableP); BUD.quaternion.copy(POSE.tableQ); BUD.updateMatrixWorld(true);
     setXray(ease(ramp(u, 0.0, 0.8)) * 0.9 + 0.1); sensorGlow(0.9 + 0.1 * Math.sin(t * 6));
     key.intensity = 0.85; rim.intensity = 1.6;
@@ -4124,7 +4124,7 @@ const SHOTS = [
     title(['Table or pocket?', '<em>Doesn’t match skin</em>'], [0.3, 3.2], u);
     note('Older AirPods used simpler optical sensors that a pocket could fool', ease(ramp(u, 6.2, 6.6)), true);
   }],
-  [31.13, 37.35, (u, t) => { // signal: sensor → H2 → phone
+  [32.99, 39.53, (u, t) => { // signal: sensor → H2 → phone
     HEAD.visible = false; TABLE.visible = false; BUD.position.copy(POSE.sigP); BUD.rotation.copy(POSE.sigR); BUD.updateMatrixWorld(true);
     setXray(1); sensorGlow(0.85);
     look(new THREE.Vector3(2, 6, 197).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.12 * (u / 10 - 0.5)), new THREE.Vector3(5, 9, 0));
@@ -4138,7 +4138,7 @@ const SHOTS = [
     tag('h2b', 'H2 chip', BUD.localToWorld(H2P.position.clone()), -W * 0.2, H * 0.05, ease(ramp(u, 3.6, 4.0)));
     note('', 0);
   }],
-  [37.35, 41.41, (u, t) => { // payoff: back in, music resumes
+  [39.53, 43.53, (u, t) => { // payoff: back in, music resumes
     HEAD.visible = true; TABLE.visible = false; setXray(0); sensorGlow(0);
     const k = 1 - ease(ramp(u, 0.2, 1.2)); seatInEar(52 * k, k); VO = -0.03 + 0.16 * k;
     const [p, tg] = EAR_VIEW(); look(vlerp(p, tg, -0.1), tg);
@@ -4146,7 +4146,7 @@ const SHOTS = [
     title(['Skin = <em class="g">play</em>.', 'Anything else = <em>pause</em>.'], [1.4, 2.4], u);
     note('', 0);
   }],
-  [41.41, 44.81, (u, t) => { // end card: themed panel, then the channel brand
+  [43.53, 46.93, (u, t) => { // end card: themed panel, then the channel brand
     HEAD.visible = false; TABLE.visible = false; BUD.position.set(0, 0, 0); BUD.rotation.set(0.15, 0.6 + 0.35 * u, 0.12); BUD.updateMatrixWorld(true);
     setXray(1); sensorGlow(0.8 + 0.2 * Math.sin(t * 5));
     look(new THREE.Vector3(0, 6, 112), new THREE.Vector3(0, 0, 0));

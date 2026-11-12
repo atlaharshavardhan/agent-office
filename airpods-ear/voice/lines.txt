@@ -1,7 +1,7 @@
 1.75|Your music just stopped. So how did your AirPods know you took one out?
-6.16|Inside, there's a tiny skin-detect sensor, right where the bud touches your ear. An infrared light, with a light sensor beside it.
-14.11|When it's in your ear, it shines invisible light into your skin, and reads what bounces back. Your skin sends it back in its own way.
-22.34|A table, or a pocket, doesn't match that pattern. Older AirPods used simpler sensors that a pocket could fool. This one can tell skin apart.
-31.38|The moment it stops seeing skin, the H2 chip knows, and tells your phone over Bluetooth to pause.
-37.5|Put it back in, it sees skin again, and your music plays on.
-42.21|Follow InvisiTech for more.
+6.55|Inside, there's a tiny skin-detect sensor, right where the bud touches your ear. An infrared light, with a light sensor beside it.
+14.99|When it's in your ear, it shines invisible light into your skin, and reads what bounces back. Your skin sends it back in its own way.
+23.71|A table, or a pocket, doesn't match that pattern. Older AirPods used simpler sensors that a pocket could fool. This one can tell skin apart.
+33.24|The moment it stops seeing skin, the H2 chip knows, and tells your phone over Bluetooth to pause.
+39.68|Put it back in, it sees skin again, and your music plays on.
+44.33|Follow InvisiTech for more.
