@@ -4483,7 +4483,7 @@ function renderAt(t) {
 const END = { a: 0, brand: 0 };
 function endCard() {
   const ec = $('endcard'), pill = $('ecPill'), a = END.a, b = END.brand; ec.style.opacity = a; ec.style.transform = `scale(${0.9 + 0.1 * a})`;
-  pill.style.opacity = ease(ramp(b, 0.05, 0.25)); pill.style.transform = `translateX(-50%) translateY(${(1 - ease(ramp(b, 0.05, 0.25))) * 3}vh)`;
+  pill.style.opacity = 0;   // no topic pill: the closing title already said "Skin = play."
   if (a < 0.01) return;
   const cv = $('ecScene'), r = ec.getBoundingClientRect(), dpr = renderer.getPixelRatio(); cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
   cv.getContext('2d').drawImage(renderer.domElement, r.left * dpr, r.top * dpr, r.width * dpr, r.height * dpr, 0, 0, cv.width, cv.height);   // sharp window into the blurred scene
