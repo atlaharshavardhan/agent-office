@@ -25,6 +25,13 @@
   .tag.red { border-color: var(--red); color: #ffdbe0; } .tag.green { border-color: var(--green); color: #d6ffe4; }
   #lines { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
   #big { position: fixed; z-index: 3; transform: translate(-50%, -50%); font: 800 26vw Sora, Arial, sans-serif; color: var(--red); text-shadow: 0 0 40px rgba(255,59,85,.5); opacity: 0; pointer-events: none; }
+  #hud { position: fixed; z-index: 3; left: 7%; right: 20%; top: 48.5%; padding: 2.8vw 3.6vw 2.6vw; border-radius: 4.5vw; background: linear-gradient(160deg, rgba(36,36,46,.86), rgba(16,16,22,.9));
+    border: 1px solid rgba(255,255,255,.14); box-shadow: 0 24px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08); color: #fff; opacity: 0; pointer-events: none; }
+  #hud .h1 { font: 600 2.7vw 'IBM Plex Mono', monospace; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.6); }
+  #hud svg { display: block; width: 100%; height: 11vw; margin: 1.2vw 0 1vw; }
+  #hud .leg { display: flex; gap: 4vw; font: 500 2.8vw 'IBM Plex Sans', sans-serif; color: rgba(255,255,255,.75); }
+  #hud .leg i { display: inline-block; width: 4vw; height: .7vw; border-radius: 1vw; margin-right: 1.4vw; vertical-align: middle; } #hud .leg i.g { background: #2fd36b; } #hud .leg i.r { background: #ff3b55; }
+  #hud .badge { position: absolute; right: 3.4vw; top: 2.6vw; font: 700 3vw Sora, Arial, sans-serif; letter-spacing: .06em; color: #fff; background: #ff3b55; padding: 1vw 2.6vw; border-radius: 3vw; box-shadow: 0 0 24px rgba(255,59,85,.6); }
   #fade { position: fixed; inset: 0; z-index: 5; background: #000; opacity: 0; pointer-events: none; }
 </style>
 <div class="shade" id="shTop"></div><div class="shade" id="shBot"></div>
@@ -34,6 +41,11 @@
 <div class="ov" id="sub"></div>
 <div id="player"><div id="state"></div><div id="art"></div><div id="meta"><b>Midnight Drive</b><span>Now playing</span><div id="bar"><i></i></div></div><div id="btn"></div></div>
 <div id="big">✕</div>
+<div id="hud"><div class="h1">Reflection check</div>
+<svg viewBox="0 0 300 110" preserveAspectRatio="none"><path id="hSkin" d="M0,80 C40,78 60,30 95,32 C130,34 140,88 175,86 C205,84 225,40 255,44 C275,47 290,70 300,72" fill="none" stroke="#2fd36b" stroke-width="3" stroke-dasharray="7 6"/>
+<path id="hMeas" d="M0,60 C40,58 70,62 100,57 C135,52 160,66 200,62 C240,58 270,64 300,60" fill="none" stroke="#ff3b55" stroke-width="4" stroke-linecap="round"/></svg>
+<div class="leg"><span><i class="g"></i>Skin pattern</span><span><i class="r"></i>What came back</span></div>
+<div class="badge">✕&nbsp; NOT SKIN</div></div>
 <div id="fade"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="../face-id/assets/GLTFLoader.js"></script>
@@ -289,7 +301,11 @@ function wood() {
   for (let i = 0; i < 140; i++) { x.strokeStyle = `rgba(${20 + r() * 40},${12 + r() * 20},6,${0.15 + r() * 0.25})`; x.lineWidth = 1 + r() * 3; x.beginPath(); const y = r() * 512; x.moveTo(0, y); for (let k = 0; k <= 8; k++) x.lineTo(k * 64, y + Math.sin(k * 0.9 + i) * 6); x.stroke(); }
   const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(14, 14); return t;
 }
-const TABLE = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000), new THREE.MeshStandardMaterial({ map: wood(), roughness: 0.9, envMapIntensity: 0 })); TABLE.rotation.x = -Math.PI / 2; scene.add(TABLE);
+function desk() { const c = document.createElement('canvas'); c.width = c.height = 512; const x = c.getContext('2d'); x.fillStyle = '#1b1c21'; x.fillRect(0, 0, 512, 512);
+  let q = 3; const r = () => (q = (q * 16807) % 2147483647) / 2147483647; for (let i = 0; i < 9000; i++) { const v = 22 + r() * 14; x.fillStyle = `rgba(${v},${v},${v + 4},0.5)`; x.fillRect(r() * 512, r() * 512, 1 + r() * 2, 1); }
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(30, 30); return t; }
+const TABLE = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000), new THREE.MeshStandardMaterial({ map: desk(), color: 0x3a3b43, roughness: 0.88, metalness: 0.0, envMapIntensity: 0.05 })); TABLE.rotation.x = -Math.PI / 2; scene.add(TABLE);
+const SHADOW = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: radial([[0, 'rgba(0,0,0,0.75)'], [0.5, 'rgba(0,0,0,0.35)'], [1, 'rgba(0,0,0,0)']]), transparent: true, depthWrite: false })); SHADOW.rotation.x = -Math.PI / 2; scene.add(SHADOW);
 
 /* fixed poses computed once */
 const POSE = {};
@@ -311,11 +327,18 @@ function prepare() {
   POSE.tableQ = BUD.quaternion.clone(); POSE.tableP = BUD.position.clone();
   const ts = new THREE.Vector3(); SENSOR.getWorldPosition(ts); const fl = new THREE.Vector3(ts.x, 0.1, ts.z);
   FX.tableOut = new THREE.Group(); FX.tableBack = new THREE.Group(); scene.add(FX.tableOut, FX.tableBack); const tO = [], tB = [];
-  for (let i = -1; i <= 1; i++) { const a = ts.clone().add(new THREE.Vector3(i * 1.2, 0, 0)), b = fl.clone().add(new THREE.Vector3(i * 4, 0, 2)); FX.tableOut.add(beam(a, b, 0.3, 0.9)); tO.push([a, b]); }
-  for (let i = -1; i <= 1; i += 2) { const a = fl.clone().add(new THREE.Vector3(i * 4, 0, 2)), b = fl.clone().add(new THREE.Vector3(i * 16, 9, -6)); FX.tableBack.add(beam(a, b, 0.2, 0.55, true)); tB.push([a, b]); }
-  FX.tablePhOut = new Photons(tO, 3, 3.0); FX.tablePhBack = new Photons(tB, 2, 2.4);
-  const pool = new THREE.Mesh(new THREE.CircleGeometry(9, 40), new THREE.MeshBasicMaterial({ color: RED, transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending, depthWrite: false })); pool.userData.o = 0.28;
-  pool.rotation.x = -Math.PI / 2; pool.position.copy(fl); FX.tableOut.add(pool);
+  const coneH = ts.y - 0.1, cone = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 7.5, coneH, 48, 1, true), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+    uniforms: { op: { value: 1 } }, vertexShader: 'varying float vY; void main(){ vY = uv.y; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader: 'uniform float op; varying float vY; void main(){ gl_FragColor = vec4(1.0, 0.23, 0.33, (0.08 + 0.32 * vY) * op); }' }));
+  cone.position.set(ts.x, coneH / 2 + 0.1, ts.z); cone.userData.cone = true; FX.tableOut.add(cone); FX.cone = cone;
+  for (let i = -1; i <= 1; i++) tO.push([ts.clone().add(new THREE.Vector3(i * 0.8, 0, 0)), fl.clone().add(new THREE.Vector3(i * 3.5, 0, 0))]);
+  const poolM = new THREE.Mesh(new THREE.PlaneGeometry(26, 26), new THREE.MeshBasicMaterial({ map: radial([[0, 'rgba(255,120,140,0.95)'], [0.25, 'rgba(255,59,85,0.5)'], [1, 'rgba(255,59,85,0)']]), transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false }));
+  poolM.userData.o = 0.9; poolM.rotation.x = -Math.PI / 2; poolM.position.copy(fl).add(new THREE.Vector3(0, 0.05, 0)); FX.tableOut.add(poolM);
+  for (let k = 0; k < 9; k++) { const ang = k / 9 * Math.PI * 2 + 0.3, up = 0.25 + 0.35 * ((k * 37) % 10) / 10;   // diffuse: light sprays everywhere instead of coming straight back
+    const a = fl.clone().add(new THREE.Vector3(Math.cos(ang) * 3, 0.2, Math.sin(ang) * 3)), d = new THREE.Vector3(Math.cos(ang), up, Math.sin(ang)).normalize(), bb = a.clone().addScaledVector(d, 16 + (k % 3) * 4);
+    FX.tableBack.add(beam(a, bb, 0.16, 0.55, true)); tB.push([a, bb]); }
+  FX.tablePhOut = new Photons(tO, 3, 2.6); FX.tablePhBack = new Photons(tB, 1, 2.0);
+  SHADOW.position.set(POSE.tableP.x, 0.04, POSE.tableP.z); SHADOW.scale.set(34, 22, 1);
   // signal shot: path sensor → board → H2, then radio waves
   BUD.position.set(-4, 14, 0); BUD.rotation.set(0.05, 0.35, 0.1); BUD.updateMatrixWorld(true);
   const pts = window.__flexCurve.getPoints(80).map(v => BUD.localToWorld(v.clone()));
@@ -368,6 +391,9 @@ function hideTags(except = []) { for (const id in TAGS) if (!except.includes(id)
 let VO = 0.06;
 function look(pos, target) { camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix(); camera.position.copy(pos); camera.lookAt(target); camera.updateMatrixWorld(); }
 const vlerp = (a, b, k) => a.clone().lerp(b, k);
+function hud(a, draw, badge) { const h = $('hud'); h.style.opacity = a; h.style.transform = `translateY(${(1 - a) * 3}vh)`;
+  for (const id of ['hSkin', 'hMeas']) { const p = $(id), L = p.getTotalLength(); if (id === 'hMeas') { p.style.strokeDasharray = L; p.style.strokeDashoffset = L * (1 - draw); } }
+  const b = h.querySelector('.badge'); b.style.opacity = badge; b.style.transform = `scale(${1.25 - 0.25 * badge})`; }
 
 /* ---------- timeline ---------- */
 const CUTS = [4, 15, 25, 35, 45];
@@ -414,12 +440,13 @@ const SHOTS = [
     note('Short-wave infrared shown in red · invisible to the eye', 1);
   }],
   [25, 35, (u, t) => { // table: not skin
-    HEAD.visible = false; TABLE.visible = true; scene.fog.near = 140; scene.fog.far = 420; BUD.position.copy(POSE.tableP); BUD.quaternion.copy(POSE.tableQ); BUD.updateMatrixWorld(true);
-    setXray(0); sensorGlow(0.9 + 0.1 * Math.sin(t * 6));
-    const orbit = -0.3 + 0.35 * u / 10; look(new THREE.Vector3(70, 60, 125).applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit), new THREE.Vector3(0, 15, 0));
-    const ao = ease(ramp(u, 0.6, 1.4)), ab = ease(ramp(u, 2.6, 3.4)); fadeGroup(FX.tableOut, ao); fadeGroup(FX.tableBack, ab);
-    FX.tablePhOut.update(t, 0.9, ao); FX.tablePhBack.update(t, 0.7, ab);
-    const x = $('big'), xa = easeOut(ramp(u, 4.4, 4.8)); x.style.opacity = xa; x.style.left = 0.72 * W + 'px'; x.style.top = 0.4 * H + 'px'; x.style.transform = `translate(-50%,-50%) scale(${1.6 - 0.6 * xa})`;
+    HEAD.visible = false; TABLE.visible = true; SHADOW.visible = true; scene.fog.near = 160; scene.fog.far = 460; BUD.position.copy(POSE.tableP); BUD.quaternion.copy(POSE.tableQ); BUD.updateMatrixWorld(true);
+    setXray(ease(ramp(u, 0.0, 0.8)) * 0.9 + 0.1); sensorGlow(0.9 + 0.1 * Math.sin(t * 6));
+    key.intensity = 0.85; rim.intensity = 1.6;
+    const orbit = -0.42 + 0.3 * ease(u / 10); look(new THREE.Vector3(70, 46, 132).applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit), new THREE.Vector3(0, 15, 0));
+    const ao = ease(ramp(u, 0.6, 1.4)), ab = ease(ramp(u, 2.4, 3.2)); fadeGroup(FX.tableOut, ao); FX.cone.material.uniforms.op.value = ao; fadeGroup(FX.tableBack, ab);
+    FX.tablePhOut.update(t, 0.9, ao); FX.tablePhBack.update(t, 0.55, ab);
+    hud(ease(ramp(u, 3.4, 3.9)), ramp(u, 3.6, 5.4), ease(ramp(u, 5.4, 5.8)));
     player(0, 'paused', 0.305);
     title(['Table or pocket?', '<em>Doesn’t match skin</em>'], [0.3, 3.2], u);
     note('Older AirPods used simpler optical sensors that a pocket could fool', ease(ramp(u, 6.2, 6.6)));
@@ -450,10 +477,10 @@ const SHOTS = [
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, , fn] = SHOTS[i];
-  hideTags(); $('big').style.opacity = 0; scene.fog.near = 5000; scene.fog.far = 8000;
+  hideTags(); $('big').style.opacity = 0; $('hud').style.opacity = 0; SHADOW.visible = false; key.intensity = 1.35; rim.intensity = 1.0; scene.fog.near = 5000; scene.fog.far = 8000;
   for (const g of [FX.skinOut, FX.skinBack, FX.tableOut, FX.tableBack, FX.sigTube, FX.sigHead, H2_HALO, FX.streaks]) g.visible = false;
   [FX.skinPhOut, FX.skinPhBack, FX.tablePhOut, FX.tablePhBack].forEach(p => p.g.visible = false); FX.waves.forEach(w => w.visible = false);
-  VO = [0.04, -0.03, 0.06, 0.1, 0.05, 0.04][i];
+  VO = [0.04, -0.03, 0.06, 0.15, 0.05, 0.04][i];
   fn(t - a, t);
   const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
   $('fade').style.opacity = Math.max(0, ...CUTS.map(c => 1 - Math.abs(t - c) / 0.22));

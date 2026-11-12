@@ -120,7 +120,9 @@ place(fx, chime([72, 76, 79]), 21.5, 0.22)                # Skin ✓
 # table
 place(fx, zap(0.5, 1200, 700), 25.6, 0.2); place(fx, hum(8.6, 180), 25.7, 0.05)
 for k in range(3): place(fx, blip(700 - 80 * k, 0.06), 27.7 + k * 0.33, 0.1, -0.3)
-place(fx, buzz(0.38), 29.4, 0.28); place(fx, thump(), 29.4, 0.4)   # ✕
+place(fx, blip(1100, 0.1, 1500), 28.4, 0.2)                # reflection-check card
+L = int(1.8 * SR); tt = np.arange(L) / SR; place(fx, np.sin(2 * np.pi * np.cumsum(np.linspace(500, 900, L)) / SR) * np.minimum(1, tt / 0.1) * np.minimum(1, (1.8 - tt) / 0.2) * 0.5, 28.6, 0.08)   # line draws
+place(fx, buzz(0.38), 30.4, 0.28); place(fx, thump(), 30.4, 0.4)   # NOT SKIN
 # (no player on the table shot)
 # signal
 for k in range(12): place(fx, blip(700 + 70 * k, 0.05), 36.0 + k * 0.22, 0.12)   # signal runs along the flex
