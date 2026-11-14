@@ -117,7 +117,7 @@ const C1 = ['#3a3f78', '#4a3f7a', '#34487a', '#51437c', '#3d4a82', '#4b3c70'];
 const FAR: H[] = [
   { x0: -15.6, y0: -4.6, w: 2.4, d: 2.5, h: 2.0, c: C1[5], roof: 'gable', seed: 31 },
   { x0: -12.5, y0: -4.6, w: 2.4, d: 2.5, h: 2.3, c: C1[3], roof: 'hip', seed: 32 },
-  { x0: -5.2, y0: -4.7, w: 2.6, d: 2.6, h: 3.3, c: '#5a4d94', roof: 'flat', hero: 'girl', seed: 3 },
+  { x0: -4.2, y0: -5.6, w: 2.6, d: 2.6, h: 3.3, c: '#5a4d94', roof: 'flat', hero: 'girl', seed: 3 },
   { x0: 3.2, y0: -4.6, w: 2.4, d: 2.5, h: 2.0, c: C1[3], roof: 'gable', seed: 4 },
   { x0: 6.3, y0: -4.6, w: 2.4, d: 2.5, h: 2.3, c: C1[4], roof: 'hip', seed: 22 },
   { x0: 9.4, y0: -4.6, w: 2.4, d: 2.5, h: 2.0, c: C1[0], roof: 'gable', seed: 33 },
@@ -192,7 +192,7 @@ export const IsoStreet: React.FC = () => {
         {[-19, -15.8, -12.6, -9.4, -6.2, -3.0, 0.2, 3.4, 6.6, 9.8, 13].map((x, i) => <HouseIso key={'bk' + i} b={{ x0: x, y0: -8.9, w: 2.4, d: 2.4, h: 1.9 + (i % 3) * 0.3, c: C1[i % 6], roof: i % 2 ? 'gable' : 'hip', seed: 40 + i }} f={f} />)}
         {Array.from({ length: 14 }).map((_, i) => <TreeIso key={'t0' + i} x={-12 + i * 1.75 + hash(i) * 0.5} y={-5.7 - hash(i + 3) * 0.5} s={0.6 + hash(i + 7) * 0.35} />)}
         {/* far row with hedges along the footpath */}
-        {Array.from({ length: 9 }).map((_, i) => <TreeIso key={'pk' + i} x={-11.6 + (i % 5) * 1.25 + hash(i + 70) * 0.5} y={-4.4 + Math.floor(i / 5) * 0.95 + hash(i + 80) * 0.3} s={0.6 + hash(i + 90) * 0.35} />)}
+        {Array.from({ length: 14 }).map((_, i) => <TreeIso key={'pk' + i} x={-11.6 + (i % 7) * 1.08 + hash(i + 70) * 0.5} y={-4.4 + Math.floor(i / 7) * 0.95 + hash(i + 80) * 0.3} s={0.6 + hash(i + 90) * 0.35} />)}
         {FAR.map((b) => <HouseIso key={b.seed} b={b} f={f} />)}
         {FAR.map((b, i) => <g key={'hg' + i}><Box x0={b.x0 - 0.2} y0={-2.1} w={b.w / 2 - 0.05} d={0.14} h={0.26} c="#1f4a3a" /><Box x0={b.x0 + b.w / 2 + 0.3} y0={-2.1} w={b.w / 2 - 0.1} d={0.14} h={0.26} c="#1f4a3a" /></g>)}
         {[-11.5, -9.6, -7.6, -5.6, 2.85, 5.95, 9.0].map((x, i) => <TreeIso key={i} x={x} y={-2.45} s={0.7} />)}
@@ -201,7 +201,7 @@ export const IsoStreet: React.FC = () => {
         {balFront(GYC, ['#c9b8ff', '#f0e9ff', '#a58cf0'], GBX)}
         {[0, 1, 2].map((i) => { const u = ((t * 0.5 + i * 0.33) % 1); return <Heart key={'h' + i} x={gx + 34 + Math.sin(u * 6 + i) * 10} y={gy - 360 * SC - u * 70} s={1.3 - u * 0.5} o={(1 - u) * 0.9} />; })}
         {/* her side garden */}
-        {[[-1.6, -4.1], [-0.4, -3.3], [1.0, -4.0], [2.1, -3.2], [1.4, -2.6], [0.2, -2.5]].map(([x, y], i) => <TreeIso key={'gg' + i} x={x} y={y} s={0.55 + i * 0.1} />)}
+        {[[-0.3, -4.7], [0.5, -3.7], [1.2, -4.5], [2.1, -3.2], [1.4, -2.6], [-3.9, -2.8], [-1.5, -2.7]].map(([x, y], i) => <TreeIso key={'gg' + i} x={x} y={y} s={0.55 + i * 0.1} />)}
         <LampIso x={-8.2} y={-1.6} /><LampIso x={-2.2} y={-1.6} /><LampIso x={4.6} y={-1.6} />
         {/* the street: cars, an auto-rickshaw and a scooter on the move */}
         <CarIso x={((t * 2.2 + 13) % 34) - 17} y={-0.65} dir={1} c="#c8553a" />
