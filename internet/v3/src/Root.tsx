@@ -4,7 +4,7 @@ import { Prototype } from './Prototype';
 import { DuskTorch } from './dusk/Dusk';
 import { DuskHouses } from './dusk/Houses';
 import { NightHook } from './dusk/NightHook';
-import { IsoStreet } from './dusk/IsoStreet';
+import { IsoStreet, IsoHook } from './dusk/IsoStreet';
 import { KidSheet } from './dusk/Kid';
 import { AdultSheet, DressSheet } from './dusk/Adult';
 
@@ -18,5 +18,6 @@ export const Root: React.FC = () => (
     <Composition id="KidSheet" component={KidSheet} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="AdultSheet" component={AdultSheet} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="DressSheet" component={DressSheet} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="IsoHook" component={IsoHook} durationInFrames={468} fps={30} width={1080} height={1920} />
   </>
 );

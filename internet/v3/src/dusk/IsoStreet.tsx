@@ -3,6 +3,10 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { FPS, hash, lerp } from '../lib/anim';
 import { DUSK, StickPose } from './Dusk';
 import { Adult, Heart, A_SHOULDER, A_UPPER, A_FORE, A_TIP } from './Adult';
+import { Audio, Img, staticFile } from 'remotion';
+import { prog, pulse, clamp01, easeOut, easeInOut } from '../lib/anim';
+import { FONT, TECH } from '../lib/palette';
+import '@fontsource/manrope/700.css'; import '@fontsource/manrope/800.css'; import '@fontsource/ibm-plex-mono/600.css';
 
 /* Isometric night street of individual houses (2.5D: flat-shaded iso drawn in SVG).
    World: x runs along the street, y across it, z up. Far row at y<0, near row at y>0. */
@@ -133,22 +137,57 @@ const NEAR: H[] = [
   { x0: 12.5, y0: 2.1, w: 2.4, d: 2.5, h: 2.0, c: C1[5], roof: 'gable', seed: 38 },
 ];
 
-export const IsoStreet: React.FC = () => {
+/* hook timeline (0 - 15.6 s), same beats and voice mix as the approved hook */
+const BLINKS: [number, number][] = [[1.15, 1.45], [2.0, 2.95], [3.75, 8.2], [8.95, 9.5]];
+const HBITS = [0, 1, 0, 0, 1, 0, 0, 0], BIT0 = 10.55, BITD = 0.14, FLY = 0.6;
+const BOYC = { x: 335, y: 1040 }, GIRLC = { x: 872, y: 615 }, WIDE = { x: 540, y: 960 };
+type Key = [number, number, number, number];
+const KEYS: Key[] = [
+  [0.0, BOYC.x, BOYC.y, 2.5], [0.95, BOYC.x, BOYC.y, 2.6],
+  [1.75, WIDE.x, WIDE.y, 1.0], [1.95, WIDE.x, WIDE.y, 1.0],
+  [2.4, GIRLC.x, GIRLC.y, 2.6], [2.9, GIRLC.x, GIRLC.y, 2.7],
+  [3.35, WIDE.x, WIDE.y, 1.0], [3.45, WIDE.x, WIDE.y, 1.0],
+  [4.0, 390, 1010, 2.9], [4.4, 390, 1010, 3.0],
+  [5.05, GIRLC.x, GIRLC.y, 2.6], [5.65, GIRLC.x, GIRLC.y, 2.7],
+  [6.4, WIDE.x, WIDE.y, 1.0], [8.4, WIDE.x, WIDE.y, 1.04],
+  [10.45, WIDE.x, WIDE.y, 1.04], [10.95, 600, 850, 1.22], [12.4, 600, 850, 1.26],
+  [12.9, WIDE.x, WIDE.y, 1.0], [14.1, WIDE.x, WIDE.y, 1.03],
+  [14.55, GIRLC.x, GIRLC.y, 2.8], [15.6, GIRLC.x, GIRLC.y, 2.9],
+];
+const camAt = (t: number) => {
+  let i = 0; while (i < KEYS.length - 2 && t > KEYS[i + 1][0]) i++;
+  const a = KEYS[i], b = KEYS[i + 1]; const u = easeInOut(clamp01((t - a[0]) / (b[0] - a[0])));
+  return { fx: lerp(a[1], b[1], u), fy: lerp(a[2], b[2], u), z: Math.exp(lerp(Math.log(a[3]), Math.log(b[3]), u)) };
+};
+const VO: [number, React.ReactNode][] = [
+  [3.45, <>Flash a <em>torch</em></>], [4.3, <>at your <em>friend</em> across the street,</>], [5.85, <>and you've basically built</>], [6.95, <>the <em>internet.</em></>],
+  [8.4, <>On is <em>one</em>. Off is <em>zero</em>.</>], [10.5, <>Eight blinks make <em>one letter</em>.</>], [12.45, <>But <em>"hello"</em> takes forty blinks.</>], [14.3, <>Too <em>slow.</em></>],
+];
+
+export const IsoHook: React.FC = () => <IsoStreet hook />;
+export const IsoStreet: React.FC<{ hook?: boolean }> = ({ hook }) => {
   const f = useCurrentFrame(); const t = f / FPS;
+  let on = 1; const cam = hook ? camAt(t) : { fx: 540, fy: 960, z: 1 };
+  if (hook) { on = Math.max(...BLINKS.map(([a, b]) => pulse(f, a, b))); HBITS.forEach((b, i) => { if (b) on = Math.max(on, pulse(f, BIT0 + i * BITD, BIT0 + i * BITD + 0.1)); }); }
+  const raise = hook ? prog(f, 0.25, 0.85, easeOut) : 1, notice = hook ? prog(f, 2.1, 2.4, easeOut) : 1;
+  const wave = hook ? prog(f, 4.6, 4.9) * (1 - prog(f, 6.2, 6.5)) : 1, sleepy = hook ? prog(f, 14.25, 14.6) : 0;
+  const macro = hook && t >= 8.4 && t < 10.45 ? Math.min(prog(f, 8.4, 8.55), 1 - prog(f, 10.3, 10.45)) : 0;
   const boyH = NEAR.find((h) => h.hero === 'boy')!, girlH = FAR.find((h) => h.hero === 'girl')!;
   const BZ = 1.65, BX0 = -0.7, GBX = girlH.x0 + girlH.w, BYC = boyH.y0 + 0.85, GYC = girlH.y0 + girlH.d - 0.85;   // balconies on the side wall, first floor, same height
   const [bx, by] = iso(BX0 + 0.3, BYC, BZ), [gx, gy] = iso(GBX + 0.3, GYC, BZ);
   const SC = 0.5;
-  const boy: StickPose = { blink: 0, smile: 0.9, look: 0.8, armR: [98, 106], armL: [-12, -8], holdTorch: true, torch: 1, tilt: -4 };
-  const girl: StickPose = { blink: 0, smile: 1, look: -0.8, armR: [150, 168 + Math.sin(t * 11) * 14], armL: [-10, -6], tilt: 4 };
+  const boy: StickPose = { blink: hook ? Math.max(0, 1 - Math.abs(t - 2.9) / 0.07, 1 - Math.abs(t - 7.4) / 0.07) : 0, smile: 0.4 + 0.5 * (hook ? prog(f, 2.4, 2.8) : 1), look: 0.8, armR: [lerp(8, 98, raise), lerp(5, 106, raise)], armL: [-12, -8], holdTorch: true, torch: on, tilt: -4 * raise };
+  const girl: StickPose = { blink: Math.max(sleepy * 0.95, hook ? 1 - Math.abs(t - 1.0) / 0.07 : 0), smile: lerp(0.2, 1, notice) * (1 - sleepy * 0.7), look: -lerp(0.2, 0.8, notice), armR: [lerp(8, 150, wave), lerp(5, 168, wave) + Math.sin(t * 11) * 14 * wave], armL: [-10, -6], tilt: 4 * notice + 14 * sleepy };
   const lm = (x: number, y: number, a: number, l: number) => { const r = a * Math.PI / 180; return [x + Math.sin(r) * l, y + Math.cos(r) * l]; };
   const [ex, ey] = lm(A_SHOULDER.x, A_SHOULDER.y, boy.armR[0], A_UPPER); const [wx, wy] = lm(ex, ey, boy.armR[1], A_FORE); const tr = (90 - boy.armR[1]) * Math.PI / 180;
   const lens = { x: bx + (wx + Math.cos(tr) * A_TIP) * SC, y: by + (wy + Math.sin(tr) * A_TIP) * SC }, tgt = { x: gx - 10, y: gy - 225 * SC };
   const ang = Math.atan2(tgt.y - lens.y, tgt.x - lens.x) * 180 / Math.PI, len = Math.hypot(tgt.x - lens.x, tgt.y - lens.y);
   const balBack = (yc: number, col: string, BXE = BX0) => (
     <g>
-      <polygon points={P([iso(BXE, yc - 0.28, BZ), iso(BXE, yc + 0.28, BZ), iso(BXE, yc + 0.28, BZ + 1.15), iso(BXE, yc - 0.28, BZ + 1.15)])} fill="#ffe2a8" />
-      <polygon points={P([iso(BXE, yc - 0.5, BZ - 0.1), iso(BXE, yc + 0.5, BZ - 0.1), iso(BXE, yc + 0.5, BZ + 1.4), iso(BXE, yc - 0.5, BZ + 1.4)])} fill="#ffc46a" opacity={0.3} filter="url(#iB)" />
+      <polygon points={P([iso(BXE, yc - 0.4, BZ), iso(BXE, yc + 0.4, BZ), iso(BXE, yc + 0.4, BZ + 1.28), iso(BXE, yc - 0.4, BZ + 1.28)])} fill="#e9dcc0" />
+      <polygon points={P([iso(BXE, yc - 0.34, BZ), iso(BXE, yc + 0.34, BZ), iso(BXE, yc + 0.34, BZ + 1.22), iso(BXE, yc - 0.34, BZ + 1.22)])} fill="#241c3a" />
+      {[[0.1, 0.56], [0.66, 1.12]].map(([z0, z1], i) => <polygon key={i} points={P([iso(BXE, yc - 0.26, BZ + z0), iso(BXE, yc + 0.26, BZ + z0), iso(BXE, yc + 0.26, BZ + z1), iso(BXE, yc - 0.26, BZ + z1)])} fill="#30264c" />)}
+      <circle cx={iso(BXE, yc + 0.27, BZ + 0.6)[0]} cy={iso(BXE, yc + 0.27, BZ + 0.6)[1]} r={3.5} fill="#ffd36b" />
       <Box x0={BXE} y0={yc - 0.7} w={0.62} d={1.4} h={0.12} z={BZ - 0.12} c={col} />
       {[0, 0.31, 0.62].map((dx) => { const [a, b] = iso(BXE + dx, yc - 0.7, BZ), [c2, d2] = iso(BXE + dx, yc - 0.7, BZ + 0.5); return <line key={dx} x1={a} y1={b} x2={c2} y2={d2} stroke="#0c0c1c" strokeWidth={3} />; })}
       <line x1={iso(BXE, yc - 0.7, BZ + 0.5)[0]} y1={iso(BXE, yc - 0.7, BZ + 0.5)[1]} x2={iso(BXE + 0.62, yc - 0.7, BZ + 0.5)[0]} y2={iso(BXE + 0.62, yc - 0.7, BZ + 0.5)[1]} stroke="#0c0c1c" strokeWidth={4} />
@@ -176,6 +215,7 @@ export const IsoStreet: React.FC = () => {
         <ellipse cx={540} cy={380} rx={700} ry={140} transform="rotate(-22 540 380)" fill="url(#iMilky)" />
         {Array.from({ length: 280 }).map((_, i) => { const tw = 0.55 + 0.45 * Math.sin(f / 9 + i * 2.3); return <circle key={i} cx={hash(i) * 1080} cy={hash(i + 9) * 1920} r={hash(i + 3) * 1.6 + 0.4} fill={i % 7 ? '#fff' : '#ffe6c2'} opacity={(0.2 + 0.7 * hash(i + 5)) * tw * (hash(i + 9) < 0.45 ? 1 : 0.35)} />; })}
         <g transform="translate(900 190)"><circle r={120} fill="#cfd8ff" opacity={0.07} /><circle r={44} fill="#f3eedb" /><circle cx={17} cy={-11} r={41} fill="#050819" /></g>
+        <g transform={`translate(540 960) scale(${cam.z}) translate(${-cam.fx} ${-cam.fy})`}>
         {/* ground: the neighbourhood continues past the frame */}
         <polygon points={P([iso(X0, -26, 0), iso(X1, -26, 0), iso(X1, 26), iso(X0, 26)])} fill="#15263c" />
         {[[-13.4, -12.9], [-9.1, -6.1], [-4.7, -1.9], [1.9, 7.2], [9.9, 10.4], [14.2, 18]].map(([y0, y1], i) => <polygon key={i} points={P([iso(X0, y0), iso(X1, y0), iso(X1, y1), iso(X0, y1)])} fill={i % 2 ? '#15263c' : '#172a3e'} />)}
@@ -197,7 +237,7 @@ export const IsoStreet: React.FC = () => {
         {balBack(GYC, '#6a5cab', GBX)}
         <g transform={`translate(${gx} ${gy}) scale(${-SC} ${SC})`}><Adult kind="woman" p={girl} id="g" /></g>
         {balFront(GYC, ['#c9b8ff', '#f0e9ff', '#a58cf0'], GBX)}
-        {[0, 1, 2].map((i) => { const u = ((t * 0.5 + i * 0.33) % 1); return <Heart key={'h' + i} x={gx + 34 + Math.sin(u * 6 + i) * 10} y={gy - 360 * SC - u * 70} s={1.3 - u * 0.5} o={(1 - u) * 0.9} />; })}
+        {wave > 0.5 && [0, 1, 2].map((i) => { const u = ((t * 0.5 + i * 0.33) % 1); return <Heart key={'h' + i} x={gx + 34 + Math.sin(u * 6 + i) * 10} y={gy - 360 * SC - u * 70} s={1.3 - u * 0.5} o={(1 - u) * 0.9} />; })}
         {/* her side garden */}
         {[[-0.3, -4.7], [0.5, -3.7], [1.2, -4.5], [2.1, -3.2], [1.4, -2.6], [-3.9, -2.8], [-1.5, -2.7]].map(([x, y], i) => <TreeIso key={'gg' + i} x={x} y={y} s={0.55 + i * 0.1} />)}
         <LampIso x={-8.2} y={-1.6} /><LampIso x={-2.2} y={-1.6} /><LampIso x={4.6} y={-1.6} />
@@ -227,12 +267,97 @@ export const IsoStreet: React.FC = () => {
         {[-19.1, -15.9, -12.7, -9.5, -6.3, -3.1, 0.1, 3.3, 6.5, 9.7, 12.9, 16.1].map((x, i) => <HouseIso key={'bt' + i} b={{ x0: x, y0: 15.4, w: 2.4, d: 2.4, h: 2.0, c: C1[(i + 1) % 6], roof: i % 2 ? 'gable' : 'hip', seed: 80 + i }} f={f} />)}
         {Array.from({ length: 12 }).map((_, i) => <HouseIso key={'bt2' + i} b={{ x0: -20 + i * 3.2, y0: 18.8, w: 2.4, d: 2.4, h: 2.0 + (i % 2) * 0.3, c: C1[(i + 4) % 6], roof: i % 2 ? 'gable' : 'hip', seed: 120 + i }} f={f} />)}
         {/* the torch beam across the street */}
-        <g transform={`translate(${lens.x} ${lens.y}) rotate(${ang})`} style={{ mixBlendMode: 'screen' }}>
+        <g transform={`translate(${lens.x} ${lens.y}) rotate(${ang})`} style={{ mixBlendMode: 'screen' }} opacity={on}>
           <path d={`M 0 -3 L ${len} -26 L ${len} 26 L 0 3 Z`} fill="url(#iBeam)" opacity={0.7} filter="url(#iB2)" />
           <path d={`M 0 -1.5 L ${len} -9 L ${len} 9 L 0 1.5 Z`} fill="url(#iBeam)" opacity={0.9} />
           <circle cx={0} cy={0} r={14} fill="#fff6dc" filter="url(#iB)" /><circle cx={len} cy={0} r={30} fill="#fff1d0" opacity={0.4} filter="url(#iB2)" />
         </g>
+        {/* the binary rides in the beam: bright = on (1), dark gap = off (0) */}
+        {hook && t > BIT0 - 0.05 && t < 12.45 && <line x1={lens.x} y1={lens.y} x2={tgt.x} y2={tgt.y} stroke="#8a92d8" strokeWidth={2} strokeDasharray="3 10" opacity={0.6} />}
+        {hook && HBITS.map((b, i) => { const u = (t - (BIT0 + i * BITD)) / FLY; if (u < -0.05 || u > 1.05 || t > 12.45) return null;
+          const Pt = (k: number) => ({ x: lerp(lens.x, tgt.x, k), y: lerp(lens.y, tgt.y, k) }); const a0 = Pt(clamp01(u - 0.07)), a1 = Pt(clamp01(u + 0.07)), c = Pt(clamp01(u));
+          const nx = -(tgt.y - lens.y) / len, ny = (tgt.x - lens.x) / len;
+          return <g key={i}>
+            {b ? <><line x1={a0.x} y1={a0.y} x2={a1.x} y2={a1.y} stroke="#ffe2a8" strokeWidth={26} strokeLinecap="round" opacity={0.45} filter="url(#iB2)" /><line x1={a0.x} y1={a0.y} x2={a1.x} y2={a1.y} stroke="#fff6dc" strokeWidth={11} strokeLinecap="round" /></>
+               : <line x1={a0.x} y1={a0.y} x2={a1.x} y2={a1.y} stroke="#2a3070" strokeWidth={11} strokeLinecap="round" opacity={0.95} />}
+            <text x={c.x - nx * 40} y={c.y - ny * 40 + 14} textAnchor="middle" style={{ font: `600 40px ${FONT.mono}` }} fill={b ? '#ffe08a' : '#b9c4ff'} stroke="#0a0e24" strokeWidth={6} paintOrder="stroke">{b}</text>
+          </g>; })}
+        {hook && t > BIT0 + 7 * BITD + FLY && t < 12.6 && <text x={gx + 62} y={gy - 150} textAnchor="middle" style={{ font: `800 80px ${FONT.ui}` }} fill="#ffd38a" stroke="#0a0e24" strokeWidth={8} paintOrder="stroke" opacity={prog(f, BIT0 + 7 * BITD + FLY, BIT0 + 7 * BITD + FLY + 0.15)}>H</text>}
+        {sleepy > 0 && <text x={gx + 26} y={gy - 190 - (t - 14.3) * 14} style={{ font: `800 26px ${FONT.ui}` }} fill="#eaf0ff" stroke="#0a0e24" strokeWidth={4} paintOrder="stroke" opacity={sleepy}>z Z z</text>}
+        </g>
+        {/* HELLO floats over the park while the count runs */}
+        {hook && t > 12.45 && t < 14.3 && 'HELLO'.split('').map((ch, j) => { const a = prog(f, 12.5 + j * 0.2, 12.75 + j * 0.2, easeOut); return (
+          <g key={j} opacity={a * (1 - prog(f, 14.1, 14.3))} transform={`translate(${78 + j * 92} ${640 - a * 30})`}>
+            <text textAnchor="middle" style={{ font: `800 104px ${FONT.ui}` }} fill="#ffd38a" filter="url(#iB2)" opacity={0.8}>{ch}</text>
+            <text textAnchor="middle" style={{ font: `800 104px ${FONT.ui}` }} fill="#fff1d0">{ch}</text>
+            <text y={44} textAnchor="middle" style={{ font: `600 17px ${FONT.mono}` }} fill="#b9c4ff">{['01001000', '01000101', '01001100', '01001100', '01001111'][j]}</text>
+          </g>); })}
       </svg>
+      {hook && <HookOverlays f={f} t={t} macro={macro} />}
     </AbsoluteFill>
+  );
+};
+
+const HookOverlays: React.FC<{ f: number; t: number; macro: number }> = ({ f, t, macro }) => {
+  let line: React.ReactNode = null; for (const [a, txt] of VO) if (t >= a) line = txt;
+  const SK = '#d6a481', SKS = '#b47f5a';
+  return (
+    <>
+      <Audio src={staticFile('hook-mix.wav')} />
+      {macro > 0 && (
+        <AbsoluteFill style={{ opacity: macro }}>
+          <svg width={1080} height={1920}>
+            <defs><filter id="mB"><feGaussianBlur stdDeviation="26" /></filter><filter id="mB2"><feGaussianBlur stdDeviation="9" /></filter><radialGradient id="mG"><stop offset="0" stopColor="#fff8e6" /><stop offset=".3" stopColor="#ffe2a8" stopOpacity=".8" /><stop offset="1" stopColor="#ffcf80" stopOpacity="0" /></radialGradient>
+              <linearGradient id="mT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#4a5266" /><stop offset=".3" stopColor="#8e97ab" /><stop offset=".5" stopColor="#2a2f3c" /><stop offset="1" stopColor="#14161d" /></linearGradient></defs>
+            <rect width={1080} height={1920} fill="#0b1030" />
+            <g filter="url(#mB)">{Array.from({ length: 30 }).map((_, i) => <circle key={i} cx={hash(i) * 1080} cy={600 + hash(i + 3) * 1200} r={30 + hash(i + 5) * 60} fill={i % 3 ? '#ffc46a' : '#8f7be0'} opacity={0.35} />)}</g>
+            <g transform={`translate(600 1080) rotate(-18) scale(${0.92 + (t - 8.4) * 0.03})`}>
+              {pulse(f, 8.95, 9.5) > 0 && <g style={{ mixBlendMode: 'screen' }}><path d="M 290 -40 L 1200 -330 L 1200 330 L 290 40 Z" fill="url(#mG)" opacity={0.6} filter="url(#mB2)" /><circle cx={300} cy={0} r={180} fill="url(#mG)" /></g>}
+              <path d="M -200 10 L -330 160" stroke={SK} strokeWidth={84} strokeLinecap="round" /><path d="M -300 130 L -1200 1170" stroke="#2f9c95" strokeWidth={120} strokeLinecap="butt" /><path d="M -262 163 L -338 97" stroke="#22756f" strokeWidth={130} strokeLinecap="butt" strokeDasharray="22 400" />
+              <rect x={-420} y={-52} width={560} height={104} rx={26} fill="url(#mT)" />
+              {Array.from({ length: 9 }).map((_, i) => <rect key={i} x={-380 + i * 26} y={-52} width={6} height={104} fill="#0b0d12" opacity={0.6} />)}
+              <path d="M 130 -52 L 260 -92 L 290 -92 L 290 92 L 260 92 L 130 52 Z" fill="#c4553a" /><path d="M 130 -52 L 260 -92 L 290 -92 L 290 -70 L 260 -70 L 130 -34 Z" fill="#ff8a6a" opacity={0.5} />
+              <rect x={284} y={-98} width={16} height={196} rx={6} fill="#d6d9df" />
+              <ellipse cx={300} cy={0} rx={14} ry={86} fill={pulse(f, 8.95, 9.5) > 0 ? '#fffaf0' : '#3a3f4c'} />
+              <rect x={-250} y={-80} width={210} height={170} rx={70} fill={SK} />{[0, 1, 2].map((i) => <path key={i} d={`M ${-200 + i * 50} 30 L ${-200 + i * 50} 84`} stroke={SKS} strokeWidth={5} strokeLinecap="round" />)}
+              <rect x={-120} y={-112} width={110} height={52} rx={26} fill={SK} /><path d="M -112 -62 L -30 -62" stroke={SKS} strokeWidth={4} strokeLinecap="round" />
+            </g>
+            {t > 8.9 && <text x={830} y={760} textAnchor="middle" style={{ font: `700 260px ${FONT.mono}` }} fill={t < 9.5 ? '#ffe08a' : '#9fb0ff'} opacity={prog(f, 8.9, 9.0)}>{t < 9.5 ? '1' : '0'}</text>}
+            {t > 8.9 && <text x={830} y={830} textAnchor="middle" style={{ font: `600 34px ${FONT.mono}`, letterSpacing: '0.2em' }} fill="#cfd8ff" opacity={0.8 * prog(f, 8.9, 9.0)}>{t < 9.5 ? 'LIGHT ON' : 'LIGHT OFF'}</text>}
+          </svg>
+        </AbsoluteFill>
+      )}
+      {t > 10.5 && t < 14.25 && (
+        <div style={{ position: 'absolute', top: 236, left: 90, right: 90, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.86)', border: '1px solid rgba(160,176,255,.25)', boxShadow: '0 20px 60px rgba(0,0,0,.45)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, opacity: prog(f, 10.5, 10.75) * (1 - prog(f, 14.05, 14.25)) }}>
+          {t < 12.45 ? (
+            <>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', font: `600 58px ${FONT.mono}` }}>
+                {HBITS.map((b, i) => { const shown = t > BIT0 + i * BITD + FLY; return <span key={i} style={{ width: 58, height: 80, borderRadius: 14, display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,.05)', border: `1px solid ${shown && b ? 'rgba(255,224,138,.7)' : 'rgba(255,255,255,.14)'}`, color: shown ? (b ? '#ffe08a' : '#9fb0ff') : 'rgba(255,255,255,.2)' }}>{shown ? b : '·'}</span>; })}
+                {t > BIT0 + 7 * BITD + FLY && <span style={{ marginLeft: 10, font: `800 72px ${FONT.ui}`, color: TECH.text }}>= <span style={{ color: '#ffd38a' }}>H</span></span>}
+              </div>
+              <div style={{ font: `600 26px ${FONT.mono}`, letterSpacing: '0.12em', color: '#a9b4dd' }}>8 BLINKS = 1 LETTER</div>
+            </>
+          ) : (
+            <>
+              <div style={{ font: `800 76px ${FONT.ui}`, color: TECH.text, letterSpacing: '0.12em' }}>HELLO</div>
+              <div style={{ font: `600 28px ${FONT.mono}`, color: '#a9b4dd' }}>5 letters × 8 = <span style={{ color: '#ffe08a' }}>{Math.min(40, Math.round(Math.max(0, t - 12.45) / 1.5 * 40))}</span> blinks</div>
+            </>
+          )}
+        </div>
+      )}
+      <div style={{ position: 'absolute', top: 236, left: 90, right: 90, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 62px/1.12 ${FONT.ui}`, color: TECH.text, opacity: prog(f, 7.1, 7.4) * (1 - prog(f, 8.2, 8.4)) }}>
+        <div>How does the <span style={{ color: '#ffd38a' }}>internet</span><br />reach you?</div>
+      </div>
+      {line && t >= 3.45 && (
+        <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}>
+          <div className="sub">{line}</div>
+        </div>
+      )}
+      <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
+      <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}>
+        <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} />
+        <span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>
+      </div>
+    </>
   );
 };
