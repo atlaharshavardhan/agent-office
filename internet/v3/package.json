@@ -1,0 +1,7 @@
+{ "name": "invisitech-internet-v3", "private": true, "type": "module",
+  "dependencies": {
+    "remotion": "4.0.538", "@remotion/cli": "4.0.538", "@remotion/three": "4.0.538",
+    "react": "19.1.0", "react-dom": "19.1.0",
+    "three": "0.178.0", "@react-three/fiber": "9.3.0", "@react-three/drei": "10.6.1", "@react-three/postprocessing": "3.0.4", "postprocessing": "6.37.6",
+    "@fontsource/inter": "5.2.6", "@fontsource/ibm-plex-mono": "5.2.6", "@fontsource/manrope": "5.2.6"
+  } }
