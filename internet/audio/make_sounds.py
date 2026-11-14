@@ -2,7 +2,7 @@
 Writes bed.wav (music), sfx.wav (torch clicks, whooshes, crickets, reveal hit) at 48 kHz stereo.
 Times match hook.html (HOOK_A / HOOK_B blinks, camera moves, voice at 3.4 s and 4.85 s)."""
 import numpy as np, soundfile as sf
-SR = 48000; DUR = 8.4; N = int(SR * DUR)
+SR = 48000; DUR = 19.8; N = int(SR * DUR)
 rng = np.random.default_rng(11)
 midi = lambda m: 440 * 2 ** ((m - 69) / 12)
 
@@ -24,7 +24,8 @@ def hp(x, a): return x - lp(x, a)
 bed = np.zeros((N, 2))
 beat = 60 / 96
 # warm pad (A minor add9 -> F maj7), slow attack
-for at, chord in [(0.0, [57, 64, 67, 71]), (2.5, [53, 60, 64, 69]), (5.0, [57, 64, 67, 72]), (7.4, [53, 60, 64, 69])]:
+CH = [[57, 64, 67, 71], [53, 60, 64, 69], [57, 64, 67, 72], [53, 60, 64, 69], [55, 62, 65, 71], [52, 59, 64, 67]]
+for at, chord in [(0.0, CH[0]), (2.5, CH[1]), (5.0, CH[2]), (7.4, CH[3])] + [(9.9 + 2.5 * j, CH[(j + 4) % 6]) for j in range(4)]:
     L = int(2.8 * SR); tt = np.arange(L) / SR
     for k, m in enumerate(chord):
         f = midi(m)
@@ -33,16 +34,16 @@ for at, chord in [(0.0, [57, 64, 67, 71]), (2.5, [53, 60, 64, 69]), (5.0, [57, 6
         place(bed, tone * e, at, 0.045, (k - 1.5) * 0.4)
 # pluck motif (like blinking lights): eighth notes
 motif = [69, 76, 72, 76, 69, 76, 74, 76, 65, 72, 69, 72, 65, 72, 71, 72]
-for i, m in enumerate(motif * 2):
+for i, m in enumerate(motif * 6):
     at = i * beat / 2
-    if at > 8.2: break
+    if at > 19.5: break
     L = int(0.5 * SR); tt = np.arange(L) / SR; f = midi(m + 12)
     tone = (np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(4 * np.pi * f * tt)) * env(L, 0.002, 0.35, 5)
     place(bed, tone, at, 0.05, 0.35 if i % 2 else -0.35)
 # soft kick + sub on the beat, starts at bar 2
-for q in range(30):
+for q in range(40):
     at = q * beat
-    if at < beat * 4 - 0.01 or at > 8.2: continue
+    if at < beat * 4 - 0.01 or at > 19.5: continue
     L = int(0.4 * SR); tt = np.arange(L) / SR
     place(bed, np.sin(2 * np.pi * (42 + 70 * np.exp(-tt * 28)) * tt) * env(L, 0.002, 0.3, 6), at, 0.32)
 # the pause before the voice: music dips 3.05-3.4 then comes back quieter
@@ -57,17 +58,27 @@ bed *= np.minimum(1, t / 0.25)[:, None] * np.clip((DUR - t) / 0.3, 0, 1)[:, None
 # ---------------- sound effects ----------------
 sfx = np.zeros((N, 2))
 # crickets (night ambience)
-for k in range(26):
-    at = rng.uniform(0, 6.2); L = int(0.18 * SR); tt = np.arange(L) / SR
+for k in range(50):
+    at = rng.uniform(0, 19.4); L = int(0.18 * SR); tt = np.arange(L) / SR
     chirp = np.sin(2 * np.pi * 4600 * tt) * (0.5 + 0.5 * np.sign(np.sin(2 * np.pi * 45 * tt))) * env(L, 0.01, 0.18, 2)
     place(sfx, chirp, at, 0.012, rng.uniform(-0.8, 0.8))
 # torch clicks: phone torch on (tick) and off (softer)
 A = []  # the girl has no torch
-B = [[1.15, 1.35], [1.5, 1.7], [2.05, 2.95], [3.7, 3.9], [4.05, 4.25], [4.45, 8.2]]  # only the boy blinks
+B = [[1.15, 1.35], [1.5, 1.7], [2.05, 2.95], [3.7, 3.9], [4.05, 4.25], [4.45, 8.2], [8.95, 9.5]]  # only the boy blinks
+BIT0, BITD, HB = 10.55, 0.14, [0, 1, 0, 0, 1, 0, 0, 0]
+B += [[BIT0 + b * BITD, BIT0 + b * BITD + 0.1] for b in range(8) if HB[b]]
+# fast flicker for "hello" (same rule as hook.html: sin(2*pi*4.5*t) > 0.2 between 12.45 and 15.3)
+FLICK = []; tt_ = np.arange(int(12.45 * 1000), int(15.3 * 1000)) / 1000; on_ = np.sin(tt_ * 2 * np.pi * 4.5) > 0.2
+edges = np.flatnonzero(np.diff(on_.astype(int))); st = None
+for e in edges:
+    if on_[e + 1]: st = tt_[e + 1]
+    elif st is not None: FLICK.append([st, tt_[e]]); st = None
 def click(gain):
     L = int(0.03 * SR); n = hp(rng.standard_normal(L), 0.3) * env(L, 0.0005, 0.012, 3)
     tt = np.arange(L) / SR; tick = np.sin(2 * np.pi * 2400 * tt) * env(L, 0.0005, 0.01, 4)
     return (n * 0.6 + tick) * gain
+for on, off in FLICK:
+    place(sfx, click(0.22), on, 1, -0.2)
 for lst, pan in ((A, 0.35), (B, -0.35)):
     for on, off in lst:
         place(sfx, click(0.55), on, 1, pan)
@@ -83,7 +94,8 @@ def whoosh(dur, up=True):
     y = np.empty(L); acc = 0.0
     for i in range(L): acc += sweep[i] * (n[i] - acc); y[i] = acc
     return y * np.sin(np.pi * tt / dur) ** 2
-for at, d, up in [(0.55, 0.5, True), (1.75, 0.45, True), (2.9, 0.45, False), (3.45, 0.5, True), (4.45, 0.6, True), (5.65, 0.7, False)]:
+for at, d, up in [(0.55, 0.5, True), (1.75, 0.45, True), (2.9, 0.45, False), (3.45, 0.5, True), (4.45, 0.6, True), (5.65, 0.7, False),
+                  (8.4, 0.55, True), (10.35, 0.6, False), (14.15, 0.45, True), (15.35, 0.55, False), (17.0, 0.6, True), (19.0, 0.7, False)]:
     place(sfx, whoosh(d, up), at, 0.5, 0)
 # reveal: soft riser into "That's the internet." and a warm hit + sparkle as the title lands
 L = int(0.6 * SR); tt = np.arange(L) / SR
@@ -95,6 +107,33 @@ for k, m in enumerate([81, 84, 88, 93]):
     L = int(0.9 * SR); tt = np.arange(L) / SR
     place(sfx, np.sin(2 * np.pi * midi(m) * tt) * env(L, 0.003, 0.7, 4), 7.1 + k * 0.06, 0.06, (k - 1.5) * 0.4)
 
+# ---------------- part 2 effects ----------------
+def blip(f, d=0.12):
+    L = int(d * SR); tt = np.arange(L) / SR
+    return (np.sin(2 * np.pi * f * tt) + 0.25 * np.sin(4 * np.pi * f * tt)) * env(L, 0.002, d, 4)
+place(sfx, blip(1320, 0.25), 8.97, 0.22)      # "one"
+place(sfx, blip(520, 0.25), 9.52, 0.22)       # "zero"
+for b in range(8):                            # the 8 bits of H: high blip = 1, low blip = 0
+    place(sfx, blip(1320 if HB[b] else 660), BIT0 + b * BITD, 0.16, -0.3)
+for k, m in enumerate([76, 81, 85, 88]):      # H lands: little chime
+    L = int(0.8 * SR); tt = np.arange(L) / SR
+    place(sfx, np.sin(2 * np.pi * midi(m) * tt) * env(L, 0.003, 0.6, 4), 11.55 + 0.6 + k * 0.05, 0.07, 0.3)
+for j in range(40):                           # counter ticks up to 40 blinks
+    place(sfx, blip(2400, 0.03), 12.45 + j * 1.5 / 40, 0.05, 0)
+L = int(1.0 * SR); tt = np.arange(L) / SR      # sleepy "hmm" (soft low-passed breath) for "Too slow."
+place(sfx, lp(rng.standard_normal(L), 0.04) * np.sin(np.pi * tt / 1.0) ** 2 * 3, 14.4, 0.25, 0.3)
+L = int(0.9 * SR); tt = np.arange(L) / SR      # wire stretches across: rising zip, then a clip snap
+zip_ = np.sign(np.sin(2 * np.pi * (80 + 500 * tt / 0.9) * tt)) * env(L, 0.05, 0.9, 1.2)
+place(sfx, lp(zip_, 0.2), 15.75, 0.08)
+place(sfx, click(0.8), 16.65, 1, 0.3)
+L = int((19.8 - 17.1) * SR); tt = np.arange(L) / SR   # electric hum + crackle as the pulses race
+hum = (np.sin(2 * np.pi * 100 * tt) + 0.5 * np.sin(2 * np.pi * 200 * tt) + 0.2 * np.sin(2 * np.pi * 300 * tt)) * np.minimum(1, tt / 0.3)
+place(sfx, hum * np.clip((19.8 - 17.1 - tt) / 0.4, 0, 1), 17.1, 0.035)
+for j in range(14):
+    place(sfx, whoosh(0.18, True), 17.2 + j * 0.17, 0.12, rng.uniform(-0.5, 0.5))
+for j in range(30):                           # billion counter ticks
+    place(sfx, blip(2600, 0.025), 17.4 + j * 1.2 / 30, 0.04, 0)
+place(sfx, blip(1760, 0.5), 18.62, 0.12)      # counter lands
 sf.write('bed.wav', bed.astype(np.float32), SR)
 sf.write('sfx.wav', sfx.astype(np.float32), SR)
 print('ok', DUR, 's')
