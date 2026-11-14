@@ -8,6 +8,12 @@ M = Path(sys.argv[1]); OUT = Path(__file__).parent
 LINES = {
     "h1": "Flash a torch at your friend across the street,",
     "h2": "and you've basically built the internet.",
+    "p1": "On is one. Off is zero.",
+    "p2": "Eight blinks make one letter.",
+    "p3": "But hello takes forty blinks.",
+    "p4": "Too slow.",
+    "p5": "So we use a wire.",
+    "p6": "Now it's a billion blinks, every second.",
 }
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
 L = {}

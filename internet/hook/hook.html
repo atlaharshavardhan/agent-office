@@ -32,12 +32,14 @@
   #card .word { display: flex; gap: 1.4vw; font: 800 6.6vw Sora, sans-serif; } #card .word span { opacity: .25; } #card .word span.on { opacity: 1; }
   #zzz { position: fixed; z-index: 2; transform: translate(-50%,-100%); font: 800 4.6vw Sora, sans-serif; color: #cfe0ff; text-shadow: 0 0 12px rgba(120,160,255,.8); opacity: 0; white-space: nowrap; }
   #bitf { position: fixed; z-index: 2; transform: translate(-50%,-50%); font: 800 7vw Sora, sans-serif; color: #ffe08a; text-shadow: 0 0 18px rgba(255,200,80,.9); opacity: 0; }
+  #bits .bit { position: fixed; z-index: 2; transform: translate(-50%,-50%); font: 800 5.4vw Sora, sans-serif; opacity: 0; }
+  #hletter { position: fixed; z-index: 2; transform: translate(-50%,-100%); font: 800 11vw Sora, sans-serif; color: #ffc94a; text-shadow: 0 0 26px rgba(255,190,60,.85); opacity: 0; }
   #zones { position: fixed; inset: 0; z-index: 9; pointer-events: none; display: none; }
   .bit { position: fixed; z-index: 2; transform: translate(-50%,-50%); font: 800 5vw Sora, sans-serif; color: #ffe08a; text-shadow: 0 0 18px rgba(255,200,80,.9); opacity: 0; }
 </style>
 <div class="ov" id="title"><div id="titleIn"></div></div>
 <div class="ov" id="sub"><div id="subIn"></div></div>
-<div id="card"></div><div id="zzz">z Z z</div><div id="bitf">1</div>
+<div id="card"></div><div id="zzz">z Z z</div><div id="bitf">1</div><div id="bits"></div><div id="hletter">H</div>
 <div id="wm"><img src="../../airpods-ear/assets/invisitech-logo.png" alt=""><span>@TheInvisiTech</span></div>
 <svg id="zones" viewBox="0 0 1080 1920" preserveAspectRatio="none">
   <rect x="0" y="0" width="1080" height="220" fill="rgba(255,0,0,.25)"/>
@@ -453,19 +455,108 @@ const HOOK_A = [];
 const HOOK_B = [[1.15, 1.35], [1.5, 1.7], [2.05, 2.95], [3.7, 3.9], [4.05, 4.25], [4.45, 8.2]];
 window.HOOK = { HOOK_A, HOOK_B, VO, HOOK_END };
 function renderAt(t) {
-  if (t >= HOOK_END) return renderOld(t - SHIFT);
+  if (t >= HOOK_END) return renderPart2(t);
   let i = 0; while (i < HK.length - 2 && t > HK[i + 1][0]) i++;
   const [t0, p0, w0] = HK[i], [t1, p1, w1] = HK[i + 1], k = ease((t - t0) / (t1 - t0));
   setCam(p0.clone().lerp(p1, k), w0 + (w1 - w0) * k);
   beamA.set(0);
   beamB.set(Math.max(...HOOK_B.map(([a, b]) => pulse(t, a, b))));
   wire.visible = wireCore.visible = false; clips.forEach(c => c.visible = false); pulses.forEach(p => p.material.opacity = 0);
-  for (const id of ['card', 'zzz', 'bitf']) document.getElementById(id).style.opacity = 0;
+  for (const id of ['card', 'zzz', 'bitf', 'hletter']) document.getElementById(id).style.opacity = 0; document.querySelectorAll('#bits .bit').forEach(d => d.style.opacity = 0); girl.userData.head.rotation.z = 0;
   boy.userData.head.rotation.z = 0;
   let line = ''; for (const [a, txt] of VO) if (t >= a) line = txt;
   subIn.innerHTML = line; subEl.style.opacity = line ? 1 : 0;
   titleIn.innerHTML = 'How does the <em>internet</em><br>reach you?';
   titleEl.style.opacity = t > 7.1 ? Math.min(ease((t - 7.1) / 0.3), ease((HOOK_END - t) / 0.3)) : 0;
+  composer.render();
+}
+
+// ================= PART 2 (8.4 - 19.8 s): binary -> Hello -> wire =================
+const P2 = { p1: 8.4, p2: 10.5, p3: 12.45, p4: 14.3, p5: 15.45, p6: 17.1, end: 19.8 };
+const bitsEl = document.getElementById('bits'), hEl = document.getElementById('hletter');
+const bitDivs = []; for (let i = 0; i < 8; i++) { const d = document.createElement('div'); d.className = 'bit'; bitsEl.appendChild(d); bitDivs.push(d); }
+const toScreen = v => { const q = v.clone().project(cam); return [(q.x + 1) / 2 * 100, (1 - q.y) / 2 * 100]; };
+const HBITS = [0, 1, 0, 0, 1, 0, 0, 0], BIT0 = P2.p2 + 0.05, BITD = 0.14, FLY = 0.6;
+const wireStart = wireCurve.getPoint(1), wireEnd = wireCurve.getPoint(0); // boy end -> girl end
+const K2 = [
+  [8.4, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 22],
+  [8.95, fB.clone().add(new THREE.Vector3(-0.25, -0.6, 0.25)), 5.4],   // "On is one. Off is zero."
+  [10.35, fB.clone().add(new THREE.Vector3(-0.25, -0.6, 0.25)), 5.1],
+  [10.95, mid.clone().add(new THREE.Vector3(0.7, -2.2, -0.7)), 21.5],          // bits fly across, card fills
+  [14.15, mid.clone().add(new THREE.Vector3(0.7, -2.2, -0.7)), 20.5],
+  [14.6, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.0],  // "Too slow."
+  [15.35, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 5.8],
+  [15.9, mid.clone().add(new THREE.Vector3(0, -2.8, 0)), 24],           // "So we use a wire."
+  [17.0, mid.clone().add(new THREE.Vector3(0, -2.8, 0)), 23],
+  [17.6, wireStart.clone().add(new THREE.Vector3(0, -0.6, 0)), 9],      // ride along the wire
+  [19.0, wireEnd.clone().add(new THREE.Vector3(0, -0.6, 0)), 9],
+  [19.8, mid.clone().add(new THREE.Vector3(0, -2.8, 0)), 22],
+];
+const VO2 = [[P2.p1, 'On is <em>one</em>. Off is <em>zero</em>.'], [P2.p2, 'Eight blinks make <em>one letter</em>.'], [P2.p3, 'But <em>“hello”</em> takes forty blinks.'],
+  [P2.p4, 'Too <em>slow.</em>'], [P2.p5, 'So we use a <em>wire.</em>'], [P2.p6, 'Now it’s a <em>billion</em> blinks,'], [18.3, 'every <em>second.</em>']];
+window.P2 = P2;
+function renderPart2(t) {
+  let i = 0; while (i < K2.length - 2 && t > K2[i + 1][0]) i++;
+  const [t0, p0, w0] = K2[i], [t1, p1, w1] = K2[i + 1], k = ease((t - t0) / (t1 - t0));
+  setCam(p0.clone().lerp(p1, k), w0 + (w1 - w0) * k);
+  cam.updateMatrixWorld();
+  // ---- torch: "one" (on) then "zero" (off), then the 8 bits of H, then fast flicker for HELLO ----
+  let beam = 0;
+  beam = Math.max(beam, pulse(t, 8.95, 9.5));
+  for (let b = 0; b < 8; b++) if (HBITS[b]) beam = Math.max(beam, pulse(t, BIT0 + b * BITD, BIT0 + b * BITD + 0.1));
+  if (t > P2.p3 && t < P2.p4 + 1.0) beam = Math.max(beam, Math.sin(t * 2 * Math.PI * 4.5) > 0.2 ? 1 : 0);
+  beamA.set(0); beamB.set(beam);
+  // big 1 / 0 beside the lens
+  const bitf = document.getElementById('bitf');
+  if (t > 8.95 && t < 10.4) { const [x, y] = toScreen(fB.clone().add(new THREE.Vector3(0.25, 0.55, -0.25)));
+    const one = t < 9.5; bitf.textContent = one ? '1' : '0'; bitf.style.color = one ? '#ffe08a' : '#8fa3d8';
+    bitf.style.left = x + 'vw'; bitf.style.top = y + 'vh'; bitf.style.fontSize = '13vw'; bitf.style.opacity = Math.min(1, (t - 8.95) / 0.1); }
+  else bitf.style.opacity = 0;
+  // the 8 bits fly from his torch to her
+  bitDivs.forEach((d, b) => {
+    const a = BIT0 + b * BITD, u = (t - a) / FLY;
+    if (u < 0 || u > 1 || t > P2.p3) { d.style.opacity = 0; return; }
+    const [x, y] = toScreen(fB.clone().lerp(fA, u).add(new THREE.Vector3(0, 0.55 + 0.25 * Math.sin(u * Math.PI), 0)));
+    d.textContent = HBITS[b]; d.style.color = HBITS[b] ? '#ffe08a' : '#8fa3d8'; d.style.textShadow = HBITS[b] ? '0 0 16px rgba(255,200,80,.9)' : '0 0 12px rgba(120,150,255,.6)';
+    d.style.left = x + 'vw'; d.style.top = y + 'vh'; d.style.opacity = Math.min(1, u * 8, (1 - u) * 6);
+  });
+  // H appears above her head when the last bit lands
+  const hOn = t > BIT0 + 7 * BITD + FLY && t < P2.p3 + 0.2;
+  if (hOn) { const [x, y] = toScreen(gHead.clone().add(new THREE.Vector3(0, 0.75, 0))); hEl.style.left = x + 'vw'; hEl.style.top = y + 'vh'; hEl.style.opacity = Math.min(1, (t - (BIT0 + 7 * BITD + FLY)) / 0.15); } else hEl.style.opacity = 0;
+  // ---- card in the title zone ----
+  const card = document.getElementById('card');
+  if (t >= P2.p2 && t < P2.p3) {
+    const n = Math.max(0, Math.min(8, Math.floor((t - BIT0 - FLY) / BITD) + 1));
+    card.innerHTML = '<div class="row">' + HBITS.map((b, j) => j < n ? `<b class="${b ? 'on' : 'off'}">${b}</b>` : '<b>·</b>').join('') +
+      (n >= 8 ? '<span class="eq">= <em>H</em></span>' : '') + '</div><div class="cap">8 blinks = 1 letter</div>';
+    card.style.opacity = ease((t - P2.p2) / 0.25);
+  } else if (t >= P2.p3 && t < P2.p5) {
+    const kk = Math.min(5, Math.floor((t - P2.p3) / 0.22) + 1), cnt = Math.min(40, Math.round(Math.max(0, t - P2.p3) / 1.5 * 40));
+    card.innerHTML = '<div class="word">' + 'HELLO'.split('').map((c, j) => `<span class="${j < kk ? 'on' : ''}">${c}</span>`).join('') + '</div><div class="cap">5 letters × 8 = <b style="color:#ffc94a">' + cnt + '</b> blinks</div>';
+    card.style.opacity = 1;
+  } else if (t >= P2.p6 + 0.3) {
+    const kk = ease((t - (P2.p6 + 0.3)) / 1.2);
+    card.innerHTML = '<div class="big">' + Math.round(1e9 * kk).toLocaleString('en-US') + '</div><div class="cap">blinks every second</div>';
+    card.style.opacity = ease((t - (P2.p6 + 0.3)) / 0.25);
+  } else card.style.opacity = 0;
+  // ---- "Too slow." she dozes off ----
+  const zzz = document.getElementById('zzz'), sleepy = t > P2.p4 - 0.1 && t < P2.p5 + 0.2;
+  girl.userData.head.rotation.z = sleepy ? -0.35 * ease((t - (P2.p4 - 0.1)) / 0.4) : 0;
+  boy.userData.head.rotation.z = 0;
+  if (sleepy) { const [x, y] = toScreen(gHead.clone().add(new THREE.Vector3(0.2, 0.75, -0.2))); zzz.style.left = x + 'vw'; zzz.style.top = y + 'vh'; zzz.style.opacity = ease((t - P2.p4) / 0.25); } else zzz.style.opacity = 0;
+  // ---- the wire ----
+  const draw = t < P2.p5 + 0.3 ? 0 : ease((t - (P2.p5 + 0.3)) / 0.9);
+  wire.visible = wireCore.visible = draw > 0; clips.forEach(c => c.visible = draw > 0);
+  // draw from the boy's end (u=1) toward the girl (u=0): reverse by drawing the tail of the index buffer
+  const nW = Math.floor(WIRE_IDX * draw / 3) * 3, nC = Math.floor(CORE_IDX * draw / 3) * 3;
+  wire.geometry.setDrawRange(WIRE_IDX - nW, nW); wireCore.geometry.setDrawRange(CORE_IDX - nC, nC);
+  const run = t > P2.p6 ? Math.min(1, (t - P2.p6) / 0.3) : 0;
+  wireCore.material.emissiveIntensity = 0.35 + 0.8 * run;
+  pulses.forEach((sp, j) => { const u = 1 - ((t * 0.9 + j / pulses.length) % 1); sp.position.copy(wireCurve.getPoint(u)); sp.material.opacity = run * (0.6 + 0.4 * Math.sin(j * 2.1)); });
+  // ---- subtitles ----
+  let line = ''; for (const [a, txt] of VO2) if (t >= a) line = txt;
+  subIn.innerHTML = line; subEl.style.opacity = line ? 1 : 0;
+  titleEl.style.opacity = 0;
   composer.render();
 }
 window.renderAt = renderAt;

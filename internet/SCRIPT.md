@@ -6,9 +6,9 @@ A Short, 9:16, about 48 s. Voice am_michael (Kokoro, speed 1.12). Our own story,
 |---|---|---|
 | 0 | **Hook, no voice (0–2 s):** night, two apartment windows across a road. A boy on his balcony blinks a real handheld torch, *click-click*, across the road; the girl stands outside on her balcony opposite and smiles as the light reaches her. Short pause. | — |
 | 1 | Close on the boy's torch → follow the beam to the girl → wide | Flash a torch at your friend across the street, and you've basically built the internet. |
-| 2 | Each blink turns into 1 / 0, eight digits stack into the letter "H" | On is one, off is zero. Eight blinks make one letter. |
-| 3 | "HELLO" spelled out slowly, counter: 40 blinks, a yawning clock | But "Hello" takes forty blinks. Too slow. |
-| 4 | A copper wire drawn between the windows, pulses racing: "1,000,000,000 / sec" | So we use a wire: a billion blinks a second. |
+| 2 | Each blink turns into 1 / 0, eight digits stack into the letter "H" | On is one. Off is zero. Eight blinks make one letter. |
+| 3 | "HELLO" spelled out slowly, counter: 40 blinks, a yawning clock | But hello takes forty blinks. Too slow. |
+| 4 | A copper wire drawn between the windows, pulses racing: "1,000,000,000 / sec" | So we use a wire. Now it's a billion blinks, every second. |
 | 5 | Whole apartment block lights up; every flat's wire runs to one glass box | Now the whole building wants in. Every device connects to one box: the router. |
 | 6 | Number tags pop over each phone and laptop (192.168.1.4 …) like flat numbers | Every phone gets a number, like a flat number. That's its IP address. |
 | 7 | A big video cut into small glowing blocks, each stamped with the address, riding the wire | Big videos get chopped into small packets, each carrying that address. |
