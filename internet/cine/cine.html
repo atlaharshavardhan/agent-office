@@ -1032,7 +1032,7 @@ const ROUTE_N = routeMesh.geometry.index.count;
 const pin = (lat, lon, name) => { const g = new THREE.Group(); const p = ll(lat, lon, GR); g.position.copy(p);
   const dot = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false })); g.add(dot);
   const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xffc94a, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); halo.scale.setScalar(2.4); g.add(halo);
-  const lab = textPlane([name], { w: 4.2, h: 1.1, px: 120 }); lab.position.copy(p.clone().normalize().multiplyScalar(2.4)); g.add(lab); g.userData.lab = lab; globe.add(g); return g; };
+  const lab = textPlane([name], { w: 2.6, h: 0.8, px: 90 }); lab.position.copy(p.clone().normalize().multiplyScalar(1.6)); g.add(lab); g.userData.lab = lab; globe.add(g); return g; };
 const pinM = pin(19.08, 72.88, 'Mumbai'), pinL = pin(51.5, -0.13, 'London');
 const starsG = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: 0xcfd8ff, size: 1.6, sizeAttenuation: false, transparent: true, opacity: .8 }));
 { const n = 1500, p = new Float32Array(n * 3); for (let i = 0; i < n; i++) { const v = V(rnd() - .5, rnd() - .5, rnd() - .5).normalize().multiplyScalar(400 + rnd() * 200); p.set([v.x, v.y, v.z], i * 3); } starsG.geometry.setAttribute('position', new THREE.BufferAttribute(p, 3)); globe.add(starsG); }
@@ -1042,7 +1042,7 @@ window.GLOBE_READY = fetch('../node_modules/world-atlas/countries-110m.json').th
   g.fillStyle = '#2f6b4f'; g.strokeStyle = '#5fae84'; g.lineWidth = 1.5;
   const X = lon => (lon + 180) / 360 * Wd, Y = lat => (90 - lat) / 180 * Hd;
   for (const f of land.features) { const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
-    for (const poly of polys) { g.beginPath(); for (const ring of poly) { ring.forEach(([lo, la], k) => { const x = X(lo), y = Y(la); k ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); } g.fill('evenodd'); g.stroke(); } }
+    for (const poly of polys) { g.beginPath(); for (const ring of poly) { let px0 = null; ring.forEach(([lo, la], k) => { const x = X(lo), y = Y(la); (k && Math.abs(x - px0) < Wd / 2) ? g.lineTo(x, y) : g.moveTo(x, y); px0 = x; }); g.closePath(); } g.fill('evenodd'); g.stroke(); } }
   gTex.needsUpdate = true;
 }).catch(e => console.log('globe', e));
 
@@ -1191,7 +1191,7 @@ shot(33.9, 34.95, [FLATS[0].p.clone().add(V(4, 3, 6)), V(14, 30, 16), V(10, 80, 
 // 35.0-36.95  Earth: Mumbai, the route to London, then dive into the Arabian Sea
 const mumbaiW = G0.clone().add(ll(19.08, 72.88)), londonW = G0.clone().add(ll(51.5, -0.13)), arabian = G0.clone().add(ll(15.5, 63));
 const outDir = mumbaiW.clone().sub(G0).normalize(), midRoute = G0.clone().add(routeCurve.getPoint(0.45).normalize().multiplyScalar(GR));
-shot(35.0, 36.95, [mumbaiW.clone().addScaledVector(outDir, 9), midRoute.clone().sub(G0).normalize().multiplyScalar(GR + 52).add(G0), arabian.clone().sub(G0).normalize().multiplyScalar(GR + 8).add(G0), arabian.clone().sub(G0).normalize().multiplyScalar(GR + 0.6).add(G0)],
+shot(35.0, 36.95, [mumbaiW.clone().addScaledVector(outDir, 24), midRoute.clone().sub(G0).normalize().multiplyScalar(GR + 52).add(G0), arabian.clone().sub(G0).normalize().multiplyScalar(GR + 8).add(G0), arabian.clone().sub(G0).normalize().multiplyScalar(GR + 0.6).add(G0)],
   [mumbaiW.clone(), midRoute.clone(), arabian.clone(), arabian.clone()], [40, 34]);
 // 36.95-37.7  underwater: glide over the seabed to the cable
 const cab = u => U0.clone().add(sCables[0].c.getPoint(u));
