@@ -65,8 +65,8 @@ export const NightHook: React.FC = () => {
   const ang = Math.atan2(tgt.y - lens.y, tgt.x - lens.x) * 180 / Math.PI, len = Math.hypot(tgt.x - lens.x, tgt.y - lens.y);
   const zs = L1.map({ x: 1, y: 0 }).x - L1.map({ x: 0, y: 0 }).x;   // current scale of the near layer (for beam width)
   const back = [
-    { x: -120, w: 250, h: 260, roof: 'arch' as const }, { x: 150, w: 210, h: 300, roof: 'gable' as const }, { x: 380, w: 210, h: 250, roof: 'flat' as const },
-    { x: GH.x, w: GH.w, h: GH.h, roof: 'flat' as const, terrace: true }, { x: 930, w: 240, h: 300, roof: 'arch' as const },
+    { x: -130, w: 200, h: 260, roof: 'arch' as const }, { x: 120, w: 180, h: 300, roof: 'gable' as const }, { x: 350, w: 190, h: 250, roof: 'flat' as const },
+    { x: GH.x, w: GH.w, h: GH.h, roof: 'flat' as const, terrace: true }, { x: 980, w: 200, h: 300, roof: 'arch' as const },
   ];
   // ---------- macro (8.4 - 10.45): the boy's hand and torch, close ----------
   const macro = t >= 8.4 && t < 10.45 ? Math.min(prog(f, 8.4, 8.55), 1 - prog(f, 10.3, 10.45)) : 0;
@@ -107,11 +107,11 @@ export const NightHook: React.FC = () => {
         <g transform={L(0.2).s}><rect x={-600} y={-800} width={2300} height={3500} fill="url(#hHaze)" opacity={0.75} /></g>
         {/* across the street */}
         <g transform={L5.s}>
-          {[60, 330, 880].map((x, i) => <Tree key={i} x={x} y={STREET - 30} r={70} f={f} seed={i} />)}
+          {[95, 325, 575, 945].map((x, i) => <Tree key={i} x={x} y={STREET - 20} r={34} f={f} seed={i} />)}
           {back.map((b, i) => <House key={i} x={b.x} y={STREET} w={b.w} h={b.h} c={HC[i % HC.length]} roof={b.roof} rc={ROOF[i % ROOF.length]} seed={i + 1} terrace={b.terrace} door={i % 2 ? 'l' : 'c'} />)}
-          <House x={-380} y={STREET} w={240} h={280} c={HC[4]} roof="gable" rc={ROOF[1]} seed={7} />
-          <House x={1190} y={STREET} w={260} h={330} c={HC[5]} roof="flat" rc={ROOF[2]} seed={8} />
-          {[[-120, 250], [150, 210], [380, 210], [930, 240]].map(([x, w], i) => <Fence key={i} x={x + 10} y={STREET} w={w - 20} />)}
+          <House x={-400} y={STREET} w={220} h={280} c={HC[4]} roof="gable" rc={ROOF[1]} seed={7} />
+          <House x={1230} y={STREET} w={240} h={330} c={HC[5]} roof="flat" rc={ROOF[2]} seed={8} />
+          {[[-130, 200], [120, 180], [350, 190], [980, 200]].map(([x, w], i) => <Fence key={i} x={x + 10} y={STREET} w={w - 20} />)}
           <g transform={`translate(${GX} ${GT}) scale(${-GS} ${GS})`}><Stick hair="pony" outfit="kurta" col={DUSK.lav} p={girl} id="g" /></g>
           <Railing x={GH.x + GH.w * 0.18} y={GT} w={GH.w * 0.64} s={0.75} />
           {[240, 600, 1020].map((x, i) => <Lamp key={i} x={x} y={STREET + 30} h={230} f={f} seed={i} />)}
@@ -124,11 +124,13 @@ export const NightHook: React.FC = () => {
         </g>
         {/* in front: the boy's roof terrace */}
         <g transform={L1.s}>
-          <House x={-40} y={2100} w={560} h={440} c="#2f2c58" roof="flat" rc="#1c1d3a" seed={9} door="r" />
-          <House x={640} y={2160} w={480} h={360} c="#2a3056" roof="arch" rc="#1a2040" seed={11} door="l" />
-          <Bush x={600} y={2010} s={1.3} />
+          <House x={-300} y={2140} w={260} h={400} c="#2a3056" roof="arch" rc="#1a2040" seed={12} />
+          <House x={20} y={2100} w={460} h={440} c="#2f2c58" roof="flat" rc="#1c1d3a" seed={9} door="r" />
+          <House x={545} y={2150} w={240} h={380} c="#36325c" roof="gable" rc="#211c3c" seed={13} />
+          <House x={850} y={2130} w={270} h={400} c="#2a3056" roof="arch" rc="#1a2040" seed={11} door="l" />
+          <Bush x={512} y={2020} s={0.9} /><Bush x={818} y={2020} s={0.9} /><Bush x={-10} y={2020} s={0.9} />
           <g transform={`translate(${BX} ${BY}) scale(${BS})`}><Stick hair="short" outfit="tee" col={DUSK.teal} p={boy} id="b" /></g>
-          <Railing x={-30} y={BY + 4} w={540} s={1.1} />
+          <Railing x={24} y={BY + 4} w={452} s={1.1} />
         </g>
         {/* the beam, drawn in screen space between the two layers */}
         {on > 0.01 && (
