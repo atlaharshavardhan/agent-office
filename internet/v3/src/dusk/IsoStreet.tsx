@@ -115,8 +115,6 @@ const Road: React.FC<{ y: number; x0: number; x1: number }> = ({ y, x0, x1 }) =>
 
 const C1 = ['#3a3f78', '#4a3f7a', '#34487a', '#51437c', '#3d4a82', '#4b3c70'];
 const FAR: H[] = [
-  { x0: -15.6, y0: -4.6, w: 2.4, d: 2.5, h: 2.0, c: C1[5], roof: 'gable', seed: 31 },
-  { x0: -12.5, y0: -4.6, w: 2.4, d: 2.5, h: 2.3, c: C1[3], roof: 'hip', seed: 32 },
   { x0: -4.2, y0: -5.6, w: 2.6, d: 2.6, h: 3.3, c: '#5a4d94', roof: 'flat', hero: 'girl', seed: 3 },
   { x0: 3.2, y0: -4.6, w: 2.4, d: 2.5, h: 2.0, c: C1[3], roof: 'gable', seed: 4 },
   { x0: 6.3, y0: -4.6, w: 2.4, d: 2.5, h: 2.3, c: C1[4], roof: 'hip', seed: 22 },
@@ -192,10 +190,10 @@ export const IsoStreet: React.FC = () => {
         {[-19, -15.8, -12.6, -9.4, -6.2, -3.0, 0.2, 3.4, 6.6, 9.8, 13].map((x, i) => <HouseIso key={'bk' + i} b={{ x0: x, y0: -8.9, w: 2.4, d: 2.4, h: 1.9 + (i % 3) * 0.3, c: C1[i % 6], roof: i % 2 ? 'gable' : 'hip', seed: 40 + i }} f={f} />)}
         {Array.from({ length: 14 }).map((_, i) => <TreeIso key={'t0' + i} x={-12 + i * 1.75 + hash(i) * 0.5} y={-5.7 - hash(i + 3) * 0.5} s={0.6 + hash(i + 7) * 0.35} />)}
         {/* far row with hedges along the footpath */}
-        {Array.from({ length: 14 }).map((_, i) => <TreeIso key={'pk' + i} x={-11.6 + (i % 7) * 1.08 + hash(i + 70) * 0.5} y={-4.4 + Math.floor(i / 7) * 0.95 + hash(i + 80) * 0.3} s={0.6 + hash(i + 90) * 0.35} />)}
+        {Array.from({ length: 22 }).map((_, i) => <TreeIso key={'pk' + i} x={-16 + (i % 11) * 1.08 + hash(i + 70) * 0.5} y={-4.4 + Math.floor(i / 11) * 0.95 + hash(i + 80) * 0.3} s={0.6 + hash(i + 90) * 0.35} />)}
         {FAR.map((b) => <HouseIso key={b.seed} b={b} f={f} />)}
         {FAR.map((b, i) => <g key={'hg' + i}><Box x0={b.x0 - 0.2} y0={-2.1} w={b.w / 2 - 0.05} d={0.14} h={0.26} c="#1f4a3a" /><Box x0={b.x0 + b.w / 2 + 0.3} y0={-2.1} w={b.w / 2 - 0.1} d={0.14} h={0.26} c="#1f4a3a" /></g>)}
-        {[-11.5, -9.6, -7.6, -5.6, 2.85, 5.95, 9.0].map((x, i) => <TreeIso key={i} x={x} y={-2.45} s={0.7} />)}
+        {[-15.4, -13.4, -11.5, -9.6, -7.6, -5.6, 2.85, 5.95, 9.0].map((x, i) => <TreeIso key={i} x={x} y={-2.45} s={0.7} />)}
         {balBack(GYC, '#6a5cab', GBX)}
         <g transform={`translate(${gx} ${gy}) scale(${-SC} ${SC})`}><Adult kind="woman" p={girl} id="g" /></g>
         {balFront(GYC, ['#c9b8ff', '#f0e9ff', '#a58cf0'], GBX)}
