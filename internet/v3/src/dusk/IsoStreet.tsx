@@ -2,7 +2,7 @@ import React from 'react';
 import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { FPS, hash, lerp } from '../lib/anim';
 import { DUSK, StickPose } from './Dusk';
-import { Kid, SHOULDER, UPPER, FORE, TORCH_TIP } from './Kid';
+import { Adult, Heart, A_SHOULDER, A_UPPER, A_FORE, A_TIP } from './Adult';
 
 /* Isometric night street of individual houses (2.5D: flat-shaded iso drawn in SVG).
    World: x runs along the street, y across it, z up. Far row at y<0, near row at y>0. */
@@ -142,12 +142,12 @@ export const IsoStreet: React.FC = () => {
   const boyH = NEAR.find((h) => h.hero === 'boy')!, girlH = FAR.find((h) => h.hero === 'girl')!;
   const BZ = 1.65, BXE = -0.7, BYC = boyH.y0 + 0.85, GYC = girlH.y0 + girlH.d - 0.85;   // balconies on the side wall, first floor, same height
   const [bx, by] = iso(BXE + 0.3, BYC, BZ), [gx, gy] = iso(BXE + 0.3, GYC, BZ);
-  const SC = 0.6;
+  const SC = 0.56;
   const boy: StickPose = { blink: 0, smile: 0.9, look: 0.8, armR: [98, 106], armL: [-12, -8], holdTorch: true, torch: 1, tilt: -4 };
   const girl: StickPose = { blink: 0, smile: 1, look: -0.8, armR: [150, 168 + Math.sin(t * 11) * 14], armL: [-10, -6], tilt: 4 };
   const lm = (x: number, y: number, a: number, l: number) => { const r = a * Math.PI / 180; return [x + Math.sin(r) * l, y + Math.cos(r) * l]; };
-  const [ex, ey] = lm(SHOULDER.x, SHOULDER.y, boy.armR[0], UPPER); const [wx, wy] = lm(ex, ey, boy.armR[1], FORE); const tr = (90 - boy.armR[1]) * Math.PI / 180;
-  const lens = { x: bx + (wx + Math.cos(tr) * TORCH_TIP) * SC, y: by + (wy + Math.sin(tr) * TORCH_TIP) * SC }, tgt = { x: gx - 10, y: gy - 175 * SC };
+  const [ex, ey] = lm(A_SHOULDER.x, A_SHOULDER.y, boy.armR[0], A_UPPER); const [wx, wy] = lm(ex, ey, boy.armR[1], A_FORE); const tr = (90 - boy.armR[1]) * Math.PI / 180;
+  const lens = { x: bx + (wx + Math.cos(tr) * A_TIP) * SC, y: by + (wy + Math.sin(tr) * A_TIP) * SC }, tgt = { x: gx - 10, y: gy - 225 * SC };
   const ang = Math.atan2(tgt.y - lens.y, tgt.x - lens.x) * 180 / Math.PI, len = Math.hypot(tgt.x - lens.x, tgt.y - lens.y);
   const balBack = (yc: number, col: string) => (
     <g>
@@ -198,8 +198,9 @@ export const IsoStreet: React.FC = () => {
         {FAR.map((b, i) => <g key={'hg' + i}><Box x0={b.x0 - 0.2} y0={-2.1} w={b.w / 2 - 0.05} d={0.14} h={0.26} c="#1f4a3a" /><Box x0={b.x0 + b.w / 2 + 0.3} y0={-2.1} w={b.w / 2 - 0.1} d={0.14} h={0.26} c="#1f4a3a" /></g>)}
         {[-6.65, -3.55, 2.85, 5.95, 9.0].map((x, i) => <TreeIso key={i} x={x} y={-2.45} s={0.7} />)}
         {balBack(GYC, '#6a5cab')}
-        <g transform={`translate(${gx} ${gy}) scale(${-SC} ${SC})`}><Kid kind="girl" p={girl} id="g" /></g>
+        <g transform={`translate(${gx} ${gy}) scale(${-SC} ${SC})`}><Adult kind="woman" p={girl} id="g" /></g>
         {balFront(GYC, ['#c9b8ff', '#f0e9ff', '#a58cf0'])}
+        {[0, 1, 2].map((i) => { const u = ((t * 0.5 + i * 0.33) % 1); return <Heart key={'h' + i} x={gx + 34 + Math.sin(u * 6 + i) * 10} y={gy - 360 * SC - u * 70} s={1.3 - u * 0.5} o={(1 - u) * 0.9} />; })}
         {/* her side garden */}
         {[[1.0, -4.0], [2.1, -3.2], [1.4, -2.6]].map(([x, y], i) => <TreeIso key={'gg' + i} x={x} y={y} s={0.55 + i * 0.1} />)}
         <LampIso x={-8.2} y={-1.6} /><LampIso x={-2.2} y={-1.6} /><LampIso x={4.6} y={-1.6} />
@@ -212,7 +213,7 @@ export const IsoStreet: React.FC = () => {
         {[-9.8, -6.65, -3.55, 2.85, 5.95].map((x, i) => <TreeIso key={i} x={x} y={2.55} s={0.7} />)}
         {NEAR.map((b) => <HouseIso key={b.seed} b={b} f={f} />)}
         {balBack(BYC, '#4a68a0')}
-        <g transform={`translate(${bx} ${by}) scale(${SC})`}><Kid kind="boy" p={boy} id="b" /></g>
+        <g transform={`translate(${bx} ${by}) scale(${SC})`}><Adult kind="man" p={boy} id="b" /></g>
         {balFront(BYC, ['#7fe3d4', '#d6fff8', '#4fc9b8'])}
         {/* his side garden */}
         {[[1.3, 3.0], [2.0, 4.0], [0.9, 4.3]].map(([x, y], i) => <TreeIso key={'bg' + i} x={x} y={y} s={0.5 + i * 0.1} />)}
