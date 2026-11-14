@@ -142,7 +142,7 @@ const BLINKS: [number, number][] = [[1.15, 1.45], [2.0, 2.95], [3.75, 8.2], [8.9
 const HBITS = [0, 1, 0, 0, 1, 0, 0, 0], BIT0 = 10.55, BITD = 0.14, FLY = 0.6;
 const BOYC = { x: 335, y: 1040 }, GIRLC = { x: 872, y: 615 }, WIDE = { x: 540, y: 960 };
 type Key = [number, number, number, number];
-const KEYS: Key[] = [
+const HOOK_KEYS: Key[] = [
   [0.0, BOYC.x, BOYC.y, 2.1], [1.1, BOYC.x, BOYC.y, 2.2],            // open on him raising the torch
   [2.7, WIDE.x, WIDE.y, 1.0], [3.4, WIDE.x, WIDE.y, 1.0],             // slow pull back: both balconies and the beam
   [4.5, 400, 1010, 1.9], [4.8, 400, 1010, 1.92],                      // ease in on the torch
@@ -152,7 +152,7 @@ const KEYS: Key[] = [
   [13.4, WIDE.x, WIDE.y, 1.0], [14.2, WIDE.x, WIDE.y, 1.0],           // HELLO
   [15.3, GIRLC.x, GIRLC.y, 2.2], [15.6, GIRLC.x, GIRLC.y, 2.22],      // too slow
 ];
-const camAt = (t: number) => {
+const camAt = (t: number, KEYS: Key[] = HOOK_KEYS) => {
   let i = 0; while (i < KEYS.length - 2 && t > KEYS[i + 1][0]) i++;
   const a = KEYS[i], b = KEYS[i + 1]; const u = easeInOut(clamp01((t - a[0]) / (b[0] - a[0])));
   return { fx: lerp(a[1], b[1], u), fy: lerp(a[2], b[2], u), z: Math.exp(lerp(Math.log(a[3]), Math.log(b[3]), u)) };
@@ -162,19 +162,25 @@ const VO: [number, React.ReactNode][] = [
   [8.4, <>On is <em>one</em>. Off is <em>zero</em>.</>], [10.5, <>Eight blinks make <em>one letter</em>.</>], [12.45, <>But <em>"hello"</em> takes forty blinks.</>], [14.3, <>Too <em>slow.</em></>],
 ];
 
+/* wire scene (local time 0 - 7 s): he lowers the torch, a wire links the two balconies, pulses race, HELLO arrives at once */
+const WIRE_KEYS: Key[] = [[0, WIDE.x, WIDE.y, 1.0], [1.6, WIDE.x, WIDE.y, 1.0], [2.8, 590, 900, 1.12], [7, 590, 900, 1.15]];
+const WVO: [number, React.ReactNode][] = [[0.2, <>So we use a <em>wire.</em></>], [2.0, <>Now it's a <em>billion</em> blinks,</>], [3.3, <>every <em>second.</em></>], [4.5, <><em>"Hello"</em> arrives before you blink.</>]];
 export const IsoHook: React.FC = () => <IsoStreet hook />;
-export const IsoStreet: React.FC<{ hook?: boolean }> = ({ hook }) => {
+export const IsoWire: React.FC = () => <IsoStreet wire />;
+export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean }> = ({ hook, wire }) => {
   const f = useCurrentFrame(); const t = f / FPS;
-  let on = 1; const cam = hook ? camAt(t) : { fx: 540, fy: 960, z: 1 };
+  let on = 1; const cam = hook ? camAt(t) : wire ? camAt(t, WIRE_KEYS) : { fx: 540, fy: 960, z: 1 };
   if (hook) { on = Math.max(...BLINKS.map(([a, b]) => pulse(f, a, b))); HBITS.forEach((b, i) => { if (b) on = Math.max(on, pulse(f, BIT0 + i * BITD, BIT0 + i * BITD + 0.1)); }); }
-  const raise = hook ? prog(f, 0.25, 0.85, easeOut) : 1, notice = hook ? prog(f, 2.1, 2.4, easeOut) : 1;
-  const wave = hook ? prog(f, 4.6, 4.9) * (1 - prog(f, 7.0, 7.4)) : 1, sleepy = hook ? prog(f, 14.25, 14.6) : 0;
+  let raise = hook ? prog(f, 0.25, 0.85, easeOut) : 1, notice = hook ? prog(f, 2.1, 2.4, easeOut) : 1;
+  let wave = hook ? prog(f, 4.6, 4.9) * (1 - prog(f, 7.0, 7.4)) : 1, sleepy = hook ? prog(f, 14.25, 14.6) : 0;
   // reactions: she is startled by the light and shields her eyes, he cheers when she waves, she counts along, gets bored, yawns
-  const startle = hook ? prog(f, 2.05, 2.2, easeOut) * (1 - prog(f, 3.0, 3.5)) : 0;
-  const cheer = hook ? prog(f, 5.0, 5.3) * (1 - prog(f, 7.0, 7.4)) : 0;
+  let startle = hook ? prog(f, 2.05, 2.2, easeOut) * (1 - prog(f, 3.0, 3.5)) : 0;
+  let cheer = hook ? prog(f, 5.0, 5.3) * (1 - prog(f, 7.0, 7.4)) : 0;
   const count = hook ? prog(f, 10.6, 10.9) * (1 - prog(f, 12.3, 12.6)) : 0;
   const bored = hook ? prog(f, 12.7, 13.3) : 0, yawn = hook ? prog(f, 13.5, 13.75) * (1 - prog(f, 14.15, 14.35)) : 0;
   const tired = hook ? prog(f, 13.0, 14.0) : 0;
+  const wDraw = wire ? prog(f, 0.35, 1.5, easeInOut) : 0, wLive = wire ? prog(f, 1.6, 1.9) : 0, got = wire ? prog(f, 5.45, 5.7, easeOut) : 0;
+  if (wire) { on = 0; raise = 1 - prog(f, 0, 0.5, easeInOut); sleepy = 1 - prog(f, 1.3, 1.7); wave = got; cheer = prog(f, 5.9, 6.2); startle = prog(f, 1.35, 1.5, easeOut) * (1 - prog(f, 2.0, 2.4)) * 0.5; }
   const breathe = Math.sin(t * 2.4), gHop = Math.abs(Math.sin(t * 9)) * 9 * wave + Math.sin(Math.PI * clamp01((t - 2.05) / 0.35)) * 14 * (hook ? 1 : 0);
   const bHop = Math.abs(Math.sin(t * 8.5)) * 10 * cheer;
   if (hook && t > 12.5 && t < 14.15) on = Math.max(on, Math.sin(t * 2 * Math.PI * 5.5) > 0.1 ? 1 : 0);   // forty quick blinks
@@ -285,6 +291,29 @@ export const IsoStreet: React.FC<{ hook?: boolean }> = ({ hook }) => {
           <path d={`M 0 -1.5 L ${len} -9 L ${len} 9 L 0 1.5 Z`} fill="url(#iBeam)" opacity={0.9} />
           <circle cx={0} cy={0} r={14} fill="#fff6dc" filter="url(#iB)" /><circle cx={len} cy={0} r={30} fill="#fff1d0" opacity={0.4} filter="url(#iB2)" />
         </g>
+        {/* the wire between the two balconies, with data pulses (cyan = data) */}
+        {wire && (() => {
+          const A = iso(BX0 + 0.62, BYC - 0.7, BZ + 0.5), B = iso(GBX + 0.62, GYC + 0.7, BZ + 0.5);
+          const E = [lerp(A[0], B[0], wDraw), lerp(A[1], B[1], wDraw)], L = Math.hypot(B[0] - A[0], B[1] - A[1]);
+          const Pt = (k: number) => [lerp(A[0], B[0], k), lerp(A[1], B[1], k)];
+          const box = (q: readonly number[], lit: number) => <g><rect x={q[0] - 13} y={q[1] - 22} width={26} height={24} rx={5} fill="#1a2040" stroke="#5fe3ff" strokeWidth={2} /><circle cx={q[0]} cy={q[1] - 10} r={4} fill={lit > 0.5 ? '#5fe3ff' : '#35406a'} /><circle cx={q[0]} cy={q[1] - 10} r={12} fill="#5fe3ff" opacity={0.35 * lit} filter="url(#iB)" /></g>;
+          const send = clamp01((t - 4.95) / 0.5), sending = t > 4.95 && t < 5.45;
+          return <g>
+            <line x1={A[0]} y1={A[1] - 10} x2={E[0]} y2={E[1] - 10} stroke="#000" strokeWidth={7} strokeLinecap="round" opacity={0.35} transform="translate(0 6)" />
+            <line x1={A[0]} y1={A[1] - 10} x2={E[0]} y2={E[1] - 10} stroke="#c9843a" strokeWidth={6} strokeLinecap="round" />
+            <line x1={A[0]} y1={A[1] - 10} x2={E[0]} y2={E[1] - 10} stroke="#ffd9a0" strokeWidth={1.6} strokeLinecap="round" opacity={0.8} transform="translate(0 -1.5)" />
+            {wLive > 0 && <g opacity={wLive}>
+              <line x1={A[0]} y1={A[1] - 10} x2={B[0]} y2={B[1] - 10} stroke="#5fe3ff" strokeWidth={16} opacity={0.3} filter="url(#iB)" />
+              <line x1={A[0]} y1={A[1] - 10} x2={B[0]} y2={B[1] - 10} stroke="#dffbff" strokeWidth={4} strokeLinecap="round" strokeDasharray="9 15" strokeDashoffset={-t * 520} />
+            </g>}
+            {box(A, wDraw > 0 ? 1 : 0)}{wDraw > 0.98 && box(B, wLive)}
+            {/* the spark that pulls the wire across */}
+            {wDraw > 0 && wDraw < 1 && <><circle cx={E[0]} cy={E[1] - 10} r={16} fill="#ffe2a8" opacity={0.6} filter="url(#iB)" /><circle cx={E[0]} cy={E[1] - 10} r={5} fill="#fff" /></>}
+            {/* HELLO leaves him as forty bits and is whole again at her side */}
+            {t > 4.4 && t < 5.1 && <g opacity={prog(f, 4.4, 4.55) * (1 - prog(f, 4.95, 5.1))} transform={`translate(${bx + 20} ${by - 215})`}><rect x={-62} y={-30} width={124} height={44} rx={14} fill="#0e1430" stroke="#5fe3ff" strokeWidth={2} /><text y={3} textAnchor="middle" style={{ font: `800 28px ${FONT.ui}` }} fill="#fff">HELLO</text></g>}
+            {sending && Array.from({ length: 40 }).map((_, i) => { const k = send * 1.5 - i * 0.012; if (k < 0 || k > 1) return null; const q = Pt(k); const b = (0x48454c4c4f / Math.pow(2, 39 - i)) & 1; return <text key={i} x={q[0]} y={q[1] - 22 - (i % 2) * 12} textAnchor="middle" style={{ font: `600 15px ${FONT.mono}` }} fill={b ? '#ffe08a' : '#9fe9ff'}>{b}</text>; })}
+            {got > 0 && <g opacity={got} transform={`translate(${gx + 6} ${gy - 232 - got * 8}) scale(${0.8 + 0.2 * got})`}><rect x={-64} y={-30} width={128} height={44} rx={14} fill="#0e1430" stroke="#5fe3ff" strokeWidth={2} /><text y={3} textAnchor="middle" style={{ font: `800 28px ${FONT.ui}` }} fill="#fff">HELLO</text><circle cx={64} cy={-30} r={13} fill="#3ddc97" /><path d="M 58 -30 L 62 -25 L 70 -35" stroke="#06261a" strokeWidth={3.5} fill="none" strokeLinecap="round" /></g>}
+          </g>; })()}
         {/* the binary rides in the beam: bright = on (1), dark gap = off (0) */}
         {hook && t > BIT0 - 0.05 && t < 12.45 && <line x1={lens.x} y1={lens.y} x2={tgt.x} y2={tgt.y} stroke="#8a92d8" strokeWidth={2} strokeDasharray="3 10" opacity={0.6} />}
         {hook && HBITS.map((b, i) => { const u = (t - (BIT0 + i * BITD)) / FLY; if (u < -0.05 || u > 1.05 || t > 12.45) return null;
@@ -307,6 +336,7 @@ export const IsoStreet: React.FC<{ hook?: boolean }> = ({ hook }) => {
           </g>); })}
       </svg>
       {hook && <HookOverlays f={f} t={t} macro={macro} />}
+      {wire && <WireOverlays f={f} t={t} />}
     </AbsoluteFill>
   );
 };
@@ -362,6 +392,40 @@ const HookOverlays: React.FC<{ f: number; t: number; macro: number }> = ({ f, t,
         <div>How does the <span style={{ color: '#ffd38a' }}>internet</span><br />reach you?</div>
       </div>
       {line && t >= 3.45 && (
+        <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}>
+          <div className="sub">{line}</div>
+        </div>
+      )}
+      <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
+      <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}>
+        <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} />
+        <span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>
+      </div>
+    </>
+  );
+};
+
+const WireOverlays: React.FC<{ f: number; t: number }> = ({ f, t }) => {
+  let line: React.ReactNode = null; for (const [a, txt] of WVO) if (t >= a) line = txt;
+  const n = Math.round(1e9 * clamp01((t - 2.0) / 1.2) ** 3);
+  return (
+    <>
+      {t > 1.9 && (
+        <div style={{ position: 'absolute', top: 236, left: 90, right: 90, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.86)', border: '1px solid rgba(95,227,255,.35)', boxShadow: '0 20px 60px rgba(0,0,0,.45)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, opacity: prog(f, 1.9, 2.15) }}>
+          {t < 4.45 ? (
+            <>
+              <div style={{ font: `600 74px ${FONT.mono}`, color: '#9fe9ff' }}>{n.toLocaleString('en-US')}</div>
+              <div style={{ font: `600 26px ${FONT.mono}`, letterSpacing: '0.12em', color: '#a9b4dd' }}>BLINKS EVERY SECOND</div>
+            </>
+          ) : (
+            <>
+              <div style={{ font: `800 60px ${FONT.ui}`, color: TECH.text }}>"HELLO" = <span style={{ color: '#ffe08a' }}>40</span> blinks</div>
+              <div style={{ font: `600 28px ${FONT.mono}`, color: '#a9b4dd' }}>torch: <span style={{ color: '#ffb38a' }}>~40 s</span> · wire: <span style={{ color: '#9fe9ff' }}>0.00000004 s</span></div>
+            </>
+          )}
+        </div>
+      )}
+      {line && t >= 0.2 && (
         <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}>
           <div className="sub">{line}</div>
         </div>
