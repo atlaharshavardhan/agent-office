@@ -8,7 +8,7 @@ Low-poly 3D cartoon style, one-word Telugu captions, a story that builds up step
 |---|---|---|---|
 | 0.5–6.0 | మీ ఎదురింటి ఫ్రెండ్ కి టార్చ్ లైట్ తో signal ఇస్తే, simple గా చెప్పాలంటే మీరు internet ని build చేసినట్టే. | If you signal the friend across the street with a torch, you've basically built the internet. | Girl flashes a torch at a house at night; "INTERNET" title |
 | 6.5–12.8 | Light on అయితే one, off అయితే zero. ఇలా ఎనిమిది blinks కలిపితే ఒక letter. దీన్నే binary అంటారు. | Light on = 1, off = 0. Eight blinks make one letter. That's binary. | "0100____" filling in |
-| 13.3–16.1 | కానీ just "Hi" అని పంపటానికే పదహారు seconds పడుతుంది. | But just sending "Hi" takes 16 seconds. | "HI" + 01001000 01001001 |
+| 13.3–16.1 | కానీ just "Hi" అని పంపటానికే పదహారు seconds పడుతుంది. | But just sending "Hi" takes 16 seconds. | "HI" + binary filling in (01001000 0100…) |
 | 16.6–25.1 | So ఒక wire వేసేసి అవే blinks ని current లా పంపిస్తాం. ఇప్పుడు second కి billion blinks. అంటే కన్నుమూసి తెరిచే లోపే ఒక full book వచ్చేస్తుంది. | So we run a wire and send the blinks as current. Now it's a billion blinks a second: a whole book arrives in the blink of an eye. | Wire between houses; "1,000,000,000 BLINKS / SEC" |
 | 25.6–29.8 | Next day పక్కింటి కుర్రాడు వచ్చాడు. బంటి: "అక్కా! నేను కూడా join అవుతా." | Next day the neighbour boy Bunty comes: "Akka, I'll join too!" | Daytime, boy with a cricket bat |
 | 30.9–37.6 | తర్వాత మొత్తం street. పది ఇళ్ళకైతే నలభై ఐదు wires. So అన్ని wires ని ఒకే box కి connect చేస్తాం. | Then the whole street. 10 houses need 45 wires. So we connect every wire to one box. | Top view, wire web, "10 HOUSES / 40 WIRES!" → star layout around a box |
@@ -24,5 +24,5 @@ Low-poly 3D cartoon style, one-word Telugu captions, a story that builds up step
 
 ## Notes for our version
 - Fact slip in the reference: it says **45** wires (right: 10 × 9 ÷ 2 = 45) but the screen shows **"40 WIRES!"**.
-- "8 blinks = 1 letter" and "Hi = 16 s" assume 1 blink per second and 8-bit ASCII (H = 01001000, i = 01101001; the reference shows the second byte as 01001001, which is a capital I).
+- "8 blinks = 1 letter" and "Hi = 16 s" assume 1 blink per second and 8-bit ASCII (H = 01001000, i = 01101001).
 - This is someone else's Reel: we can use the idea of building it up one step at a time, but not copy their wording, characters, art or jokes.
