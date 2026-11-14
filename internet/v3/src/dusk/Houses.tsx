@@ -6,8 +6,8 @@ import { DUSK, Stick, StickPose, Tree, Bush, Lamp } from './Dusk';
 /* A street of individual homes in the dusk style: a row of houses across the street (the girl's
    terrace), the boy's house in front. Soft rounded shapes, pill windows, flat-roof terraces with
    parapets and water tanks, arched roofs, little gates and hedges. */
-const HC = ['#2c2f55', '#36325c', '#2a3458', '#3a3462', '#30365e', '#3b3057'];
-const ROOF = ['#1c1d3a', '#211c3c', '#1a2040', '#251f42'];
+export const HC = ['#2c2f55', '#36325c', '#2a3458', '#3a3462', '#30365e', '#3b3057'];
+export const ROOF = ['#1c1d3a', '#211c3c', '#1a2040', '#251f42'];
 
 export const House: React.FC<{ x: number; y: number; w: number; h: number; c: string; roof: 'arch' | 'flat' | 'gable'; rc: string; seed: number; terrace?: boolean; door?: 'l' | 'c' | 'r' }> =
   ({ x, y, w, h, c, roof, rc, seed, terrace = false, door = 'c' }) => {
@@ -65,13 +65,13 @@ export const House: React.FC<{ x: number; y: number; w: number; h: number; c: st
       </g>
     );
   };
-const Railing: React.FC<{ x: number; y: number; w: number; s?: number }> = ({ x, y, w, s = 1 }) => (
+export const Railing: React.FC<{ x: number; y: number; w: number; s?: number }> = ({ x, y, w, s = 1 }) => (
   <g>
     <rect x={x} y={y - 54 * s} width={w} height={6 * s} rx={3 * s} fill={DUSK.ink} />
     {Array.from({ length: Math.floor(w / (24 * s)) + 1 }).map((_, i) => <rect key={i} x={x + 2 + i * 24 * s} y={y - 50 * s} width={4 * s} height={50 * s} fill={DUSK.ink} opacity={0.85} />)}
   </g>
 );
-const Fence: React.FC<{ x: number; y: number; w: number }> = ({ x, y, w }) => (
+export const Fence: React.FC<{ x: number; y: number; w: number }> = ({ x, y, w }) => (
   <g opacity={0.8}>{Array.from({ length: Math.floor(w / 22) }).map((_, i) => <rect key={i} x={x + i * 22} y={y - 34} width={10} height={34} rx={5} fill="#4a4a7a" opacity={0.7} />)}<rect x={x} y={y - 22} width={w - 12} height={5} fill="#4a4a7a" opacity={0.6} /></g>
 );
 
