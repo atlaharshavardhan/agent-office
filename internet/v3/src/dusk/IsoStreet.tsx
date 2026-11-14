@@ -183,7 +183,7 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; mute?: boolea
   const wDraw = wire ? prog(f, 0.75, 1.4) : 0, wLive = wire ? prog(f, 2.35, 2.6) : 0, got = wire ? prog(f, 5.45, 5.7, easeOut) : 0;
   if (wire) { on = 0; raise = prog(f, 0.05, 0.5, easeOut) * (1 - prog(f, 1.9, 2.3, easeInOut)); sleepy = 1 - prog(f, 1.4, 1.6); wave = got; cheer = prog(f, 5.9, 6.2); startle = prog(f, 1.4, 1.5, easeOut) * (1 - prog(f, 2.1, 2.5)) * 0.6; }
   const kick = wire ? (t < 0.75 ? 0 : Math.exp(-(t - 0.75) * 7) * (1 + 0.5 * Math.cos((t - 0.75) * 26)) / 1.5) : 0, thud = wire && t > 1.4 ? Math.exp(-(t - 1.4) * 9) : 0;
-  const breathe = Math.sin(t * 2.4), gHop = Math.abs(Math.sin(t * 9)) * 9 * wave + Math.sin(Math.PI * clamp01((t - 2.05) / 0.35)) * 14 * (hook ? 1 : 0);
+  const breathe = Math.sin(t * 2.4), gHop = Math.abs(Math.sin(t * 9)) * 9 * wave + Math.sin(Math.PI * clamp01((t - 2.05) / 0.35)) * 14 * (hook ? 1 : 0) + (wire ? Math.sin(Math.PI * clamp01((t - 1.4) / 0.4)) * 22 + Math.sin(Math.PI * clamp01((t - 2.4) / 0.3)) * 10 + Math.abs(Math.sin(t * 7)) * 4 * prog(f, 2.8, 3.0) * (1 - prog(f, 4.6, 4.9)) : 0);
   const bHop = Math.abs(Math.sin(t * 8.5)) * 10 * cheer;
   if (hook && t > 12.5 && t < 14.15) on = Math.max(on, Math.sin(t * 2 * Math.PI * 5.5) > 0.1 ? 1 : 0);   // forty quick blinks
   const macro = hook && t >= 8.4 && t < 10.45 ? Math.min(prog(f, 8.4, 8.55), 1 - prog(f, 10.3, 10.45)) : 0;
@@ -199,6 +199,14 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; mute?: boolea
     armR: [lerp(8, 150, wave) + lerp(0, 118, yawn), lerp(5, 168, wave) + Math.sin(t * 11) * 14 * wave + lerp(0, 150, yawn)],
     armL: [lerp(-10, -112, startle) + lerp(0, -22, bored * (1 - sleepy)), lerp(-6, -150, startle) + lerp(0, -128, bored * (1 - sleepy))],
     tilt: 4 * notice + 14 * sleepy + breathe * 1.2 + Math.sin(t * 2 * Math.PI / (BITD * 2)) * 5 * count + 9 * bored * (1 - sleepy) - 6 * startle };
+  if (wire) {   // her side of the wire scene: dozing nod, jump when the anchor lands, peek at it, clap as it lights up, bounce and wave when HELLO lands
+    const jump = prog(f, 1.4, 1.5, easeOut) * (1 - prog(f, 1.85, 2.1)), peek = prog(f, 1.95, 2.25, easeInOut) * (1 - prog(f, 2.35, 2.55)), clap = prog(f, 2.7, 2.95) * (1 - prog(f, 4.5, 4.8)), watch = prog(f, 4.9, 5.1) * (1 - prog(f, 5.4, 5.5));
+    girl.tilt = (girl.tilt || 0) + Math.sin(t * 3.2) * 5 * sleepy + 12 * peek - 5 * jump + Math.sin(t * 7) * 3 * clap;
+    girl.armR = [girl.armR[0] + 150 * jump + 34 * peek + 58 * clap + Math.sin(t * 14) * 9 * clap, girl.armR[1] + 165 * jump + 40 * peek + 132 * clap];
+    girl.armL = [-10 - 150 * jump - 56 * clap - Math.sin(t * 14) * 9 * clap, -6 - 165 * jump - 130 * clap];
+    girl.smile = Math.max(girl.smile * (1 - jump * 0.5), clap, got); girl.look = -0.8 * (1 - peek * 0.5) - 0.1 * watch;
+    girl.blink = Math.max(girl.blink, 1 - Math.abs(t - 3.6) / 0.07, 1 - Math.abs(t - 6.4) / 0.07);
+  }
   const lm = (x: number, y: number, a: number, l: number) => { const r = a * Math.PI / 180; return [x + Math.sin(r) * l, y + Math.cos(r) * l]; };
   const [ex, ey] = lm(A_SHOULDER.x, A_SHOULDER.y, boy.armR[0], A_UPPER); const [wx, wy] = lm(ex, ey, boy.armR[1], A_FORE); const tr = (90 - boy.armR[1]) * Math.PI / 180;
   const lens = { x: bx - 34 * kick + (wx + Math.cos(tr) * A_TIP) * SC, y: by + (wy + Math.sin(tr) * A_TIP) * SC }, tgt = { x: gx - 10, y: gy - 225 * SC };
