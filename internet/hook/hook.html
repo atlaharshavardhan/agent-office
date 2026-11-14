@@ -160,7 +160,7 @@ function block({ x0, x1, z0, z1, floors, color, axis, featured }) {
     const rail = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.0, 0.06), glass); put(rail, along, fy + 0.8, 1.58);
     const top = new THREE.Mesh(new THREE.BoxGeometry(3.25, 0.08, 0.1), std(0xc9ccd6, { metalness: .8, roughness: .3 })); put(top, along, fy + 1.32, 1.58);
     for (const s of [-1, 1]) { const side = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.0, 1.6), glass); put(side, along + s * 1.6, fy + 0.8, 0.8); }
-    const lamp = new THREE.PointLight(0xffb060, 9, 7, 1.6); put(lamp, along, fy + 2.4, 1.2);
+    const lamp = new THREE.PointLight(0xffb060, 3.5, 7, 1.6); put(lamp, along, fy + 2.2, 0.35);
     // world position of balcony centre
     return axis === 'z' ? new THREE.Vector3(x0 + along, fy + 0.27, out + 0.8) : new THREE.Vector3(out + 0.8, fy + 0.27, z1 - along);
   }
@@ -200,7 +200,7 @@ tree(12, 4); tree(5, 13, .9); tree(14, 13, 1.1); tree(-4.5, -11, .8);
 }
 
 // ---------- people ----------
-function person({ skin, top, bottom, hair, girl }) {
+function person({ skin, top, bottom, hair, girl, torch: hasTorch = true }) {
   const g = new THREE.Group();
   const skinM = std(skin, { roughness: .55 }), topM = std(top, { roughness: .7 }), botM = std(bottom, { roughness: .8 }), hairM = std(hair, { roughness: .85, metalness: 0 });
   const add = (geo, m, x, y, z, parent = g) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = true; parent.add(o); return o; };
@@ -216,13 +216,16 @@ function person({ skin, top, bottom, hair, girl }) {
   for (const s of [-1, 1]) { add(new THREE.SphereGeometry(0.06, 12, 10), skinM, s * 0.27, -0.01, 0, head); }        // ears
   // eyes: white + dark pupil + highlight
   for (const s of [-1, 1]) {
-    const w = add(new THREE.SphereGeometry(0.052, 16, 12), std(0xffffff, { roughness: .3 }), s * 0.095, 0.02, 0.235, head); w.scale.z = 0.5;
+    const w = add(new THREE.SphereGeometry(0.052, 16, 12), std(0xd6d6d6, { roughness: .7 }), s * 0.095, 0.02, 0.235, head); w.scale.z = 0.5;
     add(new THREE.SphereGeometry(0.033, 12, 10), std(0x1a1210, { roughness: .2 }), s * 0.095, 0.015, 0.258, head);
-    add(new THREE.SphereGeometry(0.01, 6, 6), new THREE.MeshBasicMaterial({ color: 0xffffff }), s * 0.085, 0.03, 0.288, head);
+    add(new THREE.SphereGeometry(0.01, 6, 6), new THREE.MeshBasicMaterial({ color: 0xbfbfbf }), s * 0.085, 0.03, 0.288, head);
     const brow = add(new RoundedBoxGeometry(0.08, 0.018, 0.02, 1, 0.008), hairM, s * 0.095, 0.095, 0.25, head); brow.rotation.z = -s * 0.12;
   }
   add(new THREE.SphereGeometry(0.03, 10, 8), std(skin, { roughness: .5 }), 0, -0.05, 0.27, head);                      // nose
-  const smile = add(new THREE.TorusGeometry(0.055, 0.012, 6, 16, Math.PI), std(0x5a2020), 0, -0.1, 0.25, head); smile.rotation.z = Math.PI;
+  if (girl) {
+    const mouth = add(new THREE.CircleGeometry(0.07, 24, Math.PI, Math.PI), std(0x6a1c22, { roughness: .6 }), 0, -0.085, 0.262, head); mouth.rotation.x = -0.12;
+    const teeth = add(new THREE.PlaneGeometry(0.1, 0.022), std(0xffffff, { roughness: .4 }), 0, -0.095, 0.266, head); teeth.rotation.x = -0.12;
+  } else { const smile = add(new THREE.TorusGeometry(0.055, 0.012, 6, 16, Math.PI), std(0x5a2020), 0, -0.1, 0.25, head); smile.rotation.z = Math.PI; }
   for (const s of [-1, 1]) { const c = add(new THREE.SphereGeometry(0.035, 10, 8), std(0xd8806a, { roughness: .6, transparent: true, opacity: .5 }), s * 0.16, -0.07, 0.22, head); c.scale.z = 0.4; }
   // hair
   const cap = add(new THREE.SphereGeometry(0.29, 32, 18, 0, Math.PI * 2, 0, 1.35), hairM, 0, 0.03, -0.03, head); cap.rotation.x = -0.42;
@@ -243,6 +246,7 @@ function person({ skin, top, bottom, hair, girl }) {
   upper.position.set(0, 0, 0.24); upper.rotation.x = Math.PI / 2;
   const hand = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 10), skinM); hand.position.set(0, 0, 0.55); ra.add(hand);
   ra.rotation.x = -0.25; ra.rotation.y = 0.35; ra.rotation.order = 'YXZ';
+  if (!hasTorch) { ra.position.set(0.31, 1.25, 0); ra.rotation.set(1.48, 0, -0.15); g.userData = { ra, head, lensMat: null, flash: head }; g.scale.setScalar(1.15); return g; }
   // the torch: knurled metal body, wider head, glass lens, rubber switch
   const torch = new THREE.Group(); torch.position.set(0, 0.0, 0.55); ra.add(torch);
   const metal = std(0x2a2d36, { metalness: .85, roughness: .32 });
@@ -261,7 +265,7 @@ function person({ skin, top, bottom, hair, girl }) {
   g.scale.setScalar(1.15);
   return g;
 }
-const girl = person({ skin: 0x9a6648, top: 0xff7a3d, bottom: 0x2b2f45, hair: 0x15100d, girl: true });
+const girl = person({ skin: 0x9a6648, top: 0xff7a3d, bottom: 0x2b2f45, hair: 0x15100d, girl: true, torch: false });
 girl.position.copy(balA).add(new THREE.Vector3(0.3, 0, 0)); scene.add(girl);
 const boy = person({ skin: 0x8a5a3e, top: 0x2fb7a4, bottom: 0x2b2f45, hair: 0x15100d });
 boy.position.copy(balB).add(new THREE.Vector3(0, 0, -0.3)); scene.add(boy);
@@ -272,8 +276,9 @@ function aim(p, other) {
   const a = p.position, b = other.position;
   p.rotation.y = Math.atan2(b.x - a.x, b.z - a.z);
 }
-aim(girl, boy); aim(boy, girl); boy.rotation.y -= 0.35;
-{ const yawToBoy = girl.rotation.y; girl.rotation.y = 0.25; girl.userData.ra.rotation.y = yawToBoy - 0.25 + 0.05; } scene.updateMatrixWorld(true);
+aim(girl, boy); aim(boy, girl);
+girl.rotation.y = 0.6;
+{ const yawToGirl = boy.rotation.y; boy.rotation.y = 1.15; boy.userData.ra.rotation.y = yawToGirl - 1.15 - 0.05; } scene.updateMatrixWorld(true);
 
 // ---------- torch beams ----------
 const beamMat = () => new THREE.ShaderMaterial({
@@ -293,9 +298,9 @@ function makeBeam(from, to) {
   const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xfff4d0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
   glow.position.copy(from); glow.scale.setScalar(0.55); scene.add(glow);
   const spot = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xffe9b0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
-  spot.position.copy(to); spot.scale.setScalar(1.0); scene.add(spot);
+  spot.position.copy(to); spot.scale.setScalar(0.7); scene.add(spot);
   const light = new THREE.PointLight(0xfff0c8, 0, 6, 1.5); light.position.copy(to).lerp(from, 0.06); scene.add(light);
-  return { lens: null, set(v) { if (this.lens) this.lens.emissiveIntensity = 0.15 + 3.5 * v; m.material.uniforms.uOn.value = v; glow.material.opacity = v; spot.material.opacity = v * 0.8; light.intensity = v * 8; } };
+  return { lens: null, set(v) { if (this.lens) this.lens.emissiveIntensity = 0.15 + 3.5 * v; m.material.uniforms.uOn.value = v; glow.material.opacity = v; spot.material.opacity = v * 0.35; light.intensity = v * 4; } };
 }
 let _gt; function glowTex() {
   if (_gt) return _gt; const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
@@ -303,10 +308,10 @@ let _gt; function glowTex() {
   g.fillStyle = r; g.fillRect(0, 0, 128, 128); return (_gt = new THREE.CanvasTexture(c));
 }
 const wp = o => o.getWorldPosition(new THREE.Vector3());
-const fA = wp(girl.userData.flash), fB = wp(boy.userData.flash);
+const fA = wp(girl.userData.head).add(new THREE.Vector3(0, -0.62, 0)), fB = wp(boy.userData.flash);
 const beamA = makeBeam(fA, fB.clone().add(new THREE.Vector3(0, -0.15, 0)));
 const beamB = makeBeam(fB, fA.clone().add(new THREE.Vector3(0, -0.15, 0)));
-beamA.lens = girl.userData.lensMat; beamB.lens = boy.userData.lensMat;
+beamB.lens = boy.userData.lensMat;
 
 // ---------- copper wire between the balconies ----------
 const tieA = balA.clone().multiplyScalar(1).add(new THREE.Vector3(0.9, 1.25, 0.78)).multiplyScalar(1);
@@ -374,8 +379,8 @@ function renderOld(t) {
   const H = [0,1,0,0,1,0,0,0], B0 = 5.8, BD = 0.3;
   let bitBeam = 0, curBit = -1;
   for (let i = 0; i < 8; i++) { const a = B0 + i * BD; if (t >= a && t < a + BD) curBit = i; if (H[i]) bitBeam = Math.max(bitBeam, pulse(t, a, a + 0.22)); }
-  beamA.set(Math.max(pulse(t, .45, .7), pulse(t, .85, 1.1), pulse(t, 2.8, 3.05), pulse(t, 3.3, 3.55), pulse(t, 4.2, 4.5), pulse(t, 4.7, 4.95), bitBeam));
-  beamB.set(Math.max(pulse(t, 1.45, 1.65), pulse(t, 1.8, 2.0)));
+  beamA.set(0);
+  beamB.set(bitBeam);
   // floating bit at mid-beam
   const bitf = document.getElementById('bitf');
   if (curBit >= 0) { const sp = fA.clone().lerp(fB, 0.5).add(new THREE.Vector3(0, 0.9, 0)).project(cam);
@@ -430,27 +435,27 @@ const bHead = wp(boy.userData.head);
 const HK = [
   [0.0, mid.clone().add(new THREE.Vector3(0, -3.2, 0)), 30],
   [0.55, mid.clone().add(new THREE.Vector3(0, -3.0, 0)), 27],
-  [1.05, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.6],
-  [1.75, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.2],
-  [2.2, bHead.clone().add(new THREE.Vector3(0.3, -1.1, 0.3)), 6.6],
-  [2.9, bHead.clone().add(new THREE.Vector3(0.3, -1.1, 0.3)), 6.3],
+  [1.05, bHead.clone().add(new THREE.Vector3(0.75, -1.1, -0.15)), 6.6],
+  [1.75, bHead.clone().add(new THREE.Vector3(0.75, -1.1, -0.15)), 6.2],
+  [2.2, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.6],
+  [2.9, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.3],
   [3.35, mid.clone().add(new THREE.Vector3(0, -2.4, 0)), 22],
   [3.45, mid.clone().add(new THREE.Vector3(0, -2.4, 0)), 22],
-  [4.0, fA.clone().add(new THREE.Vector3(0, -0.7, 0)), 4.6],
-  [4.75, fA.clone().add(new THREE.Vector3(0, -0.7, 0)), 4.2],
+  [4.0, fB.clone().add(new THREE.Vector3(0, -0.7, 0)), 4.6],
+  [4.75, fB.clone().add(new THREE.Vector3(0, -0.7, 0)), 4.2],
   [5.35, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 23],
   [6.6, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 22],
 ];
 const VO = { h1: [3.4, 'This blinking <em>torch?</em>'], h2: [4.85, 'That’s the <em>internet.</em>'] };
-const HOOK_A = [[1.15, 1.35], [1.5, 1.7], [3.9, 4.1], [4.3, 4.5], [5.0, 6.35]];
-const HOOK_B = [[2.3, 2.5], [2.65, 2.85]];
+const HOOK_A = [];
+const HOOK_B = [[1.15, 1.35], [1.5, 1.7], [2.05, 2.95], [3.9, 4.1], [4.3, 4.5], [5.0, 6.35]];
 window.HOOK = { HOOK_A, HOOK_B, VO, HOOK_END };
 function renderAt(t) {
   if (t >= HOOK_END) return renderOld(t - SHIFT);
   let i = 0; while (i < HK.length - 2 && t > HK[i + 1][0]) i++;
   const [t0, p0, w0] = HK[i], [t1, p1, w1] = HK[i + 1], k = ease((t - t0) / (t1 - t0));
   setCam(p0.clone().lerp(p1, k), w0 + (w1 - w0) * k);
-  beamA.set(Math.max(...HOOK_A.map(([a, b]) => pulse(t, a, b))));
+  beamA.set(0);
   beamB.set(Math.max(...HOOK_B.map(([a, b]) => pulse(t, a, b))));
   wire.visible = wireCore.visible = false; clips.forEach(c => c.visible = false); pulses.forEach(p => p.material.opacity = 0);
   for (const id of ['card', 'zzz', 'bitf']) document.getElementById(id).style.opacity = 0;

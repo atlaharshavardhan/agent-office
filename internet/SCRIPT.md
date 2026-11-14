@@ -4,7 +4,7 @@ A Short, 9:16, about 48 s. Voice am_michael (Kokoro, speed 1.12). Our own story,
 
 | # | Scene (what you see) | Narration |
 |---|---|---|
-| 0 | **Hook, no voice (0–2 s):** night, two apartment windows across a road. A girl on a balcony blinks a real handheld torch, *click-click*; the boy on the opposite balcony blinks his torch back. Short pause. | — |
+| 0 | **Hook, no voice (0–2 s):** night, two apartment windows across a road. A boy on his balcony blinks a real handheld torch, *click-click*, across the road; the girl stands outside on her balcony opposite and smiles as the light reaches her. Short pause. | — |
 | 1 | Close on the blinking torch | This blinking torch? That's the internet. |
 | 2 | Each blink turns into 1 / 0, eight digits stack into the letter "H" | On is one, off is zero. Eight blinks make one letter. |
 | 3 | "HELLO" spelled out slowly, counter: 40 blinks, a yawning clock | But "Hello" takes forty blinks. Too slow. |
@@ -21,7 +21,7 @@ A Short, 9:16, about 48 s. Voice am_michael (Kokoro, speed 1.12). Our own story,
 About 130 words, so about 48 s with Michael's voice. I'll time it exactly once the voice is made.
 
 ## What we changed from the reference (so it isn't a copy)
-- **Torch:** real handheld torches between two apartment balconies, not a friend across the street at night.
+- **Torch:** a boy with a real handheld torch signalling a smiling girl on the opposite balcony, not a friend across the street at night.
 - **The binary example:** "Hello" in 40 blinks instead of "Hi" in 16 seconds.
 - **The people:** a whole apartment building and router boxes, instead of the neighbour Bunty and the street.
 - **IP address:** compared to flat numbers instead of door numbers.

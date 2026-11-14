@@ -62,8 +62,8 @@ for k in range(26):
     chirp = np.sin(2 * np.pi * 4600 * tt) * (0.5 + 0.5 * np.sign(np.sin(2 * np.pi * 45 * tt))) * env(L, 0.01, 0.18, 2)
     place(sfx, chirp, at, 0.012, rng.uniform(-0.8, 0.8))
 # torch clicks: phone torch on (tick) and off (softer)
-A = [[1.15, 1.35], [1.5, 1.7], [3.9, 4.1], [4.3, 4.5], [5.0, 6.35]]
-B = [[2.3, 2.5], [2.65, 2.85]]
+A = []  # the girl has no torch
+B = [[1.15, 1.35], [1.5, 1.7], [2.05, 2.95], [3.9, 4.1], [4.3, 4.5], [5.0, 6.35]]  # only the boy blinks
 def click(gain):
     L = int(0.03 * SR); n = hp(rng.standard_normal(L), 0.3) * env(L, 0.0005, 0.012, 3)
     tt = np.arange(L) / SR; tick = np.sin(2 * np.pi * 2400 * tt) * env(L, 0.0005, 0.01, 4)
