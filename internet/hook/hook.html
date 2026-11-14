@@ -202,7 +202,7 @@ tree(12, 4); tree(5, 13, .9); tree(14, 13, 1.1); tree(-4.5, -11, .8);
 // ---------- people ----------
 function person({ skin, top, bottom, hair, girl }) {
   const g = new THREE.Group();
-  const skinM = std(skin, { roughness: .55 }), topM = std(top, { roughness: .7 }), botM = std(bottom, { roughness: .8 }), hairM = std(hair, { roughness: .45, metalness: .05 });
+  const skinM = std(skin, { roughness: .55 }), topM = std(top, { roughness: .7 }), botM = std(bottom, { roughness: .8 }), hairM = std(hair, { roughness: .85, metalness: 0 });
   const add = (geo, m, x, y, z, parent = g) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = true; parent.add(o); return o; };
   // legs + shoes
   for (const s of [-1, 1]) { add(new THREE.CapsuleGeometry(0.1, 0.5, 4, 10), botM, s * 0.12, 0.4, 0); add(new RoundedBoxGeometry(0.17, 0.1, 0.28, 2, 0.04), std(0xf2f2f2), s * 0.12, 0.06, 0.04); }
@@ -237,16 +237,27 @@ function person({ skin, top, bottom, hair, girl }) {
   // left arm relaxed
   const la = add(new THREE.CapsuleGeometry(0.07, 0.48, 4, 10), topM, -0.31, 0.98, 0); la.rotation.z = 0.15;
   add(new THREE.SphereGeometry(0.075, 10, 8), skinM, -0.36, 0.68, 0);
-  // right arm raised forward holding the phone
+  // right arm raised forward holding a real handheld torch
   const ra = new THREE.Group(); ra.position.set(0.28, 1.22, 0); g.add(ra);
   const upper = new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 0.48, 4, 10), topM); upper.castShadow = true; ra.add(upper);
   upper.position.set(0, 0, 0.24); upper.rotation.x = Math.PI / 2;
   const hand = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 10), skinM); hand.position.set(0, 0, 0.55); ra.add(hand);
   ra.rotation.x = -0.25; ra.rotation.y = 0.35; ra.rotation.order = 'YXZ';
-  const phone = new THREE.Mesh(new RoundedBoxGeometry(0.17, 0.33, 0.03, 2, 0.025), std(0x15151a, { roughness: .2, metalness: .6 }));
-  phone.position.set(0, 0.08, 0.6); phone.rotation.x = 0.25; ra.add(phone);
-  const flash = new THREE.Object3D(); flash.position.set(0, 0.22, 0.63); ra.add(flash);
-  g.userData = { flash, ra, head };
+  // the torch: knurled metal body, wider head, glass lens, rubber switch
+  const torch = new THREE.Group(); torch.position.set(0, 0.0, 0.55); ra.add(torch);
+  const metal = std(0x2a2d36, { metalness: .85, roughness: .32 });
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.42, 20), metal); body.rotation.x = Math.PI / 2; body.position.z = 0.05; torch.add(body);
+  for (let r = 0; r < 5; r++) { const ring = new THREE.Mesh(new THREE.TorusGeometry(0.057, 0.008, 6, 20), metal); ring.position.z = -0.1 + r * 0.04; torch.add(ring); }
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.058, 0.12, 24), std(0xc0392b, { metalness: .6, roughness: .35 })); neck.rotation.x = Math.PI / 2; neck.position.z = 0.32; torch.add(neck);
+  const tHead = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.07, 28), std(0xc0392b, { metalness: .6, roughness: .35 })); tHead.rotation.x = Math.PI / 2; tHead.position.z = 0.41; torch.add(tHead);
+  const bezel = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.012, 8, 28), std(0xd8dbe2, { metalness: .9, roughness: .2 })); bezel.position.z = 0.445; torch.add(bezel);
+  const lensMat = new THREE.MeshStandardMaterial({ color: 0xfff6dc, emissive: 0xfff0c0, emissiveIntensity: 0.15, roughness: .1 });
+  const lens = new THREE.Mesh(new THREE.CircleGeometry(0.088, 28), lensMat); lens.position.z = 0.447; torch.add(lens);
+  const sw = new THREE.Mesh(new RoundedBoxGeometry(0.04, 0.025, 0.07, 2, 0.01), std(0x111111, { roughness: .9 })); sw.position.set(0, 0.06, 0.12); torch.add(sw);
+  const tCap = new THREE.Mesh(new THREE.CylinderGeometry(0.058, 0.058, 0.03, 20), metal); tCap.rotation.x = Math.PI / 2; tCap.position.z = -0.17; torch.add(tCap);
+  torch.traverse(o => o.castShadow = true);
+  const flash = new THREE.Object3D(); flash.position.set(0, 0, 1.0); ra.add(flash);
+  g.userData = { flash, ra, head, lensMat };
   g.scale.setScalar(1.15);
   return g;
 }
@@ -284,7 +295,7 @@ function makeBeam(from, to) {
   const spot = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xffe9b0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
   spot.position.copy(to); spot.scale.setScalar(1.0); scene.add(spot);
   const light = new THREE.PointLight(0xfff0c8, 0, 6, 1.5); light.position.copy(to).lerp(from, 0.06); scene.add(light);
-  return { set(v) { m.material.uniforms.uOn.value = v; glow.material.opacity = v; spot.material.opacity = v * 0.8; light.intensity = v * 8; } };
+  return { lens: null, set(v) { if (this.lens) this.lens.emissiveIntensity = 0.15 + 3.5 * v; m.material.uniforms.uOn.value = v; glow.material.opacity = v; spot.material.opacity = v * 0.8; light.intensity = v * 8; } };
 }
 let _gt; function glowTex() {
   if (_gt) return _gt; const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
@@ -295,6 +306,7 @@ const wp = o => o.getWorldPosition(new THREE.Vector3());
 const fA = wp(girl.userData.flash), fB = wp(boy.userData.flash);
 const beamA = makeBeam(fA, fB.clone().add(new THREE.Vector3(0, -0.15, 0)));
 const beamB = makeBeam(fB, fA.clone().add(new THREE.Vector3(0, -0.15, 0)));
+beamA.lens = girl.userData.lensMat; beamB.lens = boy.userData.lensMat;
 
 // ---------- copper wire between the balconies ----------
 const tieA = balA.clone().multiplyScalar(1).add(new THREE.Vector3(0.9, 1.25, 0.78)).multiplyScalar(1);
