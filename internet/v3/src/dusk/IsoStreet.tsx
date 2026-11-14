@@ -83,6 +83,35 @@ const TreeIso: React.FC<{ x: number; y: number; s?: number }> = ({ x, y, s = 1 }
 const LampIso: React.FC<{ x: number; y: number }> = ({ x, y }) => { const [a, b] = iso(x, y); return (
   <g><ellipse cx={a} cy={b + 6} rx={70} ry={30} fill="url(#iPool)" /><rect x={a - 2.5} y={b - 110} width={5} height={110} fill="#101022" /><circle cx={a} cy={b - 112} r={44} fill="url(#iHalo)" /><circle cx={a} cy={b - 112} r={7} fill="#fff3d6" /></g>); };
 
+
+const Box: React.FC<{ x0: number; y0: number; w: number; d: number; h: number; z?: number; c: string }> = ({ x0, y0, w, d, h, z = 0, c }) => { const x1 = x0 + w, y1 = y0 + d; return (
+  <g><polygon points={P([iso(x0, y0, z + h), iso(x1, y0, z + h), iso(x1, y1, z + h), iso(x0, y1, z + h)])} fill={shade(c, 1.25)} />
+    <polygon points={P([iso(x0, y1, z), iso(x1, y1, z), iso(x1, y1, z + h), iso(x0, y1, z + h)])} fill={c} />
+    <polygon points={P([iso(x1, y0, z), iso(x1, y1, z), iso(x1, y1, z + h), iso(x1, y0, z + h)])} fill={shade(c, 0.7)} /></g>); };
+const CarIso: React.FC<{ x: number; y: number; dir: 1 | -1; c: string; auto?: boolean }> = ({ x, y, dir, c, auto }) => {
+  const [hx, hy] = iso(x + dir * 1.9, y), [fx1, fy1] = iso(x + dir * 0.68, y - 0.2, 0.25), [fx2, fy2] = iso(x + dir * 0.68, y + 0.2, 0.25), [bx1, by1] = iso(x - dir * 0.68, y - 0.2, 0.25), [bx2, by2] = iso(x - dir * 0.68, y + 0.2, 0.25);
+  const [sx, sy] = iso(x, y);
+  return (
+    <g>
+      <ellipse cx={sx + 4} cy={sy + 6} rx={50} ry={20} fill="#000" opacity={0.35} />
+      <ellipse cx={hx} cy={hy} rx={80} ry={34} fill="url(#iPool)" opacity={0.9} />
+      {[-0.42, 0.42].map((dx) => { const [wx, wy] = iso(x + dx, y + 0.32, 0.08); return <ellipse key={dx} cx={wx} cy={wy} rx={7} ry={8} fill="#07070f" />; })}
+      <Box x0={x - 0.65} y0={y - 0.3} w={1.3} d={0.6} h={auto ? 0.2 : 0.3} z={0.1} c={c} />
+      <Box x0={x - (auto ? 0.5 : 0.32) - (dir > 0 ? 0.08 : -0.08)} y0={y - 0.26} w={auto ? 0.95 : 0.7} d={0.52} h={auto ? 0.46 : 0.26} z={auto ? 0.3 : 0.4} c={auto ? '#1c1c26' : shade(c, 0.55)} />
+      {!auto && (() => { const xa = x - 0.32 - (dir > 0 ? 0.08 : -0.08); return <polygon points={P([iso(xa + 0.06, y + 0.26, 0.44), iso(xa + 0.64, y + 0.26, 0.44), iso(xa + 0.64, y + 0.26, 0.62), iso(xa + 0.06, y + 0.26, 0.62)])} fill="#9fd0ff" opacity={0.55} />; })()}
+      <circle cx={fx1} cy={fy1} r={4} fill="#fff6d8" /><circle cx={fx2} cy={fy2} r={4} fill="#fff6d8" /><circle cx={(fx1 + fx2) / 2} cy={(fy1 + fy2) / 2} r={18} fill="url(#iHalo)" />
+      <circle cx={bx1} cy={by1} r={3} fill="#ff4a5a" /><circle cx={bx2} cy={by2} r={3} fill="#ff4a5a" />
+    </g>
+  );
+};
+const Road: React.FC<{ y: number; x0: number; x1: number }> = ({ y, x0, x1 }) => (
+  <g>
+    <polygon points={P([iso(x0, y - 1.9), iso(x1, y - 1.9), iso(x1, y + 1.9), iso(x0, y + 1.9)])} fill="#333a72" />
+    <polygon points={P([iso(x0, y - 1.3), iso(x1, y - 1.3), iso(x1, y + 1.3), iso(x0, y + 1.3)])} fill="#141736" />
+    {Array.from({ length: Math.floor((x1 - x0) / 1.5) }).map((_, i) => { const x = x0 + 0.6 + i * 1.5; return <polygon key={i} points={P([iso(x, y - 0.06), iso(x + 0.8, y - 0.06), iso(x + 0.8, y + 0.06), iso(x, y + 0.06)])} fill="#8e8cc0" opacity={0.5} />; })}
+  </g>
+);
+
 const C1 = ['#3a3f78', '#4a3f7a', '#34487a', '#51437c', '#3d4a82', '#4b3c70'];
 const FAR: H[] = [
   { x0: -9.4, y0: -4.6, w: 2.4, d: 2.5, h: 2.2, c: C1[2], roof: 'hip', seed: 21 },
@@ -127,32 +156,44 @@ export const IsoStreet: React.FC = () => {
         <rect width={1080} height={1920} fill="url(#iSky)" />
         <ellipse cx={540} cy={380} rx={700} ry={140} transform="rotate(-22 540 380)" fill="url(#iMilky)" />
         {Array.from({ length: 280 }).map((_, i) => { const tw = 0.55 + 0.45 * Math.sin(f / 9 + i * 2.3); return <circle key={i} cx={hash(i) * 1080} cy={hash(i + 9) * 1920} r={hash(i + 3) * 1.6 + 0.4} fill={i % 7 ? '#fff' : '#ffe6c2'} opacity={(0.2 + 0.7 * hash(i + 5)) * tw * (hash(i + 9) < 0.45 ? 1 : 0.35)} />; })}
-        <g transform="translate(180 330)"><circle r={120} fill="#cfd8ff" opacity={0.07} /><circle r={44} fill="#f3eedb" /><circle cx={17} cy={-11} r={41} fill="#050819" /></g>
-        {/* the diorama tile */}
-        <polygon points={P([iso(X0, Y1, 0), iso(X1, Y1, 0), iso(X1, Y1, -0.7), iso(X0, Y1, -0.7)])} fill="#0d1030" />
-        <polygon points={P([iso(X1, Y0, 0), iso(X1, Y1, 0), iso(X1, Y1, -0.7), iso(X1, Y0, -0.7)])} fill="#090b24" />
-        <polygon points={P([iso(X0, Y0), iso(X1, Y0), iso(X1, Y1), iso(X0, Y1)])} fill="#1b2150" />
-        <polygon points={P([iso(X0, 6.4, 0), iso(X1, 6.4, 0), iso(X1, 6.4, -1.2), iso(X0, 6.4, -1.2)])} fill="#0a0d28" />
-        <polygon points={P([iso(X0, -10.5), iso(X1, -10.5), iso(X1, 6.4), iso(X0, 6.4)])} fill="#10183a" />
-        {/* gardens, footpaths, road */}
-        <polygon points={P([iso(X0, Y0), iso(X1, Y0), iso(X1, -1.9), iso(X0, -1.9)])} fill="#172a3e" /><polygon points={P([iso(X0, 1.9), iso(X1, 1.9), iso(X1, Y1), iso(X0, Y1)])} fill="#172a3e" />
-        <polygon points={P([iso(X0, -1.9), iso(X1, -1.9), iso(X1, -1.3), iso(X0, -1.3)])} fill="#333a72" /><polygon points={P([iso(X0, 1.3), iso(X1, 1.3), iso(X1, 1.9), iso(X0, 1.9)])} fill="#333a72" />
-        <polygon points={P([iso(X0, -1.3), iso(X1, -1.3), iso(X1, 1.3), iso(X0, 1.3)])} fill="#141736" />
-        {Array.from({ length: 21 }).map((_, i) => { const x = X0 + 0.6 + i * 1.5; return <polygon key={i} points={P([iso(x, -0.06), iso(x + 0.8, -0.06), iso(x + 0.8, 0.06), iso(x, 0.06)])} fill="#8e8cc0" opacity={0.5} />; })}
-        {/* garden paths from each door */}
+        <g transform="translate(900 190)"><circle r={120} fill="#cfd8ff" opacity={0.07} /><circle r={44} fill="#f3eedb" /><circle cx={17} cy={-11} r={41} fill="#050819" /></g>
+        {/* ground: the neighbourhood continues past the frame */}
+        <polygon points={P([iso(X0, -13.4, 0), iso(X1, -13.4, 0), iso(X1, 18), iso(X0, 18)])} fill="#10183a" />
+        {[[-13.4, -12.9], [-9.1, -6.1], [-4.7, -1.9], [1.9, 7.2], [9.9, 10.4], [14.2, 18]].map(([y0, y1], i) => <polygon key={i} points={P([iso(X0, y0), iso(X1, y0), iso(X1, y1), iso(X0, y1)])} fill={i % 2 ? '#15263c' : '#172a3e'} />)}
+        <Road y={-11} x0={X0} x1={X1} /><Road y={0} x0={X0} x1={X1} /><Road y={12.3} x0={X0} x1={X1} />
+        {/* zebra crossing + garden paths */}
+        {Array.from({ length: 6 }).map((_, k) => <polygon key={k} points={P([iso(-1.75, -1.15 + k * 0.42), iso(-1.0, -1.15 + k * 0.42), iso(-1.0, -0.93 + k * 0.42), iso(-1.75, -0.93 + k * 0.42)])} fill="#b9b6e6" opacity={0.6} />)}
         {FAR.map((b, i) => <polygon key={i} points={P([iso(b.x0 + b.w / 2 - 0.2, b.y0 + b.d), iso(b.x0 + b.w / 2 + 0.2, b.y0 + b.d), iso(b.x0 + b.w / 2 + 0.2, -1.9), iso(b.x0 + b.w / 2 - 0.2, -1.9)])} fill="#2a3166" />)}
-        {[-9.2, -6.0, -2.8, 0.4, 3.6, 6.8, 10].map((x, i) => <HouseIso key={'bk' + i} b={{ x0: x, y0: -8.6, w: 2.4, d: 2.4, h: 1.9 + (i % 3) * 0.3, c: C1[i % 6], roof: i % 2 ? 'gable' : 'hip', seed: 40 + i }} f={f} />)}
-        {/* far row, then street furniture, then near row (painter's order) */}
-        {[-6.65, -3.55, -0.45, 2.85, 5.95].map((x, i) => <TreeIso key={i} x={x} y={-2.35} s={0.75} />)}
+        {/* top road traffic and the back row */}
+        <CarIso x={((t * 2.0 + 6) % 34) - 17} y={-11.6} dir={1} c="#4a6fd0" />
+        {[-12.6, -9.4, -6.2, -3.0, 0.2, 3.4, 6.6, 9.8].map((x, i) => <HouseIso key={'bk' + i} b={{ x0: x, y0: -8.9, w: 2.4, d: 2.4, h: 1.9 + (i % 3) * 0.3, c: C1[i % 6], roof: i % 2 ? 'gable' : 'hip', seed: 40 + i }} f={f} />)}
+        {Array.from({ length: 14 }).map((_, i) => <TreeIso key={'t0' + i} x={-12 + i * 1.75 + hash(i) * 0.5} y={-5.7 - hash(i + 3) * 0.5} s={0.6 + hash(i + 7) * 0.35} />)}
+        {/* far row with hedges along the footpath */}
         {FAR.map((b) => <HouseIso key={b.seed} b={b} f={f} />)}
+        {FAR.map((b, i) => <g key={'hg' + i}><Box x0={b.x0 - 0.2} y0={-2.1} w={b.w / 2 - 0.05} d={0.14} h={0.26} c="#1f4a3a" /><Box x0={b.x0 + b.w / 2 + 0.3} y0={-2.1} w={b.w / 2 - 0.1} d={0.14} h={0.26} c="#1f4a3a" /></g>)}
+        {[-6.65, -3.55, -0.45, 2.85, 5.95, 9.0].map((x, i) => <TreeIso key={i} x={x} y={-2.45} s={0.7} />)}
         <g transform={`translate(${gx} ${gy}) scale(${-SC} ${SC})`}><Stick hair="pony" outfit="kurta" col={DUSK.lav} p={girl} id="g" /></g>
-        <LampIso x={-5.0} y={-1.6} /><LampIso x={4.6} y={-1.6} />
-        {/* a parked scooter and a cat for life */}
-        {(() => { const [a, b] = iso(1.6, -1.05); return <g><ellipse cx={a} cy={b + 3} rx={20} ry={7} fill="#000" opacity={0.3} /><rect x={a - 14} y={b - 16} width={28} height={10} rx={5} fill="#c8553a" /><circle cx={a - 12} cy={b - 3} r={6} fill="#0b0c1a" /><circle cx={a + 12} cy={b - 3} r={6} fill="#0b0c1a" /><rect x={a + 8} y={b - 26} width={3} height={12} fill="#0b0c1a" /></g>; })()}
-        <LampIso x={-0.4} y={1.6} />
-        {[-6.65, -3.55, -0.2, 2.85, 5.95].map((x, i) => <TreeIso key={i} x={x} y={2.5} s={0.75} />)}
+        <LampIso x={-8.2} y={-1.6} /><LampIso x={-2.2} y={-1.6} /><LampIso x={4.6} y={-1.6} />
+        {/* the street: cars, an auto-rickshaw and a scooter on the move */}
+        <CarIso x={((t * 2.2 + 13) % 34) - 17} y={-0.65} dir={1} c="#c8553a" />
+        <CarIso x={((t * 1.6 + 27) % 34) - 17} y={-0.65} dir={1} c="#e0b84a" auto />
+        <CarIso x={-(((t * 1.9 + 21) % 34) - 17)} y={0.65} dir={-1} c="#3fa7a0" />
+        <CarIso x={-(((t * 2.4 + 6) % 34) - 17)} y={0.65} dir={-1} c="#8a6fd8" />
+        <LampIso x={-5.4} y={1.6} /><LampIso x={0.9} y={1.6} /><LampIso x={7.4} y={1.6} />
+        {[-9.8, -6.65, -3.55, -0.2, 2.85, 5.95].map((x, i) => <TreeIso key={i} x={x} y={2.55} s={0.7} />)}
         {NEAR.map((b) => <HouseIso key={b.seed} b={b} f={f} />)}
         <g transform={`translate(${bx} ${by}) scale(${SC})`}><Stick hair="short" outfit="tee" col={DUSK.teal} p={boy} id="b" /></g>
+        {/* back gardens: trees, a pond, a bench and garden lamps */}
+        {NEAR.map((b, i) => <Box key={'ng' + i} x0={b.x0 - 0.2} y0={4.85} w={b.w + 0.4} d={0.14} h={0.26} c="#1f4a3a" />)}
+        {(() => { const [px, py] = iso(-1.2, 6.1); return <g><ellipse cx={px} cy={py} rx={78} ry={34} fill="#1d3f6a" /><ellipse cx={px - 10} cy={py - 4} rx={50} ry={18} fill="#2b5a8f" opacity={0.7} /><ellipse cx={px + 14} cy={py - 8} rx={16} ry={5} fill="#cfe6ff" opacity={0.35} /></g>; })()}
+        {Array.from({ length: 12 }).map((_, i) => { const x = -10 + i * 1.8 + hash(i + 20) * 0.6; if (x > -2.6 && x < 0.2) return null; return <TreeIso key={'t2' + i} x={x} y={5.7 + hash(i + 30) * 0.9} s={0.65 + hash(i + 40) * 0.4} />; })}
+        <Box x0={1.3} y0={5.9} w={0.9} d={0.25} h={0.18} z={0.12} c="#5a4a3a" /><LampIso x={2.6} y={6.3} /><LampIso x={-6.0} y={6.3} />
+        {[-11, -7.8, -4.6, -1.4, 1.8, 5.0, 8.2].map((x, i) => <HouseIso key={'ft' + i} b={{ x0: x, y0: 7.4, w: 2.4, d: 2.4, h: 1.9 + (i % 2) * 0.3, c: C1[(i + 3) % 6], roof: i % 2 ? 'hip' : 'gable', seed: 60 + i }} f={f} />)}
+        <LampIso x={-3.0} y={10.7} /><LampIso x={3.6} y={10.7} />
+        <CarIso x={((t * 2.1 + 15) % 34) - 17} y={11.65} dir={1} c="#d8d8e6" />
+        <CarIso x={-(((t * 1.7 + 12) % 34) - 17)} y={12.95} dir={-1} c="#c8553a" />
+        {Array.from({ length: 10 }).map((_, i) => <TreeIso key={'t3' + i} x={-12 + i * 2.1} y={14.6} s={0.8} />)}
+        {[-9.5, -6.3, -3.1, 0.1, 3.3].map((x, i) => <HouseIso key={'bt' + i} b={{ x0: x, y0: 15.4, w: 2.4, d: 2.4, h: 2.0, c: C1[(i + 1) % 6], roof: i % 2 ? 'gable' : 'hip', seed: 80 + i }} f={f} />)}
         {/* the torch beam across the street */}
         <g transform={`translate(${lens.x} ${lens.y}) rotate(${ang})`} style={{ mixBlendMode: 'screen' }}>
           <path d={`M 0 -3 L ${len} -26 L ${len} 26 L 0 3 Z`} fill="url(#iBeam)" opacity={0.7} filter="url(#iB2)" />
