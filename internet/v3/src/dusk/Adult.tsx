@@ -68,8 +68,6 @@ export const Adult: React.FC<{ kind: 'man' | 'woman'; p: StickPose; id: string }
           ? <path d="M -36 20 C -44 -34 -20 -52 2 -50 C 28 -50 44 -32 36 20 C 34 -6 28 -22 14 -28 C 0 -14 -18 -10 -30 -12 C -34 -2 -36 8 -36 20 Z" fill={c.hair} />
           : <path d="M -34 -2 C -40 -30 -34 -46 -14 -50 C 6 -58 36 -50 35 -10 C 30 -24 24 -30 12 -30 C -4 -28 -20 -30 -26 -24 C -30 -18 -32 -10 -34 -2 Z" fill={c.hair} />}
         <path d="M -20 -40 Q -4 -50 14 -44" stroke="#fff" strokeOpacity={0.14} strokeWidth={4} fill="none" strokeLinecap="round" />
-        <path d="M 18 -30 A 34 38 0 0 1 30 18" stroke="#ffdcae" strokeWidth={3.5} fill="none" strokeLinecap="round" opacity={0.9} />
-        <path d="M -30 -18 A 34 38 0 0 0 -31 16" stroke="#9fb4ff" strokeWidth={2.2} fill="none" strokeLinecap="round" opacity={0.5} />
         {[-12.5, 12.5].map((ex) => (
           <g key={ex}>
             <path d={`M ${ex - 8 + lx} ${-15 - p.smile * 1.5} Q ${ex + lx} ${-19 - p.smile * 2} ${ex + 8 + lx} ${-15 - p.smile * 1.5}`} stroke={c.hair} strokeWidth={w ? 2.6 : 3.6} fill="none" strokeLinecap="round" />
