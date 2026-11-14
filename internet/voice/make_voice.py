@@ -20,6 +20,12 @@ LINES = {
     "p10": "That's its IP address.",
     "p11": "Big videos get chopped into small packets,",
     "p12": "each carrying that address.",
+    "p13": "Friend in London? Routers link up, under the sea,",
+    "p14": "through glass cables carrying light.",
+    "p15": "Ninety-nine percent of data between continents goes this way.",
+    "p16": "Anchors cut them, so we lay hundreds. Packets reroute.",
+    "p17": "That's how this video reached you.",
+    "p18": "Follow InvisiTech for more.",
 }
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
 L = {}

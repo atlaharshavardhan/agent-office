@@ -2,7 +2,7 @@
 Writes bed.wav (music), sfx.wav (torch clicks, whooshes, crickets, reveal hit) at 48 kHz stereo.
 Times match hook.html (HOOK_A / HOOK_B blinks, camera moves, voice at 3.4 s and 4.85 s)."""
 import numpy as np, soundfile as sf
-SR = 48000; DUR = 34.4; N = int(SR * DUR)
+SR = 48000; DUR = 50.0; N = int(SR * DUR)
 rng = np.random.default_rng(11)
 midi = lambda m: 440 * 2 ** ((m - 69) / 12)
 
@@ -25,7 +25,7 @@ bed = np.zeros((N, 2))
 beat = 60 / 96
 # warm pad (A minor add9 -> F maj7), slow attack
 CH = [[57, 64, 67, 71], [53, 60, 64, 69], [57, 64, 67, 72], [53, 60, 64, 69], [55, 62, 65, 71], [52, 59, 64, 67]]
-for at, chord in [(0.0, CH[0]), (2.5, CH[1]), (5.0, CH[2]), (7.4, CH[3])] + [(9.9 + 2.5 * j, CH[(j + 4) % 6]) for j in range(10)]:
+for at, chord in [(0.0, CH[0]), (2.5, CH[1]), (5.0, CH[2]), (7.4, CH[3])] + [(9.9 + 2.5 * j, CH[(j + 4) % 6]) for j in range(15)]:
     L = int(2.8 * SR); tt = np.arange(L) / SR
     for k, m in enumerate(chord):
         f = midi(m)
@@ -34,16 +34,16 @@ for at, chord in [(0.0, CH[0]), (2.5, CH[1]), (5.0, CH[2]), (7.4, CH[3])] + [(9.
         place(bed, tone * e, at, 0.045, (k - 1.5) * 0.4)
 # pluck motif (like blinking lights): eighth notes
 motif = [69, 76, 72, 76, 69, 76, 74, 76, 65, 72, 69, 72, 65, 72, 71, 72]
-for i, m in enumerate(motif * 10):
+for i, m in enumerate(motif * 14):
     at = i * beat / 2
-    if at > 34.1: break
+    if at > 47.4: break
     L = int(0.5 * SR); tt = np.arange(L) / SR; f = midi(m + 12)
     tone = (np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(4 * np.pi * f * tt)) * env(L, 0.002, 0.35, 5)
     place(bed, tone, at, 0.05, 0.35 if i % 2 else -0.35)
 # soft kick + sub on the beat, starts at bar 2
-for q in range(70):
+for q in range(100):
     at = q * beat
-    if at < beat * 4 - 0.01 or at > 34.1: continue
+    if at < beat * 4 - 0.01 or at > 47.4: continue
     L = int(0.4 * SR); tt = np.arange(L) / SR
     place(bed, np.sin(2 * np.pi * (42 + 70 * np.exp(-tt * 28)) * tt) * env(L, 0.002, 0.3, 6), at, 0.32)
 # the pause before the voice: music dips 3.05-3.4 then comes back quieter
@@ -97,7 +97,8 @@ def whoosh(dur, up=True):
     return y * np.sin(np.pi * tt / dur) ** 2
 for at, d, up in [(0.55, 0.5, True), (1.75, 0.45, True), (2.9, 0.45, False), (3.45, 0.5, True), (4.45, 0.6, True), (5.65, 0.7, False),
                   (8.4, 0.55, True), (10.35, 0.6, False), (14.15, 0.45, True), (15.35, 0.55, False), (17.0, 0.6, True), (19.0, 0.7, False),
-                  (20.4, 0.8, False), (22.6, 0.7, True), (25.1, 0.7, True), (28.5, 0.8, False), (30.4, 0.8, True)]:
+                  (20.4, 0.8, False), (22.6, 0.7, True), (25.1, 0.7, True), (28.5, 0.8, False), (30.4, 0.8, True),
+                  (33.9, 0.8, False), (36.9, 0.6, True), (38.9, 0.7, False), (42.7, 0.5, True), (45.85, 0.6, True)]:
     place(sfx, whoosh(d, up), at, 0.5, 0)
 # reveal: soft riser into "That's the internet." and a warm hit + sparkle as the title lands
 L = int(0.6 * SR); tt = np.arange(L) / SR
@@ -155,6 +156,39 @@ for k, m in enumerate([72, 76, 79, 84]):
 for j in range(10):                           # packets tick through the router
     place(sfx, blip(1320, 0.05), 30.25 + j * 0.32, 0.08, -0.3)
     place(sfx, blip(1760, 0.05), 30.25 + j * 0.32 + 1.1, 0.08, 0.3)
+# ---------------- part 4: under the sea, the cut, this video, end card ----------------
+# final chord + fade under the end card
+L = int(3.0 * SR); tt = np.arange(L) / SR
+for k, m in enumerate([57, 64, 69, 72, 76]):
+    tone = sum(np.sin(2 * np.pi * midi(m) * (1 + d) * tt) for d in (-0.003, 0, 0.003)) / 3
+    place(bed, tone * np.minimum(1, tt / 0.4) * np.clip((3.0 - tt) / 1.2, 0, 1), 47.5, 0.05, (k - 2) * 0.35)
+L = int(11.5 * SR); tt = np.arange(L) / SR       # underwater ambience
+amb = lp(rng.standard_normal(L), 0.01) * 6 * (0.7 + 0.3 * np.sin(2 * np.pi * 0.3 * tt))
+place(sfx, amb * np.minimum(1, tt / 0.6) * np.clip((11.5 - tt) / 0.8, 0, 1), 34.3, 0.12)
+for k in range(10):                               # light zinging through the glass fibre
+    place(sfx, blip(2093 * (1 + 0.06 * (k % 4)), 0.12), 37.0 + k * 0.16, 0.05, (k % 2) * 0.6 - 0.3)
+for j in range(6):                                # cables light up
+    place(sfx, blip(midi(76 + j * 2), 0.3), 39.2 + j * 0.15, 0.05, (j - 2.5) * 0.3)
+L = int(1.2 * SR); tt = np.arange(L) / SR         # sonar ping
+place(sfx, np.sin(2 * np.pi * 1200 * tt) * env(L, 0.005, 1.1, 3), 39.6, 0.06)
+L = int(0.8 * SR); tt = np.arange(L) / SR         # anchor splash
+place(sfx, lp(rng.standard_normal(L), 0.25) * env(L, 0.005, 0.6, 4), 42.35, 0.5)
+for k in range(14):                               # chain rattle
+    place(sfx, hp(rng.standard_normal(int(0.03 * SR)), 0.5) * env(int(0.03 * SR), 0.001, 0.02, 3), 42.45 + k * 0.05, 0.25, -0.2)
+L = int(0.25 * SR); tt = np.arange(L) / SR         # the cut: crack + electric fizz
+place(sfx, hp(rng.standard_normal(L), 0.6) * env(L, 0.001, 0.15, 5), 43.55, 0.6)
+L = int(0.9 * SR); tt = np.arange(L) / SR
+place(sfx, np.sign(np.sin(2 * np.pi * 90 * tt)) * hp(rng.standard_normal(L), 0.4) * env(L, 0.01, 0.8, 3), 43.6, 0.12)
+for j in range(6):                                # hundreds of cables hum on
+    place(sfx, blip(midi(64 + j), 0.25), 44.0 + j * 0.08, 0.04)
+for j in range(6):                                # packets reroute
+    place(sfx, blip(1568, 0.06), 45.0 + j * 0.12, 0.07, 0.2)
+place(sfx, blip(midi(88), 0.6), 46.5, 0.1); place(sfx, blip(midi(93), 0.6), 46.62, 0.08)   # phone lights up
+L = int(1.2 * SR); tt = np.arange(L) / SR         # end card swell + Subscribe bell
+place(sfx, np.sin(2 * np.pi * (200 + 300 * tt / 1.2) * tt) * (tt / 1.2) ** 2 * np.clip((1.2 - tt) / 0.2, 0, 1), 47.0, 0.04)
+for k, m in enumerate([84, 91]):
+    L2 = int(1.4 * SR); t2 = np.arange(L2) / SR
+    place(sfx, (np.sin(2 * np.pi * midi(m) * t2) + 0.4 * np.sin(2 * np.pi * midi(m) * 2.76 * t2)) * env(L2, 0.002, 1.2, 3), 48.6 + k * 0.12, 0.06)
 sf.write('bed.wav', bed.astype(np.float32), SR)
 sf.write('sfx.wav', sfx.astype(np.float32), SR)
 print('ok', DUR, 's')
