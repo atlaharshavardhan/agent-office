@@ -280,7 +280,7 @@ function makeBeam(from, to) {
   m.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), to.clone().sub(from).normalize());
   scene.add(m);
   const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xfff4d0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
-  glow.position.copy(from); glow.scale.setScalar(0.9); scene.add(glow);
+  glow.position.copy(from); glow.scale.setScalar(0.55); scene.add(glow);
   const spot = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xffe9b0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
   spot.position.copy(to); spot.scale.setScalar(1.0); scene.add(spot);
   const light = new THREE.PointLight(0xfff0c8, 0, 6, 1.5); light.position.copy(to).lerp(from, 0.06); scene.add(light);
@@ -311,7 +311,7 @@ for (let i = 0; i < 14; i++) {
   sp.scale.setScalar(0.7); scene.add(sp); pulses.push(sp);
 }
 // clips on the rails
-for (const p of [tieA, tieB]) { const c = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 10), std(0x30303a, { metalness: .6 })); c.position.copy(p); scene.add(c); }
+const clips = [tieA, tieB].map(p => { const c = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 10), std(0x30303a, { metalness: .6 })); c.position.copy(p); scene.add(c); return c; });
 
 // stars
 {
@@ -339,7 +339,7 @@ const KEYS = [
   [2.3, mid.clone().add(new THREE.Vector3(0, -2.4, 0)), 25],
   [3.5, gHead.clone().add(new THREE.Vector3(-0.6, -1.4, -0.6)), 7.5],
   [3.9, gHead.clone().add(new THREE.Vector3(-0.6, -1.4, -0.6)), 7.5],
-  [5.0, gHead.clone().add(new THREE.Vector3(-0.6, -1.4, -0.6)), 7.0],
+  [5.0, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 22],
   [5.7, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 24],
   [8.6, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 23],
   [10.8, mid.clone().add(new THREE.Vector3(0, -3.0, 0)), 24],
@@ -354,7 +354,7 @@ function camAt(t) {
 }
 const titleEl = document.getElementById('title'), subEl = document.getElementById('sub'), titleIn = document.getElementById('titleIn'), subIn = document.getElementById('subIn');
 
-function renderAt(t) {
+function renderOld(t) {
   // camera: wide establishing, slow push toward the two balconies
   camAt(t);
   // girl blinks: 0.45-0.7, 0.85-1.1 ; boy answers 1.45-1.65, 1.8-2.0 ; then girl again (voice) 2.7-3.0, 3.25-3.55
@@ -396,7 +396,7 @@ function renderAt(t) {
 
   // ---- scene 4: the wire draws on, then pulses race along it ----
   const draw = t < 11.1 ? 0 : ease((t - 11.1) / 0.9);
-  wire.visible = wireCore.visible = draw > 0;
+  wire.visible = wireCore.visible = draw > 0; clips.forEach(c => c.visible = draw > 0);
   wire.geometry.setDrawRange(0, Math.floor(WIRE_IDX * draw / 3) * 3);
   wireCore.geometry.setDrawRange(0, Math.floor(CORE_IDX * draw / 3) * 3);
   const run = t > 12.0 ? Math.min(1, (t - 12.0) / 0.4) : 0;
@@ -410,6 +410,43 @@ function renderAt(t) {
   subIn.innerHTML = line || ''; subEl.style.opacity = line && !(t > 5.05 && t < 5.5) ? 1 : 0;
   titleIn.innerHTML = 'How does the <em>internet</em><br>reach you?';
   titleEl.style.opacity = t > 4.0 && t < 5.4 ? Math.min(ease((t - 4.0) / 0.3), ease((5.4 - t) / 0.3)) : 0;
+  composer.render();
+}
+// ================= HOOK (0 - 6.6 s), zoom angles; later scenes follow with a 1.2 s shift =================
+const HOOK_END = 6.6, SHIFT = 1.2;
+const bHead = wp(boy.userData.head);
+const HK = [
+  [0.0, mid.clone().add(new THREE.Vector3(0, -3.2, 0)), 30],
+  [0.55, mid.clone().add(new THREE.Vector3(0, -3.0, 0)), 27],
+  [1.05, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.6],
+  [1.75, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.2],
+  [2.2, bHead.clone().add(new THREE.Vector3(0.3, -1.1, 0.3)), 6.6],
+  [2.9, bHead.clone().add(new THREE.Vector3(0.3, -1.1, 0.3)), 6.3],
+  [3.35, mid.clone().add(new THREE.Vector3(0, -2.4, 0)), 22],
+  [3.45, mid.clone().add(new THREE.Vector3(0, -2.4, 0)), 22],
+  [4.0, fA.clone().add(new THREE.Vector3(0, -0.7, 0)), 4.6],
+  [4.75, fA.clone().add(new THREE.Vector3(0, -0.7, 0)), 4.2],
+  [5.35, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 23],
+  [6.6, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 22],
+];
+const VO = { h1: [3.4, 'This blinking <em>torch?</em>'], h2: [4.85, 'That’s the <em>internet.</em>'] };
+const HOOK_A = [[1.15, 1.35], [1.5, 1.7], [3.9, 4.1], [4.3, 4.5], [5.0, 6.35]];
+const HOOK_B = [[2.3, 2.5], [2.65, 2.85]];
+window.HOOK = { HOOK_A, HOOK_B, VO, HOOK_END };
+function renderAt(t) {
+  if (t >= HOOK_END) return renderOld(t - SHIFT);
+  let i = 0; while (i < HK.length - 2 && t > HK[i + 1][0]) i++;
+  const [t0, p0, w0] = HK[i], [t1, p1, w1] = HK[i + 1], k = ease((t - t0) / (t1 - t0));
+  setCam(p0.clone().lerp(p1, k), w0 + (w1 - w0) * k);
+  beamA.set(Math.max(...HOOK_A.map(([a, b]) => pulse(t, a, b))));
+  beamB.set(Math.max(...HOOK_B.map(([a, b]) => pulse(t, a, b))));
+  wire.visible = wireCore.visible = false; clips.forEach(c => c.visible = false); pulses.forEach(p => p.material.opacity = 0);
+  for (const id of ['card', 'zzz', 'bitf']) document.getElementById(id).style.opacity = 0;
+  boy.userData.head.rotation.z = 0;
+  const line = t >= VO.h2[0] ? VO.h2[1] : t >= VO.h1[0] ? VO.h1[1] : '';
+  subIn.innerHTML = line; subEl.style.opacity = line ? 1 : 0;
+  titleIn.innerHTML = 'How does the <em>internet</em><br>reach you?';
+  titleEl.style.opacity = t > 5.0 ? Math.min(ease((t - 5.0) / 0.3), ease((HOOK_END - t) / 0.3)) : 0;
   composer.render();
 }
 window.renderAt = renderAt;
