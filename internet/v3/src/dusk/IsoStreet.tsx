@@ -5,7 +5,7 @@ import { DUSK, Stick, StickPose } from './Dusk';
 
 /* Isometric night street of individual houses (2.5D: flat-shaded iso drawn in SVG).
    World: x runs along the street, y across it, z up. Far row at y<0, near row at y>0. */
-const S = 88, OX = 700, OY = 1010;
+const S = 64, OX = 650, OY = 1000;
 const iso = (x: number, y: number, z = 0) => [OX + (x - y) * 0.866 * S, OY + (x + y) * 0.5 * S - z * S] as const;
 const P = (pts: (readonly [number, number])[]) => pts.map((p) => p.join(',')).join(' ');
 const shade = (hex: string, k: number) => { const n = parseInt(hex.slice(1), 16); const c = (v: number) => Math.max(0, Math.min(255, Math.round(v * k))); return `rgb(${c(n >> 16)},${c((n >> 8) & 255)},${c(n & 255)})`; };
@@ -114,25 +114,33 @@ const Road: React.FC<{ y: number; x0: number; x1: number }> = ({ y, x0, x1 }) =>
 
 const C1 = ['#3a3f78', '#4a3f7a', '#34487a', '#51437c', '#3d4a82', '#4b3c70'];
 const FAR: H[] = [
+  { x0: -15.6, y0: -4.6, w: 2.4, d: 2.5, h: 2.0, c: C1[5], roof: 'gable', seed: 31 },
+  { x0: -12.5, y0: -4.6, w: 2.4, d: 2.5, h: 2.3, c: C1[3], roof: 'hip', seed: 32 },
   { x0: -9.4, y0: -4.6, w: 2.4, d: 2.5, h: 2.2, c: C1[2], roof: 'hip', seed: 21 },
   { x0: -6.3, y0: -4.6, w: 2.4, d: 2.5, h: 2.0, c: C1[0], roof: 'gable', seed: 1 },
   { x0: -3.3, y0: -4.7, w: 2.6, d: 2.6, h: 3.3, c: '#5a4d94', roof: 'flat', hero: 'girl', seed: 3 },
   { x0: 0.1, y0: -4.6, w: 2.4, d: 2.5, h: 2.3, c: C1[1], roof: 'hip', seed: 2 },
   { x0: 3.2, y0: -4.6, w: 2.4, d: 2.5, h: 2.0, c: C1[3], roof: 'gable', seed: 4 },
   { x0: 6.3, y0: -4.6, w: 2.4, d: 2.5, h: 2.3, c: C1[4], roof: 'hip', seed: 22 },
+  { x0: 9.4, y0: -4.6, w: 2.4, d: 2.5, h: 2.0, c: C1[0], roof: 'gable', seed: 33 },
+  { x0: 12.5, y0: -4.6, w: 2.4, d: 2.5, h: 2.2, c: C1[2], roof: 'hip', seed: 34 },
 ];
 const NEAR: H[] = [
+  { x0: -15.6, y0: 2.1, w: 2.4, d: 2.5, h: 2.2, c: C1[2], roof: 'hip', seed: 35 },
+  { x0: -12.5, y0: 2.1, w: 2.4, d: 2.5, h: 2.0, c: C1[0], roof: 'gable', seed: 36 },
   { x0: -9.4, y0: 2.1, w: 2.4, d: 2.5, h: 2.0, c: C1[1], roof: 'gable', seed: 23 },
   { x0: -6.3, y0: 2.1, w: 2.4, d: 2.5, h: 2.1, c: C1[4], roof: 'hip', seed: 5 },
   { x0: -3.2, y0: 2.0, w: 2.6, d: 2.6, h: 2.5, c: '#3f5a8c', roof: 'flat', hero: 'boy', seed: 6 },
   { x0: 0.1, y0: 2.1, w: 2.4, d: 2.5, h: 1.9, c: C1[5], roof: 'gable', seed: 7 },
   { x0: 3.2, y0: 2.1, w: 2.4, d: 2.5, h: 2.2, c: C1[2], roof: 'hip', seed: 8 },
   { x0: 6.3, y0: 2.1, w: 2.4, d: 2.5, h: 2.0, c: C1[0], roof: 'gable', seed: 24 },
+  { x0: 9.4, y0: 2.1, w: 2.4, d: 2.5, h: 2.3, c: C1[3], roof: 'hip', seed: 37 },
+  { x0: 12.5, y0: 2.1, w: 2.4, d: 2.5, h: 2.0, c: C1[5], roof: 'gable', seed: 38 },
 ];
 
 export const IsoStreet: React.FC = () => {
   const f = useCurrentFrame(); const t = f / FPS;
-  const boyH = NEAR[2], girlH = FAR[2];
+  const boyH = NEAR.find((h) => h.hero === 'boy')!, girlH = FAR.find((h) => h.hero === 'girl')!;
   const [bx, by] = iso(boyH.x0 + 1.5, boyH.y0 + 0.8, boyH.h + 0.22), [gx, gy] = iso(girlH.x0 + 1.2, girlH.y0 + 1.9, girlH.h + 0.22);
   const SC = 0.46;
   const boy: StickPose = { blink: 0, smile: 0.9, look: 0.8, armR: [108, 118], armL: [-12, -8], holdTorch: true, torch: 1, tilt: -4 };
@@ -141,7 +149,7 @@ export const IsoStreet: React.FC = () => {
   const [ex, ey] = lm(16, -224, boy.armR[0], 62); const [wx, wy] = lm(ex, ey, boy.armR[1], 58); const tr = (90 - boy.armR[1]) * Math.PI / 180;
   const lens = { x: bx + (wx + Math.cos(tr) * 42) * SC, y: by + (wy + Math.sin(tr) * 42) * SC }, tgt = { x: gx - 4, y: gy - 170 * SC };
   const ang = Math.atan2(tgt.y - lens.y, tgt.x - lens.x) * 180 / Math.PI, len = Math.hypot(tgt.x - lens.x, tgt.y - lens.y);
-  const X0 = -16, X1 = 16, Y0 = -5.6, Y1 = 6.4;
+  const X0 = -24, X1 = 24, Y0 = -5.6, Y1 = 6.4;
   return (
     <AbsoluteFill style={{ backgroundColor: '#05081a' }}>
       <svg width={1080} height={1920}>
@@ -158,7 +166,7 @@ export const IsoStreet: React.FC = () => {
         {Array.from({ length: 280 }).map((_, i) => { const tw = 0.55 + 0.45 * Math.sin(f / 9 + i * 2.3); return <circle key={i} cx={hash(i) * 1080} cy={hash(i + 9) * 1920} r={hash(i + 3) * 1.6 + 0.4} fill={i % 7 ? '#fff' : '#ffe6c2'} opacity={(0.2 + 0.7 * hash(i + 5)) * tw * (hash(i + 9) < 0.45 ? 1 : 0.35)} />; })}
         <g transform="translate(900 190)"><circle r={120} fill="#cfd8ff" opacity={0.07} /><circle r={44} fill="#f3eedb" /><circle cx={17} cy={-11} r={41} fill="#050819" /></g>
         {/* ground: the neighbourhood continues past the frame */}
-        <polygon points={P([iso(X0, -13.4, 0), iso(X1, -13.4, 0), iso(X1, 18), iso(X0, 18)])} fill="#10183a" />
+        <polygon points={P([iso(X0, -26, 0), iso(X1, -26, 0), iso(X1, 26), iso(X0, 26)])} fill="#15263c" />
         {[[-13.4, -12.9], [-9.1, -6.1], [-4.7, -1.9], [1.9, 7.2], [9.9, 10.4], [14.2, 18]].map(([y0, y1], i) => <polygon key={i} points={P([iso(X0, y0), iso(X1, y0), iso(X1, y1), iso(X0, y1)])} fill={i % 2 ? '#15263c' : '#172a3e'} />)}
         <Road y={-11} x0={X0} x1={X1} /><Road y={0} x0={X0} x1={X1} /><Road y={12.3} x0={X0} x1={X1} />
         {/* zebra crossing + garden paths */}
@@ -166,7 +174,9 @@ export const IsoStreet: React.FC = () => {
         {FAR.map((b, i) => <polygon key={i} points={P([iso(b.x0 + b.w / 2 - 0.2, b.y0 + b.d), iso(b.x0 + b.w / 2 + 0.2, b.y0 + b.d), iso(b.x0 + b.w / 2 + 0.2, -1.9), iso(b.x0 + b.w / 2 - 0.2, -1.9)])} fill="#2a3166" />)}
         {/* top road traffic and the back row */}
         <CarIso x={((t * 2.0 + 6) % 34) - 17} y={-11.6} dir={1} c="#4a6fd0" />
-        {[-12.6, -9.4, -6.2, -3.0, 0.2, 3.4, 6.6, 9.8].map((x, i) => <HouseIso key={'bk' + i} b={{ x0: x, y0: -8.9, w: 2.4, d: 2.4, h: 1.9 + (i % 3) * 0.3, c: C1[i % 6], roof: i % 2 ? 'gable' : 'hip', seed: 40 + i }} f={f} />)}
+        {Array.from({ length: 12 }).map((_, i) => <HouseIso key={'bk2' + i} b={{ x0: -20 + i * 3.2, y0: -16.6, w: 2.4, d: 2.4, h: 1.9 + ((i + 1) % 3) * 0.3, c: C1[(i + 2) % 6], roof: i % 2 ? 'hip' : 'gable', seed: 100 + i }} f={f} />)}
+        {Array.from({ length: 12 }).map((_, i) => <TreeIso key={'tb' + i} x={-19 + i * 3.2} y={-13.6} s={0.7} />)}
+        {[-19, -15.8, -12.6, -9.4, -6.2, -3.0, 0.2, 3.4, 6.6, 9.8, 13].map((x, i) => <HouseIso key={'bk' + i} b={{ x0: x, y0: -8.9, w: 2.4, d: 2.4, h: 1.9 + (i % 3) * 0.3, c: C1[i % 6], roof: i % 2 ? 'gable' : 'hip', seed: 40 + i }} f={f} />)}
         {Array.from({ length: 14 }).map((_, i) => <TreeIso key={'t0' + i} x={-12 + i * 1.75 + hash(i) * 0.5} y={-5.7 - hash(i + 3) * 0.5} s={0.6 + hash(i + 7) * 0.35} />)}
         {/* far row with hedges along the footpath */}
         {FAR.map((b) => <HouseIso key={b.seed} b={b} f={f} />)}
@@ -188,12 +198,13 @@ export const IsoStreet: React.FC = () => {
         {(() => { const [px, py] = iso(-1.2, 6.1); return <g><ellipse cx={px} cy={py} rx={78} ry={34} fill="#1d3f6a" /><ellipse cx={px - 10} cy={py - 4} rx={50} ry={18} fill="#2b5a8f" opacity={0.7} /><ellipse cx={px + 14} cy={py - 8} rx={16} ry={5} fill="#cfe6ff" opacity={0.35} /></g>; })()}
         {Array.from({ length: 12 }).map((_, i) => { const x = -10 + i * 1.8 + hash(i + 20) * 0.6; if (x > -2.6 && x < 0.2) return null; return <TreeIso key={'t2' + i} x={x} y={5.7 + hash(i + 30) * 0.9} s={0.65 + hash(i + 40) * 0.4} />; })}
         <Box x0={1.3} y0={5.9} w={0.9} d={0.25} h={0.18} z={0.12} c="#5a4a3a" /><LampIso x={2.6} y={6.3} /><LampIso x={-6.0} y={6.3} />
-        {[-11, -7.8, -4.6, -1.4, 1.8, 5.0, 8.2].map((x, i) => <HouseIso key={'ft' + i} b={{ x0: x, y0: 7.4, w: 2.4, d: 2.4, h: 1.9 + (i % 2) * 0.3, c: C1[(i + 3) % 6], roof: i % 2 ? 'hip' : 'gable', seed: 60 + i }} f={f} />)}
+        {[-17.4, -14.2, -11, -7.8, -4.6, -1.4, 1.8, 5.0, 8.2, 11.4, 14.6].map((x, i) => <HouseIso key={'ft' + i} b={{ x0: x, y0: 7.4, w: 2.4, d: 2.4, h: 1.9 + (i % 2) * 0.3, c: C1[(i + 3) % 6], roof: i % 2 ? 'hip' : 'gable', seed: 60 + i }} f={f} />)}
         <LampIso x={-3.0} y={10.7} /><LampIso x={3.6} y={10.7} />
         <CarIso x={((t * 2.1 + 15) % 34) - 17} y={11.65} dir={1} c="#d8d8e6" />
         <CarIso x={-(((t * 1.7 + 12) % 34) - 17)} y={12.95} dir={-1} c="#c8553a" />
-        {Array.from({ length: 10 }).map((_, i) => <TreeIso key={'t3' + i} x={-12 + i * 2.1} y={14.6} s={0.8} />)}
-        {[-9.5, -6.3, -3.1, 0.1, 3.3].map((x, i) => <HouseIso key={'bt' + i} b={{ x0: x, y0: 15.4, w: 2.4, d: 2.4, h: 2.0, c: C1[(i + 1) % 6], roof: i % 2 ? 'gable' : 'hip', seed: 80 + i }} f={f} />)}
+        {Array.from({ length: 18 }).map((_, i) => <TreeIso key={'t3' + i} x={-18 + i * 2.1} y={14.6} s={0.8} />)}
+        {[-19.1, -15.9, -12.7, -9.5, -6.3, -3.1, 0.1, 3.3, 6.5, 9.7, 12.9, 16.1].map((x, i) => <HouseIso key={'bt' + i} b={{ x0: x, y0: 15.4, w: 2.4, d: 2.4, h: 2.0, c: C1[(i + 1) % 6], roof: i % 2 ? 'gable' : 'hip', seed: 80 + i }} f={f} />)}
+        {Array.from({ length: 12 }).map((_, i) => <HouseIso key={'bt2' + i} b={{ x0: -20 + i * 3.2, y0: 18.8, w: 2.4, d: 2.4, h: 2.0 + (i % 2) * 0.3, c: C1[(i + 4) % 6], roof: i % 2 ? 'gable' : 'hip', seed: 120 + i }} f={f} />)}
         {/* the torch beam across the street */}
         <g transform={`translate(${lens.x} ${lens.y}) rotate(${ang})`} style={{ mixBlendMode: 'screen' }}>
           <path d={`M 0 -3 L ${len} -26 L ${len} 26 L 0 3 Z`} fill="url(#iBeam)" opacity={0.7} filter="url(#iB2)" />
