@@ -5,7 +5,7 @@ import { DUSK, Stick, StickPose } from './Dusk';
 
 /* Isometric night street of individual houses (2.5D: flat-shaded iso drawn in SVG).
    World: x runs along the street, y across it, z up. Far row at y<0, near row at y>0. */
-const S = 66, OX = 560, OY = 1040;
+const S = 88, OX = 700, OY = 1010;
 const iso = (x: number, y: number, z = 0) => [OX + (x - y) * 0.866 * S, OY + (x + y) * 0.5 * S - z * S] as const;
 const P = (pts: (readonly [number, number])[]) => pts.map((p) => p.join(',')).join(' ');
 const shade = (hex: string, k: number) => { const n = parseInt(hex.slice(1), 16); const c = (v: number) => Math.max(0, Math.min(255, Math.round(v * k))); return `rgb(${c(n >> 16)},${c((n >> 8) & 255)},${c(n & 255)})`; };
@@ -116,8 +116,8 @@ const C1 = ['#3a3f78', '#4a3f7a', '#34487a', '#51437c', '#3d4a82', '#4b3c70'];
 const FAR: H[] = [
   { x0: -9.4, y0: -4.6, w: 2.4, d: 2.5, h: 2.2, c: C1[2], roof: 'hip', seed: 21 },
   { x0: -6.3, y0: -4.6, w: 2.4, d: 2.5, h: 2.0, c: C1[0], roof: 'gable', seed: 1 },
-  { x0: -3.2, y0: -4.6, w: 2.4, d: 2.5, h: 2.3, c: C1[1], roof: 'hip', seed: 2 },
-  { x0: -0.1, y0: -4.7, w: 2.6, d: 2.6, h: 3.3, c: '#5a4d94', roof: 'flat', hero: 'girl', seed: 3 },
+  { x0: -3.3, y0: -4.7, w: 2.6, d: 2.6, h: 3.3, c: '#5a4d94', roof: 'flat', hero: 'girl', seed: 3 },
+  { x0: 0.1, y0: -4.6, w: 2.4, d: 2.5, h: 2.3, c: C1[1], roof: 'hip', seed: 2 },
   { x0: 3.2, y0: -4.6, w: 2.4, d: 2.5, h: 2.0, c: C1[3], roof: 'gable', seed: 4 },
   { x0: 6.3, y0: -4.6, w: 2.4, d: 2.5, h: 2.3, c: C1[4], roof: 'hip', seed: 22 },
 ];
@@ -132,7 +132,7 @@ const NEAR: H[] = [
 
 export const IsoStreet: React.FC = () => {
   const f = useCurrentFrame(); const t = f / FPS;
-  const boyH = NEAR[2], girlH = FAR[3];
+  const boyH = NEAR[2], girlH = FAR[2];
   const [bx, by] = iso(boyH.x0 + 1.5, boyH.y0 + 0.8, boyH.h + 0.22), [gx, gy] = iso(girlH.x0 + 1.2, girlH.y0 + 1.9, girlH.h + 0.22);
   const SC = 0.46;
   const boy: StickPose = { blink: 0, smile: 0.9, look: 0.8, armR: [108, 118], armL: [-12, -8], holdTorch: true, torch: 1, tilt: -4 };
