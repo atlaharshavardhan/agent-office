@@ -1042,7 +1042,7 @@ window.GLOBE_READY = fetch('../node_modules/world-atlas/countries-110m.json').th
   g.fillStyle = '#2f6b4f'; g.strokeStyle = '#5fae84'; g.lineWidth = 1.5;
   const X = lon => (lon + 180) / 360 * Wd, Y = lat => (90 - lat) / 180 * Hd;
   for (const f of land.features) { const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
-    for (const poly of polys) { g.beginPath(); for (const ring of poly) { let px0 = null; ring.forEach(([lo, la], k) => { const x = X(lo), y = Y(la); (k && Math.abs(x - px0) < Wd / 2) ? g.lineTo(x, y) : g.moveTo(x, y); px0 = x; }); g.closePath(); } g.fill('evenodd'); g.stroke(); } }
+    for (const poly of polys) for (const off of [-Wd, 0, Wd]) { g.beginPath(); for (const ring of poly) { let lon0 = null, acc = 0; ring.forEach(([lo, la], k) => { if (k) { const d = lo - lon0; if (d > 180) acc -= 360; else if (d < -180) acc += 360; } lon0 = lo; const x = X(lo + acc) + off, y = Y(la); k ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); } g.fill('evenodd'); } }
   gTex.needsUpdate = true;
 }).catch(e => console.log('globe', e));
 
@@ -1085,12 +1085,12 @@ XS.position.copy(XS_P); XS.position.y += 0.25;
   XS.userData.labs = labs.map(([t, x, y]) => { const m = textPlane([t], { w: 1.25, h: 0.25, px: t.length > 18 ? 46 : 60 }); m.position.set(x, y, 0.6); XS.add(m); return m; }); }
 // inside one glass fibre (light by total internal reflection)
 const fibSet = new THREE.Group(); fibSet.position.copy(U0).add(V(0, -200, 0)); scene.add(fibSet); fibSet.visible = false;
-{ const L = 160; const tube = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, L, 48, 1, true).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x3a9ad8, emissive: 0x1a6aa8, emissiveIntensity: 1.1, transparent: true, opacity: .75, side: THREE.BackSide, roughness: .1 })); fibSet.add(tube);
+{ const L = 160; const tube = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, L, 48, 1, true).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x0d2a55, emissive: 0x0a2a5a, emissiveIntensity: .8, transparent: true, opacity: .9, side: THREE.BackSide, roughness: .2 })); fibSet.add(tube);
   const clad = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.6, L, 48, 1, true).rotateZ(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x06142a, side: THREE.BackSide })); fibSet.add(clad);
   const zz = []; for (let k = 0; k <= 40; k++) zz.push(V(-L / 2 + k * L / 40, (k % 2 ? 1 : -1) * 2.6, (k % 4 < 2 ? 0.6 : -0.6)));
   const zc = new THREE.CurvePath(); for (let k = 0; k < 40; k++) zc.add(new THREE.LineCurve3(zz[k], zz[k + 1]));
-  const zm = new THREE.Mesh(new THREE.TubeGeometry(zc, 800, 0.025, 6, false), new THREE.MeshBasicMaterial({ color: 0xfff2c4, transparent: true, opacity: .08, toneMapped: false })); fibSet.add(zm);
-  const ph = []; for (let k = 0; k < 10; k++) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xffe6a0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); sp.scale.setScalar(2.2); fibSet.add(sp); ph.push(sp); }
+  const zm = new THREE.Mesh(new THREE.TubeGeometry(zc, 800, 0.025, 6, false), new THREE.MeshBasicMaterial({ color: 0xffe6a0, transparent: true, opacity: .45, toneMapped: false })); fibSet.add(zm);
+  const ph = []; for (let k = 0; k < 10; k++) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xffe6a0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); sp.scale.setScalar(0.9); fibSet.add(sp); ph.push(sp); }
   const streak = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: 0xbfefff, size: 0.12, transparent: true, opacity: .8, blending: THREE.AdditiveBlending, depthWrite: false }));
   { const n = 1600, p = new Float32Array(n * 3); for (let i = 0; i < n; i++) { const a = rnd() * Math.PI * 2; p.set([(rnd() - .5) * L, Math.sin(a) * 2.9, Math.cos(a) * 2.9], i * 3); } streak.geometry.setAttribute('position', new THREE.BufferAttribute(p, 3)); fibSet.add(streak); }
   fibSet.userData = { zc, ph, L };
@@ -1130,7 +1130,9 @@ const phPk = []; for (let k = 0; k < 8; k++) { const m = new THREE.Mesh(new Roun
   phoneSet.add(m); phPk.push(m); }
 const phLight = new THREE.PointLight(0xffffff, 120, 50, 1.5); phLight.position.set(6, 6, 10); phoneSet.add(phLight); const phRim = new THREE.PointLight(0x4fc3f7, 90, 40, 1.5); phRim.position.set(-6, 4, -4); phoneSet.add(phRim);
 function drawPhone(k) {   // k: 0 = blank, 1 = video rebuilt, 2 = InvisiTech
-  const g = phG, w = 540, h = 1100; g.fillStyle = '#0b1230'; g.fillRect(0, 0, w, h);
+  const g = phG, w = 540, h = 1100; const bgG = g.createLinearGradient(0, 0, w, h); bgG.addColorStop(0, '#1b2a6b'); bgG.addColorStop(1, '#3a1650'); g.fillStyle = bgG; g.fillRect(0, 0, w, h);
+  if (k <= 0) { const n = Math.round(-k); g.fillStyle = '#fff'; g.font = '800 40px Sora'; g.fillText('Receiving', 40, 470); g.font = '600 30px Sora'; g.fillStyle = 'rgba(255,255,255,.8)'; g.fillText('cricket.mp4  \u00b7  ' + n + ' / 8 packets', 40, 520);
+    for (let i = 0; i < 8; i++) { g.fillStyle = i < n ? '#ffc94a' : 'rgba(255,255,255,.18)'; g.fillRect(40 + i * 58, 560, 48, 48); } }
   g.fillStyle = '#fff'; g.font = '700 26px Sora'; g.fillText('9:41', 40, 50);
   if (k > 0) { g.save(); g.globalAlpha = clamp01(k); g.translate(0, 330); const tmp = vidCanvas; g.drawImage(tmp, 0, 0, 540, 304); g.restore();
     g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(30, 650, 480, 8); g.fillStyle = '#e53935'; g.fillRect(30, 650, 480 * clamp01(k), 8);
@@ -1201,7 +1203,7 @@ const xsW = U0.clone().add(XS.position).add(V(2.6, 0, 0));
 shot(37.7, 38.25, [xsW.clone().add(V(6.5, 2.2, 6.5)), xsW.clone().add(V(6.0, 1.6, 5.2))], [xsW.clone().add(V(2.2, 0.9, 0)), xsW.clone().add(V(2.6, 0.8, 0))], [36, 34], { ap: 0.002 });
 // 38.25-39.25  inside one glass fibre with the light pulses, accelerating
 const F0 = fibSet.position;
-shot(38.25, 39.25, [F0.clone().add(V(-75, 0.3, 0)), F0.clone().add(V(20, -0.2, 0))], [F0.clone().add(V(-55, 0, 0)), F0.clone().add(V(60, 0, 0))], [60, 75], { ease: 'in' });
+shot(38.25, 39.25, [F0.clone().add(V(-75, 0.2, 1.9)), F0.clone().add(V(10, 0.2, 1.7))], [F0.clone().add(V(-60, 0, 0)), F0.clone().add(V(40, 0, 0))], [55, 66], { ease: 'in', ap: 0.0004 });
 // 39.3-42.5  out on the seabed: every cable lit, 99%
 shot(39.3, 42.5, [U0.clone().add(V(-30, 9, 22)), U0.clone().add(V(-12, 12, 26))], [U0.clone().add(V(-10, 2, 0)), U0.clone().add(V(2, 3, 0))], [40, 38]);
 // 42.6-44.3  low angle: the anchor comes down and drags into the cable
@@ -1329,7 +1331,7 @@ function renderSea(t) {
     phPk.forEach((m, k) => { const a = clamp01((t - 46.0 - k * 0.09) / 0.65), e = smoother(a);
       const from = V(-14 + (k % 4) * 1.2, 10 - Math.floor(k / 4) * 1.2, 10), to = V(-1.875 + (k % 4) * 1.25, 3.4 - Math.floor(k / 4) * 1.32 - 2.8, 0.45);
       m.position.copy(from.lerp(to, e)); m.rotation.set((1 - e) * 3, (1 - e) * 4, 0); m.visible = a > 0 && t < 46.95; });
-    drawPhone(t < 46.95 ? 0 : t < 47.3 ? 1 : 1 + clamp01((t - 47.3) / 0.25));
+    drawPhone(t < 46.95 ? -Math.min(8, Math.max(0, Math.floor((t - 46.25) / 0.09) + 1)) : t < 47.3 ? 1 : 1 + clamp01((t - 47.3) / 0.25));
     phLights.rotation.z = t * 0.02;
   }
   const card = document.getElementById('card'); card.style.opacity = 0;
