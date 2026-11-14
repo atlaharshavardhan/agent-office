@@ -13,7 +13,7 @@ export const DUSK = {
   teal: '#8fd3c8', lav: '#c9b8e8', cream: '#f0d3a8', peach: '#e8a98f',
 };
 
-const Tower: React.FC<{ x: number; y: number; w: number; h: number; c: string; stripes?: number; lit?: number; seed?: number }> = ({ x, y, w, h, c, stripes = 7, lit = 0.25, seed = 0 }) => (
+export const Tower: React.FC<{ x: number; y: number; w: number; h: number; c: string; stripes?: number; lit?: number; seed?: number }> = ({ x, y, w, h, c, stripes = 7, lit = 0.25, seed = 0 }) => (
   <g>
     <rect x={x} y={y} width={w} height={h} rx={w / 2} fill={c} />
     {Array.from({ length: stripes }).map((_, i) => {
@@ -22,7 +22,7 @@ const Tower: React.FC<{ x: number; y: number; w: number; h: number; c: string; s
     })}
   </g>
 );
-const Tree: React.FC<{ x: number; y: number; r: number; f: number; seed: number; dark?: boolean }> = ({ x, y, r, f, seed, dark }) => {
+export const Tree: React.FC<{ x: number; y: number; r: number; f: number; seed: number; dark?: boolean }> = ({ x, y, r, f, seed, dark }) => {
   const sway = Math.sin(f / FPS * 1.1 + seed) * 1.5;
   return (
     <g transform={`rotate(${sway} ${x} ${y})`}>
@@ -33,13 +33,13 @@ const Tree: React.FC<{ x: number; y: number; r: number; f: number; seed: number;
   );
 };
 /* the cloud-like bush trees in the foreground row */
-const Bush: React.FC<{ x: number; y: number; s: number }> = ({ x, y, s }) => (
+export const Bush: React.FC<{ x: number; y: number; s: number }> = ({ x, y, s }) => (
   <g transform={`translate(${x} ${y}) scale(${s})`}>
     <rect x={-4} y={-40} width={8} height={90} fill={DUSK.ink} opacity={0.8} />
     {[[-46, -40, 40], [0, -70, 50], [46, -40, 40], [-24, -16, 36], [24, -16, 36]].map(([cx, cy, r], i) => <circle key={i} cx={cx} cy={cy} r={r} fill={DUSK.treeDark} />)}
   </g>
 );
-const Lamp: React.FC<{ x: number; y: number; h: number; f: number; seed: number }> = ({ x, y, h, f, seed }) => {
+export const Lamp: React.FC<{ x: number; y: number; h: number; f: number; seed: number }> = ({ x, y, h, f, seed }) => {
   const flick = 0.92 + 0.08 * Math.sin(f / FPS * 7 + seed * 3);
   return (
     <g>
