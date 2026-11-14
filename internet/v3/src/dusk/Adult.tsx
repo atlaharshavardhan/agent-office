@@ -5,8 +5,8 @@ import type { StickPose } from './Dusk';
 /* College-age couple (original designs). Origin = feet centre, about 335 units tall, adult proportions:
    smaller head, longer legs, shaped clothes. Same pose interface as the earlier rigs. */
 const C = {
-  man: { skin: '#bd8762', skinSh: '#98643f', hair: '#1b1520', top: '#2f9c95', topSh: '#22756f', inner: '#f3e9d6', bottom: '#2b3a6b', shoe: '#f3f0ea', sole: '#2f9c95' },
-  woman: { skin: '#c9926f', skinSh: '#a3704f', hair: '#1b1520', top: '#b9a2ec', topSh: '#8f78cf', inner: '#f4e6cf', bottom: '#f4e6cf', shoe: '#e8a0b8', sole: '#c97a98' },
+  man: { skin: '#d6a481', skinSh: '#b47f5a', hair: '#1b1520', top: '#2f9c95', topSh: '#22756f', inner: '#f3e9d6', bottom: '#2b3a6b', shoe: '#f3f0ea', sole: '#2f9c95' },
+  woman: { skin: '#e0b08f', skinSh: '#bd8a69', hair: '#1b1520', top: '#b9a2ec', topSh: '#8f78cf', inner: '#f4e6cf', bottom: '#f4e6cf', shoe: '#e8a0b8', sole: '#c97a98' },
 };
 /* dress options for her: 1 short kurti + jeans, 2 top + long skirt, 3 long anarkali + dupatta, 0 the first lavender kurti */
 export const DRESS: Record<number, { top: string; topSh: string; bottom: string; shoe: string; sole: string; hem: number; hw: number; legW: number; dup: boolean; skirt?: string; skirtSh?: string }> = {
