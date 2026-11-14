@@ -5,7 +5,7 @@ A Short, 9:16, about 48 s. Voice am_michael (Kokoro, speed 1.12). Our own story,
 | # | Scene (what you see) | Narration |
 |---|---|---|
 | 0 | **Hook, no voice (0–2 s):** night, two apartment windows across a road. A boy on his balcony blinks a real handheld torch, *click-click*, across the road; the girl stands outside on her balcony opposite and smiles as the light reaches her. Short pause. | — |
-| 1 | Close on the blinking torch | This blinking torch? That's the internet. |
+| 1 | Close on the boy's torch → follow the beam to the girl → wide | Flash a torch at your friend across the street, and you've basically built the internet. |
 | 2 | Each blink turns into 1 / 0, eight digits stack into the letter "H" | On is one, off is zero. Eight blinks make one letter. |
 | 3 | "HELLO" spelled out slowly, counter: 40 blinks, a yawning clock | But "Hello" takes forty blinks. Too slow. |
 | 4 | A copper wire drawn between the windows, pulses racing: "1,000,000,000 / sec" | So we use a wire: a billion blinks a second. |

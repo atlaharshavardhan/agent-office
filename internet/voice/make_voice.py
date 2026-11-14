@@ -6,8 +6,8 @@ import soundfile as sf
 from kokoro_onnx import Kokoro
 M = Path(sys.argv[1]); OUT = Path(__file__).parent
 LINES = {
-    "h1": "This blinking torch?",
-    "h2": "That's the internet.",
+    "h1": "Flash a torch at your friend across the street,",
+    "h2": "and you've basically built the internet.",
 }
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
 L = {}

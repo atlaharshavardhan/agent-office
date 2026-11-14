@@ -430,7 +430,7 @@ function renderOld(t) {
   composer.render();
 }
 // ================= HOOK (0 - 6.6 s), zoom angles; later scenes follow with a 1.2 s shift =================
-const HOOK_END = 6.6, SHIFT = 1.2;
+const HOOK_END = 8.4, SHIFT = 3.0;
 const bHead = wp(boy.userData.head);
 const HK = [
   [0.0, mid.clone().add(new THREE.Vector3(0, -3.2, 0)), 30],
@@ -441,14 +441,16 @@ const HK = [
   [2.9, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.3],
   [3.35, mid.clone().add(new THREE.Vector3(0, -2.4, 0)), 22],
   [3.45, mid.clone().add(new THREE.Vector3(0, -2.4, 0)), 22],
-  [4.0, fB.clone().add(new THREE.Vector3(0, -0.7, 0)), 4.6],
-  [4.75, fB.clone().add(new THREE.Vector3(0, -0.7, 0)), 4.2],
-  [5.35, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 23],
-  [6.6, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 22],
+  [3.95, fB.clone().add(new THREE.Vector3(0, -0.7, 0)), 4.6],     // "Flash a torch"
+  [4.4, fB.clone().add(new THREE.Vector3(0, -0.7, 0)), 4.3],
+  [5.05, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.6],  // "at your friend across the street"
+  [5.65, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.3],
+  [6.4, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 24],     // "and you've basically built the internet"
+  [8.4, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 22],
 ];
-const VO = { h1: [3.4, 'This blinking <em>torch?</em>'], h2: [4.85, 'That’s the <em>internet.</em>'] };
+const VO = [[3.45, 'Flash a <em>torch</em>'], [4.3, 'at your <em>friend</em> across the street,'], [5.85, 'and you’ve basically built'], [6.95, 'the <em>internet.</em>']];
 const HOOK_A = [];
-const HOOK_B = [[1.15, 1.35], [1.5, 1.7], [2.05, 2.95], [3.9, 4.1], [4.3, 4.5], [5.0, 6.35]];
+const HOOK_B = [[1.15, 1.35], [1.5, 1.7], [2.05, 2.95], [3.7, 3.9], [4.05, 4.25], [4.45, 8.2]];
 window.HOOK = { HOOK_A, HOOK_B, VO, HOOK_END };
 function renderAt(t) {
   if (t >= HOOK_END) return renderOld(t - SHIFT);
@@ -460,10 +462,10 @@ function renderAt(t) {
   wire.visible = wireCore.visible = false; clips.forEach(c => c.visible = false); pulses.forEach(p => p.material.opacity = 0);
   for (const id of ['card', 'zzz', 'bitf']) document.getElementById(id).style.opacity = 0;
   boy.userData.head.rotation.z = 0;
-  const line = t >= VO.h2[0] ? VO.h2[1] : t >= VO.h1[0] ? VO.h1[1] : '';
+  let line = ''; for (const [a, txt] of VO) if (t >= a) line = txt;
   subIn.innerHTML = line; subEl.style.opacity = line ? 1 : 0;
   titleIn.innerHTML = 'How does the <em>internet</em><br>reach you?';
-  titleEl.style.opacity = t > 5.0 ? Math.min(ease((t - 5.0) / 0.3), ease((HOOK_END - t) / 0.3)) : 0;
+  titleEl.style.opacity = t > 7.1 ? Math.min(ease((t - 7.1) / 0.3), ease((HOOK_END - t) / 0.3)) : 0;
   composer.render();
 }
 window.renderAt = renderAt;
