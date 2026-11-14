@@ -18,7 +18,7 @@ export const DRESS: Record<number, { top: string; topSh: string; bottom: string;
 export const A_SHOULDER = { x: 34, y: -240 }, A_UPPER = 56, A_FORE = 50, A_TIP = 46;
 const limb = (x: number, y: number, a: number, l: number) => { const r = a * Math.PI / 180; return [x + Math.sin(r) * l, y + Math.cos(r) * l] as const; };
 
-export const Adult: React.FC<{ kind: 'man' | 'woman'; p: StickPose; id: string; dress?: number }> = ({ kind, p, id, dress = 1 }) => {
+export const Adult: React.FC<{ kind: 'man' | 'woman'; p: StickPose; id: string; dress?: number; gun?: boolean }> = ({ kind, p, id, dress = 1, gun }) => {
   const w = kind === 'woman'; const d = DRESS[dress]; const c = w ? { ...C.woman, top: d.top, topSh: d.topSh, bottom: d.bottom, shoe: d.shoe, sole: d.sole } : C.man; const sx = w ? 28 : 36, aw = w ? 15 : 19, fw = w ? 12 : 15;
   const [rex, rey] = limb(sx - 2, A_SHOULDER.y, p.armR[0], A_UPPER), [rwx, rwy] = limb(rex, rey, p.armR[1], A_FORE);
   const [lex, ley] = limb(-sx + 2, A_SHOULDER.y, p.armL[0], A_UPPER), [lwx, lwy] = limb(lex, ley, p.armL[1], A_FORE);
@@ -94,7 +94,15 @@ export const Adult: React.FC<{ kind: 'man' | 'woman'; p: StickPose; id: string; 
       {/* front arm + torch */}
       <line x1={sx - 2} y1={A_SHOULDER.y} x2={rex} y2={rey} stroke={c.top} strokeWidth={aw} strokeLinecap="round" />
       <line x1={rex} y1={rey} x2={rwx} y2={rwy} stroke={w ? c.skin : c.top} strokeWidth={fw} strokeLinecap="round" />
-      {p.holdTorch && (
+      {p.holdTorch && gun && (
+        <g transform={`translate(${rwx} ${rwy}) rotate(${90 - p.armR[1]}) scale(1.6)`}>
+          <rect x={-6} y={2} width={13} height={26} rx={4} fill="#2b2e3a" transform="rotate(12)" />
+          <rect x={-14} y={-12} width={46} height={22} rx={6} fill="#f28c38" /><rect x={-14} y={-12} width={46} height={7} rx={3} fill="#ffb469" />
+          <circle cx={2} cy={-16} r={11} fill="#3a3f52" /><circle cx={2} cy={-16} r={7} fill="none" stroke="#c9843a" strokeWidth={4} /><circle cx={2} cy={-16} r={2.5} fill="#d9d6cf" />
+          <rect x={30} y={-7} width={18} height={12} rx={2} fill="#3a3f52" /><rect x={44} y={-9} width={5} height={16} rx={2} fill="#d9d6cf" />
+        </g>
+      )}
+      {p.holdTorch && !gun && (
         <g transform={`translate(${rwx} ${rwy}) rotate(${90 - p.armR[1]})`}>
           <rect x={-10} y={-7} width={38} height={14} rx={5} fill="#2b2e3a" />{[0, 7, 14].map((x) => <rect key={x} x={-4 + x} y={-7} width={2.5} height={14} fill="#12141b" />)}
           <path d="M 26 -7 L 40 -12 L 44 -12 L 44 12 L 40 12 L 26 7 Z" fill="#c8553a" /><rect x={43} y={-13} width={4} height={26} rx={2} fill="#d9d6cf" />
