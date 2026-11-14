@@ -4,6 +4,7 @@ import { Prototype } from './Prototype';
 import { DuskTorch } from './dusk/Dusk';
 import { DuskHouses } from './dusk/Houses';
 import { NightHook } from './dusk/NightHook';
+import { IsoStreet } from './dusk/IsoStreet';
 
 export const Root: React.FC = () => (
   <>
@@ -11,5 +12,6 @@ export const Root: React.FC = () => (
     <Composition id="DuskTorch" component={DuskTorch} durationInFrames={150} fps={30} width={1080} height={1920} />
     <Composition id="DuskHouses" component={DuskHouses} durationInFrames={150} fps={30} width={1080} height={1920} />
     <Composition id="NightHook" component={NightHook} durationInFrames={468} fps={30} width={1080} height={1920} />
+    <Composition id="IsoStreet" component={IsoStreet} durationInFrames={150} fps={30} width={1080} height={1920} />
   </>
 );
