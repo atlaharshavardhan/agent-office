@@ -6,7 +6,7 @@ import { Adult, Heart, A_SHOULDER, A_UPPER, A_FORE, A_TIP } from './Adult';
 
 /* Isometric night street of individual houses (2.5D: flat-shaded iso drawn in SVG).
    World: x runs along the street, y across it, z up. Far row at y<0, near row at y>0. */
-const S = 84, OX = 570, OY = 1090;
+const S = 112, OX = 630, OY = 1180;
 const iso = (x: number, y: number, z = 0) => [OX + (x - y) * 0.866 * S, OY + (x + y) * 0.5 * S - z * S] as const;
 const P = (pts: (readonly [number, number])[]) => pts.map((p) => p.join(',')).join(' ');
 const shade = (hex: string, k: number) => { const n = parseInt(hex.slice(1), 16); const c = (v: number) => Math.max(0, Math.min(255, Math.round(v * k))); return `rgb(${c(n >> 16)},${c((n >> 8) & 255)},${c(n & 255)})`; };
@@ -142,7 +142,7 @@ export const IsoStreet: React.FC = () => {
   const boyH = NEAR.find((h) => h.hero === 'boy')!, girlH = FAR.find((h) => h.hero === 'girl')!;
   const BZ = 1.65, BXE = -0.7, BYC = boyH.y0 + 0.85, GYC = girlH.y0 + girlH.d - 0.85;   // balconies on the side wall, first floor, same height
   const [bx, by] = iso(BXE + 0.3, BYC, BZ), [gx, gy] = iso(BXE + 0.3, GYC, BZ);
-  const SC = 0.56;
+  const SC = 0.5;
   const boy: StickPose = { blink: 0, smile: 0.9, look: 0.8, armR: [98, 106], armL: [-12, -8], holdTorch: true, torch: 1, tilt: -4 };
   const girl: StickPose = { blink: 0, smile: 1, look: -0.8, armR: [150, 168 + Math.sin(t * 11) * 14], armL: [-10, -6], tilt: 4 };
   const lm = (x: number, y: number, a: number, l: number) => { const r = a * Math.PI / 180; return [x + Math.sin(r) * l, y + Math.cos(r) * l]; };
