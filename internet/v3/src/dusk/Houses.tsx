@@ -9,8 +9,9 @@ import { DUSK, Stick, StickPose, Tree, Bush, Lamp } from './Dusk';
 export const HC = ['#2c2f55', '#36325c', '#2a3458', '#3a3462', '#30365e', '#3b3057'];
 export const ROOF = ['#1c1d3a', '#211c3c', '#1a2040', '#251f42'];
 
-export const House: React.FC<{ x: number; y: number; w: number; h: number; c: string; roof: 'arch' | 'flat' | 'gable'; rc: string; seed: number; terrace?: boolean; door?: 'l' | 'c' | 'r' }> =
-  ({ x, y, w, h, c, roof, rc, seed, terrace = false, door = 'c' }) => {
+export const House: React.FC<{ x: number; y: number; w: number; h: number; c: string; roof: 'arch' | 'flat' | 'gable'; rc: string; seed: number; terrace?: boolean; door?: 'l' | 'c' | 'r'; dim?: number; lights?: string[] }> =
+  ({ x, y, w, h, c, roof, rc, seed, terrace = false, door = 'c', dim, lights }) => {
+    const k = dim ?? 1;
     const top = y - h; const floors = h > 300 ? 2 : 1; const fh = h / floors;
     const dx = door === 'l' ? x + w * 0.22 : door === 'r' ? x + w * 0.78 : x + w / 2;
     return (
@@ -29,7 +30,7 @@ export const House: React.FC<{ x: number; y: number; w: number; h: number; c: st
         {roof === 'flat' && <rect x={x - 8} y={top - 14} width={w + 16} height={8} rx={4} fill="#ffffff" opacity={0.18} />}
         {/* fairy lights along the roof line */}
         {Array.from({ length: Math.floor(w / 26) + 1 }).map((_, i) => { const u = i / Math.floor(w / 26); const lx = x - 6 + u * (w + 12); const ly = top + (roof === 'flat' ? -4 : 12) + Math.sin(u * Math.PI) * 18;
-          const col = ['#ffd38a', '#fff1d6', '#ffb0a0', '#ffe08a'][(i + seed) % 4]; const tw = 0.6 + 0.4 * Math.sin(seed * 3 + i * 1.7 + (globalThis as any).__f / 6);
+          const col = lights ? lights[i % lights.length] : ['#ffd38a', '#fff1d6', '#ffb0a0', '#ffe08a'][(i + seed) % 4]; const tw = (0.6 + 0.4 * Math.sin(seed * 3 + i * 1.7 + (globalThis as any).__f / 6)) * (k < 1 ? k * 0.8 : 1);
           return <g key={i}><circle cx={lx} cy={ly} r={13} fill={col} opacity={0.3 * tw} /><circle cx={lx} cy={ly} r={4.2} fill={col} opacity={0.6 + 0.4 * tw} /><circle cx={lx} cy={ly} r={1.8} fill="#fff" opacity={tw} /></g>; })}
         <path d={`M ${x - 6} ${top + (roof === 'flat' ? -4 : 12)} Q ${x + w / 2} ${top + (roof === 'flat' ? 32 : 48)} ${x + w + 6} ${top + (roof === 'flat' ? -4 : 12)}`} stroke="#0c0b18" strokeWidth={1.5} fill="none" opacity={0.6} />
         {/* floor band */}
@@ -38,14 +39,14 @@ export const House: React.FC<{ x: number; y: number; w: number; h: number; c: st
         {Array.from({ length: floors }).map((_, fl) => {
           const n = w > 260 ? 3 : 2; const yy = top + fl * fh + fh * 0.22;
           return Array.from({ length: n }).map((__, i) => {
-            const wx = x + w * (0.16 + i * (0.68 / (n - 1 || 1))) - 22; const lit = hash(seed * 17 + fl * 5 + i) < 0.55;
+            const wx = x + w * (0.16 + i * (0.68 / (n - 1 || 1))) - 22; const lit = hash(seed * 17 + fl * 5 + i) < (k < 1 ? 0.4 : 0.75);
             if (fl === floors - 1 && Math.abs(wx + 22 - dx) < 46) return null;
             return (
               <g key={`${fl}${i}`}>
-                <rect x={wx} y={yy} width={44} height={fh * 0.44} rx={22} fill={lit ? '#ffd38a' : '#1a1b33'} />
+                <rect x={wx} y={yy} width={44} height={fh * 0.44} rx={22} fill={lit ? (k < 1 ? '#8a7150' : '#ffd38a') : '#1a1b33'} />
                 {lit && <rect x={wx} y={yy} width={44} height={fh * 0.44} rx={22} fill="url(#winWarm)" />}
                 {lit && <rect x={wx + 20} y={yy} width={4} height={fh * 0.44} fill="#ffffff" opacity={0.25} />}
-                {lit && <ellipse cx={wx + 22} cy={yy + fh * 0.22} rx={70} ry={fh * 0.4} fill="url(#winHalo)" />}
+                {lit && <ellipse cx={wx + 22} cy={yy + fh * 0.22} rx={70} ry={fh * 0.4} fill="url(#winHalo)" opacity={k < 1 ? 0.25 : 1} />}
               </g>
             );
           });
@@ -54,7 +55,7 @@ export const House: React.FC<{ x: number; y: number; w: number; h: number; c: st
         <rect x={dx - 26} y={y - fh * 0.55} width={52} height={fh * 0.55} rx={26} fill="#171629" />
         <rect x={dx - 26} y={y - fh * 0.55} width={52} height={fh * 0.55} rx={26} fill="none" stroke="#ffffff" strokeOpacity={0.15} strokeWidth={3} />
         <circle cx={dx + 40} cy={y - fh * 0.52} r={7} fill={DUSK.lamp} />
-        <circle cx={dx + 40} cy={y - fh * 0.52} r={40} fill="url(#lampHalo)" opacity={0.7} />
+        <circle cx={dx + 40} cy={y - fh * 0.52} r={40} fill="url(#lampHalo)" opacity={0.7 * k} />
         <rect x={dx - 36} y={y - 6} width={72} height={10} rx={5} fill="#000" opacity={0.15} />
         {/* first-floor terrace with a railing */}
         {terrace && floors === 2 && (

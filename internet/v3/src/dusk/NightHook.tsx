@@ -12,14 +12,15 @@ const C = { x: 540, y: 960 };
 const STREET = 1250, GH = { x: 610, w: 300, h: 420 }, GT = STREET - 210;
 const BY = 1660, BX = 250, BS = 1.1, GX = GH.x + GH.w / 2 + 10, GS = 0.62;
 const BLINKS: [number, number][] = [[1.15, 1.45], [2.0, 2.95], [3.75, 8.2], [8.95, 9.5]];
+const TEAL = ['#7fe3d4', '#d6fff8', '#4fc9b8'], LAVL = ['#c9b8ff', '#f0e9ff', '#a58cf0'];
 const HBITS = [0, 1, 0, 0, 1, 0, 0, 0], BIT0 = 10.55, BITD = 0.14, FLY = 0.6;
 
 /* camera keys: target point (rest-screen coords), the depth of that target's layer, zoom on that layer */
 type Key = [number, number, number, number, number]; // t, px, py, depth, zoom
 const KEYS: Key[] = [
-  [0.0, 540, 1180, 1, 1.0], [0.55, 540, 1150, 1, 1.04],
-  [1.05, 300, 1420, 1, 2.1], [1.75, 300, 1430, 1, 2.2],                 // the boy
-  [2.25, GX, GT - 120 * GS, 0.5, 3.0], [2.9, GX, GT - 120 * GS, 0.5, 3.1],   // the girl (layer 0.5)
+  [0.0, 310, 1400, 1, 2.3], [0.95, 310, 1390, 1, 2.4],                  // open close on the boy raising the torch
+  [1.75, 540, 1180, 1, 1.0], [1.95, 540, 1180, 1, 1.0],                 // pull back: the street and the beam
+  [2.4, GX, GT - 120 * GS, 0.5, 3.0], [2.9, GX, GT - 120 * GS, 0.5, 3.1],   // the girl (layer 0.5)
   [3.35, 540, 1180, 1, 1.0], [3.45, 540, 1180, 1, 1.0],
   [4.0, 350, 1360, 1, 2.6], [4.4, 350, 1360, 1, 2.7],                   // the torch
   [5.05, GX, GT - 120 * GS, 0.5, 3.0], [5.65, GX, GT - 120 * GS, 0.5, 3.1],
@@ -51,7 +52,7 @@ export const NightHook: React.FC = () => {
   // ---------- torch state ----------
   let on = Math.max(...BLINKS.map(([a, b]) => pulse(f, a, b)));
   HBITS.forEach((b, i) => { if (b) on = Math.max(on, pulse(f, BIT0 + i * BITD, BIT0 + i * BITD + 0.1)); });
-  const raise = Math.min(1, prog(f, 0.6, 1.05, easeOut) + 0);
+  const raise = prog(f, 0.25, 0.85, easeOut);
   const notice = prog(f, 2.1, 2.4, easeOut), wave = prog(f, 4.6, 4.9) * (1 - prog(f, 6.2, 6.5));
   const sleepy = prog(f, 14.25, 14.6);
   const boy: StickPose = { blink: Math.max(0, 1 - Math.abs(t - 2.9) / 0.07, 1 - Math.abs(t - 7.4) / 0.07), smile: 0.4 + 0.5 * prog(f, 2.4, 2.8), look: 0.8, armR: [lerp(10, 112, raise), lerp(4, 122, raise)], armL: [-12, -8], holdTorch: true, torch: on, tilt: -4 * raise };
@@ -96,7 +97,7 @@ export const NightHook: React.FC = () => {
           <ellipse cx={540} cy={420} rx={700} ry={150} transform="rotate(-24 540 420)" fill="url(#milky)" />
           {Array.from({ length: 300 }).map((_, i) => { const tw = 0.55 + 0.45 * Math.sin(f / 9 + i * 2.3); return <circle key={i} cx={hash(i) * 1300 - 110} cy={hash(i + 9) * 1150 - 60} r={hash(i + 3) * 1.7 + 0.4} fill={i % 7 ? '#ffffff' : '#ffe6c2'} opacity={(0.25 + 0.7 * hash(i + 5)) * tw * (1 - hash(i + 9) * 0.5)} />; })}
           {[[180, 160], [420, 90], [700, 220], [960, 120], [300, 420], [620, 520]].map(([x, y], i) => <g key={i} opacity={0.8 + 0.2 * Math.sin(f / 7 + i)}><circle cx={x} cy={y} r={2.6} fill="#fff" /><path d={`M ${x - 10} ${y} L ${x + 10} ${y} M ${x} ${y - 10} L ${x} ${y + 10}`} stroke="#fff" strokeWidth={1} opacity={0.6} /></g>)}
-          <g transform="translate(850 300)"><circle r={130} fill="#cfd8ff" opacity={0.08} /><circle r={46} fill="#f3eedb" /><circle cx={18} cy={-12} r={43} fill="#070a1e" /></g>
+          <g transform="translate(960 540)"><circle r={130} fill="#cfd8ff" opacity={0.08} /><circle r={46} fill="#f3eedb" /><circle cx={18} cy={-12} r={43} fill="#070a1e" /></g>
           <g filter="url(#nB2)" opacity={0.25}>{[[200, 620, 300], [760, 740, 260], [460, 860, 340]].map(([x, y, w], i) => <ellipse key={i} cx={x + Math.sin(t * 0.2 + i) * 20} cy={y} rx={w} ry={16} fill="#6a6aa8" />)}</g>
         </g>
         {/* far neighbourhood */}
@@ -108,26 +109,27 @@ export const NightHook: React.FC = () => {
         {/* across the street */}
         <g transform={L5.s}>
           {[95, 325, 575, 945].map((x, i) => <Tree key={i} x={x} y={STREET - 20} r={34} f={f} seed={i} />)}
-          {back.map((b, i) => <House key={i} x={b.x} y={STREET} w={b.w} h={b.h} c={HC[i % HC.length]} roof={b.roof} rc={ROOF[i % ROOF.length]} seed={i + 1} terrace={b.terrace} door={i % 2 ? 'l' : 'c'} />)}
-          <House x={-400} y={STREET} w={220} h={280} c={HC[4]} roof="gable" rc={ROOF[1]} seed={7} />
-          <House x={1230} y={STREET} w={240} h={330} c={HC[5]} roof="flat" rc={ROOF[2]} seed={8} />
+          {back.map((b, i) => <House key={i} x={b.x} y={STREET} w={b.w} h={b.h} c={HC[i % HC.length]} roof={b.roof} rc={ROOF[i % ROOF.length]} seed={i + 1} terrace={b.terrace} door={i % 2 ? 'l' : 'c'} dim={b.terrace ? 1 : 0.45} lights={b.terrace ? LAVL : undefined} />)}
+          <rect x={GX - 44} y={GT - 170} width={88} height={170} rx={44} fill="#ffd9a0" /><ellipse cx={GX} cy={GT - 90} rx={130} ry={150} fill="url(#winHalo)" />
+          <House x={-400} y={STREET} w={220} h={280} c={HC[4]} roof="gable" rc={ROOF[1]} seed={7} dim={0.45} />
+          <House x={1230} y={STREET} w={240} h={330} c={HC[5]} roof="flat" rc={ROOF[2]} seed={8} dim={0.45} />
           {[[-130, 200], [120, 180], [350, 190], [980, 200]].map(([x, w], i) => <Fence key={i} x={x + 10} y={STREET} w={w - 20} />)}
           <g transform={`translate(${GX} ${GT}) scale(${-GS} ${GS})`}><Stick hair="pony" outfit="kurta" col={DUSK.lav} p={girl} id="g" /></g>
           <Railing x={GH.x + GH.w * 0.18} y={GT} w={GH.w * 0.64} s={0.75} />
-          {[240, 600, 1020].map((x, i) => <Lamp key={i} x={x} y={STREET + 30} h={230} f={f} seed={i} />)}
+          <g opacity={0.6}>{[40, 1040].map((x, i) => <Lamp key={i} x={x} y={STREET + 30} h={230} f={f} seed={i} />)}</g>
         </g>
         <g transform={L(0.75).s}>
           <rect x={-800} y={STREET + 10} width={2700} height={1600} fill="url(#hRoad)" />
           <rect x={-800} y={STREET + 10} width={2700} height={22} fill="#3a3868" />
           {Array.from({ length: 16 }).map((_, i) => <rect key={i} x={-560 + i * 150} y={STREET + 190} width={80} height={8} rx={4} fill="#8e8cc0" opacity={0.35} />)}
-          {[240, 600, 1020].map((x) => <ellipse key={x} cx={x} cy={STREET + 80} rx={150} ry={34} fill="url(#poolG)" />)}
+          {[40, 1040].map((x) => <ellipse key={x} cx={x} cy={STREET + 80} rx={150} ry={34} fill="url(#poolG)" opacity={0.6} />)}
         </g>
         {/* in front: the boy's roof terrace */}
         <g transform={L1.s}>
-          <House x={-300} y={2140} w={260} h={400} c="#2a3056" roof="arch" rc="#1a2040" seed={12} />
-          <House x={20} y={2100} w={460} h={440} c="#2f2c58" roof="flat" rc="#1c1d3a" seed={9} door="r" />
-          <House x={545} y={2150} w={240} h={380} c="#36325c" roof="gable" rc="#211c3c" seed={13} />
-          <House x={850} y={2130} w={270} h={400} c="#2a3056" roof="arch" rc="#1a2040" seed={11} door="l" />
+          <House x={-300} y={2140} w={260} h={400} c="#2a3056" roof="arch" rc="#1a2040" seed={12} dim={0.45} />
+          <House x={20} y={2100} w={460} h={440} c="#2f2c58" roof="flat" rc="#1c1d3a" seed={9} door="r" lights={TEAL} />
+          <House x={545} y={2150} w={240} h={380} c="#36325c" roof="gable" rc="#211c3c" seed={13} dim={0.45} />
+          <House x={850} y={2130} w={270} h={400} c="#2a3056" roof="arch" rc="#1a2040" seed={11} door="l" dim={0.45} />
           <Bush x={512} y={2020} s={0.9} /><Bush x={818} y={2020} s={0.9} /><Bush x={-10} y={2020} s={0.9} />
           <g transform={`translate(${BX} ${BY}) scale(${BS})`}><Stick hair="short" outfit="tee" col={DUSK.teal} p={boy} id="b" /></g>
           <Railing x={24} y={BY + 4} w={452} s={1.1} />
@@ -141,10 +143,17 @@ export const NightHook: React.FC = () => {
             <circle cx={len} cy={0} r={40} fill="#fff1d0" opacity={0.35 * on} filter="url(#nB2)" />
           </g>
         )}
-        {/* bits flying from the torch to her (10.55 - 12.4) */}
-        {HBITS.map((b, i) => { const u = (t - (BIT0 + i * BITD)) / FLY; if (u < 0 || u > 1 || t > 12.45) return null;
-          const x = lerp(lens.x, tgt.x, u), y = lerp(lens.y, tgt.y, u) - Math.sin(u * Math.PI) * 60;
-          return <text key={i} x={x} y={y} textAnchor="middle" style={{ font: `600 54px ${FONT.mono}` }} fill={b ? '#ffe08a' : '#9fb0ff'} opacity={Math.min(1, u * 8, (1 - u) * 6)}>{b}</text>; })}
+        {/* the binary rides in the beam: bright segment = on (1), dark gap = off (0) */}
+        {t > BIT0 - 0.05 && t < 12.45 && <line x1={lens.x} y1={lens.y} x2={tgt.x} y2={tgt.y} stroke="#6a72b8" strokeWidth={3} strokeDasharray="4 14" opacity={0.5} />}
+        {HBITS.map((b, i) => { const u = (t - (BIT0 + i * BITD)) / FLY; if (u < -0.05 || u > 1.05 || t > 12.45) return null;
+          const u0 = clamp01(u - 0.09), u1 = clamp01(u + 0.09), uc = clamp01(u);
+          const P = (k: number) => ({ x: lerp(lens.x, tgt.x, k), y: lerp(lens.y, tgt.y, k) }); const a0 = P(u0), a1 = P(u1), c = P(uc);
+          const nx = -(tgt.y - lens.y) / len, ny = (tgt.x - lens.x) / len; const w = lerp(26, 12, uc);
+          return <g key={i}>
+            {b ? <><line x1={a0.x} y1={a0.y} x2={a1.x} y2={a1.y} stroke="#ffe2a8" strokeWidth={w * 2.2} strokeLinecap="round" opacity={0.45} filter="url(#nB2)" /><line x1={a0.x} y1={a0.y} x2={a1.x} y2={a1.y} stroke="#fff6dc" strokeWidth={w} strokeLinecap="round" /></>
+               : <line x1={a0.x} y1={a0.y} x2={a1.x} y2={a1.y} stroke="#3a4080" strokeWidth={w} strokeLinecap="round" opacity={0.9} />}
+            <text x={c.x - nx * 52} y={c.y - ny * 52 + 16} textAnchor="middle" style={{ font: `600 ${lerp(60, 40, uc)}px ${FONT.mono}` }} fill={b ? '#ffe08a' : '#9fb0ff'}>{b}</text>
+          </g>; })}
         {/* H above her, then HELLO across the sky */}
         {t > BIT0 + 7 * BITD + FLY && t < 12.6 && <text x={girlHead.x} y={girlHead.y - 70} textAnchor="middle" style={{ font: `800 110px ${FONT.ui}` }} fill="#ffd38a" opacity={prog(f, BIT0 + 7 * BITD + FLY, BIT0 + 7 * BITD + FLY + 0.15)}>H</text>}
         {t > 12.45 && t < 14.3 && 'HELLO'.split('').map((ch, j) => { const a = prog(f, 12.5 + j * 0.2, 12.75 + j * 0.2, easeOut); return (
