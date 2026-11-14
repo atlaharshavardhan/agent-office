@@ -14,6 +14,12 @@ LINES = {
     "p4": "Too slow.",
     "p5": "So we use a wire.",
     "p6": "Now it's a billion blinks, every second.",
+    "p7": "Now the whole building wants in.",
+    "p8": "Every device connects to one box: the router.",
+    "p9": "Each phone gets a number, like a flat number.",
+    "p10": "That's its IP address.",
+    "p11": "Big videos get chopped into small packets,",
+    "p12": "each carrying that address.",
 }
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
 L = {}

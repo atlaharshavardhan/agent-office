@@ -318,7 +318,7 @@ beamB.lens = boy.userData.lensMat;
 // ---------- copper wire between the balconies ----------
 const tieA = balA.clone().multiplyScalar(1).add(new THREE.Vector3(0.9, 1.25, 0.78)).multiplyScalar(1);
 const tieB = balB.clone().add(new THREE.Vector3(0.78, 1.25, -0.9));
-const wireCurve = new THREE.QuadraticBezierCurve3(tieA, tieA.clone().lerp(tieB, 0.5).add(new THREE.Vector3(0, -3.2, 0)), tieB);
+const wireCurve = new THREE.LineCurve3(tieA, tieB);
 const wireGeo = new THREE.TubeGeometry(wireCurve, 160, 0.11, 12, false);
 const wire = new THREE.Mesh(wireGeo, new THREE.MeshPhysicalMaterial({ color: 0x9fc4ff, transparent: true, opacity: .28, roughness: .1, metalness: 0 })); wire.castShadow = true; scene.add(wire);
 const wireCore = new THREE.Mesh(new THREE.TubeGeometry(wireCurve, 160, 0.06, 8, false), new THREE.MeshStandardMaterial({ color: 0xb87333, emissive: 0xff9a40, emissiveIntensity: 0, metalness: .8, roughness: .3 }));
@@ -452,13 +452,11 @@ const HK = [
 ];
 const VO = [[3.45, 'Flash a <em>torch</em>'], [4.3, 'at your <em>friend</em> across the street,'], [5.85, 'and you’ve basically built'], [6.95, 'the <em>internet.</em>']];
 const HOOK_A = [];
-const HOOK_B = [[1.15, 1.35], [1.5, 1.7], [2.05, 2.95], [3.7, 3.9], [4.05, 4.25], [4.45, 8.2]];
+const HOOK_B = [[1.15, 1.45], [2.0, 2.95], [3.75, 8.2]];
 window.HOOK = { HOOK_A, HOOK_B, VO, HOOK_END };
 function renderAt(t) {
   if (t >= HOOK_END) return renderPart2(t);
-  let i = 0; while (i < HK.length - 2 && t > HK[i + 1][0]) i++;
-  const [t0, p0, w0] = HK[i], [t1, p1, w1] = HK[i + 1], k = ease((t - t0) / (t1 - t0));
-  setCam(p0.clone().lerp(p1, k), w0 + (w1 - w0) * k);
+  hideP3(); applyCam(t);
   beamA.set(0);
   beamB.set(Math.max(...HOOK_B.map(([a, b]) => pulse(t, a, b))));
   wire.visible = wireCore.visible = false; clips.forEach(c => c.visible = false); pulses.forEach(p => p.material.opacity = 0);
@@ -491,20 +489,18 @@ const K2 = [
   [17.6, wireStart.clone().add(new THREE.Vector3(0, -0.6, 0)), 9],      // ride along the wire
   [19.0, wireEnd.clone().add(new THREE.Vector3(0, -0.6, 0)), 9],
   [19.8, mid.clone().add(new THREE.Vector3(0, -2.8, 0)), 22],
+  [20.5, mid.clone().add(new THREE.Vector3(0, -2.8, 0)), 22],
 ];
 const VO2 = [[P2.p1, 'On is <em>one</em>. Off is <em>zero</em>.'], [P2.p2, 'Eight blinks make <em>one letter</em>.'], [P2.p3, 'But <em>“hello”</em> takes forty blinks.'],
   [P2.p4, 'Too <em>slow.</em>'], [P2.p5, 'So we use a <em>wire.</em>'], [P2.p6, 'Now it’s a <em>billion</em> blinks,'], [18.3, 'every <em>second.</em>']];
 window.P2 = P2;
 function renderPart2(t) {
-  let i = 0; while (i < K2.length - 2 && t > K2[i + 1][0]) i++;
-  const [t0, p0, w0] = K2[i], [t1, p1, w1] = K2[i + 1], k = ease((t - t0) / (t1 - t0));
-  setCam(p0.clone().lerp(p1, k), w0 + (w1 - w0) * k);
-  cam.updateMatrixWorld();
+  if (t >= P3.start) return renderPart3(t);
+  hideP3(); applyCam(t); cam.updateMatrixWorld();
   // ---- torch: "one" (on) then "zero" (off), then the 8 bits of H, then fast flicker for HELLO ----
   let beam = 0;
   beam = Math.max(beam, pulse(t, 8.95, 9.5));
   for (let b = 0; b < 8; b++) if (HBITS[b]) beam = Math.max(beam, pulse(t, BIT0 + b * BITD, BIT0 + b * BITD + 0.1));
-  if (t > P2.p3 && t < P2.p4 + 1.0) beam = Math.max(beam, Math.sin(t * 2 * Math.PI * 4.5) > 0.2 ? 1 : 0);
   beamA.set(0); beamB.set(beam);
   // big 1 / 0 beside the lens
   const bitf = document.getElementById('bitf');
@@ -557,6 +553,154 @@ function renderPart2(t) {
   let line = ''; for (const [a, txt] of VO2) if (t >= a) line = txt;
   subIn.innerHTML = line; subEl.style.opacity = line ? 1 : 0;
   titleEl.style.opacity = 0;
+  composer.render();
+}
+
+// ================= smooth camera over the whole timeline =================
+function rawCam(t) {
+  const K = t < HOOK_END ? HK : t < P3.start ? K2 : K3;
+  if (t <= K[0][0]) return [K[0][1].clone(), K[0][2]];
+  let i = 0; while (i < K.length - 2 && t > K[i + 1][0]) i++;
+  const [t0, p0, w0] = K[i], [t1, p1, w1] = K[i + 1], u = Math.min(1, Math.max(0, (t - t0) / (t1 - t0)));
+  const k = u * u * u * (u * (u * 6 - 15) + 10);           // smootherstep
+  return [p0.clone().lerp(p1, k), Math.exp(Math.log(w0) + (Math.log(w1) - Math.log(w0)) * k)];
+}
+function applyCam(t) {
+  // gaussian blur of the camera path in time: no sudden starts or stops
+  const R = 0.45, N = 24; let wsum = 0; const pos = new THREE.Vector3(); let lw = 0;
+  for (let j = -N; j <= N; j++) { const dt = j / N * R, w = Math.exp(-(dt * dt) / (2 * (R / 2.2) ** 2)); const [p, vw] = rawCam(Math.max(0, t + dt)); pos.addScaledVector(p, w); lw += Math.log(vw) * w; wsum += w; }
+  setCam(pos.multiplyScalar(1 / wsum), Math.exp(lw / wsum)); cam.updateMatrixWorld();
+}
+
+// ================= PART 3 (19.8 - 34.4 s): router -> IP address -> packets =================
+const P3 = { start: 19.8, p7: 19.9, p8: 21.95, p9: 25.1, p10: 27.9, p11: 29.65, p12: 32.35, end: 34.4 };
+window.P3 = P3;
+// router on a street cabinet at the front corner (glass x-ray shell, navy board, gold pads)
+const RPOS = new THREE.Vector3(4.6, 0, 4.6);
+const router = new THREE.Group(); router.position.copy(RPOS); scene.add(router);
+{
+  const cab = new THREE.Mesh(new RoundedBoxGeometry(1.6, 1.3, 1.2, 3, 0.1), std(0x2a3150, { metalness: .4, roughness: .5 })); cab.position.y = 0.65; cab.castShadow = true; router.add(cab);
+  const base = new THREE.Mesh(new RoundedBoxGeometry(2.3, 0.18, 1.6, 2, 0.06), std(0x1b2550, { metalness: .3, roughness: .4 })); base.position.y = 1.42; router.add(base);
+  const board = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.05, 1.3), std(0x16224a, { roughness: .5 })); board.position.y = 1.56; router.add(board);
+  const chip = new THREE.Mesh(new RoundedBoxGeometry(0.5, 0.08, 0.5, 2, 0.02), std(0x0c0c10, { roughness: .2, metalness: .6 })); chip.position.set(-0.3, 1.62, 0); router.add(chip);
+  for (let a = 0; a < 6; a++) { const pad = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.02, 0.06), std(0xd4a640, { metalness: 1, roughness: .25 })); pad.position.set(0.35 + (a % 3) * 0.2, 1.6, -0.25 + Math.floor(a / 3) * 0.5); router.add(pad); }
+  const shell = new THREE.Mesh(new RoundedBoxGeometry(2.3, 0.55, 1.6, 4, 0.18), new THREE.MeshPhysicalMaterial({ color: 0xbfe0ff, transparent: true, opacity: .22, roughness: .05, metalness: 0 })); shell.position.y = 1.72; router.add(shell);
+  for (let a = 0; a < 5; a++) { const led = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8), new THREE.MeshStandardMaterial({ color: 0x2fd36b, emissive: 0x2fd36b, emissiveIntensity: 2.2 })); led.position.set(-0.6 + a * 0.3, 1.72, 0.81); router.add(led); }
+  for (const ax of [-0.85, 0, 0.85]) { const ant = new THREE.Mesh(new THREE.CapsuleGeometry(0.05, 1.1, 4, 10), std(0x1b2550, { roughness: .4 })); ant.position.set(ax, 2.55, -0.6); router.add(ant); }
+  router.traverse(o => { if (o.isMesh) o.castShadow = true; });
+}
+const RTOP = RPOS.clone().add(new THREE.Vector3(0, 1.75, 0));
+// window points on both blocks (girl = flat 7 on A, boy = flat 4 on B)
+const FLATS = [
+  { p: tieA.clone().add(new THREE.Vector3(0, -1.3, 0)), ip: 7, who: 'girl' }, { p: tieB.clone().add(new THREE.Vector3(0, -1.3, 0)), ip: 4, who: 'boy' },
+  { p: new THREE.Vector3(9.0, 1.75 + 3.2 * 0, -5.85), ip: 2 }, { p: new THREE.Vector3(12.3, 1.75 + 3.2 * 1, -5.85), ip: 3 },
+  { p: new THREE.Vector3(9.0, 1.75 + 3.2 * 3, -5.85), ip: 8 }, { p: new THREE.Vector3(-5.85, 1.75 + 3.2 * 0, 9.5), ip: 5 },
+  { p: new THREE.Vector3(-5.85, 1.75 + 3.2 * 3, 12.0), ip: 6 }, { p: new THREE.Vector3(-5.85, 1.75 + 3.2 * 1, 5.0), ip: 9 },
+];
+const cables = FLATS.map(f => {
+  const c = new THREE.LineCurve3(f.p, RTOP);
+  const m = new THREE.Mesh(new THREE.TubeGeometry(c, 40, 0.045, 8, false), new THREE.MeshStandardMaterial({ color: 0x1c1c22, emissive: 0xff9a40, emissiveIntensity: .25, metalness: .5, roughness: .4, transparent: true }));
+  m.visible = false; scene.add(m); return { m, n: m.geometry.index.count, c };
+});
+// overlays: device chips, IP tags, flat plate, packet labels
+const ov3 = document.createElement('div'); document.body.appendChild(ov3);
+const css3 = document.createElement('style'); css3.textContent = `
+ .dev, .ip, .plate, .pkl { position: fixed; z-index: 2; transform: translate(-50%,-100%); pointer-events: none; opacity: 0; white-space: nowrap; }
+ .dev { width: 6.4vw; height: 6.4vw; border-radius: 1.8vw; background: rgba(14,16,30,.85); border: 1px solid rgba(255,255,255,.25); display: grid; place-items: center; }
+ .dev svg { width: 4vw; height: 4vw; }
+ .ip { font: 700 2.6vw 'IBM Plex Mono', monospace; color: #fff; background: rgba(14,16,30,.88); border: 1px solid #2fd36b; padding: .8vw 2vw; border-radius: 2.4vw; }
+ .ip b { color: #2fd36b; }
+ .ip.big { font-size: 4.6vw; padding: 1.2vw 3vw; }
+ .plate { font: 800 4vw Sora, sans-serif; color: #10142a; background: linear-gradient(#f5f0e4, #d9d0bc); padding: .8vw 2.4vw; border-radius: 1.2vw; border: .5vw solid #8a7a5a; }
+ .pkl { font: 700 2.6vw 'IBM Plex Mono', monospace; color: #10142a; background: #ffc94a; padding: .3vw 1.2vw; border-radius: 1vw; }
+ #vcard { display: flex; gap: 3vw; align-items: center; } #vtile { position: relative; width: 26vw; height: 14.6vw; }
+ #vtile i { position: absolute; width: 25%; height: 50%; background: linear-gradient(135deg, #3fa9f5, #1b5fd1); border: 1px solid rgba(255,255,255,.35); box-sizing: border-box; }
+ #vtile .play { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 0; height: 0; border-left: 4vw solid #fff; border-top: 2.4vw solid transparent; border-bottom: 2.4vw solid transparent; }
+`; document.head.appendChild(css3);
+const phoneSvg = '<svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2.5" fill="none" stroke="#4fc3f7" stroke-width="2"/><circle cx="12" cy="18" r="1.2" fill="#4fc3f7"/></svg>';
+const lapSvg = '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="1.5" fill="none" stroke="#ffc94a" stroke-width="2"/><path d="M2 19h20" stroke="#ffc94a" stroke-width="2" stroke-linecap="round"/></svg>';
+const devEls = FLATS.map((f, j) => { const d = document.createElement('div'); d.className = 'dev'; d.innerHTML = j % 3 === 2 ? lapSvg : phoneSvg; ov3.appendChild(d); return d; });
+const ipEls = FLATS.map(f => { const d = document.createElement('div'); d.className = 'ip'; d.innerHTML = '192.168.1.<b>' + f.ip + '</b>'; ov3.appendChild(d); return d; });
+const plate = document.createElement('div'); plate.className = 'plate'; plate.textContent = 'FLAT 7'; ov3.appendChild(plate);
+const NPK = 10, PKD = 0.32;
+const pkts = []; for (let j = 0; j < NPK; j++) {
+  const m = new THREE.Mesh(new RoundedBoxGeometry(0.32, 0.32, 0.32, 2, 0.06), new THREE.MeshStandardMaterial({ color: 0xffc94a, emissive: 0xffa020, emissiveIntensity: 1.3, roughness: .3 }));
+  m.visible = false; scene.add(m); const l = document.createElement('div'); l.className = 'pkl'; l.textContent = '→ .7'; ov3.appendChild(l); pkts.push({ m, l });
+}
+const pkPath = (u) => u < 0.5 ? FLATS[1].p.clone().lerp(RTOP, u * 2) : RTOP.clone().lerp(FLATS[0].p, (u - 0.5) * 2);
+function hideP3() {
+  router.visible = false; cables.forEach(c => c.m.visible = false); pkts.forEach(p => { p.m.visible = false; p.l.style.opacity = 0; });
+  devEls.concat(ipEls, [plate]).forEach(d => d.style.opacity = 0);
+}
+const K3 = [
+  [19.8, mid.clone().add(new THREE.Vector3(0, -2.8, 0)), 22],
+  [21.2, new THREE.Vector3(2.4, 5.5, 0.6), 34],                       // whole building wants in
+  [22.3, new THREE.Vector3(2.4, 5.5, 0.6), 34],
+  [23.6, RPOS.clone().add(new THREE.Vector3(-0.6, 2.2, -0.6)), 10],   // the router
+  [24.9, RPOS.clone().add(new THREE.Vector3(-0.6, 2.2, -0.6)), 9.5],
+  [25.9, gHead.clone().add(new THREE.Vector3(-0.3, -0.9, -0.3)), 6.2], // flat number / IP
+  [28.4, gHead.clone().add(new THREE.Vector3(-0.3, -0.9, -0.3)), 6.0],
+  [29.4, new THREE.Vector3(2.0, 5.5, 1.0), 36],                       // all the IP tags
+  [30.2, new THREE.Vector3(2.0, 5.5, 1.0), 35],
+  [31.4, RPOS.clone().add(new THREE.Vector3(-2.5, 3.2, -2.5)), 12],   // packets ride through the router
+  [33.4, RPOS.clone().add(new THREE.Vector3(-2.5, 3.2, -2.5)), 11],
+  [34.4, RPOS.clone().add(new THREE.Vector3(-2.5, 3.2, -2.5)), 11],
+];
+const VO3 = [[P3.p7, 'Now the whole <em>building</em> wants in.'], [P3.p8, 'Every device connects to <em>one box</em>:'], [23.5, 'the <em>router.</em>'],
+  [P3.p9, 'Each phone gets a number, like a <em>flat number.</em>'], [P3.p10, 'That’s its <em>IP address.</em>'],
+  [P3.p11, 'Big videos get chopped into small <em>packets</em>,'], [P3.p12, 'each carrying <em>that address.</em>']];
+function renderPart3(t) {
+  applyCam(t);
+  beamA.set(0); beamB.set(0);
+  ['bitf', 'zzz', 'hletter'].forEach(id => document.getElementById(id).style.opacity = 0);
+  document.querySelectorAll('#bits .bit').forEach(d => d.style.opacity = 0);
+  girl.userData.head.rotation.z = 0;
+  // old direct wire fades away once the router arrives
+  const direct = t < P3.p8 + 0.6;
+  wire.visible = wireCore.visible = direct; clips.forEach(c => c.visible = direct);
+  wire.geometry.setDrawRange(0, WIRE_IDX); wireCore.geometry.setDrawRange(0, CORE_IDX);
+  pulses.forEach(sp => sp.material.opacity = direct ? 0.4 : 0);
+  // router pops up
+  const rk = Math.min(1, Math.max(0, (t - (P3.p8 + 0.3)) / 0.45));
+  router.visible = rk > 0; router.scale.setScalar(rk < 1 ? 0.3 + 0.7 * (1 - Math.pow(1 - rk, 3)) * (1 + 0.12 * Math.sin(rk * Math.PI)) : 1);
+  // cables draw from each flat to the router
+  cables.forEach((c, j) => { const k = Math.min(1, Math.max(0, (t - (P3.p8 + 0.9 + j * 0.12)) / 0.6)); c.m.visible = k > 0; c.m.geometry.setDrawRange(0, Math.floor(c.n * k / 3) * 3);
+    c.m.material.emissiveIntensity = 0.25 + (t > P3.p11 && (j < 2) ? 0.9 : 0);
+    const close = t > 25.4 && t < 28.9; c.m.material.opacity = close && j > 0 ? 0.15 : 1; });
+  // device chips pop over each flat
+  FLATS.forEach((f, j) => {
+    const [x, y] = toScreen(f.p.clone().add(new THREE.Vector3(0, 0.9, 0)));
+    const a = P3.p7 + 0.3 + j * 0.16, on = t > a && t < P3.p9;
+    const d = devEls[j]; d.style.left = x + 'vw'; d.style.top = y + 'vh'; d.style.opacity = on ? Math.min(1, (t - a) / 0.15) : 0;
+    d.style.transform = `translate(-50%,-100%) scale(${on ? Math.min(1, 0.6 + (t - a) * 3) : 1})`;
+    // IP tags
+    const ia = f.who === 'girl' ? P3.p10 + 0.1 : P3.p10 + 1.4 + j * 0.08;
+    const ipOn = t > ia && t < P3.p11 + 0.5 && !(f.who === 'girl' && false);
+    const e = ipEls[j]; e.classList.toggle('big', f.who === 'girl' && t < 29.2);
+    const [ix, iy] = toScreen(f.p.clone().add(new THREE.Vector3(0, f.who === 'girl' ? 1.6 : 0.9, 0)));
+    e.style.left = ix + 'vw'; e.style.top = iy + 'vh'; e.style.opacity = ipOn ? Math.min(1, (t - ia) / 0.15) : 0;
+  });
+  // flat number plate beside her door
+  const [px, py] = toScreen(tieA.clone().add(new THREE.Vector3(-1.9, 1.2, -0.8)));
+  plate.style.left = px + 'vw'; plate.style.top = py + 'vh'; plate.style.opacity = t > P3.p9 + 1.2 && t < 29.0 ? Math.min(1, (t - P3.p9 - 1.2) / 0.15) : 0;
+  // packets: boy -> router -> girl, each tagged with her address
+  pkts.forEach((pk, j) => {
+    const a = P3.p11 + 0.6 + j * PKD, u = (t - a) / 2.2;
+    const on = u > 0 && u < 1; pk.m.visible = on; pk.l.style.opacity = on && j % 2 === 0 ? Math.min(1, u * 10, (1 - u) * 10) : 0;
+    if (on) { const p = pkPath(u); pk.m.position.copy(p); pk.m.rotation.set(t * 2, t * 3, 0); const [x, y] = toScreen(p.clone().add(new THREE.Vector3(0, 0.45, 0))); pk.l.style.left = x + 'vw'; pk.l.style.top = y + 'vh'; }
+  });
+  // card: a video splits into packets
+  const card = document.getElementById('card');
+  if (t > P3.p11) {
+    const k = Math.min(1, Math.max(0, (t - (P3.p11 + 0.4)) / 0.7));
+    const tiles = []; for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) { const gx = (c - 1.5) * 1.6 * k, gy = (r - 0.5) * 1.6 * k;
+      tiles.push(`<i style="left:${c * 25}%;top:${r * 50}%;transform:translate(${gx}vw,${gy}vw);${k > 0.6 ? 'background:linear-gradient(135deg,#ffd76a,#f5a623)' : ''}"></i>`); }
+    card.innerHTML = `<div id="vcard"><div id="vtile">${tiles.join('')}${k < 0.3 ? '<div class="play"></div>' : ''}</div><div class="cap" style="text-align:left">video<br>→ ${k > 0.6 ? '<b style="color:#ffc94a">8 packets</b>' : '1 file'}</div></div>`;
+    card.style.opacity = ease((t - P3.p11) / 0.25);
+  } else if (t < P3.p7 + 0.3) { /* keep the billion card briefly */ card.style.opacity = Math.max(0, 1 - (t - P3.start) / 0.4); }
+  else card.style.opacity = 0;
+  let line = ''; for (const [a, txt] of VO3) if (t >= a) line = txt;
+  subIn.innerHTML = line; subEl.style.opacity = line ? 1 : 0; titleEl.style.opacity = 0;
   composer.render();
 }
 window.renderAt = renderAt;
