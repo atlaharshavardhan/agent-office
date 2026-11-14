@@ -6,8 +6,8 @@ import { DUSK, Stick, StickPose, Tree, Bush, Lamp } from './Dusk';
 /* A street of individual homes in the dusk style: a row of houses across the street (the girl's
    terrace), the boy's house in front. Soft rounded shapes, pill windows, flat-roof terraces with
    parapets and water tanks, arched roofs, little gates and hedges. */
-const HC = ['#b89cae', '#c4a6a8', '#a993b0', '#cdb0a2', '#b4a0bc', '#c9aeb6'];
-const ROOF = ['#7d6680', '#8a6d78', '#715f86', '#8f7068'];
+const HC = ['#2c2f55', '#36325c', '#2a3458', '#3a3462', '#30365e', '#3b3057'];
+const ROOF = ['#1c1d3a', '#211c3c', '#1a2040', '#251f42'];
 
 export const House: React.FC<{ x: number; y: number; w: number; h: number; c: string; roof: 'arch' | 'flat' | 'gable'; rc: string; seed: number; terrace?: boolean; door?: 'l' | 'c' | 'r' }> =
   ({ x, y, w, h, c, roof, rc, seed, terrace = false, door = 'c' }) => {
@@ -27,6 +27,11 @@ export const House: React.FC<{ x: number; y: number; w: number; h: number; c: st
         <rect x={x} y={top} width={w} height={h} rx={roof === 'flat' ? 14 : 8} fill={c} />
         {roof === 'flat' && <rect x={x - 8} y={top - 14} width={w + 16} height={22} rx={10} fill={c} />}
         {roof === 'flat' && <rect x={x - 8} y={top - 14} width={w + 16} height={8} rx={4} fill="#ffffff" opacity={0.18} />}
+        {/* fairy lights along the roof line */}
+        {Array.from({ length: Math.floor(w / 26) + 1 }).map((_, i) => { const u = i / Math.floor(w / 26); const lx = x - 6 + u * (w + 12); const ly = top + (roof === 'flat' ? -4 : 12) + Math.sin(u * Math.PI) * 18;
+          const col = ['#ffd38a', '#fff1d6', '#ffb0a0', '#ffe08a'][(i + seed) % 4]; const tw = 0.6 + 0.4 * Math.sin(seed * 3 + i * 1.7 + (globalThis as any).__f / 6);
+          return <g key={i}><circle cx={lx} cy={ly} r={13} fill={col} opacity={0.3 * tw} /><circle cx={lx} cy={ly} r={4.2} fill={col} opacity={0.6 + 0.4 * tw} /><circle cx={lx} cy={ly} r={1.8} fill="#fff" opacity={tw} /></g>; })}
+        <path d={`M ${x - 6} ${top + (roof === 'flat' ? -4 : 12)} Q ${x + w / 2} ${top + (roof === 'flat' ? 32 : 48)} ${x + w + 6} ${top + (roof === 'flat' ? -4 : 12)}`} stroke="#0c0b18" strokeWidth={1.5} fill="none" opacity={0.6} />
         {/* floor band */}
         {floors === 2 && <rect x={x - 6} y={top + fh - 6} width={w + 12} height={12} rx={6} fill="#000" opacity={0.1} />}
         {/* pill windows, warm when lit */}
@@ -37,15 +42,16 @@ export const House: React.FC<{ x: number; y: number; w: number; h: number; c: st
             if (fl === floors - 1 && Math.abs(wx + 22 - dx) < 46) return null;
             return (
               <g key={`${fl}${i}`}>
-                <rect x={wx} y={yy} width={44} height={fh * 0.44} rx={22} fill={lit ? DUSK.stripeLit : '#6e5c78'} />
+                <rect x={wx} y={yy} width={44} height={fh * 0.44} rx={22} fill={lit ? '#ffd38a' : '#1a1b33'} />
                 {lit && <rect x={wx} y={yy} width={44} height={fh * 0.44} rx={22} fill="url(#winWarm)" />}
                 {lit && <rect x={wx + 20} y={yy} width={4} height={fh * 0.44} fill="#ffffff" opacity={0.25} />}
+                {lit && <ellipse cx={wx + 22} cy={yy + fh * 0.22} rx={70} ry={fh * 0.4} fill="url(#winHalo)" />}
               </g>
             );
           });
         })}
         {/* arched door with a little lamp */}
-        <rect x={dx - 26} y={y - fh * 0.55} width={52} height={fh * 0.55} rx={26} fill="#5c4a62" />
+        <rect x={dx - 26} y={y - fh * 0.55} width={52} height={fh * 0.55} rx={26} fill="#171629" />
         <rect x={dx - 26} y={y - fh * 0.55} width={52} height={fh * 0.55} rx={26} fill="none" stroke="#ffffff" strokeOpacity={0.15} strokeWidth={3} />
         <circle cx={dx + 40} cy={y - fh * 0.52} r={7} fill={DUSK.lamp} />
         <circle cx={dx + 40} cy={y - fh * 0.52} r={40} fill="url(#lampHalo)" opacity={0.7} />
@@ -66,11 +72,11 @@ const Railing: React.FC<{ x: number; y: number; w: number; s?: number }> = ({ x,
   </g>
 );
 const Fence: React.FC<{ x: number; y: number; w: number }> = ({ x, y, w }) => (
-  <g opacity={0.8}>{Array.from({ length: Math.floor(w / 22) }).map((_, i) => <rect key={i} x={x + i * 22} y={y - 34} width={10} height={34} rx={5} fill="#e8d6dc" opacity={0.55} />)}<rect x={x} y={y - 22} width={w - 12} height={5} fill="#e8d6dc" opacity={0.5} /></g>
+  <g opacity={0.8}>{Array.from({ length: Math.floor(w / 22) }).map((_, i) => <rect key={i} x={x + i * 22} y={y - 34} width={10} height={34} rx={5} fill="#4a4a7a" opacity={0.7} />)}<rect x={x} y={y - 22} width={w - 12} height={5} fill="#4a4a7a" opacity={0.6} /></g>
 );
 
 export const DuskHouses: React.FC = () => {
-  const f = useCurrentFrame(); const t = f / FPS;
+  const f = useCurrentFrame(); const t = f / FPS; (globalThis as any).__f = f;
   const raise = keys(f, [[0.2, 0], [0.4, -0.1], [0.9, 1]], easeOut);
   const on = Math.max(pulse(f, 1.0, 1.25), pulse(f, 1.45, 1.7), pulse(f, 2.0, 9));
   const notice = prog(f, 1.3, 1.6, easeOut), wave = prog(f, 2.4, 2.7) * (1 - prog(f, 3.8, 4.1));
@@ -94,25 +100,30 @@ export const DuskHouses: React.FC = () => {
     <AbsoluteFill style={{ backgroundColor: DUSK.skyTop }}>
       <svg width={1080} height={1920}>
         <defs>
-          <linearGradient id="hSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={DUSK.skyTop} /><stop offset=".42" stopColor={DUSK.skyMid} /><stop offset=".62" stopColor={DUSK.skyLow} /><stop offset=".7" stopColor={DUSK.horizon} /></linearGradient>
-          <radialGradient id="hSun" cx="300" cy="930" r="560" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#fff6ea" stopOpacity=".95" /><stop offset=".1" stopColor="#ffe8d4" stopOpacity=".7" /><stop offset="1" stopColor="#ffd8c0" stopOpacity="0" /></radialGradient>
+          <linearGradient id="hSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#05081a" /><stop offset=".4" stopColor="#0d1433" /><stop offset=".6" stopColor="#1c2150" /><stop offset=".68" stopColor="#2e2a5c" /></linearGradient>
+          <radialGradient id="poolG"><stop offset="0" stopColor="#ffc46a" stopOpacity=".45" /><stop offset="1" stopColor="#ffc46a" stopOpacity="0" /></radialGradient>
+          <radialGradient id="winHalo"><stop offset="0" stopColor="#ffc46a" stopOpacity=".28" /><stop offset="1" stopColor="#ffc46a" stopOpacity="0" /></radialGradient>
+          <radialGradient id="milky" cx=".5" cy=".5" r=".5"><stop offset="0" stopColor="#8f9be0" stopOpacity=".22" /><stop offset="1" stopColor="#8f9be0" stopOpacity="0" /></radialGradient>
+          <radialGradient id="hSun" cx="540" cy="1250" r="620" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#ffb86a" stopOpacity=".22" /><stop offset=".5" stopColor="#6a4a9a" stopOpacity=".12" /><stop offset="1" stopColor="#2e2a5c" stopOpacity="0" /></radialGradient>
           <radialGradient id="lampHalo"><stop offset="0" stopColor="#fff3d6" stopOpacity=".7" /><stop offset="1" stopColor="#ffd9a0" stopOpacity="0" /></radialGradient>
           <linearGradient id="winWarm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff4dc" stopOpacity=".6" /><stop offset="1" stopColor="#ffb870" stopOpacity=".2" /></linearGradient>
-          <linearGradient id="hHaze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={DUSK.horizon} stopOpacity="0" /><stop offset="1" stopColor={DUSK.horizon} stopOpacity=".7" /></linearGradient>
+          <linearGradient id="hHaze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#3a3570" stopOpacity="0" /><stop offset="1" stopColor="#3a3570" stopOpacity=".5" /></linearGradient>
           <linearGradient id="hBeam" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#fffaea" stopOpacity=".95" /><stop offset="1" stopColor="#ffe2b0" stopOpacity=".1" /></linearGradient>
-          <linearGradient id="hRoad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#9a828e" /><stop offset="1" stopColor="#6f5d6a" /></linearGradient>
+          <linearGradient id="hRoad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#24224a" /><stop offset="1" stopColor="#13122b" /></linearGradient>
           <filter id="hB1"><feGaussianBlur stdDeviation="3" /></filter><filter id="hB2"><feGaussianBlur stdDeviation="10" /></filter><filter id="hB3"><feGaussianBlur stdDeviation="6" /></filter>
         </defs>
         <rect width={1080} height={1920} fill="url(#hSky)" />
         <rect width={1080} height={1920} fill="url(#hSun)" />
-        <g transform="translate(860 290)"><circle r={44} fill="#fbe7d6" opacity={0.9} /><circle cx={18} cy={-12} r={42} fill={DUSK.skyTop} opacity={0.88} /></g>
-        {Array.from({ length: 30 }).map((_, i) => <circle key={i} cx={hash(i) * 1080} cy={hash(i + 9) * 520} r={hash(i + 3) * 1.6 + 0.5} fill="#fff" opacity={0.4 * hash(i + 5)} />)}
-        <g filter="url(#hB2)" opacity={0.5}>{[[200, 520, 300], [760, 640, 260], [460, 760, 340]].map(([x, y, w], i) => <ellipse key={i} cx={x} cy={y} rx={w} ry={18} fill="#e9c3c0" />)}</g>
+        <ellipse cx={540} cy={420} rx={700} ry={150} transform="rotate(-24 540 420)" fill="url(#milky)" />
+        <g transform="translate(850 300)"><circle r={130} fill="#cfd8ff" opacity={0.08} /><circle r={46} fill="#f3eedb" /><circle cx={18} cy={-12} r={43} fill="#070a1e" /></g>
+        {Array.from({ length: 260 }).map((_, i) => { const tw = 0.55 + 0.45 * Math.sin(f / 9 + i * 2.3); return <circle key={i} cx={hash(i) * 1080} cy={hash(i + 9) * 1050} r={hash(i + 3) * 1.7 + 0.4} fill={i % 7 ? '#ffffff' : '#ffe6c2'} opacity={(0.25 + 0.7 * hash(i + 5)) * tw * (1 - hash(i + 9) * 0.5)} />; })}
+        {[[180, 160], [420, 90], [700, 220], [960, 120], [300, 420], [620, 520]].map(([x, y], i) => <g key={i} opacity={0.8 + 0.2 * Math.sin(f / 7 + i)}><circle cx={x} cy={y} r={2.6} fill="#fff" /><path d={`M ${x - 10} ${y} L ${x + 10} ${y} M ${x} ${y - 10} L ${x} ${y + 10}`} stroke="#fff" strokeWidth={1} opacity={0.6} /></g>)}
+        <g filter="url(#hB2)" opacity={0.25}>{[[200, 620, 300], [760, 740, 260], [460, 860, 340]].map(([x, y, w], i) => <ellipse key={i} cx={x} cy={y} rx={w} ry={16} fill="#6a6aa8" />)}</g>
         {/* far: soft hills with tiny houses and trees in the haze */}
         <g transform={P(0.15)} filter="url(#hB1)">
-          <path d="M -100 1060 Q 200 940 460 1010 Q 720 1080 920 960 Q 1060 900 1200 980 L 1200 1300 L -100 1300 Z" fill="#9f8399" opacity={0.75} />
-          {Array.from({ length: 16 }).map((_, i) => { const x = -40 + i * 75, y = 1030 + Math.sin(i * 1.3) * 40; return <g key={i}><rect x={x} y={y - 26} width={34} height={28} rx={6} fill="#8e7690" /><path d={`M ${x - 4} ${y - 24} L ${x + 17} ${y - 44} L ${x + 38} ${y - 24} Z`} fill="#82698a" />{hash(i) < 0.5 && <rect x={x + 12} y={y - 18} width={10} height={10} rx={3} fill={DUSK.stripeLit} opacity={0.8} />}</g>; })}
-          {Array.from({ length: 10 }).map((_, i) => <circle key={i} cx={20 + i * 115} cy={1060 + Math.cos(i) * 30} r={30} fill="#7d8a7e" opacity={0.7} />)}
+          <path d="M -100 1060 Q 200 940 460 1010 Q 720 1080 920 960 Q 1060 900 1200 980 L 1200 1300 L -100 1300 Z" fill="#151a3a" opacity={0.95} />
+          {Array.from({ length: 16 }).map((_, i) => { const x = -40 + i * 75, y = 1030 + Math.sin(i * 1.3) * 40; return <g key={i}><rect x={x} y={y - 26} width={34} height={28} rx={6} fill="#1d2248" /><path d={`M ${x - 4} ${y - 24} L ${x + 17} ${y - 44} L ${x + 38} ${y - 24} Z`} fill="#181c40" />{hash(i) < 0.7 && <><rect x={x + 12} y={y - 18} width={10} height={10} rx={3} fill="#ffd38a" /><circle cx={x + 17} cy={y - 13} r={14} fill="#ffc46a" opacity={0.18} /></>}</g>; })}
+          {Array.from({ length: 10 }).map((_, i) => <circle key={i} cx={20 + i * 115} cy={1060 + Math.cos(i) * 30} r={30} fill="#16243a" opacity={0.9} />)}
         </g>
         <rect width={1080} height={1920} fill="url(#hHaze)" opacity={0.75} />
         {/* across the street: a line of individual homes */}
@@ -128,14 +139,14 @@ export const DuskHouses: React.FC = () => {
         {/* the street */}
         <g transform={P(0.75)}>
           <rect x={-200} y={STREET + 10} width={1500} height={1000} fill="url(#hRoad)" />
-          <rect x={-200} y={STREET + 10} width={1500} height={22} fill="#b39aa6" />
-          {Array.from({ length: 9 }).map((_, i) => <rect key={i} x={-60 + i * 150} y={STREET + 190} width={80} height={8} rx={4} fill="#efe1e6" opacity={0.45} />)}
-          <ellipse cx={600} cy={STREET + 120} rx={240} ry={40} fill="#ffd9a0" opacity={0.12} />
+          <rect x={-200} y={STREET + 10} width={1500} height={22} fill="#3a3868" />
+          {Array.from({ length: 9 }).map((_, i) => <rect key={i} x={-60 + i * 150} y={STREET + 190} width={80} height={8} rx={4} fill="#8e8cc0" opacity={0.35} />)}
+          {[240, 600, 1020].map((x) => <ellipse key={x} cx={x} cy={STREET + 80} rx={150} ry={34} fill="url(#poolG)" style={{ mixBlendMode: 'screen' }} />)}
         </g>
         {/* in front: the boy on his roof terrace, a neighbour's house and hedges */}
         <g transform={P(1)}>
-          <House x={-40} y={2100} w={560} h={440} c="#c3a5b3" roof="flat" rc="#8a6d78" seed={9} door="r" />
-          <House x={640} y={2160} w={480} h={360} c="#b29abb" roof="arch" rc="#715f86" seed={11} door="l" />
+          <House x={-40} y={2100} w={560} h={440} c="#2f2c58" roof="flat" rc="#1c1d3a" seed={9} door="r" />
+          <House x={640} y={2160} w={480} h={360} c="#2a3056" roof="arch" rc="#1a2040" seed={11} door="l" />
           <Bush x={600} y={2010} s={1.3} />
           <g transform={`translate(${BX} ${BY}) scale(${BS})`}><Stick hair="short" outfit="tee" col={DUSK.teal} p={boy} id="b" /></g>
           <Railing x={-30} y={BY + 4} w={540} s={1.1} />
@@ -150,7 +161,7 @@ export const DuskHouses: React.FC = () => {
         </g>
         {/* out-of-focus foreground leaves for depth */}
         <g filter="url(#hB3)" opacity={0.9}>
-          {[[-30, 1880, 90], [60, 1820, 70], [1080, 1860, 100], [1010, 1800, 70]].map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} fill={DUSK.treeDark} />)}
+          {[[-30, 1880, 90], [60, 1820, 70], [1080, 1860, 100], [1010, 1800, 70]].map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} fill="#0f1a26" />)}
         </g>
       </svg>
     </AbsoluteFill>

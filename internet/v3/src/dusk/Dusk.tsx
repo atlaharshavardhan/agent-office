@@ -80,8 +80,9 @@ export const Stick: React.FC<{ hair: 'bun' | 'pony' | 'curly' | 'short'; outfit:
         {hair === 'bun' && <circle cx={-18} cy={-30} r={15} fill={DUSK.ink} />}
         {hair === 'pony' && <path d="M 22 -18 Q 54 -10 44 30 Q 38 46 30 34 Q 40 6 18 -6 Z" fill={DUSK.ink} />}
         {hair === 'curly' && [[-22, -24], [-6, -32], [12, -30], [26, -20], [-30, -8]].map(([cx, cy], i) => <circle key={i} cx={cx} cy={cy} r={13} fill={DUSK.ink} />)}
-        <circle cx={0} cy={0} r={34} fill={DUSK.ink} />
-        <path d="M 22 -24 A 34 34 0 0 1 30 18" stroke={DUSK.rim} strokeWidth={3} fill="none" opacity={0.85} />
+        <circle cx={0} cy={0} r={34} fill={DUSK.ink} stroke="#4a4a80" strokeWidth={2} />
+        <path d="M 18 -28 A 34 34 0 0 1 32 16" stroke={DUSK.rim} strokeWidth={4.5} fill="none" opacity={0.95} />
+        <path d="M -26 -22 A 34 34 0 0 0 -30 16" stroke="#9fb4ff" strokeWidth={2.5} fill="none" opacity={0.55} />
         {hair === 'short' && <path d="M -34 -4 Q -30 -40 4 -38 Q 30 -38 34 -10 Q 18 -26 -4 -22 Q -22 -22 -34 -4 Z" fill="#0a080e" />}
         {/* tiny white face */}
         <ellipse cx={-9 + p.look * 5} cy={-2} rx={5} ry={eyeH} fill="#fff" />
