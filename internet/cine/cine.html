@@ -1,0 +1,1360 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Internet cinematic</title>
+<style>
+  @font-face { font-family: Sora; font-weight: 700; src: url(../node_modules/@fontsource/sora/files/sora-latin-700-normal.woff2); }
+  @font-face { font-family: Sora; font-weight: 800; src: url(../node_modules/@fontsource/sora/files/sora-latin-800-normal.woff2); }
+  @font-face { font-family: Plex; font-weight: 600; src: url(../node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-600-normal.woff2); }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #070b1c; }
+  canvas { display: block; position: fixed; inset: 0; }
+  .ov { position: fixed; z-index: 3; pointer-events: none; }
+  /* Reel safe zones (1080x1920): title 220-450 px, subtitles 1250-1450 px, keep clear of x>940 below y 1100 */
+  #title { top: 12.2%; height: 11.2%; left: 5%; right: 5%; display: flex; align-items: center; justify-content: center; text-align: center;
+    color: #fff; font: 800 6.6vw/1.12 Sora, sans-serif; letter-spacing: -0.015em; text-shadow: 0 4px 24px rgba(0,0,0,.75); opacity: 0; }
+  #title em { font-style: normal; color: #ffc94a; }
+  #sub { top: 65.1%; height: 10.4%; left: 5%; right: 13%; display: flex; align-items: center; justify-content: center; text-align: center;
+    color: #fff; font: 700 6vw/1.15 Sora, sans-serif; text-shadow: 0 3px 18px rgba(0,0,0,.9); opacity: 0; }
+  #sub em { font-style: normal; color: #ffc94a; }
+  #wm { position: fixed; z-index: 3; right: 1.6%; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 1.2vw; opacity: .8; }
+  #wm img { width: 7vw; height: 7vw; border-radius: 50%; }
+  #wm span { writing-mode: vertical-rl; font: 600 2.6vw Plex, sans-serif; color: rgba(255,255,255,.85); letter-spacing: .04em; }
+  #card { position: fixed; z-index: 3; top: 12.4%; height: 10.6%; left: 9%; right: 9%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2vw;
+    border-radius: 4.5vw; background: linear-gradient(160deg, rgba(30,34,58,.88), rgba(14,16,30,.9)); border: 1px solid rgba(255,255,255,.16);
+    box-shadow: 0 20px 50px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08); color: #fff; opacity: 0; pointer-events: none; }
+  #card .row { display: flex; gap: 1.6vw; align-items: center; font: 800 6.4vw Sora, sans-serif; }
+  #card .row b { width: 6.2vw; height: 8.4vw; display: grid; place-items: center; border-radius: 1.6vw; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); color: rgba(255,255,255,.25); }
+  #card .row b.on { color: #ffc94a; border-color: rgba(255,201,74,.6); text-shadow: 0 0 14px rgba(255,190,60,.8); }
+  #card .row b.off { color: #8fa3d8; }
+  #card .row .eq { font-size: 7vw; color: #fff; margin-left: 1vw; } #card .row .eq em { font-style: normal; color: #ffc94a; }
+  #card .cap { font: 600 3.1vw Plex, sans-serif; color: rgba(255,255,255,.7); letter-spacing: .06em; text-transform: uppercase; }
+  #card .big { font: 800 8vw Sora, sans-serif; color: #ffc94a; text-shadow: 0 0 22px rgba(255,190,60,.6); letter-spacing: -0.01em; }
+  #card .word { display: flex; gap: 1.4vw; font: 800 6.6vw Sora, sans-serif; } #card .word span { opacity: .25; } #card .word span.on { opacity: 1; }
+  #zzz { position: fixed; z-index: 2; transform: translate(-50%,-100%); font: 800 4.6vw Sora, sans-serif; color: #cfe0ff; text-shadow: 0 0 12px rgba(120,160,255,.8); opacity: 0; white-space: nowrap; }
+  #bitf { position: fixed; z-index: 2; transform: translate(-50%,-50%); font: 800 7vw Sora, sans-serif; color: #ffe08a; text-shadow: 0 0 18px rgba(255,200,80,.9); opacity: 0; }
+  #bits .bit { position: fixed; z-index: 2; transform: translate(-50%,-50%); font: 800 5.4vw Sora, sans-serif; opacity: 0; }
+  #hletter { position: fixed; z-index: 2; transform: translate(-50%,-100%); font: 800 11vw Sora, sans-serif; color: #ffc94a; text-shadow: 0 0 26px rgba(255,190,60,.85); opacity: 0; }
+  #fade { position: fixed; inset: 0; z-index: 5; background: #050814; opacity: 0; pointer-events: none; }
+  #endcard { position: fixed; z-index: 4; left: 8%; right: 16%; top: 23.5%; height: 34.5%; border-radius: 5vw; overflow: hidden; border: 1px solid rgba(255,255,255,.22);
+    box-shadow: 0 30px 80px rgba(0,0,0,.6); opacity: 0; pointer-events: none; background: #0b1230; }
+  #ecScene { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #ecShade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,18,60,.25), rgba(10,18,60,.78) 55%, rgba(8,12,40,.92)); opacity: 0; }
+  #ecBrand { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; opacity: 0; }
+  #ecLogo { width: 17vw; height: 17vw; border-radius: 50%; box-shadow: 0 0 0 1.4vw rgba(74,168,255,.12), 0 0 50px rgba(74,168,255,.55); }
+  #ecName { margin-top: 2vw; font: 800 9vw/1 Sora, sans-serif; letter-spacing: -0.02em; } #ecName b { color: #4fc3f7; font-weight: 800; }
+  #ecHandle { margin-top: 1.4vw; font: 700 4.2vw Sora, sans-serif; color: rgba(255,255,255,.9); }
+  #ecIcons { display: flex; gap: 7vw; margin-top: 2.6vw; } #ecIcons div { display: flex; flex-direction: column; align-items: center; font: 600 3.2vw Plex, sans-serif; }
+  #ecIcons svg { width: 6.4vw; height: 6.4vw; margin-bottom: .6vw; }
+  #ecSub { margin-top: 2.6vw; padding: 1.8vw 7vw; border-radius: 6vw; background: #e53935; font: 700 4.4vw Sora, sans-serif; box-shadow: 0 0 30px rgba(229,57,53,.55); }
+  #ecPill { position: fixed; z-index: 4; left: 46%; top: 59.2%; transform: translateX(-50%); display: flex; white-space: nowrap; border-radius: 2.4vw; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.45); opacity: 0; font: 800 6.2vw/1 Sora, sans-serif; }
+  #ecPill .a { background: #f4f4f6; color: #10142a; padding: 2vw 1.6vw 2vw 3.2vw; } #ecPill .b { background: #ffc94a; color: #10142a; padding: 2vw 3.2vw 2vw 1.6vw; }
+  #note4 { position: fixed; z-index: 3; left: 0; right: 0; top: 24.2%; text-align: center; font: 600 2.4vw Plex, sans-serif; color: rgba(255,255,255,.55); opacity: 0; }
+  .city { position: fixed; z-index: 2; transform: translate(-50%,-100%); font: 800 3.4vw Sora, sans-serif; color: #fff; background: rgba(14,16,30,.85); border: 1px solid rgba(255,255,255,.25); padding: .8vw 2.2vw; border-radius: 2.4vw; opacity: 0; white-space: nowrap; }
+  .city small { display: block; font: 600 2.2vw Plex, sans-serif; color: rgba(255,255,255,.65); }
+  #zones { position: fixed; inset: 0; z-index: 9; pointer-events: none; display: none; }
+  .bit { position: fixed; z-index: 2; transform: translate(-50%,-50%); font: 800 5vw Sora, sans-serif; color: #ffe08a; text-shadow: 0 0 18px rgba(255,200,80,.9); opacity: 0; }
+</style>
+<div class="ov" id="title"><div id="titleIn"></div></div>
+<div class="ov" id="sub"><div id="subIn"></div></div>
+<div id="card"></div><div id="zzz">z Z z</div><div id="bitf">1</div><div id="bits"></div><div id="hletter">H</div>
+<div id="fade"></div>
+<div id="endcard"><canvas id="ecScene"></canvas><div id="ecShade"></div>
+  <div id="ecBrand"><img id="ecLogo" src="../../airpods-ear/assets/invisitech-logo.png" alt=""><div id="ecName"><span>Invisi</span><b>Tech</b></div><div id="ecHandle">@TheInvisiTech</div>
+  <div id="ecIcons"><div><svg viewBox="0 0 24 24"><path d="M2 10h4v11H2zM8 21h9.5a2 2 0 0 0 2-1.6l1.4-7A2 2 0 0 0 19 10h-5.5l.8-4.2A2 2 0 0 0 12.4 3.5L8 9z" fill="#4aa8ff"/></svg>Like</div>
+  <div><svg viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.3 1.1 4.4 2.9 6L4 21l4.3-2c1.1.4 2.4.6 3.7.6 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" fill="none" stroke="#f5a623" stroke-width="2"/></svg>Comment</div>
+  <div><svg viewBox="0 0 24 24"><circle cx="9" cy="7.5" r="4" fill="#4aa8ff"/><path d="M1.5 21c0-4.4 3.4-7.5 7.5-7.5s7.5 3.1 7.5 7.5z" fill="#4aa8ff"/><path d="M19 4v6M16 7h6" stroke="#4aa8ff" stroke-width="2" stroke-linecap="round"/></svg>Follow</div></div>
+  <div id="ecSub">Subscribe</div></div></div>
+<div id="ecPill"><span class="a">Light</span><span class="b">= internet.</span></div>
+<div id="note4">Illustrative · not to scale</div>
+<div id="wm"><img src="../../airpods-ear/assets/invisitech-logo.png" alt=""><span>@TheInvisiTech</span></div>
+<svg id="zones" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+  <rect x="0" y="0" width="1080" height="220" fill="rgba(255,0,0,.25)"/>
+  <rect x="0" y="220" width="1080" height="230" fill="none" stroke="#0ff" stroke-width="4"/>
+  <rect x="0" y="450" width="1080" height="1050" fill="none" stroke="#0f0" stroke-width="4"/>
+  <rect x="0" y="1250" width="1080" height="200" fill="none" stroke="#ff0" stroke-width="4"/>
+  <rect x="0" y="1500" width="1080" height="420" fill="rgba(255,0,0,.25)"/>
+  <rect x="940" y="1100" width="140" height="400" fill="rgba(255,0,0,.25)"/>
+</svg>
+<script src="../node_modules/topojson-client/dist/topojson-client.min.js"></script>
+<script type="importmap">{ "imports": { "three": "../node_modules/three/build/three.module.js", "three/addons/": "../node_modules/three/examples/jsm/" } }</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+
+const Q = new URLSearchParams(location.search);
+if (Q.get('zones') === '1') document.getElementById('zones').style.display = 'block';
+
+const W = innerWidth, H = innerHeight, ASPECT = W / H;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(devicePixelRatio); renderer.setSize(W, H);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.3;
+document.body.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+// night sky gradient
+{
+  const c = document.createElement('canvas'); c.width = 4; c.height = 512; const g = c.getContext('2d');
+  const gr = g.createLinearGradient(0, 0, 0, 512);
+  gr.addColorStop(0, '#060a1a'); gr.addColorStop(.55, '#0e1838'); gr.addColorStop(1, '#1c2350');
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 512);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; scene.background = t;
+}
+
+// ---------- camera: isometric orthographic ----------
+const cam = new THREE.PerspectiveCamera(30, ASPECT, 0.03, 4000);
+const ISO = new THREE.Vector3(1, 0.82, 1).normalize();
+function setCam(target, viewW) {
+  const d = (viewW / 2) / (Math.tan(THREE.MathUtils.degToRad(cam.fov) / 2) * ASPECT);
+  cam.position.copy(target).addScaledVector(ISO, d); cam.lookAt(target); cam.updateProjectionMatrix();
+}
+
+// ---------- lights ----------
+scene.add(new THREE.HemisphereLight(0x7f8fd0, 0x4a3530, 0.75));
+const moon = new THREE.DirectionalLight(0xaabbff, 0.7);
+moon.position.set(-30, 50, 20); moon.castShadow = true;
+moon.shadow.mapSize.set(2048, 2048); Object.assign(moon.shadow.camera, { left: -40, right: 40, top: 40, bottom: -40, near: 1, far: 150 });
+moon.shadow.bias = -0.0005; scene.add(moon);
+const fill = new THREE.DirectionalLight(0xffd8b0, 0.35); fill.position.set(40, 30, 40); scene.add(fill);
+
+// ---------- helpers ----------
+const std = (color, o = {}) => new THREE.MeshStandardMaterial({ color, roughness: .8, metalness: 0, ...o });
+function box(w, h, d, mat, x, y, z, r = 0.12) {
+  const m = new THREE.Mesh(r ? new RoundedBoxGeometry(w, h, d, 3, r) : new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; scene.add(m); return m;
+}
+
+// ---------- ground diorama tile ----------
+box(36, 1.6, 36, std(0x1b2238), 0, -0.8, 0, 0.6);           // base
+box(35.2, 0.12, 35.2, std(0x2a3150), 0, 0.02, 0, 0.05);       // pavement
+const roadMat = std(0x161a28, { roughness: .95 });
+box(35.2, 0.06, 7, roadMat, 0, 0.1, -1.5, 0);                 // road along x (in front of block A)
+box(7, 0.065, 35.2, roadMat, -1.5, 0.1, 0, 0);                // road along z (in front of block B)
+const dash = std(0xe8e4d0, { emissive: 0x555040, emissiveIntensity: .4 });
+for (let i = -16; i <= 16; i += 3) { if (Math.abs(i + 1.5) > 4) { box(1.4, 0.03, 0.18, dash, i, 0.15, -1.5, 0); box(0.18, 0.03, 1.4, dash, -1.5, 0.15, i, 0); } }
+// zebra crossing
+for (let k = 0; k < 6; k++) box(0.5, 0.03, 2.6, dash, 3.2 + k * 0.9, 0.15, -1.5, 0);
+
+// ---------- apartment block ----------
+const winLit = new THREE.MeshStandardMaterial({ color: 0x2a2010, emissive: 0xffb347, emissiveIntensity: 1.1, roughness: .4 });
+const winWarm = new THREE.MeshStandardMaterial({ color: 0x2a2010, emissive: 0xffd9a0, emissiveIntensity: .7, roughness: .4 });
+const winDark = new THREE.MeshStandardMaterial({ color: 0x1a2440, roughness: .25, metalness: .3 });
+const frameMat = std(0x30303a);
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+// facade faces +z (axis 'z') or +x (axis 'x')
+function block({ x0, x1, z0, z1, floors, color, axis, featured }) {
+  const fh = 3.2, h = floors * fh, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
+  const wallMat = std(color, { roughness: .85 });
+  box(x1 - x0, h, z1 - z0, wallMat, cx, h / 2, cz, 0.25);
+  box(x1 - x0 + 0.4, 0.5, z1 - z0 + 0.4, std(0xd8d2c4), cx, h + 0.25, cz, 0.12);   // parapet
+  // rooftop water tanks (Indian roofs) + dish
+  const tankMat = std(0x1c1c22, { roughness: .6 });
+  for (const [dx, dz] of [[-2, -2], [1.5, -2.5]]) {
+    const t = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 1.5, 24), tankMat);
+    t.position.set(cx + dx, h + 1.25, cz + dz); t.castShadow = true; scene.add(t);
+    const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.2, 16), tankMat); lid.position.set(cx + dx, h + 2.1, cz + dz); scene.add(lid);
+  }
+  const dish = new THREE.Mesh(new THREE.SphereGeometry(0.7, 20, 10, 0, Math.PI * 2, 0, 1.0), std(0xe6e6ea, { side: THREE.DoubleSide }));
+  dish.position.set(cx + 2.5, h + 1.0, cz + 1.5); dish.rotation.set(-0.9, 0.6, 0); scene.add(dish);
+  // floor bands + windows on the facade
+  const len = axis === 'z' ? x1 - x0 : z1 - z0, cols = Math.floor(len / 2.6);
+  const out = axis === 'z' ? z1 : x1;
+  const put = (m, along, y, off) => { if (axis === 'z') m.position.set(x0 + along, y, out + off); else { m.position.set(out + off, y, z1 - along); m.rotation.y = Math.PI / 2; } scene.add(m); return m; };
+  for (let f = 0; f < floors; f++) {
+    const band = new THREE.Mesh(new THREE.BoxGeometry(len, 0.22, 0.25), std(0xe9e3d5)); band.castShadow = true;
+    put(band, len / 2, f * fh + 0.11, 0.1);
+    for (let c = 0; c < cols; c++) {
+      const along = (c + 0.5) * len / cols, y = f * fh + 1.75;
+      if (featured && featured.floor === f && featured.col === c) continue;
+      const fr = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.7, 0.12), frameMat); put(fr, along, y, 0.04);
+      const r = rnd(); const pane = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.5, 0.08), r < .38 ? winLit : r < .58 ? winWarm : winDark);
+      put(pane, along, y, 0.1);
+      const sill = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.12, 0.35), std(0xe9e3d5)); put(sill, along, y - 0.9, 0.18);
+    }
+  }
+  // featured balcony with an open, lit door
+  if (featured) {
+    const along = (featured.col + 0.5) * len / cols, fy = featured.floor * fh;
+    const door = new THREE.Mesh(new THREE.BoxGeometry(1.7, 2.5, 0.08), new THREE.MeshStandardMaterial({ color: 0x2a2010, emissive: 0xffc070, emissiveIntensity: 1.25 }));
+    put(door, along, fy + 1.45, 0.06);
+    const slab = new THREE.Mesh(new RoundedBoxGeometry(3.2, 0.25, 1.6, 2, 0.06), std(0xe9e3d5)); slab.castShadow = slab.receiveShadow = true;
+    put(slab, along, fy + 0.15, 0.8);
+    const glass = new THREE.MeshPhysicalMaterial({ color: 0x9fd0ff, transparent: true, opacity: .22, roughness: .05, metalness: 0 });
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.0, 0.06), glass); put(rail, along, fy + 0.8, 1.58);
+    const top = new THREE.Mesh(new THREE.BoxGeometry(3.25, 0.08, 0.1), std(0xc9ccd6, { metalness: .8, roughness: .3 })); put(top, along, fy + 1.32, 1.58);
+    for (const s of [-1, 1]) { const side = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.0, 1.6), glass); put(side, along + s * 1.6, fy + 0.8, 0.8); }
+    const lamp = new THREE.PointLight(0xffb060, 3.5, 7, 1.6); put(lamp, along, fy + 2.2, 0.35);
+    // world position of balcony centre
+    return axis === 'z' ? new THREE.Vector3(x0 + along, fy + 0.27, out + 0.8) : new THREE.Vector3(out + 0.8, fy + 0.27, z1 - along);
+  }
+}
+
+const balA = block({ x0: 2.5, x1: 15.5, z0: -15, z1: -6, floors: 5, color: 0xe0895a, axis: 'z', featured: { floor: 2, col: 1 } });
+const balB = block({ x0: -15, x1: -6, z0: 2.5, z1: 15.5, floors: 5, color: 0x58a89c, axis: 'x', featured: { floor: 2, col: 3 } });
+// background block (behind, for depth)
+block({ x0: -15, x1: -6, z0: -15, z1: -6, floors: 6, color: 0x7a6a9a, axis: 'z' });
+
+// ---------- street props ----------
+function streetLamp(x, z, rotY) {
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.11, 5.2, 10), std(0x2c3040, { metalness: .6, roughness: .4 }));
+  pole.position.set(x, 2.6, z); pole.castShadow = true; scene.add(pole);
+  const arm = new THREE.Group(); arm.position.set(x, 5.1, z); arm.rotation.y = rotY; scene.add(arm);
+  const a = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.09, 0.09), pole.material); a.position.x = 0.6; arm.add(a);
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.12, 0.3), new THREE.MeshStandardMaterial({ color: 0xffe2a8, emissive: 0xffc46b, emissiveIntensity: 2 })); head.position.set(1.15, -0.06, 0); arm.add(head);
+  const l = new THREE.PointLight(0xffb45a, 45, 14, 1.6); l.position.set(1.15, -0.4, 0); arm.add(l);
+}
+streetLamp(7, 3.2, Math.PI);
+streetLamp(3.2, 9, Math.PI / 2);
+function tree(x, z, s = 1) {
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.14 * s, 0.2 * s, 1.6 * s, 8), std(0x4a3426)); trunk.position.set(x, 0.8 * s, z); trunk.castShadow = true; scene.add(trunk);
+  const leafMat = std(0x2f6b4a, { roughness: .9 });
+  for (const [dx, dy, dz, r] of [[0, 2.2, 0, 1.15], [0.6, 1.9, 0.3, .8], [-0.5, 2.0, -0.3, .85], [0.1, 2.8, -0.1, .75]]) {
+    const b = new THREE.Mesh(new THREE.IcosahedronGeometry(r * s, 1), leafMat); b.position.set(x + dx * s, dy * s, z + dz * s); b.castShadow = true; scene.add(b);
+  }
+}
+tree(12, 4); tree(5, 13, .9); tree(14, 13, 1.1); tree(-4.5, -11, .8);
+// parked scooter (simple)
+{
+  const g = new THREE.Group(); g.position.set(10, 0.15, 6.2); g.rotation.y = 0.4; scene.add(g);
+  const body = new THREE.Mesh(new RoundedBoxGeometry(1.5, 0.55, 0.5, 2, 0.18), std(0xe04848, { roughness: .4 })); body.position.y = 0.6; g.add(body);
+  for (const sx of [-0.6, 0.6]) { const w = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.09, 8, 18), std(0x111111)); w.position.set(sx, 0.3, 0); g.add(w); }
+  const seat = new THREE.Mesh(new RoundedBoxGeometry(0.7, 0.14, 0.42, 2, 0.06), std(0x1a1a1a)); seat.position.set(-0.2, 0.95, 0); g.add(seat);
+  g.traverse(o => o.castShadow = true);
+}
+
+// ---------- people ----------
+function person({ skin, top, bottom, hair, girl, torch: hasTorch = true }) {
+  const g = new THREE.Group();
+  const skinM = std(skin, { roughness: .55 }), topM = std(top, { roughness: .7 }), botM = std(bottom, { roughness: .8 }), hairM = std(hair, { roughness: .85, metalness: 0 });
+  const add = (geo, m, x, y, z, parent = g) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = true; parent.add(o); return o; };
+  // legs + shoes
+  for (const s of [-1, 1]) { add(new THREE.CapsuleGeometry(0.1, 0.5, 4, 10), botM, s * 0.12, 0.4, 0); add(new RoundedBoxGeometry(0.17, 0.1, 0.28, 2, 0.04), std(0xf2f2f2), s * 0.12, 0.06, 0.04); }
+  // torso: rounded, a bit tapered
+  const torso = add(new THREE.CapsuleGeometry(0.24, 0.36, 8, 18), topM, 0, 1.0, 0); torso.scale.set(1, 1, 0.78);
+  if (girl) { const kurta = add(new THREE.CylinderGeometry(0.25, 0.33, 0.42, 20), topM, 0, 0.7, 0); kurta.scale.z = 0.8; }
+  add(new THREE.CylinderGeometry(0.075, 0.085, 0.12, 12), skinM, 0, 1.36, 0);
+  // head: big, friendly proportions
+  const head = new THREE.Group(); head.position.set(0, 1.62, 0); g.add(head);
+  const skull = add(new THREE.SphereGeometry(0.27, 32, 24), skinM, 0, 0, 0, head); skull.scale.set(1, 1.06, 0.98);
+  for (const s of [-1, 1]) { add(new THREE.SphereGeometry(0.06, 12, 10), skinM, s * 0.27, -0.01, 0, head); }        // ears
+  // eyes: white + dark pupil + highlight
+  for (const s of [-1, 1]) {
+    const w = add(new THREE.SphereGeometry(0.052, 16, 12), std(0xd6d6d6, { roughness: .7 }), s * 0.095, 0.02, 0.235, head); w.scale.z = 0.5;
+    add(new THREE.SphereGeometry(0.033, 12, 10), std(0x1a1210, { roughness: .2 }), s * 0.095, 0.015, 0.258, head);
+    add(new THREE.SphereGeometry(0.01, 6, 6), new THREE.MeshBasicMaterial({ color: 0xbfbfbf }), s * 0.085, 0.03, 0.288, head);
+    const brow = add(new RoundedBoxGeometry(0.08, 0.018, 0.02, 1, 0.008), hairM, s * 0.095, 0.095, 0.25, head); brow.rotation.z = -s * 0.12;
+  }
+  add(new THREE.SphereGeometry(0.03, 10, 8), std(skin, { roughness: .5 }), 0, -0.05, 0.27, head);                      // nose
+  if (girl) {
+    const mouth = add(new THREE.CircleGeometry(0.07, 24, Math.PI, Math.PI), std(0x6a1c22, { roughness: .6 }), 0, -0.085, 0.262, head); mouth.rotation.x = -0.12;
+    const teeth = add(new THREE.PlaneGeometry(0.1, 0.022), std(0xffffff, { roughness: .4 }), 0, -0.095, 0.266, head); teeth.rotation.x = -0.12;
+  } else { const smile = add(new THREE.TorusGeometry(0.055, 0.012, 6, 16, Math.PI), std(0x5a2020), 0, -0.1, 0.25, head); smile.rotation.z = Math.PI; }
+  for (const s of [-1, 1]) { const c = add(new THREE.SphereGeometry(0.035, 10, 8), std(0xd8806a, { roughness: .6, transparent: true, opacity: .5 }), s * 0.16, -0.07, 0.22, head); c.scale.z = 0.4; }
+  // hair
+  const cap = add(new THREE.SphereGeometry(0.29, 32, 18, 0, Math.PI * 2, 0, 1.35), hairM, 0, 0.03, -0.03, head); cap.rotation.x = -0.42;
+  const fringe = add(new THREE.SphereGeometry(0.2, 20, 10, 0, Math.PI * 2, 0, 0.9), hairM, girl ? -0.05 : 0.04, 0.16, 0.12, head); fringe.rotation.x = 0.7; fringe.scale.set(1.25, 0.6, 1);
+  if (girl) {
+    add(new THREE.SphereGeometry(0.12, 16, 12), hairM, 0, 0.05, -0.3, head);
+    const braid = add(new THREE.CapsuleGeometry(0.075, 0.5, 4, 10), hairM, 0, -0.32, -0.3, head); braid.rotation.x = 0.15;
+    add(new THREE.SphereGeometry(0.035, 8, 6), std(0xff4f7b), 0, -0.62, -0.26, head);  // hair tie
+    for (const s of [-1, 1]) add(new THREE.SphereGeometry(0.022, 8, 6), std(0xffd36b, { metalness: .8, roughness: .2 }), s * 0.275, -0.08, 0.02, head); // earrings
+    add(new THREE.SphereGeometry(0.014, 8, 6), std(0xd02040), 0, 0.075, 0.27, head); // bindi
+  }
+  // left arm relaxed
+  const la = add(new THREE.CapsuleGeometry(0.07, 0.48, 4, 10), topM, -0.31, 0.98, 0); la.rotation.z = 0.15;
+  add(new THREE.SphereGeometry(0.075, 10, 8), skinM, -0.36, 0.68, 0);
+  // right arm raised forward holding a real handheld torch
+  const ra = new THREE.Group(); ra.position.set(0.28, 1.22, 0); g.add(ra);
+  const upper = new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 0.48, 4, 10), topM); upper.castShadow = true; ra.add(upper);
+  upper.position.set(0, 0, 0.24); upper.rotation.x = Math.PI / 2;
+  const hand = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 10), skinM); hand.position.set(0, 0, 0.55); ra.add(hand);
+  ra.rotation.x = -0.25; ra.rotation.y = 0.35; ra.rotation.order = 'YXZ';
+  if (!hasTorch) { ra.position.set(0.31, 1.25, 0); ra.rotation.set(1.48, 0, -0.15); g.userData = { ra, head, lensMat: null, flash: head }; g.scale.setScalar(1.15); return g; }
+  // the torch: knurled metal body, wider head, glass lens, rubber switch
+  const torch = new THREE.Group(); torch.position.set(0, 0.0, 0.55); ra.add(torch);
+  const metal = std(0x2a2d36, { metalness: .85, roughness: .32 });
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.42, 20), metal); body.rotation.x = Math.PI / 2; body.position.z = 0.05; torch.add(body);
+  for (let r = 0; r < 5; r++) { const ring = new THREE.Mesh(new THREE.TorusGeometry(0.057, 0.008, 6, 20), metal); ring.position.z = -0.1 + r * 0.04; torch.add(ring); }
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.058, 0.12, 24), std(0xc0392b, { metalness: .6, roughness: .35 })); neck.rotation.x = Math.PI / 2; neck.position.z = 0.32; torch.add(neck);
+  const tHead = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.07, 28), std(0xc0392b, { metalness: .6, roughness: .35 })); tHead.rotation.x = Math.PI / 2; tHead.position.z = 0.41; torch.add(tHead);
+  const bezel = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.012, 8, 28), std(0xd8dbe2, { metalness: .9, roughness: .2 })); bezel.position.z = 0.445; torch.add(bezel);
+  const lensMat = new THREE.MeshStandardMaterial({ color: 0xfff6dc, emissive: 0xfff0c0, emissiveIntensity: 0.15, roughness: .1 });
+  const lens = new THREE.Mesh(new THREE.CircleGeometry(0.088, 28), lensMat); lens.position.z = 0.447; torch.add(lens);
+  const sw = new THREE.Mesh(new RoundedBoxGeometry(0.04, 0.025, 0.07, 2, 0.01), std(0x111111, { roughness: .9 })); sw.position.set(0, 0.06, 0.12); torch.add(sw);
+  const tCap = new THREE.Mesh(new THREE.CylinderGeometry(0.058, 0.058, 0.03, 20), metal); tCap.rotation.x = Math.PI / 2; tCap.position.z = -0.17; torch.add(tCap);
+  torch.traverse(o => o.castShadow = true);
+  const flash = new THREE.Object3D(); flash.position.set(0, 0, 1.0); ra.add(flash);
+  g.userData = { flash, ra, head, lensMat };
+  g.scale.setScalar(1.15);
+  return g;
+}
+const girl = person({ skin: 0x9a6648, top: 0xff7a3d, bottom: 0x2b2f45, hair: 0x15100d, girl: true, torch: false });
+girl.position.copy(balA).add(new THREE.Vector3(0.3, 0, 0)); scene.add(girl);
+const boy = person({ skin: 0x8a5a3e, top: 0x2fb7a4, bottom: 0x2b2f45, hair: 0x15100d });
+boy.position.copy(balB).add(new THREE.Vector3(0, 0, -0.3)); scene.add(boy);
+scene.updateMatrixWorld(true);
+
+// aim each person + arm at the other
+function aim(p, other) {
+  const a = p.position, b = other.position;
+  p.rotation.y = Math.atan2(b.x - a.x, b.z - a.z);
+}
+aim(girl, boy); aim(boy, girl);
+girl.rotation.y = 0.6;
+{ const yawToGirl = boy.rotation.y; boy.rotation.y = 1.15; boy.userData.ra.rotation.y = yawToGirl - 1.15 - 0.05; } scene.updateMatrixWorld(true);
+
+// ---------- torch beams ----------
+const beamMat = () => new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+  uniforms: { uOn: { value: 0 }, uColor: { value: new THREE.Color(0xfff2c4) } },
+  vertexShader: 'varying float vY; varying vec3 vN; varying vec3 vV; void main(){ vY = uv.y; vec4 mv = modelViewMatrix*vec4(position,1.); vN = normalize(normalMatrix*normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }',
+  fragmentShader: 'uniform float uOn; uniform vec3 uColor; varying float vY; varying vec3 vN; varying vec3 vV; void main(){ float along = pow(vY, 1.6); float rim = pow(abs(dot(vN, vV)), 1.5); gl_FragColor = vec4(uColor * along * (0.25 + 0.75*rim) * 0.9 * uOn, 1.); }'
+});
+function makeBeam(from, to) {
+  const len = from.distanceTo(to);
+  const geo = new THREE.CylinderGeometry(0.03, 0.75, len, 40, 1, true); // top = narrow (uv.y=1 at top)
+  geo.translate(0, -len / 2, 0); // apex at origin, extends down -y
+  const m = new THREE.Mesh(geo, beamMat());
+  m.position.copy(from);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), to.clone().sub(from).normalize());
+  scene.add(m);
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xfff4d0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  glow.position.copy(from); glow.scale.setScalar(0.3); scene.add(glow);
+  const spot = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xffe9b0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  spot.position.copy(to); spot.scale.setScalar(0.7); scene.add(spot);
+  const light = new THREE.PointLight(0xfff0c8, 0, 6, 1.5); light.position.copy(to).lerp(from, 0.06); scene.add(light);
+  return { lens: null, set(v) { glow.scale.setScalar(Math.min(0.3, 0.06 + cam.position.distanceTo(from) * 0.05)); if (this.lens) this.lens.emissiveIntensity = 0.15 + 3.5 * v; m.material.uniforms.uOn.value = v; glow.material.opacity = v; spot.material.opacity = v * 0.35; light.intensity = v * 4; } };
+}
+let _gt; function glowTex() {
+  if (_gt) return _gt; const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  const r = g.createRadialGradient(64, 64, 0, 64, 64, 64); r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(.25, 'rgba(255,240,200,.6)'); r.addColorStop(1, 'rgba(255,220,150,0)');
+  g.fillStyle = r; g.fillRect(0, 0, 128, 128); return (_gt = new THREE.CanvasTexture(c));
+}
+const wp = o => o.getWorldPosition(new THREE.Vector3());
+const fA = wp(girl.userData.head).add(new THREE.Vector3(0, -0.62, 0)), fB = wp(boy.userData.flash);
+const beamA = makeBeam(fA, fB.clone().add(new THREE.Vector3(0, -0.15, 0)));
+const beamB = makeBeam(fB, fA.clone().add(new THREE.Vector3(0, -0.15, 0)));
+beamB.lens = boy.userData.lensMat;
+
+// ---------- copper wire between the balconies ----------
+const tieA = balA.clone().multiplyScalar(1).add(new THREE.Vector3(0.9, 1.25, 0.78)).multiplyScalar(1);
+const tieB = balB.clone().add(new THREE.Vector3(0.78, 1.25, -0.9));
+const wireCurve = new THREE.LineCurve3(tieA, tieB);
+const wireGeo = new THREE.TubeGeometry(wireCurve, 160, 0.11, 12, false);
+const wire = new THREE.Mesh(wireGeo, new THREE.MeshPhysicalMaterial({ color: 0x9fc4ff, transparent: true, opacity: .28, roughness: .1, metalness: 0 })); wire.castShadow = true; scene.add(wire);
+const wireCore = new THREE.Mesh(new THREE.TubeGeometry(wireCurve, 160, 0.06, 8, false), new THREE.MeshStandardMaterial({ color: 0xb87333, emissive: 0xff9a40, emissiveIntensity: 0, metalness: .8, roughness: .3 }));
+scene.add(wireCore);
+const WIRE_IDX = wireGeo.index.count, CORE_IDX = wireCore.geometry.index.count;
+const pulses = [];
+for (let i = 0; i < 14; i++) {
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xffd27a, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  sp.scale.setScalar(0.7); scene.add(sp); pulses.push(sp);
+}
+// clips on the rails
+const clips = [tieA, tieB].map(p => { const c = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 10), std(0x30303a, { metalness: .6 })); c.position.copy(p); scene.add(c); return c; });
+
+// stars
+{
+  const n = 260, p = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { const a = rnd() * Math.PI * 2, r = 70 + rnd() * 30; p.set([Math.cos(a) * r - 40, 30 + rnd() * 60, Math.sin(a) * r - 40], i * 3); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(p, 3));
+  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xcfd8ff, size: 2, sizeAttenuation: false, transparent: true, opacity: .7 })));
+}
+
+// ---------- post ----------
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, cam));
+const bokeh = new BokehPass(scene, cam, { focus: 10, aperture: 0.0015, maxblur: 0.006 }); composer.addPass(bokeh);
+const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.5, 0.45, 0.88); composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+// ---------- timeline ----------
+const ease = x => x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x);
+const pulse = (t, on, off) => (t >= on && t < off) ? Math.min(1, (t - on) / 0.04, (off - t) / 0.04) : 0;
+const mid = fA.clone().lerp(fB, 0.5);
+const gHead = wp(girl.userData.head);
+// [time, target, view width]
+const KEYS = [
+  [0.0, mid.clone().add(new THREE.Vector3(0, -3.2, 0)), 30],
+  [1.2, mid.clone().add(new THREE.Vector3(0, -2.4, 0)), 26],
+  [2.3, mid.clone().add(new THREE.Vector3(0, -2.4, 0)), 25],
+  [3.5, gHead.clone().add(new THREE.Vector3(-0.6, -1.4, -0.6)), 7.5],
+  [3.9, gHead.clone().add(new THREE.Vector3(-0.6, -1.4, -0.6)), 7.5],
+  [5.0, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 22],
+  [5.7, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 24],
+  [8.6, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 23],
+  [10.8, mid.clone().add(new THREE.Vector3(0, -3.0, 0)), 24],
+  [12.0, mid.clone().add(new THREE.Vector3(0, -3.4, 0)), 25],
+  [14.6, mid.clone().add(new THREE.Vector3(0, -3.4, 0)), 23],
+];
+function camAt(t) {
+  let i = 0; while (i < KEYS.length - 2 && t > KEYS[i + 1][0]) i++;
+  const [t0, p0, w0] = KEYS[i], [t1, p1, w1] = KEYS[i + 1];
+  const k = ease((t - t0) / (t1 - t0));
+  setCam(p0.clone().lerp(p1, k), w0 + (w1 - w0) * k);
+}
+const titleEl = document.getElementById('title'), subEl = document.getElementById('sub'), titleIn = document.getElementById('titleIn'), subIn = document.getElementById('subIn');
+
+function renderOld(t) {
+  // camera: wide establishing, slow push toward the two balconies
+  camAt(t);
+  // girl blinks: 0.45-0.7, 0.85-1.1 ; boy answers 1.45-1.65, 1.8-2.0 ; then girl again (voice) 2.7-3.0, 3.25-3.55
+  // ---- scene 2: the letter H = 01001000, one bit every 0.3 s from 5.8 s ----
+  const H = [0,1,0,0,1,0,0,0], B0 = 5.8, BD = 0.3;
+  let bitBeam = 0, curBit = -1;
+  for (let i = 0; i < 8; i++) { const a = B0 + i * BD; if (t >= a && t < a + BD) curBit = i; if (H[i]) bitBeam = Math.max(bitBeam, pulse(t, a, a + 0.22)); }
+  beamA.set(0);
+  beamB.set(bitBeam);
+  // floating bit at mid-beam
+  const bitf = document.getElementById('bitf');
+  if (curBit >= 0) { const sp = fA.clone().lerp(fB, 0.5).add(new THREE.Vector3(0, 0.9, 0)).project(cam);
+    bitf.style.left = ((sp.x + 1) / 2 * 100) + 'vw'; bitf.style.top = ((1 - sp.y) / 2 * 100) + 'vh';
+    bitf.textContent = H[curBit]; bitf.style.color = H[curBit] ? '#ffe08a' : '#8fa3d8'; bitf.style.opacity = 1; } else bitf.style.opacity = 0;
+
+  // ---- card in the title zone ----
+  const card = document.getElementById('card');
+  if (t >= 5.6 && t < 8.6) {
+    const n = Math.max(0, Math.min(8, Math.floor((t - B0) / BD) + 1));
+    card.innerHTML = '<div class="row">' + H.map((b, i) => i < n ? `<b class="${b ? 'on' : 'off'}">${b}</b>` : '<b>·</b>').join('') +
+      (t > B0 + 8 * BD + 0.1 ? '<span class="eq">= <em>H</em></span>' : '') + '</div><div class="cap">8 blinks = 1 letter</div>';
+    card.style.opacity = ease((t - 5.6) / 0.25);
+  } else if (t >= 8.6 && t < 11.0) {
+    const k = Math.min(5, Math.floor((t - 8.7) / 0.25) + 1);
+    const cnt = Math.min(40, Math.round(Math.max(0, t - 8.7) / 1.4 * 40));
+    card.innerHTML = '<div class="word">' + 'HELLO'.split('').map((c, i) => `<span class="${i < k ? 'on' : ''}">${c}</span>`).join('') + '</div><div class="cap">5 letters × 8 = <b style="color:#ffc94a">' + cnt + '</b> blinks</div>';
+    card.style.opacity = 1;
+  } else if (t >= 11.0 && t < 14.6) {
+    const k = ease((t - 12.2) / 1.0), n = Math.round(1e9 * k);
+    card.innerHTML = '<div class="big">' + n.toLocaleString('en-US') + '</div><div class="cap">blinks every second</div>';
+    card.style.opacity = t < 12.0 ? 0 : ease((t - 12.0) / 0.25);
+  } else card.style.opacity = 0;
+
+  // ---- scene 3: the boy dozes off ----
+  const zzz = document.getElementById('zzz');
+  if (t > 9.6 && t < 11.2) { const hp = wp(boy.userData.head).add(new THREE.Vector3(0, 0.7, 0)).project(cam);
+    zzz.style.left = ((hp.x + 1) / 2 * 100) + 'vw'; zzz.style.top = ((1 - hp.y) / 2 * 100) + 'vh'; zzz.style.opacity = ease((t - 9.6) / 0.3); } else zzz.style.opacity = 0;
+  boy.userData.head.rotation.z = t > 9.6 && t < 11.2 ? 0.35 * ease((t - 9.6) / 0.4) : 0;
+
+  // ---- scene 4: the wire draws on, then pulses race along it ----
+  const draw = t < 11.1 ? 0 : ease((t - 11.1) / 0.9);
+  wire.visible = wireCore.visible = draw > 0; clips.forEach(c => c.visible = draw > 0);
+  wire.geometry.setDrawRange(0, Math.floor(WIRE_IDX * draw / 3) * 3);
+  wireCore.geometry.setDrawRange(0, Math.floor(CORE_IDX * draw / 3) * 3);
+  const run = t > 12.0 ? Math.min(1, (t - 12.0) / 0.4) : 0;
+  wireCore.material.emissiveIntensity = 0.35 + 0.8 * run;
+  pulses.forEach((sp, i) => { const u = ((t * 1.6 + i / pulses.length) % 1); sp.position.copy(wireCurve.getPoint(u)); sp.material.opacity = run * (0.6 + 0.4 * Math.sin(i * 2.1)); });
+
+  // ---- subtitles ----
+  const lines = [[2.55, 'This blinking <em>torch?</em>'], [3.95, 'That’s the <em>internet.</em>'], [5.5, 'On is <em>one</em>. Off is <em>zero</em>.'], [7.0, 'Eight blinks make <em>one letter</em>.'],
+    [8.7, 'But <em>“Hello”</em> takes forty blinks.'], [10.1, 'Too <em>slow.</em>'], [11.1, 'So we use a <em>wire</em>:'], [12.2, 'a <em>billion</em> blinks a second.']];
+  let line = null; for (const [a, txt] of lines) if (t >= a) line = txt;
+  subIn.innerHTML = line || ''; subEl.style.opacity = line && !(t > 5.05 && t < 5.5) ? 1 : 0;
+  titleIn.innerHTML = 'How does the <em>internet</em><br>reach you?';
+  titleEl.style.opacity = t > 4.0 && t < 5.4 ? Math.min(ease((t - 4.0) / 0.3), ease((5.4 - t) / 0.3)) : 0;
+  cinePost(t); composer.render();
+}
+// ================= HOOK (0 - 6.6 s), zoom angles; later scenes follow with a 1.2 s shift =================
+const HOOK_END = 8.4, SHIFT = 3.0;
+const bHead = wp(boy.userData.head);
+const HK = [
+  [0.0, mid.clone().add(new THREE.Vector3(0, -3.2, 0)), 30],
+  [0.55, mid.clone().add(new THREE.Vector3(0, -3.0, 0)), 27],
+  [1.05, bHead.clone().add(new THREE.Vector3(0.75, -1.1, -0.15)), 6.6],
+  [1.75, bHead.clone().add(new THREE.Vector3(0.75, -1.1, -0.15)), 6.2],
+  [2.2, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.6],
+  [2.9, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.3],
+  [3.35, mid.clone().add(new THREE.Vector3(0, -2.4, 0)), 22],
+  [3.45, mid.clone().add(new THREE.Vector3(0, -2.4, 0)), 22],
+  [3.95, fB.clone().add(new THREE.Vector3(0, -0.7, 0)), 4.6],     // "Flash a torch"
+  [4.4, fB.clone().add(new THREE.Vector3(0, -0.7, 0)), 4.3],
+  [5.05, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.6],  // "at your friend across the street"
+  [5.65, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.3],
+  [6.4, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 24],     // "and you've basically built the internet"
+  [8.4, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 22],
+];
+const VO = [[3.45, 'Flash a <em>torch</em>'], [4.3, 'at your <em>friend</em> across the street,'], [5.85, 'and you’ve basically built'], [6.95, 'the <em>internet.</em>']];
+const HOOK_A = [];
+const HOOK_B = [[1.15, 1.45], [2.0, 2.95], [3.75, 8.2]];
+window.HOOK = { HOOK_A, HOOK_B, VO, HOOK_END };
+function renderAt(t) {
+  if (t >= HOOK_END) return renderPart2(t);
+  hideP3(); hideP4(); applyCam(t);
+  beamA.set(0);
+  beamB.set(Math.max(...HOOK_B.map(([a, b]) => pulse(t, a, b))));
+  wire.visible = wireCore.visible = false; clips.forEach(c => c.visible = false); pulses.forEach(p => p.material.opacity = 0);
+  for (const id of ['card', 'zzz', 'bitf', 'hletter']) document.getElementById(id).style.opacity = 0; document.querySelectorAll('#bits .bit').forEach(d => d.style.opacity = 0); girl.userData.head.rotation.z = 0;
+  boy.userData.head.rotation.z = 0;
+  let line = ''; for (const [a, txt] of VO) if (t >= a) line = txt;
+  subIn.innerHTML = line; subEl.style.opacity = line ? 1 : 0;
+  titleIn.innerHTML = 'How does the <em>internet</em><br>reach you?';
+  titleEl.style.opacity = t > 7.1 ? Math.min(ease((t - 7.1) / 0.3), ease((HOOK_END - t) / 0.3)) : 0;
+  cinePost(t); composer.render();
+}
+
+// ================= PART 2 (8.4 - 19.8 s): binary -> Hello -> wire =================
+const P2 = { p1: 8.4, p2: 10.5, p3: 12.45, p4: 14.3, p5: 15.45, p6: 17.1, end: 19.8 };
+const bitsEl = document.getElementById('bits'), hEl = document.getElementById('hletter');
+const bitDivs = []; for (let i = 0; i < 8; i++) { const d = document.createElement('div'); d.className = 'bit'; bitsEl.appendChild(d); bitDivs.push(d); }
+const toScreen = v => { const q = v.clone().project(cam); return [(q.x + 1) / 2 * 100, (1 - q.y) / 2 * 100]; };
+const HBITS = [0, 1, 0, 0, 1, 0, 0, 0], BIT0 = P2.p2 + 0.05, BITD = 0.14, FLY = 0.6;
+const wireStart = wireCurve.getPoint(1), wireEnd = wireCurve.getPoint(0); // boy end -> girl end
+const K2 = [
+  [8.4, mid.clone().add(new THREE.Vector3(0, -2.6, 0)), 22],
+  [8.95, fB.clone().add(new THREE.Vector3(-0.25, -0.6, 0.25)), 5.4],   // "On is one. Off is zero."
+  [10.35, fB.clone().add(new THREE.Vector3(-0.25, -0.6, 0.25)), 5.1],
+  [10.95, mid.clone().add(new THREE.Vector3(0.7, -2.2, -0.7)), 21.5],          // bits fly across, card fills
+  [14.15, mid.clone().add(new THREE.Vector3(0.7, -2.2, -0.7)), 20.5],
+  [14.6, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 6.0],  // "Too slow."
+  [15.35, gHead.clone().add(new THREE.Vector3(-0.3, -1.1, -0.3)), 5.8],
+  [15.9, mid.clone().add(new THREE.Vector3(0, -2.8, 0)), 24],           // "So we use a wire."
+  [17.0, mid.clone().add(new THREE.Vector3(0, -2.8, 0)), 23],
+  [17.6, wireStart.clone().add(new THREE.Vector3(0, -0.6, 0)), 9],      // ride along the wire
+  [19.0, wireEnd.clone().add(new THREE.Vector3(0, -0.6, 0)), 9],
+  [19.8, mid.clone().add(new THREE.Vector3(0, -2.8, 0)), 22],
+  [20.5, mid.clone().add(new THREE.Vector3(0, -2.8, 0)), 22],
+];
+const VO2 = [[P2.p1, 'On is <em>one</em>. Off is <em>zero</em>.'], [P2.p2, 'Eight blinks make <em>one letter</em>.'], [P2.p3, 'But <em>“hello”</em> takes forty blinks.'],
+  [P2.p4, 'Too <em>slow.</em>'], [P2.p5, 'So we use a <em>wire.</em>'], [P2.p6, 'Now it’s a <em>billion</em> blinks,'], [18.3, 'every <em>second.</em>']];
+window.P2 = P2;
+function renderPart2(t) {
+  if (t >= P3.start) return renderPart3(t);
+  hideP3(); hideP4(); applyCam(t); cam.updateMatrixWorld();
+  // ---- torch: "one" (on) then "zero" (off), then the 8 bits of H, then fast flicker for HELLO ----
+  let beam = 0;
+  beam = Math.max(beam, pulse(t, 8.95, 9.5));
+  for (let b = 0; b < 8; b++) if (HBITS[b]) beam = Math.max(beam, pulse(t, BIT0 + b * BITD, BIT0 + b * BITD + 0.1));
+  beamA.set(0); beamB.set(beam);
+  // big 1 / 0 beside the lens
+  const bitf = document.getElementById('bitf');
+  if (t > 8.95 && t < 10.4) { const [x, y] = toScreen(fB.clone().add(new THREE.Vector3(0.25, 0.55, -0.25)));
+    const one = t < 9.5; bitf.textContent = one ? '1' : '0'; bitf.style.color = one ? '#ffe08a' : '#8fa3d8';
+    bitf.style.left = x + 'vw'; bitf.style.top = y + 'vh'; bitf.style.fontSize = '13vw'; bitf.style.opacity = Math.min(1, (t - 8.95) / 0.1); }
+  else bitf.style.opacity = 0;
+  // the 8 bits fly from his torch to her
+  bitDivs.forEach((d, b) => {
+    const a = BIT0 + b * BITD, u = (t - a) / FLY;
+    if (u < 0 || u > 1 || t > P2.p3) { d.style.opacity = 0; return; }
+    const [x, y] = toScreen(fB.clone().lerp(fA, u).add(new THREE.Vector3(0, 0.55 + 0.25 * Math.sin(u * Math.PI), 0)));
+    d.textContent = HBITS[b]; d.style.color = HBITS[b] ? '#ffe08a' : '#8fa3d8'; d.style.textShadow = HBITS[b] ? '0 0 16px rgba(255,200,80,.9)' : '0 0 12px rgba(120,150,255,.6)';
+    d.style.left = x + 'vw'; d.style.top = y + 'vh'; d.style.opacity = Math.min(1, u * 8, (1 - u) * 6);
+  });
+  // H appears above her head when the last bit lands
+  const hOn = t > BIT0 + 7 * BITD + FLY && t < P2.p3 + 0.2;
+  if (hOn) { const [x, y] = toScreen(gHead.clone().add(new THREE.Vector3(0, 0.75, 0))); hEl.style.left = x + 'vw'; hEl.style.top = y + 'vh'; hEl.style.opacity = Math.min(1, (t - (BIT0 + 7 * BITD + FLY)) / 0.15); } else hEl.style.opacity = 0;
+  // ---- card in the title zone ----
+  const card = document.getElementById('card');
+  if (t >= P2.p2 && t < P2.p3) {
+    const n = Math.max(0, Math.min(8, Math.floor((t - BIT0 - FLY) / BITD) + 1));
+    card.innerHTML = '<div class="row">' + HBITS.map((b, j) => j < n ? `<b class="${b ? 'on' : 'off'}">${b}</b>` : '<b>·</b>').join('') +
+      (n >= 8 ? '<span class="eq">= <em>H</em></span>' : '') + '</div><div class="cap">8 blinks = 1 letter</div>';
+    card.style.opacity = ease((t - P2.p2) / 0.25);
+  } else if (t >= P2.p3 && t < P2.p5) {
+    const kk = Math.min(5, Math.floor((t - P2.p3) / 0.22) + 1), cnt = Math.min(40, Math.round(Math.max(0, t - P2.p3) / 1.5 * 40));
+    card.innerHTML = '<div class="word">' + 'HELLO'.split('').map((c, j) => `<span class="${j < kk ? 'on' : ''}">${c}</span>`).join('') + '</div><div class="cap">5 letters × 8 = <b style="color:#ffc94a">' + cnt + '</b> blinks</div>';
+    card.style.opacity = 1;
+  } else if (t >= P2.p6 + 0.3) {
+    const kk = ease((t - (P2.p6 + 0.3)) / 1.2);
+    card.innerHTML = '<div class="big">' + Math.round(1e9 * kk).toLocaleString('en-US') + '</div><div class="cap">blinks every second</div>';
+    card.style.opacity = ease((t - (P2.p6 + 0.3)) / 0.25);
+  } else card.style.opacity = 0;
+  // ---- "Too slow." she dozes off ----
+  const zzz = document.getElementById('zzz'), sleepy = t > P2.p4 - 0.1 && t < P2.p5 + 0.2;
+  girl.userData.head.rotation.z = sleepy ? -0.35 * ease((t - (P2.p4 - 0.1)) / 0.4) : 0;
+  boy.userData.head.rotation.z = 0;
+  if (sleepy) { const [x, y] = toScreen(gHead.clone().add(new THREE.Vector3(0.2, 0.75, -0.2))); zzz.style.left = x + 'vw'; zzz.style.top = y + 'vh'; zzz.style.opacity = ease((t - P2.p4) / 0.25); } else zzz.style.opacity = 0;
+  // ---- the wire ----
+  const draw = t < P2.p5 + 0.3 ? 0 : ease((t - (P2.p5 + 0.3)) / 0.9);
+  wire.visible = wireCore.visible = draw > 0; clips.forEach(c => c.visible = draw > 0);
+  // draw from the boy's end (u=1) toward the girl (u=0): reverse by drawing the tail of the index buffer
+  const nW = Math.floor(WIRE_IDX * draw / 3) * 3, nC = Math.floor(CORE_IDX * draw / 3) * 3;
+  wire.geometry.setDrawRange(WIRE_IDX - nW, nW); wireCore.geometry.setDrawRange(CORE_IDX - nC, nC);
+  const run = t > P2.p6 ? Math.min(1, (t - P2.p6) / 0.3) : 0;
+  wireCore.material.emissiveIntensity = 0.35 + 0.8 * run;
+  pulses.forEach((sp, j) => { const u = 1 - ((t * 0.9 + j / pulses.length) % 1); sp.position.copy(wireCurve.getPoint(u)); sp.material.opacity = run * (0.6 + 0.4 * Math.sin(j * 2.1)); });
+  // ---- subtitles ----
+  let line = ''; for (const [a, txt] of VO2) if (t >= a) line = txt;
+  subIn.innerHTML = line; subEl.style.opacity = line ? 1 : 0;
+  titleEl.style.opacity = 0;
+  cinePost(t); composer.render();
+}
+
+// ================= smooth camera over the whole timeline =================
+function rawCam(t) {
+  const K = t < HOOK_END ? HK : t < P3.start ? K2 : t < P4.start ? K3 : K4;
+  if (t <= K[0][0]) return [K[0][1].clone(), K[0][2]];
+  let i = 0; while (i < K.length - 2 && t > K[i + 1][0]) i++;
+  const [t0, p0, w0] = K[i], [t1, p1, w1] = K[i + 1], u = Math.min(1, Math.max(0, (t - t0) / (t1 - t0)));
+  const k = u * u * u * (u * (u * 6 - 15) + 10);           // smootherstep
+  return [p0.clone().lerp(p1, k), Math.exp(Math.log(w0) + (Math.log(w1) - Math.log(w0)) * k)];
+}
+function applyCam(t) { cineCam(t); cineUpdate(t); cam.updateMatrixWorld(); }
+
+// ================= PART 3 (19.8 - 34.4 s): router -> IP address -> packets =================
+const P3 = { start: 19.8, p7: 19.9, p8: 21.95, p9: 25.1, p10: 27.9, p11: 29.65, p12: 32.35, end: 34.4 };
+window.P3 = P3;
+// router on a street cabinet at the front corner (glass x-ray shell, navy board, gold pads)
+const RPOS = new THREE.Vector3(4.6, 0, 4.6);
+const router = new THREE.Group(); router.position.copy(RPOS); scene.add(router);
+{
+  const cab = new THREE.Mesh(new RoundedBoxGeometry(1.6, 1.3, 1.2, 3, 0.1), std(0x2a3150, { metalness: .4, roughness: .5 })); cab.position.y = 0.65; cab.castShadow = true; router.add(cab);
+  const base = new THREE.Mesh(new RoundedBoxGeometry(2.3, 0.18, 1.6, 2, 0.06), std(0x1b2550, { metalness: .3, roughness: .4 })); base.position.y = 1.42; router.add(base);
+  const board = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.05, 1.3), std(0x16224a, { roughness: .5 })); board.position.y = 1.56; router.add(board);
+  const chip = new THREE.Mesh(new RoundedBoxGeometry(0.5, 0.08, 0.5, 2, 0.02), std(0x0c0c10, { roughness: .2, metalness: .6 })); chip.position.set(-0.3, 1.62, 0); router.add(chip);
+  for (let a = 0; a < 6; a++) { const pad = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.02, 0.06), std(0xd4a640, { metalness: 1, roughness: .25 })); pad.position.set(0.35 + (a % 3) * 0.2, 1.6, -0.25 + Math.floor(a / 3) * 0.5); router.add(pad); }
+  const shell = new THREE.Mesh(new RoundedBoxGeometry(2.3, 0.55, 1.6, 4, 0.18), new THREE.MeshPhysicalMaterial({ color: 0xbfe0ff, transparent: true, opacity: .22, roughness: .05, metalness: 0 })); shell.position.y = 1.72; router.add(shell);
+  for (let a = 0; a < 5; a++) { const led = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8), new THREE.MeshStandardMaterial({ color: 0x2fd36b, emissive: 0x2fd36b, emissiveIntensity: 2.2 })); led.position.set(-0.6 + a * 0.3, 1.72, 0.81); router.add(led); }
+  for (const ax of [-0.85, 0, 0.85]) { const ant = new THREE.Mesh(new THREE.CapsuleGeometry(0.05, 1.1, 4, 10), std(0x1b2550, { roughness: .4 })); ant.position.set(ax, 2.55, -0.6); router.add(ant); }
+  router.traverse(o => { if (o.isMesh) o.castShadow = true; });
+}
+const RTOP = RPOS.clone().add(new THREE.Vector3(0, 1.75, 0));
+// window points on both blocks (girl = flat 7 on A, boy = flat 4 on B)
+const FLATS = [
+  { p: tieA.clone().add(new THREE.Vector3(0, -1.3, 0)), ip: 7, who: 'girl' }, { p: tieB.clone().add(new THREE.Vector3(0, -1.3, 0)), ip: 4, who: 'boy' },
+  { p: new THREE.Vector3(9.0, 1.75 + 3.2 * 0, -5.85), ip: 2 }, { p: new THREE.Vector3(12.3, 1.75 + 3.2 * 1, -5.85), ip: 3 },
+  { p: new THREE.Vector3(9.0, 1.75 + 3.2 * 3, -5.85), ip: 8 }, { p: new THREE.Vector3(-5.85, 1.75 + 3.2 * 0, 9.5), ip: 5 },
+  { p: new THREE.Vector3(-5.85, 1.75 + 3.2 * 3, 12.0), ip: 6 }, { p: new THREE.Vector3(-5.85, 1.75 + 3.2 * 1, 5.0), ip: 9 },
+];
+const cables = FLATS.map(f => {
+  const c = new THREE.LineCurve3(f.p, RTOP);
+  const m = new THREE.Mesh(new THREE.TubeGeometry(c, 40, 0.045, 8, false), new THREE.MeshStandardMaterial({ color: 0x1c1c22, emissive: 0xff9a40, emissiveIntensity: .25, metalness: .5, roughness: .4, transparent: true }));
+  m.visible = false; scene.add(m); return { m, n: m.geometry.index.count, c };
+});
+// overlays: device chips, IP tags, flat plate, packet labels
+const ov3 = document.createElement('div'); document.body.appendChild(ov3);
+const css3 = document.createElement('style'); css3.textContent = `
+ .dev, .ip, .plate, .pkl { position: fixed; z-index: 2; transform: translate(-50%,-100%); pointer-events: none; opacity: 0; white-space: nowrap; }
+ .dev { width: 6.4vw; height: 6.4vw; border-radius: 1.8vw; background: rgba(14,16,30,.85); border: 1px solid rgba(255,255,255,.25); display: grid; place-items: center; }
+ .dev svg { width: 4vw; height: 4vw; }
+ .ip { font: 700 2.6vw 'IBM Plex Mono', monospace; color: #fff; background: rgba(14,16,30,.88); border: 1px solid #2fd36b; padding: .8vw 2vw; border-radius: 2.4vw; }
+ .ip b { color: #2fd36b; }
+ .ip.big { font-size: 4.6vw; padding: 1.2vw 3vw; }
+ .plate { font: 800 4vw Sora, sans-serif; color: #10142a; background: linear-gradient(#f5f0e4, #d9d0bc); padding: .8vw 2.4vw; border-radius: 1.2vw; border: .5vw solid #8a7a5a; }
+ .pkl { font: 700 2.6vw 'IBM Plex Mono', monospace; color: #10142a; background: #ffc94a; padding: .3vw 1.2vw; border-radius: 1vw; }
+ #vcard { display: flex; gap: 3vw; align-items: center; } #vtile { position: relative; width: 26vw; height: 14.6vw; }
+ #vtile i { position: absolute; width: 25%; height: 50%; background: linear-gradient(135deg, #3fa9f5, #1b5fd1); border: 1px solid rgba(255,255,255,.35); box-sizing: border-box; }
+ #vtile .play { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 0; height: 0; border-left: 4vw solid #fff; border-top: 2.4vw solid transparent; border-bottom: 2.4vw solid transparent; }
+`; document.head.appendChild(css3);
+const phoneSvg = '<svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2.5" fill="none" stroke="#4fc3f7" stroke-width="2"/><circle cx="12" cy="18" r="1.2" fill="#4fc3f7"/></svg>';
+const lapSvg = '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="1.5" fill="none" stroke="#ffc94a" stroke-width="2"/><path d="M2 19h20" stroke="#ffc94a" stroke-width="2" stroke-linecap="round"/></svg>';
+const devEls = FLATS.map((f, j) => { const d = document.createElement('div'); d.className = 'dev'; d.innerHTML = j % 3 === 2 ? lapSvg : phoneSvg; ov3.appendChild(d); return d; });
+const ipEls = FLATS.map(f => { const d = document.createElement('div'); d.className = 'ip'; d.innerHTML = '192.168.1.<b>' + f.ip + '</b>'; ov3.appendChild(d); return d; });
+const plate = document.createElement('div'); plate.className = 'plate'; plate.textContent = 'FLAT 7'; ov3.appendChild(plate);
+const NPK = 10, PKD = 0.32;
+const pkts = []; for (let j = 0; j < NPK; j++) {
+  const m = new THREE.Mesh(new RoundedBoxGeometry(0.32, 0.32, 0.32, 2, 0.06), new THREE.MeshStandardMaterial({ color: 0xffc94a, emissive: 0xffa020, emissiveIntensity: 1.3, roughness: .3 }));
+  m.visible = false; scene.add(m); const l = document.createElement('div'); l.className = 'pkl'; l.textContent = '→ .7'; ov3.appendChild(l); pkts.push({ m, l });
+}
+const pkPath = (u) => u < 0.5 ? FLATS[1].p.clone().lerp(RTOP, u * 2) : RTOP.clone().lerp(FLATS[0].p, (u - 0.5) * 2);
+function hideP3() {
+  router.visible = false; cables.forEach(c => c.m.visible = false); pkts.forEach(p => { p.m.visible = false; p.l.style.opacity = 0; });
+  devEls.concat(ipEls, [plate]).forEach(d => d.style.opacity = 0);
+}
+const K3 = [
+  [19.8, mid.clone().add(new THREE.Vector3(0, -2.8, 0)), 22],
+  [21.2, new THREE.Vector3(2.4, 5.5, 0.6), 34],                       // whole building wants in
+  [22.3, new THREE.Vector3(2.4, 5.5, 0.6), 34],
+  [23.6, RPOS.clone().add(new THREE.Vector3(-0.6, 2.2, -0.6)), 10],   // the router
+  [24.9, RPOS.clone().add(new THREE.Vector3(-0.6, 2.2, -0.6)), 9.5],
+  [25.9, gHead.clone().add(new THREE.Vector3(-0.3, -0.9, -0.3)), 6.2], // flat number / IP
+  [28.4, gHead.clone().add(new THREE.Vector3(-0.3, -0.9, -0.3)), 6.0],
+  [29.4, new THREE.Vector3(2.0, 5.5, 1.0), 36],                       // all the IP tags
+  [30.2, new THREE.Vector3(2.0, 5.5, 1.0), 35],
+  [31.4, RPOS.clone().add(new THREE.Vector3(-2.5, 3.2, -2.5)), 12],   // packets ride through the router
+  [33.4, RPOS.clone().add(new THREE.Vector3(-2.5, 3.2, -2.5)), 11],
+  [34.4, RPOS.clone().add(new THREE.Vector3(-2.5, 3.2, -2.5)), 10],
+];
+const VO3 = [[P3.p7, 'Now the whole <em>building</em> wants in.'], [P3.p8, 'Every device connects to <em>one box</em>:'], [23.5, 'the <em>router.</em>'],
+  [P3.p9, 'Each phone gets a number, like a <em>flat number.</em>'], [P3.p10, 'That’s its <em>IP address.</em>'],
+  [P3.p11, 'Big videos get chopped into small <em>packets</em>,'], [P3.p12, 'each carrying <em>that address.</em>']];
+function renderPart3(t) {
+  if (t >= P4.start) return renderSea(t);
+  hideP4();
+  applyCam(t);
+  beamA.set(0); beamB.set(0);
+  ['bitf', 'zzz', 'hletter'].forEach(id => document.getElementById(id).style.opacity = 0);
+  document.querySelectorAll('#bits .bit').forEach(d => d.style.opacity = 0);
+  girl.userData.head.rotation.z = 0;
+  // old direct wire fades away once the router arrives
+  const direct = t < P3.p8 + 0.6;
+  wire.visible = wireCore.visible = direct; clips.forEach(c => c.visible = direct);
+  wire.geometry.setDrawRange(0, WIRE_IDX); wireCore.geometry.setDrawRange(0, CORE_IDX);
+  pulses.forEach(sp => sp.material.opacity = direct ? 0.4 : 0);
+  // router pops up
+  const rk = Math.min(1, Math.max(0, (t - (P3.p8 + 0.3)) / 0.45));
+  router.visible = rk > 0; router.scale.setScalar(rk < 1 ? 0.3 + 0.7 * (1 - Math.pow(1 - rk, 3)) * (1 + 0.12 * Math.sin(rk * Math.PI)) : 1);
+  // cables draw from each flat to the router
+  cables.forEach((c, j) => { const k = Math.min(1, Math.max(0, (t - (P3.p8 + 0.9 + j * 0.12)) / 0.6)); c.m.visible = k > 0; c.m.geometry.setDrawRange(0, Math.floor(c.n * k / 3) * 3);
+    c.m.material.emissiveIntensity = 0.25 + (t > P3.p11 && (j < 2) ? 0.9 : 0);
+    const close = t > 25.4 && t < 28.9; c.m.material.opacity = close && j > 0 ? 0.15 : 1; });
+  // device chips pop over each flat
+  FLATS.forEach((f, j) => {
+    const [x, y] = toScreen(f.p.clone().add(new THREE.Vector3(0, 0.9, 0)));
+    const a = P3.p7 + 0.3 + j * 0.16, on = t > a && t < P3.p9;
+    const d = devEls[j]; d.style.left = x + 'vw'; d.style.top = y + 'vh'; d.style.opacity = on ? Math.min(1, (t - a) / 0.15) : 0;
+    d.style.transform = `translate(-50%,-100%) scale(${on ? Math.min(1, 0.6 + (t - a) * 3) : 1})`;
+    // IP tags
+    const ia = f.who === 'girl' ? P3.p10 + 0.1 : P3.p10 + 1.4 + j * 0.08;
+    const ipOn = t > ia && t < P3.p11 + 0.5 && !(f.who === 'girl' && false);
+    const e = ipEls[j]; e.classList.toggle('big', f.who === 'girl' && t < 29.2);
+    const [ix, iy] = toScreen(f.p.clone().add(new THREE.Vector3(0, f.who === 'girl' ? 1.6 : 0.9, 0)));
+    e.style.left = ix + 'vw'; e.style.top = iy + 'vh'; e.style.opacity = ipOn ? Math.min(1, (t - ia) / 0.15) : 0;
+  });
+  // flat number plate beside her door
+  const [px, py] = toScreen(tieA.clone().add(new THREE.Vector3(-1.9, 1.2, -0.8)));
+  plate.style.left = px + 'vw'; plate.style.top = py + 'vh'; plate.style.opacity = t > P3.p9 + 1.2 && t < 29.0 ? Math.min(1, (t - P3.p9 - 1.2) / 0.15) : 0;
+  // packets: boy -> router -> girl, each tagged with her address
+  pkts.forEach((pk, j) => {
+    const a = P3.p11 + 0.6 + j * PKD, u = (t - a) / 2.2;
+    const on = u > 0 && u < 1; pk.m.visible = on; pk.l.style.opacity = on && j % 2 === 0 ? Math.min(1, u * 10, (1 - u) * 10) : 0;
+    if (on) { const p = pkPath(u); pk.m.position.copy(p); pk.m.rotation.set(t * 2, t * 3, 0); const [x, y] = toScreen(p.clone().add(new THREE.Vector3(0, 0.45, 0))); pk.l.style.left = x + 'vw'; pk.l.style.top = y + 'vh'; }
+  });
+  // card: a video splits into packets
+  const card = document.getElementById('card');
+  if (t > P3.p11) {
+    const k = Math.min(1, Math.max(0, (t - (P3.p11 + 0.4)) / 0.7));
+    const tiles = []; for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) { const gx = (c - 1.5) * 1.6 * k, gy = (r - 0.5) * 1.6 * k;
+      tiles.push(`<i style="left:${c * 25}%;top:${r * 50}%;transform:translate(${gx}vw,${gy}vw);${k > 0.6 ? 'background:linear-gradient(135deg,#ffd76a,#f5a623)' : ''}"></i>`); }
+    card.innerHTML = `<div id="vcard"><div id="vtile">${tiles.join('')}${k < 0.3 ? '<div class="play"></div>' : ''}</div><div class="cap" style="text-align:left">video<br>→ ${k > 0.6 ? '<b style="color:#ffc94a">8 packets</b>' : '1 file'}</div></div>`;
+    card.style.opacity = ease((t - P3.p11) / 0.25);
+  } else if (t < P3.p7 + 0.3) { /* keep the billion card briefly */ card.style.opacity = Math.max(0, 1 - (t - P3.start) / 0.4); }
+  else card.style.opacity = 0;
+  let line = ''; for (const [a, txt] of VO3) if (t >= a) line = txt;
+  subIn.innerHTML = line; subEl.style.opacity = line ? 1 : 0; titleEl.style.opacity = 0;
+  cinePost(t); composer.render();
+}
+
+// ================= PART 4 (34.0 - 50.0 s): under the sea -> cut -> this video -> end card =================
+const P4 = { start: 34.0, p13: 33.9, p14: 36.95, p15: 38.8, p16: 42.6, p17: 45.95, p18: 47.7, end: 50.0, card: 47.55 };
+window.P4 = P4;
+const WO = new THREE.Vector3(300, 0, 0);
+const world = new THREE.Group(); world.position.copy(WO); world.rotation.y = Math.PI / 8; scene.add(world); world.visible = false;
+const wadd = (m, x, y, z) => { m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; world.add(m); return m; };
+wadd(new RoundedBoxGeometry(1, 1, 1) && new THREE.Mesh(new RoundedBoxGeometry(68, 2, 26, 2, 0.6), std(0x22314a)), 0, -6, 0);               // seabed base
+wadd(new THREE.Mesh(new THREE.BoxGeometry(44, 0.4, 24), std(0x34465e, { roughness: .95 })), 0, -4.8, 0);                                 // sand
+const water = wadd(new THREE.Mesh(new THREE.BoxGeometry(44, 4.6, 24), new THREE.MeshPhysicalMaterial({ color: 0x2a7bd6, transparent: true, opacity: .2, roughness: .15, metalness: 0, depthWrite: false })), 0, -2.3, 0);
+water.castShadow = false;
+const surf = wadd(new THREE.Mesh(new THREE.PlaneGeometry(44, 24), new THREE.MeshStandardMaterial({ color: 0x3a8be0, emissive: 0x0b2a60, emissiveIntensity: .5, transparent: true, opacity: .22, roughness: .2, depthWrite: false })), 0, 0.01, 0); surf.rotation.x = -Math.PI / 2; surf.castShadow = false;
+function landTile(cx, name) {
+  wadd(new THREE.Mesh(new RoundedBoxGeometry(12, 6.6, 24, 2, 0.4), std(0x2f5a44, { roughness: .9 })), cx, -2.7, 0);
+  wadd(new THREE.Mesh(new THREE.BoxGeometry(11.6, 0.12, 23.6), std(0x2a3150)), cx, 0.66, 0);
+  for (let k = 0; k < 9; k++) { const h = 1.5 + rnd() * 3.5, w = 1.3 + rnd() * 0.8; const b = wadd(new THREE.Mesh(new RoundedBoxGeometry(w, h, w, 2, 0.1), std([0xe0895a, 0x58a89c, 0x7a6a9a, 0xd9cfc2][k % 4])), cx - 3.2 + (k % 3) * 3.0 + (cx > 0 ? 0.6 : -0.6), 0.7 + h / 2, -9 + Math.floor(k / 3) * 3.2);
+    const top = wadd(new THREE.Mesh(new THREE.BoxGeometry(w * 0.7, 0.05, w * 0.7), new THREE.MeshStandardMaterial({ color: 0x332211, emissive: 0xffc070, emissiveIntensity: .9 })), b.position.x, 0.7 + h + 0.03, b.position.z); }
+}
+landTile(-28, 'Mumbai'); landTile(28, 'London');
+// landing stations + mini routers on each shore
+const miniR = [-23.6, 23.6].map(x => { const r = router.clone(); r.scale.setScalar(0.7); r.position.set(x, 0.7, -1); r.visible = true; world.add(r); return r; });
+// six sea cables (cable 0 is ours; it gets cut)
+const CZ = [-1, 3, 6.5, -4.5, -8, 9.5];
+const cableCurve = (z, j) => new THREE.CatmullRomCurve3([
+  new THREE.Vector3(-23, 0.9, z), new THREE.Vector3(-21, -1.5, z), new THREE.Vector3(-17, -4.45, z + 0.5),
+  new THREE.Vector3(-8, -4.45, z - 1 + (j % 2)), new THREE.Vector3(0, -4.45, z + 0.6), new THREE.Vector3(8, -4.45, z - 0.8),
+  new THREE.Vector3(17, -4.45, z + 0.4), new THREE.Vector3(21, -1.5, z), new THREE.Vector3(23, 0.9, z)]);
+const seaCables = CZ.map((z, j) => {
+  const c = cableCurve(z, j);
+  const sheath = new THREE.Mesh(new THREE.TubeGeometry(c, 200, 0.16, 10, false), new THREE.MeshPhysicalMaterial({ color: 0xbfe0ff, transparent: true, opacity: .35, roughness: .05 }));
+  const core = new THREE.Mesh(new THREE.TubeGeometry(c, 200, 0.07, 8, false), new THREE.MeshStandardMaterial({ color: 0x9fe8ff, emissive: 0x6fd6ff, emissiveIntensity: 0.4, roughness: .2 }));
+  world.add(sheath); world.add(core); return { c, sheath, core, n: core.geometry.index.count, ns: sheath.geometry.index.count };
+});
+// magnified glass fibre for the close-up (light bouncing inside the glass)
+const fibre = new THREE.Group(); world.add(fibre); fibre.position.set(0, -3.3, -1);
+const FL = 9, FR = 0.75;
+fibre.add(new THREE.Mesh(new THREE.CylinderGeometry(FR * 1.35, FR * 1.35, FL, 40, 1, true).rotateZ(Math.PI / 2), new THREE.MeshPhysicalMaterial({ color: 0x223355, transparent: true, opacity: .35, roughness: .3, side: THREE.DoubleSide })));
+fibre.add(new THREE.Mesh(new THREE.CylinderGeometry(FR, FR, FL, 40, 1, true).rotateZ(Math.PI / 2), new THREE.MeshPhysicalMaterial({ color: 0xcff0ff, transparent: true, opacity: .45, roughness: .02, side: THREE.DoubleSide, emissive: 0x2a6aa8, emissiveIntensity: .7 })));
+const zz = []; for (let k = 0; k <= 12; k++) zz.push(new THREE.Vector3(-FL / 2 + k * FL / 12, (k % 2 ? 1 : -1) * FR * 0.82, 0));
+const zzCurve = new THREE.CurvePath(); for (let k = 0; k < 12; k++) zzCurve.add(new THREE.LineCurve3(zz[k], zz[k + 1]));
+const zzMesh = new THREE.Mesh(new THREE.TubeGeometry(zzCurve, 240, 0.09, 8, false), new THREE.MeshBasicMaterial({ color: 0xfff2c4 }));
+fibre.add(zzMesh); const ZZN = zzMesh.geometry.index.count;
+const photon = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xfff4d0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); photon.scale.setScalar(0.9); fibre.add(photon);
+// the ship and its anchor
+const ship = new THREE.Group(); world.add(ship);
+{ const hull = new THREE.Mesh(new RoundedBoxGeometry(5.5, 1.1, 1.9, 3, 0.4), std(0xb83a32, { roughness: .5 })); hull.position.y = 0.2; ship.add(hull);
+  const deck = new THREE.Mesh(new RoundedBoxGeometry(5.2, 0.4, 1.7, 2, 0.15), std(0xe8e4d8)); deck.position.y = 0.9; ship.add(deck);
+  const cabin = new THREE.Mesh(new RoundedBoxGeometry(1.6, 1.1, 1.4, 2, 0.12), std(0xf2efe6)); cabin.position.set(1.4, 1.6, 0); ship.add(cabin);
+  for (let k = 0; k < 3; k++) { const cont = new THREE.Mesh(new RoundedBoxGeometry(0.9, 0.6, 1.3, 2, 0.06), std([0x2f7fd0, 0xf5a623, 0x2fb7a4][k])); cont.position.set(-1.6 + k * 1.0, 1.4, 0); ship.add(cont); }
+  ship.traverse(o => o.castShadow = true); }
+const anchor = new THREE.Group(); world.add(anchor); anchor.scale.setScalar(2.6);
+{ const am = std(0xc8ced8, { metalness: .4, roughness: .35, emissive: 0x8a93a6, emissiveIntensity: 1.0 });
+  const shank = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.1, 10), am); shank.position.y = 0.55; anchor.add(shank);
+  const arms = new THREE.Mesh(new THREE.TorusGeometry(0.45, 0.07, 8, 20, Math.PI), am); arms.rotation.z = Math.PI; arms.position.y = 0.1; anchor.add(arms);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.04, 8, 14), am); ring.position.y = 1.15; anchor.add(ring); }
+const chainGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, -1, 0)]);
+const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1, 8), std(0xaab3c5, { metalness: .7, roughness: .3, emissive: 0x404858, emissiveIntensity: .6 })); world.add(chain);
+const spark = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xff5a3c, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); spark.scale.setScalar(2.2); world.add(spark);
+// packets on the sea cables
+const sPk = []; for (let j = 0; j < 12; j++) { const m = new THREE.Mesh(new RoundedBoxGeometry(0.42, 0.42, 0.42, 2, 0.08), new THREE.MeshStandardMaterial({ color: 0xffc94a, emissive: 0xffa020, emissiveIntensity: 1.4 })); world.add(m); sPk.push(m); }
+// the phone in London that plays this video
+const phone = new THREE.Group(); world.add(phone); phone.position.set(27, 0.7, 5);
+let phoneScreen;
+{ const body = new THREE.Mesh(new RoundedBoxGeometry(2.6, 5.2, 0.28, 4, 0.32), std(0x1c1c22, { metalness: .7, roughness: .25 })); body.position.y = 2.7; phone.add(body);
+  const c = document.createElement('canvas'); c.width = 260; c.height = 500; const g = c.getContext('2d');
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  phoneScreen = new THREE.Mesh(new THREE.PlaneGeometry(2.35, 4.9), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false })); phoneScreen.position.set(0, 2.7, 0.15); phone.add(phoneScreen);
+  const img = new Image(); img.src = '../../airpods-ear/assets/invisitech-logo.png';
+  phone.userData.draw = (k) => { g.fillStyle = '#0b1230'; g.fillRect(0, 0, 260, 500);
+    if (k > 0) { g.globalAlpha = Math.min(1, k * 2); const grd = g.createLinearGradient(0, 0, 0, 500); grd.addColorStop(0, '#13204a'); grd.addColorStop(1, '#2a1640'); g.fillStyle = grd; g.fillRect(0, 0, 260, 500);
+      if (img.complete) g.drawImage(img, 70, 150, 120, 120);
+      g.fillStyle = '#fff'; g.font = '800 30px Sora'; g.textAlign = 'center'; g.fillText('InvisiTech', 130, 315);
+      g.fillStyle = 'rgba(255,255,255,.9)'; g.beginPath(); g.moveTo(112, 350); g.lineTo(112, 400); g.lineTo(155, 375); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(30, 440, 200, 6); g.fillStyle = '#e53935'; g.fillRect(30, 440, 200 * Math.min(1, k), 6); g.globalAlpha = 1; }
+    tex.needsUpdate = true; };
+  phone.traverse(o => o.castShadow = true); }
+// labels
+const mkCity = (name, sub) => { const d = document.createElement('div'); d.className = 'city'; d.innerHTML = name + '<small>' + sub + '</small>'; document.body.appendChild(d); return d; };
+const cityM = mkCity('Mumbai', 'you'), cityL = mkCity('London', 'your friend');
+const fibLab = document.createElement('div'); fibLab.className = 'city'; fibLab.innerHTML = 'Glass fibre<small>light bounces inside</small>'; document.body.appendChild(fibLab);
+const WP = v => v.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 8).add(WO);
+function hideP4() { world.visible = false; [cityM, cityL, fibLab].forEach(d => d.style.opacity = 0);
+  ['fade', 'endcard', 'ecPill', 'note4'].forEach(id => document.getElementById(id).style.opacity = 0);
+  renderer.domElement.style.filter = ''; document.getElementById('wm').style.opacity = .8; }
+const K4 = [
+  [34.0, RPOS.clone().add(new THREE.Vector3(-2.5, 3.2, -2.5)), 10],
+  [34.3, RPOS.clone().add(new THREE.Vector3(-2.5, 6, -2.5)), 16],
+  [34.31, WP(new THREE.Vector3(3.5, -0.5, 0)), 80],                          // cut to the world
+  [36.8, WP(new THREE.Vector3(3.5, -1.0, 0)), 77],
+  [37.6, WP(new THREE.Vector3(0, -3.3, -1)), 10.5],                     // into the glass fibre
+  [38.7, WP(new THREE.Vector3(0, -3.3, -1)), 10],
+  [39.6, WP(new THREE.Vector3(3.5, -1.0, 0)), 79],                        // all the cables
+  [42.3, WP(new THREE.Vector3(3.5, -1.0, 0)), 77],
+  [43.0, WP(new THREE.Vector3(-3, -2.4, -1.5)), 22],                    // ship + anchor
+  [45.0, WP(new THREE.Vector3(-1, -2.4, 0)), 26],
+  [46.4, WP(new THREE.Vector3(27, 3.2, 5)), 8],                         // the phone in London
+  [47.5, WP(new THREE.Vector3(27, 3.2, 5)), 7.5],
+  [50.0, WP(new THREE.Vector3(27, 3.2, 5)), 7],
+];
+const VO4 = [[33.9, 'Friend in <em>London?</em>'], [35.2, 'Routers link up, <em>under the sea,</em>'], [P4.p14, 'through glass cables carrying <em>light.</em>'],
+  [P4.p15, '<em>99%</em> of data between continents'], [40.6, 'goes <em>this way.</em>'], [P4.p16, '<em>Anchors</em> cut them,'], [43.9, 'so we lay <em>hundreds.</em>'], [45.0, 'Packets <em>reroute.</em>'],
+  [P4.p17, 'That’s how <em>this video</em> reached you.'], [P4.p18, 'Follow <em>InvisiTech</em> for more.']];
+const CUT_T = 43.55, CUT_X = -2.2;
+function shipX(t) { return -2.2; }
+function renderPart4(t) {
+  hideP3();
+  world.visible = t >= 34.3;
+  applyCam(t);
+  // moon follows to the world for shadows
+  if (t >= 34.3) { moon.position.copy(WO).add(new THREE.Vector3(-30, 50, 20)); moon.target.position.copy(WO); } else { moon.position.set(-30, 50, 20); moon.target.position.set(0, 0, 0); }
+  moon.target.updateMatrixWorld();
+  beamA.set(0); beamB.set(0); wire.visible = wireCore.visible = false; clips.forEach(c => c.visible = false); pulses.forEach(p => p.material.opacity = 0);
+  ['bitf', 'zzz', 'hletter'].forEach(id => document.getElementById(id).style.opacity = 0);
+  document.querySelectorAll('#bits .bit').forEach(d => d.style.opacity = 0);
+  if (t < 34.3) { router.visible = true; cables.forEach(c => { c.m.visible = true; c.m.geometry.setDrawRange(0, c.n); }); }
+  // dip to dark between street and world
+  document.getElementById('fade').style.opacity = Math.max(0, 1 - Math.abs(t - 34.3) / 0.28);
+  // cables light up from Mumbai to London
+  const lit = Math.min(1, Math.max(0, (t - 35.2) / 1.4));
+  seaCables.forEach((sc, j) => { const k = j === 0 ? lit : Math.min(1, Math.max(0, (t - 39.2 - j * 0.15) / 0.5));
+    sc.core.geometry.setDrawRange(0, Math.floor(sc.n * Math.max(k, 0.0001) / 3) * 3); sc.sheath.visible = true;
+    sc.core.material.emissiveIntensity = 0.4 + 1.6 * k; sc.core.material.color.set(0x9fe8ff); sc.core.material.emissive.set(0x6fd6ff); });
+  // fibre close-up
+  const fOn = t > 37.0 && t < 39.1; fibre.visible = fOn;
+  seaCables[0].sheath.visible = seaCables[0].core.visible = !fOn;
+  if (fOn) { const u = ((t - 37.0) / 1.6) % 1; const span = 0.35; const a = Math.max(0, u - span);
+    zzMesh.geometry.setDrawRange(Math.floor(ZZN * a / 3) * 3, Math.floor(ZZN * (u - a) / 3) * 3); photon.position.copy(zzCurve.getPoint(Math.min(0.999, u))); }
+  // ship + anchor + cut
+  const shipOn = t > 41.8; ship.visible = anchor.visible = chain.visible = shipOn;
+  const sx = CUT_X, sz = -6 + Math.min(1, Math.max(0, (t - 42.0) / 3.0)) * 5.2; ship.position.set(sx + 0.8, 0.25, sz);
+  const drop = Math.min(1, Math.max(0, (t - 42.4) / 0.7)), ay = 0.2 - drop * 4.4;
+  anchor.position.set(sx, ay, sz - 0.6 * drop + (drop >= 1 ? -0.4 : 0)); anchor.rotation.x = drop >= 1 ? 0.9 : 0;
+  { const a = new THREE.Vector3(sx + 0.8 - 2, 0.6, sz), b = anchor.position.clone().add(new THREE.Vector3(0, 2.95, 0)); chain.position.copy(a).lerp(b, 0.5); chain.scale.set(1, a.distanceTo(b), 1); chain.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), b.clone().sub(a).normalize()); }
+  const cut = t > CUT_T;
+  if (cut) { seaCables[0].core.material.color.set(0xff5a3c); seaCables[0].core.material.emissive.set(0xff3020); seaCables[0].core.material.emissiveIntensity = 1.2 + 0.8 * Math.sin(t * 20); }
+  const sp = Math.max(0, 1 - Math.abs(t - CUT_T - 0.1) / 0.5); spark.position.set(CUT_X, -4.3, -1); spark.material.opacity = sp; spark.visible = sp > 0;
+  // packets: before the cut on cable 0, after the cut rerouted on cable 1
+  sPk.forEach((m, j) => {
+    let on = false;
+    if (t > 35.6 && t < 36.95) { const u = ((t - 35.6) * 0.35 + j / 12) % 1; m.position.copy(seaCables[0].c.getPoint(u)).add(new THREE.Vector3(0, 0.35, 0)); on = j % 2 === 0; }
+    if (t > 42.6 && t < 45.9) { const re = t > CUT_T + 0.5; const c = re ? seaCables[1].c : seaCables[0].c; let u = ((t - 42.6) * 0.18 + j / 12) % 1;
+      if (!re && u > 0.47) on = false; else { m.position.copy(c.getPoint(u)).add(new THREE.Vector3(0, 0.35, 0)); on = true; } if (!re && t > CUT_T) on = on && u < 0.4; }
+    if (t > 45.9 && t < 47.0) { const u = Math.min(1, (t - 45.9 - j * 0.06) / 0.7); const a = seaCables[1].c.getPoint(1).add(new THREE.Vector3(0, 0.4, 0)); const b = new THREE.Vector3(27, 3.4, 5.2);
+      m.position.copy(a.lerp(b, Math.max(0, u))); on = u > 0 && u < 1; }
+    m.visible = on; m.rotation.set(t * 2 + j, t * 3, 0);
+  });
+  // the phone lights up with this video
+  phone.userData.draw(Math.max(0, (t - 46.5) / 1.2));
+  // labels
+  const lab = (el, v, on) => { const [x, y] = toScreen(WP(v)); el.style.left = x + 'vw'; el.style.top = y + 'vh'; el.style.opacity = on ? 1 : 0; };
+  const wide = (t > 34.5 && t < 36.9) || (t > 39.5 && t < 42.5);
+  lab(cityM, new THREE.Vector3(-28, 7.0, -6), wide); lab(cityL, new THREE.Vector3(28, 7.0, -6), wide);
+  lab(fibLab, new THREE.Vector3(0, -1.6, -1), t > 37.6 && t < 38.9);
+  document.getElementById('note4').style.opacity = t > 34.5 && t < 45.9 ? 1 : 0;
+  // cards
+  const card = document.getElementById('card');
+  if (t > P4.p15 + 0.3 && t < P4.p16) { card.innerHTML = '<div class="big">99%+</div><div class="cap">of data between continents goes by sea cable</div>'; card.style.opacity = ease((t - P4.p15 - 0.3) / 0.25); }
+  else if (t > 43.7 && t < 45.9) { card.innerHTML = '<div class="big">150–200</div><div class="cap">cable faults a year, mostly anchors &amp; fishing</div>'; card.style.opacity = ease((t - 43.7) / 0.25); }
+  else card.style.opacity = 0;
+  if (t > 34.3) { document.getElementById('note4').style.top = card.style.opacity > 0 ? '24.2%' : '12.8%'; }
+  // subtitles
+  let line = ''; for (const [a, txt] of VO4) if (t >= a) line = txt;
+  subIn.innerHTML = line; subEl.style.opacity = line && t < P4.card + 0.05 ? 1 : 0; titleEl.style.opacity = 0;
+  cinePost(t); composer.render();
+  // ---- end card: the phone scene in a rounded panel over a blurred background ----
+  const ecA = ease((t - P4.card) / 0.5), ec = document.getElementById('endcard'), pill = document.getElementById('ecPill');
+  if (ecA > 0) {
+    ec.style.opacity = ecA; ec.style.transform = `scale(${0.9 + 0.1 * ecA})`;
+    renderer.domElement.style.filter = `blur(${10 * ecA}px) brightness(${1 - 0.4 * ecA})`;
+    const cv = document.getElementById('ecScene'), r = ec.getBoundingClientRect(), dpr = renderer.getPixelRatio();
+    cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+    const src = renderer.domElement, sw = src.width, sh = src.height, scale = Math.max(cv.width / sw, cv.height / sh) * 1.25;
+    cv.getContext('2d').drawImage(src, (cv.width - sw * scale) / 2, (cv.height - sh * scale) / 2 - cv.height * 0.05, sw * scale, sh * scale);
+    const b = ease((t - P4.card - 0.5) / 0.5);
+    document.getElementById('ecShade').style.opacity = b; document.getElementById('ecBrand').style.opacity = b;
+    pill.style.opacity = ease((t - P4.card - 0.9) / 0.4);
+    document.getElementById('wm').style.opacity = Math.max(0, 0.8 * (1 - ecA * 2));   // watermark hidden on the end card
+    card.style.opacity = 0; document.getElementById('note4').style.opacity = 0;
+  } else { ec.style.opacity = 0; pill.style.opacity = 0; renderer.domElement.style.filter = ''; document.getElementById('wm').style.opacity = .8; }
+}
+// ===================================================================================
+// CINEMATIC LAYER: perspective camera rig, new sets, secondary motion, 3D info graphics
+// (spliced into cine.html inside the module, after all scene objects exist)
+// ===================================================================================
+const UP = new THREE.Vector3(0, 1, 0);
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const clamp01 = x => Math.min(1, Math.max(0, x));
+const smoother = u => u * u * u * (u * (u * 6 - 15) + 10);
+const lerp = (a, b, k) => a + (b - a) * k;
+scene.fog = null;
+
+// ---------- helpers: text as a 3D plane (canvas texture) ----------
+function textPlane(lines, { w = 2, h = 0.6, bg = 'rgba(14,16,30,.86)', border = 'rgba(255,255,255,.25)', color = '#fff', accent = '#ffc94a', font = 'Sora', px = 64, glow = false } = {}) {
+  const c = document.createElement('canvas'); const S = 1024; c.width = S; c.height = Math.round(S * h / w); px *= 2;
+  const g = c.getContext('2d'); const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  const draw = (L = lines) => {
+    g.clearRect(0, 0, c.width, c.height);
+    if (bg) { g.fillStyle = bg; const r = Math.min(c.height * 0.22, 60); g.beginPath(); g.roundRect(6, 6, c.width - 12, c.height - 12, r); g.fill(); g.strokeStyle = border; g.lineWidth = 6; g.stroke(); }
+    const n = L.length; L.forEach((ln, k) => {
+      const big = k === 0; g.font = `${big ? 800 : 600} ${big ? px : px * 0.5}px ${font}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillStyle = big ? (ln.startsWith('!') ? accent : color) : 'rgba(255,255,255,.75)';
+      if (glow) { g.shadowColor = accent; g.shadowBlur = 24; } else g.shadowBlur = 0;
+      g.fillText(ln.replace(/^!/, ''), c.width / 2, c.height * (n === 1 ? 0.52 : (0.38 + k * 0.36)), c.width * 0.88);
+    }); tex.needsUpdate = true; };
+  draw();
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true, toneMapped: false, depthWrite: false, side: THREE.DoubleSide }));
+  m.userData.draw = draw; return m;
+}
+const billboard = (m) => m.quaternion.copy(cam.quaternion);
+
+// ---------- street life: a passing car with headlights, drifting dust, clouds ----------
+const car = new THREE.Group(); scene.add(car);
+{ const body = new THREE.Mesh(new RoundedBoxGeometry(2.2, 0.6, 1.1, 3, 0.2), std(0x2f6fd0, { roughness: .35, metalness: .3 })); body.position.y = 0.55; car.add(body);
+  const top = new THREE.Mesh(new RoundedBoxGeometry(1.2, 0.45, 0.95, 3, 0.18), new THREE.MeshPhysicalMaterial({ color: 0x9fc4ff, roughness: .1, metalness: .2, transparent: true, opacity: .8 })); top.position.set(-0.1, 1.0, 0); car.add(top);
+  for (const sx of [-0.7, 0.7]) for (const sz of [-0.55, 0.55]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.16, 16), std(0x111111)); w.rotation.x = Math.PI / 2; w.position.set(sx, 0.25, sz); car.add(w); }
+  for (const sz of [-0.35, 0.35]) { const hl = new THREE.Mesh(new THREE.SphereGeometry(0.08, 10, 8), new THREE.MeshBasicMaterial({ color: 0xfff2cc })); hl.position.set(-1.1, 0.6, sz); car.add(hl); }
+  const beamL = new THREE.SpotLight(0xffe6b0, 40, 14, 0.5, 0.6, 1.5); beamL.position.set(-1.1, 0.6, 0); beamL.target.position.set(-6, 0, 0); car.add(beamL); car.add(beamL.target);
+  car.traverse(o => { if (o.isMesh) o.castShadow = true; }); }
+const dust = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: 0xffe3a0, size: 0.06, transparent: true, opacity: .5, depthWrite: false, blending: THREE.AdditiveBlending }));
+{ const n = 500, p = new Float32Array(n * 3); for (let i = 0; i < n; i++) p.set([(rnd() - .5) * 34, rnd() * 16, (rnd() - .5) * 34], i * 3); dust.geometry.setAttribute('position', new THREE.BufferAttribute(p, 3)); scene.add(dust); }
+
+// ---------- filler blocks: windows on all sides ----------
+function windowTex(cols, rows, seedOff) { const c = document.createElement('canvas'); c.width = cols * 32; c.height = rows * 48; const g = c.getContext('2d');
+  g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height);
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) { const r = rnd(); g.fillStyle = r < .42 ? '#ffb347' : r < .6 ? '#ffd9a0' : '#0b1020'; g.fillRect(x * 32 + 7, y * 48 + 9, 18, 28); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
+for (const [x, z, w, d, fl, col] of [[-12, -17.5, 6, 3, 7, 0x4a5578], [17.3, -10, 3, 8, 6, 0x6a5a7a], [-17.3, 9, 3, 10, 5, 0x5a6a8a]]) {
+  const h = fl * 3.2, tex = windowTex(Math.round(w * 0.9), fl * 2, x);
+  const mat = new THREE.MeshStandardMaterial({ color: col, roughness: .85, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: .9 });
+  const m = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, 0.2), mat); m.position.set(x, h / 2, z); m.castShadow = m.receiveShadow = true; scene.add(m);
+  const roof = new THREE.Mesh(new RoundedBoxGeometry(w + 0.3, 0.4, d + 0.3, 2, 0.1), std(0xd8d2c4)); roof.position.set(x, h + 0.2, z); scene.add(roof);
+  const tank = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 1.2, 20), std(0x1c1c22)); tank.position.set(x - w * 0.2, h + 1, z); tank.castShadow = true; scene.add(tank);
+}
+for (const [x, z, ry, w, h] of [[-5.98, -10.5, Math.PI / 2, 8.6, 19.2], [2.48, -10.5, -Math.PI / 2, 8.6, 16]]) {
+  const tex = windowTex(9, 12, x); const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ color: 0x222233, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: .8, transparent: true, opacity: .95 }));
+  m.position.set(x, h / 2, z); m.rotation.y = ry; scene.add(m); }
+// ---------- 3D info graphics in the street ----------
+const plate3 = textPlane(['FLAT 7'], { w: 0.55, h: 0.21, bg: '#efe7d4', border: '#8a7a5a', color: '#10142a', px: 150 });
+plate3.position.copy(balA).add(V(-1.66, 1.62, 0.55)); plate3.rotation.y = -Math.PI / 2; scene.add(plate3); plate3.visible = false;
+const girlPhone = new THREE.Group(); scene.add(girlPhone);
+{ const b = new THREE.Mesh(new RoundedBoxGeometry(0.2, 0.38, 0.03, 2, 0.03), std(0x15151a, { metalness: .6, roughness: .25 })); girlPhone.add(b);
+  const sc = new THREE.Mesh(new THREE.PlaneGeometry(0.17, 0.34), new THREE.MeshBasicMaterial({ color: 0x4fc3f7, toneMapped: false })); sc.position.z = 0.017; girlPhone.add(sc); }
+girlPhone.position.copy(wp(girl.userData.head)).add(V(0.12, -0.55, 0.32)); girlPhone.rotation.set(-0.5, 0.6, 0); girlPhone.visible = false;
+const ipHolo = textPlane(['!192.168.1.7', 'IP address'], { w: 0.75, h: 0.32, bg: 'rgba(8,30,20,.78)', border: '#2fd36b', accent: '#2fd36b', font: 'IBM Plex Mono', px: 76, glow: true });
+ipHolo.position.copy(girlPhone.position).add(V(0, 0.55, 0.1)); scene.add(ipHolo); ipHolo.visible = false;
+const letters = 'HELLO'.split('').map(ch => { const m = textPlane(['!' + ch], { w: 0.75, h: 0.75, bg: null, accent: '#ffc94a', px: 300, glow: true }); m.material.depthTest = false; m.renderOrder = 10; scene.add(m); m.visible = false; return m; });
+
+// ---------- the video as a 3D object, split into 8 packets ----------
+const vidCanvas = document.createElement('canvas'); vidCanvas.width = 512; vidCanvas.height = 288;
+function drawCricket(g, w, h) {
+  const sky = g.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#2b6fd6'); sky.addColorStop(.45, '#7fc4ff'); sky.addColorStop(.46, '#2e9e4f'); sky.addColorStop(1, '#1f7a3a'); g.fillStyle = sky; g.fillRect(0, 0, w, h);
+  g.fillStyle = '#d8c48a'; g.beginPath(); g.moveTo(w * .44, h * .48); g.lineTo(w * .56, h * .48); g.lineTo(w * .64, h); g.lineTo(w * .36, h); g.fill();
+  g.fillStyle = '#fff'; for (const x of [.47, .5, .53]) g.fillRect(w * x, h * .5, 3, h * .1);
+  g.fillStyle = '#1a1a1a'; g.beginPath(); g.arc(w * .5, h * .74, h * .07, 0, 7); g.fill(); g.fillRect(w * .48, h * .78, w * .04, h * .16);
+  g.fillStyle = '#c8102e'; g.beginPath(); g.arc(w * .7, h * .62, h * .03, 0, 7); g.fill();
+  g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, h - 26, w, 26); g.fillStyle = '#fff'; g.font = '700 18px Sora'; g.fillText('cricket.mp4', 12, h - 8);
+}
+drawCricket(vidCanvas.getContext('2d'), 512, 288);
+const vidTex = new THREE.CanvasTexture(vidCanvas); vidTex.colorSpace = THREE.SRGBColorSpace;
+const VID_C = tieB.clone().add(V(1.8, 1.4, -1.4));
+const vtiles = [];
+for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
+  const geo = new RoundedBoxGeometry(0.6, 0.675, 0.12, 2, 0.03);
+  const mats = [0, 1, 2, 3, 5].map(() => new THREE.MeshStandardMaterial({ color: 0xffc94a, emissive: 0xffa020, emissiveIntensity: .9, roughness: .3 }));
+  const front = new THREE.MeshBasicMaterial({ map: vidTex.clone(), toneMapped: false }); front.map.repeat.set(0.25, 0.5); front.map.offset.set(c * 0.25, (1 - r) * 0.5); front.map.needsUpdate = true;
+  const m = new THREE.Mesh(geo, [mats[0], mats[1], mats[2], mats[3], front, mats[4]]); m.castShadow = true;
+  const lab = textPlane(['→ .1.7'], { w: 0.42, h: 0.15, bg: '#ffc94a', border: '#b07a10', color: '#10142a', font: 'IBM Plex Mono', px: 110 }); scene.add(lab);
+  m.userData = { r, c, lab }; scene.add(m); m.visible = false; vtiles.push(m);
+}
+const pathPts = [VID_C.clone(), FLATS[1].p.clone(), RTOP.clone(), FLATS[0].p.clone()];
+const pkCurve = new THREE.CatmullRomCurve3([pathPts[0], pathPts[0].clone().lerp(pathPts[1], .5).add(V(0, -0.4, 0)), pathPts[1], pathPts[1].clone().lerp(pathPts[2], .5), pathPts[2], pathPts[2].clone().lerp(pathPts[3], .5), pathPts[3]], false, 'centripetal');
+
+// ---------- inside the copper wire (electrical pulses) ----------
+const WIRE0 = V(0, -300, 0);
+const wireSet = new THREE.Group(); wireSet.position.copy(WIRE0); scene.add(wireSet); wireSet.visible = false;
+{ const L = 140;
+  const ins = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.2, L, 48, 1, true).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x2a1a12, roughness: .9, side: THREE.BackSide })); wireSet.add(ins);
+  const core = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.3, L, 48).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xc97a3a, metalness: 1, roughness: .3, emissive: 0x5a2a0c, emissiveIntensity: .7 })); wireSet.add(core);
+  const pl = new THREE.PointLight(0xffb070, 80, 30, 1.5); pl.position.set(0, 2.4, 0); wireSet.add(pl); wireSet.userData.light = pl;
+  const el = []; for (let k = 0; k < 90; k++) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0x8fd0ff, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); sp.scale.setScalar(0.5); wireSet.add(sp); el.push({ sp, a: rnd() * Math.PI * 2, r: 1.35 + rnd() * 0.15, x: rnd() }); }
+  wireSet.userData.el = el;
+  const lab = textPlane(['!Copper wire', 'electrical pulses'], { w: 2.2, h: 0.85, accent: '#ffb070', px: 96 }); lab.position.set(-4, 2.0, 0); wireSet.add(lab); wireSet.userData.lab = lab; }
+
+// ---------- Earth with the real Mumbai -> London cable route ----------
+const G0 = V(0, 1200, 0), GR = 20;
+const globe = new THREE.Group(); globe.position.copy(G0); scene.add(globe); globe.visible = false;
+const gCanvas = document.createElement('canvas'); gCanvas.width = 2048; gCanvas.height = 1024;
+const gTex = new THREE.CanvasTexture(gCanvas); gTex.colorSpace = THREE.SRGBColorSpace; gTex.anisotropy = 8;
+const earth = new THREE.Mesh(new THREE.SphereGeometry(GR, 96, 64), new THREE.MeshStandardMaterial({ map: gTex, roughness: .75, metalness: 0, emissive: 0xffffff, emissiveMap: gTex, emissiveIntensity: 0.18 }));
+globe.add(earth);
+const atmo = new THREE.Mesh(new THREE.SphereGeometry(GR * 1.06, 64, 48), new THREE.ShaderMaterial({ transparent: true, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false,
+  vertexShader: 'varying vec3 vN; varying vec3 vP; void main(){ vN = normalize(normalMatrix*normal); vec4 mv = modelViewMatrix*vec4(position,1.); vP = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }',
+  fragmentShader: 'varying vec3 vN; varying vec3 vP; void main(){ float f = pow(1. - abs(dot(vN, vP)), 2.5); gl_FragColor = vec4(vec3(0.3,0.6,1.0)*f*1.6, f); }' }));
+globe.add(atmo);
+const sun = new THREE.DirectionalLight(0xffffff, 0); sun.position.copy(G0).add(V(60, 30, 80)); sun.target.position.copy(G0); scene.add(sun); scene.add(sun.target);
+const ll = (lat, lon, r = GR) => { const phi = (lon + 180) / 360 * Math.PI * 2, th = (90 - lat) / 180 * Math.PI; return V(-r * Math.cos(phi) * Math.sin(th), r * Math.cos(th), r * Math.sin(phi) * Math.sin(th)); };
+// route like the SEA-ME-WE family: Arabian Sea, Gulf of Aden, Red Sea, Suez, Mediterranean, Gibraltar, Biscay, Channel
+const ROUTE = [[19.0, 72.8], [16, 62], [12.5, 48], [13, 43], [20, 38.5], [27.5, 34], [30.5, 32.4], [31.5, 31], [34.5, 22], [37, 11], [36.5, 0], [36, -6], [40, -10.5], [46, -8], [49.5, -4], [50.8, -1], [51.5, -0.1]];
+const routeCurve = new THREE.CatmullRomCurve3(ROUTE.map(([a, b]) => ll(a, b, GR * 1.004)), false, 'centripetal');
+const routeMesh = new THREE.Mesh(new THREE.TubeGeometry(routeCurve, 400, 0.09, 8, false), new THREE.MeshBasicMaterial({ color: 0xffd36a, toneMapped: false })); globe.add(routeMesh);
+const ROUTE_N = routeMesh.geometry.index.count;
+const pin = (lat, lon, name) => { const g = new THREE.Group(); const p = ll(lat, lon, GR); g.position.copy(p);
+  const dot = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false })); g.add(dot);
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xffc94a, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); halo.scale.setScalar(2.4); g.add(halo);
+  const lab = textPlane([name], { w: 4.2, h: 1.1, px: 120 }); lab.position.copy(p.clone().normalize().multiplyScalar(2.4)); g.add(lab); g.userData.lab = lab; globe.add(g); return g; };
+const pinM = pin(19.08, 72.88, 'Mumbai'), pinL = pin(51.5, -0.13, 'London');
+const starsG = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: 0xcfd8ff, size: 1.6, sizeAttenuation: false, transparent: true, opacity: .8 }));
+{ const n = 1500, p = new Float32Array(n * 3); for (let i = 0; i < n; i++) { const v = V(rnd() - .5, rnd() - .5, rnd() - .5).normalize().multiplyScalar(400 + rnd() * 200); p.set([v.x, v.y, v.z], i * 3); } starsG.geometry.setAttribute('position', new THREE.BufferAttribute(p, 3)); globe.add(starsG); }
+window.GLOBE_READY = fetch('../node_modules/world-atlas/countries-110m.json').then(r => r.json()).then(topo => {
+  const land = topojson.feature(topo, topo.objects.land), g = gCanvas.getContext('2d'), Wd = 2048, Hd = 1024;
+  const oc = g.createLinearGradient(0, 0, 0, Hd); oc.addColorStop(0, '#0b2a5a'); oc.addColorStop(.5, '#0f3f86'); oc.addColorStop(1, '#0b2a5a'); g.fillStyle = oc; g.fillRect(0, 0, Wd, Hd);
+  g.fillStyle = '#2f6b4f'; g.strokeStyle = '#5fae84'; g.lineWidth = 1.5;
+  const X = lon => (lon + 180) / 360 * Wd, Y = lat => (90 - lat) / 180 * Hd;
+  for (const f of land.features) { const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+    for (const poly of polys) { g.beginPath(); for (const ring of poly) { ring.forEach(([lo, la], k) => { const x = X(lo), y = Y(la); k ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); } g.fill('evenodd'); g.stroke(); } }
+  gTex.needsUpdate = true;
+}).catch(e => console.log('globe', e));
+
+// ---------- underwater world ----------
+const U0 = V(0, -600, 0);
+const sea = new THREE.Group(); sea.position.copy(U0); scene.add(sea); sea.visible = false;
+const seaFog = new THREE.FogExp2(0x06304d, 0.035), seaBg = new THREE.Color(0x06304d);
+const seabedGeo = new THREE.PlaneGeometry(160, 160, 160, 160); seabedGeo.rotateX(-Math.PI / 2);
+{ const p = seabedGeo.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i);
+    p.setY(i, Math.sin(x * 0.18) * 0.5 + Math.cos(z * 0.23 + x * 0.07) * 0.6 + Math.sin(x * 0.9 + z * 0.7) * 0.12 + (Math.abs(z) > 14 ? (Math.abs(z) - 14) * 0.25 : 0)); } seabedGeo.computeVertexNormals(); }
+const seabed = new THREE.Mesh(seabedGeo, new THREE.MeshStandardMaterial({ color: 0x6f5f45, roughness: 1 })); seabed.receiveShadow = true; sea.add(seabed);
+const seaLight = new THREE.DirectionalLight(0x9fd8ff, 0); seaLight.position.copy(U0).add(V(10, 40, 6)); seaLight.target.position.copy(U0); scene.add(seaLight); scene.add(seaLight.target);
+const seaAmb = new THREE.HemisphereLight(0x5fb0e0, 0x1a2a20, 0); scene.add(seaAmb);
+for (let k = 0; k < 60; k++) { const r = new THREE.Mesh(new THREE.DodecahedronGeometry(0.3 + rnd() * 1.1, 0), std(0x5a5a52, { roughness: 1 })); r.position.set((rnd() - .5) * 120, 0.3, (rnd() - .5) * 60); r.rotation.set(rnd() * 3, rnd() * 3, 0); r.castShadow = true; sea.add(r); }
+const weeds = []; for (let k = 0; k < 90; k++) { const h = 1 + rnd() * 2.5; const w = new THREE.Mesh(new THREE.CapsuleGeometry(0.06, h, 3, 6), std(0x2f8a5a, { roughness: .8 })); w.position.set((rnd() - .5) * 110, h / 2, (rnd() - .5) * 50); sea.add(w); weeds.push(w); }
+const rays = []; for (let k = 0; k < 9; k++) { const m = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 4.5, 60, 24, 1, true), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+    uniforms: { o: { value: 0.12 } }, vertexShader: 'varying float vY; void main(){ vY = uv.y; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }',
+    fragmentShader: 'uniform float o; varying float vY; void main(){ gl_FragColor = vec4(vec3(0.6,0.85,1.0)*o*vY*vY, 1.); }' }));
+  m.position.set(-40 + k * 11 + rnd() * 4, 28, -8 + rnd() * 16); m.rotation.z = 0.25; sea.add(m); rays.push(m); }
+const snow = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: 0xdff4ff, size: 0.08, transparent: true, opacity: .7, depthWrite: false }));
+{ const n = 2500, p = new Float32Array(n * 3); for (let i = 0; i < n; i++) p.set([(rnd() - .5) * 120, rnd() * 26, (rnd() - .5) * 50], i * 3); snow.geometry.setAttribute('position', new THREE.BufferAttribute(p, 3)); sea.add(snow); }
+const surfaceU = new THREE.Mesh(new THREE.PlaneGeometry(240, 240), new THREE.MeshBasicMaterial({ color: 0x7fd0ff, transparent: true, opacity: .35, side: THREE.DoubleSide, depthWrite: false })); surfaceU.rotation.x = Math.PI / 2; surfaceU.position.y = 30; sea.add(surfaceU);
+// cables on the seabed (black polyethylene) carrying light pulses; cable 0 is ours
+const SZ = [-1.5, 3, -6, 7.5, -10.5, 11.5];
+const sCables = SZ.map((z, j) => { const pts = []; for (let k = 0; k <= 12; k++) { const x = -70 + k * 140 / 12; pts.push(V(x, 0.55 + Math.sin(x * 0.18) * 0.5 + Math.cos(z * 0.23 + x * 0.07) * 0.6, z + Math.sin(k * 1.3 + j) * 0.8)); }
+  const c = new THREE.CatmullRomCurve3(pts); const m = new THREE.Mesh(new THREE.TubeGeometry(c, 300, 0.32, 14, false), std(0x15161a, { roughness: .45, metalness: .2 })); m.castShadow = true; sea.add(m);
+  const ps = []; for (let k = 0; k < 16; k++) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: j === 0 ? 0xfff2c4 : 0x8fe8ff, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); sp.scale.setScalar(1.1); sea.add(sp); ps.push(sp); }
+  return { c, m, ps }; });
+// cut-away cross-section of cable 0 (technical illustration: layers stepped back)
+const XS = new THREE.Group(); sea.add(XS);
+const XS_X = -14, XS_P = sCables[0].c.getPoint((XS_X + 70) / 140);
+XS.position.copy(XS_P); XS.position.y += 0.25;
+{ const layers = [[0.34, 0x15161a, 0], [0.27, 0x8a8f99, 1.2], [0.2, 0xc97a3a, 2.4], [0.14, 0xd6e8ff, 3.6]];
+  layers.forEach(([r, col, off], k) => { const len = 4 - off * 0.85; const mat = k === 3 ? new THREE.MeshPhysicalMaterial({ color: col, transparent: true, opacity: .35, roughness: .05 }) : std(col, { metalness: k ? .9 : .1, roughness: k ? .3 : .5 });
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(r * 2.2, r * 2.2, len, 40).rotateZ(Math.PI / 2), mat); m.position.x = off * 0.85 / 2 + 2; m.castShadow = true; XS.add(m); });
+  for (let k = 0; k < 14; k++) { const a = k / 14 * Math.PI * 2; const w = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 3.0, 8).rotateZ(Math.PI / 2), std(0xb8bec8, { metalness: 1, roughness: .25 })); w.position.set(2.5, Math.sin(a) * 0.55, Math.cos(a) * 0.55); XS.add(w); }
+  const cols = [0x4fc3f7, 0xffc94a, 0x2fd36b, 0xff6b8a, 0xb388ff, 0xffffff, 0xff9a40, 0x7ce0ff];
+  cols.forEach((col, k) => { const a = k / 8 * Math.PI * 2; const f = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 5.4, 8).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 1.6 })); f.position.set(3.3, Math.sin(a) * 0.13, Math.cos(a) * 0.13); XS.add(f); });
+  const labs = [['Plastic jacket', 1.0, 1.05], ['Steel armour', 2.0, 1.4], ['Copper (powers repeaters)', 3.0, 1.75], ['!Glass fibres', 4.6, 0.75]];
+  XS.userData.labs = labs.map(([t, x, y]) => { const m = textPlane([t], { w: 1.25, h: 0.25, px: t.length > 18 ? 46 : 60 }); m.position.set(x, y, 0.6); XS.add(m); return m; }); }
+// inside one glass fibre (light by total internal reflection)
+const fibSet = new THREE.Group(); fibSet.position.copy(U0).add(V(0, -200, 0)); scene.add(fibSet); fibSet.visible = false;
+{ const L = 160; const tube = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, L, 48, 1, true).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x3a9ad8, emissive: 0x1a6aa8, emissiveIntensity: 1.1, transparent: true, opacity: .75, side: THREE.BackSide, roughness: .1 })); fibSet.add(tube);
+  const clad = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.6, L, 48, 1, true).rotateZ(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x06142a, side: THREE.BackSide })); fibSet.add(clad);
+  const zz = []; for (let k = 0; k <= 40; k++) zz.push(V(-L / 2 + k * L / 40, (k % 2 ? 1 : -1) * 2.6, (k % 4 < 2 ? 0.6 : -0.6)));
+  const zc = new THREE.CurvePath(); for (let k = 0; k < 40; k++) zc.add(new THREE.LineCurve3(zz[k], zz[k + 1]));
+  const zm = new THREE.Mesh(new THREE.TubeGeometry(zc, 800, 0.025, 6, false), new THREE.MeshBasicMaterial({ color: 0xfff2c4, transparent: true, opacity: .08, toneMapped: false })); fibSet.add(zm);
+  const ph = []; for (let k = 0; k < 10; k++) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xffe6a0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); sp.scale.setScalar(2.2); fibSet.add(sp); ph.push(sp); }
+  const streak = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: 0xbfefff, size: 0.12, transparent: true, opacity: .8, blending: THREE.AdditiveBlending, depthWrite: false }));
+  { const n = 1600, p = new Float32Array(n * 3); for (let i = 0; i < n; i++) { const a = rnd() * Math.PI * 2; p.set([(rnd() - .5) * L, Math.sin(a) * 2.9, Math.cos(a) * 2.9], i * 3); } streak.geometry.setAttribute('position', new THREE.BufferAttribute(p, 3)); fibSet.add(streak); }
+  fibSet.userData = { zc, ph, L };
+  const lab = textPlane(['!Glass fibre', 'light pulses bounce inside'], { w: 2.4, h: 0.86, px: 100 }); lab.position.set(0, 1.0, 0); fibSet.add(lab); fibSet.userData.lab = lab; }
+// 3D info panels in the sea
+const p99 = textPlane(['!99%+', 'of data between continents goes by sea cable'], { w: 3.6, h: 1.25, px: 80, glow: true }); sea.add(p99); p99.visible = false;
+const pFaults = textPlane(['!150–200', 'cable faults a year, mostly anchors & fishing'], { w: 3.6, h: 1.25, px: 80, accent: '#ff7a5a', glow: true }); sea.add(pFaults); pFaults.visible = false;
+// ship (seen from below) and anchor
+const sship = new THREE.Group(); sea.add(sship);
+{ const hull = new THREE.Mesh(new RoundedBoxGeometry(16, 3, 4.5, 3, 1.2), std(0x1a1414, { roughness: .8 })); sship.add(hull);
+  const keel = new THREE.Mesh(new THREE.BoxGeometry(14, 0.6, 0.6), std(0x3a2a20)); keel.position.y = -1.7; sship.add(keel); }
+sship.position.set(XS_X + 22, 30.5, -1.5);
+const sAnchor = new THREE.Group(); sea.add(sAnchor);
+{ const am = std(0x9aa0aa, { metalness: .8, roughness: .35 });
+  const shank = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 3.2, 12), am); shank.position.y = 1.6; sAnchor.add(shank);
+  const arms = new THREE.Mesh(new THREE.TorusGeometry(1.3, 0.2, 10, 24, Math.PI), am); arms.rotation.z = Math.PI; arms.position.y = 0.3; sAnchor.add(arms);
+  for (const s of [-1, 1]) { const fl = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.8, 4), am); fl.position.set(s * 1.3, 0.6, 0); sAnchor.add(fl); }
+  sAnchor.scale.setScalar(1.5); sAnchor.traverse(o => o.castShadow = true); const al = new THREE.PointLight(0xbfe6ff, 30, 12, 1.5); al.position.set(0, 4, 3); sAnchor.add(al); }
+const sChain = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 1, 8), std(0x8a8f99, { metalness: .8, roughness: .4 })); sea.add(sChain);
+const silt = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: 0xcdb88a, size: 0.25, transparent: true, opacity: .0, depthWrite: false }));
+{ const n = 400, p = new Float32Array(n * 3); for (let i = 0; i < n; i++) p.set([(rnd() - .5) * 6, rnd() * 3, (rnd() - .5) * 6], i * 3); silt.geometry.setAttribute('position', new THREE.BufferAttribute(p, 3)); sea.add(silt); }
+const CUT_U = 0.5, CUT_P = sCables[0].c.getPoint(CUT_U);
+
+// ---------- London: the phone that rebuilds the video ----------
+const PH0 = V(0, -1100, 0);
+const phoneSet = new THREE.Group(); phoneSet.position.copy(PH0); scene.add(phoneSet); phoneSet.visible = false;
+const phCanvas = document.createElement('canvas'); phCanvas.width = 540; phCanvas.height = 1100; const phG = phCanvas.getContext('2d');
+const phTex = new THREE.CanvasTexture(phCanvas); phTex.colorSpace = THREE.SRGBColorSpace;
+const logoImg = new Image(); logoImg.src = '../../airpods-ear/assets/invisitech-logo.png';
+{ const body = new THREE.Mesh(new RoundedBoxGeometry(5.4, 11, 0.5, 6, 0.7), new THREE.MeshPhysicalMaterial({ color: 0x1c1c22, metalness: .8, roughness: .2, clearcoat: 1 })); phoneSet.add(body);
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(5.0, 10.4), new THREE.MeshBasicMaterial({ map: phTex, toneMapped: false })); scr.position.z = 0.26; phoneSet.add(scr);
+  const cam1 = new THREE.Mesh(new THREE.CircleGeometry(0.16, 20), new THREE.MeshBasicMaterial({ color: 0x050505 })); cam1.position.set(0, 4.85, 0.27); phoneSet.add(cam1);
+  const glass = new THREE.Mesh(new THREE.PlaneGeometry(5.0, 10.4), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: .06, roughness: 0, metalness: 0, clearcoat: 1 })); glass.position.z = 0.28; phoneSet.add(glass); }
+const phLights = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: 0xffc070, size: 0.5, transparent: true, opacity: .8, depthWrite: false, blending: THREE.AdditiveBlending }));
+{ const n = 220, p = new Float32Array(n * 3); for (let i = 0; i < n; i++) p.set([(rnd() - .5) * 70, (rnd() - .5) * 60, -10 - rnd() * 40], i * 3); phLights.geometry.setAttribute('position', new THREE.BufferAttribute(p, 3)); phoneSet.add(phLights); }
+const phPk = []; for (let k = 0; k < 8; k++) { const m = new THREE.Mesh(new RoundedBoxGeometry(1.25, 1.3, 0.25, 2, 0.06), [0, 1, 2, 3, 4, 5].map(i => i === 4 ? (() => { const mm = new THREE.MeshBasicMaterial({ map: vidTex.clone(), toneMapped: false }); mm.map.repeat.set(.25, .5); mm.map.offset.set((k % 4) * .25, (1 - Math.floor(k / 4)) * .5); mm.map.needsUpdate = true; return mm; })() : new THREE.MeshStandardMaterial({ color: 0xffc94a, emissive: 0xffa020, emissiveIntensity: 1 })));
+  phoneSet.add(m); phPk.push(m); }
+const phLight = new THREE.PointLight(0xffffff, 120, 50, 1.5); phLight.position.set(6, 6, 10); phoneSet.add(phLight); const phRim = new THREE.PointLight(0x4fc3f7, 90, 40, 1.5); phRim.position.set(-6, 4, -4); phoneSet.add(phRim);
+function drawPhone(k) {   // k: 0 = blank, 1 = video rebuilt, 2 = InvisiTech
+  const g = phG, w = 540, h = 1100; g.fillStyle = '#0b1230'; g.fillRect(0, 0, w, h);
+  g.fillStyle = '#fff'; g.font = '700 26px Sora'; g.fillText('9:41', 40, 50);
+  if (k > 0) { g.save(); g.globalAlpha = clamp01(k); g.translate(0, 330); const tmp = vidCanvas; g.drawImage(tmp, 0, 0, 540, 304); g.restore();
+    g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(30, 650, 480, 8); g.fillStyle = '#e53935'; g.fillRect(30, 650, 480 * clamp01(k), 8);
+    g.fillStyle = '#fff'; g.font = '700 34px Sora'; g.fillText('From Mumbai, with love', 30, 720); g.font = '500 24px Sora'; g.fillStyle = 'rgba(255,255,255,.7)'; g.fillText('8 packets · rebuilt in order', 30, 760); }
+  if (k > 1) { g.fillStyle = `rgba(11,18,48,${clamp01(k - 1)})`; g.fillRect(0, 0, w, h); g.globalAlpha = clamp01(k - 1);
+    if (logoImg.complete) g.drawImage(logoImg, 170, 330, 200, 200); g.fillStyle = '#fff'; g.font = '800 64px Sora'; g.textAlign = 'center'; g.fillText('Invisi', 230, 620); g.fillStyle = '#4fc3f7'; g.fillText('Tech', 380, 620); g.textAlign = 'left'; g.globalAlpha = 1; }
+  phTex.needsUpdate = true; }
+
+// ===================================================================================
+// SHOT LIST (time-locked to the narration; every shot eases in and out)
+// ===================================================================================
+const dG = fA.clone().sub(fB).setY(0).normalize(), RG = new THREE.Vector3().crossVectors(dG, UP).normalize();
+const girlFace = V(Math.sin(0.6), 0, Math.cos(0.6));
+const SH = [];
+function shot(t0, t1, P, T, fov = [30, 30], o = {}) { SH.push({ t0, t1, P: P.length > 1 ? new THREE.CatmullRomCurve3(P, false, 'centripetal') : null, P0: P[0], T: T.length > 1 ? new THREE.CatmullRomCurve3(T, false, 'centripetal') : null, T0: T[0], fov, ...o }); }
+const front = fB.clone().addScaledVector(dG, 3.0).addScaledVector(RG, 1.6).add(V(0, 0.5, 0));
+const ots = bHead.clone().addScaledVector(dG, -1.25).addScaledVector(RG, 0.55).add(V(0, 0.35, 0));
+const nearGirl = gHead.clone().addScaledVector(girlFace, 2.8).add(V(0, 0.15, 0));
+// 0-3.4  street-level fly between the buildings, crane up to the boy
+shot(0, 3.4, [V(-1.8, 1.4, -17), V(-1.8, 1.7, -9), V(-1.2, 2.6, -2.0), V(-0.2, 5.4, 2.4), front],
+  [V(-1.8, 1.9, -8), V(-1.6, 2.6, 0), V(-3, 5.4, 4), bHead.clone(), bHead.clone().add(V(0, -0.2, 0))], [64, 34]);
+// 3.4-7.9  orbit to his shoulder, then ride the beam across to her
+shot(3.4, 7.9, [front, bHead.clone().addScaledVector(RG, 1.8).add(V(0, 0.4, 0)), ots, fB.clone().lerp(fA, 0.5).addScaledVector(RG, 0.9).add(V(0, 0.6, 0)), nearGirl],
+  [bHead.clone().add(V(0, -0.2, 0)), fB.clone(), fA.clone(), fA.clone(), gHead.clone().add(V(0, -0.1, 0))], [34, 28], { focus: 'tgt' });
+// 8.4-10.4  macro on the torch: one, zero (match cut on the beam)
+const macro = fB.clone().addScaledVector(RG, 1.25).addScaledVector(dG, -0.3).add(V(0, 0.16, 0));
+shot(8.4, 10.4, [macro.clone().addScaledVector(RG, 0.3).add(V(0, 0.1, 0)), macro], [fB.clone().addScaledVector(dG, -0.12), fB.clone().addScaledVector(dG, -0.05)], [26, 23], { ap: 0.006, focus: t => cam.position.distanceTo(fB) });
+// 10.45-12.4  track the bits flying across
+shot(10.45, 12.4, [fB.clone().addScaledVector(RG, 3.0).add(V(0, 3.4, 0)), fB.clone().lerp(fA, 0.8).addScaledVector(RG, 3.2).add(V(0, 3.6, 0))],
+  [fB.clone().lerp(fA, 0.15).add(V(0, 0.5, 0)), fA.clone().add(V(0, 0.6, 0))], [32, 32]);
+// 12.45-14.2  HELLO forms between them
+const hMid = fB.clone().lerp(fA, 0.5).add(V(0, 1.4, 0));
+shot(12.45, 14.2, [hMid.clone().addScaledVector(RG, 15).add(V(0, 2.0, 0)), hMid.clone().addScaledVector(RG, 13).add(V(0, 2.3, 0))], [hMid.clone(), hMid.clone().add(V(0, 0.1, 0))], [30, 28]);
+// 14.3-15.4  too slow: she dozes off
+shot(14.3, 15.4, [gHead.clone().addScaledVector(girlFace, 3.2).add(V(0, 0.5, 0)), gHead.clone().addScaledVector(girlFace, 2.4).add(V(0, 0.2, 0))], [gHead.clone().add(V(0, -0.2, 0))], [30, 28]);
+// 15.45-17.3  the copper wire stretches across, push into it
+const wMid = tieA.clone().lerp(tieB, 0.5);
+shot(15.45, 17.3, [wMid.clone().addScaledVector(RG, 7).add(V(0, 1.5, 0)), wMid.clone().addScaledVector(RG, 3).add(V(0, 0.6, 0)), wMid.clone().addScaledVector(RG, 0.8).add(V(0, 0.15, 0))],
+  [wMid.clone(), wMid.clone(), wMid.clone()], [34, 20]);
+// 17.35-19.8  inside the copper wire, accelerating with the electrical pulses
+shot(17.35, 19.8, [WIRE0.clone().add(V(-60, 2.3, 0.6)), WIRE0.clone().add(V(30, 2.2, 0.4))], [WIRE0.clone().add(V(-48, 0.6, 0)), WIRE0.clone().add(V(42, 0.6, 0))], [50, 62], { ease: 'in', ap: 0.0004 });
+// 19.8-22.3  match cut out of the wire: crane up to reveal the whole network
+shot(19.8, 22.3, [wMid.clone().addScaledVector(RG, 1.5).add(V(0, 0.3, 0)), V(10, 9, 14), V(20, 15, 20)], [wMid.clone(), V(1, 4, 1), V(0, 4.5, 0)], [30, 36]);
+// 22.3-25.0  orbit the router while every flat connects to it
+const RC = RPOS.clone().add(V(0, 1.7, 0)); const orb = a => RC.clone().add(V(Math.cos(a) * 7.5, 2.4 + Math.sin(a * 0.7), Math.sin(a) * 7.5));
+shot(22.3, 25.0, [orb(0.9), orb(0.4), orb(-0.1), orb(-0.6)], [RC.clone(), RC.clone()], [34, 30]);
+// 25.1-29.5  rack focus: FLAT 7 plate (foreground) -> her phone's IP address (background)
+const rackPos = plate3.position.clone().add(V(-3.6, 0.45, 1.5)), rackTgt = girlPhone.position.clone().lerp(plate3.position, 0.45);
+shot(25.1, 29.5, [rackPos.clone().add(V(-0.4, 0.2, 0.5)), rackPos], [rackTgt.clone(), rackTgt.clone().add(V(0.1, 0.05, 0))], [30, 26],
+  { ap: 0.012, focus: t => { const a = cam.position.distanceTo(plate3.position), b = cam.position.distanceTo(girlPhone.position); return lerp(a, b, smoother(clamp01((t - 27.75) / 0.6))); } });
+// 29.65-31.3  the video becomes an object and splits into 8 packets: orbit it
+const vorb = a => VID_C.clone().add(V(Math.cos(a) * 7.0, 0.9, Math.sin(a) * 7.0));
+shot(29.65, 31.3, [vorb(1.2), vorb(0.7), vorb(0.2)], [VID_C.clone(), VID_C.clone()], [32, 30]);
+// 31.3-33.9  follow one packet through the router to her flat (dynamic)
+shot(31.3, 33.9, [vorb(0.2)], [VID_C.clone()], [32, 34], { follow: true });
+// 33.9-34.95  crane up: the street becomes a miniature
+shot(33.9, 34.95, [FLATS[0].p.clone().add(V(4, 3, 6)), V(14, 30, 16), V(10, 80, 12)], [FLATS[0].p.clone(), V(2, 3, 0), V(1, 0, 0)], [34, 30]);
+// 35.0-36.95  Earth: Mumbai, the route to London, then dive into the Arabian Sea
+const mumbaiW = G0.clone().add(ll(19.08, 72.88)), londonW = G0.clone().add(ll(51.5, -0.13)), arabian = G0.clone().add(ll(15.5, 63));
+const outDir = mumbaiW.clone().sub(G0).normalize(), midRoute = G0.clone().add(routeCurve.getPoint(0.45).normalize().multiplyScalar(GR));
+shot(35.0, 36.95, [mumbaiW.clone().addScaledVector(outDir, 9), midRoute.clone().sub(G0).normalize().multiplyScalar(GR + 52).add(G0), arabian.clone().sub(G0).normalize().multiplyScalar(GR + 8).add(G0), arabian.clone().sub(G0).normalize().multiplyScalar(GR + 0.6).add(G0)],
+  [mumbaiW.clone(), midRoute.clone(), arabian.clone(), arabian.clone()], [40, 34]);
+// 36.95-37.7  underwater: glide over the seabed to the cable
+const cab = u => U0.clone().add(sCables[0].c.getPoint(u));
+shot(36.95, 37.7, [cab(0.18).add(V(-2, 7, 9)), cab(0.24).add(V(0, 2.4, 4.5))], [cab(0.22), cab(0.27)], [38, 34]);
+// 37.7-38.25  pass the cut-away cross-section
+const xsW = U0.clone().add(XS.position).add(V(2.6, 0, 0));
+shot(37.7, 38.25, [xsW.clone().add(V(6.5, 2.2, 6.5)), xsW.clone().add(V(6.0, 1.6, 5.2))], [xsW.clone().add(V(2.2, 0.9, 0)), xsW.clone().add(V(2.6, 0.8, 0))], [36, 34], { ap: 0.002 });
+// 38.25-39.25  inside one glass fibre with the light pulses, accelerating
+const F0 = fibSet.position;
+shot(38.25, 39.25, [F0.clone().add(V(-75, 0.3, 0)), F0.clone().add(V(20, -0.2, 0))], [F0.clone().add(V(-55, 0, 0)), F0.clone().add(V(60, 0, 0))], [60, 75], { ease: 'in' });
+// 39.3-42.5  out on the seabed: every cable lit, 99%
+shot(39.3, 42.5, [U0.clone().add(V(-30, 9, 22)), U0.clone().add(V(-12, 12, 26))], [U0.clone().add(V(-10, 2, 0)), U0.clone().add(V(2, 3, 0))], [40, 38]);
+// 42.6-44.3  low angle: the anchor comes down and drags into the cable
+const cutW = U0.clone().add(CUT_P);
+shot(42.6, 44.3, [cutW.clone().add(V(-16, 3.0, 17)), cutW.clone().add(V(-12, 2.4, 14))], [cutW.clone().add(V(0, 9, 0)), cutW.clone().add(V(0, 1.2, 0))], [40, 34], { track: 'anchor' });
+// 44.3-45.9  pull up: alternative routes light up
+shot(44.3, 45.9, [cutW.clone().add(V(-6, 1.0, 7)), cutW.clone().add(V(-16, 14, 20))], [cutW.clone().add(V(0, 0.8, 0)), cutW.clone().add(V(4, 1, -1))], [32, 40]);
+// 45.95-50  London phone: packets fly in, the video rebuilds, InvisiTech
+shot(45.95, 50, [PH0.clone().add(V(-12, 6, 24)), PH0.clone().add(V(-4, 1.5, 23)), PH0.clone().add(V(-2, 0.6, 22.5))], [PH0.clone().add(V(0, 1, 0)), PH0.clone(), PH0.clone()], [34, 32]);
+
+const pkFollowIdx = 5;
+function packetPos(j, t) {   // 8 tiles: 29.9 separate, 30.6 become packets, 31.2+ travel in turns
+  const m = vtiles[j], r = m.userData.r, c = m.userData.c;
+  const grid = VID_C.clone().add(V((c - 1.5) * 0.62, (0.5 - r) * 0.7, 0));
+  const spread = smoother(clamp01((t - 29.95) / 0.6));
+  const exploded = VID_C.clone().add(V((c - 1.5) * 0.85, (0.5 - r) * 0.95, (r - 0.5) * 0.4 + (c % 2 - 0.5) * 0.35));
+  const base = grid.lerp(exploded, spread);
+  const start = 31.2 + j * 0.24, u = clamp01((t - start) / 2.3);
+  if (u <= 0) return { p: base, u: 0 };
+  return { p: base.clone().lerp(pkCurve.getPoint(smoother(u)), Math.min(1, u * 6)), u };
+}
+let lastSea = false;
+function cineCam(t) {
+  let s = SH[0]; for (const x of SH) if (t >= x.t0) s = x;
+  const u = clamp01((t - s.t0) / (s.t1 - s.t0)), k = s.ease === 'in' ? u * u * (1.5 - 0.5 * u) : smoother(u);
+  let pos = s.P ? s.P.getPoint(k) : s.P0.clone(), tgt = s.T ? s.T.getPoint(k) : s.T0.clone();
+  if (s.follow) {   // tracking shot behind one packet
+    const { p, u: pu } = packetPos(pkFollowIdx, t); const ahead = pkCurve.getPoint(Math.min(1, smoother(pu) + 0.05)), dir = ahead.clone().sub(p).normalize();
+    const side = new THREE.Vector3().crossVectors(dir, UP).normalize();
+    const want = p.clone().addScaledVector(dir, -3.6).addScaledVector(side, 1.5).add(V(0, 1.2, 0));
+    const blend = smoother(clamp01((t - 31.3) / 0.6)); pos = s.P0.clone().lerp(want, blend); tgt = s.T0.clone().lerp(p.clone().add(V(0, 0.15, 0)), blend);
+  }
+  if (s.track === 'anchor') { const a = sAnchor.getWorldPosition(new THREE.Vector3()).add(V(0, 1.5, 0)); tgt = tgt.clone().lerp(a, 0.85); }
+  cam.fov = lerp(s.fov[0], s.fov[1], k); cam.position.copy(pos); cam.lookAt(tgt); cam.updateProjectionMatrix(); cam.updateMatrixWorld();
+  const f = typeof s.focus === 'function' ? s.focus(t) : pos.distanceTo(tgt);
+  bokeh.uniforms.focus.value = f; bokeh.uniforms.aperture.value = (s.ap ?? 0.0018); bokeh.uniforms.maxblur.value = 0.006;
+  // sets visibility and fog by where the camera is
+  const inWire = t >= 17.35 && t < 19.8, inGlobe = t >= 35.0 && t < 36.95, inSea = t >= 36.95 && t < 45.95 && !(t >= 38.25 && t < 39.25), inFib = t >= 38.25 && t < 39.25, inPhone = t >= 45.95;
+  wireSet.visible = inWire; globe.visible = inGlobe; sea.visible = inSea; fibSet.visible = inFib; phoneSet.visible = inPhone;
+  scene.fog = inSea ? seaFog : null; scene.background = inSea ? seaBg : (inWire || inFib || inPhone ? new THREE.Color(0x05060c) : scene.userData.sky || scene.background);
+  if (!scene.userData.sky && !inSea && !inWire && !inFib && !inPhone) scene.userData.sky = scene.background;
+  sun.intensity = inGlobe ? 2.4 : 0; seaLight.intensity = inSea ? 1.0 : 0; seaAmb.intensity = inSea ? 0.5 : 0;
+  if (inSea) { seaLight.target.updateMatrixWorld(); }
+}
+function cineUpdate(t) {
+  // ---- characters breathe and sway (secondary motion) ----
+  for (const [p, ph] of [[girl, 0], [boy, 1.7]]) { p.children.forEach(o => {}); p.userData.head.rotation.y = Math.sin(t * 1.1 + ph) * 0.08; p.position.y += 0; }
+  girl.scale.set(1.15, 1.15 * (1 + 0.012 * Math.sin(t * 2.4)), 1.15); boy.scale.set(1.15, 1.15 * (1 + 0.012 * Math.sin(t * 2.4 + 1.3)), 1.15);
+  boy.userData.ra.rotation.x = -0.25 + Math.sin(t * 1.7) * 0.03;
+  // the girl waves when the light reaches her
+  const wave = t > 5.2 && t < 7.6 ? Math.sin((t - 5.2) * 9) : 0;
+  girl.userData.ra.rotation.set(t > 5.0 && t < 7.8 ? 1.48 - 2.6 * smoother(clamp01((t - 5.0) / 0.3)) * smoother(clamp01((7.8 - t) / 0.3)) : 1.48, 0, -0.15 + wave * 0.35 * (t > 5.0 && t < 7.8 ? 1 : 0));
+  // ---- the passing car (parallax in the opening) ----
+  const cx = 26 - t * 6.5; car.visible = t < 6; car.position.set(cx, 0.15, 0.2); car.rotation.y = 0;
+  // ---- drifting dust ----
+  dust.position.y = Math.sin(t * 0.4) * 0.3; dust.rotation.y = t * 0.01;
+  // ---- girl's phone + 3D flat plate + IP hologram (rack focus scene) ----
+  girlPhone.visible = t > 24.9 && t < 34; plate3.visible = t > 25.0 && t < 30;
+  ipHolo.visible = t > 27.9 && t < 30; if (ipHolo.visible) { const a = smoother(clamp01((t - 27.9) / 0.35)); ipHolo.scale.setScalar(0.4 + 0.6 * a); ipHolo.material.opacity = a; billboard(ipHolo); }
+  // ---- HELLO letters form between them ----
+  letters.forEach((m, j) => { const a = smoother(clamp01((t - 12.55 - j * 0.18) / 0.4)); m.visible = t > 12.5 && t < 14.4; m.position.copy(hMid).addScaledVector(RG.clone().cross(UP).normalize(), 0).add(dG.clone().multiplyScalar((j - 2) * 0.5)).add(V(0, 0.4, 0)).add(V(0, Math.sin(t * 3 + j) * 0.05, 0));
+    m.scale.setScalar(0.2 + 0.8 * a); m.material.opacity = a * clamp01((14.4 - t) / 0.2); billboard(m); });
+  // ---- video object -> 8 packets ----
+  vtiles.forEach((m, j) => { m.visible = t > 29.7 && t < 34.2; if (!m.visible) return;
+    const { p, u } = packetPos(j, t); m.position.copy(p);
+    const cube = smoother(clamp01((t - 30.6 - j * 0.03) / 0.5)); m.scale.set(1 - 0.35 * cube, 1 - 0.4 * cube, 1 + 2.4 * cube);
+    m.quaternion.copy(cam.quaternion); if (u > 0) m.rotation.set(t * 2 + j, t * 2.6, 0);
+    m.visible = u < 0.995; const L = m.userData.lab; L.visible = m.visible && cube > 0.6; L.position.copy(m.position).add(V(0, 0.55, 0)); L.quaternion.copy(cam.quaternion); });
+  if (!(t > 29.7 && t < 34.2)) vtiles.forEach(m => m.userData.lab.visible = false);
+  // ---- copper wire interior ----
+  if (wireSet.visible) { wireSet.userData.el.forEach((e, j) => { const x = ((e.x + (t - 17.35) * (0.35 + 0.9 * (t - 17.35) / 2.4)) % 1) * 140 - 70; e.sp.position.set(x, Math.sin(e.a) * e.r, Math.cos(e.a) * e.r); });
+    const lab = wireSet.userData.lab; lab.position.set(cam.position.x - WIRE0.x + 8, 0.6, 2.3); lab.quaternion.copy(cam.quaternion); wireSet.userData.light.position.set(cam.position.x - WIRE0.x + 3, 1.5, 1.5); }
+  // ---- globe ----
+  if (globe.visible) { globe.rotation.y = 0; routeMesh.geometry.setDrawRange(0, Math.floor(ROUTE_N * smoother(clamp01((t - 35.4) / 1.0)) / 3) * 3);
+    pinL.visible = t > 35.9; [pinM, pinL].forEach(pn => { pn.userData.lab.quaternion.copy(cam.quaternion); }); }
+}
+function cinePost(t) {
+  // old HTML overlays that now live in 3D (or are replaced) stay hidden
+  if (typeof plate !== 'undefined') plate.style.opacity = 0;
+  if (typeof ipEls !== 'undefined') ipEls.forEach(e => e.style.opacity = 0);
+  if (typeof pkts !== 'undefined') pkts.forEach(p => { p.m.visible = false; p.l.style.opacity = 0; });
+  const card = document.getElementById('card');
+  if (t > 29.6 && t < 34.5) card.style.opacity = 0;
+  if (t > 12.4 && t < 15.45) card.style.opacity = 0;   // HELLO is in 3D now
+  document.getElementById('hletter').style.opacity = t > 12.0 && t < 12.6 ? document.getElementById('hletter').style.opacity : 0;
+}
+
+// ===================================================================================
+// PART 4 replacement: globe -> under the sea -> cut -> London phone -> end card
+// ===================================================================================
+function renderSea(t) {
+  hideP3(); hideP4(); world.visible = false;
+  beamA.set(0); beamB.set(0); wire.visible = wireCore.visible = false; clips.forEach(c => c.visible = false); pulses.forEach(p => p.material.opacity = 0);
+  ['bitf', 'zzz', 'hletter', 'card'].forEach(id => document.getElementById(id).style.opacity = 0);
+  document.querySelectorAll('#bits .bit').forEach(d => d.style.opacity = 0);
+  if (t < 35.0) { router.visible = true; cables.forEach(c => { c.m.visible = true; c.m.geometry.setDrawRange(0, c.n); c.m.material.opacity = 1; }); }
+  applyCam(t);
+  document.getElementById('fade').style.opacity = Math.max(0, 1 - Math.abs(t - 34.98) / 0.2, 1 - Math.abs(t - 36.95) / 0.16, 1 - Math.abs(t - 38.25) / 0.1, 1 - Math.abs(t - 39.28) / 0.12, 1 - Math.abs(t - 45.95) / 0.16);
+  // ---- sea animation ----
+  if (sea.visible) {
+    weeds.forEach((w, j) => { w.rotation.z = Math.sin(t * 1.3 + j) * 0.18; w.rotation.x = Math.cos(t * 1.1 + j * 0.7) * 0.12; });
+    rays.forEach((r, j) => r.material.uniforms.o.value = 0.08 + 0.05 * Math.sin(t * 0.9 + j * 1.7));
+    snow.position.y = -((t * 0.4) % 4); snow.position.x = Math.sin(t * 0.3) * 0.6;
+    const cut = t > 43.75, reroute = t > 44.25;
+    sCables.forEach((sc, j) => { const speed = j === 0 ? 0.16 : 0.12, lit = j === 0 ? 1 : (t > 39.6 ? 1 : 0.15) * (reroute && j === 1 ? 1.6 : 1);
+      sc.ps.forEach((sp, k) => { let u = ((t * speed + k / sc.ps.length) % 1); sp.position.copy(sc.c.getPoint(u)).add(V(0, 0.38, 0));
+        let o = lit; if (j === 0 && cut && u > CUT_U - 0.01) o = 0; sp.material.opacity = Math.min(1, o); sp.scale.setScalar(j === 1 && reroute ? 1.6 : 1.1); }); });
+    sCables[0].m.material.color.set(cut ? 0x3a1210 : 0x15161a); sCables[0].m.material.emissive = new THREE.Color(cut ? 0xff3020 : 0x000000); sCables[0].m.material.emissiveIntensity = cut ? 0.4 + 0.3 * Math.sin(t * 18) : 0;
+    sCables[1].m.material.emissive = new THREE.Color(reroute ? 0x2fd36b : 0x000000); sCables[1].m.material.emissiveIntensity = reroute ? 0.35 : 0;
+    // anchor: drops 42.7-43.5, drags 43.5-44.0 through the cable
+    const drop = smoother(clamp01((t - 42.7) / 0.8)), drag = smoother(clamp01((t - 43.45) / 0.6));
+    sAnchor.visible = sChain.visible = sship.visible = t > 42.0;
+    sAnchor.position.copy(CUT_P).add(V(0, lerp(26, 0.9, drop), lerp(-4.5, 1.8, drag))); sAnchor.rotation.set(drag * 0.9, 0.3, 0);
+    { const a = sship.position.clone().add(V(-4, -1.8, 0)), b = sAnchor.position.clone().add(V(0, 3.2, 0)); sChain.position.copy(a).lerp(b, 0.5); sChain.scale.set(1, a.distanceTo(b), 1); sChain.quaternion.setFromUnitVectors(UP, b.clone().sub(a).normalize()); }
+    silt.position.copy(CUT_P); silt.material.opacity = 0.7 * clamp01((t - 43.5) / 0.3) * clamp01((45.5 - t) / 1.2); silt.scale.setScalar(1 + clamp01((t - 43.5) / 1.5) * 1.5);
+    // 3D info panels
+    p99.visible = t > 39.4 && t < 42.6; { const f = new THREE.Vector3(); cam.getWorldDirection(f); const up = UP.clone().applyQuaternion(cam.quaternion); p99.position.copy(cam.position).addScaledVector(f, 13).addScaledVector(up, 3.3).sub(U0); } p99.material.opacity = smoother(clamp01((t - 39.4) / 0.4)); p99.quaternion.copy(cam.quaternion);
+    pFaults.visible = t > 44.4; { const f = new THREE.Vector3(); cam.getWorldDirection(f); const up = UP.clone().applyQuaternion(cam.quaternion); pFaults.position.copy(cam.position).addScaledVector(f, 13).addScaledVector(up, 3.3).sub(U0); } pFaults.material.opacity = smoother(clamp01((t - 44.4) / 0.4)); pFaults.quaternion.copy(cam.quaternion);
+    XS.userData.labs.forEach(l => { l.visible = t > 37.65 && t < 38.3; l.quaternion.copy(cam.quaternion); });
+  }
+  if (fibSet.visible) { const { zc, ph, L } = fibSet.userData; ph.forEach((sp, k) => { const u = ((t - 38.25) * 0.55 + k / ph.length) % 1; sp.position.copy(zc.getPoint(u)); });
+    fibSet.userData.lab.position.set(cam.position.x - fibSet.position.x + 10, 1.3, -0.3); fibSet.userData.lab.quaternion.copy(cam.quaternion); }
+  // ---- phone: packets fly in, video rebuilds, then InvisiTech ----
+  if (phoneSet.visible) {
+    phPk.forEach((m, k) => { const a = clamp01((t - 46.0 - k * 0.09) / 0.65), e = smoother(a);
+      const from = V(-14 + (k % 4) * 1.2, 10 - Math.floor(k / 4) * 1.2, 10), to = V(-1.875 + (k % 4) * 1.25, 3.4 - Math.floor(k / 4) * 1.32 - 2.8, 0.45);
+      m.position.copy(from.lerp(to, e)); m.rotation.set((1 - e) * 3, (1 - e) * 4, 0); m.visible = a > 0 && t < 46.95; });
+    drawPhone(t < 46.95 ? 0 : t < 47.3 ? 1 : 1 + clamp01((t - 47.3) / 0.25));
+    phLights.rotation.z = t * 0.02;
+  }
+  const card = document.getElementById('card'); card.style.opacity = 0;
+  document.getElementById('note4').style.opacity = (t > 35.0 && t < 36.95) || (t > 39.3 && t < 45.9) ? 1 : 0; document.getElementById('note4').style.top = '12.8%';
+  let line = ''; for (const [a, txt] of VO4) if (t >= a) line = txt;
+  subIn.innerHTML = line; subEl.style.opacity = line && t < P4.card + 0.05 ? 1 : 0; titleEl.style.opacity = 0;
+  cinePost(t); composer.render();
+  // ---- end card (unchanged design): the phone scene in a rounded panel over a blurred background ----
+  const ecA = ease((t - P4.card) / 0.5), ec = document.getElementById('endcard'), pill = document.getElementById('ecPill');
+  if (ecA > 0) {
+    ec.style.opacity = ecA; ec.style.transform = `scale(${0.9 + 0.1 * ecA})`;
+    renderer.domElement.style.filter = `blur(${10 * ecA}px) brightness(${1 - 0.4 * ecA})`;
+    const cv = document.getElementById('ecScene'), r = ec.getBoundingClientRect(), dpr = renderer.getPixelRatio();
+    cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+    const src = renderer.domElement, sw = src.width, sh = src.height, scale = Math.max(cv.width / sw, cv.height / sh) * 1.1;
+    cv.getContext('2d').drawImage(src, (cv.width - sw * scale) / 2, (cv.height - sh * scale) / 2, sw * scale, sh * scale);
+    const b = ease((t - P4.card - 0.5) / 0.5);
+    document.getElementById('ecShade').style.opacity = b; document.getElementById('ecBrand').style.opacity = b;
+    pill.style.opacity = ease((t - P4.card - 0.9) / 0.4);
+    document.getElementById('wm').style.opacity = Math.max(0, 0.8 * (1 - ecA * 2));
+    document.getElementById('note4').style.opacity = 0;
+  } else { ec.style.opacity = 0; pill.style.opacity = 0; renderer.domElement.style.filter = ''; document.getElementById('wm').style.opacity = .8; }
+}
+
+scene.add(moon.target);
+window.renderAt = renderAt; window.DBG = { cam, get fA() { return fA; }, get fB() { return fB; } };
+Promise.all([document.fonts.ready, window.GLOBE_READY]).then(() => { renderAt(parseFloat(Q.get('t') || '0.6')); window.READY = true; });
+</script>
