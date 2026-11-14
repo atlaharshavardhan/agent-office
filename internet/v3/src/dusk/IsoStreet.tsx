@@ -143,16 +143,14 @@ const HBITS = [0, 1, 0, 0, 1, 0, 0, 0], BIT0 = 10.55, BITD = 0.14, FLY = 0.6;
 const BOYC = { x: 335, y: 1040 }, GIRLC = { x: 872, y: 615 }, WIDE = { x: 540, y: 960 };
 type Key = [number, number, number, number];
 const KEYS: Key[] = [
-  [0.0, BOYC.x, BOYC.y, 2.5], [0.95, BOYC.x, BOYC.y, 2.6],
-  [1.75, WIDE.x, WIDE.y, 1.0], [1.95, WIDE.x, WIDE.y, 1.0],
-  [2.4, GIRLC.x, GIRLC.y, 2.6], [2.9, GIRLC.x, GIRLC.y, 2.7],
-  [3.35, WIDE.x, WIDE.y, 1.0], [3.45, WIDE.x, WIDE.y, 1.0],
-  [4.0, 390, 1010, 2.9], [4.4, 390, 1010, 3.0],
-  [5.05, GIRLC.x, GIRLC.y, 2.6], [5.65, GIRLC.x, GIRLC.y, 2.7],
-  [6.4, WIDE.x, WIDE.y, 1.0], [8.4, WIDE.x, WIDE.y, 1.04],
-  [10.45, WIDE.x, WIDE.y, 1.04], [10.95, 600, 850, 1.22], [12.4, 600, 850, 1.26],
-  [12.9, WIDE.x, WIDE.y, 1.0], [14.1, WIDE.x, WIDE.y, 1.03],
-  [14.55, GIRLC.x, GIRLC.y, 2.8], [15.6, GIRLC.x, GIRLC.y, 2.9],
+  [0.0, BOYC.x, BOYC.y, 2.1], [1.1, BOYC.x, BOYC.y, 2.2],            // open on him raising the torch
+  [2.7, WIDE.x, WIDE.y, 1.0], [3.4, WIDE.x, WIDE.y, 1.0],             // slow pull back: both balconies and the beam
+  [4.5, 400, 1010, 1.9], [4.8, 400, 1010, 1.92],                      // ease in on the torch
+  [6.2, GIRLC.x, GIRLC.y, 2.0], [6.7, GIRLC.x, GIRLC.y, 2.03],        // glide along the beam to her
+  [7.9, WIDE.x, WIDE.y, 1.0], [10.6, WIDE.x, WIDE.y, 1.0],            // back to the street (title, then the torch close-up covers)
+  [11.5, 600, 850, 1.18], [12.5, 600, 850, 1.2],                      // bits fly across
+  [13.4, WIDE.x, WIDE.y, 1.0], [14.2, WIDE.x, WIDE.y, 1.0],           // HELLO
+  [15.3, GIRLC.x, GIRLC.y, 2.2], [15.6, GIRLC.x, GIRLC.y, 2.22],      // too slow
 ];
 const camAt = (t: number) => {
   let i = 0; while (i < KEYS.length - 2 && t > KEYS[i + 1][0]) i++;
@@ -170,14 +168,29 @@ export const IsoStreet: React.FC<{ hook?: boolean }> = ({ hook }) => {
   let on = 1; const cam = hook ? camAt(t) : { fx: 540, fy: 960, z: 1 };
   if (hook) { on = Math.max(...BLINKS.map(([a, b]) => pulse(f, a, b))); HBITS.forEach((b, i) => { if (b) on = Math.max(on, pulse(f, BIT0 + i * BITD, BIT0 + i * BITD + 0.1)); }); }
   const raise = hook ? prog(f, 0.25, 0.85, easeOut) : 1, notice = hook ? prog(f, 2.1, 2.4, easeOut) : 1;
-  const wave = hook ? prog(f, 4.6, 4.9) * (1 - prog(f, 6.2, 6.5)) : 1, sleepy = hook ? prog(f, 14.25, 14.6) : 0;
+  const wave = hook ? prog(f, 4.6, 4.9) * (1 - prog(f, 7.0, 7.4)) : 1, sleepy = hook ? prog(f, 14.25, 14.6) : 0;
+  // reactions: she is startled by the light and shields her eyes, he cheers when she waves, she counts along, gets bored, yawns
+  const startle = hook ? prog(f, 2.05, 2.2, easeOut) * (1 - prog(f, 3.0, 3.5)) : 0;
+  const cheer = hook ? prog(f, 5.0, 5.3) * (1 - prog(f, 7.0, 7.4)) : 0;
+  const count = hook ? prog(f, 10.6, 10.9) * (1 - prog(f, 12.3, 12.6)) : 0;
+  const bored = hook ? prog(f, 12.7, 13.3) : 0, yawn = hook ? prog(f, 13.5, 13.75) * (1 - prog(f, 14.15, 14.35)) : 0;
+  const tired = hook ? prog(f, 13.0, 14.0) : 0;
+  const breathe = Math.sin(t * 2.4), gHop = Math.abs(Math.sin(t * 9)) * 9 * wave + Math.sin(Math.PI * clamp01((t - 2.05) / 0.35)) * 14 * (hook ? 1 : 0);
+  const bHop = Math.abs(Math.sin(t * 8.5)) * 10 * cheer;
+  if (hook && t > 12.5 && t < 14.15) on = Math.max(on, Math.sin(t * 2 * Math.PI * 5.5) > 0.1 ? 1 : 0);   // forty quick blinks
   const macro = hook && t >= 8.4 && t < 10.45 ? Math.min(prog(f, 8.4, 8.55), 1 - prog(f, 10.3, 10.45)) : 0;
   const boyH = NEAR.find((h) => h.hero === 'boy')!, girlH = FAR.find((h) => h.hero === 'girl')!;
   const BZ = 1.65, BX0 = -0.7, GBX = girlH.x0 + girlH.w, BYC = boyH.y0 + 0.85, GYC = girlH.y0 + girlH.d - 0.85;   // balconies on the side wall, first floor, same height
-  const [bx, by] = iso(BX0 + 0.3, BYC, BZ), [gx, gy] = iso(GBX + 0.3, GYC, BZ);
+  const [bx, by0] = iso(BX0 + 0.3, BYC, BZ), [gx, gy0] = iso(GBX + 0.3, GYC, BZ);
   const SC = 0.5;
-  const boy: StickPose = { blink: hook ? Math.max(0, 1 - Math.abs(t - 2.9) / 0.07, 1 - Math.abs(t - 7.4) / 0.07) : 0, smile: 0.4 + 0.5 * (hook ? prog(f, 2.4, 2.8) : 1), look: 0.8, armR: [lerp(8, 98, raise), lerp(5, 106, raise)], armL: [-12, -8], holdTorch: true, torch: on, tilt: -4 * raise };
-  const girl: StickPose = { blink: Math.max(sleepy * 0.95, hook ? 1 - Math.abs(t - 1.0) / 0.07 : 0), smile: lerp(0.2, 1, notice) * (1 - sleepy * 0.7), look: -lerp(0.2, 0.8, notice), armR: [lerp(8, 150, wave), lerp(5, 168, wave) + Math.sin(t * 11) * 14 * wave], armL: [-10, -6], tilt: 4 * notice + 14 * sleepy };
+  const by = by0 - bHop, gy = gy0 - gHop;
+  const boy: StickPose = { blink: hook ? Math.max(0, 1 - Math.abs(t - 2.9) / 0.07, 1 - Math.abs(t - 7.6) / 0.07, 1 - Math.abs(t - 11.9) / 0.07, tired * 0.35) : 0, smile: 0.4 + 0.5 * (hook ? prog(f, 2.4, 2.8) : 1) + 0.1 * cheer - 0.5 * tired, look: 0.8,
+    armR: [lerp(8, 98, raise) + Math.sin(t * 3.1) * 1.5 * raise + 6 * tired, lerp(5, 106, raise) + Math.sin(t * 2.3) * 2 * raise + 8 * tired],
+    armL: [lerp(-12, -150, cheer) + Math.sin(t * 10) * 12 * cheer, lerp(-8, -172, cheer) + Math.sin(t * 10 + 1) * 16 * cheer], holdTorch: true, torch: on, tilt: -4 * raise + breathe * 1.2 + Math.sin(t * 8.5) * 4 * cheer + 7 * tired };
+  const girl: StickPose = { blink: Math.max(sleepy * 0.95, yawn, hook ? Math.max(1 - Math.abs(t - 1.0) / 0.07, 1 - Math.abs(t - 6.0) / 0.07, 1 - Math.abs(t - 11.2) / 0.07, startle * 0.6 * (1 - prog(f, 2.5, 2.9))) : 0), smile: Math.max(lerp(0.2, 1, notice) * (1 - sleepy * 0.7) * (1 - bored * 0.75), yawn), look: -lerp(0.2, 0.8, notice) * (1 - bored * 0.6),
+    armR: [lerp(8, 150, wave) + lerp(0, 118, yawn), lerp(5, 168, wave) + Math.sin(t * 11) * 14 * wave + lerp(0, 150, yawn)],
+    armL: [lerp(-10, -112, startle) + lerp(0, -22, bored * (1 - sleepy)), lerp(-6, -150, startle) + lerp(0, -128, bored * (1 - sleepy))],
+    tilt: 4 * notice + 14 * sleepy + breathe * 1.2 + Math.sin(t * 2 * Math.PI / (BITD * 2)) * 5 * count + 9 * bored * (1 - sleepy) - 6 * startle };
   const lm = (x: number, y: number, a: number, l: number) => { const r = a * Math.PI / 180; return [x + Math.sin(r) * l, y + Math.cos(r) * l]; };
   const [ex, ey] = lm(A_SHOULDER.x, A_SHOULDER.y, boy.armR[0], A_UPPER); const [wx, wy] = lm(ex, ey, boy.armR[1], A_FORE); const tr = (90 - boy.armR[1]) * Math.PI / 180;
   const lens = { x: bx + (wx + Math.cos(tr) * A_TIP) * SC, y: by + (wy + Math.sin(tr) * A_TIP) * SC }, tgt = { x: gx - 10, y: gy - 225 * SC };
