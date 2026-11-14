@@ -2,7 +2,7 @@
 Writes bed.wav (music), sfx.wav (torch clicks, whooshes, crickets, reveal hit) at 48 kHz stereo.
 Times match hook.html (HOOK_A / HOOK_B blinks, camera moves, voice at 3.4 s and 4.85 s)."""
 import numpy as np, soundfile as sf
-SR = 48000; DUR = 6.6; N = int(SR * DUR)
+SR = 48000; DUR = 8.4; N = int(SR * DUR)
 rng = np.random.default_rng(11)
 midi = lambda m: 440 * 2 ** ((m - 69) / 12)
 
@@ -24,7 +24,7 @@ def hp(x, a): return x - lp(x, a)
 bed = np.zeros((N, 2))
 beat = 60 / 96
 # warm pad (A minor add9 -> F maj7), slow attack
-for at, chord in [(0.0, [57, 64, 67, 71]), (2.5, [53, 60, 64, 69]), (5.0, [57, 64, 67, 72])]:
+for at, chord in [(0.0, [57, 64, 67, 71]), (2.5, [53, 60, 64, 69]), (5.0, [57, 64, 67, 72]), (7.4, [53, 60, 64, 69])]:
     L = int(2.8 * SR); tt = np.arange(L) / SR
     for k, m in enumerate(chord):
         f = midi(m)
@@ -35,14 +35,14 @@ for at, chord in [(0.0, [57, 64, 67, 71]), (2.5, [53, 60, 64, 69]), (5.0, [57, 6
 motif = [69, 76, 72, 76, 69, 76, 74, 76, 65, 72, 69, 72, 65, 72, 71, 72]
 for i, m in enumerate(motif * 2):
     at = i * beat / 2
-    if at > 6.4: break
+    if at > 8.2: break
     L = int(0.5 * SR); tt = np.arange(L) / SR; f = midi(m + 12)
     tone = (np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(4 * np.pi * f * tt)) * env(L, 0.002, 0.35, 5)
     place(bed, tone, at, 0.05, 0.35 if i % 2 else -0.35)
 # soft kick + sub on the beat, starts at bar 2
-for q in range(20):
+for q in range(30):
     at = q * beat
-    if at < beat * 4 - 0.01 or at > 6.4: continue
+    if at < beat * 4 - 0.01 or at > 8.2: continue
     L = int(0.4 * SR); tt = np.arange(L) / SR
     place(bed, np.sin(2 * np.pi * (42 + 70 * np.exp(-tt * 28)) * tt) * env(L, 0.002, 0.3, 6), at, 0.32)
 # the pause before the voice: music dips 3.05-3.4 then comes back quieter
@@ -63,7 +63,7 @@ for k in range(26):
     place(sfx, chirp, at, 0.012, rng.uniform(-0.8, 0.8))
 # torch clicks: phone torch on (tick) and off (softer)
 A = []  # the girl has no torch
-B = [[1.15, 1.35], [1.5, 1.7], [2.05, 2.95], [3.9, 4.1], [4.3, 4.5], [5.0, 6.35]]  # only the boy blinks
+B = [[1.15, 1.35], [1.5, 1.7], [2.05, 2.95], [3.7, 3.9], [4.05, 4.25], [4.45, 8.2]]  # only the boy blinks
 def click(gain):
     L = int(0.03 * SR); n = hp(rng.standard_normal(L), 0.3) * env(L, 0.0005, 0.012, 3)
     tt = np.arange(L) / SR; tick = np.sin(2 * np.pi * 2400 * tt) * env(L, 0.0005, 0.01, 4)
@@ -83,17 +83,17 @@ def whoosh(dur, up=True):
     y = np.empty(L); acc = 0.0
     for i in range(L): acc += sweep[i] * (n[i] - acc); y[i] = acc
     return y * np.sin(np.pi * tt / dur) ** 2
-for at, d, up in [(0.55, 0.5, True), (1.75, 0.45, True), (2.9, 0.45, False), (3.45, 0.55, True), (4.75, 0.6, False)]:
+for at, d, up in [(0.55, 0.5, True), (1.75, 0.45, True), (2.9, 0.45, False), (3.45, 0.5, True), (4.45, 0.6, True), (5.65, 0.7, False)]:
     place(sfx, whoosh(d, up), at, 0.5, 0)
 # reveal: soft riser into "That's the internet." and a warm hit + sparkle as the title lands
 L = int(0.6 * SR); tt = np.arange(L) / SR
-place(sfx, np.sin(2 * np.pi * (300 + 900 * tt / 0.6) * tt) * (tt / 0.6) ** 2 * 0.5, 4.25, 0.05)
+place(sfx, np.sin(2 * np.pi * (300 + 900 * tt / 0.6) * tt) * (tt / 0.6) ** 2 * 0.5, 6.35, 0.05)
 L = int(1.6 * SR); tt = np.arange(L) / SR
 hit = (np.sin(2 * np.pi * 55 * tt) * 0.8 + np.sin(2 * np.pi * 110 * tt) * 0.3) * env(L, 0.003, 1.0, 3)
-place(sfx, hit, 4.85, 0.45)
+place(sfx, hit, 7.0, 0.45)
 for k, m in enumerate([81, 84, 88, 93]):
     L = int(0.9 * SR); tt = np.arange(L) / SR
-    place(sfx, np.sin(2 * np.pi * midi(m) * tt) * env(L, 0.003, 0.7, 4), 5.0 + k * 0.06, 0.06, (k - 1.5) * 0.4)
+    place(sfx, np.sin(2 * np.pi * midi(m) * tt) * env(L, 0.003, 0.7, 4), 7.1 + k * 0.06, 0.06, (k - 1.5) * 0.4)
 
 sf.write('bed.wav', bed.astype(np.float32), SR)
 sf.write('sfx.wav', sfx.astype(np.float32), SR)
