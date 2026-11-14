@@ -8,11 +8,18 @@ const C = {
   man: { skin: '#bd8762', skinSh: '#98643f', hair: '#1b1520', top: '#2f9c95', topSh: '#22756f', inner: '#f3e9d6', bottom: '#2b3a6b', shoe: '#f3f0ea', sole: '#2f9c95' },
   woman: { skin: '#c9926f', skinSh: '#a3704f', hair: '#1b1520', top: '#b9a2ec', topSh: '#8f78cf', inner: '#f4e6cf', bottom: '#f4e6cf', shoe: '#e8a0b8', sole: '#c97a98' },
 };
+/* dress options for her: 1 short kurti + jeans, 2 top + long skirt, 3 long anarkali + dupatta, 0 the first lavender kurti */
+export const DRESS: Record<number, { top: string; topSh: string; bottom: string; shoe: string; sole: string; hem: number; hw: number; legW: number; dup: boolean; skirt?: string; skirtSh?: string }> = {
+  0: { top: '#b9a2ec', topSh: '#8f78cf', bottom: '#f4e6cf', shoe: '#e8a0b8', sole: '#c97a98', hem: -84, hw: 42, legW: 15, dup: true },
+  1: { top: '#ff8672', topSh: '#d9604f', bottom: '#33478a', shoe: '#f3f0ea', sole: '#ff8672', hem: -136, hw: 33, legW: 18, dup: false },
+  2: { top: '#f6c34a', topSh: '#cf9a26', bottom: '#c9926f', shoe: '#f4e6cf', sole: '#b98a4a', hem: -178, hw: 25, legW: 13, dup: false, skirt: '#a8324e', skirtSh: '#7e2238' },
+  3: { top: '#f58fb4', topSh: '#cf6590', bottom: '#f4e6cf', shoe: '#ffd36b', sole: '#c99a3a', hem: -62, hw: 54, legW: 14, dup: true },
+};
 export const A_SHOULDER = { x: 34, y: -240 }, A_UPPER = 56, A_FORE = 50, A_TIP = 46;
 const limb = (x: number, y: number, a: number, l: number) => { const r = a * Math.PI / 180; return [x + Math.sin(r) * l, y + Math.cos(r) * l] as const; };
 
-export const Adult: React.FC<{ kind: 'man' | 'woman'; p: StickPose; id: string }> = ({ kind, p, id }) => {
-  const c = C[kind]; const w = kind === 'woman'; const sx = w ? 28 : 36, aw = w ? 15 : 19, fw = w ? 12 : 15;
+export const Adult: React.FC<{ kind: 'man' | 'woman'; p: StickPose; id: string; dress?: number }> = ({ kind, p, id, dress = 1 }) => {
+  const w = kind === 'woman'; const d = DRESS[dress]; const c = w ? { ...C.woman, top: d.top, topSh: d.topSh, bottom: d.bottom, shoe: d.shoe, sole: d.sole } : C.man; const sx = w ? 28 : 36, aw = w ? 15 : 19, fw = w ? 12 : 15;
   const [rex, rey] = limb(sx - 2, A_SHOULDER.y, p.armR[0], A_UPPER), [rwx, rwy] = limb(rex, rey, p.armR[1], A_FORE);
   const [lex, ley] = limb(-sx + 2, A_SHOULDER.y, p.armL[0], A_UPPER), [lwx, lwy] = limb(lex, ley, p.armL[1], A_FORE);
   const eyeRy = 7.5 * (1 - 0.9 * p.blink), lx = p.look * 3; const open = p.smile > 0.6;
@@ -26,7 +33,7 @@ export const Adult: React.FC<{ kind: 'man' | 'woman'; p: StickPose; id: string }
       {/* legs + shoes */}
       {[-1, 1].map((s) => (
         <g key={s}>
-          <line x1={s * 13} y1={w ? -92 : -152} x2={s * 15} y2={-16} stroke={c.bottom} strokeWidth={w ? 15 : 21} strokeLinecap="round" />
+          <line x1={s * 13} y1={w ? Math.min(d.hem - 8, -60) : -152} x2={s * 15} y2={-16} stroke={c.bottom} strokeWidth={w ? d.legW : 21} strokeLinecap="round" />
           <path d={`M ${s * 15 - 14} -4 Q ${s * 15 - 14} -18 ${s * 15 + 2} -18 Q ${s * 15 + 24} -16 ${s * 15 + 24} -4 Z`} fill={c.shoe} />
           <rect x={s * 15 - 14} y={-6} width={38} height={6} rx={3} fill={c.sole} />
         </g>
@@ -38,13 +45,14 @@ export const Adult: React.FC<{ kind: 'man' | 'woman'; p: StickPose; id: string }
       {/* torso */}
       {w ? (
         <g>
-          <path d="M -28 -252 Q 0 -260 28 -252 L 22 -196 L 42 -84 Q 0 -72 -42 -84 L -22 -196 Z" fill={`url(#aTop${id})`} />
-          <path d="M -42 -84 Q 0 -72 42 -84 L 40 -93 Q 0 -81 -40 -93 Z" fill={c.topSh} />
+          {d.skirt && <><path d="M -24 -190 L 24 -190 L 54 -44 Q 0 -30 -54 -44 Z" fill={d.skirt} /><path d="M -54 -44 Q 0 -30 54 -44 L 52 -56 Q 0 -42 -52 -56 Z" fill={d.skirtSh} /><path d="M -10 -180 L -22 -50 M 12 -180 L 26 -50" stroke={d.skirtSh} strokeWidth={3} opacity={0.6} /><path d="M -52 -62 Q 0 -48 52 -62" stroke="#ffd36b" strokeWidth={3} fill="none" /></>}
+          <path d={`M -28 -252 Q 0 -260 28 -252 L 22 -196 L ${d.hw} ${d.hem} Q 0 ${d.hem + 12} ${-d.hw} ${d.hem} L -22 -196 Z`} fill={`url(#aTop${id})`} />
+          <path d={`M ${-d.hw} ${d.hem} Q 0 ${d.hem + 12} ${d.hw} ${d.hem} L ${d.hw - 2} ${d.hem - 9} Q 0 ${d.hem + 3} ${-d.hw + 2} ${d.hem - 9} Z`} fill={c.topSh} />
           <path d="M -10 -256 Q 0 -238 10 -256" stroke={c.topSh} strokeWidth={5} fill="none" strokeLinecap="round" />
           {[0, 1, 2].map((i) => <circle key={i} cx={0} cy={-232 + i * 13} r={2.2} fill={c.inner} />)}
           {/* dupatta over the shoulder */}
-          <path d="M -28 -252 L -12 -257 L 34 -150 L 24 -134 Z" fill={c.inner} />
-          <path d="M -28 -252 Q -40 -200 -36 -120 L -24 -122 Q -26 -200 -14 -250 Z" fill={c.inner} opacity={0.95} />
+          {d.dup && <><path d="M -28 -252 L -12 -257 L 34 -150 L 24 -134 Z" fill={c.inner} />
+          <path d="M -28 -252 Q -40 -200 -36 -120 L -24 -122 Q -26 -200 -14 -250 Z" fill={c.inner} opacity={0.95} /></>}
         </g>
       ) : (
         <g>
@@ -113,6 +121,22 @@ export const AdultSheet: React.FC = () => {
         <Heart x={545} y={250} s={3.2} /><Heart x={600} y={190} s={2} o={0.7} />
         <g transform="translate(280 1790) scale(2.2)"><Adult kind="man" p={idle} id="m2" /></g>
         <g transform="translate(810 1790) scale(2.2)"><Adult kind="woman" p={{ ...idle, blink: 1, tilt: 12 }} id="w2" /></g>
+      </svg>
+    </AbsoluteFill>
+  );
+};
+
+export const DressSheet: React.FC = () => {
+  const pose: StickPose = { blink: 0, smile: 1, look: 0, armR: [150, 172], armL: [-10, -6], tilt: 3 };
+  return (
+    <AbsoluteFill style={{ background: 'linear-gradient(#0b1030,#1b2150)' }}>
+      <svg width={1080} height={1920}>
+        {[1, 2, 3].map((n, i) => (
+          <g key={n}>
+            <g transform={`translate(${200 + i * 340} 1280) scale(2.1)`}><Adult kind="woman" p={pose} id={'d' + n} dress={n} /></g>
+            <circle cx={200 + i * 340} cy={1440} r={46} fill="#ffd36b" /><text x={200 + i * 340} y={1462} textAnchor="middle" fontSize={62} fontWeight={800} fontFamily="sans-serif" fill="#1b1520">{n}</text>
+          </g>
+        ))}
       </svg>
     </AbsoluteFill>
   );
