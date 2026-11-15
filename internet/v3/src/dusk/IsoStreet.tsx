@@ -210,6 +210,7 @@ const WIRE_KEYS: Key[] = [[0, BOYC.x + 60, BOYC.y - 20, 1.9], [0.7, BOYC.x + 60,
 const WVO: [number, React.ReactNode][] = [[0.2, <>So we use a <em>wire.</em></>], [2.3, <>Now it's a <em>billion</em> blinks,</>], [3.75, <>every <em>second.</em></>], [4.95, <><em>"Hello"</em> arrives before you blink.</>]];
 export const IsoHook: React.FC = () => <IsoStreet hook />;
 export const IsoFull: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire /></Sequence><Sequence from={690} durationInFrames={555}><IsoStreet move /></Sequence></AbsoluteFill>);
+export const IsoHookCine: React.FC = () => <IsoStreet hook cine />;
 export const IsoWire: React.FC = () => <IsoStreet wire />;
 export const IsoDetail: React.FC = () => <IsoStreet hook detail mute />;
 export const IsoMoveDetail: React.FC = () => <IsoStreet move detail />;
@@ -229,7 +230,7 @@ export const IsoMove: React.FC = () => <IsoStreet move />;
 export const Concept: React.FC<{ k: string }> = ({ k }) => <IsoStreet concept={k} />;
 const CSUB: Record<string, React.ReactNode> = { '1a': <>She moves down the <em>street.</em> The wire can't follow.</>, '1b': <>So every house plugs into <em>one box.</em></>, '2a': <>Now the whole <em>street</em> wants in.</>, '2b': <>One box untangles it: the <em>router.</em></> };
 const GRAN = { hair: '#d9d9e3', top: '#7fbf9a', topSh: '#5a9a78', glasses: true, bun: true }, UNCLE = { hair: '#8d8d9a', top: '#c97b4a', topSh: '#9a5a32', moustache: true }, KIDT = { top: '#f6c34a', topSh: '#cf9a26' }, AUNTY = { top: '#e06a8c', topSh: '#b04a6a', bun: true };
-export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean; mute?: boolean; concept?: string; move?: boolean; detail?: boolean }> = ({ hook, wire, net, mute, concept, move, detail = true }) => {
+export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean; mute?: boolean; concept?: string; move?: boolean; detail?: boolean; cine?: boolean }> = ({ hook, wire, net, mute, concept, move, detail = true, cine = false }) => {
   DETAIL = !!detail;
   const f = useCurrentFrame(); const t = f / FPS;
   let on = 1; const cam = hook ? camAt(t) : wire ? camAt(t, WIRE_KEYS) : net ? camAt(t, NET_KEYS) : move ? camAt(t, MOVE_KEYS) : concept ? { fx: 800, fy: 900, z: 0.74 } : { fx: 540, fy: 960, z: 1 };
@@ -416,12 +417,21 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
         {Array.from({ length: 18 }).map((_, i) => <TreeIso key={'t3' + i} x={-18 + i * 2.1} y={14.6} s={0.8} />)}
         {[-19.1, -15.9, -12.7, -9.5, -6.3, -3.1, 0.1, 3.3, 6.5, 9.7, 12.9, 16.1].map((x, i) => <HouseIso key={'bt' + i} b={{ x0: x, y0: 15.4, w: 2.4, d: 2.4, h: 2.0, c: C1[(i + 1) % 6], roof: i % 2 ? 'gable' : 'hip', seed: 80 + i }} f={f} />)}
         {Array.from({ length: 12 }).map((_, i) => <HouseIso key={'bt2' + i} b={{ x0: -20 + i * 3.2, y0: 18.8, w: 2.4, d: 2.4, h: 2.0 + (i % 2) * 0.3, c: C1[(i + 4) % 6], roof: i % 2 ? 'gable' : 'hip', seed: 120 + i }} f={f} />)}
+        {/* cinematic pass: everything except the two balconies drops back, so the eye goes to the light */}
+        {cine && hook && <g><defs><radialGradient id="ciHole"><stop offset="0" stopColor="#000" /><stop offset=".55" stopColor="#000" stopOpacity=".9" /><stop offset="1" stopColor="#000" stopOpacity="0" /></radialGradient><radialGradient id="ciWarm"><stop offset="0" stopColor="#fff6dc" stopOpacity=".95" /><stop offset=".3" stopColor="#ffd98a" stopOpacity=".45" /><stop offset="1" stopColor="#ffc864" stopOpacity="0" /></radialGradient>
+          <mask id="ciSpot" maskUnits="userSpaceOnUse" x={-1500} y={-1500} width={4200} height={5000}><rect x={-1500} y={-1500} width={4200} height={5000} fill="#fff" /><ellipse cx={bx} cy={by - 110} rx={270} ry={250} fill="url(#ciHole)" /><ellipse cx={gx} cy={gy - 110} rx={270} ry={250} fill="url(#ciHole)" opacity={0.55 + 0.45 * on} /></mask></defs>
+          <rect x={-1500} y={-1500} width={4200} height={5000} fill="#040820" opacity={0.52} mask="url(#ciSpot)" /></g>}
         {/* the torch beam across the street */}
         <g transform={`translate(${lens.x} ${lens.y}) rotate(${ang})`} style={{ mixBlendMode: 'screen' }} opacity={on}>
           <path d={`M 0 -3 L ${len} -26 L ${len} 26 L 0 3 Z`} fill="url(#iBeam)" opacity={0.7} filter="url(#iB2)" />
           <path d={`M 0 -1.5 L ${len} -9 L ${len} 9 L 0 1.5 Z`} fill="url(#iBeam)" opacity={0.9} />
           <circle cx={0} cy={0} r={14} fill="#fff6dc" filter="url(#iB)" /><circle cx={len} cy={0} r={30} fill="#fff1d0" opacity={0.4} filter="url(#iB2)" />
         </g>
+        {cine && hook && on > 0 && <g opacity={on}>
+          <circle cx={lens.x} cy={lens.y} r={95} fill="url(#ciWarm)" opacity={0.75} />
+          {[0, 0.5].map((d) => { const u = (t * 1.5 + d) % 1, x = lerp(lens.x, tgt.x, u), y = lerp(lens.y, tgt.y, u); return <g key={d} opacity={Math.sin(Math.PI * u)}><circle cx={x} cy={y} r={52} fill="url(#ciWarm)" /><circle cx={x} cy={y} r={7} fill="#fffbee" /></g>; })}
+          {[0, 0.5].map((d) => { const u = (t * 1.2 + d) % 1; return <circle key={d} cx={tgt.x} cy={tgt.y} r={24 + u * 100} fill="none" stroke="#ffe2a8" strokeWidth={5 * (1 - u) + 1} opacity={(1 - u) * 0.7} />; })}
+        </g>}
         {/* the wire between the two balconies, with data pulses (cyan = data) */}
         {wire && (() => {
           const A0 = iso(BX0 + 0.62, BYC - 0.7, BZ + 0.5), B = iso(GBX + 0.62, GYC + 0.7, BZ + 0.5);
@@ -607,6 +617,8 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
             <text y={44} textAnchor="middle" style={{ font: `600 17px ${FONT.mono}` }} fill="#b9c4ff">{['01001000', '01000101', '01001100', '01001100', '01001111'][j]}</text>
           </g>); })}
       </svg>
+      {cine && <><div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 230, backdropFilter: 'blur(5px)', WebkitMaskImage: 'linear-gradient(#000 20%, transparent)', maskImage: 'linear-gradient(#000 20%, transparent)' }} />
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 330, backdropFilter: 'blur(5px)', WebkitMaskImage: 'linear-gradient(transparent, #000 80%)', maskImage: 'linear-gradient(transparent, #000 80%)' }} /></>}
       {hook && <HookOverlays f={f} t={t} macro={macro} mute={mute} />}
       {wire && <WireOverlays f={f} t={t} />}
       {net && <NetOverlays f={f} t={t} />}
