@@ -382,7 +382,7 @@ function buildBudInternals(b) {
 }
 
 /* free engraving (names + emoji), like Apple offers, so we can tell the two cases apart */
-const ENGRAVE = Q.get('swap') ? { A: ['Karan', '🌙'], B: ['Harsha', '⭐'] } : { A: ['Harsha', '⭐'], B: ['Karan', '🌙'] };
+const ENGRAVE = Q.get('swap') ? { A: ['Ramya', '🌙'], B: ['Harsha', '⭐'] } : { A: ['Harsha', '⭐'], B: ['Ramya', '🌙'] };
 const NAMES = { A: ENGRAVE.A.join(' '), B: ENGRAVE.B.join(' ') };
 function engraveTex(name, emoji) {
   const c = document.createElement('canvas'); c.width = 512; c.height = 256; const x = c.getContext('2d');
