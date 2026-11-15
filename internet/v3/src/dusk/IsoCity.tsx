@@ -1,5 +1,5 @@
 import React from 'react';
-import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, Audio, Img, staticFile, useCurrentFrame } from 'remotion';
 import '@fontsource/manrope/700.css'; import '@fontsource/manrope/800.css'; import '@fontsource/ibm-plex-mono/600.css';
 import { FPS, hash, lerp, prog, clamp01, easeOut, easeInOut } from '../lib/anim';
 import { FONT } from '../lib/palette';
@@ -81,6 +81,7 @@ export const IsoCity: React.FC = () => {
   const FC = ['#16303f', '#1a3644', '#14293a', '#1d3a3f', '#182f48'];
   return (
     <AbsoluteFill style={{ backgroundColor: '#0d1830' }}>
+      <Audio src={staticFile('city-mix.wav')} />
       <svg width={1080} height={1920}>
         <defs><filter id="cB"><feGaussianBlur stdDeviation="5" /></filter><filter id="cB2"><feGaussianBlur stdDeviation="12" /></filter>
           <radialGradient id="cG"><stop offset="0" stopColor="#2a4266" /><stop offset="1" stopColor="#1a2d4a" stopOpacity="0" /></radialGradient></defs>
