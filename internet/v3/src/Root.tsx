@@ -29,6 +29,6 @@ export const Root: React.FC = () => (
     <Composition id="C2b" component={Concept} defaultProps={{ k: '2b' }} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="C3a" component={MapConcept} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="C3b" component={MapConcept} defaultProps={{ star: true }} durationInFrames={30} fps={30} width={1080} height={1920} />
-    <Composition id="IsoMove" component={IsoMove} durationInFrames={300} fps={30} width={1080} height={1920} />
+    <Composition id="IsoMove" component={IsoMove} durationInFrames={378} fps={30} width={1080} height={1920} />
   </>
 );
