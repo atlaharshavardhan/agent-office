@@ -397,7 +397,10 @@ let lastScreen = '', HOME = null;
 function homeScreen() {   // generic app icons (no real brand logos), dark mode
   if (HOME) return HOME;
   const c = document.createElement('canvas'); c.width = 660; c.height = 1380; const x = c.getContext('2d');
-  const g = x.createLinearGradient(0, 0, 0, 1380); g.addColorStop(0, '#0b0f1e'); g.addColorStop(0.5, '#141022'); g.addColorStop(1, '#05060c'); x.fillStyle = g; x.fillRect(0, 0, 660, 1380);
+  // purple wallpaper: lilac/pink glow at the top fading into deep purple
+  const g = x.createLinearGradient(0, 0, 0, 1380); g.addColorStop(0, '#c7a3ea'); g.addColorStop(0.22, '#9b6fd6'); g.addColorStop(0.55, '#5b3a96'); g.addColorStop(1, '#22163f'); x.fillStyle = g; x.fillRect(0, 0, 660, 1380);
+  const r1 = x.createRadialGradient(520, 160, 10, 520, 160, 420); r1.addColorStop(0, 'rgba(255,170,220,.55)'); r1.addColorStop(1, 'rgba(255,170,220,0)'); x.fillStyle = r1; x.fillRect(0, 0, 660, 1380);
+  const r2 = x.createRadialGradient(80, 700, 10, 80, 700, 520); r2.addColorStop(0, 'rgba(120,90,255,.35)'); r2.addColorStop(1, 'rgba(120,90,255,0)'); x.fillStyle = r2; x.fillRect(0, 0, 660, 1380);
   x.fillStyle = '#fff'; x.font = '600 30px "IBM Plex Sans", Arial'; x.textAlign = 'left'; x.fillText('9:41', 64, 62);
   x.fillRect(560, 44, 40, 20); x.fillStyle = '#000'; x.beginPath(); x.roundRect(230, 20, 200, 56, 28); x.fill();
   const apps = [['Camera', '#2c2c2e', 'cam'], ['Photos', '#1c1c1e', 'flower'], ['Music', '#fc3c5c', 'note'], ['Maps', '#2e7d4f', 'pin'],
@@ -466,7 +469,7 @@ function screen(state, k = 1) {   // state: off | alert | fixed ; k = sheet slid
   x.fillStyle = '#000'; x.fillRect(0, 0, w, h);   // black glass
   if (state === 'off') { SCREEN_TEX.needsUpdate = true; return; }
   // dark-mode home screen behind the card, blurred and dimmed as the card comes up
-  const bk = easeOut(k); x.save(); x.filter = `blur(${(bk * 9).toFixed(1)}px) brightness(${(1 - 0.45 * bk).toFixed(2)})`; x.drawImage(homeScreen(), 0, 0); x.restore(); x.textAlign = 'center';
+  const bk = easeOut(k); x.save(); x.filter = `blur(${(bk * 10).toFixed(1)}px) brightness(${(1 - 0.22 * bk).toFixed(2)}) saturate(${(1 + 0.2 * bk).toFixed(2)})`; x.drawImage(homeScreen(), 0, 0); x.restore(); x.textAlign = 'center';
   // card in the lower half of the screen, the same size as the real iPhone alert
   const e = easeOut(k), cw = w - 40, ch = 640, cx = 20, cy = h - ch - 22 + (1 - e) * 700;
   x.fillStyle = CASE_IMG.bg || '#1c1c1e'; x.beginPath(); x.roundRect(cx, cy, cw, ch, 56); x.fill();   // dark mode
