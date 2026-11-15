@@ -4245,7 +4245,7 @@ function buildBudInternals(b) {
 }
 
 /* free engraving (names + emoji), like Apple offers, so we can tell the two cases apart */
-const ENGRAVE = { A: ['Rahul', '🚀'], B: ['Karan', '🎸'] };
+const ENGRAVE = { A: ['Harsha', '🚀'], B: ['Karan', '🎸'] };
 function engraveTex(name, emoji) {
   const c = document.createElement('canvas'); c.width = 512; c.height = 256; const x = c.getContext('2d');
   x.textAlign = 'center'; x.textBaseline = 'middle';
@@ -4308,7 +4308,7 @@ function buildPhone() {
     m.traverse(o => { if (!o.isMesh) return;
       if (/^apple-logo/.test(o.name) || /^apple-logo/.test(o.parent && o.parent.name)) o.visible = false;      // no brand logos
       if (o.name.indexOf('front-glass') === 0 || (o.parent && o.parent.name === 'front-glass')) {
-        o.material = new THREE.MeshPhysicalMaterial({ color: 0x020203, metalness: 0, roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 1.6 }); GLASS_SRC.push(o); }
+        o.material = new THREE.MeshBasicMaterial({ color: 0x000000 }); /* black glass, no reflections */ GLASS_SRC.push(o); }
     });
     const holder = new THREE.Group(); holder.add(m); m.updateMatrixWorld(true);
     const f = m.getObjectByName('front-glass'), r = m.getObjectByName('rear-window');
@@ -4319,10 +4319,6 @@ function buildPhone() {
     const sw = fs.x - 3.2, shh = fs.y - 3.2, sg = new THREE.ShapeGeometry(rrShape(sw, shh, 9), 24);
     { const pa = sg.attributes.position, uv = []; for (let i = 0; i < pa.count; i++) uv.push(pa.getX(i) / sw + 0.5, pa.getY(i) / shh + 0.5); sg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); }
     const scr = new THREE.Mesh(sg, SCREEN_MAT); scr.position.set(fc.x, fc.y, fb.max.z + 0.3); PHONE.add(scr);
-    const sheen = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ map: sheenTex(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
-    sheen.position.set(fc.x, fc.y, fb.max.z + 0.5); sheen.renderOrder = 4; PHONE.add(sheen);
-    const cover = new THREE.Mesh(sg, new THREE.MeshPhysicalMaterial({ color: 0x000000, roughness: 0.02, clearcoat: 1, clearcoatRoughness: 0.01, envMapIntensity: 2.4, transparent: true, opacity: 0.16, depthWrite: false }));
-    cover.position.set(fc.x, fc.y, fb.max.z + 0.4); cover.renderOrder = 3; PHONE.add(cover);
     res();
   }));
 }
@@ -4332,7 +4328,7 @@ function screen(state, k = 1) {   // state: off | alert | fixed ; k = card pop p
   const c = SCREEN_CV, x = c.getContext('2d'), w = c.width, h = c.height;
   x.fillStyle = '#000'; x.fillRect(0, 0, w, h);
   if (state === 'off') { SCREEN_TEX.needsUpdate = true; return; }
-  const g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#1a2350'); g.addColorStop(0.55, '#2a1846'); g.addColorStop(1, '#0d1028'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  x.fillStyle = '#000'; x.fillRect(0, 0, w, h);   // black glass wallpaper
   x.fillStyle = 'rgba(255,255,255,.92)'; x.textAlign = 'center'; x.font = '600 120px Sora, Arial'; x.fillText('9:41', w / 2, 260); x.font = '500 34px "IBM Plex Sans", Arial'; x.fillStyle = 'rgba(255,255,255,.7)'; x.fillText('Saturday 15 November', w / 2, 150);
   x.fillStyle = '#000'; x.beginPath(); x.roundRect ? x.roundRect(w / 2 - 95, 22, 190, 54, 27) : x.rect(w / 2 - 95, 22, 190, 54); x.fill();   // island
   // card
@@ -4436,7 +4432,7 @@ const SHOTS = [
     setLight(CB, 'white', 0.9 * bump(u, 1.4, 1.95)); setLight(CA, 'green', 0);
     VO = 0.0; look(V(0, 150, 590), V(0, 6, 0));
     title(['Wrong case…', '<em class="b">will it charge?</em>'], [0, 0], 1);
-    tag('ya', 'Yours · Rahul 🚀', W2(CA, V(0, -36, 6)), 0, 34, 1, '', true); tag('fr', 'Friend’s · Karan 🎸', W2(CB, V(0, -36, 6)), 0, 34, 1, '', true);
+    tag('ya', 'Yours · Harsha 🚀', W2(CA, V(0, -36, 6)), 0, 34, 1, '', true); tag('fr', 'Friend’s · Karan 🎸', W2(CB, V(0, -36, 6)), 0, 34, 1, '', true);
     note('3D illustration · not affiliated with Apple', 1, true);
   },
   (u, t) => { // 2. close on case B, "?" over the status light
@@ -4492,7 +4488,7 @@ const SHOTS = [
     link(W2(CA, V(0, 6, 0)), W2(CB, V(0, 10, 0)).add(V(0, 0, 0)), lk, brk, t);
     tag('set', 'Paired as a set', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, -14, 0)), 0, 0, lk * (1 - brk), '', true);
     glyph('big', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, 12, 0)), ease(ramp(u, 6.4, 6.8)), 0.35);
-    tag('ya2', 'Rahul’s case 🚀', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8))); tag('fr2', 'Karan’s case 🎸', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8)));
+    tag('ya2', 'Harsha’s case 🚀', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8))); tag('fr2', 'Karan’s case 🎸', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8)));
     title(['Now the <em>catch</em>…', '<em>“Mismatched AirPods”</em>'], [0.0, 1.0], u);
   },
   (u, t) => { // 6. back in their own case (or set up again): warning gone
@@ -4504,7 +4500,7 @@ const SHOTS = [
     VO = 0.0; look(V(0, 10, 628), V(0, 0, 0));
     title(['Own case <em class="g">✓</em>', 'or <em class="b">set up again</em>'], [0.6, 3.6], u);
     note('…after your friend removes them from <b>their Find My</b>', ease(ramp(u, 4.2, 4.6)), true); $('note').style.top = '20.6%'; $('note').style.fontSize = '3.4vw'; $('note').style.color = '#cfe9ff';
-    tag('ya3', 'Rahul’s case 🚀', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, 1); tag('fr3', 'Karan’s case 🎸', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, 1);
+    tag('ya3', 'Harsha’s case 🚀', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, 1); tag('fr3', 'Karan’s case 🎸', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, 1);
   },
   (u, t) => { // 7. a different generation: fits perfectly, still doesn't work properly
     CA.root.visible = false; CB.root.position.set(8.7, 2, 0); CB.root.rotation.set(0.1, -0.2, 0); setLid(CB, 1);
