@@ -5082,11 +5082,40 @@ function loadMac() {
       const shellLike = /Space_Grey|Black_Plastic|Material.001|Keys/.test(m.name) || o.name === 'Object_8';
       if (shellLike) { SOLID.push(o); const gh = new THREE.Mesh(o.geometry, ghostMat()); gh.visible = false; o.add(gh); GHOST.push(gh); }
     });
-    if (SCREEN_IMG) SCREEN_IMG.position.y -= 0.25;   // the screen picture sat on the black glass (z-fighting dots): move it 0.25 mm towards the viewer
+    if (SCREEN_IMG) SCREEN_IMG.position.y -= 0.25;
+    meshes.forEach(o => { if (/^Object_(23|24|25|27)$/.test(o.name)) o.visible = false; });   // V4: the 2026 MacBook Pro has no Touch Bar (viewers spot it)
+    buildFnRow();   // the screen picture sat on the black glass (z-fighting dots): move it 0.25 mm towards the viewer
     // logo centre in lid space
     const bb = new THREE.Box3().setFromObject(LOGO); LID.updateMatrixWorld(true); bb.getCenter(LOGO_C); LID.worldToLocal(LOGO_C); LOGO_C.y += 0.15;
     res();
   }));
+}
+
+/* V4: full-height function row (esc, F1–F12, Touch ID) where the 2020 model had its Touch Bar */
+function buildFnRow() {
+  const x0 = -132.7, x1 = 131.8, z0 = -90.2, z1 = -81.8, gap = 2.0, units = [1.6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], D = z1 - z0;
+  const u = (x1 - x0 - gap * (units.length - 1)) / units.reduce((a, b) => a + b, 0); let x = x0;
+  const glyph = (c, i, w, h) => { c.strokeStyle = c.fillStyle = '#eceef2'; c.lineWidth = 5; c.lineCap = 'round'; const cx = w / 2, cy = h * 0.5, r = h * 0.22;
+    const sun = (big) => { c.beginPath(); c.arc(cx, cy, r * (big ? 0.55 : 0.4), 0, 7); c.stroke(); for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4, r0 = r * 0.8, r1 = r * (big ? 1.25 : 1.05); c.beginPath(); c.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0); c.lineTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1); c.stroke(); } };
+    const spk = (n) => { c.beginPath(); c.moveTo(cx - r, cy - r * 0.35); c.lineTo(cx - r * 0.5, cy - r * 0.35); c.lineTo(cx, cy - r * 0.8); c.lineTo(cx, cy + r * 0.8); c.lineTo(cx - r * 0.5, cy + r * 0.35); c.lineTo(cx - r, cy + r * 0.35); c.closePath(); c.fill();
+      for (let k = 1; k <= n; k++) { c.beginPath(); c.arc(cx + r * 0.1, cy, r * (0.45 + 0.4 * k), -0.7, 0.7); c.stroke(); } };
+    const tri = (x, dir) => { c.beginPath(); c.moveTo(x, cy - r * 0.6); c.lineTo(x + dir * r * 0.9, cy); c.lineTo(x, cy + r * 0.6); c.closePath(); c.fill(); };
+    if (i === 0) { c.font = `500 ${h * 0.32}px "IBM Plex Sans", Arial`; c.textAlign = 'left'; c.textBaseline = 'bottom'; c.fillText('esc', w * 0.12, h * 0.86); }
+    else if (i === 1 || i === 2) sun(i === 2);
+    else if (i === 3) { for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) c.strokeRect(cx + dx * r * 0.62 - r * 0.45, cy + dy * r * 0.45 - r * 0.3, r * 0.9, r * 0.6); }
+    else if (i === 4) { c.beginPath(); c.arc(cx - r * 0.15, cy - r * 0.15, r * 0.55, 0, 7); c.stroke(); c.beginPath(); c.moveTo(cx + r * 0.25, cy + r * 0.25); c.lineTo(cx + r * 0.75, cy + r * 0.75); c.stroke(); }
+    else if (i === 5) { c.beginPath(); c.arc(cx, cy - r * 0.3, r * 0.3, Math.PI, 0); c.lineTo(cx + r * 0.3, cy + r * 0.1); c.arc(cx, cy + r * 0.1, r * 0.3, 0, Math.PI); c.closePath(); c.stroke(); c.beginPath(); c.arc(cx, cy + r * 0.05, r * 0.6, 0.2, Math.PI - 0.2); c.stroke(); c.beginPath(); c.moveTo(cx, cy + r * 0.65); c.lineTo(cx, cy + r * 0.95); c.stroke(); }
+    else if (i === 6) { c.beginPath(); c.arc(cx, cy, r * 0.75, 0.6, 2 * Math.PI - 0.6); c.arc(cx + r * 0.45, cy, r * 0.55, 2 * Math.PI - 1.35, 1.35, true); c.closePath(); c.fill(); }
+    else if (i === 7) { tri(cx, -1); tri(cx + r * 0.9, -1); }
+    else if (i === 8) { tri(cx - r * 0.9, 1); c.fillRect(cx + r * 0.25, cy - r * 0.6, r * 0.22, r * 1.2); c.fillRect(cx + r * 0.62, cy - r * 0.6, r * 0.22, r * 1.2); }
+    else if (i === 9) { tri(cx - r * 0.9, 1); tri(cx, 1); }
+    else if (i <= 12) spk(i - 10);
+    else { c.globalAlpha = 0.35; c.beginPath(); c.arc(cx, cy, r * 1.2, 0, 7); c.stroke(); c.globalAlpha = 1; }   // Touch ID
+  };
+  units.forEach((wu, i) => { const kw = wu * u, cw = Math.round(220 * wu), ch = Math.round(220 * D / u);
+    const t = etchTex(cw, ch, (c, w, h) => { c.fillStyle = '#121316'; c.fillRect(0, 0, w, h); glyph(c, i, w, h); });
+    const m = new THREE.Mesh(new THREE.BoxGeometry(kw, 0.9, D), new THREE.MeshStandardMaterial({ map: t, roughness: 0.55, metalness: 0.05, envMapIntensity: 0.6 }));
+    m.position.set(x + kw / 2, 10.45, (z0 + z1) / 2); MAC.add(m); SOLID.push(m); const gh = new THREE.Mesh(m.geometry, ghostMat()); gh.visible = false; m.add(gh); GHOST.push(gh); x += kw + gap; });
 }
 
 /* ---------- inside the lid, after iFixit's PROLED teardown (illustrative, not to scale) ----------
@@ -5208,8 +5237,9 @@ function buildV3() {
 function flow(list, t, speed, a) { list.forEach(sp => { const P = sp.userData.pts, f = (t * speed + sp.userData.ph) % 1, segs = P.length - 1, x = f * segs, i = Math.min(segs - 1, Math.floor(x));
   sp.position.copy(P[i]).lerp(P[i + 1], x - i); sp.material.opacity = a * Math.sin(Math.PI * f) ** 0.6; sp.visible = a > 0.01; }); }
 function drawPixels(frac, t) { const c = PIX.cv, x = c.getContext('2d'), cw = c.width / PIX.cols, ch = c.height / PIX.rows; x.clearRect(0, 0, c.width, c.height);
-  for (let j = 0; j < PIX.rows; j++) for (let i = 0; i < PIX.cols; i++) { const o = PIX.order[j * PIX.cols + i]; if (o > frac) continue; const v = Math.min(1, (frac - o) * 8);
-    const X = i * cw, Y = j * ch; x.globalAlpha = v; x.fillStyle = '#ff4060'; x.fillRect(X + 2, Y + 3, cw * 0.18, ch - 6); x.fillStyle = '#3ddc7a'; x.fillRect(X + 2 + cw * 0.26, Y + 3, cw * 0.18, ch - 6); x.fillStyle = '#4d86ff'; x.fillRect(X + 2 + cw * 0.52, Y + 3, cw * 0.34, ch - 6); }
+  const im = WALL.image, sw = im.width * 276 / 290 / PIX.cols, sh = im.height * 176 / 183 / PIX.rows, ox = im.width * 7 / 290, oy = im.height * 3.5 / 183;
+  for (let j = 0; j < PIX.rows; j++) for (let i = 0; i < PIX.cols; i++) { const o = PIX.order[j * PIX.cols + i]; if (o > frac * 1.13) continue; const v = Math.min(1, (frac * 1.13 - o) * 8);   // every block is fully lit by the end
+    x.globalAlpha = v; x.drawImage(im, ox + i * sw, oy + j * sh, sw, sh, i * cw, j * ch, cw + 0.5, ch + 0.5); }   // V4 (Harsh): only the wallpaper on the screen; it lights up block by block (each pixel makes its own light)
   x.globalAlpha = 1; PIXM.material.map.needsUpdate = true; }
 function layerShadows(a) { LAYERS.traverse(o => { if (o.userData && o.userData.shadow) o.material.opacity = 0.42 * a; }); }
 
@@ -5416,12 +5446,13 @@ const ORIG = [0, 8.06, 3.26, 6.29, 7.23, 7.52, 0, 0];
 function endShot(u) {   // shared camera for the last two shots: from the video filling the frame back to the MacBook seen from the front
   roomCard(0, 0, 0); terminal(0, 0, 0, 0);
   tapeOff(0); lidOpen(OPEN); explode(0); setXray(0); ledOn([]); diffGlow(0); screenOn(0, 0); room(0); logoGlow(0);
-  // V4: no fly-through the keyboard any more. A calm front view of the MacBook showing its lock screen, slowly rising to the high, dark angle of the branding
-  const z = ease(ramp(u, 0, 3.4)), c = lidPoint(SCR_C);
-  const tgt1 = c.clone().add(new THREE.Vector3(0, -70, 75)), tgt0 = c.clone().add(new THREE.Vector3(0, -45, 40)), tg = tgt0.clone().lerp(tgt1, z);
-  const pi = THREE.MathUtils.degToRad(lerp(30, 44, z) - 2 * Math.max(0, u - 3.4)), d1 = lerp(1180, 1080, z) - 22 * Math.max(0, u - 3.4);
-  VO = lerp(0.1, 0.03, z); camera.setViewOffset(W, H, 0, H * VO, W, H);   // laptop starts higher: subtitles stay off the keyboard camera.updateProjectionMatrix();
-  camera.position.set(0, Math.sin(pi), Math.cos(pi)).multiplyScalar(d1).add(tg); camera.lookAt(tg); camera.updateMatrixWorld();
+  // V4 (Harsh): start as if sitting at the MacBook (its lock screen fills the phone), then pull back to the laptop and the high, dark angle of the branding
+  const z = ease(ramp(u, 0.5, 3.3)), c = lidPoint(SCR_C), n = lidPoint(SCR_C.clone().add(new THREE.Vector3(0, -1, 0))).sub(c).normalize();
+  const p0 = c.clone().addScaledVector(n, 100 / Math.tan(THREE.MathUtils.degToRad(15)));   // the screen fills the frame (date and time inside the safe margins)
+  const tgt1 = c.clone().add(new THREE.Vector3(0, -70, 75)), pi = THREE.MathUtils.degToRad(44 - 2 * Math.max(0, u - 3.3)), d1 = 1080 - 22 * Math.max(0, u - 3.3);
+  const p1 = new THREE.Vector3(0, Math.sin(pi), Math.cos(pi)).multiplyScalar(d1).add(tgt1);
+  VO = 0.03 * z; camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix();
+  camera.position.copy(p0.clone().lerp(p1, z)); camera.lookAt(c.clone().lerp(tgt1, z)); camera.updateMatrixWorld();
   const dk = ease(ramp(u, 1.2, 3.2)); hemi.intensity = lerp(0.6, 0.12, dk); key.intensity = lerp(1.2, 0.25, dk); edgeRim.intensity = lerp(1.15, 0.45, dk); rim.intensity = lerp(0.9, 0.3, dk); renderer.toneMappingExposure = lerp(1.05, 0.7, dk);
   if (SCREEN_IMG) SCREEN_IMG.visible = false;   // the model's own screen picture peeked out at the edges as thin white lines
   END.screen = 1; const sl = lidPoint(new THREE.Vector3(0, -90, 110)); screenLight.position.copy(sl); screenLight.intensity = 1.6 * END.brand;
@@ -5486,8 +5517,8 @@ function drawScreen() {
     x.drawImage(WALL.image, 0, 0, w, h);
     const g = x.createLinearGradient(0, 0, 0, h * 0.55); g.addColorStop(0, 'rgba(0,0,0,.45)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h * 0.55);
     x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = 24;
-    x.fillStyle = 'rgba(255,255,255,.88)'; x.font = '600 50px Sora, Arial'; x.fillText('Sunday 15 November', w / 2, 150);
-    x.fillStyle = 'rgba(255,255,255,.94)'; x.font = '700 250px Sora, Arial'; x.fillText('9:41', w / 2, 390);
+    x.fillStyle = 'rgba(255,255,255,.88)'; x.font = '600 44px Sora, Arial'; x.fillText('Sunday 15 November', w / 2, 170);
+    x.fillStyle = 'rgba(255,255,255,.94)'; x.font = '700 200px Sora, Arial'; x.fillText('9:41', w / 2, 375);
     x.shadowBlur = 0;
   }
   if (END.brand > 0) {   // clean branding: dark background, logo, InvisiTech, tagline
