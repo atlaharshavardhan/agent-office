@@ -9,6 +9,7 @@ import { KidSheet } from './dusk/Kid';
 import { AdultSheet, DressSheet } from './dusk/Adult';
 import { MapConcept } from './dusk/MapConcept';
 import { IsoCity } from './dusk/IsoCity';
+import { IsoCity2 } from './dusk/IsoCity2';
 
 export const Root: React.FC = () => (
   <>
@@ -32,6 +33,7 @@ export const Root: React.FC = () => (
     <Composition id="C3b" component={MapConcept} defaultProps={{ star: true }} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="IsoMove" component={IsoMove} durationInFrames={555} fps={30} width={1080} height={1920} />
     <Composition id="IsoCity" component={IsoCity} durationInFrames={390} fps={30} width={1080} height={1920} />
+    <Composition id="IsoCity2" component={IsoCity2} durationInFrames={390} fps={30} width={1080} height={1920} />
     <Composition id="IsoDetail" component={IsoDetail} durationInFrames={468} fps={30} width={1080} height={1920} />
     <Composition id="IsoMoveDetail" component={IsoMoveDetail} durationInFrames={504} fps={30} width={1080} height={1920} />
   </>
