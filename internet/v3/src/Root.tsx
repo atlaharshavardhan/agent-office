@@ -8,6 +8,7 @@ import { IsoStreet, IsoHook, IsoWire, IsoFull, IsoNet, Concept, IsoMove } from '
 import { KidSheet } from './dusk/Kid';
 import { AdultSheet, DressSheet } from './dusk/Adult';
 import { MapConcept } from './dusk/MapConcept';
+import { IsoCity } from './dusk/IsoCity';
 
 export const Root: React.FC = () => (
   <>
@@ -30,5 +31,6 @@ export const Root: React.FC = () => (
     <Composition id="C3a" component={MapConcept} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="C3b" component={MapConcept} defaultProps={{ star: true }} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="IsoMove" component={IsoMove} durationInFrames={504} fps={30} width={1080} height={1920} />
+    <Composition id="IsoCity" component={IsoCity} durationInFrames={330} fps={30} width={1080} height={1920} />
   </>
 );
