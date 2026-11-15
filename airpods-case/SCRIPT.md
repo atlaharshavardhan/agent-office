@@ -1,4 +1,4 @@
-# AirPods in someone else's case — will they charge? (Short, draft v1, awaiting Harsh's OK)
+# AirPods in someone else's case — will they charge? (Short, draft v2, awaiting Harsh's OK)
 
 Format: 9:16, ~45 s, continuous narration (Michael, Kokoro am_michael), 3D in the AirPods case teardown style.
 Hook = the swap itself; payoff = how the case charges.
@@ -37,3 +37,23 @@ Sources:
 | 9 | 42–45 s | Follow InvisiTech for more. | End card |
 
 ~115 words. Credits: 0 (all code/3D, Canva only for the cover).
+
+## Viewer panel (round 1) and what changed in v2
+- Answer came too early (6 s), so Riya and Arjun would leave at ~9 s → v2 says "Yes… but your iPhone is about to call you out" and saves the catch.
+- Pins / power path / case recharging were high risk and section 6 (MagSafe) was off-topic → cut to one plain 9 s explanation; case recharging removed.
+- Kiran: "straight into the earbud's battery" is wrong (the bud's own charging chip controls it) → fixed; "different model won't fit" is misleading (different Pro generations look the same and fit) → now "can fit perfectly and still not work properly"; one bud vs "your AirPods" mismatch → both buds swap.
+- Silent first 2.5 s is a swipe risk → on-screen text from frame 0, music under it.
+
+## Script v2
+| # | Time | Narration | Visual |
+|---|---|---|---|
+| 1 | 0–2 s | (music; on-screen text "Wrong case… will it charge?") | Both buds lift out of case A and drop into an identical case B with a magnetic click; lid snaps shut; music cuts |
+| 2 | 2–5.5 s | You just put your AirPods in your friend's case. Will they charge? | Close on case B, "?" pulses over the status light |
+| 3 | 5.5–8.5 s | Yes, they will… but your iPhone is about to call you out. | Light turns green; iPhone slides in from the side, screen still dark |
+| 4 | 8.5–19 s | Inside each slot, two tiny spring pins touch two gold dots at the tip of the stem. Magnets snap the bud down, so they always touch. Power flows from the case battery, and a little chip inside the earbud decides how fast to fill it. | Glass x-ray of the case; zoom into the well; pins + stem dots glow; current path battery → pins → bud's charging chip → bud battery |
+| 5 | 19–28 s | Now the catch. Your iPhone pops up "Mismatched AirPods". Your buds and your case were set up as a pair, so your iPhone notices they're not together. | iPhone pop-up "Mismatched AirPods"; a dotted link between the original case and buds breaks |
+| 6 | 28–35 s | Charging still works. Put them back in their own case, or set them up again with this one, and the warning is gone. | Buds hop back to case A; pop-up clears with a tick |
+| 7 | 35–41 s | A different generation, though, can fit perfectly… and still not work properly. | Two look-alike buds; one drops in, red ✕ on the screen |
+| 8 | 41–44 s | Follow InvisiTech for more. | End card |
+
+~120 words, ~43 s with Michael at 1.12. Credits: 0.
