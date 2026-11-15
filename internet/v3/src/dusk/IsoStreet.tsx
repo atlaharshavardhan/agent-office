@@ -5,6 +5,7 @@ import { DUSK, StickPose } from './Dusk';
 import { Adult, Heart, A_SHOULDER, A_UPPER, A_FORE, A_TIP } from './Adult';
 import { Audio, Img, Sequence, staticFile } from 'remotion';
 import { Pov, POV_A, POV_B } from './Pov';
+import { FiberCut, RouterCut, FIB_A, FIB_B, RT_A } from './Extras';
 import { prog, pulse, clamp01, easeOut, easeInOut } from '../lib/anim';
 import { FONT, TECH } from '../lib/palette';
 import '@fontsource/manrope/700.css'; import '@fontsource/manrope/800.css'; import '@fontsource/ibm-plex-mono/600.css';
@@ -182,13 +183,13 @@ const NEAR: H[] = [
 ];
 
 /* hook timeline (0 - 15.6 s), same beats and voice mix as the approved hook */
-const BLINKS: [number, number][] = [[1.15, 1.45], [2.0, 2.95], [3.75, 8.2], [8.95, 9.5]];
+const BLINKS: [number, number][] = [[0.45, 0.8], [1.15, 1.45], [2.0, 2.95], [3.75, 8.2], [8.95, 9.5]];
 const HBITS = [0, 1, 0, 0, 1, 0, 0, 0], BIT0 = 10.55, BITD = 0.14, FLY = 0.6;
 const BOYC = { x: 335, y: 1040 }, GIRLC = { x: 872, y: 615 }, WIDE = { x: 540, y: 960 };
 type Key = [number, number, number, number];
 const HOOK_KEYS: Key[] = [
-  [0.0, BOYC.x, BOYC.y, 2.1], [1.1, BOYC.x, BOYC.y, 2.2],            // open on him raising the torch
-  [2.7, WIDE.x, WIDE.y, 1.0], [3.4, WIDE.x, WIDE.y, 1.0],             // slow pull back: both balconies and the beam
+  [0.0, BOYC.x + 40, BOYC.y - 30, 1.75], [0.55, BOYC.x + 40, BOYC.y - 30, 1.8],   // open on him, torch already up
+  [1.9, WIDE.x, WIDE.y, 1.0], [3.4, WIDE.x, WIDE.y, 1.0],             // slow pull back: both balconies and the beam
   [4.5, 400, 1010, 1.9], [4.8, 400, 1010, 1.92],                      // ease in on the torch
   [6.2, GIRLC.x, GIRLC.y, 2.0], [6.7, GIRLC.x, GIRLC.y, 2.03],        // glide along the beam to her
   [7.9, WIDE.x, WIDE.y, 1.0], [10.6, WIDE.x, WIDE.y, 1.0],            // back to the street (title, then the torch close-up covers)
@@ -216,6 +217,13 @@ export const IsoFullCine: React.FC = () => (<AbsoluteFill><Audio src={staticFile
 const HookCut: React.FC = () => { const f = useCurrentFrame(); return f >= POV_A && f < POV_B ? null : <IsoStreet hook mute cine />; };
 /* the full street part, with the first-person "Hi" shot cut into the torch scene */
 export const IsoFullHi: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><HookCut /></Sequence><Sequence from={POV_A} durationInFrames={POV_B - POV_A}><Pov hi /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire cine /></Sequence><Sequence from={690} durationInFrames={555}><IsoStreet move cine /></Sequence></AbsoluteFill>);
+/* v3 cut: Hi shot, fibre cutaway in the wire scene, router close-up at the end of the street scene */
+const FA = Math.round(FIB_A * 30), FB = Math.round(FIB_B * 30), RA = Math.round(RT_A * 30);
+const WireCut: React.FC = () => { const f = useCurrentFrame(); return f >= FA && f < FB ? null : <IsoStreet wire cine />; };
+const MoveCut: React.FC = () => { const f = useCurrentFrame(); return f >= RA ? null : <IsoStreet move cine />; };
+export const IsoFullV3: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><HookCut /></Sequence><Sequence from={POV_A} durationInFrames={POV_B - POV_A}><Pov hi /></Sequence>
+  <Sequence from={468} durationInFrames={222}><WireCut /></Sequence><Sequence from={468 + FA} durationInFrames={FB - FA}><FiberCut /></Sequence>
+  <Sequence from={690} durationInFrames={555}><MoveCut /></Sequence><Sequence from={690 + RA} durationInFrames={555 - RA}><RouterCut /></Sequence></AbsoluteFill>);
 export const IsoHookView: React.FC = () => <IsoStreet hook cine mute view={{ fx: 600, fy: 850, z: 1.45 }} />;
 export const IsoWire: React.FC = () => <IsoStreet wire />;
 export const IsoDetail: React.FC = () => <IsoStreet hook detail mute />;
@@ -243,7 +251,7 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
   HOSTEL_LIT = !!move;
   NB_LIT = net ? 0.25 : move ? 7.0 : concept ? -5 : -1; const cv = concept ? concept[0] : '', cb = concept ? concept[1] === 'b' : false;
   if (hook) { on = Math.max(...BLINKS.map(([a, b]) => pulse(f, a, b))); HBITS.forEach((b, i) => { if (b) on = Math.max(on, pulse(f, BIT0 + i * BITD, BIT0 + i * BITD + 0.1)); }); }
-  let raise = hook ? prog(f, 0.25, 0.85, easeOut) : 1, notice = hook ? prog(f, 2.1, 2.4, easeOut) : 1;
+  let raise = hook ? prog(f, 0.0, 0.4, easeOut) : 1, notice = hook ? prog(f, 2.1, 2.4, easeOut) : 1;
   let wave = hook ? prog(f, 4.6, 4.9) * (1 - prog(f, 7.0, 7.4)) : 1, sleepy = hook ? prog(f, 14.25, 14.6) : 0;
   // reactions: she is startled by the light and shields her eyes, he cheers when she waves, she counts along, gets bored, yawns
   let startle = hook ? prog(f, 2.05, 2.2, easeOut) * (1 - prog(f, 3.0, 3.5)) : 0;
@@ -608,7 +616,7 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
         </g>
         {detail && <>
           {/* fireflies in the park, moths at the lamps, bats, distance haze, vignette, film grain */}
-          {Array.from({ length: 40 }).map((_, i) => { const x = 20 + hash(i * 3) * 520 + Math.sin(t * 0.8 + i) * 16, y = 300 + hash(i * 7) * 460 + Math.cos(t * 0.6 + i * 2) * 14, tw = 0.5 + 0.5 * Math.sin(t * 3 + i * 1.7); return <g key={'ff' + i} opacity={tw}><circle cx={x} cy={y} r={9} fill="#d8ff8a" opacity={0.18} /><circle cx={x} cy={y} r={5} fill="#d8ff8a" opacity={0.3} /><circle cx={x} cy={y} r={2} fill="#f2ffc0" /></g>; })}
+          {Array.from({ length: cine ? 16 : 40 }).map((_, i) => { const x = 20 + hash(i * 3) * 520 + Math.sin(t * 0.8 + i) * 16, y = 300 + hash(i * 7) * 460 + Math.cos(t * 0.6 + i * 2) * 14, tw = 0.5 + 0.5 * Math.sin(t * 3 + i * 1.7); return <g key={'ff' + i} opacity={tw}><circle cx={x} cy={y} r={9} fill="#d8ff8a" opacity={0.18} /><circle cx={x} cy={y} r={5} fill="#d8ff8a" opacity={0.3} /><circle cx={x} cy={y} r={2} fill="#f2ffc0" /></g>; })}
           {[[590, 850], [565, 1208], [270, 1560]].map(([lx, ly], i) => [0, 1, 2].map((k) => <circle key={`mo${i}${k}`} cx={lx + Math.sin(t * 5 + k * 2 + i) * 22} cy={ly + Math.cos(t * 6.3 + k * 1.3) * 16} r={2.2} fill="#fff" opacity={0.8} />))}
           {[0, 1, 2].map((i) => { const x = ((t * 60 + i * 420) % 1400) - 150, y = 150 + i * 90 + Math.sin(t * 2 + i) * 20, wv = Math.sin(t * 16 + i) * 7; return <path key={'bat' + i} d={`M ${x - 14} ${y + wv} Q ${x - 6} ${y - 8} ${x} ${y} Q ${x + 6} ${y - 8} ${x + 14} ${y + wv}`} stroke="#05060f" strokeWidth={4} fill="none" strokeLinecap="round" />; })}
           <rect width={1080} height={1920} fill="url(#hazeT)" style={{ mixBlendMode: 'screen' }} />
@@ -681,6 +689,9 @@ const HookOverlays: React.FC<{ f: number; t: number; macro: number; mute?: boole
           )}
         </div>
       )}
+      <div style={{ position: 'absolute', top: 236, left: 90, right: 90, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 62px/1.12 ${FONT.ui}`, color: TECH.text, opacity: prog(f, 0.1, 0.35) * (1 - prog(f, 3.0, 3.3)) }}>
+        <div>This <span style={{ color: '#ffd38a' }}>torch</span> explains<br />the <span style={{ color: '#9fe9ff' }}>internet.</span></div>
+      </div>
       <div style={{ position: 'absolute', top: 236, left: 90, right: 90, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 62px/1.12 ${FONT.ui}`, color: TECH.text, opacity: prog(f, 7.1, 7.4) * (1 - prog(f, 8.2, 8.4)) }}>
         <div>How does the <span style={{ color: '#ffd38a' }}>internet</span><br />reach you?</div>
       </div>
