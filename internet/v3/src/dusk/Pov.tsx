@@ -116,11 +116,10 @@ export const Pov: React.FC<{ hi?: boolean }> = ({ hi }) => {
           <path d="M -96 -37 L -30 -64 L 0 -64 L 0 64 L -30 64 L -96 37 Z" fill="url(#pTh)" /><rect x={-104} y={-39} width={12} height={78} rx={4} fill="#c9cfe0" />
           <rect x={-10} y={-68} width={16} height={136} rx={7} fill="#e3e7f2" /><rect x={-10} y={-68} width={16} height={40} rx={7} fill="#fff" opacity={0.7} />
           <ellipse cx={5} cy={0} rx={9} ry={62} fill={on > 0.2 ? '#fffbe8' : '#565c78'} />
-          {/* fingers wrap over the barrel as one soft shape: no outlines, only nails. The thumb closes the grip from the other side. */}
-          <rect x={-286} y={-40} width={169} height={90} fill="#dcae8a" />
-          {[0, 1, 2, 3].map((k) => <rect key={k} x={-286 + k * 43} y={-60} width={40} height={108} rx={20} fill="#dcae8a" />)}
-          {[0, 1, 2, 3].map((k) => <rect key={'n' + k} x={-277 + k * 43} y={-56} width={22} height={24} rx={9} fill="#f7dfcb" opacity={0.9} />)}
-          <g transform="rotate(14 -92 -10)"><rect x={-114} y={-74} width={46} height={104} rx={23} fill="#dcae8a" /><rect x={-103} y={-2} width={24} height={26} rx={10} fill="#f7dfcb" opacity={0.9} /></g>
+          {/* fingers wrap over the barrel, thumb rests on the switch */}
+          {[0, 1, 2, 3].map((k) => <g key={k}><rect x={-286 + k * 43} y={-58} width={40} height={104} rx={20} fill="#dcae8a" stroke="#b07f5a" strokeWidth={3} /><rect x={-280 + k * 43} y={-52} width={12} height={44} rx={6} fill="#f0c9a6" opacity={0.6} /><path d={`M ${-280 + k * 43} 6 q 14 7 28 0`} stroke="#b07f5a" strokeWidth={3} fill="none" opacity={0.7} /></g>)}
+          <rect x={-128} y={-4} width={22} height={30} rx={7} fill="#20233a" />
+          <g transform="rotate(-24 -150 70)"><rect x={-190} y={34} width={104} height={44} rx={22} fill="#e2b592" stroke="#b07f5a" strokeWidth={3} /><rect x={-112} y={40} width={22} height={30} rx={10} fill="#f6dcc4" opacity={0.75} /></g>
           <circle cx={0} cy={0} r={150} fill="url(#pWarm)" style={{ mixBlendMode: 'screen' }} opacity={on} />
         </g>
         <rect width={1080} height={1920} fill="url(#pVig)" />
