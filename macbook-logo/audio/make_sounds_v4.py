@@ -66,10 +66,9 @@ place(sfx, click(), at(3, 2.9), 0.32, -0.4); place(sfx, click(), at(3, 3.6), 0.3
 place(sfx, shimmer(1.0, 1700), at(4, 0.1), 0.14, -0.3); place(sfx, click(), at(4, 0.7), 0.3, -0.4); place(sfx, click(), at(4, 1.0), 0.28, 0.4)
 place(sfx, shimmer(1.6, 1300), at(4, 2.2), 0.16); place(sfx, click(), at(4, 2.6), 0.3, 0.4); place(sfx, glow_on(1.5), at(4, 3.0), 0.32)
 place(sfx, activate(1175, 0.4), at(4, 4.0), 0.22, 0.4); place(sfx, click(1.2), at(4, 6.5), 0.45); place(sfx, impact(62, 0.6), at(4, 6.5), 0.2)
-# 6 room light up, down; the slide switch flips off, the glow goes off
+# 6 room light up, down; the glow switches off
 place(sfx, glow_on(0.9), at(5, 2.4), 0.18); place(sfx, glow_on(0.9), at(5, 3.9), 0.1)
-place(sfx, click(), at(5, 5.4), 0.3)
-place(sfx, click(1.3), at(5, 6.8), 0.5); place(sfx, click(0.7), at(5, 7.0), 0.3); place(sfx, impact(48, 0.7), at(5, 7.0), 0.25)   # V4: the slide switch flips off
+place(sfx, click(1.0), at(5, 6.85), 0.45); place(sfx, impact(48, 0.7), at(5, 6.95), 0.25)   # V4: the glow switches off
 # 7 the MacBook's lock screen, then the InvisiTech card with a soft sonic logo
 place(sfx, glow_on(1.2), B[6] + 0.25, 0.18); place(sfx, shimmer(1.0, 1600), B[6] + 0.3, 0.08)
 place(sfx, impact(55, 1.0), B[7] - 0.4, 0.28); place(sfx, chime(), B[7] + 0.05, 0.3)

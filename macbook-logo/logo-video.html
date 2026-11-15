@@ -5296,8 +5296,8 @@ function sideTags(list) { // callouts in the side margins: [id, text, worldPoint
   });
 }
 function hideTags() { for (const id in TAGS) { TAGS[id].el.style.opacity = 0; TAGS[id].l.style.opacity = 0; TAGS[id].c.style.opacity = 0; } }
-function roomCard(a, roomK, logoK, night) { const r = $('room'); r.style.opacity = a; r.style.transform = `translateY(${(1 - a) * 2}vh)`;
-  $('rBar').firstChild.style.width = (8 + 92 * roomK).toFixed(1) + '%'; $('lBar').firstChild.style.width = (8 + 92 * logoK).toFixed(1) + '%'; $('rIc').textContent = night ? '☾' : '☀'; }
+function roomCard(a, roomK, logoK, night, off = 0) { const r = $('room'); r.style.opacity = a; r.style.transform = `translateY(${(1 - a) * 2}vh)`;
+  $('rBar').firstChild.style.width = (8 + 92 * roomK).toFixed(1) + '%'; $('lBar').firstChild.style.width = ((8 + 92 * logoK) * (1 - off)).toFixed(1) + '%'; $('rIc').textContent = night ? '☾' : '☀'; }
 const CMD = ['sudo defaults write', 'com.apple.CoreBrightness', 'LEBacklightMode -int 0'];   // Apple Support, 5 Nov 2026
 function terminal(a, typed, done, u) { const tm = $('term'); tm.style.opacity = a; tm.style.transform = `translateY(${(1 - a) * 2}vh)`; if (a < 0.01) return;
   const all = CMD.join('\n'), n = Math.floor(all.length * clamp01(typed)), shown = all.slice(0, n), cur = done ? '' : (Math.floor(u * 4) % 2 || typed < 1 ? '<span class="cur"></span>' : '');
@@ -5398,12 +5398,11 @@ const SHOTS = [
     const day = ease(ramp(u, 2.3, 3.0)) * (1 - ease(ramp(u, 3.9, 4.6)));
     const night = ease(ramp(u, 3.9, 4.6));
     room(day * 0.7);
-    const glowK = 0.62 + 0.38 * day - 0.32 * night, off = ease(ramp(u, 6.95, 7.3));
+    const glowK = 0.62 + 0.38 * day - 0.32 * night, off = ease(ramp(u, 6.85, 7.3));   // on "switch it off"
     logoGlow(glowK * (1 - off));
     VO = 0.075; orbit(lidPoint(LOGO_C).add(new THREE.Vector3(0, -40, 0)), lerp(-6, 8, u / d), 11, 1700);
-    const cardA = ease(ramp(u, 0.2, 0.6)) * (1 - ease(ramp(u, 5.0, 5.3)));
-    roomCard(cardA, day * 0.85 + 0.15 * (1 - night), glowK * (1 - off), night > 0.5);
-    switchCard(ease(ramp(u, 5.35, 5.7)), 1 - ease(ramp(u, 6.8, 7.0)));   // flips on "switch it off"   // V4 (Harsh): a slide switch instead of the Terminal; the real method is Apple's Terminal command (see the note)
+    const cardA = ease(ramp(u, 0.2, 0.6));   // V4 (Harsh): the room card stays to the end; no separate switch
+    roomCard(cardA, day * 0.85 + 0.15 * (1 - night), glowK * (1 - off), night > 0.5, off);   // "switch it off": the Logo glow bar empties as the logo goes dark
     if (u < 0.2) title([], [], u);
   }],
   [B[6], B[7], u => { // 7. the video we just watched shrinks onto the MacBook's own screen, the camera pulls back
