@@ -72,6 +72,8 @@ place(sfx, click(1.0), at(5, 6.85), 0.45); place(sfx, impact(48, 0.7), at(5, 6.9
 # 7 the MacBook's lock screen, then the InvisiTech card with a soft sonic logo
 place(sfx, glow_on(1.2), B[6] + 0.25, 0.18); place(sfx, shimmer(1.0, 1600), B[6] + 0.3, 0.08)
 place(sfx, impact(55, 1.0), B[7] - 0.4, 0.28); place(sfx, chime(), B[7] + 0.05, 0.3)
+for k in range(3): place(sfx, click(0.8), B[7] - 0.45 + 0.9 + k * 0.12, 0.28, (k - 1) * 0.4)   # V4: Like / Comment / Follow pop in
+place(sfx, click(1.1), B[7] - 0.45 + 1.3, 0.35); place(sfx, activate(988, 0.3), B[7] - 0.45 + 1.32, 0.12)   # Subscribe
 sfx /= max(1, np.max(np.abs(sfx)) / 0.9)
 sf.write('sfx_v4.wav', sfx.astype(np.float32), SR)
 print('ok', DUR, 'peak', np.max(np.abs(sfx)))
