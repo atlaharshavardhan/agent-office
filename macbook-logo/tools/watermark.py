@@ -6,7 +6,7 @@ import argparse, os, subprocess, tempfile
 from PIL import Image, ImageDraw, ImageFont
 from fontTools.ttLib import TTFont
 here = os.path.dirname(os.path.abspath(__file__))
-ap = argparse.ArgumentParser(); ap.add_argument('src'); ap.add_argument('dst'); ap.add_argument('--hide-last', type=float, default=0); ap.add_argument('--scale', type=float, default=1); ap.add_argument('--bitrate', default='')   # e.g. 18M (1080) or 50M (4K); empty = CRF
+ap = argparse.ArgumentParser(); ap.add_argument('src'); ap.add_argument('dst'); ap.add_argument('--hide-last', type=float, default=0); ap.add_argument('--scale', type=float, default=1); ap.add_argument('--bitrate', default=''); ap.add_argument('--pos', default='right-middle', choices=['right-middle', 'safe-bottom-right'])   # safe-bottom-right: inside the 100/180/220/350 safe area, below the subtitles (V4)   # e.g. 18M (1080) or 50M (4K); empty = CRF
 a = ap.parse_args(); k = a.scale
 tmp = tempfile.mkdtemp()
 woff = os.path.join(here, '..', '..', 'phone-teardown', 'fonts', 'fontsource-sora-5.0.18', 'package', 'files', 'sora-latin-600-normal.woff2')
@@ -22,7 +22,14 @@ png = os.path.join(tmp, 'wm.png'); img.save(png)
 dur = float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', a.src]).decode())
 end = dur - a.hide_last
 fc = (f"[1:v]format=rgba,colorchannelmixer=aa=0.92[w1];[1:v]format=rgba,colorchannelmixer=aa=0.13,scale=iw*0.8:-1[w2];"
-      f"[0:v][w1]overlay=x=W-w-{int(180 * k)}:y=(H-h)/2:enable='lt(t,{end:.3f})'[a];"
+      f"[0:v][w1]overlay=x=W-w-{int(180 * k)}:y={'(H-h)/2' if a.pos == 'right-middle' else f'H-h-{int(356 * k)}'}:enable='lt(t,{end:.3f})'[a];"
       f"[a][w2]overlay=x='W*0.1+W*0.48*(0.5+0.5*sin(t*0.21))':y='H*0.27+H*0.33*(0.5+0.5*sin(t*0.13+1.3))':enable='lt(t,{end:.3f})'")
-subprocess.check_call(['ffmpeg', '-loglevel', 'error', '-y', '-i', a.src, '-i', png, '-filter_complex', fc, '-map', '0:a?', '-c:a', 'copy', '-c:v', 'libx264', '-preset', 'slow', *(['-b:v', a.bitrate, '-maxrate', str(int(float(a.bitrate[:-1]) * 1.15)) + 'M', '-bufsize', str(int(float(a.bitrate[:-1]) * 2)) + 'M'] if a.bitrate else ['-crf', '16' if k > 1 else '17']), '-profile:v', 'high', '-r', '30', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', a.dst])
+enc = ['-c:v', 'libx264', '-preset', 'slow', '-profile:v', 'high', '-r', '30', '-pix_fmt', 'yuv420p']
+base = ['ffmpeg', '-loglevel', 'error', '-y', '-i', a.src, '-i', png, '-filter_complex', fc]
+if a.bitrate:   # two-pass: hits the target bitrate (one pass undershoots on these dark frames)
+    br = float(a.bitrate[:-1]); rate = ['-b:v', a.bitrate, '-maxrate', f'{br * 1.15:.0f}M', '-bufsize', f'{br * 2:.0f}M']; log = os.path.join(tmp, 'x264')
+    subprocess.check_call(base + enc + rate + ['-pass', '1', '-passlogfile', log, '-an', '-f', 'mp4', os.devnull])
+    subprocess.check_call(base + ['-map', '0:a?', '-c:a', 'copy'] + enc + rate + ['-pass', '2', '-passlogfile', log, '-movflags', '+faststart', a.dst])
+else:
+    subprocess.check_call(base + ['-map', '0:a?', '-c:a', 'copy'] + enc + ['-crf', '16' if k > 1 else '17', '-movflags', '+faststart', a.dst])
 print('ok', a.dst)
