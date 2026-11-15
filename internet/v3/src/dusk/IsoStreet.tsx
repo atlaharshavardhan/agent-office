@@ -21,7 +21,7 @@ const LIT = '#ffd38a';
 let HOSTEL_LIT = false;
 let NB_LIT = -1;   // street scene: time at which the neighbours start switching their lights on (-1 = stay dim)
 const HouseIso: React.FC<{ b: H; f: number }> = ({ b, f }) => {
-  const { x0, y0, w, d, h, c } = b; const x1 = x0 + w, y1 = y0 + d; const dim = b.hero || (b.seed === 77 && HOSTEL_LIT) || (NB_LIT !== -1 && f / FPS > NB_LIT + hash(b.seed * 13) * 0.9) ? 1 : 0.5;
+  const { x0, y0, w, d, h, c } = b; const x1 = x0 + w, y1 = y0 + d; const dim = b.hero || (b.seed >= 77 && b.seed <= 79 && HOSTEL_LIT) || (NB_LIT !== -1 && f / FPS > NB_LIT + hash(b.seed * 13) * 0.9) ? 1 : 0.5;
   const floors = h > 2.6 ? 2 : 1, fh = h / floors;
   const fy = (u: number, v: number) => iso(x0 + u, y1, v);      // face toward lower-left (y1)
   const fx = (u: number, v: number) => iso(x1, y0 + u, v);      // face toward lower-right (x1)
@@ -133,7 +133,7 @@ const NEAR: H[] = [
   { x0: -9.4, y0: 2.1, w: 2.4, d: 2.5, h: 2.0, c: C1[1], roof: 'gable', seed: 23 },
   { x0: -6.3, y0: 2.1, w: 2.4, d: 2.5, h: 2.1, c: C1[4], roof: 'hip', seed: 5 },
   { x0: -3.3, y0: 2.0, w: 2.6, d: 2.6, h: 3.3, c: '#3f5a8c', roof: 'flat', hero: 'boy', seed: 6 },
-  { x0: 3.2, y0: 2.1, w: 2.4, d: 2.5, h: 2.2, c: C1[2], roof: 'hip', seed: 8 },
+  { x0: 3.2, y0: 2.1, w: 2.6, d: 2.6, h: 3.3, c: '#a8683a', roof: 'flat', seed: 79 },   // third place she stays (near row)
   { x0: 6.3, y0: 2.1, w: 2.4, d: 2.5, h: 2.0, c: C1[0], roof: 'gable', seed: 24 },
   { x0: 9.4, y0: 2.1, w: 2.4, d: 2.5, h: 2.3, c: C1[3], roof: 'hip', seed: 37 },
   { x0: 12.5, y0: 2.1, w: 2.4, d: 2.5, h: 2.0, c: C1[5], roof: 'gable', seed: 38 },
@@ -168,7 +168,7 @@ const VO: [number, React.ReactNode][] = [
 const WIRE_KEYS: Key[] = [[0, BOYC.x + 60, BOYC.y - 20, 1.9], [0.7, BOYC.x + 60, BOYC.y - 20, 1.9], [1.5, WIDE.x, WIDE.y, 1.0], [2.2, WIDE.x, WIDE.y, 1.0], [3.2, 590, 900, 1.12], [7, 590, 900, 1.15]];
 const WVO: [number, React.ReactNode][] = [[0.2, <>So we use a <em>wire.</em></>], [2.3, <>Now it's a <em>billion</em> blinks,</>], [3.75, <>every <em>second.</em></>], [4.95, <><em>"Hello"</em> arrives before you blink.</>]];
 export const IsoHook: React.FC = () => <IsoStreet hook />;
-export const IsoFull: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire /></Sequence><Sequence from={690} durationInFrames={450}><IsoStreet move /></Sequence></AbsoluteFill>);
+export const IsoFull: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire /></Sequence><Sequence from={690} durationInFrames={504}><IsoStreet move /></Sequence></AbsoluteFill>);
 export const IsoWire: React.FC = () => <IsoStreet wire />;
 /* street scene (local 0 - 9.5 s): the neighbours want in, 45 wires tangle, one router box untangles it */
 const NET_KEYS: Key[] = [[0, 590, 900, 1.15], [0.4, 590, 900, 1.15], [1.7, 600, 960, 0.64], [9.5, 600, 960, 0.67]];
@@ -177,9 +177,9 @@ const NODES: [number, number, number][] = [[-2.0, 3.3, 3.5], [-2.9, -4.3, 3.5], 
 const PAIRS: [number, number][] = []; for (let i = 0; i < 10; i++) for (let j = i + 1; j < 10; j++) PAIRS.push([i, j]);
 export const IsoNet: React.FC = () => <IsoStreet net />;
 /* step 2 (local 0 - 10 s): she moves to a hostel down the street, the old wire is useless, a new wire per place cannot go on -> the router */
-const MOVE_KEYS: Key[] = [[0, 590, 900, 1.12], [0.5, 590, 900, 1.12], [2.4, 880, 960, 0.74], [15, 880, 960, 0.78]];
-const MVO: [number, React.ReactNode][] = [[0.2, <>Then she moves to a <em>hostel</em> down the street.</>], [3.1, <>New place, <em>new wire?</em></>], [4.9, <>No. Every house plugs into <em>one box:</em></>], [7.3, <>the <em>router.</em></>], [8.3, <>Every house gets a number, like a <em>door number.</em></>], [11.15, <>That's its <em>IP address.</em></>], [12.8, <>The router reads it and <em>delivers.</em></>]];
-const mShot = 3.75;
+const MOVE_KEYS: Key[] = [[0, 590, 900, 1.12], [0.5, 590, 900, 1.12], [2.0, 1000, 1040, 0.63], [16.8, 1000, 1040, 0.655]];
+const MVO: [number, React.ReactNode][] = [[0.2, <>Then she moves to a <em>hostel.</em> New wire.</>], [3.2, <>Then a friend's place. <em>Another wire.</em></>], [5.1, <>Then <em>another!</em></>], [6.7, <>So every house plugs into <em>one box:</em></>], [8.9, <>the <em>router.</em></>], [9.9, <>Every house gets a number, like a <em>door number.</em></>], [12.75, <>That's its <em>IP address.</em></>], [14.4, <>The router reads it and <em>delivers.</em></>]];
+const SHOTS = [2.2, 3.8, 5.3], AIMS: [number, number][] = [[90, 93], [60, 57], [103, 104]], ARR = [-9, 2.0, 3.5, 5.0], LEAVE = [0.6, 3.0, 4.6, 99];
 export const IsoMove: React.FC = () => <IsoStreet move />;
 /* concept stills for the "many houses" scene: 1a/1b follow her, 2a/2b neighbour chaos */
 export const Concept: React.FC<{ k: string }> = ({ k }) => <IsoStreet concept={k} />;
@@ -189,7 +189,7 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
   const f = useCurrentFrame(); const t = f / FPS;
   let on = 1; const cam = hook ? camAt(t) : wire ? camAt(t, WIRE_KEYS) : net ? camAt(t, NET_KEYS) : move ? camAt(t, MOVE_KEYS) : concept ? { fx: 800, fy: 900, z: 0.74 } : { fx: 540, fy: 960, z: 1 };
   HOSTEL_LIT = !!move;
-  NB_LIT = net ? 0.25 : move ? 5.6 : concept ? -5 : -1; const cv = concept ? concept[0] : '', cb = concept ? concept[1] === 'b' : false;
+  NB_LIT = net ? 0.25 : move ? 7.0 : concept ? -5 : -1; const cv = concept ? concept[0] : '', cb = concept ? concept[1] === 'b' : false;
   if (hook) { on = Math.max(...BLINKS.map(([a, b]) => pulse(f, a, b))); HBITS.forEach((b, i) => { if (b) on = Math.max(on, pulse(f, BIT0 + i * BITD, BIT0 + i * BITD + 0.1)); }); }
   let raise = hook ? prog(f, 0.25, 0.85, easeOut) : 1, notice = hook ? prog(f, 2.1, 2.4, easeOut) : 1;
   let wave = hook ? prog(f, 4.6, 4.9) * (1 - prog(f, 7.0, 7.4)) : 1, sleepy = hook ? prog(f, 14.25, 14.6) : 0;
@@ -201,23 +201,28 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
   const tired = hook ? prog(f, 13.0, 14.0) : 0;
   const wDraw = wire ? prog(f, 0.75, 1.4) : 0, wLive = wire ? prog(f, 2.35, 2.6) : 0, got = wire ? prog(f, 5.45, 5.7, easeOut) : 0;
   if (wire) { on = 0; raise = prog(f, 0.05, 0.5, easeOut) * (1 - prog(f, 1.9, 2.3, easeInOut)); sleepy = 1 - prog(f, 1.4, 1.6); wave = got; cheer = prog(f, 5.9, 6.2); startle = prog(f, 1.4, 1.5, easeOut) * (1 - prog(f, 2.1, 2.5)) * 0.6; }
-  const kT = move ? mShot : 0.75, hT = move ? mShot + 0.6 : 1.4; const kick = wire || move ? (t < kT ? 0 : Math.exp(-(t - kT) * 7) * (1 + 0.5 * Math.cos((t - kT) * 26)) / 1.5) : 0, thud = (wire || move) && t > hT ? Math.exp(-(t - hT) * 9) : 0;
+  const kTs = move ? SHOTS : [0.75], hTs = move ? SHOTS.map((x) => x + 0.5) : [1.4]; const kick = wire || move ? kTs.reduce((a, kT) => a + (t < kT ? 0 : Math.exp(-(t - kT) * 7) * (1 + 0.5 * Math.cos((t - kT) * 26)) / 1.5), 0) : 0, thud = wire || move ? hTs.reduce((a, hT) => a + (t > hT ? Math.exp(-(t - hT) * 9) : 0), 0) : 0;
   const worry = net ? prog(f, 2.9, 3.3) * (1 - prog(f, 4.8, 5.2)) : 0, glad = net ? prog(f, 6.6, 6.9) : 0;
   if (net) { on = 0; raise = 0; wave = glad; cheer = glad; }
-  const hostelH = FAR.find((h) => h.seed === 77)!, HBX = hostelH.x0 + hostelH.w, HYC = hostelH.y0 + hostelH.d - 0.85;
-  const mGot = move ? prog(f, 13.5, 13.7, easeOut) : 0;
-  const mWalk = move ? prog(f, 0.95, 2.75) : 0, mStage = !move ? 0 : t < 0.65 ? 0 : t < 0.95 ? 1 : t < 2.75 ? 2 : t < 3.1 ? 3 : 4;   // balcony, inside, walking, inside, hostel balcony
-  if (move) { on = 0; raise = prog(f, 3.3, 3.6, easeOut) * (1 - prog(f, 4.7, 5.1, easeInOut)); wave = mStage === 0 ? 1 : mStage === 4 ? Math.max(prog(f, 3.1, 3.3) * (1 - prog(f, 3.9, 4.2)), mGot) : 0; cheer = prog(f, 7.4, 7.7) * (1 - prog(f, 8.4, 8.7)) + mGot; }
+  const boyH = NEAR.find((h) => h.hero === 'boy')!, girlH = FAR.find((h) => h.hero === 'girl')!;
+  const BZ = 1.65, BX0 = -0.7, GBX = girlH.x0 + girlH.w, BYC = boyH.y0 + 0.85, GYC = girlH.y0 + girlH.d - 0.85;   // balconies on the side wall, first floor, same height
+  const hostelH = FAR.find((h) => h.seed === 77)!, HBX = hostelH.x0 + hostelH.w, HYC = hostelH.y0 + hostelH.d - 0.85, nearP = NEAR.find((h) => h.seed === 79)!;
+  // the places she stays, in order: home, hostel, a friend's house (near row), a new flat (back row)
+  const PL = [{ x: GBX, yc: GYC, slot: 'far', col: '#6a5cab', name: '' }, { x: HBX, yc: HYC, slot: 'far', col: '#a3688c', name: 'HOSTEL' }, { x: nearP.x0 + nearP.w, yc: nearP.y0 + 0.85, slot: 'near', col: '#c98a5a', name: "FRIEND'S" }, { x: 2.8, yc: -7.35, slot: 'bk', col: '#5aa07c', name: 'NEW FLAT' }];
+  let pi = 0; if (move) for (let i = 1; i < 4; i++) if (t >= ARR[i]) pi = i;
+  const mWalk = move ? prog(f, 0.8, 1.8) : 0, walking = !!move && t >= 0.8 && t < 1.8, herVis = !move || walking || (t >= ARR[pi] && t < LEAVE[pi]), herSlot = !move || walking ? 'far' : PL[pi].slot;
+  const shotI = t < 3.4 ? 0 : t < 4.9 ? 1 : 2, tiredM = move ? prog(f, 5.9, 6.3) * (1 - prog(f, 7.3, 7.7)) : 0;
+  const mGot = move ? prog(f, 15.1, 15.3, easeOut) : 0, mStage = walking ? 2 : 0;
+
+  if (move) { on = 0; raise = Math.max(...SHOTS.map((sh) => prog(f, sh - 0.4, sh - 0.12, easeOut) * (1 - prog(f, sh + 0.6, sh + 0.9, easeInOut)))); wave = walking ? 0 : pi === 0 ? 1 : Math.max(prog(f, ARR[pi], ARR[pi] + 0.2) * (1 - prog(f, ARR[pi] + 0.8, ARR[pi] + 1.1)), mGot); cheer = prog(f, 8.9, 9.2) * (1 - prog(f, 9.9, 10.2)) + mGot; }
   if (concept) { on = 0; raise = cb ? 0 : cv === '1' ? 1 : 0; wave = cb || cv === '1' ? 1 : 0; cheer = cb ? 1 : 0; }
   const breathe = Math.sin(t * 2.4), gHop = Math.abs(Math.sin(t * 9)) * 9 * wave + Math.sin(Math.PI * clamp01((t - 2.05) / 0.35)) * 14 * (hook ? 1 : 0) + (wire ? Math.sin(Math.PI * clamp01((t - 1.4) / 0.4)) * 22 + Math.sin(Math.PI * clamp01((t - 2.4) / 0.3)) * 10 + Math.abs(Math.sin(t * 7)) * 4 * prog(f, 2.8, 3.0) * (1 - prog(f, 4.6, 4.9)) : 0);
   const bHop = Math.abs(Math.sin(t * 8.5)) * 10 * cheer;
   if (hook && t > 12.5 && t < 14.15) on = Math.max(on, Math.sin(t * 2 * Math.PI * 5.5) > 0.1 ? 1 : 0);   // forty quick blinks
   const macro = hook && t >= 8.4 && t < 10.45 ? Math.min(prog(f, 8.4, 8.55), 1 - prog(f, 10.3, 10.45)) : 0;
-  const boyH = NEAR.find((h) => h.hero === 'boy')!, girlH = FAR.find((h) => h.hero === 'girl')!;
-  const BZ = 1.65, BX0 = -0.7, GBX = girlH.x0 + girlH.w, BYC = boyH.y0 + 0.85, GYC = girlH.y0 + girlH.d - 0.85;   // balconies on the side wall, first floor, same height
-  const [bx, by0] = iso(BX0 + 0.3, BYC, BZ), [gx, gy0] = cv === '1' ? iso(3.75, -1.72, 0) : mStage === 2 ? iso(lerp(-2.9, 2.7, mWalk), -1.72, 0) : mStage >= 3 ? iso(HBX + 0.3, HYC, BZ) : iso(GBX + 0.3, GYC, BZ);
+  const [bx, by0] = iso(BX0 + 0.3, BYC, BZ), [gx, gy0] = cv === '1' ? iso(3.75, -1.72, 0) : walking ? iso(lerp(-2.9, 2.7, mWalk), -1.72, 0) : move ? iso(PL[pi].x + 0.3, PL[pi].yc, BZ) : iso(GBX + 0.3, GYC, BZ);
   const SC = 0.5;
-  const by = by0 - bHop, gy = gy0 - gHop - (mStage === 2 ? Math.abs(Math.sin(t * 11)) * 7 : 0) - (move ? Math.abs(Math.sin(t * 9)) * 9 * mGot : 0);
+  const by = by0 - bHop, gy = gy0 - gHop - (mStage === 2 ? Math.abs(Math.sin(t * 11)) * 7 : 0) - (move ? Math.abs(Math.sin(t * 9)) * 9 * mGot + Math.sin(Math.PI * clamp01((t - ARR[pi]) / 0.3)) * 14 : 0);
   const boy: StickPose = { blink: wire ? Math.min(1, kick * 2.2) : hook ? Math.max(0, 1 - Math.abs(t - 2.9) / 0.07, 1 - Math.abs(t - 7.6) / 0.07, 1 - Math.abs(t - 11.9) / 0.07, tired * 0.35) : 0, smile: 0.4 + 0.5 * (hook ? prog(f, 2.4, 2.8) : 1) + 0.1 * cheer - 0.5 * tired, look: 0.8,
     armR: [lerp(8, 98, raise) + Math.sin(t * 3.1) * 1.5 * raise + 6 * tired + (wire ? 16 * Math.max(0, 1 - Math.abs(t - 0.8) / 0.18) : 0), lerp(5, 106, raise) + Math.sin(t * 2.3) * 2 * raise + 8 * tired],
     armL: [lerp(-12, -150, cheer) + Math.sin(t * 10) * 12 * cheer, lerp(-8, -172, cheer) + Math.sin(t * 10 + 1) * 16 * cheer], holdTorch: true, torch: on, tilt: -4 * raise + breathe * 1.2 + Math.sin(t * 8.5) * 4 * cheer + 7 * tired };
@@ -226,10 +231,10 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
     armL: [lerp(-10, -112, startle) + lerp(0, -22, bored * (1 - sleepy)), lerp(-6, -150, startle) + lerp(0, -128, bored * (1 - sleepy))],
     tilt: 4 * notice + 14 * sleepy + breathe * 1.2 + Math.sin(t * 2 * Math.PI / (BITD * 2)) * 5 * count + 9 * bored * (1 - sleepy) - 6 * startle };
   if (move) {
-    boy.armR = [lerp(8, 90, raise) + 16 * Math.max(0, 1 - Math.abs(t - mShot - 0.05) / 0.18), lerp(5, 93, raise)]; boy.look = 0.9; boy.smile = 0.5 + 0.4 * cheer - 0.3 * prog(f, 1.0, 1.4) * (1 - prog(f, 4.4, 4.8)); boy.blink = Math.max(Math.min(1, kick * 2.2), 1 - Math.abs(t - 2.2) / 0.07, 1 - Math.abs(t - 6.5) / 0.07);
-    boy.tilt = breathe * 1.2 + 6 * prog(f, 0.8, 1.2) * (1 - prog(f, 3.1, 3.4));
+    boy.armR = [lerp(8, AIMS[shotI][0], raise) + 14 * Math.min(1, kick * 2) + 4 * tiredM, lerp(5, AIMS[shotI][1], raise) + 6 * tiredM]; boy.armL = [boy.armL[0] - 4 * tiredM, boy.armL[1]]; boy.look = 0.9; boy.smile = 0.5 + 0.4 * cheer - 0.45 * tiredM; boy.blink = Math.max(Math.min(1, kick * 2.2), 1 - Math.abs(t - 1.2) / 0.07, 1 - Math.abs(t - 8.1) / 0.07, tiredM * 0.5);
+    boy.tilt = breathe * 1.2 + 12 * tiredM;
     if (mStage === 2) { girl.armR = [20 + Math.sin(t * 11) * 22, 10 + Math.sin(t * 11) * 14]; girl.armL = [-24, -8]; girl.look = -0.9; girl.tilt = -4; girl.smile = 0.7; }
-    if (mStage === 4) { girl.look = -0.8; girl.smile = 0.8; }
+    if (!walking) { girl.look = pi === 2 ? -0.9 : -0.8; }
   }
   if (concept && cv === '2' && !cb) { girl.armR = [158, 176]; girl.armL = [-158, -176]; girl.smile = 0.1; boy.armR = [150, 165]; boy.armL = [-150, -165]; boy.smile = 0.1; boy.holdTorch = false; }
   if (concept && cb) boy.holdTorch = false;
@@ -266,6 +271,8 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
       <polyline points={P([iso(BXE + 0.62, yc - 0.7, BZ + 0.5), iso(BXE + 0.62, yc + 0.7, BZ + 0.5), iso(BXE, yc + 0.7, BZ + 0.5)])} fill="none" stroke="#0c0c1c" strokeWidth={4.5} strokeLinejoin="round" />
       {Array.from({ length: 8 }).map((_, i) => { const [a, b] = iso(BXE + 0.62, yc - 0.7 + i * 0.2, BZ + 0.42); const tw = 0.6 + 0.4 * Math.sin(i * 1.7 + f / 6); return <g key={'l' + i}><circle cx={a} cy={b} r={8} fill={cols[i % 3]} opacity={0.3 * tw} /><circle cx={a} cy={b} r={3} fill={cols[i % 3]} opacity={0.6 + 0.4 * tw} /></g>; })}
     </g>);
+  const herG = <g transform={`translate(${gx} ${gy}) scale(${walking ? SC : -SC} ${SC})`}><Adult kind="woman" p={girl} id="g" />{walking && <g><rect x={-74} y={-70} width={46} height={62} rx={8} fill="#e0b84a" /><rect x={-74} y={-48} width={46} height={7} fill="#b98a2a" /><rect x={-60} y={-92} width={18} height={24} rx={6} fill="none" stroke="#2b2e3a" strokeWidth={5} /><circle cx={-64} cy={-4} r={6} fill="#2b2e3a" /><circle cx={-38} cy={-4} r={6} fill="#2b2e3a" /></g>}</g>;
+  const herAt = (slot: string, i: number) => <>{balBack(PL[i].yc, PL[i].col, PL[i].x)}{herVis && herSlot === slot && pi === i && herG}{balFront(PL[i].yc, ['#ffe0b8', '#fff6e6', '#f0c08c'], PL[i].x)}</>;
   const X0 = -24, X1 = 24, Y0 = -5.6, Y1 = 6.4;
   return (
     <AbsoluteFill style={{ backgroundColor: '#05081a' }}>
@@ -294,7 +301,8 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
         <CarIso x={((t * 2.0 + 6) % 34) - 17} y={-11.6} dir={1} c="#4a6fd0" />
         {Array.from({ length: 12 }).map((_, i) => <HouseIso key={'bk2' + i} b={{ x0: -20 + i * 3.2, y0: -16.6, w: 2.4, d: 2.4, h: 1.9 + ((i + 1) % 3) * 0.3, c: C1[(i + 2) % 6], roof: i % 2 ? 'hip' : 'gable', seed: 100 + i }} f={f} />)}
         {Array.from({ length: 12 }).map((_, i) => <TreeIso key={'tb' + i} x={-19 + i * 3.2} y={-13.6} s={0.7} />)}
-        {[-19, -15.8, -12.6, -9.4, -6.2, -3.0, 0.2, 3.4, 6.6, 9.8, 13].map((x, i) => <HouseIso key={'bk' + i} b={{ x0: x, y0: -8.9, w: 2.4, d: 2.4, h: 1.9 + (i % 3) * 0.3, c: C1[i % 6], roof: i % 2 ? 'gable' : 'hip', seed: 40 + i }} f={f} />)}
+        {[-19, -15.8, -12.6, -9.4, -6.2, -3.0, 0.2, 3.4, 6.6, 9.8, 13].map((x, i) => <HouseIso key={'bk' + i} b={x === 0.2 ? { x0: 0.2, y0: -9.1, w: 2.6, d: 2.6, h: 3.3, c: '#3f7a5c', roof: 'flat', seed: 78 } : { x0: x, y0: -8.9, w: 2.4, d: 2.4, h: 1.9 + (i % 3) * 0.3, c: C1[i % 6], roof: i % 2 ? 'gable' : 'hip', seed: 40 + i }} f={f} />)}
+        {move && herAt('bk', 3)}
         {Array.from({ length: 14 }).map((_, i) => <TreeIso key={'t0' + i} x={-12 + i * 1.75 + hash(i) * 0.5} y={-5.7 - hash(i + 3) * 0.5} s={0.6 + hash(i + 7) * 0.35} />)}
         {/* far row with hedges along the footpath */}
         {Array.from({ length: 22 }).map((_, i) => <TreeIso key={'pk' + i} x={-16 + (i % 11) * 1.08 + hash(i + 70) * 0.5} y={-4.4 + Math.floor(i / 11) * 0.95 + hash(i + 80) * 0.3} s={0.6 + hash(i + 90) * 0.35} />)}
@@ -303,7 +311,7 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
         {[-15.4, -13.4, -11.5, -9.6, -7.6, -5.6, 5.3, 9.0].map((x, i) => <TreeIso key={i} x={x} y={-2.45} s={0.7} />)}
         {balBack(GYC, '#6a5cab', GBX)}
         {move && balBack(HYC, '#a3688c', HBX)}
-        {mStage !== 1 && mStage !== 3 && <g transform={`translate(${gx} ${gy}) scale(${mStage === 2 ? SC : -SC} ${SC})`}><Adult kind="woman" p={girl} id="g" />{mStage === 2 && <g><rect x={-74} y={-70} width={46} height={62} rx={8} fill="#e0b84a" /><rect x={-74} y={-48} width={46} height={7} fill="#b98a2a" /><rect x={-60} y={-92} width={18} height={24} rx={6} fill="none" stroke="#2b2e3a" strokeWidth={5} /><circle cx={-64} cy={-4} r={6} fill="#2b2e3a" /><circle cx={-38} cy={-4} r={6} fill="#2b2e3a" /></g>}</g>}
+        {herVis && herSlot === 'far' && herG}
         {balFront(GYC, ['#c9b8ff', '#f0e9ff', '#a58cf0'], GBX)}
         {move && balFront(HYC, ['#ffb8d8', '#fff0f6', '#f08cb8'], HBX)}
         {concept && (() => { const st = (x: number, y: number, flip: boolean, node: React.ReactNode) => { const [a, b] = iso(x, y, 0); return <g transform={`translate(${a} ${b}) scale(${flip ? -SC : SC} ${SC})`}>{node}</g>; };
@@ -323,6 +331,7 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
         <LampIso x={-5.4} y={1.6} /><LampIso x={0.9} y={1.6} /><LampIso x={7.4} y={1.6} />
         {[-9.8, -6.65, -3.55, 2.85, 5.95].map((x, i) => <TreeIso key={i} x={x} y={2.55} s={0.7} />)}
         {NEAR.map((b) => <HouseIso key={b.seed} b={b} f={f} />)}
+        {move && herAt('near', 2)}
         {balBack(BYC, '#4a68a0')}
         <g transform={`translate(${bx - 16 * kick} ${by}) rotate(${-9 * kick}) scale(${SC})`}><Adult kind="man" p={boy} id="b" gun={wire || move || (cv === '1' && !cb)} /></g>
         {balFront(BYC, ['#7fe3d4', '#d6fff8', '#4fc9b8'])}
@@ -431,51 +440,59 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
             {bub([K[0], K[1] - 130], 'Me too!', 'b1')}{bub([AU[0] - 10, AU[1] - 170], 'Me too!', 'b2')}{bub([UN[0], UN[1] - 175], 'Me too!', 'b3')}{bub([roofs[0][0], roofs[0][1] - 40], 'Me too!', 'b4')}{bub([roofs[1][0], roofs[1][1] - 40], 'Me too!', 'b5')}
             <text x={car[0] + 70} y={car[1] - 60} style={{ font: `800 64px ${FONT.ui}` }} fill="#ff7a5a" stroke="#0a0e24" strokeWidth={8} paintOrder="stroke">!</text></g>; })()}
         {move && (() => {
-          const A0 = iso(BX0 + 0.62, BYC - 0.7, BZ + 0.5), HB = iso(GBX + 0.62, GYC + 0.7, BZ + 0.5), H2 = iso(HBX + 0.62, HYC + 0.7, BZ + 0.5), RT = iso(1.0, 0.2, 3.7), RB = iso(1.0, 0.2, 0);
-          const roofs = [iso(-5.1, 3.35, 3.0), iso(4.4, 3.35, 3.1), iso(7.5, -3.35, 3.2), iso(-5.0, -7.7, 3.1), iso(-1.8, -7.7, 3.4), iso(3.0, 8.6, 2.8)];
+          const A0 = iso(BX0 + 0.62, BYC - 0.7, BZ + 0.5), BXS = PL.map((q) => iso(q.x + 0.62, q.yc + 0.7, BZ + 0.5)), RT = iso(1.7, -0.5, 4.0), RB = iso(1.7, -0.5, 0);
+          const roofs = [iso(-5.1, 3.35, 3.0), iso(7.5, -3.35, 3.2), iso(-5.0, -7.7, 3.1), iso(-1.8, -7.7, 3.4)];
           const curve = (a: readonly number[], b: readonly number[], sag: number, u = 1) => Array.from({ length: 15 }).map((_, i) => { const k = (i / 14) * u; return `${lerp(a[0], b[0], k)},${lerp(a[1], b[1], k) + sag * Math.sin(Math.PI * k)}`; }).join(' ');
-          const cop = (a: readonly number[], b: readonly number[], sag: number, u: number, o: number, dead = 0) => <g opacity={o}><polyline points={curve(a, b, sag, u)} fill="none" stroke="#000" strokeWidth={7} opacity={0.25} transform="translate(0 8)" /><polyline points={curve(a, b, sag, u)} fill="none" stroke={dead > 0.5 ? '#6a6f8a' : '#c9843a'} strokeWidth={5.5} strokeLinecap="round" /></g>;
+          const cop = (a: readonly number[], b: readonly number[], sag: number, o: number, dead = 0) => <g opacity={o}><polyline points={curve(a, b, sag)} fill="none" stroke="#000" strokeWidth={7} opacity={0.25} transform="translate(0 8)" /><polyline points={curve(a, b, sag)} fill="none" stroke={dead > 0.5 ? '#6a6f8a' : '#c9843a'} strokeWidth={5.5} strokeLinecap="round" /></g>;
           const anch = (q: readonly number[], rot: number, sc = 0.9) => <g transform={`translate(${q[0]} ${q[1]}) rotate(${rot}) scale(${sc})`}><line x1={-22} y1={0} x2={8} y2={0} stroke="#d9d6cf" strokeWidth={5} strokeLinecap="round" /><path d="M 8 0 Q 16 -2 12 -16 M 8 0 Q 16 2 12 16 M 8 0 L 20 0" stroke="#eef0f6" strokeWidth={5} fill="none" strokeLinecap="round" /></g>;
           const box = (q: readonly number[], lit: number) => <g><rect x={q[0] - 13} y={q[1] - 22} width={26} height={24} rx={5} fill="#1a2040" stroke="#5fe3ff" strokeWidth={2} /><circle cx={q[0]} cy={q[1] - 10} r={4} fill={lit > 0.5 ? '#5fe3ff' : '#35406a'} /></g>;
-          const dead = prog(f, 0.7, 1.1), fade = 1 - prog(f, 5.6, 6.2), shot = prog(f, mShot, mShot + 0.6), rise = prog(f, 5.5, 6.1, easeOut);
-          const E = [lerp(lens.x, H2[0], shot), lerp(lens.y, H2[1] - 10, shot) - 60 * Math.sin(Math.PI * shot)], clip = prog(f, 4.7, 5.1), S0 = [lerp(lens.x, A0[0], clip), lerp(lens.y, A0[1] - 10, clip)];
-          const hello = (q: readonly number[], a: number, tick: boolean) => a > 0 ? <g opacity={a} transform={`translate(${q[0]} ${q[1]}) scale(1.35)`}><rect x={-64} y={-30} width={128} height={44} rx={14} fill="#0e1430" stroke="#5fe3ff" strokeWidth={2} /><text y={3} textAnchor="middle" style={{ font: `800 28px ${FONT.ui}` }} fill="#fff">HELLO</text>{tick && <><circle cx={64} cy={-30} r={13} fill="#3ddc97" /><path d="M 58 -30 L 62 -25 L 70 -35" stroke="#06261a" strokeWidth={3.5} fill="none" strokeLinecap="round" /></>}</g> : null;
-          const pk = clamp01((t - 12.85) / 0.65), pkP = pk < 0.5 ? [lerp(A0[0], RT[0], pk * 2), lerp(A0[1], RT[1], pk * 2) + 22 * Math.sin(Math.PI * pk * 2)] : [lerp(RT[0], H2[0], pk * 2 - 1), lerp(RT[1], H2[1], pk * 2 - 1) + 22 * Math.sin(Math.PI * (pk * 2 - 1))];
+          const fade = 1 - prog(f, 7.0, 7.6), rise = prog(f, 6.9, 7.5, easeOut), wires = 1 + SHOTS.filter((sh) => t >= sh + 0.5).length;
+          const hello = (q: readonly number[], a: number, tick: boolean) => a > 0 ? <g opacity={a} transform={`translate(${q[0]} ${q[1]}) scale(1.5)`}><rect x={-64} y={-30} width={128} height={44} rx={14} fill="#0e1430" stroke="#5fe3ff" strokeWidth={2} /><text y={3} textAnchor="middle" style={{ font: `800 28px ${FONT.ui}` }} fill="#fff">HELLO</text>{tick && <><circle cx={64} cy={-30} r={13} fill="#3ddc97" /><path d="M 58 -30 L 62 -25 L 70 -35" stroke="#06261a" strokeWidth={3.5} fill="none" strokeLinecap="round" /></>}</g> : null;
+          const T3 = BXS[3], pk = clamp01((t - 14.45) / 0.65), pkP = pk < 0.5 ? [lerp(A0[0], RT[0], pk * 2), lerp(A0[1], RT[1], pk * 2) + 22 * Math.sin(Math.PI * pk * 2)] : [lerp(RT[0], T3[0], pk * 2 - 1), lerp(RT[1], T3[1], pk * 2 - 1) + 22 * Math.sin(Math.PI * (pk * 2 - 1))];
+          const star: [readonly number[], number][] = [[A0, 2], [BXS[0], 3], [BXS[1], 4], [BXS[2], 5], [T3, 7], [roofs[0], 6], [roofs[1], 8], [roofs[2], 9], [roofs[3], 10]];
           return <g>
-            {/* the old wire to her empty balcony goes dead; a second wire is shot to the hostel */}
-            {cop([A0[0], A0[1] - 10], [HB[0], HB[1] - 10], 4 + 30 * dead, 1, fade, dead)}{fade > 0 && <g opacity={fade}>{anch([HB[0] + 4, HB[1] - 16], 62 + 20 * dead)}</g>}
-            {shot > 0 && cop(S0, shot < 1 ? E : [H2[0], H2[1] - 10], shot < 1 ? 30 * shot : 8, 1, fade)}
-            {shot > 0 && fade > 0 && <g opacity={fade}>{shot < 1 ? anch(E, -8) : anch([H2[0] + 4, H2[1] - 16], 62)}</g>}
-            {t > mShot && t < mShot + 0.3 && <g opacity={1 - (t - mShot) / 0.3}><circle cx={lens.x} cy={lens.y} r={10 + (t - mShot) * 130} fill="#fff1d0" opacity={0.7} filter="url(#iB)" /><ellipse cx={lens.x} cy={lens.y} rx={14 + (t - mShot) * 180} ry={(14 + (t - mShot) * 180) * 0.6} fill="none" stroke="#fff6dc" strokeWidth={4} /></g>}
-            {t > hT && t < hT + 0.35 && <circle cx={H2[0]} cy={H2[1] - 10} r={8 + (t - hT) * 110} fill="none" stroke="#fff1d0" strokeWidth={4} opacity={1 - (t - hT) / 0.35} />}
-            {t > 4.5 && t < 5.6 && <text x={bx + 150} y={by - 250} textAnchor="middle" style={{ font: `800 50px ${FONT.ui}` }} fill="#ffb38a" stroke="#0a0e24" strokeWidth={8} paintOrder="stroke" opacity={prog(f, 4.5, 4.7) * (1 - prog(f, 5.4, 5.6))}>wire #2 … #3 … #4 ?</text>}
-            {box(A0, 1)}{box(HB, 1 - dead)}{t > 3.1 && box(H2, shot >= 1 ? 1 : 0)}
-            {/* the router rises in the middle of the street; one wire per house */}
+            {/* every place she stays gets its own wire from his balcony: 1, 2, 3, 4 ... */}
+            {fade > 0 && <g opacity={fade}>
+              {cop([A0[0], A0[1] - 10], [BXS[0][0], BXS[0][1] - 10], 4 + 30 * prog(f, 0.7, 1.1), 1, prog(f, 0.7, 1.1))}{anch([BXS[0][0] + 4, BXS[0][1] - 16], 62 + 20 * prog(f, 0.7, 1.1))}
+              {SHOTS.map((sh, i) => { const u = prog(f, sh, sh + 0.5), B = BXS[i + 1]; if (u <= 0) return null; const dd = pi > i + 1 ? 1 : 0, st = u < 1 ? [lens.x, lens.y] : [lerp(lens.x, A0[0], prog(f, sh + 0.55, sh + 0.85)), lerp(lens.y, A0[1] - 10, prog(f, sh + 0.55, sh + 0.85))];
+                const E = [lerp(st[0], B[0], u), lerp(st[1], B[1] - 10, u) - 50 * Math.sin(Math.PI * u)], ang3 = Math.atan2(B[1] - st[1], B[0] - st[0]) * 180 / Math.PI;
+                return <g key={i}>{cop(st, u < 1 ? E : [B[0], B[1] - 10], u < 1 ? 24 * u : 10 + 20 * dd, 1, dd)}{u < 1 ? anch(E, ang3) : anch([B[0] + 4, B[1] - 16], 62 + 20 * dd)}
+                  {t > sh && t < sh + 0.3 && <g opacity={1 - (t - sh) / 0.3}><circle cx={lens.x} cy={lens.y} r={10 + (t - sh) * 130} fill="#fff1d0" opacity={0.7} filter="url(#iB)" /><ellipse cx={lens.x} cy={lens.y} rx={14 + (t - sh) * 180} ry={(14 + (t - sh) * 180) * 0.6} fill="none" stroke="#fff6dc" strokeWidth={4} /></g>}
+                  {t > sh + 0.5 && t < sh + 0.85 && <circle cx={B[0]} cy={B[1] - 10} r={8 + (t - sh - 0.5) * 110} fill="none" stroke="#fff1d0" strokeWidth={4} opacity={1 - (t - sh - 0.5) / 0.35} />}</g>; })}
+              <text x={bx + 40} y={by - 250} textAnchor="middle" style={{ font: `800 62px ${FONT.ui}` }} fill={wires > 2 ? '#ff9a7a' : '#ffd38a'} stroke="#0a0e24" strokeWidth={9} paintOrder="stroke" opacity={prog(f, 2.7, 2.9)}>{wires} wire{wires > 1 ? 's' : ''}{wires > 3 ? '?!' : ''}</text>
+            </g>}
+            {/* her hop from one place to the next */}
+            {[2, 3].map((i) => { const u = clamp01((t - LEAVE[i - 1]) / (ARR[i] - LEAVE[i - 1])); if (u <= 0 || u >= 1) return null; const a = iso(PL[i - 1].x + 0.3, PL[i - 1].yc, BZ + 1), b = iso(PL[i].x + 0.3, PL[i].yc, BZ + 1), q = [lerp(a[0], b[0], u), lerp(a[1], b[1], u) - 130 * Math.sin(Math.PI * u)];
+              return <g key={'hop' + i}><polyline points={curve(a, b, -130, u)} fill="none" stroke="#ff8672" strokeWidth={5} strokeDasharray="4 14" strokeLinecap="round" /><g transform={`translate(${q[0]} ${q[1]})`}><rect x={-20} y={-16} width={40} height={34} rx={7} fill="#e0b84a" /><rect x={-20} y={-4} width={40} height={6} fill="#b98a2a" /><rect x={-9} y={-28} width={18} height={14} rx={5} fill="none" stroke="#fff" strokeWidth={4} /></g></g>; })}
+            {box(A0, 1)}{BXS.map((q, i) => (i === 0 || t > ARR[i]) && <g key={'bx' + i}>{box(q, i === pi ? 1 : 0)}</g>)}
+            {/* place name signs */}
+            {PL.map((q, i) => { if (!q.name) return null; const c = iso(q.x - 1.3, q.yc + (q.slot === 'near' ? 0.45 : -0.45), 3.85), a = prog(f, ARR[i] - 0.3, ARR[i]); return <g key={'sg' + i} transform={`translate(${c[0]} ${c[1]}) scale(1.4)`} opacity={a}><rect x={-74} y={-24} width={148} height={44} rx={12} fill="#ff6f91" /><text y={7} textAnchor="middle" style={{ font: `800 25px ${FONT.ui}` }} fill="#fff">{q.name}</text></g>; })}
+            {/* the router rises in the middle; one wire per house, like a web around it */}
             {rise > 0 && <g opacity={rise}>
               <line x1={RB[0]} y1={RB[1]} x2={RT[0]} y2={RT[1] + (1 - rise) * 120} stroke="#2b2e3a" strokeWidth={11} strokeLinecap="round" />
-              {[A0, HB, H2, ...roofs].map((q, i) => { const u = prog(f, 6.1 + i * 0.07, 6.6 + i * 0.07, easeOut); if (u <= 0) return null; const k0 = (t * 0.8 + i * 0.37) % 1, kk = i % 2 ? k0 : 1 - k0, live = prog(f, 7.0, 7.3) * (t > 12.8 && t < 13.55 ? 0.25 : 1);
+              {star.map(([q], i) => { const u = prog(f, 7.5 + i * 0.07, 8.0 + i * 0.07, easeOut); if (u <= 0) return null; const k0 = (t * 0.8 + i * 0.37) % 1, kk = i % 2 ? k0 : 1 - k0, live = prog(f, 8.3, 8.6) * (t > 14.4 && t < 15.15 ? 0.25 : 1);
                 return <g key={i}><polyline points={curve(q, RT, 22, u)} fill="none" stroke="#5fe3ff" strokeWidth={15} opacity={0.22} filter="url(#iB)" /><polyline points={curve(q, RT, 22, u)} fill="none" stroke="#9fe9ff" strokeWidth={5} strokeLinecap="round" />
-                  {live > 0 && <circle cx={lerp(q[0], RT[0], kk)} cy={lerp(q[1], RT[1], kk) + 22 * Math.sin(Math.PI * kk)} r={7} fill="#fff" opacity={live} />}{i > 2 && <circle cx={q[0]} cy={q[1]} r={9} fill="#0e1430" stroke="#5fe3ff" strokeWidth={3} />}</g>; })}
-              <g transform={`translate(${RT[0]} ${RT[1] + (1 - rise) * 120}) scale(1.8)`}>
+                  {live > 0 && <circle cx={lerp(q[0], RT[0], kk)} cy={lerp(q[1], RT[1], kk) + 22 * Math.sin(Math.PI * kk)} r={7} fill="#fff" opacity={live} />}{i > 4 && <circle cx={q[0]} cy={q[1]} r={9} fill="#0e1430" stroke="#5fe3ff" strokeWidth={3} />}</g>; })}
+              {/* web rings between neighbouring wires */}
+              {[0.35, 0.68].map((k, r) => <polygon key={'web' + r} points={[...star].map(([q]) => q).sort((a, b) => Math.atan2(a[1] - RT[1], a[0] - RT[0]) - Math.atan2(b[1] - RT[1], b[0] - RT[0])).map((q) => `${lerp(RT[0], q[0], k)},${lerp(RT[1], q[1], k) + 22 * Math.sin(Math.PI * (1 - k))}`).join(' ')} fill="none" stroke="#9fe9ff" strokeWidth={2.5} opacity={0.45 * prog(f, 8.2 + r * 0.2, 8.6 + r * 0.2)} />)}
+              <g transform={`translate(${RT[0]} ${RT[1] + (1 - rise) * 120}) scale(2)`}>
                 <circle r={80} fill="#5fe3ff" opacity={0.22} filter="url(#iB2)" />
                 <line x1={-34} y1={-20} x2={-46} y2={-70} stroke="#d9d6cf" strokeWidth={6} strokeLinecap="round" /><line x1={34} y1={-20} x2={46} y2={-70} stroke="#d9d6cf" strokeWidth={6} strokeLinecap="round" />
                 <rect x={-62} y={-26} width={124} height={52} rx={14} fill="#f3f0ea" /><rect x={-62} y={8} width={124} height={18} rx={9} fill="#cfd3de" />
                 {[0, 1, 2, 3].map((i) => <circle key={i} cx={-36 + i * 24} cy={-6} r={6} fill={Math.sin(t * 9 + i * 1.7) > 0 ? '#3ddc97' : '#1f6a4c'} />)}
-                <text y={-90} textAnchor="middle" style={{ font: `800 38px ${FONT.ui}` }} fill="#fff" stroke="#0a0e24" strokeWidth={8} paintOrder="stroke" opacity={prog(f, 7.3, 7.6)}>ROUTER</text>
+                <text y={-90} textAnchor="middle" style={{ font: `800 38px ${FONT.ui}` }} fill="#fff" stroke="#0a0e24" strokeWidth={8} paintOrder="stroke" opacity={prog(f, 8.9, 9.2)}>ROUTER</text>
               </g>
             </g>}
             {/* door numbers: every house gets its own address */}
-            {[[A0, 2], [HB, 3], [H2, 7], [roofs[0], 4], [roofs[1], 5], [roofs[2], 6], [roofs[3], 8], [roofs[4], 9], [roofs[5], 10]].map(([q, n], i) => { const qq = q as readonly number[]; const a = prog(f, 8.4 + i * 0.12, 8.65 + i * 0.12, easeOut); if (a <= 0) return null; const her = n === 7, hi = her && t > 12.8 ? 1 : 0, full = prog(f, 11.15, 11.45);
-              return <g key={'ip' + i} opacity={a} transform={`translate(${qq[0] + (i < 3 ? 10 : 0)} ${qq[1] + (i < 3 ? 52 : -44)}) scale(${(1.6 + 0.3 * hi) * (0.7 + 0.3 * a)})`}>
+            {star.map(([q, n], i) => { const a = prog(f, 10.0 + i * 0.12, 10.25 + i * 0.12, easeOut); if (a <= 0) return null; const her = n === 7, hi = her && t > 14.4 ? 1 : 0, full = prog(f, 12.75, 13.05);
+              return <g key={'ip' + i} opacity={a} transform={`translate(${q[0] + (i < 5 ? 10 : 0)} ${q[1] + (i < 5 ? 56 : -48)}) scale(${(1.8 + 0.3 * hi) * (0.7 + 0.3 * a)})`}>
                 <rect x={-20 - 62 * full} y={-19} width={40 + 124 * full} height={38} rx={10} fill={her ? '#ffe08a' : '#0e1430'} stroke={her ? '#fff' : '#5fe3ff'} strokeWidth={2.5} />
                 <text y={8} textAnchor="middle" style={{ font: `600 ${full > 0.5 ? 20 : 24}px ${FONT.mono}` }} fill={her ? '#3a2a05' : '#dffbff'}>{full > 0.5 ? `192.168.1.${n}` : n}</text></g>; })}
-            {/* HELLO goes from him, through the router, to her new balcony */}
-            {hello([bx + 20, by - 225], prog(f, 12.3, 12.45) * (1 - prog(f, 12.85, 13.0)), false)}
-            {t > 12.85 && t < 13.5 && <><g transform={`translate(${pkP[0]} ${pkP[1] - 56}) scale(1.8)`}><rect x={-66} y={-17} width={132} height={32} rx={10} fill="#ffe08a" /><text y={6} textAnchor="middle" style={{ font: `600 19px ${FONT.mono}` }} fill="#3a2a05">To: 192.168.1.7</text></g><circle cx={pkP[0]} cy={pkP[1]} r={26} fill="#ffe08a" opacity={0.5} filter="url(#iB)" /><rect x={pkP[0] - 16} y={pkP[1] - 11} width={32} height={22} rx={5} fill="#ffe08a" /><path d={`M ${pkP[0] - 14} ${pkP[1] - 9} L ${pkP[0]} ${pkP[1] + 2} L ${pkP[0] + 14} ${pkP[1] - 9}`} stroke="#8a5a10" strokeWidth={3} fill="none" /></>}
-            {hello([gx + 6, gy - 240 - mGot * 8], mGot, true)}
-            {mGot > 0.5 && [0, 1, 2].map((i) => { const u = ((t * 0.5 + i * 0.33) % 1); return <Heart key={'mh' + i} x={gx + 70 + Math.sin(u * 6 + i) * 10} y={gy - 180 - u * 70} s={1.5 - u * 0.5} o={(1 - u) * 0.9} />; })}
-            {/* hostel sign */}
-            {(() => { const q = iso(hostelH.x0 + 1.3, hostelH.y0 + 1.3, 3.75); return <g transform={`translate(${q[0]} ${q[1]}) scale(1.25)`} opacity={prog(f, 1.4, 1.7)}><rect x={-70} y={-24} width={140} height={44} rx={12} fill="#ff6f91" /><text y={8} textAnchor="middle" style={{ font: `800 28px ${FONT.ui}` }} fill="#fff">HOSTEL</text></g>; })()}
+            {/* HELLO goes from him, through the router, to wherever she is now */}
+            {hello([bx + 20, by - 235], prog(f, 13.9, 14.05) * (1 - prog(f, 14.45, 14.6)), false)}
+            {t > 14.45 && t < 15.1 && <><g transform={`translate(${pkP[0]} ${pkP[1] - 60}) scale(2)`}><rect x={-66} y={-17} width={132} height={32} rx={10} fill="#ffe08a" /><text y={6} textAnchor="middle" style={{ font: `600 19px ${FONT.mono}` }} fill="#3a2a05">To: 192.168.1.7</text></g><circle cx={pkP[0]} cy={pkP[1]} r={26} fill="#ffe08a" opacity={0.5} filter="url(#iB)" /><rect x={pkP[0] - 16} y={pkP[1] - 11} width={32} height={22} rx={5} fill="#ffe08a" /><path d={`M ${pkP[0] - 14} ${pkP[1] - 9} L ${pkP[0]} ${pkP[1] + 2} L ${pkP[0] + 14} ${pkP[1] - 9}`} stroke="#8a5a10" strokeWidth={3} fill="none" /></>}
+            {hello([gx + 6, gy - 250 - mGot * 8], mGot, true)}
+            {mGot > 0.5 && [0, 1, 2].map((i) => { const u = ((t * 0.5 + i * 0.33) % 1); return <Heart key={'mh' + i} x={gx + 80 + Math.sin(u * 6 + i) * 10} y={gy - 190 - u * 70} s={1.8 - u * 0.5} o={(1 - u) * 0.9} />; })}
           </g>; })()}
         {/* the binary rides in the beam: bright = on (1), dark gap = off (0) */}
         {hook && t > BIT0 - 0.05 && t < 12.45 && <line x1={lens.x} y1={lens.y} x2={tgt.x} y2={tgt.y} stroke="#8a92d8" strokeWidth={2} strokeDasharray="3 10" opacity={0.6} />}
