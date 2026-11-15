@@ -6,7 +6,7 @@ from pathlib import Path
 HERE = Path(__file__).parent
 S = json.load(open(HERE / "sentences.json"))
 SR = 24000
-START, IN_LINE, BETWEEN, TAIL = 0.6, 0.12, 0.38, 2.4   # voice starts over the music; breath inside a line; gap at a scene cut; end-card hold
+START, IN_LINE, BETWEEN, TAIL = 0.6, 0.12, 0.38, 3.0   # voice starts over the music; breath inside a line; gap at a scene cut; end-card hold
 def trim(a, thr=0.012):
     idx = np.where(np.abs(a) > thr)[0]; s, e = max(0, idx[0] - 240), min(len(a), idx[-1] + 480); return a[s:e]
 t, parts, caps, sents, starts, B = START, [np.zeros(int(START * SR))], [], [], [], [0.0]

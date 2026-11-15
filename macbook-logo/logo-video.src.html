@@ -38,7 +38,7 @@
   #ecIcons { display: flex; gap: 7vw; margin-top: 2.6vw; } #ecIcons div { display: flex; flex-direction: column; align-items: center; font: 600 3.2vw 'IBM Plex Sans', sans-serif; }
   #ecIcons svg { width: 6.4vw; height: 6.4vw; margin-bottom: .6vw; }
   #ecSub { margin-top: 2.6vw; padding: 1.8vw 7vw; border-radius: 6vw; background: #e53935; font: 700 4.4vw Sora, Arial, sans-serif; box-shadow: 0 0 30px rgba(229,57,53,.55); }
-  #ecPill { position: fixed; z-index: 4; left: 46%; top: 59.6%; transform: translateX(-50%); display: flex; border-radius: 2.4vw; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.45); opacity: 0; font: 800 7.4vw/1 Sora, Arial, sans-serif; white-space: nowrap; }
+  #ecPill { position: fixed; z-index: 4; left: 50%; top: 66.5%; transform: translateX(-50%); display: flex; border-radius: 2.4vw; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.45); opacity: 0; font: 800 7.4vw/1 Sora, Arial, sans-serif; white-space: nowrap; }
   #ecPill .a { background: #f4f4f6; color: #10142a; padding: 2vw 1.6vw 2vw 3.2vw; } #ecPill .b { background: #1e9be0; color: #fff; padding: 2vw 3.2vw 2vw 1.6vw; }
   #fade { position: fixed; inset: 0; z-index: 5; background: #000; opacity: 0; pointer-events: none; }
 </style>
@@ -375,39 +375,86 @@ const SHOTS = [
     switchCard(ease(ramp(u, 5.4, 5.8)), 1 - ease(ramp(u, 6.3, 6.6)));
     if (u < 0.2) title([], [], u);
   }],
-  [B[6], B[7], u => { // 7. end card
-    lidOpen(OPEN); explode(0); setXray(0); ledOn([]); diffGlow(0); screenOn(1, 0); room(0); logoGlow(1);
-    VO = 0.075; orbit(lidPoint(LOGO_C).add(new THREE.Vector3(0, -40, 0)), -10 + 6 * u, 11, 1600);
-    renderer.domElement.style.filter = 'blur(12px) brightness(0.85) saturate(1.3)';
-    END.a = easeOut(ramp(u, 0, 0.45)); END.brand = ramp(u, 0.75, 2.4);
+  [B[6], B[7], u => { // 7. end card ON the MacBook: the video we just watched shrinks onto its screen, the camera pulls back, the InvisiTech card plays there
+    snapshot(); roomCard(0, 0, 0); switchCard(0, 1);
+    lidOpen(OPEN); explode(0); setXray(0); ledOn([]); diffGlow(0); screenOn(0, 0); room(0); logoGlow(1);
+    const z = ease(ramp(u, 0.15, 1.9));
+    const c = lidPoint(SCR_C), n = lidPoint(SCR_C.clone().add(new THREE.Vector3(0, -1, 0))).sub(c).normalize();
+    const p0 = c.clone().addScaledVector(n, 90 / Math.tan(THREE.MathUtils.degToRad(15)));   // the portrait video fills the frame exactly
+    const tgt1 = c.clone().add(new THREE.Vector3(0, -48, 0)), y1 = THREE.MathUtils.degToRad(181 + 2.5 * u), pi1 = THREE.MathUtils.degToRad(11), d1 = 1200;
+    const p1 = new THREE.Vector3(Math.sin(y1) * Math.cos(pi1), Math.sin(pi1), -Math.cos(y1) * Math.cos(pi1)).multiplyScalar(d1).add(tgt1);
+    VO = 0.03 * z; camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix();
+    camera.position.copy(p0.clone().lerp(p1, z)); camera.lookAt(c.clone().lerp(tgt1, z)); camera.updateMatrixWorld();
+    END.screen = 1; END.card = ease(ramp(u, 1.1, 1.7)); END.brand = ramp(u, 1.5, 3.0);
   }],
 ];
-const CUTS = B.slice(1, -1);
+const CUTS = B.slice(1, -2);   // no dip to black into the end: the video shrinks onto the MacBook screen
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
-  hideTags(); renderer.domElement.style.filter = ''; END.a = 0; END.brand = 0; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
+  hideTags(); renderer.domElement.style.filter = ''; END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
   fn(t - a, b - a);
   if (i === 6) title([], [], 0);
-  note(i === 6 ? '' : (i >= 1 && i <= 4 ? '3D illustration · inner layers not to scale · not affiliated with Apple' : '3D illustration · not affiliated with Apple'), 1);
+  note((i >= 1 && i <= 4 ? '3D illustration · inner layers not to scale · not affiliated with Apple' : '3D illustration · not affiliated with Apple'), 1);
   const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
   $('fade').style.opacity = Math.max(0, ...CUTS.map(c => 0.85 - Math.abs(t - c) / 0.2));
-  renderer.render(scene, camera);
+  SCREEN.visible = false; if (!END.screen) renderer.render(scene, camera);
   endCard();
 }
-const END = { a: 0, brand: 0 };
+const END = { a: 0, brand: 0, screen: 0, card: 0 };
+/* the MacBook's own screen: a canvas texture over the display (lid space, faces the keyboard side) */
+const SCR_C = new THREE.Vector3(0, 2.6, 106), SCR_W = 286, SCR_H = 180;
+const SCV = document.createElement('canvas'); SCV.width = 1600; SCV.height = Math.round(1600 * SCR_H / SCR_W);
+const SCT = new THREE.CanvasTexture(SCV); SCT.encoding = THREE.sRGBEncoding; SCT.anisotropy = 8;
+const SCREEN = new THREE.Mesh(new THREE.PlaneGeometry(SCR_W, SCR_H), new THREE.MeshBasicMaterial({ map: SCT, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+SCREEN.rotation.x = Math.PI / 2; SCREEN.position.copy(SCR_C); SCREEN.visible = false; LID.add(SCREEN);
+let SNAP = null;
+function rr(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+function snapshot() { // the last frame of scene 6 (laptop, switch card off), kept to play on the MacBook screen
+  if (SNAP) return; const d = B[6] - B[5]; SHOTS[5][2](d - 0.001, d); renderer.render(scene, camera);
+  SNAP = document.createElement('canvas'); SNAP.width = renderer.domElement.width; SNAP.height = renderer.domElement.height; const x = SNAP.getContext('2d'), k = SNAP.width / W;
+  x.drawImage(renderer.domElement, 0, 0);
+  const vw = SNAP.width / 100, sx = 15 * vw, sy = 0.136 * SNAP.height, sw = 70 * vw, sh = 14.4 * vw;   // the switch card, as it was on screen
+  rr(x, sx, sy, sw, sh, 4.5 * vw); x.fillStyle = 'rgba(24,25,34,.93)'; x.fill(); x.strokeStyle = 'rgba(255,255,255,.14)'; x.lineWidth = k; x.stroke();
+  x.fillStyle = '#fff'; x.font = `600 ${4 * vw}px Sora, Arial`; x.textBaseline = 'middle'; x.fillText('Glowing logo', sx + 4.2 * vw, sy + sh / 2);
+  rr(x, sx + sw - 4.2 * vw - 15 * vw, sy + 3 * vw, 15 * vw, 8.4 * vw, 4.2 * vw); x.fillStyle = 'rgb(80,84,96)'; x.fill();
+  x.beginPath(); x.arc(sx + sw - 4.2 * vw - 15 * vw + 0.8 * vw + 3.4 * vw, sy + 3 * vw + 4.2 * vw, 3.4 * vw, 0, 7); x.fillStyle = '#fff'; x.fill();
+}
+const ICONS = [['Like', '#4aa8ff', ['M2 10h4v11H2zM8 21h9.5a2 2 0 0 0 2-1.6l1.4-7A2 2 0 0 0 19 10h-5.5l.8-4.2A2 2 0 0 0 12.4 3.5L8 9z', 'f']],
+  ['Comment', '#f5a623', ['M12 3C6.5 3 2 6.8 2 11.5c0 2.3 1.1 4.4 2.9 6L4 21l4.3-2c1.1.4 2.4.6 3.7.6 5.5 0 10-3.8 10-8.5S17.5 3 12 3z', 's'], ['M7 11.5a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0 -2.4 0M10.8 11.5a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0 -2.4 0M14.8 11.5a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0 -2.4 0', 'f']],
+  ['Follow', '#4aa8ff', ['M5 7.5a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M1.5 21c0-4.4 3.4-7.5 7.5-7.5s7.5 3.1 7.5 7.5z', 'f'], ['M19 4v6M16 7h6', 'l']]];
+function drawScreen() {
+  const x = SCV.getContext('2d'), w = SCV.width, h = SCV.height, b = END.brand;
+  x.globalAlpha = 1; x.fillStyle = '#000'; x.fillRect(0, 0, w, h);
+  if (SNAP && END.card < 1) { // the vertical video, with a blurred copy behind it (like a Short playing on a Mac)
+    x.save(); x.filter = 'blur(28px) brightness(0.45)'; x.drawImage(SNAP, -w * 0.1, -h * 0.9, w * 1.2, w * 1.2 * SNAP.height / SNAP.width); x.restore();
+    const vh = h, vw2 = vh * SNAP.width / SNAP.height; x.drawImage(SNAP, (w - vw2) / 2, 0, vw2, vh);
+  }
+  if (END.card > 0) {
+    x.globalAlpha = END.card; const g = x.createRadialGradient(w / 2, h * 0.38, 40, w / 2, h * 0.5, w * 0.7); g.addColorStop(0, '#1a2a6a'); g.addColorStop(0.55, '#0b1230'); g.addColorStop(1, '#04060f');
+    x.fillStyle = g; x.fillRect(0, 0, w, h);
+    const pop = (k, fn) => { const v = easeOut(k); if (v < 0.01) return; x.save(); x.globalAlpha = END.card * v; x.translate(w / 2, h / 2); x.scale(1.22, 1.22); x.translate(0, -520 + (1 - v) * 30); fn(); x.restore(); };
+    const logo = $('ecLogo');
+    pop(ramp(b, 0, 0.18), () => { x.shadowColor = 'rgba(74,168,255,.8)'; x.shadowBlur = 60; x.beginPath(); x.arc(0, 215, 118, 0, 7); x.fillStyle = 'rgba(74,168,255,.15)'; x.fill(); x.shadowBlur = 0;
+      x.save(); x.beginPath(); x.arc(0, 215, 100, 0, 7); x.clip(); if (logo.complete) x.drawImage(logo, -100, 115, 200, 200); x.restore(); });
+    x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+    pop(ramp(b, 0.12, 0.3), () => { x.font = '800 150px Sora, Arial'; const a = x.measureText('Invisi').width, t = x.measureText('Tech').width; x.fillStyle = '#fff'; x.fillText('Invisi', -(a + t) / 2, 500); x.fillStyle = '#4fc3f7'; x.fillText('Tech', -(a + t) / 2 + a, 500); });
+    x.textAlign = 'center';
+    pop(ramp(b, 0.22, 0.4), () => { x.font = '600 66px Sora, Arial'; x.fillStyle = 'rgba(255,255,255,.92)'; x.fillText('@TheInvisiTech', 0, 588); });
+    ICONS.forEach(([label, col, ...paths], i) => pop(ramp(b, 0.35 + i * 0.08, 0.5 + i * 0.08), () => {
+      const cx = (i - 1) * 250; x.save(); x.translate(cx - 48, 618); x.scale(4, 4);
+      paths.forEach(([d, m]) => { const P = new Path2D(d); if (m === 'f') { x.fillStyle = col; x.fill(P); } else { x.strokeStyle = col; x.lineWidth = m === 'l' ? 2.2 : 2; x.lineCap = 'round'; x.stroke(P); } });
+      x.restore(); x.font = '600 50px "IBM Plex Sans", Arial'; x.fillStyle = '#fff'; x.fillText(label, cx, 772); }));
+    pop(ramp(b, 0.62, 0.8), () => { x.shadowColor = 'rgba(229,57,53,.7)'; x.shadowBlur = 40; rr(x, -230, 815, 460, 110, 55); x.fillStyle = '#e53935'; x.fill(); x.shadowBlur = 0;
+      x.font = '700 64px Sora, Arial'; x.fillStyle = '#fff'; x.fillText('Subscribe', 0, 893); });
+  }
+  x.globalAlpha = 1; SCT.needsUpdate = true;
+}
 function endCard() {
-  const ec = $('endcard'), pill = $('ecPill'), a = END.a, b = END.brand; ec.style.opacity = a; ec.style.transform = `scale(${0.9 + 0.1 * a})`;
-  const pa = easeOut(ramp(b, 0.7, 0.9)); pill.style.opacity = pa; pill.style.transform = `translateX(-50%) translateY(${(1 - pa) * 2}vh)`;
-  if (a < 0.01) return;
-  const cv = $('ecScene'), r = ec.getBoundingClientRect(), dpr = renderer.getPixelRatio(); cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
-  cv.getContext('2d').drawImage(renderer.domElement, r.left * dpr, r.top * dpr, r.width * dpr, r.height * dpr, 0, 0, cv.width, cv.height);   // sharp window into the blurred scene
-  $('ecShade').style.opacity = ease(ramp(b, 0, 0.2));
-  const pop = (el, k) => { const v = easeOut(k); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 2}vh) scale(${0.85 + 0.15 * v})`; };
-  pop($('ecLogo'), ramp(b, 0.0, 0.18)); pop($('ecName'), ramp(b, 0.12, 0.3)); pop($('ecHandle'), ramp(b, 0.22, 0.4));
-  [...$('ecIcons').children].forEach((el, i) => pop(el, ramp(b, 0.35 + i * 0.08, 0.5 + i * 0.08)));
-  pop($('ecSub'), ramp(b, 0.62, 0.8));
+  $('endcard').style.opacity = 0; SCREEN.visible = END.screen > 0;
+  const pill = $('ecPill'), pa = easeOut(ramp(END.brand, 0.75, 0.95)) * END.screen; pill.style.opacity = pa; pill.style.transform = `translateX(-50%) translateY(${(1 - pa) * 2}vh)`;
+  if (END.screen > 0) { drawScreen(); renderer.render(scene, camera); }
 }
 loadMac().then(() => {
   buildLayers(); buildRays(); lidOpen(OPEN); explode(0); renderAt(0); ready = true;
