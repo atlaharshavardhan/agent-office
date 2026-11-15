@@ -8,7 +8,7 @@
   #bloom { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; filter: blur(1.5vw) brightness(1.2); mix-blend-mode: screen; opacity: .2; }
   #glow { position: fixed; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: screen; background: radial-gradient(60% 32% at 0% 0%, rgba(37,52,68,.55), transparent 100%), radial-gradient(60% 32% at 100% 0%, rgba(37,52,68,.42), transparent 100%); }
   #vig { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(130% 85% at 50% 46%, transparent 60%, rgba(2,4,9,.38) 100%); }
-  #title .t-head { display: block; font: 800 7.6vw/1.06 Inter, Arial, sans-serif; text-transform: uppercase; color: #F5F5F7; text-shadow: 0 0.6vw 3vw rgba(0,0,0,.7); }
+  #title .t-head { display: block; font: 800 7.6vw/1.06 Inter, Arial, sans-serif; text-transform: uppercase; color: #F5F5F7; text-shadow: 0 0 1vw rgba(8,13,20,.9), 0 0 3vw rgba(8,13,20,.85), 0 0.5vw 5vw rgba(8,13,20,.7); }
   #title .t-head.hook { line-height: 0.96; letter-spacing: -0.02em !important; transform-origin: 50% 40%; }
   #title .t-head.red { color: #FF4545; } #title .t-head.green i { font-style: normal; color: #22C55E; } #title .t-head.gold { color: #F5F5F7; }
   #back { position: fixed; z-index: 0; left: 0; right: 0; text-align: center; color: #f5f5f7; font: 800 23vw/0.98 Inter, Arial, sans-serif; letter-spacing: -0.05em; text-transform: uppercase; pointer-events: none; opacity: 0; }
@@ -4078,20 +4078,25 @@ let ready = false;
   scene.environment = pm.fromScene(env, 0.03).texture; scene.background = null;
 }
 scene.add(new THREE.HemisphereLight(0xf2f5fa, 0x1a212b, 0.34));
-const key = new THREE.DirectionalLight(0xffffff, 1.55); key.position.set(-260, 420, 240); scene.add(key); scene.add(key.target);
-renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.radius = 7; key.shadow.bias = -0.0006; key.shadow.normalBias = 0.6;
+const key = new THREE.DirectionalLight(0xffffff, 0.68); key.position.set(-260, 420, 240); scene.add(key); scene.add(key.target);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.VSMShadowMap;
+const key2 = new THREE.DirectionalLight(0xffffff, 0.87); key2.position.copy(key.position); scene.add(key2);   /* the unshadowed half of the key */
+key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.radius = 22; key.shadow.bias = -0.0004; key.shadow.normalBias = 0.6;
 { const c = key.shadow.camera; c.left = -170; c.right = 170; c.top = 190; c.bottom = -120; c.near = 100; c.far = 1100; c.updateProjectionMatrix(); }
 const fill = new THREE.DirectionalLight(0xffffff, 0.46); fill.position.set(320, 160, 300); scene.add(fill);
-const rim = new THREE.DirectionalLight(0xdcecff, 0.8); rim.position.set(-300, 180, -420); scene.add(rim);
-const rim2 = new THREE.DirectionalLight(0xdcecff, 0.7); rim2.position.set(300, 180, -420); scene.add(rim2);
+const rim = new THREE.DirectionalLight(0xcfe3ff, 1.25); rim.position.set(-300, 180, -420); scene.add(rim);
+const rim2 = new THREE.DirectionalLight(0xcfe3ff, 1.1); rim2.position.set(300, 180, -420); scene.add(rim2);
 const FLOOR_Y = -31.6;
 function grain() { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'); x.fillStyle = '#808080'; x.fillRect(0, 0, 256, 256); let sd = 3; const r = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
   for (let i = 0; i < 9000; i++) { const v = 110 + r() * 40; x.fillStyle = `rgb(${v},${v},${v})`; x.fillRect(r() * 256, r() * 256, 1, 1); } const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(160, 160); return t; }
-const FLOOR = new THREE.Mesh(new THREE.PlaneGeometry(5000, 5000), new THREE.MeshLambertMaterial({ color: 0x151d27, transparent: true, opacity: 0.93 }));
+const FLOOR = new THREE.Mesh(new THREE.PlaneGeometry(5000, 5000), new THREE.MeshLambertMaterial({ color: 0x151d27, transparent: true, opacity: 0.9 }));
 FLOOR.material.color.setRGB(0.0046, 0.0071, 0.012);   /* satin look comes from the faint mirrored pass, not from light glare */ FLOOR.rotation.x = -Math.PI / 2; FLOOR.position.y = FLOOR_Y; FLOOR.receiveShadow = true; FLOOR.renderOrder = -1; scene.add(FLOOR);
 scene.fog = new THREE.Fog(0x000000, 330, 900); scene.fog.color.setHex(0x0b121b);   /* three r128 applies fog after tone mapping, so this is the on-screen colour */
-const DOME = new THREE.Mesh(new THREE.SphereGeometry(2400, 24, 16), new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide, depthWrite: false, fog: false, toneMapped: false })); DOME.material.color.setHex(0x0b121b).convertSRGBToLinear(); DOME.renderOrder = -2; scene.add(DOME);   /* fully fogged backdrop: same colour as the far floor, so there is no horizon */   // the floor melts into the background: no horizon line
+const DOME = new THREE.Mesh(new THREE.SphereGeometry(2400, 24, 16), new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide, depthWrite: false, fog: false, toneMapped: false })); DOME.material.color.setHex(0x0b121b).convertSRGBToLinear(); DOME.renderOrder = -2; DOME.material.visible = false; scene.add(DOME);
+const RT = new THREE.WebGLRenderTarget(Math.round(W / 5), Math.round(H / 5), { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+const QS = new THREE.Scene(), QC = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1); QS.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({ uniforms: { map: { value: RT.texture }, px: { value: new THREE.Vector2(5 / W, 5 / H) } }, transparent: true, depthTest: false, depthWrite: false,
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+  fragmentShader: 'uniform sampler2D map; uniform vec2 px; varying vec2 vUv; void main(){ vec4 c = vec4(0.0); float w = 0.0; for (int i = -3; i <= 3; i++) for (int j = -3; j <= 3; j++) { float g = exp(-float(i*i + j*j) / 6.0); c += g * texture2D(map, vUv + vec2(float(i), float(j)) * px * 1.6); w += g; } c /= w; gl_FragColor = vec4(pow(c.rgb / max(c.a, 0.001), vec3(1.0 / 2.2)), c.a * 0.8); }' })));   /* fully fogged backdrop: same colour as the far floor, so there is no horizon */   // the floor melts into the background: no horizon line
 const BOKEH = new THREE.Group(); scene.add(BOKEH);
 const SHAD = [0, 1].map(() => { const m = new THREE.Mesh(new THREE.PlaneGeometry(120, 70), new THREE.MeshBasicMaterial({ map: null, transparent: true, depthWrite: false, color: 0x000000 })); m.rotation.x = -Math.PI / 2; scene.add(m); return m; });
 
@@ -4107,7 +4112,7 @@ function sprite(tex, s) { const m = new THREE.Sprite(new THREE.SpriteMaterial({ 
 
 /* materials: navy boards, gold, steel, black glass, amber flex; no green boards */
 const MAT = {
-  white: () => new THREE.MeshPhysicalMaterial({ color: 0xf5f5f7, roughness: 0.3, metalness: 0, clearcoat: 0.55, clearcoatRoughness: 0.28, envMapIntensity: 0.85 }),
+  white: () => new THREE.MeshPhysicalMaterial({ color: 0xf5f5f7, roughness: 0.3, metalness: 0, clearcoat: 0.9, clearcoatRoughness: 0.1, envMapIntensity: 0.95 }),
   steel: new THREE.MeshStandardMaterial({ color: 0xd3d8df, metalness: 1, roughness: 0.26 }),
   dsteel: new THREE.MeshStandardMaterial({ color: 0x4a505a, metalness: 1, roughness: 0.32 }),
   black: new THREE.MeshStandardMaterial({ color: 0x0d0e11, metalness: 0.25, roughness: 0.32, envMapIntensity: 0.8 }),
@@ -4137,7 +4142,7 @@ const FLEX = new THREE.MeshStandardMaterial({ map: flexTex(), roughness: 0.35, m
 const ghostMat = (col = 0xe9eef8) => new THREE.ShaderMaterial({
   uniforms: { col: { value: new THREE.Color(col) }, alpha: { value: 0 } }, transparent: true, depthWrite: false, side: THREE.DoubleSide,
   vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
-  fragmentShader: 'uniform vec3 col; uniform float alpha; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.4); gl_FragColor = vec4(col * (0.55 + 0.7 * f), (0.03 + 0.6 * f) * alpha); }'
+  fragmentShader: 'uniform vec3 col; uniform float alpha; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.4); gl_FragColor = vec4(col * (0.5 + 0.5 * f), (0.012 + 0.36 * f) * alpha); }'
 });
 const box = (w, h, d, mat, x, y, z, p) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); p.add(m); return m; };
 const cylY = (r, len, mat, x, y, z, p, seg = 32) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, seg), mat); m.position.set(x, y, z); p.add(m); return m; };
@@ -4567,6 +4572,7 @@ function sideTags(list) { // callouts in the side margins: [id, text, world, sid
 function hideTags() { for (const id in TAGS) { TAGS[id].el.style.opacity = 0; TAGS[id].l.style.opacity = 0; TAGS[id].c.style.opacity = 0; } }
 function glyph(id, world, a, scale = 1, dy = 0) { const el = $(id), [x, y] = proj(world); el.style.left = x + 'px'; el.style.top = (y + dy) + 'px'; el.style.opacity = a; el.style.transform = `translate(-50%,-50%) scale(${scale})`; }
 let VO = 0.055;
+const voAt = t => 0.1 * (ease(ramp(t, B[1], B[1] + 1.0)) - ease(ramp(t, B[5], B[5] + 1.0)));
 function look(pos, target, fov = 30) { camera.fov = fov; camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix(); camera.position.copy(pos); camera.up.set(0, 1, 0); camera.lookAt(target); camera.updateMatrixWorld(); }
 const V = (x, y, z) => new THREE.Vector3(x, y, z), vlerp = (a, b, k) => a.clone().lerp(b, k);
 const W2 = (C, v) => { C.root.updateMatrixWorld(true); return C.body.localToWorld(v.clone()); };
@@ -4613,7 +4619,7 @@ function pose3(k, lift) { const a = lerp(-0.3, 0.5, ease(k)), r = lerp(124, 100,
   return { p: W2(CB, STEM.R.clone().add(V(Math.sin(a) * r, cy + 0.5 * lift, Math.cos(a) * r))), t: W2(CB, STEM.R.clone().add(V(-2, 3.2 + 0.3 * lift, 0))) }; }
 function end4() { const f = Math.min(0.98, P.fPin + 0.3), hd = W2(CB, POWER.R.curve.getPoint(f)), a = 0.5 - 0.85 + 0.6, r = 36 + 26; return { p: hd.clone().add(V(Math.sin(a) * r, 5, Math.cos(a) * r)), t: hd }; }
 const phone6 = pin => HOME_B.clone().add(V(4, lerp(-190, 142, pin), -40));
-const mid6 = () => ({ p: HOME_B.clone().add(V(-40, 124, 900)), t: HOME_B.clone().add(V(2, 80, -16)) });
+const mid6 = () => ({ p: HOME_B.clone().add(V(-40, 96, 900)), t: HOME_B.clone().add(V(2, 50, -16)) });
 const hero8 = () => ({ p: HOME_B.clone().add(V(52, 24, 262)), t: HOME_B.clone().add(V(3, -10, 0)), f: 27 });
 const fin6 = () => ({ p: HOME_B.clone().add(V(-34, 128, 880)), t: HOME_B.clone().add(V(2, 92, -16)) });
 function explode(e) { P.parts.forEach(q => q.o.position.copy(q.base).addScaledVector(q.off, e)); }
@@ -4742,6 +4748,7 @@ const SHOTS = [
 const KEYS = ['someone else’s case', "someone else's case", 'may notice', 'not every case', 'a catch', 'secret', 'Magnets', 'charging contacts', 'metal contacts', 'deliver power', 'battery', 'charging circuit', 'each AirPod', 'part of the story', 'iPhone', 'belong together', 'compatible case', 'interchangeable', 'So yes', 'every AirPods case', 'AirPods'];
 const hi = txt => { for (const k of KEYS) { const i = txt.indexOf(k); if (i >= 0) return txt.slice(0, i) + '<em>' + k + '</em>' + txt.slice(i + k.length); } return txt; };
 function renderAt(t) {
+  VO = voAt(t);
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   let i = 0; while (i < B.length - 2 && t >= B[i + 1]) i++;
   hideTags(); $('endcard').style.opacity = 0; $('brand').style.opacity = 0; $('brandbg').style.opacity = 0; $('pulse').style.opacity = 0; $('back').style.opacity = 0; $('chg').style.opacity = 0; for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('wash').style.opacity = 0; focus(0);
@@ -4751,24 +4758,24 @@ function renderAt(t) {
   for (const s of ['R', 'L']) { CA.buds[s].g.visible = true; budXray(CA.buds[s], 0); CA.buds[s].batGlow.visible = false; CA.buds[s].batCell.material.emissiveIntensity = 0; pins(s, 0); }
   power(0, 0, t); GLOW.pin.emissiveIntensity = 0;
   const d = B[i + 1] - B[i], u = t - B[i]; SHOTS[i](u / d, u, t, d);
-  for (const [C, sh] of [[CA, SHAD[0]], [CB, SHAD[1]]]) { sh.visible = C.root.visible; sh.position.set(C.root.position.x, FLOOR_Y + 0.15, C.root.position.z); sh.material.opacity = Math.max(0, 0.6 - 0.03 * Math.abs(C.root.position.y)); sh.scale.set(0.82, 0.82, 1); }
+  for (const [C, sh] of [[CA, SHAD[0]], [CB, SHAD[1]]]) { sh.visible = C.root.visible; sh.position.set(C.root.position.x, FLOOR_Y + 0.15, C.root.position.z); sh.material.opacity = Math.max(0, 0.5 - 0.03 * Math.abs(C.root.position.y)); sh.scale.set(0.9, 0.95, 1); }
   BOKEH.children.forEach(m => { m.position.x = m.userData.x + 14 * Math.sin(t * 0.25 + m.userData.ph); });
   const cp = CAPS.find(c => t >= c[0] - 0.03 && t < c[1] + 0.08); $('sub').innerHTML = cp && !Q.get('nosub') ? '<span>' + hi(cp[2]) + '</span>' : '';
   $('wm').style.opacity = 0;   // V2: no watermark (brand line appears in the last scene)
   draw();
-  $('bloom').style.opacity = 0.2 * (1 - ($('brandbg').style.opacity || 0));
+  $('bloom').style.opacity = 0.12 * (1 - 0.6 * Math.max(CA.x || 0, CB.x || 0)) * (1 - ($('brandbg').style.opacity || 0));
   const bc = $('bloom'), bx = bc.getContext('2d'); bx.clearRect(0, 0, bc.width, bc.height); bx.drawImage(renderer.domElement, 0, 0, bc.width, bc.height);   // soft bloom
 }
 
 function draw() {   // pass 1: the scene mirrored in the floor plane (dim, seen through the floor); pass 2: the real scene with shadows
   { let d = 1e9; [CA, CB].forEach(C => { if (C.root.visible) d = Math.min(d, camera.position.distanceTo(C.root.position)); }); if (d > 1e8) d = 480; scene.fog.near = Math.max(20, d - 70); scene.fog.far = d + 470; }   /* the fall-off follows the camera distance, so far shots are not swallowed */
-  DOME.position.copy(camera.position); DOME.scale.setScalar(camera.far * 0.9 / 2400);
-  renderer.autoClear = false; renderer.clear();
-  FLOOR.visible = false; DOME.visible = false; SHAD.forEach(m => m.userData.v = m.visible); SHAD.forEach(m => m.visible = false); key.castShadow = false;
-  scene.scale.set(1, -1, 1); scene.position.y = 2 * FLOOR_Y; scene.updateMatrixWorld(true); renderer.render(scene, camera);
+  FLOOR.visible = false; SHAD.forEach(m => m.userData.v = m.visible); SHAD.forEach(m => m.visible = false); key.castShadow = false;
+  scene.scale.set(1, -1, 1); scene.position.y = 2 * FLOOR_Y; scene.updateMatrixWorld(true);
+  renderer.setRenderTarget(RT); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(scene, camera); renderer.setRenderTarget(null);   /* mirror image, small = naturally blurred */
   scene.scale.set(1, 1, 1); scene.position.y = 0; scene.updateMatrixWorld(true);
-  FLOOR.visible = true; DOME.visible = true; SHAD.forEach(m => m.visible = m.userData.v); key.castShadow = true; renderer.clearDepth(); renderer.render(scene, camera);
-  renderer.autoClear = true;
+  renderer.setClearColor(0x0b121b, 1); renderer.autoClear = false; renderer.clear(); renderer.render(QS, QC); renderer.clearDepth();
+  FLOOR.visible = true; SHAD.forEach(m => m.visible = m.userData.v); key.castShadow = true; renderer.render(scene, camera);
+  renderer.autoClear = true; renderer.setClearColor(0x000000, 0);
 }
 function endCard(a, k) {
   const ec = $('endcard'); ec.style.opacity = a; if (a < 0.01) return;
