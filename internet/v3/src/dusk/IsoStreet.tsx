@@ -178,7 +178,7 @@ const PAIRS: [number, number][] = []; for (let i = 0; i < 10; i++) for (let j = 
 export const IsoNet: React.FC = () => <IsoStreet net />;
 /* step 2 (local 0 - 10 s): she moves to a hostel down the street, the old wire is useless, a new wire per place cannot go on -> the router */
 const MOVE_KEYS: Key[] = [[0, 590, 900, 1.12], [0.5, 590, 900, 1.12], [2.0, 1000, 1040, 0.63], [16.8, 1000, 1040, 0.655]];
-const MVO: [number, React.ReactNode][] = [[0.2, <>Then she moves to a <em>hostel.</em> New wire.</>], [3.2, <>Then a friend's place. <em>Another wire.</em></>], [5.1, <>Then <em>another!</em></>], [6.7, <>So every house plugs into <em>one box:</em></>], [8.9, <>the <em>router.</em></>], [9.9, <>Every house gets a number, like a <em>door number.</em></>], [12.75, <>That's its <em>IP address.</em></>], [14.4, <>The router reads it and <em>delivers.</em></>]];
+const MVO: [number, React.ReactNode][] = [[0.2, <>Then she moves to a <em>hostel.</em> New wire.</>], [3.2, <>Then a friend's place. <em>Another wire.</em></>], [5.1, <>Then <em>another!</em></>], [6.0, <>Now the neighbours want in <em>too.</em></>], [7.4, <>So every house plugs into <em>one box:</em></>], [8.9, <>the <em>router.</em></>], [9.9, <>Every house gets a number, like a <em>door number.</em></>], [12.75, <>That's its <em>IP address.</em></>], [14.4, <>The router reads it and <em>delivers.</em></>]];
 const SHOTS = [2.2, 3.8, 5.3], AIMS: [number, number][] = [[90, 93], [60, 57], [103, 104]], ARR = [-9, 2.0, 3.5, 5.0], LEAVE = [0.6, 3.0, 4.6, 99];
 export const IsoMove: React.FC = () => <IsoStreet move />;
 /* concept stills for the "many houses" scene: 1a/1b follow her, 2a/2b neighbour chaos */
@@ -461,6 +461,8 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
                   {t > sh + 0.5 && t < sh + 0.85 && <circle cx={B[0]} cy={B[1] - 10} r={8 + (t - sh - 0.5) * 110} fill="none" stroke="#fff1d0" strokeWidth={4} opacity={1 - (t - sh - 0.5) / 0.35} />}</g>; })}
               <text x={bx + 40} y={by - 250} textAnchor="middle" style={{ font: `800 62px ${FONT.ui}` }} fill={wires > 2 ? '#ff9a7a' : '#ffd38a'} stroke="#0a0e24" strokeWidth={9} paintOrder="stroke" opacity={prog(f, 2.7, 2.9)}>{wires} wire{wires > 1 ? 's' : ''}{wires > 3 ? '?!' : ''}</text>
             </g>}
+            {/* the neighbours see it and want the same thing */}
+            {roofs.map((q, i) => { const a = prog(f, 6.0 + i * 0.18, 6.2 + i * 0.18, easeOut) * (1 - prog(f, 7.3, 7.6)); return a > 0 ? <g key={'mt' + i} opacity={a} transform={`translate(${q[0]} ${q[1] - 30 - a * 16}) scale(${2.6 * (0.7 + 0.3 * a)})`}><rect x={-62} y={-22} width={124} height={36} rx={12} fill="#fff6e0" /><path d="M -8 14 L 0 26 L 8 14 Z" fill="#fff6e0" /><text y={3} textAnchor="middle" style={{ font: `800 19px ${FONT.ui}` }} fill="#1b1520">{i % 2 ? 'Me too!' : 'I want one!'}</text></g> : null; })}
             {/* her hop from one place to the next */}
             {[2, 3].map((i) => { const u = clamp01((t - LEAVE[i - 1]) / (ARR[i] - LEAVE[i - 1])); if (u <= 0 || u >= 1) return null; const a = iso(PL[i - 1].x + 0.3, PL[i - 1].yc, BZ + 1), b = iso(PL[i].x + 0.3, PL[i].yc, BZ + 1), q = [lerp(a[0], b[0], u), lerp(a[1], b[1], u) - 130 * Math.sin(Math.PI * u)];
               return <g key={'hop' + i}><polyline points={curve(a, b, -130, u)} fill="none" stroke="#ff8672" strokeWidth={5} strokeDasharray="4 14" strokeLinecap="round" /><g transform={`translate(${q[0]} ${q[1]})`}><rect x={-20} y={-16} width={40} height={34} rx={7} fill="#e0b84a" /><rect x={-20} y={-4} width={40} height={6} fill="#b98a2a" /><rect x={-9} y={-28} width={18} height={14} rx={5} fill="none" stroke="#fff" strokeWidth={4} /></g></g>; })}
@@ -475,12 +477,12 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
                   {live > 0 && <circle cx={lerp(q[0], RT[0], kk)} cy={lerp(q[1], RT[1], kk) + 22 * Math.sin(Math.PI * kk)} r={7} fill="#fff" opacity={live} />}{i > 4 && <circle cx={q[0]} cy={q[1]} r={9} fill="#0e1430" stroke="#5fe3ff" strokeWidth={3} />}</g>; })}
               {/* web rings between neighbouring wires */}
               {[0.35, 0.68].map((k, r) => <polygon key={'web' + r} points={[...star].map(([q]) => q).sort((a, b) => Math.atan2(a[1] - RT[1], a[0] - RT[0]) - Math.atan2(b[1] - RT[1], b[0] - RT[0])).map((q) => `${lerp(RT[0], q[0], k)},${lerp(RT[1], q[1], k) + 22 * Math.sin(Math.PI * (1 - k))}`).join(' ')} fill="none" stroke="#9fe9ff" strokeWidth={2.5} opacity={0.45 * prog(f, 8.2 + r * 0.2, 8.6 + r * 0.2)} />)}
-              <g transform={`translate(${RT[0]} ${RT[1] + (1 - rise) * 120}) scale(2)`}>
+              <g transform={`translate(${RT[0]} ${RT[1] + (1 - rise) * 120}) scale(1.25)`}>
                 <circle r={80} fill="#5fe3ff" opacity={0.22} filter="url(#iB2)" />
                 <line x1={-34} y1={-20} x2={-46} y2={-70} stroke="#d9d6cf" strokeWidth={6} strokeLinecap="round" /><line x1={34} y1={-20} x2={46} y2={-70} stroke="#d9d6cf" strokeWidth={6} strokeLinecap="round" />
                 <rect x={-62} y={-26} width={124} height={52} rx={14} fill="#f3f0ea" /><rect x={-62} y={8} width={124} height={18} rx={9} fill="#cfd3de" />
                 {[0, 1, 2, 3].map((i) => <circle key={i} cx={-36 + i * 24} cy={-6} r={6} fill={Math.sin(t * 9 + i * 1.7) > 0 ? '#3ddc97' : '#1f6a4c'} />)}
-                <text y={-90} textAnchor="middle" style={{ font: `800 38px ${FONT.ui}` }} fill="#fff" stroke="#0a0e24" strokeWidth={8} paintOrder="stroke" opacity={prog(f, 8.9, 9.2)}>ROUTER</text>
+                <text y={-92} textAnchor="middle" style={{ font: `800 50px ${FONT.ui}` }} fill="#fff" stroke="#0a0e24" strokeWidth={9} paintOrder="stroke" opacity={prog(f, 8.9, 9.2)}>ROUTER</text>
               </g>
             </g>}
             {/* door numbers: every house gets its own address */}
