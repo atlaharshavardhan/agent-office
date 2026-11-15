@@ -19,7 +19,8 @@ noise = lambda n: rng.standard_normal(n)
 def sine(f, n, ph=0): return np.sin(2 * np.pi * np.cumsum(np.broadcast_to(f, (n,))) / SR + ph)
 midi = lambda m: 440 * 2 ** ((m - 69) / 12)
 # ---- sound effects ----
-def whoosh(d=0.45, lo=500, hi=3500): n = int(d * SR); t = tt(n) / d; return hp(lp(noise(n), lo + (hi - lo) * 0.6), lo) * np.sin(np.pi * t) ** 2
+WHOOSH = 0.0   # Harsh (V3): no whoosh sounds at all; set to 1.0 to bring them back
+def whoosh(d=0.45, lo=500, hi=3500): n = int(d * SR); t = tt(n) / d; return WHOOSH * hp(lp(noise(n), lo + (hi - lo) * 0.6), lo) * np.sin(np.pi * t) ** 2
 def click(f=2400): n = int(0.09 * SR); t = tt(n); return (np.sin(2 * np.pi * f * t) * np.exp(-t * 90) + 0.6 * hp(noise(n), 3000) * np.exp(-t * 220) + 0.9 * np.sin(2 * np.pi * 180 * t) * np.exp(-t * 60))
 def snap(): n = int(0.16 * SR); t = tt(n); return hp(noise(n), 1500) * np.exp(-t * 120) + 1.2 * np.sin(2 * np.pi * (140 + 200 * np.exp(-t * 60)) * t) * np.exp(-t * 35)
 def hit(): n = int(0.9 * SR); t = tt(n); return np.sin(2 * np.pi * (48 + 60 * np.exp(-t * 18)) * t) * np.exp(-t * 4.5) + 0.25 * lp(noise(n), 400) * np.exp(-t * 9)
