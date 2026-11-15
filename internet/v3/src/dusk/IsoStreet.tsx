@@ -475,8 +475,21 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
               {star.map(([q], i) => { const u = prog(f, 7.5 + i * 0.07, 8.0 + i * 0.07, easeOut); if (u <= 0) return null; const k0 = (t * 0.8 + i * 0.37) % 1, kk = i % 2 ? k0 : 1 - k0, live = prog(f, 8.3, 8.6) * (t > 14.4 && t < 15.15 ? 0.25 : 1);
                 return <g key={i}><polyline points={curve(q, RT, 22, u)} fill="none" stroke="#5fe3ff" strokeWidth={15} opacity={0.22} filter="url(#iB)" /><polyline points={curve(q, RT, 22, u)} fill="none" stroke="#9fe9ff" strokeWidth={5} strokeLinecap="round" />
                   {live > 0 && <circle cx={lerp(q[0], RT[0], kk)} cy={lerp(q[1], RT[1], kk) + 22 * Math.sin(Math.PI * kk)} r={7} fill="#fff" opacity={live} />}{i > 4 && <circle cx={q[0]} cy={q[1]} r={9} fill="#0e1430" stroke="#5fe3ff" strokeWidth={3} />}</g>; })}
-              {/* web rings between neighbouring wires */}
-              {[0.35, 0.68].map((k, r) => <polygon key={'web' + r} points={[...star].map(([q]) => q).sort((a, b) => Math.atan2(a[1] - RT[1], a[0] - RT[0]) - Math.atan2(b[1] - RT[1], b[0] - RT[0])).map((q) => `${lerp(RT[0], q[0], k)},${lerp(RT[1], q[1], k) + 22 * Math.sin(Math.PI * (1 - k))}`).join(' ')} fill="none" stroke="#9fe9ff" strokeWidth={2.5} opacity={0.45 * prog(f, 8.2 + r * 0.2, 8.6 + r * 0.2)} />)}
+              {/* the network mesh: glowing dots on every house, thin lines to their nearest neighbours, soft bokeh */}
+              {(() => { const mesh = prog(f, 8.1, 9.6);
+                if (mesh <= 0) return null;
+                const pts: number[][] = [RT as unknown as number[], ...star.map(([q]) => q as unknown as number[])];
+                [-19.5, -16, -12.5, -9.9, -6.5, -3.4, 0, 3.4, 6, 8.6, 11.5, 14.6, 17.5, 20.5].forEach((y, r) => { for (let x = -18; x <= 18; x += 2.2) { const xx = x + (r % 2) * 1.5 + (hash(r * 31 + x) - 0.5) * 0.8, q = iso(xx, y + (hash(r * 17 + x * 3) - 0.5) * 1.2, 2.6 + hash(r * 7 + x) * 2.2); if (pts.every((o) => Math.hypot(o[0] - q[0], o[1] - q[1]) > 105)) pts.push([q[0], q[1]]); } });
+                const dist = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1]); const edges: [number, number][] = [];
+                pts.forEach((a, ai) => { pts.map((b, bi) => [dist(a, b), bi]).sort((u, v) => u[0] - v[0]).slice(1, 5).forEach(([, bi]) => { if (!edges.some(([x, y]) => (x === ai && y === bi) || (x === bi && y === ai))) edges.push([ai, bi]); }); });
+                const R = mesh * 2600, vis = (q: number[]) => clamp01((R - dist(q, pts[0])) / 260);
+                return <g style={{ mixBlendMode: 'screen' }}>
+                  <rect x={-3000} y={-3000} width={8000} height={8000} fill="#03061c" opacity={0.55 * Math.min(1, mesh * 2)} style={{ mixBlendMode: 'normal' }} />
+                  {Array.from({ length: 130 }).map((_, i) => { const x = -700 + hash(i * 3 + 1) * 3000 + Math.sin(t * 0.5 + i) * 30, y = -500 + hash(i * 5 + 2) * 3200 + Math.cos(t * 0.4 + i * 2) * 30, q = [x, y]; return <circle key={'bk' + i} cx={x} cy={y} r={12 + hash(i * 7) * 34} fill={i % 3 ? '#6f9bff' : '#e8f0ff'} opacity={(0.25 + 0.4 * hash(i * 11)) * vis(q) * (0.7 + 0.3 * Math.sin(t * 2 + i))} filter="url(#iB2)" />; })}
+                  {edges.map(([a, b], i) => { const o = Math.min(vis(pts[a]), vis(pts[b])); return o > 0 ? <g key={'e' + i} opacity={o}><line x1={pts[a][0]} y1={pts[a][1]} x2={pts[b][0]} y2={pts[b][1]} stroke="#7fa6ff" strokeWidth={9} opacity={0.35} filter="url(#iB)" /><line x1={pts[a][0]} y1={pts[a][1]} x2={pts[b][0]} y2={pts[b][1]} stroke="#e4eeff" strokeWidth={2.6} opacity={0.9} /></g> : null; })}
+                  {edges.map(([a, b], i) => { if (i % 3) return null; const k = (t * 0.6 + hash(i) * 3) % 1, o = Math.min(vis(pts[a]), vis(pts[b])); return <circle key={'tr' + i} cx={lerp(pts[a][0], pts[b][0], k)} cy={lerp(pts[a][1], pts[b][1], k)} r={4} fill="#fff" opacity={o} />; })}
+                  {pts.map((q, i) => { const o = vis(q), tw = 0.75 + 0.25 * Math.sin(t * 3 + i * 1.3); return o > 0 ? <g key={'n' + i} opacity={o}><circle cx={q[0]} cy={q[1]} r={26} fill="#8fb4ff" opacity={0.6 * tw} filter="url(#iB)" /><circle cx={q[0]} cy={q[1]} r={i < 10 ? 9 : 6.5} fill="#fff" /></g> : null; })}
+                </g>; })()}
               <g transform={`translate(${RT[0]} ${RT[1] + (1 - rise) * 120}) scale(1.25)`}>
                 <circle r={80} fill="#5fe3ff" opacity={0.22} filter="url(#iB2)" />
                 <line x1={-34} y1={-20} x2={-46} y2={-70} stroke="#d9d6cf" strokeWidth={6} strokeLinecap="round" /><line x1={34} y1={-20} x2={46} y2={-70} stroke="#d9d6cf" strokeWidth={6} strokeLinecap="round" />
