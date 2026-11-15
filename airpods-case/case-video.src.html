@@ -12,8 +12,8 @@
   #back { position: fixed; z-index: 0; left: 0; right: 0; text-align: center; color: #f5f5f7; font: 800 23vw/0.98 Inter, Arial, sans-serif; letter-spacing: -0.05em; text-transform: uppercase; pointer-events: none; opacity: 0; }
   #back .ln { display: block; } #back small { display: block; font: 600 4.6vw Inter, Arial, sans-serif; letter-spacing: -0.01em; color: var(--acc); margin-bottom: 2.4vw; }
   .shade { position: fixed; left: 0; right: 0; pointer-events: none; z-index: 2; }
-  #shTop { top: 0; height: 27.5%; background: linear-gradient(#060a12 0%, #070b14 84%, transparent); }
-  #shBot { bottom: 0; height: 38%; background: linear-gradient(transparent, #060a12 9%, #04060b 100%); }
+  #shTop { top: 0; height: 31%; background: linear-gradient(rgba(6,10,18,.94) 0%, rgba(6,10,18,.86) 52%, rgba(6,10,18,.45) 80%, transparent 100%); }
+  #shBot { bottom: 0; height: 41%; background: linear-gradient(transparent 0%, rgba(5,8,14,.7) 12%, rgba(5,8,14,.94) 22%, rgba(5,8,14,.94) 46%, rgba(5,8,14,.3) 70%, rgba(5,8,14,.55) 100%); }
   .ov { position: fixed; z-index: 3; pointer-events: none; }
   /* safe zones (1080x1920): title 220-450 px, subject 450-1500, subtitles 1250-1450, nothing right of 940 below 1100 */
   #title { top: 12.2%; left: 4%; right: 4%; text-align: center; color: #fff; font: 600 4.1vw/1.2 Inter, Arial, sans-serif; letter-spacing: -0.01em; }
@@ -62,10 +62,13 @@
   #wm { position: fixed; z-index: 4; left: 5%; top: 76.1%; display: flex; flex-direction: row; align-items: center; gap: 1.2vw; opacity: .7; pointer-events: none; }
   #wm img { width: 4vw; height: 4vw; border-radius: 50%; } #wm span { font: 600 2.3vw Inter, Arial, sans-serif; color: #fff; letter-spacing: .02em; text-shadow: 0 1px 6px #000; }
   /* 2-second InvisiTech title at the end, on the clean studio background (nothing behind the text) */
-  #brand { position: fixed; z-index: 4; left: 0; right: 0; top: 30%; display: flex; flex-direction: column; align-items: center; color: #F5F5F7; opacity: 0; pointer-events: none; }
-  #brand img { width: 30vw; height: 30vw; border-radius: 50%; box-shadow: 0 0 0 1.6vw rgba(56,189,248,.10), 0 0 12vw rgba(56,189,248,.45); }
-  #brand .nm { margin-top: 4.6vw; font: 800 15vw/1 Inter, Arial, sans-serif; letter-spacing: -0.045em; } #brand .nm b { color: #38BDF8; font-weight: 800; }
-  #brand .hd { margin-top: 2.4vw; font: 600 5vw Inter, Arial, sans-serif; color: rgba(245,245,247,.85); }
+  #pulse { position: fixed; z-index: 4; width: 12vw; height: 12vw; border-radius: 50%; background: radial-gradient(circle, rgba(220,255,235,.95) 0%, rgba(34,197,94,.55) 30%, rgba(34,197,94,0) 70%); opacity: 0; pointer-events: none; }
+  #brandbg { position: fixed; inset: 0; z-index: 4; opacity: 0; pointer-events: none; background: radial-gradient(90% 55% at 50% 42%, #162457 0%, #0b1230 38%, #060914 72%, #03040a 100%); }
+  #brand { position: fixed; z-index: 5; left: 0; right: 0; top: 29%; display: flex; flex-direction: column; align-items: center; color: #F5F5F7; opacity: 0; pointer-events: none; }
+  #brand img { width: 34vw; height: 34vw; border-radius: 50%; box-shadow: 0 0 0 1.6vw rgba(79,195,247,.10), 0 0 13vw rgba(79,195,247,.5); }
+  #brand .nm { position: relative; overflow: hidden; margin-top: 5vw; padding: 0 2vw; font: 800 15.5vw/1.05 Inter, Arial, sans-serif; letter-spacing: -0.045em; } #brand .nm b { color: #4fc3f7; font-weight: 800; }
+  #brand .hd { margin-top: 2.2vw; font: 600 4.5vw Inter, Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: rgba(245,245,247,.82); }
+  #sweep { position: absolute; top: 0; bottom: 0; left: 30%; width: 34%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); opacity: 0; mix-blend-mode: overlay; }
   #fade { position: fixed; inset: 0; z-index: 5; background: #000; opacity: 0; pointer-events: none; }
   #zones { position: fixed; inset: 0; z-index: 9; pointer-events: none; display: none; }
 </style>
@@ -92,7 +95,7 @@
   <div class="it"><div class="ring" id="rR"><i>⚡</i></div><div class="lb"><small>Right</small><b id="pR">38%</b></div></div>
   <div class="it"><div class="ring" id="rC"><i style="color:#fff">▭</i></div><div class="lb"><small>Case</small><b id="pC">100%</b></div></div></div>
 <div id="wm"><img src="__LOGO__" alt=""><span>@TheInvisiTech</span></div>
-<div id="brand"><img src="__LOGO__" alt=""><div class="nm">Invisi<b>Tech</b></div><div class="hd">@TheInvisiTech</div></div>
+<div id="pulse"></div><div id="brandbg"></div><div id="brand"><img src="__LOGO__" alt=""><div class="nm">Invisi<b>Tech</b><span id="sweep"></span></div><div class="hd">Tech Behind Our Daily Life</div></div>
 <div id="fade"></div>
 <svg id="zones" viewBox="0 0 1080 1920" preserveAspectRatio="none">
   <rect x="0" y="0" width="1080" height="220" fill="rgba(255,0,0,.18)"/><rect x="0" y="1500" width="1080" height="420" fill="rgba(255,0,0,.18)"/>
@@ -141,10 +144,15 @@ scene.add(new THREE.HemisphereLight(0xffffff, 0x2a2a2a, 0.44));
 const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(0, 500, 120); scene.add(key);
 const rim = new THREE.DirectionalLight(0x7fd4ff, 1.5); rim.position.set(-420, 120, -320); scene.add(rim);
 const rim2 = new THREE.DirectionalLight(0x9adfff, 1.3); rim2.position.set(420, 120, -320); scene.add(rim2);
+const FLOOR = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), new THREE.MeshStandardMaterial({ color: 0x0c121d, roughness: 0.32, metalness: 0.55, envMapIntensity: 0.9 })); FLOOR.rotation.x = -Math.PI / 2; FLOOR.position.y = -66; scene.add(FLOOR);
+scene.fog = new THREE.Fog(0x0a0f19, 520, 1500);
+const BOKEH = new THREE.Group(); scene.add(BOKEH);
 const SHAD = [0, 1].map(() => { const m = new THREE.Mesh(new THREE.PlaneGeometry(120, 70), new THREE.MeshBasicMaterial({ map: null, transparent: true, depthWrite: false, color: 0x000000 })); m.rotation.x = -Math.PI / 2; scene.add(m); return m; });
 
 function radial(stops, size = 128) { /* textures */ const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'), g = x.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2); stops.forEach(([o, col]) => g.addColorStop(o, col)); x.fillStyle = g; x.fillRect(0, 0, size, size); return new THREE.CanvasTexture(c); }
 SHAD.forEach(m => { m.material.map = radial([[0, 'rgba(255,255,255,0.9)'], [0.45, 'rgba(255,255,255,0.4)'], [1, 'rgba(255,255,255,0)']]); m.material.alphaMap = m.material.map; });
+const HALO_B0 = 0; { let sd = 5; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647; const bt = radial([[0, 'rgba(160,200,255,0.9)'], [0.6, 'rgba(120,170,255,0.35)'], [1, 'rgba(120,170,255,0)']]);
+  for (let i = 0; i < 16; i++) { const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: bt, transparent: true, opacity: 0.05 + 0.09 * rnd(), blending: THREE.AdditiveBlending, depthWrite: false, fog: false })); const sc = 40 + 90 * rnd(); m.scale.set(sc, sc, 1); m.position.set(-420 + 840 * rnd(), -40 + 420 * rnd(), -380 - 420 * rnd()); m.userData = { x: m.position.x, ph: rnd() * 6 }; BOKEH.add(m); } }
 const HALO_B = radial([[0, 'rgba(235,248,255,1)'], [0.2, 'rgba(120,200,255,0.85)'], [0.55, 'rgba(80,170,255,0.2)'], [1, 'rgba(80,170,255,0)']]);
 const HALO_G = radial([[0, 'rgba(235,255,240,1)'], [0.2, 'rgba(90,240,140,0.85)'], [0.55, 'rgba(47,211,107,0.22)'], [1, 'rgba(47,211,107,0)']]);
 const HALO_A = radial([[0, 'rgba(255,248,230,1)'], [0.2, 'rgba(255,190,90,0.85)'], [0.55, 'rgba(255,170,60,0.22)'], [1, 'rgba(255,170,60,0)']]);
@@ -501,7 +509,7 @@ function glyph2(x, ic, cx, cy) {   // simple white symbols
 /* picture of our own 3D case for the pop-up sheet (rendered once on a white background) */
 const CASE_IMG = { cv: null, pts: [] };
 function makeCaseImg() {
-  const bg = scene.background; scene.background = new THREE.Color('#1c1c1e').convertSRGBToLinear();
+  const bg = scene.background; scene.background = new THREE.Color('#1c1c1e').convertSRGBToLinear(); FLOOR.visible = false; BOKEH.visible = false; const fg = scene.fog; scene.fog = null; SHAD.forEach(m => m.visible = false);
   CA.root.visible = false; PHONE.visible = false; LINK.visible = false; CB.root.visible = true;
   CB.root.position.set(0, 0, 0); CB.root.rotation.set(0.12, 0, 0); setLid(CB, 1); setXray(CB, 0); setLight(CB, 'amber', 0.0);
   CB.light.material.emissive.set(0xffa030); CB.light.material.emissiveIntensity = 2; if (CB.engrave) CB.engrave.visible = false;
@@ -516,7 +524,7 @@ function makeCaseImg() {
     for (let i = 0; i < p.length; i += 4) { const d = Math.hypot(p[i] - b0[0], p[i + 1] - b0[1], p[i + 2] - b0[2]), k = Math.min(1, Math.max(0, (d - 6) / 26));
       for (let j = 0; j < 3; j++) p[i + j] = C[j] + (p[i + j] - C[j]) * k; }
     g.putImageData(im, 0, 0); CASE_IMG.bg = '#262628'; }
-  CASE_IMG.cv = cv; scene.background = bg; if (CB.engrave) CB.engrave.visible = true; CA.root.visible = true;
+  CASE_IMG.cv = cv; scene.background = bg; FLOOR.visible = true; BOKEH.visible = true; scene.fog = fg; if (CB.engrave) CB.engrave.visible = true; CA.root.visible = true;
 }
 function screen(state, k = 1) {   // state: off | alert | fixed ; k = sheet slide-up progress
   const key = state + ':' + k.toFixed(2); if (key === lastScreen) return; lastScreen = key;
@@ -639,44 +647,47 @@ function seat(b, C) { if (b.g.parent !== C.body) C.body.add(b.g); resetBud(b); }
 
 /* ---------- timeline (V2: one continuous cinematic take; every shot starts where the last one ended) ---------- */
 let CA, CB, CAPS = window.__CAPS || [];
-const HOME_A = V(-33.5, 0, 0), HOME_B = V(33.5, 0, 0);
+const HOME_A = V(-20, -15, 30), HOME_B = V(20, 15, -30);
 const bez = (a, b, c, k) => a.clone().multiplyScalar((1 - k) * (1 - k)).add(b.clone().multiplyScalar(2 * (1 - k) * k)).add(c.clone().multiplyScalar(k * k));
 const FOV = { hero: 30, close: 24, macro: 19 };                     // ≈ 50 mm, 85 mm, 105 mm on a tall frame
-const CAM0 = { p: V(-112, 62, 430), t: V(0, -2, 0), f: FOV.hero };    // opening = closing frame (seamless loop)
+const CAM0 = { p: V(-84, 40, 400), t: V(0, -7, 0), f: FOV.hero };    // opening = closing frame (seamless loop)
 function head(txt, a, cls) { const el = $('title'); const key = 'H|' + txt + cls; if (key !== lastTitle) { lastTitle = key; el.innerHTML = `<span class="t-head ${cls || ''}" style="font-size:${txt.replace(/<[^>]+>/g, '').length > 20 ? 5.5 : 7.6}vw">${txt}</span>`; }
   const c = el.firstChild; if (c) { c.style.opacity = a; c.style.transform = `translateY(${(1 - a) * 1.4}vh)`; c.style.letterSpacing = (0.02 + 0.05 * (1 - a)) + 'em'; } }
 function wash(col, a) { const el = $('wash'); el.style.opacity = a; el.style.background = col === 'red' ? 'radial-gradient(90% 60% at 50% 46%, rgba(255,69,69,.34), rgba(255,69,69,.08) 55%, transparent 80%)' : 'radial-gradient(90% 60% at 50% 46%, rgba(34,197,94,.26), rgba(34,197,94,.06) 55%, transparent 80%)'; }
 function focus(px) { renderer.domElement.style.filter = px > 0.05 ? `blur(${px.toFixed(2)}px)` : ''; }
 function pins(side, lift) { const e = Math.min(1, Math.max(0, lift / 0.7)) * 0.7; P.pinParts[side].forEach(q => { q.plunger.position.y = -0.45 + e; q.tip.position.y = 0.04 + e; q.spring.scale.y = 1 - e * 0.28; q.spring.position.y = e * 0.75; }); }
 function home(u, t) {   // both cases float gently; soft contact shadows under them
-  CA.root.position.copy(HOME_A); CB.root.position.copy(HOME_B); CA.root.rotation.set(0.05, 0.3, 0); CB.root.rotation.set(0.05, -0.3, 0);
+  CA.root.position.copy(HOME_A); CB.root.position.copy(HOME_B); CA.root.rotation.set(0.06, 0.34, 0); CB.root.rotation.set(0.04, -0.3, 0);
   const bob = Math.sin(2 * Math.PI * t / TOTAL * 6); CA.root.position.y += 1.1 * bob; CB.root.position.y -= 1.1 * bob;
 }
-const WIDE = { p: V(0, 60, 425), t: V(0, -3, 0), f: FOV.hero };
+const WIDE = { p: V(26, 36, 410), t: V(0, -7, 0), f: FOV.hero };
 const camX = () => ({ p: W2(CA, P.light.clone().add(V(-20, 6, 205))), t: W2(CA, P.light.clone().add(V(0, -7, 0))), f: FOV.close });   // opening = closing frame
 const lift3 = k => k < 0.4 ? 16 * ease(ramp(k, 0.0, 0.16)) : 16 - 14.4 * ease(ramp(k, 0.42, 0.8));
 function pose3(k, lift) { const a = lerp(-0.3, 0.5, ease(k)), r = lerp(124, 100, ease(ramp(k, 0.2, 0.8))), cy = lerp(12, -6, ease(ramp(k, 0.3, 0.9)));
   return { p: W2(CB, STEM.R.clone().add(V(Math.sin(a) * r, cy + 0.5 * lift, Math.cos(a) * r))), t: W2(CB, STEM.R.clone().add(V(-2, 5.5 + 0.3 * lift, 0))) }; }
 function end4() { const f = Math.min(0.98, P.fPin + 0.3), hd = W2(CB, POWER.R.curve.getPoint(f)), a = 0.5 - 0.85 + 0.6, r = 36 + 26; return { p: hd.clone().add(V(Math.sin(a) * r, 5, Math.cos(a) * r)), t: hd }; }
-const fin6 = () => ({ p: V(72, 24, 470), t: HOME_B.clone().add(V(32, -24, 0)) });
+const phone6 = pin => HOME_B.clone().add(V(4, lerp(-140, 86, pin), -34));
+const mid6 = () => ({ p: HOME_B.clone().add(V(-36, 60, 690)), t: HOME_B.clone().add(V(2, 38, -16)) });
+const hero8 = () => ({ p: HOME_B.clone().add(V(-46, 22, 250)), t: HOME_B.clone().add(V(-4, -4, 0)), f: 27 });
+const fin6 = () => ({ p: HOME_B.clone().add(V(-26, 54, 620)), t: HOME_B.clone().add(V(2, 34, -16)) });
 function explode(e) { P.parts.forEach(q => q.o.position.copy(q.base).addScaledVector(q.off, e)); }
 const SHOTS = [
   (k, u, t, d) => { // 1. hook: macro on a case, fast pull-back to two cases, lids open, the buds jump across, snap, LED, push in
     home(u, t); const op = easeOut(ramp(u, 0.5, 0.92)); setLid(CA, op + 0.05 * dbnc(u - 0.92, 4, 8)); setLid(CB, op + 0.05 * dbnc(u - 0.96, 4, 8));
     swap(CA, CB, u, 1.05, 0.9, 52); for (const s of ['R', 'L']) CB.buds[s].g.visible = false;
     const g = ease(ramp(u, 2.12, 2.4)); setLight(CB, 'green', g * (0.85 + 0.15 * Math.sin(t * 7))); wash('green', 0.5 * g * (1 - 0.4 * ramp(k, 0.8, 1)));
-    const X = camX(), q = easeOut(ramp(u, 0.05, 0.85)), z = ease(ramp(k, 0.6, 1)), P2 = W2(CB, P.light.clone().add(V(-16, 10, 250))), T2 = W2(CB, P.light.clone().add(V(0, 1, 0)));
+    const X = camX(), q = easeOut(ramp(u, 0.05, 0.85)), z = ease(ramp(k, 0.6, 1)), P2 = W2(CB, P.light.clone().add(V(-16, 10, 245))), T2 = W2(CB, P.light.clone().add(V(0, 1, 0)));
     look(vlerp(vlerp(X.p, CAM0.p, q), P2, z).add(V(26 * Math.sin(Math.PI * z), 0, 0)), vlerp(vlerp(X.t, CAM0.t, q), T2, z), lerp(lerp(X.f, CAM0.f, q), FOV.close, z));
     head('Wrong case?', easeOut(ramp(u, 0.1, 0.4)) * (1 - ease(ramp(k, 0.9, 0.99))));
     tag('ok', 'Charging', W2(CB, P.light), -W * 0.2, H * 0.06, ease(ramp(u, 2.4, 2.7)) * (1 - ease(ramp(k, 0.84, 0.96))), 'green');
     note('3D illustration · not affiliated with Apple', ease(ramp(k, 0.3, 0.38)) * (1 - ramp(k, 0.86, 0.96)));
   },
   (k, u, t, d) => { // 2. the secret inside: glass shell, 120° orbit, a brief exploded view, then in towards the socket
-    home(u, t); CA.root.visible = false; setLid(CB, 1); for (const s of ['R', 'L']) seat(CA.buds[s], CB);
+    home(u, t); CA.root.visible = false; setLid(CB, 1 - ease(ramp(k, 0.02, 0.16)) + ease(ramp(k, 0.8, 0.96))); for (const s of ['R', 'L']) seat(CA.buds[s], CB);
     const xr = ease(ramp(k, 0.08, 0.34)); setXray(CB, xr); for (const s of ['R', 'L']) budXray(CA.buds[s], xr); setLight(CB, 'green', 0.9); wash('green', 0.3 * (1 - xr));
     const ex = ease(ramp(k, 0.4, 0.54)) * (1 - ease(ramp(k, 0.7, 0.84))); explode(ex);
-    const P2 = W2(CB, P.light.clone().add(V(-16, 10, 250))), T2 = W2(CB, P.light.clone().add(V(0, 1, 0)));
-    const a = lerp(-0.95, 1.15, ease(ramp(k, 0.04, 0.86))), r = lerp(325, 290, k), orb = W2(CB, V(Math.sin(a) * r, 36 - 16 * k, Math.cos(a) * r)), tO = W2(CB, V(0, -5, 0));
+    const P2 = W2(CB, P.light.clone().add(V(-16, 10, 245))), T2 = W2(CB, P.light.clone().add(V(0, 1, 0)));
+    const a = lerp(-0.95, 1.15, ease(ramp(k, 0.04, 0.86))), r = lerp(262, 236, k), orb = W2(CB, V(Math.sin(a) * r, 40 - 18 * k, Math.cos(a) * r)), tO = W2(CB, V(0, -10, 0));
     const S3 = pose3(0, 0), q = ease(ramp(k, 0.0, 0.28)), z = ease(ramp(k, 0.8, 1));
     look(vlerp(vlerp(P2, orb, q), S3.p, z), vlerp(vlerp(T2, tO, q), S3.t, z), lerp(lerp(FOV.close, 27, q), 24, z));
     head('Inside the case', easeOut(ramp(k, 0.1, 0.26)) * (1 - ease(ramp(k, 0.9, 1))));
@@ -702,7 +713,7 @@ const SHOTS = [
     const on = ramp(k, tc, tc + 0.05), pulse = 0.75 + 0.25 * Math.sin(t * 9); GLOW.pin.emissiveIntensity = 2.2 * on * pulse; P.gold.visible = on > 0.01; P.gold.material.opacity = on * 0.85 * pulse;
     const f = lerp(P.fPin, Math.min(0.98, P.fPin + 0.3), ease(ramp(k, 0.62, 0.98))), hd = W2(CB, POWER.R.curve.getPoint(f)); P.spark.visible = k > 0.6; P.spark.position.copy(POWER.R.curve.getPoint(f)); P.spark.material.opacity = bump(k, 0.6, 1.02);
     const S = pose3(1, 1.6), a = 0.5 - 0.85 * ease(ramp(k, 0.04, 0.46)) + 0.6 * ease(ramp(k, 0.46, 0.7)), r = lerp(60, 36, ease(ramp(k, 0, 0.3))) + 26 * ease(ramp(k, 0.64, 1)), up = ease(ramp(k, 0.62, 1));
-    const c = W2(CB, STEM.R.clone().add(V(0, -1.2, 0))), tg = vlerp(c, hd, up);
+    const c = W2(CB, STEM.R.clone().add(V(0, -3.2, 0))), tg = vlerp(c, hd, up);
     look(vlerp(S.p, tg.clone().add(V(Math.sin(a) * r, lerp(-4, 5, ease(ramp(k, 0, 0.3))), Math.cos(a) * r)), ease(ramp(k, 0, 0.12))), vlerp(S.t, tg, ease(ramp(k, 0, 0.12))), lerp(24, FOV.macro, ease(ramp(k, 0, 0.2))));
     head('Electrical contact', easeOut(ramp(k, 0.05, 0.18)) * (1 - ease(ramp(k, 0.9, 1))));
     tag('m2', 'Spring contacts', W2(CB, P.pins.R), -W * 0.26, -H * 0.02, ease(ramp(k, 0.34, 0.42)) * (1 - ease(ramp(k, 0.56, 0.64))), 'gold');
@@ -715,7 +726,7 @@ const SHOTS = [
     GLOW.pin.emissiveIntensity = 1.2 + 0.6 * Math.sin(t * 9); P.gold.visible = true; P.gold.material.opacity = 0.5;
     const fill = ease(ramp(k, 0.58, 1)); for (const s of ['R', 'L']) { const b2 = CA.buds[s]; b2.batGlow.visible = fill > 0.01; b2.batGlow.material.opacity = fill * (0.55 + 0.25 * Math.sin(t * 7)); b2.batGlow.scale.setScalar(8 + 5 * fill); b2.batCell.material.emissiveIntensity = fill; }
     const hd = W2(CB, POWER.R.curve.getPoint(Math.min(0.999, pe))), ride = hd.clone().add(V(-9, 9, 96)), E4 = end4();
-    const q = ease(ramp(k, 0, 0.14)), z = ease(ramp(k, 0.6, 0.92)), PW = W2(CB, V(-20, 26, 345)), TW = W2(CB, V(0, -5, 0));
+    const q = ease(ramp(k, 0, 0.14)), z = ease(ramp(k, 0.6, 0.92)), PW = W2(CB, V(-20, 26, 318)), TW = W2(CB, V(0, -3, 0));
     look(vlerp(vlerp(E4.p, ride, q), PW, z), vlerp(vlerp(E4.t, hd, q), TW, z), lerp(lerp(FOV.macro, 22, q), 27, z));
     wash('green', 0.4 * fill);
     head('Battery → circuit → earbuds', easeOut(ramp(k, 0.05, 0.18)) * (1 - ease(ramp(k, 0.92, 1))));
@@ -724,24 +735,23 @@ const SHOTS = [
     tag('e2', '⚡ ' + pc, CA.buds.L.g.localToWorld(P.budBatL.clone()), -W * 0.02, -H * 0.075, ease(ramp(k, 0.74, 0.82)) * (1 - ease(ramp(k, 0.94, 1))), 'green');
     note('Sped up · charging level is illustrative', fill);
   },
-  (k, u, t, d) => { // 6. the catch: green turns red, the iPhone swings in, the link to the phone breaks, push into the real warning
-    home(u, t); CA.root.visible = false; setLid(CB, 1); for (const s of ['R', 'L']) seat(CA.buds[s], CB);
+  (k, u, t, d) => { // 6. the catch: green turns red, a large iPhone rises behind the case, the link breaks, push into the real warning
+    home(u, t); CA.root.visible = false; setLid(CB, 1 - ease(ramp(k, 0.02, 0.14))); for (const s of ['R', 'L']) seat(CA.buds[s], CB);
     const xr = 1 - ease(ramp(k, 0.0, 0.16)); setXray(CB, xr); for (const s of ['R', 'L']) budXray(CA.buds[s], xr);
     const red = ease(ramp(k, 0.07, 0.3)); wash(red > 0.5 ? 'red' : 'green', red > 0.5 ? 0.9 * ease(ramp(red, 0.5, 1)) : 0.4 * (1 - red * 2)); setLight(CB, 'green', 0.9);
-    const pin = easeOut(ramp(k, 0.08, 0.3)); PHONE.visible = pin > 0.001; const ph = HOME_B.clone().add(V(lerp(190, 66, pin), 4, lerp(-60, 14, pin))), ry = lerp(-1.3, -0.34, pin);
-    PHONE.position.copy(ph); PHONE.rotation.set(0, ry, 0.02 * dsin(u - 0.3 * d, 2.5, 6)); PHONE.scale.setScalar(0.86); screen('alert', ramp(k, 0.36, 0.46));
-    const n = V(Math.sin(ry), 0, Math.cos(ry)), PW = W2(CB, V(-20, 26, 345)), TW = W2(CB, V(0, -5, 0));
-    const Pm = V(70, 34, 470), Tm = HOME_B.clone().add(V(30, 0, 0)), Pe = ph.clone().add(n.clone().multiplyScalar(360)).add(V(0, -36, 0)), Te = ph.clone().add(V(0, -41, 0)), F = fin6();
-    const q = easeOut(ramp(k, 0, 0.26)), z = ease(ramp(k, 0.44, 0.7)), w = ease(ramp(k, 0.84, 1));
-    look(vlerp(vlerp(vlerp(PW, Pm, q), Pe, z), F.p, w), vlerp(vlerp(vlerp(TW, Tm, q), Te, z), F.t, w), lerp(lerp(27, 30, q), FOV.close, z));
-    const la = ease(ramp(k, 0.2, 0.27)) * (1 - ease(ramp(k, 0.44, 0.5))); link(W2(CB, V(10, 16, 0)), ph.clone().add(V(-20, 30, 6)), la, ease(ramp(k, 0.34, 0.42)), t);
+    const pin = easeOut(ramp(k, 0.08, 0.3)); PHONE.visible = pin > 0.001; const ph = phone6(pin);
+    PHONE.position.copy(ph); PHONE.rotation.set(-0.04, -0.1 + 0.5 * (1 - pin), 0.015 * dsin(u - 0.3 * d, 2.5, 6)); PHONE.scale.setScalar(1.0); screen('alert', ramp(k, 0.34, 0.44));
+    const PW = W2(CB, V(-20, 26, 318)), TW = W2(CB, V(0, -3, 0)), M = mid6(), Te = ph.clone().add(V(0, -42, 0)), Pe = Te.clone().add(V(-10, 6, 410)), F = fin6();
+    const q = easeOut(ramp(k, 0, 0.28)), z = ease(ramp(k, 0.44, 0.7)), w = ease(ramp(k, 0.86, 1));
+    look(vlerp(vlerp(vlerp(PW, M.p, q), Pe, z), F.p, w), vlerp(vlerp(vlerp(TW, M.t, q), Te, z), F.t, w), lerp(lerp(27, 30, q), FOV.close, z));
+    const la = ease(ramp(k, 0.2, 0.27)) * (1 - ease(ramp(k, 0.44, 0.5))); link(W2(CB, V(-8, 22, 4)), ph.clone().add(V(-26, -50, 8)), la, ease(ramp(k, 0.34, 0.42)), t);
     head('But there’s a catch', easeOut(ramp(k, 0.1, 0.22)), 'red');
-    tag('c1', 'Charging ✓', W2(CB, V(0, 30, 0)), 0, -H * 0.02, la, 'green', true);
-    tag('c2', 'Set recognised ✕', W2(CB, V(0, 30, 0)), 0, -H * 0.062, ease(ramp(k, 0.36, 0.42)) * (1 - ease(ramp(k, 0.44, 0.5))), 'red', true);
+    tag('c1', 'Charging ✓', W2(CB, V(-34, 4, 0)), -W * 0.1, 0, la, 'green');
+    tag('c2', 'Same set? ✕', W2(CB, V(34, 30, 0)), W * 0.1, 0, ease(ramp(k, 0.36, 0.42)) * (1 - ease(ramp(k, 0.44, 0.5))), 'red');
   },
   (k, u, t, d) => { // 7. compatibility: left = same model, charges; right = different generation; finish on a wide comparison
-    home(u, t); setLid(CA, 1); setLid(CB, 1);
-    const out = ease(ramp(k, 0, 0.16)); PHONE.visible = out < 0.99; PHONE.position.copy(HOME_B.clone().add(V(66 + 240 * out, 4, 14))); PHONE.rotation.set(0, -0.34 - 0.5 * out, 0); PHONE.scale.setScalar(0.86); screen('alert', 1);
+    home(u, t); setLid(CA, 1); setLid(CB, ease(ramp(k, 0.04, 0.2)));
+    const out = ease(ramp(k, 0, 0.16)); PHONE.visible = out < 0.99; PHONE.position.copy(phone6(1).add(V(0, 260 * out, -40 * out))); PHONE.rotation.set(-0.04, -0.1, 0); PHONE.scale.setScalar(1.0); screen('alert', 1);
     wash('red', 0.9 * (1 - out));
     const dA = 0.24 * d, dB = 0.58 * d;
     for (const s of ['R', 'L']) { const b = CA.buds[s], st = dA + (s === 'L' ? 0.09 : 0), kk = ramp(u, st - 0.5, st); seat(b, CA); b.g.visible = k > 0.08;
@@ -756,23 +766,28 @@ const SHOTS = [
     const sA = ease(ramp(u, dA + 0.3, dA + 0.55)) * Math.max(1 - b2, c), sB = ease(ramp(u, dB + 0.3, dB + 0.55));
     tag('k1', 'Same model ✓', W2(CA, V(0, 30, 0)), 0, -H * 0.03, sA * (1 - ease(ramp(k, 0.94, 1))), 'green', true); tag('k2', 'Different generation ✕', W2(CB, V(0, 30, 0)), 0, -H * 0.03, sB * (1 - ease(ramp(k, 0.94, 1))), 'red', true);
   },
-  (k, u, t, d) => { // 8. the answer: the buds go into the compatible case, a last look at the power path, lids snap shut, back to the opening frame
-    home(u, t); const cl = ease(ramp(k, 0.72, 0.82)), sn = u - 0.82 * d; setLid(CA, 1 - cl + 0.06 * dbnc(sn, 5, 9)); setLid(CB, 1 - cl + 0.06 * dbnc(sn - 0.05, 5, 9));
+  (k, u, t, d) => { // 8. the answer: the buds go into the compatible case, a last look at the power path, lids snap shut, hero shot
+    home(u, t); const cl = ease(ramp(k, 0.7, 0.8)), sn = u - 0.8 * d; setLid(CA, 1 - cl + 0.06 * dbnc(sn, 5, 9)); setLid(CB, 1 - cl + 0.06 * dbnc(sn - 0.05, 5, 9));
     CA.root.position.y -= 1.2 * dsin(sn, 4, 9); CB.root.position.y -= 1.2 * dsin(sn - 0.05, 4, 9);
     for (const s of ['R', 'L']) { const o = CB.buds[s]; resetBud(o); o.g.visible = k < 0.1; o.g.position.y += 70 * ease(ramp(k, 0, 0.1)); }
     const t0 = 0.12 * d; swap(CA, CB, u, t0, 0.9, 50);
-    const g = ease(ramp(u, t0 + 1.05, t0 + 1.35)) * (1 - ease(ramp(k, 0.88, 0.98))); setLight(CB, 'green', g * (0.85 + 0.15 * Math.sin(t * 7))); setLight(CA, 'green', 0);
-    const xr = ease(ramp(k, 0.36, 0.46)) * (1 - ease(ramp(k, 0.6, 0.7))); setXray(CB, xr); for (const s of ['R', 'L']) budXray(CA.buds[s], xr);
+    const g = ease(ramp(u, t0 + 1.05, t0 + 1.35)); setLight(CB, 'green', g * (0.85 + 0.15 * Math.sin(t * 7))); setLight(CA, 'green', 0);
+    const xr = ease(ramp(k, 0.36, 0.46)) * (1 - ease(ramp(k, 0.58, 0.68))); setXray(CB, xr); for (const s of ['R', 'L']) budXray(CA.buds[s], xr);
     if (xr > 0.02) { power(ease(ramp(k, 0.38, 0.52)), xr, t); P.battGlow.visible = true; P.battGlow.material.opacity = 0.6 * xr; for (const s of ['R', 'L']) { const b2 = CA.buds[s]; b2.batGlow.visible = true; b2.batGlow.material.opacity = 0.6 * xr; } }
     wash('green', 0.45 * g);
-    const X = camX(), MID = { p: HOME_B.clone().add(V(-30, 46, 300)), t: HOME_B.clone().add(V(0, -6, 0)) }, a = ease(ramp(k, 0.1, 0.42)), z = ease(ramp(k, 0.7, 1));
-    look(vlerp(vlerp(WIDE.p, MID.p, a), X.p, z), vlerp(vlerp(WIDE.t, MID.t, a), X.t, z), lerp(lerp(WIDE.f, 27, a), X.f, z));
-    head('Yes. <i>If compatible.</i>', easeOut(ramp(k, 0.04, 0.16)) * (1 - ease(ramp(k, 0.86, 0.96))), 'green');
+    const MID = { p: HOME_B.clone().add(V(-30, 46, 300)), t: HOME_B.clone().add(V(0, -6, 0)) }, HR = hero8(), a = ease(ramp(k, 0.1, 0.42)), z = ease(ramp(k, 0.66, 1));
+    look(vlerp(vlerp(WIDE.p, MID.p, a), HR.p, z), vlerp(vlerp(WIDE.t, MID.t, a), HR.t, z), lerp(lerp(WIDE.f, 27, a), HR.f, z));
+    head('Yes. <i>If compatible.</i>', easeOut(ramp(k, 0.04, 0.16)) * (1 - ease(ramp(k, 0.95, 1))), 'green');
   },
-  (k, u, t, d) => { // 9. title (2 s): tile grid, fact tiles blur back, the InvisiTech tile glows in front, Like / Comment / Follow / Subscribe
-    CB.root.visible = false; CA.root.position.set(0, 0, 0); CA.root.rotation.set(0.12, -0.2, 0); setLid(CA, 1); for (const s of ['R', 'L']) seat(CA.buds[s], CA); setLight(CA, 'green', 1);
-    look(V(0, 50, 600), V(0, -4, 0), 30);
-    endCard(easeOut(ramp(k, 0.0, 0.12)), k);
+  (k, u, t, d) => { // 9. InvisiTech signature (exactly 2 s): light pulse from the charging LED → logo → name + tagline → light sweep
+    home(u, t); setLid(CA, 0); setLid(CB, 0); setLight(CB, 'green', 1); const HR = hero8(); look(HR.p, HR.t, HR.f);
+    const [lx, ly] = proj(W2(CB, P.light)), pu = $('pulse'), pk = ramp(u, 0.0, 0.42), dark = ease(ramp(u, 0.12, 0.42));
+    pu.style.left = lx + 'px'; pu.style.top = ly + 'px'; pu.style.opacity = Math.sin(Math.PI * Math.min(1, pk * 1.05)) * 0.9; pu.style.transform = `translate(-50%,-50%) scale(${0.2 + 26 * easeOut(pk)})`;
+    $('brandbg').style.opacity = dark;
+    const pop = (el, a) => { const v = easeOut(a); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 1.4}vh) scale(${0.9 + 0.1 * v})`; };
+    const br = $('brand'); br.style.opacity = 1; pop(br.children[0], ramp(u, 0.4, 0.82)); pop(br.children[1], ramp(u, 0.78, 1.12)); pop(br.children[2], ramp(u, 1.0, 1.32));
+    br.children[0].style.filter = `brightness(${1 + 0.5 * bump(u, 0.5, 1.0)})`;
+    $('sweep').style.transform = `translateX(${lerp(-130, 130, ramp(u, 1.2, 1.85))}%) skewX(-18deg)`; $('sweep').style.opacity = bump(u, 1.2, 1.85);
   },
 ];
 const KEYS = ['someone else’s case', "someone else's case", 'may notice', 'not every case', 'a catch', 'secret', 'Magnets', 'charging contacts', 'metal contacts', 'deliver power', 'battery', 'charging circuit', 'each AirPod', 'part of the story', 'iPhone', 'belong together', 'compatible case', 'interchangeable', 'So yes', 'every AirPods case', 'AirPods'];
@@ -780,18 +795,19 @@ const hi = txt => { for (const k of KEYS) { const i = txt.indexOf(k); if (i >= 0
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   let i = 0; while (i < B.length - 2 && t >= B[i + 1]) i++;
-  hideTags(); $('endcard').style.opacity = 0; $('back').style.opacity = 0; $('chg').style.opacity = 0; for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('wash').style.opacity = 0; focus(0);
+  hideTags(); $('endcard').style.opacity = 0; $('brand').style.opacity = 0; $('brandbg').style.opacity = 0; $('pulse').style.opacity = 0; $('back').style.opacity = 0; $('chg').style.opacity = 0; for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('wash').style.opacity = 0; focus(0);
   if (!lastTitle.startsWith('H|')) $('title').innerHTML = ''; if ($('title').firstChild) $('title').firstChild.style.opacity = 0;
   CA.root.visible = true; CB.root.visible = true; PHONE.visible = false; LINK.visible = false; P.battGlow.visible = false; P.gold.visible = false; P.magGlow.visible = false; P.field.visible = false; P.spark.visible = false; explode(0);
   for (const C of [CA, CB]) { setXray(C, 0); setLight(C, 'green', 0); C.buds.R.g.visible = false; C.buds.L.g.visible = false; C.root.rotation.z = 0; }
   for (const s of ['R', 'L']) { CA.buds[s].g.visible = true; budXray(CA.buds[s], 0); CA.buds[s].batGlow.visible = false; CA.buds[s].batCell.material.emissiveIntensity = 0; pins(s, 0); }
   power(0, 0, t); GLOW.pin.emissiveIntensity = 0;
   const d = B[i + 1] - B[i], u = t - B[i]; SHOTS[i](u / d, u, t, d);
-  for (const [C, sh] of [[CA, SHAD[0]], [CB, SHAD[1]]]) { sh.visible = C.root.visible; sh.position.set(C.root.position.x, -47, C.root.position.z); sh.material.opacity = 0.5 - 0.02 * (C.root.position.y); }
+  for (const [C, sh] of [[CA, SHAD[0]], [CB, SHAD[1]]]) { sh.visible = C.root.visible; sh.position.set(C.root.position.x, -65.6, C.root.position.z); sh.material.opacity = Math.max(0.12, 0.55 - 0.006 * (C.root.position.y + 40)); const ss = 1 + 0.008 * (C.root.position.y + 40); sh.scale.set(ss, ss, 1); }
+  BOKEH.children.forEach(m => { m.position.x = m.userData.x + 14 * Math.sin(t * 0.25 + m.userData.ph); });
   const cp = CAPS.find(c => t >= c[0] - 0.03 && t < c[1] + 0.08); $('sub').innerHTML = cp && !Q.get('nosub') ? '<span>' + hi(cp[2]) + '</span>' : '';
   $('wm').style.opacity = 0;   // V2: no watermark (brand line appears in the last scene)
   renderer.render(scene, camera);
-  $('bloom').style.opacity = $('endcard').style.opacity > 0.5 ? 0 : 0.2;
+  $('bloom').style.opacity = 0.2 * (1 - ($('brandbg').style.opacity || 0));
   const bc = $('bloom'), bx = bc.getContext('2d'); bx.clearRect(0, 0, bc.width, bc.height); bx.drawImage(renderer.domElement, 0, 0, bc.width, bc.height);   // soft bloom
 }
 

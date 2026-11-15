@@ -157,3 +157,11 @@ One continuous take: every shot starts on the camera pose the last one ended on,
 Accuracy notes: warning card wording is Apple's real "Mismatched AirPods Pro" alert (Harsh's screenshots); 1.334 Wh = AirPods Pro 3 case (iFixit);
 spring contacts + magnets per the Pro 3 teardown; "may not fit or charge correctly" is kept hedged, the on-screen label says "Different generation".
 V1 scene file, voice and sound script are kept in `versions/v1/`.
+
+## V3 (Harsh's "Final Cinematic V3" brief, 2026-11-15) — 45.0 s = 43.0 s film + 2.0 s InvisiTech signature
+Narration unchanged from the 45 s V2 (`voice/lines.txt`). What changed:
+- Native vertical look: the 3D picture fills the whole frame (floor, soft background lights, fog); the hard text bands are gone, replaced by soft scrims behind the headline and the subtitles.
+- Cases staged diagonally at different heights and depths (yours lower-front, friend's upper-back).
+- Scene 2: lid closes so the glass case is larger; scene 6: large upright iPhone above/behind the case; scene 8 ends on a hero shot.
+- Scene 9: light pulse from the charging LED → logo → "InvisiTech" → "Tech Behind Our Daily Life" → light sweep. No buttons.
+- V2 source kept in `versions/v2/source/`.
