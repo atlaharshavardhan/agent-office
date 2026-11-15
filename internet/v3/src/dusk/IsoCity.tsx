@@ -76,7 +76,7 @@ export const IsoCity: React.FC = () => {
   let line: React.ReactNode = null; for (const [a, txt] of VO) if (t >= a) line = txt;
   const router = (i: number, a: number, name: string) => a > 0 ? <g key={'r' + i} opacity={a}>
     <line x1={RB[i][0]} y1={RB[i][1]} x2={RT[i][0]} y2={RT[i][1] + (1 - a) * 60} stroke="#2b2e3a" strokeWidth={7} strokeLinecap="round" />
-    <g transform={`translate(${RT[i][0]} ${RT[i][1] + (1 - a) * 60})`}><circle r={60} fill="#5fe3ff" opacity={0.25} filter="url(#cB2)" /><line x1={-20} y1={-10} x2={-27} y2={-42} stroke="#d9d6cf" strokeWidth={4} strokeLinecap="round" /><line x1={20} y1={-10} x2={27} y2={-42} stroke="#d9d6cf" strokeWidth={4} strokeLinecap="round" /><rect x={-36} y={-15} width={72} height={30} rx={8} fill="#f3f0ea" />{[0, 1, 2, 3].map((k) => <circle key={k} cx={-21 + k * 14} cy={0} r={3.6} fill={Math.sin(t * 9 + k * 1.7 + i) > 0 ? '#3ddc97' : '#1f6a4c'} />)}
+    <g transform={`translate(${RT[i][0]} ${RT[i][1] + (1 - a) * 60})`}><circle r={60} fill="url(#cDot)" /><line x1={-20} y1={-10} x2={-27} y2={-42} stroke="#d9d6cf" strokeWidth={4} strokeLinecap="round" /><line x1={20} y1={-10} x2={27} y2={-42} stroke="#d9d6cf" strokeWidth={4} strokeLinecap="round" /><rect x={-36} y={-15} width={72} height={30} rx={8} fill="#f3f0ea" />{[0, 1, 2, 3].map((k) => <circle key={k} cx={-21 + k * 14} cy={0} r={3.6} fill={Math.sin(t * 9 + k * 1.7 + i) > 0 ? '#3ddc97' : '#1f6a4c'} />)}
       {name && <text y={44} textAnchor="middle" style={{ font: `800 22px ${FONT.ui}` }} fill="#dffbff" stroke="#0a0e24" strokeWidth={6} paintOrder="stroke">{name}</text>}</g></g> : null;
   const FC = ['#16303f', '#1a3644', '#14293a', '#1d3a3f', '#182f48'];
   return (
@@ -84,7 +84,7 @@ export const IsoCity: React.FC = () => {
       <Audio src={staticFile('city-mix.wav')} />
       <svg width={1080} height={1920}>
         <defs><filter id="cB"><feGaussianBlur stdDeviation="5" /></filter><filter id="cB2"><feGaussianBlur stdDeviation="12" /></filter>
-          <radialGradient id="cG"><stop offset="0" stopColor="#2a4266" /><stop offset="1" stopColor="#1a2d4a" stopOpacity="0" /></radialGradient></defs>
+          <radialGradient id="cDot"><stop offset="0" stopColor="#bcd4ff" stopOpacity=".85" /><stop offset=".35" stopColor="#7fa6ff" stopOpacity=".4" /><stop offset="1" stopColor="#7fa6ff" stopOpacity="0" /></radialGradient><radialGradient id="cBok"><stop offset="0" stopColor="#8fb0ff" stopOpacity=".5" /><stop offset=".7" stopColor="#6f9bff" stopOpacity=".22" /><stop offset="1" stopColor="#6f9bff" stopOpacity="0" /></radialGradient><radialGradient id="cG"><stop offset="0" stopColor="#2a4266" /><stop offset="1" stopColor="#1a2d4a" stopOpacity="0" /></radialGradient></defs>
         <g transform={`translate(540 960) scale(${cam.z}) translate(${-cam.x} ${-cam.y})`}>
           <polygon points={P([iso(-60, -60), iso(60, -60), iso(60, 60), iso(-60, 60)])} fill="#122238" />
           {/* countryside: a patchwork of fields with crop rows, lakes, a river, hills, forests, farm roads */}
@@ -113,14 +113,27 @@ export const IsoCity: React.FC = () => {
           {/* one long wire from the home router: it cannot reach */}
           {reach > 0 && t < 5.4 && <g opacity={1 - prog(f, 5.1, 5.4)}><polyline points={curve(RT[0], RT[3], 60 + 80 * fail, reach * 0.55)} fill="none" stroke={fail > 0.5 ? '#ff6a5a' : '#9fe9ff'} strokeWidth={6} strokeLinecap="round" strokeDasharray={fail > 0.5 ? '10 12' : undefined} />
             {fail > 0 && (() => { const q = [lerp(RT[0][0], RT[3][0], 0.55), lerp(RT[0][1], RT[3][1], 0.55) + (60 + 80 * fail) * Math.sin(Math.PI * 0.55)]; return <g opacity={fail} transform={`translate(${q[0]} ${q[1]}) scale(1.3)`}><circle r={34} fill="#ff5a4a" /><path d="M -14 -14 L 14 14 M 14 -14 L -14 14" stroke="#fff" strokeWidth={8} strokeLinecap="round" /><text y={-52} textAnchor="middle" style={{ font: `800 44px ${FONT.ui}` }} fill="#ffb3a8" stroke="#0a0e24" strokeWidth={8} paintOrder="stroke">too far!</text></g>; })()}</g>}
-          {/* router to router links: the main chain bright, the rest of the region joining in */}
-          {LINKS.map(([a, b], i) => { const main = i < 3, u = prog(f, (main ? 5.9 + i * 0.4 : 6.6 + (i - 3) * 0.07), (main ? 6.4 + i * 0.4 : 7.2 + (i - 3) * 0.07), easeOut); if (u <= 0) return null; const k = (t * 0.6 + i * 0.3) % 1;
-            return <g key={'l' + i} opacity={main ? 1 : 0.75}><polyline points={curve(RT[a], RT[b], 26, u)} fill="none" stroke="#5fe3ff" strokeWidth={main ? 20 : 12} opacity={0.25} filter="url(#cB)" /><polyline points={curve(RT[a], RT[b], 26, u)} fill="none" stroke={main ? '#bff3ff' : '#7fd0f0'} strokeWidth={main ? 6 : 3} strokeLinecap="round" />
-              {u >= 1 && <circle cx={lerp(RT[a][0], RT[b][0], k)} cy={lerp(RT[a][1], RT[b][1], k) + 26 * Math.sin(Math.PI * k)} r={main ? 6 : 4.5} fill="#fff" opacity={main && t > H0 && t < H0 + 2.5 ? 0 : 1} />}</g>; })}
+          {/* the web: glowing dots on every city, village and farmhouse, thin lines between neighbours, soft light spots.
+              No blur filters on the lines (they caused the flashing shards). */}
+          {(() => { const web = prog(f, 5.6, 7.6); if (web <= 0) return null;
+            const pts: number[][] = RT.map((q) => [q[0], q[1]]);
+            for (let i = 0; i < 150; i++) { const x = -19 + hash(i * 9 + 3) * 38, y = -21 + hash(i * 13 + 5) * 42, q = iso(x, y, 1.2 + hash(i * 5) * 2.4); if (pts.every((o) => Math.hypot(o[0] - q[0], o[1] - q[1]) > 95)) pts.push([q[0], q[1]]); }
+            const dist = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1]); const edges: [number, number][] = [];
+            pts.forEach((a, ai) => { pts.map((b, bi) => [dist(a, b), bi]).sort((u, v) => u[0] - v[0]).slice(1, 5).forEach(([, bi]) => { if (!edges.some(([x, y]) => (x === ai && y === bi) || (x === bi && y === ai))) edges.push([ai, bi]); }); });
+            const R = web * 2400, vis = (q: number[]) => clamp01((R - dist(q, pts[0])) / 240);
+            return <g>
+              <rect x={-4000} y={-4000} width={9000} height={9000} fill="#040820" opacity={0.5 * Math.min(1, web * 2)} />
+              {Array.from({ length: 90 }).map((_, i) => { const x = -900 + hash(i * 3 + 1) * 2900 + Math.sin(t * 0.5 + i) * 24, y = -700 + hash(i * 5 + 2) * 3300 + Math.cos(t * 0.4 + i * 2) * 24; return <circle key={'bo' + i} cx={x} cy={y} r={26 + hash(i * 7) * 50} fill="url(#cBok)" opacity={(0.3 + 0.5 * hash(i * 11)) * vis([x, y])} />; })}
+              {edges.map(([a, b], i) => { const o = Math.min(vis(pts[a]), vis(pts[b])); return o > 0 ? <line key={'e' + i} x1={pts[a][0]} y1={pts[a][1]} x2={pts[b][0]} y2={pts[b][1]} stroke="#dfeaff" strokeWidth={2.4} opacity={0.75 * o} /> : null; })}
+              {edges.map(([a, b], i) => { const far = dist(pts[a], pts[3]) > dist(pts[b], pts[3]) ? a : b, near = far === a ? b : a, k = (t * 0.6 + hash(i) * 3) % 1, o = Math.min(vis(pts[a]), vis(pts[b])) * Math.sin(Math.PI * k), x = lerp(pts[far][0], pts[near][0], k), y = lerp(pts[far][1], pts[near][1], k); return o > 0 ? <g key={'d' + i} opacity={o}><circle cx={x} cy={y} r={12} fill="url(#cDot)" /><circle cx={x} cy={y} r={3.6} fill="#fff" /></g> : null; })}
+              {pts.map((q, i) => { const o = vis(q), tw = 0.75 + 0.25 * Math.sin(t * 3 + i * 1.3); return o > 0 ? <g key={'n' + i} opacity={o}><circle cx={q[0]} cy={q[1]} r={i < 12 ? 34 : 22} fill="url(#cDot)" opacity={tw} /><circle cx={q[0]} cy={q[1]} r={i < 12 ? 8 : 5.5} fill="#fff" /></g> : null; })}
+              {/* the route her message takes stays bright cyan */}
+              {[0, 1, 2].map((i) => { const u = prog(f, 5.9 + i * 0.4, 6.4 + i * 0.4, easeOut); return u > 0 ? <g key={'m' + i}><polyline points={curve(RT[i], RT[i + 1], 26, u)} fill="none" stroke="#5fe3ff" strokeWidth={13} opacity={0.3} strokeLinecap="round" /><polyline points={curve(RT[i], RT[i + 1], 26, u)} fill="none" stroke="#d6f8ff" strokeWidth={5} strokeLinecap="round" /></g> : null; })}
+            </g>; })()}
           {CT.map((_, i) => router(i, i === 0 ? 1 : prog(f, 5.3 + (i % 6) * 0.1, 5.7 + (i % 6) * 0.1, easeOut), i === 0 ? 'HOME ROUTER' : i === 3 ? 'CITY ROUTER' : ''))}
           {/* hop counters and the travelling HELLO */}
           {[0, 1, 2].map((i) => { const a = prog(f, H0 + i * 0.8 + 0.6, H0 + i * 0.8 + 0.8, easeOut); return a > 0 ? <g key={'h' + i} opacity={a} transform={`translate(${(RT[i][0] + RT[i + 1][0]) / 2 - 80} ${(RT[i][1] + RT[i + 1][1]) / 2 - 24}) scale(${0.8 + 0.2 * a})`}><rect x={-58} y={-24} width={116} height={46} rx={14} fill="#ffe08a" /><text y={9} textAnchor="middle" style={{ font: `800 28px ${FONT.ui}` }} fill="#3a2a05">hop {i + 1}</text></g> : null; })}
-          {t > H0 && t < H0 + 2.5 && <g transform={`translate(${hp[0]} ${hp[1]})`}><circle r={38} fill="#ffe08a" opacity={0.55} filter="url(#cB)" /><rect x={-26} y={-17} width={52} height={34} rx={7} fill="#ffe08a" /><path d="M -22 -13 L 0 5 L 22 -13" stroke="#8a5a10" strokeWidth={4} fill="none" /></g>}
+          {t > H0 && t < H0 + 2.5 && <g transform={`translate(${hp[0]} ${hp[1]})`}><circle r={40} fill="#ffe08a" opacity={0.3} /><rect x={-26} y={-17} width={52} height={34} rx={7} fill="#ffe08a" /><path d="M -22 -13 L 0 5 L 22 -13" stroke="#8a5a10" strokeWidth={4} fill="none" /></g>}
           {/* the two of them, as portrait pins */}
           <Face kind="man" x={himXY[0]} y={himXY[1] - 60} ring="#3fb8a8" id="m" />
           <Face kind="woman" x={herXY[0]} y={herXY[1] - 60} ring="#ff8672" id="w" smile={bus < 1 ? 0.6 : 1} />
