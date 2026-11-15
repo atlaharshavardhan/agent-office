@@ -20,7 +20,7 @@ const LIT = '#ffd38a';
 
 let NB_LIT = -1;   // street scene: time at which the neighbours start switching their lights on (-1 = stay dim)
 const HouseIso: React.FC<{ b: H; f: number }> = ({ b, f }) => {
-  const { x0, y0, w, d, h, c } = b; const x1 = x0 + w, y1 = y0 + d; const dim = b.hero || (NB_LIT >= 0 && f / FPS > NB_LIT + hash(b.seed * 13) * 0.9) ? 1 : 0.5;
+  const { x0, y0, w, d, h, c } = b; const x1 = x0 + w, y1 = y0 + d; const dim = b.hero || (NB_LIT !== -1 && f / FPS > NB_LIT + hash(b.seed * 13) * 0.9) ? 1 : 0.5;
   const floors = h > 2.6 ? 2 : 1, fh = h / floors;
   const fy = (u: number, v: number) => iso(x0 + u, y1, v);      // face toward lower-left (y1)
   const fx = (u: number, v: number) => iso(x1, y0 + u, v);      // face toward lower-right (x1)
@@ -175,10 +175,14 @@ const NVO: [number, React.ReactNode][] = [[0.3, <>Now the whole <em>street</em> 
 const NODES: [number, number, number][] = [[-2.0, 3.3, 3.5], [-2.9, -4.3, 3.5], [-5.1, 3.35, 3.0], [4.4, 3.35, 3.1], [7.5, 3.35, 2.9], [-8.2, -7.7, 2.8], [-5.0, -7.7, 3.1], [-1.8, -7.7, 3.4], [3.0, 8.6, 2.8], [6.2, 8.6, 3.1]];
 const PAIRS: [number, number][] = []; for (let i = 0; i < 10; i++) for (let j = i + 1; j < 10; j++) PAIRS.push([i, j]);
 export const IsoNet: React.FC = () => <IsoStreet net />;
-export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean; mute?: boolean }> = ({ hook, wire, net, mute }) => {
+/* concept stills for the "many houses" scene: 1a/1b follow her, 2a/2b neighbour chaos */
+export const Concept: React.FC<{ k: string }> = ({ k }) => <IsoStreet concept={k} />;
+const CSUB: Record<string, React.ReactNode> = { '1a': <>She visits <em>Grandma</em>. The wire can't follow.</>, '1b': <>So every house plugs into <em>one box.</em></>, '2a': <>Now the whole <em>street</em> wants in.</>, '2b': <>One box untangles it: the <em>router.</em></> };
+const GRAN = { hair: '#d9d9e3', top: '#7fbf9a', topSh: '#5a9a78', glasses: true, bun: true }, UNCLE = { hair: '#8d8d9a', top: '#c97b4a', topSh: '#9a5a32', moustache: true }, KIDT = { top: '#f6c34a', topSh: '#cf9a26' }, AUNTY = { top: '#e06a8c', topSh: '#b04a6a', bun: true };
+export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean; mute?: boolean; concept?: string }> = ({ hook, wire, net, mute, concept }) => {
   const f = useCurrentFrame(); const t = f / FPS;
-  let on = 1; const cam = hook ? camAt(t) : wire ? camAt(t, WIRE_KEYS) : net ? camAt(t, NET_KEYS) : { fx: 540, fy: 960, z: 1 };
-  NB_LIT = net ? 0.25 : -1;
+  let on = 1; const cam = hook ? camAt(t) : wire ? camAt(t, WIRE_KEYS) : net ? camAt(t, NET_KEYS) : concept ? { fx: 800, fy: 900, z: 0.74 } : { fx: 540, fy: 960, z: 1 };
+  NB_LIT = net ? 0.25 : concept ? -5 : -1; const cv = concept ? concept[0] : '', cb = concept ? concept[1] === 'b' : false;
   if (hook) { on = Math.max(...BLINKS.map(([a, b]) => pulse(f, a, b))); HBITS.forEach((b, i) => { if (b) on = Math.max(on, pulse(f, BIT0 + i * BITD, BIT0 + i * BITD + 0.1)); }); }
   let raise = hook ? prog(f, 0.25, 0.85, easeOut) : 1, notice = hook ? prog(f, 2.1, 2.4, easeOut) : 1;
   let wave = hook ? prog(f, 4.6, 4.9) * (1 - prog(f, 7.0, 7.4)) : 1, sleepy = hook ? prog(f, 14.25, 14.6) : 0;
@@ -193,13 +197,14 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
   const kick = wire ? (t < 0.75 ? 0 : Math.exp(-(t - 0.75) * 7) * (1 + 0.5 * Math.cos((t - 0.75) * 26)) / 1.5) : 0, thud = wire && t > 1.4 ? Math.exp(-(t - 1.4) * 9) : 0;
   const worry = net ? prog(f, 2.9, 3.3) * (1 - prog(f, 4.8, 5.2)) : 0, glad = net ? prog(f, 6.6, 6.9) : 0;
   if (net) { on = 0; raise = 0; wave = glad; cheer = glad; }
+  if (concept) { on = 0; raise = cb ? 0 : cv === '1' ? 1 : 0; wave = cb || cv === '1' ? 1 : 0; cheer = cb ? 1 : 0; }
   const breathe = Math.sin(t * 2.4), gHop = Math.abs(Math.sin(t * 9)) * 9 * wave + Math.sin(Math.PI * clamp01((t - 2.05) / 0.35)) * 14 * (hook ? 1 : 0) + (wire ? Math.sin(Math.PI * clamp01((t - 1.4) / 0.4)) * 22 + Math.sin(Math.PI * clamp01((t - 2.4) / 0.3)) * 10 + Math.abs(Math.sin(t * 7)) * 4 * prog(f, 2.8, 3.0) * (1 - prog(f, 4.6, 4.9)) : 0);
   const bHop = Math.abs(Math.sin(t * 8.5)) * 10 * cheer;
   if (hook && t > 12.5 && t < 14.15) on = Math.max(on, Math.sin(t * 2 * Math.PI * 5.5) > 0.1 ? 1 : 0);   // forty quick blinks
   const macro = hook && t >= 8.4 && t < 10.45 ? Math.min(prog(f, 8.4, 8.55), 1 - prog(f, 10.3, 10.45)) : 0;
   const boyH = NEAR.find((h) => h.hero === 'boy')!, girlH = FAR.find((h) => h.hero === 'girl')!;
   const BZ = 1.65, BX0 = -0.7, GBX = girlH.x0 + girlH.w, BYC = boyH.y0 + 0.85, GYC = girlH.y0 + girlH.d - 0.85;   // balconies on the side wall, first floor, same height
-  const [bx, by0] = iso(BX0 + 0.3, BYC, BZ), [gx, gy0] = iso(GBX + 0.3, GYC, BZ);
+  const [bx, by0] = iso(BX0 + 0.3, BYC, BZ), [gx, gy0] = cv === '1' ? iso(3.75, -1.72, 0) : iso(GBX + 0.3, GYC, BZ);
   const SC = 0.5;
   const by = by0 - bHop, gy = gy0 - gHop;
   const boy: StickPose = { blink: wire ? Math.min(1, kick * 2.2) : hook ? Math.max(0, 1 - Math.abs(t - 2.9) / 0.07, 1 - Math.abs(t - 7.6) / 0.07, 1 - Math.abs(t - 11.9) / 0.07, tired * 0.35) : 0, smile: 0.4 + 0.5 * (hook ? prog(f, 2.4, 2.8) : 1) + 0.1 * cheer - 0.5 * tired, look: 0.8,
@@ -209,6 +214,8 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
     armR: [lerp(8, 150, wave) + lerp(0, 118, yawn), lerp(5, 168, wave) + Math.sin(t * 11) * 14 * wave + lerp(0, 150, yawn)],
     armL: [lerp(-10, -112, startle) + lerp(0, -22, bored * (1 - sleepy)), lerp(-6, -150, startle) + lerp(0, -128, bored * (1 - sleepy))],
     tilt: 4 * notice + 14 * sleepy + breathe * 1.2 + Math.sin(t * 2 * Math.PI / (BITD * 2)) * 5 * count + 9 * bored * (1 - sleepy) - 6 * startle };
+  if (concept && cv === '2' && !cb) { girl.armR = [158, 176]; girl.armL = [-158, -176]; girl.smile = 0.1; boy.armR = [150, 165]; boy.armL = [-150, -165]; boy.smile = 0.1; boy.holdTorch = false; }
+  if (concept && cb) boy.holdTorch = false;
   if (net) {   // both look around at the neighbours, hold their heads at the tangle, cheer at the router
     girl.armR = [girl.armR[0] + 150 * worry, girl.armR[1] + 168 * worry]; girl.armL = [-10 - 150 * worry, -6 - 168 * worry]; girl.smile = Math.max(glad, 0.5 * (1 - worry)); girl.tilt = breathe * 1.2 + Math.sin(t * 9) * 4 * worry; girl.look = -0.8 + 1.6 * prog(f, 0.6, 0.9) * (1 - prog(f, 1.6, 1.9));
     boy.armR = [8 + 142 * worry, 5 + 160 * worry]; boy.armL = [boy.armL[0] - 138 * worry, boy.armL[1] - 160 * worry]; boy.smile = Math.max(glad, 0.5 * (1 - worry)); boy.tilt = breathe * 1.2 + Math.sin(t * 9 + 1) * 4 * worry; boy.look = 0.8 - 1.6 * prog(f, 0.8, 1.1) * (1 - prog(f, 1.8, 2.1));
@@ -280,7 +287,11 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
         {balBack(GYC, '#6a5cab', GBX)}
         <g transform={`translate(${gx} ${gy}) scale(${-SC} ${SC})`}><Adult kind="woman" p={girl} id="g" /></g>
         {balFront(GYC, ['#c9b8ff', '#f0e9ff', '#a58cf0'], GBX)}
-        {wave > 0.5 && [0, 1, 2].map((i) => { const u = ((t * 0.5 + i * 0.33) % 1); return <Heart key={'h' + i} x={gx + 34 + Math.sin(u * 6 + i) * 10} y={gy - 360 * SC - u * 70} s={1.3 - u * 0.5} o={(1 - u) * 0.9} />; })}
+        {concept && (() => { const st = (x: number, y: number, flip: boolean, node: React.ReactNode) => { const [a, b] = iso(x, y, 0); return <g transform={`translate(${a} ${b}) scale(${flip ? -SC : SC} ${SC})`}>{node}</g>; };
+          const idle: StickPose = { blink: 0, smile: 1, look: -0.6, armR: [150, 170], armL: [-10, -6], tilt: 3 }, aim: StickPose = { blink: 0, smile: 0.9, look: 0.7, armR: [100, 104], armL: [-12, -8], holdTorch: true, tilt: -3 }, yay: StickPose = { blink: 0, smile: 1, look: 0, armR: [150, 170], armL: [-150, -170], tilt: 0 };
+          return cv === '1' ? <>{st(4.55, -1.72, true, <Adult kind="woman" dress={3} p={cb ? yay : idle} id="gr" tint={GRAN} />)}</>
+            : <>{st(4.4, -1.72, true, <Adult kind="woman" dress={3} p={cb ? yay : aim} id="au" tint={AUNTY} gun={!cb} />)}{st(7.4, -1.72, true, <Adult kind="man" p={cb ? yay : aim} id="un" tint={UNCLE} gun={!cb} />)}<g transform={`translate(${iso(-6.2, -1.72)[0]} ${iso(-6.2, -1.72)[1]}) scale(0.72)`}><g transform={`scale(${SC})`}><Adult kind="man" p={cb ? yay : aim} id="kd" tint={KIDT} gun={!cb} /></g></g></>; })()}
+        {wave > 0.5 && !concept && [0, 1, 2].map((i) => { const u = ((t * 0.5 + i * 0.33) % 1); return <Heart key={'h' + i} x={gx + 34 + Math.sin(u * 6 + i) * 10} y={gy - 360 * SC - u * 70} s={1.3 - u * 0.5} o={(1 - u) * 0.9} />; })}
         {/* her side garden */}
         {[[-0.3, -4.7], [0.5, -3.7], [1.2, -4.5], [2.1, -3.2], [1.4, -2.6], [-3.9, -2.8], [-1.5, -2.7]].map(([x, y], i) => <TreeIso key={'gg' + i} x={x} y={y} s={0.55 + i * 0.1} />)}
         <LampIso x={-8.2} y={-1.6} /><LampIso x={-2.2} y={-1.6} /><LampIso x={4.6} y={-1.6} />
@@ -289,11 +300,12 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
         <CarIso x={((t * 1.6 + 27) % 34) - 17} y={-0.65} dir={1} c="#e0b84a" auto />
         <CarIso x={-(((t * 1.9 + 21) % 34) - 17)} y={0.65} dir={-1} c="#3fa7a0" />
         <CarIso x={-(((t * 2.4 + 6) % 34) - 17)} y={0.65} dir={-1} c="#8a6fd8" />
+        {concept === '2a' && <CarIso x={1.6} y={-0.65} dir={1} c="#e0b84a" />}
         <LampIso x={-5.4} y={1.6} /><LampIso x={0.9} y={1.6} /><LampIso x={7.4} y={1.6} />
         {[-9.8, -6.65, -3.55, 2.85, 5.95].map((x, i) => <TreeIso key={i} x={x} y={2.55} s={0.7} />)}
         {NEAR.map((b) => <HouseIso key={b.seed} b={b} f={f} />)}
         {balBack(BYC, '#4a68a0')}
-        <g transform={`translate(${bx - 16 * kick} ${by}) rotate(${-9 * kick}) scale(${SC})`}><Adult kind="man" p={boy} id="b" gun={wire} /></g>
+        <g transform={`translate(${bx - 16 * kick} ${by}) rotate(${-9 * kick}) scale(${SC})`}><Adult kind="man" p={boy} id="b" gun={wire || (cv === '1' && !cb)} /></g>
         {balFront(BYC, ['#7fe3d4', '#d6fff8', '#4fc9b8'])}
         {/* his side garden */}
         {[[1.3, 3.0], [2.0, 4.0], [0.9, 4.3]].map(([x, y], i) => <TreeIso key={'bg' + i} x={x} y={y} s={0.5 + i * 0.1} />)}
@@ -380,6 +392,25 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
               </g>
             </g>}
           </g>; })()}
+        {concept && (() => {
+          const A0 = iso(BX0 + 0.62, BYC - 0.7, BZ + 0.5), HB = iso(GBX + 0.62, GYC + 0.7, BZ + 0.5), GP = iso(4.1, -2.0, 0.9), RT = iso(-6.4, -3.3, 3.4), RB = iso(-6.4, -3.3, 0);
+          const curve = (a: readonly number[], b: readonly number[], sag: number) => Array.from({ length: 15 }).map((_, i) => { const k = i / 14; return `${lerp(a[0], b[0], k)},${lerp(a[1], b[1], k) + sag * Math.sin(Math.PI * k)}`; }).join(' ');
+          const cop = (a: readonly number[], b: readonly number[], sag = 34, key = '') => <g key={key}><polyline points={curve(a, b, sag)} fill="none" stroke="#000" strokeWidth={7} opacity={0.25} transform="translate(0 8)" /><polyline points={curve(a, b, sag)} fill="none" stroke="#c9843a" strokeWidth={5.5} strokeLinecap="round" /></g>;
+          const cy = (a: readonly number[], b: readonly number[], key = '') => <g key={key}><polyline points={curve(a, b, 22)} fill="none" stroke="#5fe3ff" strokeWidth={15} opacity={0.22} filter="url(#iB)" /><polyline points={curve(a, b, 22)} fill="none" stroke="#9fe9ff" strokeWidth={5} strokeLinecap="round" /><circle cx={lerp(a[0], b[0], 0.45)} cy={lerp(a[1], b[1], 0.45) + 21} r={8} fill="#fff" /><circle cx={a[0]} cy={a[1]} r={9} fill="#0e1430" stroke="#5fe3ff" strokeWidth={3} /></g>;
+          const anch = (q: readonly number[], rot: number, key = '') => <g key={key} transform={`translate(${q[0]} ${q[1]}) rotate(${rot})`}><line x1={-22} y1={0} x2={8} y2={0} stroke="#d9d6cf" strokeWidth={5} strokeLinecap="round" /><path d="M 8 0 Q 16 -2 12 -16 M 8 0 Q 16 2 12 16 M 8 0 L 20 0" stroke="#eef0f6" strokeWidth={5} fill="none" strokeLinecap="round" /></g>;
+          const post = (q: readonly number[]) => <g><line x1={q[0]} y1={q[1]} x2={q[0]} y2={q[1] + 100} stroke="#2b2e3a" strokeWidth={7} /><rect x={q[0] - 14} y={q[1] - 14} width={28} height={26} rx={5} fill="#1a2040" stroke="#5fe3ff" strokeWidth={2} /><circle cx={q[0]} cy={q[1] - 1} r={4.5} fill="#5fe3ff" /></g>;
+          const router = <g><line x1={RB[0]} y1={RB[1]} x2={RT[0]} y2={RT[1]} stroke="#2b2e3a" strokeWidth={11} strokeLinecap="round" /><g transform={`translate(${RT[0]} ${RT[1]}) scale(1.8)`}><circle r={80} fill="#5fe3ff" opacity={0.22} filter="url(#iB2)" /><line x1={-34} y1={-20} x2={-46} y2={-70} stroke="#d9d6cf" strokeWidth={6} strokeLinecap="round" /><line x1={34} y1={-20} x2={46} y2={-70} stroke="#d9d6cf" strokeWidth={6} strokeLinecap="round" /><rect x={-62} y={-26} width={124} height={52} rx={14} fill="#f3f0ea" /><rect x={-62} y={8} width={124} height={18} rx={9} fill="#cfd3de" />{[0, 1, 2, 3].map((i) => <circle key={i} cx={-36 + i * 24} cy={-6} r={6} fill={i % 2 ? '#3ddc97' : '#1f6a4c'} />)}<text y={-90} textAnchor="middle" style={{ font: `800 38px ${FONT.ui}` }} fill="#fff" stroke="#0a0e24" strokeWidth={8} paintOrder="stroke">ROUTER</text></g></g>;
+          const roofs = [iso(-5.1, 3.35, 3.0), iso(4.4, 3.35, 3.1), iso(4.4, -3.35, 2.9), iso(7.5, -3.35, 3.2), iso(-5.0, -7.7, 3.1), iso(-1.8, -7.7, 3.4)];
+          const bub = (q: readonly number[], txt: string, key = '') => <g key={key} transform={`translate(${q[0]} ${q[1]}) scale(2.1)`}><rect x={-50} y={-22} width={100} height={36} rx={12} fill="#fff6e0" /><path d="M -8 14 L 0 26 L 8 14 Z" fill="#fff6e0" /><text y={3} textAnchor="middle" style={{ font: `800 19px ${FONT.ui}` }} fill="#1b1520">{txt}</text></g>;
+          if (cb) return <g>{[A0, HB, GP, ...roofs].map((q, i) => cy(q, RT, 'c' + i))}{post(GP)}{router}{cv === '1' && bub([gx - 10, gy - 215], 'HELLO ✓')}</g>;
+          if (cv === '1') { const F = iso(4.4, 3.35, 3.1), mid = [lerp(lens.x, F[0], 0.62), lerp(lens.y, F[1], 0.62) - 40];
+            return <g>{cop(A0, HB)}{anch([HB[0] + 4, HB[1] - 6], 62)}{cop([lens.x, lens.y], GP, 46)}{anch([GP[0], GP[1] - 8], 80)}{post(GP)}{cop([lens.x, lens.y], mid, 14)}{anch(mid, 20)}
+              {bub([HB[0] + 30, HB[1] - 150], 'She left!')}<text x={bx - 10} y={by - 220} textAnchor="middle" style={{ font: `800 54px ${FONT.ui}` }} fill="#ffd38a" stroke="#0a0e24" strokeWidth={8} paintOrder="stroke">2 … 3 … 4 ?!</text></g>; }
+          const K = iso(-6.2, -1.72, 1.0), AU = iso(4.4, -1.72, 1.6), UN = iso(7.4, -1.72, 1.6), car = iso(1.6, -0.65, 0.75);
+          const fly = [lerp(UN[0], A0[0], 0.5), lerp(UN[1], A0[1], 0.5) - 70];
+          return <g>{cop(A0, HB)}{cop(K, HB, 30)}{anch([HB[0] - 8, HB[1] - 12], 20)}{cop(K, A0, 40)}{anch([A0[0] - 4, A0[1] - 12], 95)}{cop(AU, A0, 50)}{cop(AU, car, 10)}{anch([car[0], car[1] - 4], 130)}{cop(UN, fly, 16)}{anch(fly, 195)}{cop(UN, roofs[5], 40)}{anch(roofs[5], -120)}{cop(K, roofs[4], 30)}{anch(roofs[4], -60)}{cop(roofs[0], HB, 60)}{cop(roofs[1], roofs[2], 50)}{cop(roofs[0], roofs[1], 50)}
+            {bub([K[0], K[1] - 130], 'Me too!', 'b1')}{bub([AU[0] - 10, AU[1] - 170], 'Me too!', 'b2')}{bub([UN[0], UN[1] - 175], 'Me too!', 'b3')}{bub([roofs[0][0], roofs[0][1] - 40], 'Me too!', 'b4')}{bub([roofs[1][0], roofs[1][1] - 40], 'Me too!', 'b5')}
+            <text x={car[0] + 70} y={car[1] - 60} style={{ font: `800 64px ${FONT.ui}` }} fill="#ff7a5a" stroke="#0a0e24" strokeWidth={8} paintOrder="stroke">!</text></g>; })()}
         {/* the binary rides in the beam: bright = on (1), dark gap = off (0) */}
         {hook && t > BIT0 - 0.05 && t < 12.45 && <line x1={lens.x} y1={lens.y} x2={tgt.x} y2={tgt.y} stroke="#8a92d8" strokeWidth={2} strokeDasharray="3 10" opacity={0.6} />}
         {hook && HBITS.map((b, i) => { const u = (t - (BIT0 + i * BITD)) / FLY; if (u < -0.05 || u > 1.05 || t > 12.45) return null;
@@ -404,6 +435,7 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
       {hook && <HookOverlays f={f} t={t} macro={macro} mute={mute} />}
       {wire && <WireOverlays f={f} t={t} />}
       {net && <NetOverlays f={f} t={t} />}
+      {concept && <><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{CSUB[concept]}</div></div><style>{'.sub em{font-style:normal;color:#ffd38a}'}</style></>}
     </AbsoluteFill>
   );
 };

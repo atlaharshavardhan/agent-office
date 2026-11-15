@@ -4,9 +4,10 @@ import { Prototype } from './Prototype';
 import { DuskTorch } from './dusk/Dusk';
 import { DuskHouses } from './dusk/Houses';
 import { NightHook } from './dusk/NightHook';
-import { IsoStreet, IsoHook, IsoWire, IsoFull, IsoNet } from './dusk/IsoStreet';
+import { IsoStreet, IsoHook, IsoWire, IsoFull, IsoNet, Concept } from './dusk/IsoStreet';
 import { KidSheet } from './dusk/Kid';
 import { AdultSheet, DressSheet } from './dusk/Adult';
+import { MapConcept } from './dusk/MapConcept';
 
 export const Root: React.FC = () => (
   <>
@@ -22,5 +23,11 @@ export const Root: React.FC = () => (
     <Composition id="IsoWire" component={IsoWire} durationInFrames={222} fps={30} width={1080} height={1920} />
     <Composition id="IsoFull" component={IsoFull} durationInFrames={690} fps={30} width={1080} height={1920} />
     <Composition id="IsoNet" component={IsoNet} durationInFrames={285} fps={30} width={1080} height={1920} />
+    <Composition id="C1a" component={Concept} defaultProps={{ k: '1a' }} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="C1b" component={Concept} defaultProps={{ k: '1b' }} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="C2a" component={Concept} defaultProps={{ k: '2a' }} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="C2b" component={Concept} defaultProps={{ k: '2b' }} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="C3a" component={MapConcept} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="C3b" component={MapConcept} defaultProps={{ star: true }} durationInFrames={30} fps={30} width={1080} height={1920} />
   </>
 );

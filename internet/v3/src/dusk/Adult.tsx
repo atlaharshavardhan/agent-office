@@ -18,8 +18,8 @@ export const DRESS: Record<number, { top: string; topSh: string; bottom: string;
 export const A_SHOULDER = { x: 34, y: -240 }, A_UPPER = 56, A_FORE = 50, A_TIP = 46;
 const limb = (x: number, y: number, a: number, l: number) => { const r = a * Math.PI / 180; return [x + Math.sin(r) * l, y + Math.cos(r) * l] as const; };
 
-export const Adult: React.FC<{ kind: 'man' | 'woman'; p: StickPose; id: string; dress?: number; gun?: boolean }> = ({ kind, p, id, dress = 1, gun }) => {
-  const w = kind === 'woman'; const d = DRESS[dress]; const c = w ? { ...C.woman, top: d.top, topSh: d.topSh, bottom: d.bottom, shoe: d.shoe, sole: d.sole } : C.man; const sx = w ? 28 : 36, aw = w ? 15 : 19, fw = w ? 12 : 15;
+export const Adult: React.FC<{ kind: 'man' | 'woman'; p: StickPose; id: string; dress?: number; gun?: boolean; tint?: { hair?: string; top?: string; topSh?: string; glasses?: boolean; moustache?: boolean; bun?: boolean } }> = ({ kind, p, id, dress = 1, gun, tint }) => {
+  const w = kind === 'woman'; const d = DRESS[dress]; const c0 = w ? { ...C.woman, top: d.top, topSh: d.topSh, bottom: d.bottom, shoe: d.shoe, sole: d.sole } : C.man; const c = { ...c0, hair: tint?.hair || c0.hair, top: tint?.top || c0.top, topSh: tint?.topSh || c0.topSh }; const sx = w ? 28 : 36, aw = w ? 15 : 19, fw = w ? 12 : 15;
   const [rex, rey] = limb(sx - 2, A_SHOULDER.y, p.armR[0], A_UPPER), [rwx, rwy] = limb(rex, rey, p.armR[1], A_FORE);
   const [lex, ley] = limb(-sx + 2, A_SHOULDER.y, p.armL[0], A_UPPER), [lwx, lwy] = limb(lex, ley, p.armL[1], A_FORE);
   const eyeRy = 7.5 * (1 - 0.9 * p.blink), lx = p.look * 3; const open = p.smile > 0.6;
@@ -89,6 +89,9 @@ export const Adult: React.FC<{ kind: 'man' | 'woman'; p: StickPose; id: string; 
         {open
           ? <><path d={`M ${lx - 11} 15 Q ${lx} ${19 + p.smile * 11} ${lx + 11} 15 Z`} fill={w ? '#8a2f3c' : '#6b2a2a'} /><path d={`M ${lx - 8} 16 Q ${lx} 19 ${lx + 8} 16 L ${lx + 7} 18 Q ${lx} 21 ${lx - 7} 18 Z`} fill="#fff" /></>
           : <path d={`M ${lx - 8} ${17 - p.smile * 2} Q ${lx} ${20 + p.smile * 6} ${lx + 8} ${17 - p.smile * 2}`} stroke={w ? '#8a2f3c' : '#5a2424'} strokeWidth={3} fill="none" strokeLinecap="round" />}
+        {tint?.glasses && <g stroke="#2a2a3a" strokeWidth={2.4} fill="rgba(255,255,255,.18)"><circle cx={-12.5 + lx} cy={-3} r={9.5} /><circle cx={12.5 + lx} cy={-3} r={9.5} /><line x1={-3 + lx} y1={-3} x2={3 + lx} y2={-3} /></g>}
+        {tint?.moustache && <path d={`M ${lx - 12} 13 Q ${lx} 6 ${lx + 12} 13 Q ${lx} 11 ${lx - 12} 13 Z`} fill={c.hair} />}
+        {tint?.bun && <circle cx={0} cy={-52} r={15} fill={c.hair} />}
         {w && <><circle cx={lx} cy={-13} r={1.9} fill="#d0334c" /><circle cx={-33} cy={15} r={3} fill="#ffd36b" /><circle cx={-33} cy={21} r={2} fill="#ffd36b" /><circle cx={33} cy={15} r={3} fill="#ffd36b" /><circle cx={33} cy={21} r={2} fill="#ffd36b" /></>}
       </g>
       {/* front arm + torch */}
