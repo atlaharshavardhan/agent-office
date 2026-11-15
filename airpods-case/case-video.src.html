@@ -391,7 +391,53 @@ function buildPhone() {
     res();
   }));
 }
-let lastScreen = '';
+let lastScreen = '', HOME = null;
+function homeScreen() {   // generic app icons (no real brand logos), dark mode
+  if (HOME) return HOME;
+  const c = document.createElement('canvas'); c.width = 660; c.height = 1380; const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, 1380); g.addColorStop(0, '#0b0f1e'); g.addColorStop(0.5, '#141022'); g.addColorStop(1, '#05060c'); x.fillStyle = g; x.fillRect(0, 0, 660, 1380);
+  x.fillStyle = '#fff'; x.font = '600 30px "IBM Plex Sans", Arial'; x.textAlign = 'left'; x.fillText('9:41', 64, 62);
+  x.fillRect(560, 44, 40, 20); x.fillStyle = '#000'; x.beginPath(); x.roundRect(230, 20, 200, 56, 28); x.fill();
+  const apps = [['Camera', '#2c2c2e', 'cam'], ['Photos', '#1c1c1e', 'flower'], ['Music', '#fc3c5c', 'note'], ['Maps', '#2e7d4f', 'pin'],
+    ['Mail', '#1f6feb', 'mail'], ['Clock', '#1c1c1e', 'clock'], ['Weather', '#2a6fdb', 'cloud'], ['Notes', '#e6b422', 'lines'],
+    ['Messages', '#30c158', 'bubble'], ['Phone', '#30c158', 'phone'], ['Settings', '#3a3a3c', 'gear'], ['Calendar', '#2c2c2e', 'cal'],
+    ['Fitness', '#111', 'rings'], ['Wallet', '#111', 'cards'], ['Files', '#1f6feb', 'folder'], ['Podcasts', '#9b4dde', 'pod'],
+    ['Games', '#ff7a1a', 'pad'], ['Health', '#2c2c2e', 'heart'], ['Books', '#ff8a00', 'book'], ['Translate', '#1c1c1e', 'globe']];
+  const S = 112, gx = 46, x0 = 46, y0 = 120;
+  apps.forEach(([n, col, ic], i) => { const cx = x0 + (i % 4) * (S + gx - 6) , cy = y0 + Math.floor(i / 4) * 178;
+    x.fillStyle = col; x.beginPath(); x.roundRect(cx, cy, S, S, 26); x.fill(); glyph2(x, ic, cx + S / 2, cy + S / 2);
+    x.fillStyle = 'rgba(255,255,255,.85)'; x.font = '500 21px "IBM Plex Sans", Arial'; x.textAlign = 'center'; x.fillText(n, cx + S / 2, cy + S + 30); });
+  x.fillStyle = 'rgba(60,60,70,.55)'; x.beginPath(); x.roundRect(24, 1200, 612, 150, 50); x.fill();          // dock
+  [['#30c158', 'phone'], ['#1f6feb', 'globe'], ['#30c158', 'bubble'], ['#fc3c5c', 'note']].forEach(([col, ic], i) => { const cx = 52 + i * 148; x.fillStyle = col; x.beginPath(); x.roundRect(cx, 1219, S, S, 26); x.fill(); glyph2(x, ic, cx + S / 2, 1219 + S / 2); });
+  HOME = c; return c;
+}
+function glyph2(x, ic, cx, cy) {   // simple white symbols
+  x.save(); x.translate(cx, cy); x.strokeStyle = '#fff'; x.fillStyle = '#fff'; x.lineWidth = 6; x.lineCap = 'round'; x.lineJoin = 'round';
+  const L = (pts) => { x.beginPath(); pts.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); x.stroke(); };
+  switch (ic) {
+    case 'cam': x.strokeRect(-30, -18, 60, 40); x.beginPath(); x.arc(0, 2, 12, 0, 7); x.stroke(); break;
+    case 'flower': ['#ff9f0a', '#ffd60a', '#30d158', '#64d2ff', '#0a84ff', '#bf5af2', '#ff375f', '#ff453a'].forEach((c2, i) => { x.fillStyle = c2; x.save(); x.rotate(i * Math.PI / 4); x.beginPath(); x.ellipse(0, -18, 9, 18, 0, 0, 7); x.globalAlpha = .9; x.fill(); x.restore(); }); break;
+    case 'note': L([[-8, 22], [-8, -24], [20, -30], [20, 14]]); x.beginPath(); x.arc(-16, 22, 9, 0, 7); x.fill(); x.beginPath(); x.arc(12, 16, 9, 0, 7); x.fill(); break;
+    case 'pin': x.beginPath(); x.arc(0, -8, 16, Math.PI, 0); x.lineTo(0, 26); x.closePath(); x.fill(); x.fillStyle = '#2e7d4f'; x.beginPath(); x.arc(0, -8, 6, 0, 7); x.fill(); break;
+    case 'mail': x.strokeRect(-30, -20, 60, 40); L([[-30, -20], [0, 4], [30, -20]]); break;
+    case 'clock': x.beginPath(); x.arc(0, 0, 30, 0, 7); x.stroke(); L([[0, -18], [0, 0], [14, 8]]); break;
+    case 'cloud': x.beginPath(); x.arc(-10, 4, 16, 0, 7); x.arc(10, -2, 20, 0, 7); x.arc(24, 8, 12, 0, 7); x.fill(); break;
+    case 'lines': for (let i = 0; i < 4; i++) L([[-26, -22 + i * 15], [26, -22 + i * 15]]); break;
+    case 'bubble': x.beginPath(); x.ellipse(0, -2, 32, 24, 0, 0, 7); x.fill(); x.beginPath(); x.moveTo(-18, 14); x.lineTo(-26, 30); x.lineTo(-4, 20); x.fill(); break;
+    case 'phone': x.save(); x.rotate(-0.6); x.beginPath(); x.roundRect(-10, -30, 20, 60, 10); x.fill(); x.restore(); break;
+    case 'gear': x.beginPath(); x.arc(0, 0, 18, 0, 7); x.stroke(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; L([[Math.cos(a) * 22, Math.sin(a) * 22], [Math.cos(a) * 32, Math.sin(a) * 32]]); } break;
+    case 'cal': x.fillStyle = '#ff453a'; x.font = '600 18px Arial'; x.textAlign = 'center'; x.fillText('SAT', 0, -18); x.fillStyle = '#fff'; x.font = '600 40px Arial'; x.fillText('15', 0, 24); break;
+    case 'rings': [['#ff375f', 28], ['#30d158', 19], ['#64d2ff', 10]].forEach(([c2, r]) => { x.strokeStyle = c2; x.beginPath(); x.arc(0, 0, r, 0, 7); x.stroke(); }); break;
+    case 'cards': ['#ff9f0a', '#30d158', '#0a84ff'].forEach((c2, i) => { x.fillStyle = c2; x.beginPath(); x.roundRect(-30, -24 + i * 12, 60, 30, 6); x.fill(); }); break;
+    case 'folder': x.beginPath(); x.roundRect(-30, -16, 60, 40, 6); x.fill(); x.beginPath(); x.roundRect(-30, -24, 26, 12, 4); x.fill(); break;
+    case 'pod': x.beginPath(); x.arc(0, -6, 12, 0, 7); x.fill(); x.beginPath(); x.arc(0, -6, 24, Math.PI * 0.8, Math.PI * 2.2); x.stroke(); L([[0, 8], [0, 28]]); break;
+    case 'pad': x.beginPath(); x.roundRect(-32, -16, 64, 34, 16); x.fill(); x.fillStyle = '#ff7a1a'; x.fillRect(-20, -3, 14, 4); x.fillRect(-15, -8, 4, 14); x.beginPath(); x.arc(16, 0, 4, 0, 7); x.fill(); break;
+    case 'heart': x.fillStyle = '#ff375f'; x.beginPath(); x.moveTo(0, 24); x.bezierCurveTo(-36, 0, -22, -32, 0, -12); x.bezierCurveTo(22, -32, 36, 0, 0, 24); x.fill(); break;
+    case 'book': x.beginPath(); x.roundRect(-26, -26, 52, 52, 4); x.stroke(); L([[0, -26], [0, 26]]); break;
+    case 'globe': x.beginPath(); x.arc(0, 0, 28, 0, 7); x.stroke(); x.beginPath(); x.ellipse(0, 0, 12, 28, 0, 0, 7); x.stroke(); L([[-28, 0], [28, 0]]); break;
+  }
+  x.restore();
+}
 /* picture of our own 3D case for the pop-up sheet (rendered once on a white background) */
 const CASE_IMG = { cv: null, pts: [] };
 function makeCaseImg() {
@@ -417,8 +463,8 @@ function screen(state, k = 1) {   // state: off | alert | fixed ; k = sheet slid
   const c = SCREEN_CV, x = c.getContext('2d'), w = c.width, h = c.height;
   x.fillStyle = '#000'; x.fillRect(0, 0, w, h);   // black glass
   if (state === 'off') { SCREEN_TEX.needsUpdate = true; return; }
-  x.textAlign = 'center'; x.fillStyle = 'rgba(255,255,255,.92)'; x.font = '600 110px Sora, Arial'; x.fillText('9:41', w / 2, 240);
-  x.font = '500 32px "IBM Plex Sans", Arial'; x.fillStyle = 'rgba(255,255,255,.6)'; x.fillText('Saturday 15 November', w / 2, 135);
+  // dark-mode home screen behind the card, blurred and dimmed as the card comes up
+  const bk = easeOut(k); x.save(); x.filter = `blur(${(bk * 9).toFixed(1)}px) brightness(${(1 - 0.45 * bk).toFixed(2)})`; x.drawImage(homeScreen(), 0, 0); x.restore(); x.textAlign = 'center';
   // card in the lower half of the screen, the same size as the real iPhone alert
   const e = easeOut(k), cw = w - 40, ch = 640, cx = 20, cy = h - ch - 22 + (1 - e) * 700;
   x.fillStyle = CASE_IMG.bg || '#1c1c1e'; x.beginPath(); x.roundRect(cx, cy, cw, ch, 56); x.fill();   // dark mode
