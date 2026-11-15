@@ -388,9 +388,10 @@ function explode(e) { EXPL = e; const k = ease(e);
   RAYS.bounce.forEach(R => { R.t.userData.a.y = 5.15 + LAYER_Y.refl * k; R.t.userData.b.y = 6.3 + LAYER_Y.diff * k - 0.6; });
   RAYS.spread.forEach(R => { R.t.userData.a.y = 6.8 + LAYER_Y.diff * k; R.t.userData.b.y = 7.0 + LAYER_Y.shell * k; });
   layerShadows(ease(e)); MAC.updateMatrixWorld(true); }
-function setXray(x) {
-  SOLID.forEach(o => { const m = o.material; m.transparent = x > 0.001; m.opacity = 1 - x; m.depthWrite = x < 0.5; });
-  GHOST.forEach(o => { o.material.uniforms.alpha.value = x; o.visible = x > 0.001; });
+function setXray(x, keepBase = false) {   // V4 (Harsh): keepBase: only the lid turns to glass, the keyboard half stays solid (scenes 2–3)
+  const inLid = o => { if (o.userData.lid === undefined) { let p = o; while (p && p !== LID) p = p.parent; o.userData.lid = !!p; } return o.userData.lid; };
+  SOLID.forEach(o => { const k = inLid(o) || !keepBase ? x : 0, m = o.material; m.transparent = k > 0.001; m.opacity = 1 - k; m.depthWrite = k < 0.5; });
+  GHOST.forEach(o => { const k = inLid(o.parent) || !keepBase ? x : 0; o.material.uniforms.alpha.value = k; o.visible = k > 0.001; });
   LAYERS.visible = x > 0.5 || EXPL > 0.02;
 }
 function tapeOff(v) { const t = FOAM.userData.tape; t.material.opacity = 0.92 * (1 - v); t.visible = v < 0.99; t.position.y = 4.4 - 14 * ease(v); }
@@ -471,7 +472,7 @@ const SHOTS = [
   [B[1], B[2], (u, d) => { // 2. orbit to the side; the lid turns to glass: every OLED pixel lights itself, there is no backlight
     tapeOff(0); lidOpen(OPEN); explode(0); room(0); ledOn([]); diffGlow(0);
     const k = ease(u / d), x = ease(ramp(u, 2.9, 3.9));
-    setXray(x); logoGlow(1 - 0.85 * ease(ramp(u, 2.9, 3.6)));
+    setXray(x, true); logoGlow(1 - 0.85 * ease(ramp(u, 2.9, 3.6)));
     const pf = ramp(u, 3.5, 5.0);   // "only makes light from the front": pixels switch on one by one
     screenOn(0.15 + 0.5 * ease(ramp(u, 4.6, 5.4)), 0.8 * ease(ramp(u, 4.9, 5.6)));
     PIXM.visible = pf > 0; PIXM.material.opacity = ease(ramp(u, 3.4, 3.7)) * (1 - 0.6 * ease(ramp(u, 5.4, 6.0))); if (pf > 0) drawPixels(pf, u);
@@ -482,8 +483,8 @@ const SHOTS = [
               ['back', '✕  No backlight', lidPoint(new THREE.Vector3(-100, 26, 150)), -1, ease(ramp(u, 6.0, 6.4)) * (1 - ramp(u, 7.6, 8)), 'red']]);
   }],
   [B[2], B[3], (u, d) => { // 3. the lid opens up into its layers (after iFixit's teardown)
-    rim.intensity = 1.8; rim.color.setHex(0x6fa8ff); lidOpen(OPEN); room(0); ledOn([]); diffGlow(0); tapeOff(0); setXray(1); logoGlow(0.15 * (1 - ramp(u, 0, 0.6))); screenOn(1, 0.0);
-    explode(ease(ramp(u, 0.7, 2.2))); setXray(1);
+    rim.intensity = 1.8; rim.color.setHex(0x6fa8ff); lidOpen(OPEN); room(0); ledOn([]); diffGlow(0); tapeOff(0); setXray(1, true); logoGlow(0.15 * (1 - ramp(u, 0, 0.6))); screenOn(1, 0.0);
+    explode(ease(ramp(u, 0.7, 2.2))); setXray(1, true);
     const k = ease(u / d);
     VO = 0.0; orbit(lidPoint(new THREE.Vector3(LOGO_C.x, 52, LOGO_C.z)), lerp(112, 62, k), lerp(16, 22, k), lerp(1200, 1020, k));
     title(['Where is the', '<em>glow</em> from?'], [0.05, 0.3], u);
