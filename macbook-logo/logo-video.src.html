@@ -533,13 +533,14 @@ function endShot(u) {   // shared camera for the last two shots: from the video 
   VO = 0.03 * z; camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix();
   camera.position.copy(p0.clone().lerp(p1, z)); camera.lookAt(c.clone().lerp(tgt1, z)); camera.updateMatrixWorld();
   const dk = ease(ramp(u, 1.2, 3.2)); hemi.intensity = lerp(0.6, 0.12, dk); key.intensity = lerp(1.2, 0.25, dk); edgeRim.intensity = lerp(1.15, 0.45, dk); rim.intensity = lerp(0.9, 0.3, dk); renderer.toneMappingExposure = lerp(1.05, 0.7, dk);
+  if (SCREEN_IMG) SCREEN_IMG.visible = false;   // the model's own screen picture peeked out at the edges as thin white lines
   END.screen = 1; const sl = lidPoint(new THREE.Vector3(0, -90, 110)); screenLight.position.copy(sl); screenLight.intensity = 1.6 * END.brand;
 }   // scene lengths the animations were written for (v1 voice)
 const CUTS = B.slice(1, -2);   // no dip to black into the end: the video shrinks onto the MacBook screen
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
-  hideTags(); $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
+  hideTags(); if (SCREEN_IMG) SCREEN_IMG.visible = true; $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
   const k = ORIG[i] ? ORIG[i] / (b - a) : 1; fn((t - a) * k, ORIG[i] || b - a);   // scenes 2–6 were timed on v1's voice: stretch them to this voice's lines
   if (i >= 6) title([], [], 0);
@@ -554,7 +555,7 @@ const END = { a: 0, brand: 0, screen: 0, card: 0, outro: -1 };
 const SCR_C = new THREE.Vector3(0, 2.6, 106), SCR_W = 286, SCR_H = 180;
 const SCV = document.createElement('canvas'); SCV.width = 1600; SCV.height = Math.round(1600 * SCR_H / SCR_W);
 const SCT = new THREE.CanvasTexture(SCV); SCT.encoding = THREE.sRGBEncoding; SCT.anisotropy = 8;
-const SCREEN = new THREE.Mesh(new THREE.PlaneGeometry(SCR_W, SCR_H), new THREE.MeshBasicMaterial({ map: SCT, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+const SCREEN = new THREE.Mesh(new THREE.PlaneGeometry(SCR_W + 4, SCR_H + 3), new THREE.MeshBasicMaterial({ map: SCT, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
 SCREEN.rotation.x = Math.PI / 2; SCREEN.position.copy(SCR_C); SCREEN.visible = false; LID.add(SCREEN);
 let SNAP = null;
 const STREAK = { c: document.createElement('canvas'), n: [] }; STREAK.c.width = 1600; STREAK.c.height = Math.round(1600 * 180 / 286); STREAK.m = document.createElement('canvas'); STREAK.m.width = STREAK.c.width; STREAK.m.height = STREAK.c.height; for (let i = 0; i < 600; i++) STREAK.n.push(Math.random());
