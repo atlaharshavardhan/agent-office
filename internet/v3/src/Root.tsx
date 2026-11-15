@@ -31,6 +31,6 @@ export const Root: React.FC = () => (
     <Composition id="C3a" component={MapConcept} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="C3b" component={MapConcept} defaultProps={{ star: true }} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="IsoMove" component={IsoMove} durationInFrames={504} fps={30} width={1080} height={1920} />
-    <Composition id="IsoCity" component={IsoCity} durationInFrames={330} fps={30} width={1080} height={1920} />
+    <Composition id="IsoCity" component={IsoCity} durationInFrames={360} fps={30} width={1080} height={1920} />
   </>
 );
