@@ -6,10 +6,10 @@ import { Adult, A_SHOULDER, A_UPPER, A_FORE } from './Adult';
 import type { StickPose } from './Dusk';
 
 /* Three cutaway shots that drop into the existing film. Each runs on the clock of the scene it interrupts, so the narration stays in sync. */
-const Sub: React.FC<{ children: React.ReactNode }> = ({ children }) => (<><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{children}</div></div><style>{'.sub em{font-style:normal;color:#ffd38a}'}</style></>);
-const Mark: React.FC = () => (<div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}><Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span></div>);
-const Panel: React.FC<{ o?: number; children: React.ReactNode }> = ({ o = 1, children }) => (<div style={{ position: 'absolute', top: 226, left: 70, right: 70, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.86)', border: '1px solid rgba(160,176,255,.25)', boxShadow: '0 20px 60px rgba(0,0,0,.45)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: o }}>{children}</div>);
-const Night: React.FC<{ id: string; f: number; stars?: number }> = ({ id, f, stars = 40 }) => (<>
+export const Sub: React.FC<{ children: React.ReactNode }> = ({ children }) => (<><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{children}</div></div><style>{'.sub em{font-style:normal;color:#ffd38a}'}</style></>);
+export const Mark: React.FC = () => (<div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}><Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span></div>);
+export const Panel: React.FC<{ o?: number; children: React.ReactNode }> = ({ o = 1, children }) => (<div style={{ position: 'absolute', top: 226, left: 70, right: 70, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.86)', border: '1px solid rgba(160,176,255,.25)', boxShadow: '0 20px 60px rgba(0,0,0,.45)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: o }}>{children}</div>);
+export const Night: React.FC<{ id: string; f: number; stars?: number }> = ({ id, f, stars = 40 }) => (<>
   <defs><linearGradient id={id + 'S'} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#070a22" /><stop offset=".6" stopColor="#141a52" /><stop offset="1" stopColor="#1d2266" /></linearGradient>
     <radialGradient id={id + 'V'} cx=".5" cy=".45" r=".8"><stop offset=".4" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#02030c" stopOpacity=".85" /></radialGradient>
     <radialGradient id={id + 'C'}><stop offset="0" stopColor="#e9fdff" stopOpacity=".95" /><stop offset=".3" stopColor="#5fe3ff" stopOpacity=".5" /><stop offset="1" stopColor="#5fe3ff" stopOpacity="0" /></radialGradient>
@@ -105,7 +105,7 @@ export const RouterCut: React.FC = () => {
 const FWin: React.FC<{ x: number; y: number; w: number; h: number; lit?: boolean }> = ({ x, y, w, h, lit = true }) => (
   <g><rect x={x - 8} y={y - 8} width={w + 16} height={h + 16} fill="#6fc6c0" /><rect x={x} y={y} width={w} height={h} fill={lit ? '#ffd88a' : '#101a36'} />{lit && <rect x={x} y={y} width={w * 0.34} height={h} fill="#e98f6a" opacity={0.75} />}
     <line x1={x + w / 2} y1={y} x2={x + w / 2} y2={y + h} stroke="#1f5f6a" strokeWidth={6} /><line x1={x} y1={y + h * 0.45} x2={x + w} y2={y + h * 0.45} stroke="#1f5f6a" strokeWidth={6} /><rect x={x - 14} y={y + h + 6} width={w + 28} height={12} fill="#8fe0d8" /></g>);
-export const Finale: React.FC = () => {
+export const Finale: React.FC<{ place?: string }> = ({ place = 'MUMBAI' }) => {
   const f = useCurrentFrame(), k = f / FPS;
   const got = prog(f, 0.85, 1.0, easeOut), joy = prog(f, 1.35, 1.6, easeOut), hop = Math.abs(Math.sin((k - 1.35) * 8)) * 26 * joy;
   const lm = (x: number, y: number, a: number, l: number) => { const r = a * Math.PI / 180; return [x + Math.sin(r) * l, y + Math.cos(r) * l]; };
@@ -146,14 +146,13 @@ export const Finale: React.FC = () => {
           {got > 0 && <g transform={`translate(${HX + 60} ${HY - 720 - hop * 0.5}) scale(${0.6 + 0.4 * got + 0.06 * Math.sin(Math.PI * clamp01((k - 0.85) / 0.4))})`} opacity={got}>
             <path d="M -210 -90 h 420 a 34 34 0 0 1 34 34 v 112 a 34 34 0 0 1 -34 34 h -300 l -60 52 l 10 -52 h -70 a 34 34 0 0 1 -34 -34 v -112 a 34 34 0 0 1 34 -34 Z" fill="#0e1430" stroke="#5fe3ff" strokeWidth={5} />
             <path d="M -210 -90 h 420 a 34 34 0 0 1 34 34 v 112 a 34 34 0 0 1 -34 34 h -300 l -60 52 l 10 -52 h -70 a 34 34 0 0 1 -34 -34 v -112 a 34 34 0 0 1 34 -34 Z" fill="none" stroke="#5fe3ff" strokeWidth={16} opacity={0.18} />
-            <text x={-180} y={-18} style={{ font: `600 30px ${FONT.mono}`, letterSpacing: '0.1em' }} fill="#9fe9ff">HER · MUMBAI</text>
+            <text x={-180} y={-18} style={{ font: `600 30px ${FONT.mono}`, letterSpacing: '0.1em' }} fill="#9fe9ff">HER · {place}</text>
             <text x={-180} y={58} style={{ font: `800 84px ${FONT.ui}` }} fill="#fff">Hi!</text>
             <path d="M 150 14 c -22 -26 -56 4 0 42 c 56 -38 22 -68 0 -42 Z" fill="#ff6f91" /></g>}
           {[0, 1, 2, 3].map((i) => { const v = ((k - 1.4) * 0.8 + i / 4) % 1; if (k < 1.4) return null; const x = HX - 150 + i * 100 + Math.sin(k * 2 + i) * 12, y = HY - 520 - v * 220; return <path key={i} d={`M ${x} ${y} c -14 -16 -34 2 0 26 c 34 -24 14 -42 0 -26 Z`} fill="#ff6f91" opacity={(1 - v) * 0.9} />; })}
         </g>
         <rect width={1080} height={1920} fill="url(#fnV)" />
       </svg>
-      <Mark />
     </AbsoluteFill>
   );
 };
