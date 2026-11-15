@@ -1,0 +1,609 @@
+<title>AirPods in someone else's case</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root { --red: #ff3b55; --green: #2fd36b; --blue: #5fd0ff; --amber: #ffb340; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #08080b; font-family: 'IBM Plex Sans', Arial, sans-serif; }
+  canvas { display: block; position: fixed; inset: 0; }
+  .shade { position: fixed; left: 0; right: 0; pointer-events: none; z-index: 1; }
+  #shTop { top: 0; height: 28%; background: linear-gradient(rgba(5,5,8,.8), rgba(5,5,8,.4) 60%, transparent); }
+  #shBot { bottom: 0; height: 40%; background: linear-gradient(transparent, rgba(5,5,8,.5) 40%, rgba(5,5,8,.8)); }
+  .ov { position: fixed; z-index: 3; pointer-events: none; }
+  /* safe zones (1080x1920): title 220-450 px, subject 450-1500, subtitles 1250-1450, nothing right of 940 below 1100 */
+  #title { top: 12.4%; left: 4%; right: 4%; text-align: center; color: #fff; font: 700 6.2vw/1.13 Sora, Arial, sans-serif; letter-spacing: -0.015em; text-shadow: 0 4px 24px rgba(0,0,0,.8); }
+  #title .ln { display: block; }
+  #title em { font-style: normal; color: var(--red); } #title em.g { color: var(--green); } #title em.b { color: var(--blue); }
+  #note { top: 76.2%; left: 3.7%; right: 16.7%; text-align: center; font-size: 2.5vw; color: rgba(255,255,255,.62); }
+  #sub { top: 65.1%; height: 10.4%; left: 3.7%; right: 16.7%; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font: 700 5.8vw/1.15 Sora, Arial, sans-serif; -webkit-text-stroke: 1.1vw rgba(0,0,0,.85); paint-order: stroke fill; text-shadow: 0 4px 18px rgba(0,0,0,.7); }
+  .tag { position: fixed; z-index: 3; transform: translate(-50%, -50%); pointer-events: none; color: #fff; font: 600 3.5vw 'IBM Plex Sans', Arial, sans-serif; white-space: nowrap;
+    padding: 1.3vw 2.8vw; border-radius: 3vw; background: rgba(14,14,20,.85); border: 1px solid rgba(255,255,255,.22); opacity: 0; }
+  .tag.red { border-color: var(--red); color: #ffdbe0; } .tag.green { border-color: var(--green); color: #d6ffe4; } .tag.blue { border-color: var(--blue); color: #dff5ff; }
+  #lines { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: 2; pointer-events: none; overflow: visible; }
+  #big { position: fixed; z-index: 3; transform: translate(-50%, -50%); font: 800 22vw Sora, Arial, sans-serif; color: var(--red); text-shadow: 0 0 40px rgba(255,59,85,.5); opacity: 0; pointer-events: none; }
+  #q { position: fixed; z-index: 3; transform: translate(-50%, -50%); font: 800 20vw Sora, Arial, sans-serif; color: #fff; text-shadow: 0 0 40px rgba(95,208,255,.7); opacity: 0; pointer-events: none; }
+  #endcard { position: fixed; z-index: 4; left: 8%; right: 16%; top: 23.5%; height: 34.5%; border-radius: 5vw; overflow: hidden; border: 1px solid rgba(255,255,255,.22);
+    box-shadow: 0 30px 80px rgba(0,0,0,.6); opacity: 0; pointer-events: none; background: #0b1230; }
+  #ecScene { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #ecShade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,18,60,.25), rgba(10,18,60,.78) 55%, rgba(8,12,40,.92)); opacity: 0; }
+  #ecBrand { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; }
+  #ecLogo { width: 17vw; height: 17vw; border-radius: 50%; box-shadow: 0 0 0 1.4vw rgba(74,168,255,.12), 0 0 50px rgba(74,168,255,.55); }
+  #ecName { margin-top: 2vw; font: 800 9vw/1 Sora, Arial, sans-serif; letter-spacing: -0.02em; } #ecName b { color: #4fc3f7; font-weight: 800; }
+  #ecHandle { margin-top: 1.4vw; font: 600 4.2vw Sora, Arial, sans-serif; color: rgba(255,255,255,.9); }
+  #ecIcons { display: flex; gap: 7vw; margin-top: 2.6vw; } #ecIcons div { display: flex; flex-direction: column; align-items: center; font: 600 3.2vw 'IBM Plex Sans', sans-serif; }
+  #ecIcons svg { width: 6.4vw; height: 6.4vw; margin-bottom: .6vw; }
+  #ecSub { margin-top: 2.6vw; padding: 1.8vw 7vw; border-radius: 6vw; background: #e53935; font: 700 4.4vw Sora, Arial, sans-serif; box-shadow: 0 0 30px rgba(229,57,53,.55); }
+  #ecPill { position: fixed; z-index: 4; left: 42%; top: 60.2%; transform: translateX(-50%); display: flex; border-radius: 2.4vw; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.45); opacity: 0; font: 800 5.6vw/1 Sora, Arial, sans-serif; white-space: nowrap; }
+  #ecPill .a { background: #f4f4f6; color: #10142a; padding: 2vw 1.6vw 2vw 3.2vw; } #ecPill .b { background: #2fd36b; color: #fff; padding: 2vw 3.2vw 2vw 1.6vw; }
+  #fade { position: fixed; inset: 0; z-index: 5; background: #000; opacity: 0; pointer-events: none; }
+  #zones { position: fixed; inset: 0; z-index: 9; pointer-events: none; display: none; }
+</style>
+<div class="shade" id="shTop"></div><div class="shade" id="shBot"></div>
+<svg id="lines"></svg>
+<div class="ov" id="title"></div>
+<div class="ov" id="note"></div>
+<div class="ov" id="sub"></div>
+<div id="big">✕</div><div id="q">?</div>
+<div id="endcard"><canvas id="ecScene"></canvas><div id="ecShade"></div>
+  <div id="ecBrand"><img id="ecLogo" src="__LOGO__" alt=""><div id="ecName"><span>Invisi</span><b>Tech</b></div><div id="ecHandle">@TheInvisiTech</div>
+  <div id="ecIcons"><div><svg viewBox="0 0 24 24"><path d="M2 10h4v11H2zM8 21h9.5a2 2 0 0 0 2-1.6l1.4-7A2 2 0 0 0 19 10h-5.5l.8-4.2A2 2 0 0 0 12.4 3.5L8 9z" fill="#4aa8ff"/></svg>Like</div>
+  <div><svg viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.3 1.1 4.4 2.9 6L4 21l4.3-2c1.1.4 2.4.6 3.7.6 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" fill="none" stroke="#f5a623" stroke-width="2"/><circle cx="8" cy="11.5" r="1.2" fill="#f5a623"/><circle cx="12" cy="11.5" r="1.2" fill="#f5a623"/><circle cx="16" cy="11.5" r="1.2" fill="#f5a623"/></svg>Comment</div>
+  <div><svg viewBox="0 0 24 24"><circle cx="9" cy="7.5" r="4" fill="#4aa8ff"/><path d="M1.5 21c0-4.4 3.4-7.5 7.5-7.5s7.5 3.1 7.5 7.5z" fill="#4aa8ff"/><path d="M19 4v6M16 7h6" stroke="#4aa8ff" stroke-width="2.2" stroke-linecap="round"/></svg>Follow</div></div>
+  <div id="ecSub">Subscribe</div></div></div>
+<div id="ecPill"><span class="a">Same model</span><span class="b">= it charges.</span></div>
+<div id="fade"></div>
+<svg id="zones" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+  <rect x="0" y="0" width="1080" height="220" fill="rgba(255,0,0,.18)"/><rect x="0" y="1500" width="1080" height="420" fill="rgba(255,0,0,.18)"/>
+  <rect x="940" y="1100" width="140" height="400" fill="rgba(255,0,0,.18)"/>
+  <rect x="2" y="220" width="1076" height="230" fill="none" stroke="#ffd400" stroke-width="3" stroke-dasharray="12 8"/>
+  <rect x="2" y="450" width="1076" height="1050" fill="none" stroke="#00e0ff" stroke-width="3" stroke-dasharray="12 8"/>
+  <rect x="2" y="1250" width="1076" height="200" fill="none" stroke="#ff00d0" stroke-width="3" stroke-dasharray="12 8"/>
+  <rect x="990" y="880" width="80" height="160" fill="rgba(255,255,255,.25)"/>
+</svg>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../phone-teardown/assets/airpods-pro-model.compact.js"></script>
+<script>
+(() => {
+const Q = new URLSearchParams(location.search);
+if (Q.get('zones')) document.getElementById('zones').style.display = 'block';
+const W = innerWidth, H = innerHeight;
+/* scene boundaries (seconds); replaced by the voice timeline once the narration is recorded */
+const B = window.__B || [0, 2.0, 5.5, 8.5, 19.0, 28.0, 37.0, 43.0, 46.5];
+const TOTAL = B[B.length - 1];
+const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
+const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3), lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
+const bump = (u, a, b) => Math.sin(Math.PI * ramp(u, a, b));
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(devicePixelRatio); renderer.setSize(W, H);
+renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+document.body.prepend(renderer.domElement);
+const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, W / H, 1, 8000);
+let ready = false;
+
+/* background + studio environment (same look as the ear Short) */
+{
+  const c = document.createElement('canvas'); c.width = 64; c.height = 512; const x = c.getContext('2d');
+  const g = x.createRadialGradient(32, 210, 10, 32, 210, 420); g.addColorStop(0, '#24283a'); g.addColorStop(0.45, '#121320'); g.addColorStop(1, '#050507');
+  x.fillStyle = g; x.fillRect(0, 0, 64, 512); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; scene.background = t;
+  const pm = new THREE.PMREMGenerator(renderer), env = new THREE.Scene(), e = document.createElement('canvas'); e.width = 16; e.height = 256; const ex = e.getContext('2d');
+  const eg = ex.createLinearGradient(0, 0, 0, 256); eg.addColorStop(0, '#9aa3b8'); eg.addColorStop(0.5, '#2a2c34'); eg.addColorStop(1, '#0b0b0e'); ex.fillStyle = eg; ex.fillRect(0, 0, 16, 256);
+  env.add(new THREE.Mesh(new THREE.SphereGeometry(100, 32, 16), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(e), side: THREE.BackSide })));
+  for (const [px, py, pz, s] of [[60, 50, 40, 40], [-70, 30, -30, 30], [0, 80, -60, 50], [40, -10, 80, 25]]) { const q = new THREE.Mesh(new THREE.PlaneGeometry(s, s), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })); q.position.set(px, py, pz); q.lookAt(0, 0, 0); env.add(q); }
+  scene.environment = pm.fromScene(env, 0.04).texture;
+}
+scene.add(new THREE.HemisphereLight(0x9aa4c0, 0x120e12, 0.45));
+const key = new THREE.DirectionalLight(0xfff1e6, 1.25); key.position.set(300, 360, 380); scene.add(key);
+const rim = new THREE.DirectionalLight(0x8fa8ff, 1.0); rim.position.set(-200, 160, -400); scene.add(rim);
+
+function radial(stops, size = 128) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'), g = x.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2); stops.forEach(([o, col]) => g.addColorStop(o, col)); x.fillStyle = g; x.fillRect(0, 0, size, size); return new THREE.CanvasTexture(c); }
+const HALO_B = radial([[0, 'rgba(235,248,255,1)'], [0.2, 'rgba(120,200,255,0.85)'], [0.55, 'rgba(80,170,255,0.2)'], [1, 'rgba(80,170,255,0)']]);
+const HALO_G = radial([[0, 'rgba(235,255,240,1)'], [0.2, 'rgba(90,240,140,0.85)'], [0.55, 'rgba(47,211,107,0.22)'], [1, 'rgba(47,211,107,0)']]);
+const HALO_A = radial([[0, 'rgba(255,248,230,1)'], [0.2, 'rgba(255,190,90,0.85)'], [0.55, 'rgba(255,170,60,0.22)'], [1, 'rgba(255,170,60,0)']]);
+const HALO_Y = radial([[0, 'rgba(255,250,235,1)'], [0.22, 'rgba(255,214,120,0.9)'], [0.55, 'rgba(240,190,90,0.25)'], [1, 'rgba(240,190,90,0)']]);
+function sprite(tex, s) { const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false })); m.scale.set(s, s, 1); return m; }
+
+/* materials: navy boards, gold, steel, black glass, amber flex; no green boards */
+const MAT = {
+  white: () => new THREE.MeshPhysicalMaterial({ color: 0xf1f2f4, roughness: 0.32, metalness: 0, clearcoat: 0.35, clearcoatRoughness: 0.35, envMapIntensity: 0.9 }),
+  steel: new THREE.MeshStandardMaterial({ color: 0xd3d8df, metalness: 1, roughness: 0.26 }),
+  dsteel: new THREE.MeshStandardMaterial({ color: 0x4a505a, metalness: 1, roughness: 0.32 }),
+  black: new THREE.MeshStandardMaterial({ color: 0x0d0e11, metalness: 0.25, roughness: 0.32, envMapIntensity: 0.8 }),
+  navy: new THREE.MeshStandardMaterial({ color: 0x12204a, metalness: 0.2, roughness: 0.4 }),
+  gold: new THREE.MeshStandardMaterial({ color: 0xe6b85c, metalness: 1, roughness: 0.2 }),
+  copper: new THREE.MeshStandardMaterial({ color: 0xd6874a, metalness: 1, roughness: 0.26 }),
+  copperDk: new THREE.MeshStandardMaterial({ color: 0xa8612f, metalness: 1, roughness: 0.34 }),
+  ceramic: new THREE.MeshStandardMaterial({ color: 0xc9b48f, metalness: 0, roughness: 0.5 }),
+  magnet: new THREE.MeshStandardMaterial({ color: 0x8d939c, metalness: 0.95, roughness: 0.3 }),
+  ferrite: new THREE.MeshStandardMaterial({ color: 0x15171b, metalness: 0.3, roughness: 0.6 }),
+};
+const GLOW = { pin: new THREE.MeshStandardMaterial({ color: 0xe6b85c, metalness: 1, roughness: 0.2, emissive: 0xffc860, emissiveIntensity: 0 }) };
+function labelTex(lines, bg, fg, w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); x.fillStyle = bg; x.fillRect(0, 0, w, h);
+  x.fillStyle = fg; x.textAlign = 'center'; let y = h * 0.42; lines.forEach(([t, s], i) => { x.font = `600 ${s}px Sora, Arial`; x.fillText(t, w / 2, y); y += s * 1.15; });
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t; }
+function etched(text, w, h, sub) {
+  const c = document.createElement('canvas'); c.width = w * 40; c.height = h * 40; const x = c.getContext('2d');
+  x.fillStyle = '#0e0f12'; x.fillRect(0, 0, c.width, c.height);
+  x.fillStyle = '#9ea4ae'; x.textAlign = 'center'; x.font = `600 ${c.height * 0.3}px Sora, Arial`; x.fillText(text, c.width / 2, c.height * (sub ? 0.5 : 0.6));
+  if (sub) { x.font = `500 ${c.height * 0.13}px 'IBM Plex Mono', monospace`; x.fillStyle = '#6f7580'; x.fillText(sub, c.width / 2, c.height * 0.76); }
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
+}
+function flexTex() { const c = document.createElement('canvas'); c.width = 64; c.height = 512; const x = c.getContext('2d');
+  x.fillStyle = '#b8691c'; x.fillRect(0, 0, 64, 512); x.fillStyle = '#f0c46a'; for (let i = 0; i < 5; i++) x.fillRect(8 + i * 11, 0, 4, 512);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.wrapT = THREE.RepeatWrapping; t.repeat.set(1, 6); return t; }
+const FLEX = new THREE.MeshStandardMaterial({ map: flexTex(), roughness: 0.35, metalness: 0.2 });
+const ghostMat = (col = 0xe9eef8) => new THREE.ShaderMaterial({
+  uniforms: { col: { value: new THREE.Color(col) }, alpha: { value: 0 } }, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+  vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
+  fragmentShader: 'uniform vec3 col; uniform float alpha; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.4); gl_FragColor = vec4(col * (0.55 + 0.7 * f), (0.03 + 0.6 * f) * alpha); }'
+});
+const box = (w, h, d, mat, x, y, z, p) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); p.add(m); return m; };
+const cylY = (r, len, mat, x, y, z, p, seg = 32) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, seg), mat); m.position.set(x, y, z); p.add(m); return m; };
+function rrShape(w, h, r) { const s = new THREE.Shape(), x = -w / 2, y = -h / 2; s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r); s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h); s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r); s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y); return s; }
+const rrBox = (w, h, d, r, bev, mat) => { const g = new THREE.ExtrudeGeometry(rrShape(w, h, r), { depth: d - 2 * bev, bevelEnabled: bev > 0, bevelThickness: bev, bevelSize: bev, bevelSegments: 3, curveSegments: 12 }); g.translate(0, 0, -(d - 2 * bev) / 2); return new THREE.Mesh(g, mat); };
+function caps(parent, pts) { pts.forEach(([x, y, z, rot]) => { const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.z = rot || 0; parent.add(g);
+  box(0.5, 0.26, 0.26, MAT.ceramic, 0, 0, 0, g); box(0.12, 0.28, 0.28, MAT.steel, -0.3, 0, 0, g); box(0.12, 0.28, 0.28, MAT.steel, 0.3, 0, 0, g); }); }
+
+/* ---------- the real case: "AirPods Pro" by Jed Falcone (CC BY 4.0), modified ----------
+   Frame: millimetres, origin at the centre of the lid line, +y up, +z = front (status light), hinge at the back. */
+const GEO = {};   // name|side → geometry in case mm
+let K = 1;
+function loadModel() {
+  const C = window.AIRPODS_COMPACT, bytes = Uint8Array.from(atob(C.bin), c => c.charCodeAt(0));
+  return new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer().then(ab => {
+    const raw = [];
+    GEO.tex = new THREE.TextureLoader().load(C.tex); GEO.tex.encoding = THREE.sRGBEncoding; GEO.tex.flipY = false;
+    C.meshes.forEach(m => {
+      const q = new Uint16Array(ab, m.po, m.n * 3), pos = new Float32Array(m.n * 3);
+      for (let i = 0; i < m.n; i++) for (let j = 0; j < 3; j++) pos[i * 3 + j] = m.min[j] + q[i * 3 + j] / 65535 * m.sc[j];
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      g.setIndex(new THREE.BufferAttribute(m.i32 ? new Uint32Array(ab, m.io, m.ni) : new Uint16Array(ab, m.io, m.ni), 1));
+      if (m.tex) { const uq = new Uint16Array(ab, m.uo, m.n * 2), uv = new Float32Array(m.n * 2); for (let i = 0; i < m.n * 2; i++) uv[i] = uq[i] / 65535; g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); }
+      raw.push({ m, g });
+    });
+    const cb = new THREE.Box3(), lb = new THREE.Box3();
+    raw.forEach(({ m, g }) => { g.computeBoundingBox(); if (m.grp === 'case') cb.union(g.boundingBox); if (m.grp === 'lid') lb.union(g.boundingBox); });
+    K = 62.2 / (cb.max.x - cb.min.x);                                         // Apple: case 62.2 mm wide
+    const O = new THREE.Vector3((cb.min.x + cb.max.x) / 2, lb.min.y, (cb.min.z + cb.max.z) / 2);
+    raw.forEach(({ m, g }) => { g.translate(-O.x, -O.y, -O.z); g.scale(K, K, K); g.computeVertexNormals(); g.computeBoundingBox(); g.computeBoundingSphere();
+      GEO[m.name + '|' + m.grp + '|' + (m.side || '')] = { g, m }; });
+  });
+}
+const LID_PIVOT = new THREE.Vector3(0, 0, -10.2);
+const CASES = [];
+function matFor(m, glow) {
+  const c = m.col, lum = c[0] * 0.3 + c[1] * 0.59 + c[2] * 0.11;
+  if (m.tex) return new THREE.MeshStandardMaterial({ map: GEO.tex, metalness: 0.6, roughness: 0.4 });
+  if (m.met > 0.5) return new THREE.MeshStandardMaterial({ color: 0xc9ced6, metalness: 1, roughness: 0.28 });
+  if (lum > 0.9) return MAT.white();
+  if (m.name.startsWith('Cylinder_1')) return new THREE.MeshStandardMaterial({ color: 0x111316, emissive: 0x2fd36b, emissiveIntensity: 0, roughness: 0.3 });
+  return new THREE.MeshStandardMaterial({ color: new THREE.Color(c[0], c[1], c[2]).multiplyScalar(0.5), metalness: 0.2, roughness: Math.max(0.35, m.rou) });
+}
+const STEM = { R: null, L: null };   // stem-tip contact point (case frame) per side
+function makeBud(side) {
+  const g = new THREE.Group(), solid = [], ghost = [];
+  for (const k in GEO) { if (!k.endsWith('|buds|' + side)) continue; const { g: geo, m } = GEO[k];
+    const isTip = m.name.startsWith('Capsule'), isMetal = m.name.startsWith('Cube_4');
+    const mat = isTip ? new THREE.MeshStandardMaterial({ color: 0xe9eaee, roughness: 0.85, metalness: 0 }) : isMetal ? new THREE.MeshStandardMaterial({ color: 0xc8ccd3, metalness: 1, roughness: 0.25 }) : matFor(m);
+    const geo2 = geo.clone(); geo2.translate(-STEM[side].x, -STEM[side].y, -STEM[side].z);
+    const me = new THREE.Mesh(geo2, mat); me.name = m.name; g.add(me); solid.push(me);
+    const gm = new THREE.Mesh(geo2, ghostMat()); gm.renderOrder = 6; gm.visible = false; g.add(gm); ghost.push(gm); }
+  const inner = new THREE.Group(); g.add(inner); inner.visible = false;
+  return { g, solid, ghost, inner, side };
+}
+function makeCase() {
+  const root = new THREE.Group(), body = new THREE.Group(), lid = new THREE.Group(); root.add(body); body.add(lid); lid.position.copy(LID_PIVOT);
+  const solid = [], ghost = []; let light = null;
+  for (const k in GEO) { const { g: geo, m } = GEO[k]; if (!m || m.grp === 'buds') continue;
+    // Cylinder_2 is the back pairing button in the source model; Pro 3 has none, so it stays as a flush white plug
+    const mat = matFor(m), parent = m.grp === 'lid' ? lid : body;
+    const geo2 = m.grp === 'lid' ? geo.clone().translate(-LID_PIVOT.x, -LID_PIVOT.y, -LID_PIVOT.z) : geo;
+    const me = new THREE.Mesh(geo2, mat); me.name = m.name; parent.add(me); solid.push(me); if (m.name.startsWith('Cylinder_1')) light = me;
+    const gm = new THREE.Mesh(geo2, ghostMat()); gm.renderOrder = 5; gm.visible = false; parent.add(gm); ghost.push(gm); }
+  const halo = sprite(HALO_G, 5.5); halo.position.copy(light.geometry.boundingBox.getCenter(new THREE.Vector3())).add(new THREE.Vector3(0, 0, 1.2)); body.add(halo); halo.visible = false;
+  const inner = new THREE.Group(); body.add(inner); inner.visible = false;
+  const buds = { R: makeBud('R'), L: makeBud('L') };
+  for (const s of ['R', 'L']) { body.add(buds[s].g); buds[s].g.position.copy(STEM[s]); }
+  const C = { root, body, lid, solid, ghost, light, halo, inner, buds, x: 0 }; CASES.push(C); scene.add(root); return C;
+}
+function setLid(C, open) { C.lid.rotation.x = -1.92 * open; }
+function setLight(C, col, v) { const tex = { green: HALO_G, amber: HALO_A, white: HALO_B }[col];
+  C.light.material.emissive.set(col === 'green' ? 0x2fd36b : col === 'amber' ? 0xffa030 : 0xdff3ff); C.light.material.emissiveIntensity = 2.2 * v;
+  C.halo.material.map = tex; C.halo.material.opacity = v; C.halo.visible = v > 0.01; }
+function setXray(C, x) {
+  C.solid.forEach(o => { const m = o.material; m.transparent = x > 0.001; m.opacity = 1 - x; m.depthWrite = x < 0.5; });
+  C.ghost.forEach(o => { o.material.uniforms.alpha.value = x; o.visible = x > 0.001; });
+  C.inner.visible = x > 0.55;
+}
+function budXray(b, x) {
+  b.solid.forEach(o => { const m = o.material; m.transparent = x > 0.001; m.opacity = 1 - x * (o.name.startsWith('Cube_4') ? 0.25 : 1); m.depthWrite = x < 0.5; });
+  b.ghost.forEach(o => { o.material.uniforms.alpha.value = x * 0.9; o.visible = x > 0.001; });
+  b.inner.visible = x > 0.55;
+}
+function resetBud(b) { b.g.position.copy(STEM[b.side]); b.g.rotation.set(0, 0, 0); b.g.visible = true; }
+
+/* centre of the stem's cross-section at height y (case frame) */
+function stemAt(side, y) { const pa = GEO['Cube_2_Mat.1_0|buds|' + side].g.attributes.position, v = new THREE.Vector3(), bb = new THREE.Box3();
+  for (let i = 0; i < pa.count; i++) { v.fromBufferAttribute(pa, i); if (Math.abs(v.y - y) < 0.6) bb.expandByPoint(v); }
+  return bb.isEmpty() ? null : bb.getCenter(new THREE.Vector3()); }
+/* stem-tip contacts: found on the real stem cap (cast up from below) */
+const DOTS = { R: [], L: [] };
+function findStems() {
+  for (const s of ['R', 'L']) {
+    const { g } = GEO['Cube_4_Mat.9_0|buds|' + s]; const bb = g.boundingBox, c = bb.getCenter(new THREE.Vector3());
+    const tmp = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })); tmp.updateMatrixWorld(true);
+    const rc = new THREE.Raycaster(); const pts = [];
+    // the cap's long axis: sample a cross and keep the lowest hits
+    for (const [dx, dz] of [[-1.3, 0], [1.3, 0], [0, 0]]) { rc.set(new THREE.Vector3(c.x + dx, bb.min.y - 10, c.z + dz), new THREE.Vector3(0, 1, 0)); const h = rc.intersectObject(tmp)[0]; pts.push(h ? { p: h.point, n: h.face.normal.clone() } : { p: new THREE.Vector3(c.x + dx, bb.min.y, c.z + dz), n: new THREE.Vector3(0, -1, 0) }); }
+    STEM[s] = pts[2].p.clone(); DOTS[s] = pts.slice(0, 2);
+  }
+}
+
+/* ---------- internals (case frame, mm). Illustrative, not to scale. ---------- */
+const P = {};   // anchor points for tags and the power path
+function buildCaseInternals(C) {
+  const I = C.inner;
+  // charging board along the floor (navy, gold pads)
+  const bd = new THREE.Group(); bd.position.set(0, -25.6, 0.6); I.add(bd);
+  box(44, 0.9, 11, MAT.navy, 0, 0, 0, bd);
+  const chg = box(4.6, 0.7, 3.8, new THREE.MeshStandardMaterial({ map: etched('CHG', 4.6, 3.8), roughness: 0.42, metalness: 0.2 }), 3, 0.8, 1.2, bd);
+  chg.material.map.rotation = 0; box(5.0, 0.8, 5.0, new THREE.MeshStandardMaterial({ map: etched('UWB', 5, 5), roughness: 0.42, metalness: 0.2 }), -9, 0.85, 0.5, bd);
+  box(4.4, 0.9, 3.2, new THREE.MeshStandardMaterial({ color: 0xc4c8ce, metalness: 0.95, roughness: 0.22 }), 9.5, 0.9, -1.8, bd);
+  for (let i = 0; i < 16; i++) box(0.8, 0.06, 0.5, MAT.gold, -18 + i * 2.4, 0.48, 4.9, bd);
+  P.chg = new THREE.Vector3(3, -24.6, 1.8); P.board = new THREE.Vector3(-14, -25.2, 3);
+  // one 1.334 Wh battery between the stems
+  const bt = new THREE.Group(); bt.position.set(0, -15.5, 0.6); I.add(bt);
+  const cell = rrBox(25, 9.5, 7.2, 1.8, 0.6, new THREE.MeshStandardMaterial({ color: 0x0b0c0e, roughness: 0.6, envMapIntensity: 0.35 })); bt.add(cell);
+  const lb = new THREE.Mesh(new THREE.PlaneGeometry(15, 5.2), new THREE.MeshStandardMaterial({ map: labelTex([['1.334 Wh', 64], ['Li-ion', 36]], '#0b0c0e', '#cfd3d9', 512, 170), roughness: 0.6, envMapIntensity: 0.3 })); lb.position.z = 3.62; bt.add(lb);
+  box(1.2, 8.4, 7.4, MAT.gold, -12.4, 0, 0, bt); box(1.2, 8.4, 7.4, MAT.gold, 12.4, 0, 0, bt);
+  P.batt = new THREE.Vector3(0, -15.5, 4.3);
+  // flex from the battery down to the board
+  I.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(12.4, -18, 3.2), new THREE.Vector3(14.5, -21.5, 3.2), new THREE.Vector3(12, -24.9, 3.2)]), 24, 0.35, 8), FLEX));
+  // MagSafe / Qi2 coil on the back wall (copper rings, magnet ring)
+  const co = new THREE.Group(); co.position.set(0, -17.5, -5.0); I.add(co);
+  for (let i = 0; i < 10; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(2.2 + i * 0.42, 0.2, 8, 72), i % 2 ? MAT.copperDk : MAT.copper); co.add(t); }
+  const fer = new THREE.Mesh(new THREE.CylinderGeometry(6.2, 6.2, 0.3, 64), MAT.ferrite); fer.rotation.x = Math.PI / 2; fer.position.z = -0.4; co.add(fer);
+  // USB-C port in the bottom
+  const us = new THREE.Group(); us.position.set(0, -27.6, 0.6); I.add(us);
+  const sh = rrBox(8.9, 3.2, 2.8, 1.5, 0.2, MAT.steel); sh.rotation.x = Math.PI / 2; us.add(sh);
+  box(6.4, 2.6, 0.7, MAT.black, 0, 0, 0, us);
+  // wells: two spring pins under each stem's gold dots, a magnet beside each stem
+  P.pins = {}; P.mag = {};
+  for (const s of ['R', 'L']) {
+    const pins = [];
+    DOTS[s].forEach(({ p }, k) => {
+      const pg = new THREE.Group(); pg.position.copy(p); I.add(pg);
+      const barrel = cylY(0.55, 2.4, MAT.dsteel, 0, -1.6 - 0.25, 0, pg, 20);                   // spring barrel
+      const plunger = cylY(0.36, 1.0, GLOW.pin, 0, -0.45, 0, pg, 20);                            // gold plunger touching the dot
+      const tip = new THREE.Mesh(new THREE.SphereGeometry(0.36, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), GLOW.pin); tip.position.y = 0.04; pg.add(tip);
+      const spring = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(Array.from({ length: 40 }, (_, i) => new THREE.Vector3(Math.cos(i * 1.2) * 0.62, -0.9 - i * 0.055, Math.sin(i * 1.2) * 0.62))), 80, 0.07, 6), MAT.copper); pg.add(spring);
+      const pad = box(1.4, 0.15, 1.4, MAT.gold, 0, -3.15, 0, pg);
+      pins.push(pg);
+      // trace from the pin down to the board
+      const a = p.clone().add(new THREE.Vector3(0, -3.2, 0)), b = new THREE.Vector3(Math.sign(p.x) * 19.5, -25.1, 1.2 + (k ? 1.2 : -1.2));
+      I.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([a, a.clone().lerp(b, 0.5).add(new THREE.Vector3(0, 0.3, 0)), b]), 12, 0.22, 6), FLEX));
+    });
+    P.pins[s] = DOTS[s][0].p.clone().lerp(DOTS[s][1].p, 0.5).add(new THREE.Vector3(0, -1.4, 0));
+    const mp = new THREE.Vector3(Math.sign(STEM[s].x) * 16.6, -12.5, 1.8);
+    const mg = box(2.4, 7.0, 4.2, MAT.magnet, mp.x, mp.y, mp.z, I); P.mag[s] = mp;
+  }
+  P.light = C.halo.position.clone();
+}
+function buildBudInternals(b) {
+  const I = b.inner, s = b.side;   // bud frame: origin at the stem tip contact
+  // gold contact dots at the very tip of the stem
+  DOTS[s].forEach(({ p }) => { const d = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 0.2, 24), GLOW.pin); d.position.copy(p).sub(STEM[s]).add(new THREE.Vector3(0, 0.05, 0)); b.g.add(d); });
+  // charging chip up the stem, then the bud's own battery in the head
+  const up = new THREE.Vector3(0, 1, 0);
+  const ax = y => stemAt(s, STEM[s].y + y).sub(STEM[s]); const chip = new THREE.Group(); chip.position.copy(ax(7.5)); I.add(chip);
+  box(2.4, 0.4, 3.2, MAT.navy, 0, 0, 0, chip).rotation.z = Math.PI / 2;
+  box(0.6, 2.4, 2.4, new THREE.MeshStandardMaterial({ map: etched('PMU', 2.4, 2.4), roughness: 0.42, metalness: 0.2 }), 0.45, 0, 0, chip).rotation.y = 0;
+  P['budChip' + s] = chip.position.clone();
+  const bat = new THREE.Group(); bat.position.copy(P['budBatPos' + s]); I.add(bat);
+  const cell = cylY(3.6, 4.0, MAT.steel, 0, 0, 0, bat, 48); cell.rotation.z = Math.PI / 2; cell.rotation.y = -0.35 * Math.sign(STEM[s].x);
+  P['budBat' + s] = bat.position.clone();
+  // flex: contacts → chip → battery
+  const pts = [ax(1.6), ax(4), chip.position.clone(), ax(11), ax(14), bat.position.clone().add(new THREE.Vector3(0, -3.2, 0))];
+  P['budPath' + s] = pts;
+  I.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 48, 0.22, 6), FLEX));
+}
+
+/* power path: glowing tube + moving packets (blue) */
+const POWER = { tube: null, head: null, curve: null, pk: [] };
+function buildPower(C) {
+  const b = C.buds.R, toCase = v => b.g.position.clone().add(v);   // bud frame → case frame (seated, no rotation)
+  const pts = [P.batt.clone().add(new THREE.Vector3(8, 0, 0)), new THREE.Vector3(12.8, -18.5, 3.6), new THREE.Vector3(14, -22.5, 3.6), new THREE.Vector3(17.5, -25.0, 2.4),
+    P.pins.R.clone().add(new THREE.Vector3(-0.4, -2.2, 0)), P.pins.R.clone(), ...P.budPathR.slice(1).map(toCase)];
+  POWER.curve = new THREE.CatmullRomCurve3(pts);
+  POWER.tube = new THREE.Mesh(new THREE.TubeGeometry(POWER.curve, 200, 0.55, 10), new THREE.MeshBasicMaterial({ color: 0x2a9dff, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
+  POWER.tube.renderOrder = 20; C.body.add(POWER.tube);
+  POWER.head = sprite(HALO_B, 7); C.body.add(POWER.head);
+  for (let i = 0; i < 7; i++) { const s = sprite(HALO_B, 3.6); C.body.add(s); POWER.pk.push(s); }
+}
+function power(prog, flow, t) {
+  const idx = POWER.tube.geometry.index.count; POWER.tube.geometry.setDrawRange(0, Math.floor(idx * prog / 6) * 6); POWER.tube.visible = prog > 0.01;
+  POWER.head.visible = prog > 0.01 && prog < 0.995; POWER.head.position.copy(POWER.curve.getPoint(Math.min(prog, 1)));
+  POWER.pk.forEach((s, i) => { const f = (t * 0.35 + i / POWER.pk.length) % 1; s.visible = flow > 0.01; s.position.copy(POWER.curve.getPoint(f)); s.material.opacity = flow * Math.sin(Math.PI * f); });
+}
+
+/* ---------- phone (generic, no logo) ---------- */
+const PHONE = new THREE.Group(); scene.add(PHONE);
+let SCREEN_CV, SCREEN_TEX, SCREEN_MAT;
+function buildPhone() {
+  const frame = rrBox(71.5, 147, 7.8, 11, 1.2, new THREE.MeshStandardMaterial({ color: 0x3b3d42, metalness: 1, roughness: 0.3 })); PHONE.add(frame);
+  const glass = rrBox(70.6, 146, 0.4, 10.6, 0, new THREE.MeshPhysicalMaterial({ color: 0x040405, roughness: 0.05, clearcoat: 1, metalness: 0 })); glass.position.z = 3.95; PHONE.add(glass);
+  SCREEN_CV = document.createElement('canvas'); SCREEN_CV.width = 660; SCREEN_CV.height = 1380;
+  SCREEN_TEX = new THREE.CanvasTexture(SCREEN_CV); SCREEN_TEX.encoding = THREE.sRGBEncoding; SCREEN_TEX.anisotropy = 8;
+  const sg = new THREE.ShapeGeometry(rrShape(66.5, 139, 9), 16); { const pa = sg.attributes.position, uv = []; for (let i = 0; i < pa.count; i++) uv.push(pa.getX(i) / 66.5 + 0.5, pa.getY(i) / 139 + 0.5); sg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); }
+  SCREEN_MAT = new THREE.MeshBasicMaterial({ map: SCREEN_TEX, toneMapped: false }); const scr = new THREE.Mesh(sg, SCREEN_MAT); scr.position.z = 4.2; PHONE.add(scr);
+  const back = rrBox(70, 145.5, 0.3, 10.5, 0, new THREE.MeshPhysicalMaterial({ color: 0x2c2e33, roughness: 0.55, metalness: 0.2 })); back.position.z = -3.95; PHONE.add(back);
+  for (const [y, h] of [[38, 14], [20, 9], [6, 9]]) box(1.2, h, 2.2, new THREE.MeshStandardMaterial({ color: 0x3b3d42, metalness: 1, roughness: 0.3 }), -36.2, y, 0, PHONE);
+  box(1.2, 22, 2.2, new THREE.MeshStandardMaterial({ color: 0x3b3d42, metalness: 1, roughness: 0.3 }), 36.2, 22, 0, PHONE);
+}
+let lastScreen = '';
+function screen(state, k = 1) {   // state: off | alert | fixed ; k = card pop progress
+  const key = state + ':' + k.toFixed(2); if (key === lastScreen) return; lastScreen = key;
+  const c = SCREEN_CV, x = c.getContext('2d'), w = c.width, h = c.height;
+  x.fillStyle = '#000'; x.fillRect(0, 0, w, h);
+  if (state === 'off') { SCREEN_TEX.needsUpdate = true; return; }
+  const g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#1a2350'); g.addColorStop(0.55, '#2a1846'); g.addColorStop(1, '#0d1028'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  x.fillStyle = 'rgba(255,255,255,.92)'; x.textAlign = 'center'; x.font = '600 120px Sora, Arial'; x.fillText('9:41', w / 2, 260); x.font = '500 34px "IBM Plex Sans", Arial'; x.fillStyle = 'rgba(255,255,255,.7)'; x.fillText('Saturday 15 November', w / 2, 150);
+  x.fillStyle = '#000'; x.beginPath(); x.roundRect ? x.roundRect(w / 2 - 95, 22, 190, 54, 27) : x.rect(w / 2 - 95, 22, 190, 54); x.fill();   // island
+  // card
+  const e = easeOut(k), cw = w - 60, ch = 640, cx = 30, cy = 400 + (1 - e) * 90;
+  x.globalAlpha = e; x.fillStyle = 'rgba(28,28,34,.96)'; x.beginPath(); x.roundRect(cx, cy, cw, ch, 56); x.fill();
+  // two-bud glyph
+  const bx = w / 2, by = cy + 150, col = state === 'fixed' ? '#2fd36b' : '#ffb340';
+  for (const sx of [-1, 1]) { x.save(); x.translate(bx + sx * 46, by); x.scale(sx, 1); x.fillStyle = '#f1f2f4'; x.beginPath(); x.ellipse(0, -30, 30, 34, 0, 0, 7); x.fill(); x.beginPath(); x.roundRect(4, -18, 20, 98, 10); x.fill(); x.restore(); }
+  x.textAlign = 'center';
+  if (state === 'alert') {
+    x.fillStyle = '#fff'; x.font = '700 60px Sora, Arial'; x.fillText('Mismatched', w / 2, cy + 300); x.fillText('AirPods', w / 2, cy + 366);
+    x.fillStyle = 'rgba(255,255,255,.65)'; x.font = '500 32px "IBM Plex Sans", Arial'; x.fillText('These AirPods and this case', w / 2, cy + 420); x.fillText('aren’t a set.', w / 2, cy + 460);
+    x.fillStyle = '#ffb340'; x.beginPath(); x.arc(bx + 110, by - 58, 26, 0, 7); x.fill(); x.fillStyle = '#1a1206'; x.font = '800 36px Sora, Arial'; x.fillText('!', bx + 110, by - 45);
+    x.fillStyle = '#3a7bff'; x.beginPath(); x.roundRect(cx + 60, cy + ch - 120, cw - 120, 84, 42); x.fill(); x.fillStyle = '#fff'; x.font = '600 36px Sora, Arial'; x.fillText('Set up', w / 2, cy + ch - 66);
+  } else {
+    x.fillStyle = '#fff'; x.font = '700 54px Sora, Arial'; x.fillText('Connected', w / 2, cy + 320);
+    x.fillStyle = 'rgba(255,255,255,.65)'; x.font = '500 32px "IBM Plex Sans", Arial'; x.fillText('Warning gone', w / 2, cy + 376);
+    x.fillStyle = '#2fd36b'; x.beginPath(); x.arc(bx + 110, by - 58, 28, 0, 7); x.fill(); x.strokeStyle = '#062a12'; x.lineWidth = 9; x.lineCap = 'round'; x.beginPath(); x.moveTo(bx + 97, by - 58); x.lineTo(bx + 107, by - 47); x.lineTo(bx + 124, by - 70); x.stroke();
+    x.fillStyle = 'rgba(255,255,255,.12)'; x.beginPath(); x.roundRect(cx + 60, cy + ch - 120, cw - 120, 84, 42); x.fill(); x.fillStyle = '#fff'; x.font = '600 36px Sora, Arial'; x.fillText('Done', w / 2, cy + ch - 66);
+  }
+  x.globalAlpha = 1; SCREEN_TEX.needsUpdate = true;
+}
+
+/* ---------- dotted "paired as a set" link that breaks ---------- */
+const LINK = new THREE.Group(); scene.add(LINK);
+function buildLink() { for (let i = 0; i < 22; i++) { const s = sprite(HALO_Y, 2.6); s.userData.i = i; LINK.add(s); } }
+function link(a, b, alpha, brk, t) {   // brk 0..1: the middle opens up and the halves fall
+  LINK.visible = alpha > 0.01; const n = LINK.children.length, mid = a.clone().lerp(b, 0.5).add(new THREE.Vector3(0, 26, 0));
+  const curve = new THREE.QuadraticBezierCurve3(a, mid.add(new THREE.Vector3(0, -12, 0)), b);
+  LINK.children.forEach((s, i) => { const f = (i + 0.5) / n, p = curve.getPoint(f), side = f < 0.5 ? -1 : 1, d = Math.abs(f - 0.5);
+    if (brk > 0) { p.x += side * brk * 6 * (1 - d); p.y -= brk * brk * 30 * (1 - d * 1.6); }
+    s.position.copy(p); s.material.opacity = alpha * (d < 0.08 * brk * 3 ? 0 : 1) * (0.7 + 0.3 * Math.sin(t * 6 - i * 0.6)) * (1 - 0.6 * brk); });
+}
+
+/* ---------- overlays ---------- */
+const $ = id => document.getElementById(id);
+let lastTitle = '';
+function title(lines, times, u) {
+  const key = lines.join('|'); if (key !== lastTitle) { lastTitle = key; $('title').innerHTML = lines.map(l => `<span class="ln">${l}</span>`).join(''); }
+  [...$('title').children].forEach((el, i) => { const a = easeOut(ramp(u, times[i], times[i] + 0.3)); el.style.opacity = a; el.style.transform = `translateY(${(1 - a) * 2.2}vh)`; });
+}
+function note(text, a, mid = false) { $('note').innerHTML = text; $('note').style.opacity = a; $('note').style.left = mid ? '8%' : '3.7%'; $('note').style.right = mid ? '8%' : '16.7%'; }
+const TAGS = {}; const svg = $('lines');
+function tagEl(id, text, cls) { if (!TAGS[id]) { const el = document.createElement('div'); document.body.appendChild(el);
+  const l = document.createElementNS('http://www.w3.org/2000/svg', 'line'), c = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); svg.append(l, c); TAGS[id] = { el, l, c }; }
+  const T = TAGS[id]; T.el.textContent = text; T.el.className = 'tag ' + (cls || ''); return T; }
+const colOf = cls => cls === 'red' ? '#ff3b55' : cls === 'green' ? '#2fd36b' : cls === 'blue' ? '#5fd0ff' : 'rgba(255,255,255,.75)';
+function proj(v) { const p = v.clone().project(camera); return [(p.x + 1) / 2 * W, (1 - p.y) / 2 * H]; }
+function tag(id, text, world, dx, dy, a, cls, noLine) {
+  const T = tagEl(id, text, cls), [x, y] = proj(world), col = colOf(cls);
+  T.el.style.transform = 'translate(-50%,-50%)'; T.el.style.left = (x + dx) + 'px'; T.el.style.top = (y + dy) + 'px'; T.el.style.opacity = a;
+  const la = noLine ? 0 : a;
+  T.l.setAttribute('x1', x); T.l.setAttribute('y1', y); T.l.setAttribute('x2', x + dx * 0.8); T.l.setAttribute('y2', y + dy * 0.8); T.l.setAttribute('stroke', col); T.l.setAttribute('stroke-width', 2.5); T.l.style.opacity = la;
+  T.c.setAttribute('cx', x); T.c.setAttribute('cy', y); T.c.setAttribute('r', 6); T.c.setAttribute('fill', col); T.c.style.opacity = la;
+}
+function sideTags(list) { // callouts in the side margins: [id, text, world, side(-1 left / 1 right), alpha, cls]
+  const gap = H * 0.05, cols = { '-1': [], '1': [] };
+  list.forEach(L => { const [x, y] = proj(L[2]); cols[L[3]].push({ L, x, y, ty: Math.max(H * 0.25, Math.min(H * 0.62, y)) }); });
+  for (const k in cols) { const c = cols[k].filter(o => o.L[4] > 0.01).sort((a, b) => a.ty - b.ty); for (let i = 1; i < c.length; i++) c[i].ty = Math.max(c[i].ty, c[i - 1].ty + gap);
+    if (k === '1') c.forEach(o => { if (o.ty > H * 0.44 && o.ty < H * 0.56) o.ty = o.ty < H * 0.5 ? H * 0.435 : H * 0.565; }); }   // keep clear of the right-middle watermark
+  for (const k in cols) cols[k].forEach(({ L, x, y, ty }) => {
+    const [id, text, , side, a, cls] = L, T = tagEl(id, text, cls), col = colOf(cls);
+    const edge = side < 0 ? W * 0.04 : W * 0.96; T.el.style.left = edge + 'px'; T.el.style.top = ty + 'px'; T.el.style.opacity = a;
+    T.el.style.transform = side < 0 ? 'translate(0,-50%)' : 'translate(-100%,-50%)';
+    const w = T.el.offsetWidth, tx = side < 0 ? edge + w : edge - w;
+    T.l.setAttribute('x1', x); T.l.setAttribute('y1', y); T.l.setAttribute('x2', tx); T.l.setAttribute('y2', ty); T.l.setAttribute('stroke', col); T.l.setAttribute('stroke-width', 2.5); T.l.style.opacity = a;
+    T.c.setAttribute('cx', x); T.c.setAttribute('cy', y); T.c.setAttribute('r', 6); T.c.setAttribute('fill', col); T.c.style.opacity = a;
+  });
+}
+function hideTags() { for (const id in TAGS) { TAGS[id].el.style.opacity = 0; TAGS[id].l.style.opacity = 0; TAGS[id].c.style.opacity = 0; } }
+function glyph(id, world, a, scale = 1, dy = 0) { const el = $(id), [x, y] = proj(world); el.style.left = x + 'px'; el.style.top = (y + dy) + 'px'; el.style.opacity = a; el.style.transform = `translate(-50%,-50%) scale(${scale})`; }
+let VO = 0.06;
+function look(pos, target) { camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix(); camera.position.copy(pos); camera.lookAt(target); camera.updateMatrixWorld(); }
+const V = (x, y, z) => new THREE.Vector3(x, y, z), vlerp = (a, b, k) => a.clone().lerp(b, k);
+const W2 = (C, v) => { C.root.updateMatrixWorld(true); return C.body.localToWorld(v.clone()); };
+
+/* bud hop: from seated in one case to seated in the other along an arc */
+function hop(b, from, to, k, lift = 42) {
+  const s = STEM[b.side], A = W2(from, s), Bp = W2(to, s), e = ease(k);
+  const p = A.clone().lerp(Bp, e); p.y += lift * Math.sin(Math.PI * k);
+  const host = e < 0.5 ? from : to; host.body.worldToLocal(p); if (b.g.parent !== host.body) host.body.add(b.g);
+  b.g.position.copy(p); b.g.rotation.set(0, 0, 0.25 * Math.sin(Math.PI * k) * (b.side === 'R' ? -1 : 1));
+}
+function seat(b, C) { if (b.g.parent !== C.body) C.body.add(b.g); resetBud(b); }
+
+/* ---------- timeline ---------- */
+let CA, CB, BUDS, CAPS = window.__CAPS || [];
+const DRAFT = ['', 'You just put your AirPods in your friend’s case. Will they charge?', 'Yes, they will… but your iPhone is about to call you out.',
+  'Inside each slot, two tiny spring pins touch two gold dots at the tip of the stem. Magnets snap the bud down, so they always touch. Power flows from the case battery, and a little chip inside the earbud decides how fast to fill it.',
+  'Now the catch. Your iPhone pops up “Mismatched AirPods”. Your buds and your case were set up as a pair, so your iPhone notices they’re not together.',
+  'Charging still works. Put them back in their own case, or set them up again with this one, after your friend removes it from their Find My, and the warning is gone.',
+  'A different generation, though, can fit perfectly… and still not work properly.', 'Follow InvisiTech for more.'];
+if (!CAPS.length) DRAFT.forEach((line, i) => { if (!line) return; const w = line.split(' '), ch = []; for (let k = 0; k < w.length; k += 4) ch.push(w.slice(k, k + 4).join(' '));
+  const a = B[i] + 0.25, d = (B[i + 1] - 0.2 - a) / ch.length; ch.forEach((c, j) => CAPS.push([a + j * d, a + (j + 1) * d - 0.12, c.replace(/[.,]$/, '')])); });
+const SHOTS = [
+  (u, t) => { // 1. hook: both buds lift out of case A and drop into case B; B's lid snaps shut
+    CA.root.position.set(-35, -6, 0); CB.root.position.set(35, -6, 0); CA.root.rotation.set(0.05, 0.3, 0); CB.root.rotation.set(0.05, -0.3, 0);
+    setLid(CA, 1); setLid(CB, 1 - ease(ramp(u, 1.55, 1.8)));
+    for (const s of ['R', 'L']) { const b = CA.buds[s], k = ramp(u, 0.25 + (s === 'L' ? 0.08 : 0), 1.35 + (s === 'L' ? 0.08 : 0)); if (k <= 0) seat(b, CA); else if (k >= 1) seat(b, CB); else hop(b, CA, CB, k, 46); }
+    for (const s of ['R', 'L']) CB.buds[s].g.visible = false;
+    setLight(CB, 'white', 0.9 * bump(u, 1.4, 1.95)); setLight(CA, 'green', 0);
+    VO = 0.0; look(V(0, 150, 590), V(0, 6, 0));
+    title(['Wrong case…', '<em class="b">will it charge?</em>'], [0, 0], 1);
+    tag('ya', 'Yours', W2(CA, V(0, -36, 6)), 0, 34, 1, '', true); tag('fr', 'Your friend’s', W2(CB, V(0, -36, 6)), 0, 34, 1, '', true);
+    note('3D illustration · not affiliated with Apple', 1, true);
+  },
+  (u, t) => { // 2. close on case B, "?" over the status light
+    CA.root.visible = false; CB.root.position.set(0, 0, 0); CB.root.rotation.set(0, -0.18 + 0.06 * u / 3.5, 0); setLid(CB, 0);
+    for (const s of ['R', 'L']) { seat(CA.buds[s], CB); CA.buds[s].g.visible = false; CB.buds[s].g.visible = false; }   // lid shut: buds hidden inside
+    setLight(CB, 'white', 0.5 + 0.2 * Math.sin(t * 5));
+    VO = 0.0; look(V(0, 34, 300 - 14 * u / 3.5), V(0, -13, 0));
+    glyph('q', W2(CB, V(0, 25, 12)), easeOut(ramp(u, 0.3, 0.7)), 0.8 + 0.05 * Math.sin(t * 6));
+    title(['Will they <em class="b">charge?</em>'], [0.1], u);
+  },
+  (u, t) => { // 3. light turns green; the phone slides in, screen still dark
+    CA.root.visible = false; CB.root.position.set(-34 * ease(ramp(u, 1.2, 2.2)), -6, 0); CB.root.rotation.set(0, -0.12, 0); setLid(CB, ease(ramp(u, 0.0, 0.5)));
+    for (const s of ['R', 'L']) { seat(CA.buds[s], CB); CB.buds[s].g.visible = false; }
+    const gk = ease(ramp(u, 0.35, 0.7)); setLight(CB, gk > 0.5 ? 'green' : 'white', gk > 0.5 ? 1 : 0.6);
+    PHONE.visible = true; const pk = ease(ramp(u, 1.3, 2.3)); PHONE.position.set(lerp(140, 33, pk), -2, -6); PHONE.rotation.set(0, -0.3, 0.0); PHONE.scale.setScalar(0.5); screen('off');
+    VO = 0.0; look(V(0, 40, 470), V(0, -6, 0));
+    title(['Yes, they <em class="g">charge</em>…', 'but your iPhone <em>notices</em>'], [0.4, 1.4], u);
+    tag('ok', 'Charging ✓', W2(CB, P.light), -W * 0.02, H * 0.09, ease(ramp(u, 0.7, 1.0)) * (1 - ease(ramp(u, 1.2, 1.5))), 'green');
+  },
+  (u, t) => { // 4. glass x-ray: pins, gold dots, magnets, then the power path into the bud's own chip and battery
+    CA.root.visible = false; CB.root.position.set(0, 0, 0); setLid(CB, 1 - ease(ramp(u, 0.0, 0.8))); setLight(CB, 'green', 0.8);
+    CB.root.rotation.set(0, -0.5 + 0.15 * ease(u / 10.5), 0);
+    for (const s of ['R', 'L']) { seat(CA.buds[s], CB); }
+    const xr = ease(ramp(u, 0.2, 1.4)); setXray(CB, xr); for (const s of ['R', 'L']) budXray(CA.buds[s], xr * (s === 'R' ? 1 : 0.8));
+    const pinGlow = ease(ramp(u, 1.6, 2.2)) * (0.75 + 0.25 * Math.sin(t * 6)); GLOW.pin.emissiveIntensity = 1.6 * pinGlow;
+    const zin = ease(ramp(u, 0.6, 2.8)), zout = ease(ramp(u, 5.4, 6.8));
+    const tA = V(0, -8, 0), pA = V(-30, 60, 250), tB = W2(CB, STEM.R.clone().add(V(-2, 3, 0))), pB = W2(CB, STEM.R.clone().add(V(-18, 26, 112))), tC = W2(CB, V(11, -13, 0)), pC = W2(CB, V(-12, 22, 186));
+    VO = 0.0; look(vlerp(vlerp(pA, pB, zin), pC, zout), vlerp(vlerp(tA, tB, zin), tC, zout));
+    const pr = ease(ramp(u, 5.4, 8.4)); power(pr, ease(ramp(u, 8.0, 8.6)), t);
+    title(u < 5.2 ? ['<em class="b">Spring pins</em> touch', 'two <em class="b">gold dots</em>'] : ['Case battery', '→ the bud’s own <em class="b">chip</em>'], u < 5.2 ? [0.4, 1.4] : [5.4, 7.2], u);
+    const a1 = ease(ramp(u, 1.8, 2.2)) * (1 - ease(ramp(u, 5.0, 5.4)));
+    const bud = CA.buds.R;
+    sideTags([['pin', 'Spring pins', W2(CB, P.pins.R), 1, a1, 'blue'],
+              ['dot', 'Gold dots', bud.g.localToWorld(DOTS.R[0].p.clone().sub(STEM.R)), -1, a1 * ease(ramp(u, 2.6, 3.0)), 'blue'],
+              ['mag', 'Magnet', W2(CB, P.mag.R), 1, ease(ramp(u, 3.4, 3.8)) * (1 - ease(ramp(u, 5.0, 5.4)))]]);
+    const a2 = ease(ramp(u, 5.6, 6.0));
+    sideTags([
+              ['chip', 'Charging chip', bud.g.localToWorld(P.budChipR.clone()), 1, ease(ramp(u, 7.4, 7.8)), 'blue'],
+              ['bbat', 'Bud battery', bud.g.localToWorld(P.budBatR.clone()), 1, ease(ramp(u, 8.0, 8.4)), 'blue']]);
+    tag('bat', 'Case battery', W2(CB, V(-7, -11, 4)), -W * 0.06, -H * 0.075, a2, 'blue');
+    note('Illustrative · not to scale', 1);
+  },
+  (u, t) => { // 5. the catch: Mismatched AirPods; the link to their own case breaks
+    CA.root.visible = true; setXray(CB, 0); for (const s of ['R', 'L']) budXray(CA.buds[s], 0); GLOW.pin.emissiveIntensity = 0;
+    CA.root.position.set(-38, -17.5, 0); CB.root.position.set(38, -17.5, 0); CA.root.rotation.set(0.12, 0.25, 0); CB.root.rotation.set(0.12, -0.25, 0); setLid(CA, 1); setLid(CB, 1);
+    for (const s of ['R', 'L']) { seat(CA.buds[s], CB); }
+    setLight(CB, 'green', 0.9); setLight(CA, 'white', 0.0);
+    const sh = ease(ramp(u, 3.6, 4.6)); PHONE.visible = true; PHONE.position.set(0, lerp(18, 46, sh), lerp(60, -10, sh)); PHONE.rotation.set(0, 0.0, 0); PHONE.scale.setScalar(lerp(0.82, 0.55, sh));
+    CA.root.position.y = CB.root.position.y = lerp(-110, -17.5, sh); CA.root.visible = CB.root.visible = sh > 0.02;
+    screen('alert', ramp(u, 0.6, 1.1));
+    VO = 0.0; look(V(0, 10, 628), V(0, 0, 0));
+    const lk = ease(ramp(u, 4.6, 5.2)), brk = ease(ramp(u, 6.2, 7.2));
+    link(W2(CA, V(0, 6, 0)), W2(CB, V(0, 10, 0)).add(V(0, 0, 0)), lk, brk, t);
+    tag('set', 'Paired as a set', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, -14, 0)), 0, 0, lk * (1 - brk), '', true);
+    glyph('big', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, 12, 0)), ease(ramp(u, 6.4, 6.8)), 0.35);
+    tag('ya2', 'Their case', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8))); tag('fr2', 'Friend’s case', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8)));
+    title(['Now the <em>catch</em>…', '<em>“Mismatched AirPods”</em>'], [0.0, 1.0], u);
+  },
+  (u, t) => { // 6. back in their own case (or set up again): warning gone
+    CA.root.visible = true; CA.root.position.set(-38, -17.5, 0); CB.root.position.set(38, -17.5, 0); CA.root.rotation.set(0.12, 0.25, 0); CB.root.rotation.set(0.12, -0.25, 0); setLid(CA, 1); setLid(CB, 1);
+    for (const s of ['R', 'L']) { const k = ramp(u, 1.0 + (s === 'L' ? 0.1 : 0), 2.2 + (s === 'L' ? 0.1 : 0)); if (k <= 0) seat(CA.buds[s], CB); else if (k >= 1) seat(CA.buds[s], CA); else hop(CA.buds[s], CB, CA, k, 34); }
+    const home = u > 2.4; setLight(CA, 'green', home ? 0.9 : 0); setLight(CB, 'white', home ? 0 : 0.0);
+    PHONE.visible = true; PHONE.position.set(0, 46, -10); PHONE.rotation.set(0, 0, 0); PHONE.scale.setScalar(0.55);
+    screen(home ? 'fixed' : 'alert', home ? ramp(u, 2.5, 3.0) : 1);
+    VO = 0.0; look(V(0, 10, 628), V(0, 0, 0));
+    title(['Own case <em class="g">✓</em>', 'or <em class="b">set up again</em>'], [0.6, 3.6], u);
+    note('…after your friend removes them from <b>their Find My</b>', ease(ramp(u, 4.2, 4.6)), true); $('note').style.top = '20.6%'; $('note').style.fontSize = '3.4vw'; $('note').style.color = '#cfe9ff';
+    tag('ya3', 'Their case', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, 1); tag('fr3', 'Friend’s case', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, 1);
+  },
+  (u, t) => { // 7. a different generation: fits perfectly, still doesn't work properly
+    CA.root.visible = false; CB.root.position.set(8.7, 2, 0); CB.root.rotation.set(0.1, -0.2, 0); setLid(CB, 1);
+    PHONE.visible = false;
+    seat(CA.buds.L, CB); CA.buds.L.g.visible = false;
+    const other = CB.buds.R, mine = CA.buds.R; other.g.visible = true; seat(mine, CB);
+    mine.g.position.add(V(-62 - 60 * ease(ramp(u, 1.9, 2.5)), 26, 6)); mine.g.rotation.set(0, 0, 0.12);   // look-alike bud waiting at the side
+    const k = ramp(u, 1.0, 2.0); other.g.position.copy(STEM.R).add(V(0, 46 * (1 - ease(k)) + 4 * bump(k, 0.85, 1), 0)); other.g.rotation.set(0, 0, -0.15 * (1 - ease(k)));
+    const inn = k >= 1; setLight(CB, 'amber', inn ? 0.6 + 0.4 * Math.sin(t * 7) : 0);
+    VO = 0.0; look(V(0, 60, 380), V(0, 0, 0));
+    tag('g1', 'Same generation', mine.g.localToWorld(V(-3, 26, 0)), 0, -H * 0.045, ease(ramp(u, 0.3, 0.6)) * (1 - ease(ramp(u, 1.7, 1.95))), 'green', true);
+    tag('g2', 'Different generation', other.g.localToWorld(V(0, 26, 0)), 0, -H * 0.045, ease(ramp(u, 0.3, 0.6)) * (1 - ease(ramp(u, 0.95, 1.1))), 'red', true);
+    tag('fits', 'Fits ✓', W2(CB, STEM.R.clone().add(V(-6, 22, 0))), -W * 0.4, -H * 0.03, ease(ramp(u, 2.3, 2.6)), 'green');
+    glyph('big', W2(CB, STEM.R.clone().add(V(-2, 50, 0))), ease(ramp(u, 3.0, 3.3)), 0.42 + 0.05 * bump(u, 3.0, 3.4));
+    title(['Different generation?', '<em class="g">Fits.</em> Won’t work <em>properly.</em>'], [0.2, 2.2], u);
+  },
+  (u, t) => { // 8. end card
+    CA.root.visible = false; PHONE.visible = false; CB.root.position.set(0, 0, 0); CB.root.rotation.set(0.15, 0.5 + 0.35 * u, 0); setLid(CB, 1);
+    for (const s of ['R', 'L']) seat(CA.buds[s], CB); CB.buds.R.g.visible = false; CB.buds.L.g.visible = false;
+    setXray(CB, 1); budXray(CA.buds.R, 1); budXray(CA.buds.L, 1); GLOW.pin.emissiveIntensity = 1.2; setLight(CB, 'green', 0.9);
+    power(1, 1, t);
+    VO = 0.02; look(V(0, 30, 200), V(0, -6, 0));
+    renderer.domElement.style.filter = 'blur(12px) brightness(0.85) saturate(1.4)'; title([], [], u);
+    END.a = easeOut(ramp(u, 0, 0.45)); END.brand = ramp(u, 0.75, 2.4);
+  },
+];
+const CUTS = () => B.slice(2, B.length - 1);
+function renderAt(t) {
+  t = Math.max(0, Math.min(TOTAL - 1e-3, t));
+  let i = 0; while (i < B.length - 2 && t >= B[i + 1]) i++;
+  hideTags(); for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('note').style.top = ''; $('note').style.fontSize = ''; $('note').style.color = ''; $('title').style.opacity = 1;
+  CA.root.visible = true; CB.root.visible = true; PHONE.visible = false; LINK.visible = false;
+  for (const C of [CA, CB]) { setXray(C, 0); setLight(C, 'green', 0); C.buds.R.g.visible = false; C.buds.L.g.visible = false; }
+  for (const s of ['R', 'L']) { CA.buds[s].g.visible = true; budXray(CA.buds[s], 0); }
+  power(0, 0, t); GLOW.pin.emissiveIntensity = 0;
+  renderer.domElement.style.filter = ''; END.a = 0; END.brand = 0;
+  SHOTS[i](t - B[i], t);
+  const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : (window.__SUB || '');
+  $('fade').style.opacity = Math.max(0, ...CUTS().map(c => 1 - Math.abs(t - c) / 0.2)) * 0.9;
+  renderer.render(scene, camera);
+  endCard();
+}
+const END = { a: 0, brand: 0 };
+function endCard() {
+  const ec = $('endcard'), pill = $('ecPill'), a = END.a, b = END.brand; ec.style.opacity = a; ec.style.transform = `scale(${0.9 + 0.1 * a})`;
+  const pv = easeOut(ramp(b, 0.75, 0.95)); pill.style.opacity = pv; pill.style.transform = `translateX(-50%) translateY(${(1 - pv) * 2}vh)`;
+  if (a < 0.01) { pill.style.opacity = 0; return; }
+  const cv = $('ecScene'), r = ec.getBoundingClientRect(), dpr = renderer.getPixelRatio(); cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+  cv.getContext('2d').drawImage(renderer.domElement, r.left * dpr, r.top * dpr, r.width * dpr, r.height * dpr, 0, 0, cv.width, cv.height);
+  $('ecShade').style.opacity = ease(ramp(b, 0, 0.2));
+  const pop = (el, k) => { const v = easeOut(k); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 2}vh) scale(${0.85 + 0.15 * v})`; };
+  pop($('ecLogo'), ramp(b, 0.0, 0.18)); pop($('ecName'), ramp(b, 0.12, 0.3)); pop($('ecHandle'), ramp(b, 0.22, 0.4));
+  [...$('ecIcons').children].forEach((el, i) => pop(el, ramp(b, 0.35 + i * 0.08, 0.5 + i * 0.08)));
+  pop($('ecSub'), ramp(b, 0.62, 0.8));
+}
+
+/* which internal parts poke out of the shells? (debug) */
+window.__inside = () => {   // case parts: inside the outer shell's cavity (2 skins hit every way but up) and under the well liner; bud parts: inside the bud shell
+  const C = CB; C.root.position.set(0, 0, 0); C.root.rotation.set(0, 0, 0); setLid(C, 0); C.root.updateMatrixWorld(true);
+  const outer = C.solid.filter(o => /^(Boole_2_Mat|Cylinder_2)/.test(o.name)), liner = C.solid.filter(o => /^Boole_1_3/.test(o.name));
+  [...outer, ...liner].forEach(o => o.material.side = THREE.DoubleSide);
+  const rc = new THREE.Raycaster(), out = {}, H5 = [V(1, 0.01, 0.02), V(-1, 0.02, 0.01), V(0.01, 0.02, 1), V(0.02, 0.01, -1), V(0.01, -1, 0.02)].map(v => v.normalize());
+  const hits = (v, d, l) => { rc.set(v, d); return rc.intersectObjects(l, false).length; };
+  const caseOk = v => H5.every(d => { const n = hits(v, d, outer); return n >= 2 && n % 2 === 0; }) && hits(v, V(0.01, 1, 0.02).normalize(), liner) % 2 === 1;
+  const test = (grp, label, ok) => grp.traverse(o => { if (!o.isMesh) return; const p = o.geometry.attributes.position, v = new THREE.Vector3(); let bad = 0, n = 0;
+    for (let i = 0; i < p.count; i += Math.max(1, Math.floor(p.count / 50))) { v.fromBufferAttribute(p, i).applyMatrix4(o.matrixWorld); n++; if (!ok(v)) bad++; }
+    if (bad) { const c = new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()); out[label + ':' + o.geometry.type + '@' + c.toArray().map(x => x.toFixed(1)).join(',')] = bad + '/' + n; } });
+  test(C.inner, 'case', caseOk);
+  [...outer, ...liner].forEach(o => o.material.side = THREE.FrontSide);
+  for (const s of ['R', 'L']) { const b = CA.buds[s]; seat(b, C); C.root.updateMatrixWorld(true); const sh = b.solid.filter(o => /^Cube_2/.test(o.name)); sh.forEach(o => o.material.side = THREE.DoubleSide);
+    const dirs = [V(1, 0.01, 0.02), V(-0.02, 1, 0.01), V(0.01, -0.02, 1)].map(v => v.normalize());
+    test(b.inner, 'bud' + s, v => [...dirs, ...dirs.map(x => x.clone().negate())].filter(d => hits(v, d, sh) % 2 === 1).length >= 4); sh.forEach(o => o.material.side = THREE.FrontSide); }
+  return out;
+};
+
+loadModel().then(() => {
+  findStems();
+  // the bud's own battery: in the head, measured from the shell's bounding box (bud frame)
+  for (const s of ['R', 'L']) { const bb = GEO['Cube_2_Mat.1_0|buds|' + s].g.boundingBox; const hx = (bb.min.x + bb.max.x) / 2, sg = Math.sign(STEM[s].x);
+    P['budBatPos' + s] = V(hx + sg * 2.5 - STEM[s].x, (bb.max.y - 8) - STEM[s].y, (bb.min.z + bb.max.z) / 2 - STEM[s].z); }
+  CA = makeCase(); CB = makeCase();
+  buildCaseInternals(CB); for (const s of ['R', 'L']) { buildBudInternals(CA.buds[s]); }
+  buildPower(CB); buildPhone(); buildLink();
+  window.__dbg = { STEM, DOTS, P, K, CA, CB, setLid, setXray, look, V, scene, camera, renderer, THREE, PHONE };
+  renderAt(0); ready = true;
+  window.__tour = { total: TOTAL, renderAt };
+  if (!/render=1/.test(location.search)) { const t0 = performance.now(); const loop = () => { renderAt(((performance.now() - t0) / 1000) % TOTAL); requestAnimationFrame(loop); }; loop(); }
+});
+window.__tourReady = () => ready;
+})();
+</script>
