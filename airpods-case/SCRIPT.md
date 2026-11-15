@@ -91,3 +91,24 @@ About 124 words, ~48 s with Michael at 1.12 (limit 50 s).
 - Behind the alert: dark-mode home screen with generic app icons (no real logos), blurred and dimmed as the card slides up.
 - Phone wallpaper: purple (lilac/pink at the top into deep purple), apps blurred behind the card (Harsh's reference).
 - Green accent (Apple launch green #63e06a), Inter font, stacked titles (small white / big green / small white; red for warnings), labels as dark tiles, green power path, end card as a tile grid with the case, facts, logo, @TheInvisiTech, Like/Comment/Follow, Subscribe.
+- X-ray charging animation: green power flow, both bud batteries glow brighter as they fill, pins pulse, iOS-style battery widget (Left/Right rings 40% → 100%, Case 100% → 94%), note "Sped up · real charging takes longer".
+
+## Sound plan (built with the voice, all made in code, no copyrighted audio)
+| Moment | Sound |
+|---|---|
+| Hook: buds lift / fly | soft whoosh per bud |
+| Buds drop into Karan's case | magnetic "tk" click ×2 |
+| Lid shuts | firm plastic snap, then music dips for a breath |
+| "?" / big words | low soft hit |
+| X-ray turns to glass | glassy shimmer |
+| Pins + gold dots touch | tiny metallic tick ×2 |
+| Power flows | low electric hum rising while the green line travels |
+| Battery widget fills | soft rising tone + gentle charging chime at the end (our own, not Apple's) |
+| Light turns green / "Yes, they charge" | bright two-note ping |
+| Phone slides in | short slide whoosh |
+| "Mismatched" card | soft alert tone + card swoosh |
+| Pair link breaks / red ✕ | glass crack + low buzz |
+| Buds hop home / "Connected" | two clicks + success ping |
+| Different generation drop / ✕ | click, then error buzz |
+| End-card tiles | soft pops, one per tile |
+| Music | dark, minimal electronic bed (Apple-launch feel), ducked under Michael |

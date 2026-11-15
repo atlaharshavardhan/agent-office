@@ -45,6 +45,12 @@
   #tG .ic { display: flex; flex-direction: column; align-items: center; font: 600 2.9vw Inter, Arial, sans-serif; } #tG svg { width: 6vw; height: 6vw; margin-bottom: .5vw; }
   #ecSub { padding: 1.8vw 5.4vw; border-radius: 6vw; background: #ff3b30; font: 700 4vw Inter, Arial, sans-serif; box-shadow: 0 0 28px rgba(255,59,48,.45); }
   #ecPill { display: none; }
+  #chg { position: fixed; z-index: 3; left: 6%; width: 76%; top: 58.2%; height: 6.4%; border-radius: 4vw; background: rgba(28,28,30,.94); border: 1px solid rgba(255,255,255,.08);
+    display: flex; align-items: center; justify-content: space-around; opacity: 0; pointer-events: none; box-shadow: 0 16px 40px rgba(0,0,0,.6); }
+  #chg .it { display: flex; align-items: center; gap: 2vw; color: #fff; font: 600 3.6vw Inter, Arial, sans-serif; letter-spacing: -0.01em; }
+  #chg .ring { width: 8.6vw; height: 8.6vw; border-radius: 50%; display: grid; place-items: center; }
+  #chg .ring i { width: 6.8vw; height: 6.8vw; border-radius: 50%; background: #1c1c1e; display: grid; place-items: center; font-style: normal; font-size: 3.4vw; color: var(--acc); }
+  #chg .lb { display: flex; flex-direction: column; line-height: 1.1; } #chg .lb small { font: 500 2.6vw Inter, Arial, sans-serif; color: rgba(255,255,255,.6); }
   #fade { position: fixed; inset: 0; z-index: 5; background: #000; opacity: 0; pointer-events: none; }
   #zones { position: fixed; inset: 0; z-index: 9; pointer-events: none; display: none; }
 </style>
@@ -67,6 +73,9 @@
     <div id="ecSub">Subscribe</div></div>
 </div></div>
 <div id="ecPill"></div>
+<div id="chg"><div class="it"><div class="ring" id="rL"><i>⚡</i></div><div class="lb"><small>Left</small><b id="pL">40%</b></div></div>
+  <div class="it"><div class="ring" id="rR"><i>⚡</i></div><div class="lb"><small>Right</small><b id="pR">38%</b></div></div>
+  <div class="it"><div class="ring" id="rC"><i style="color:#fff">▭</i></div><div class="lb"><small>Case</small><b id="pC">100%</b></div></div></div>
 <div id="fade"></div>
 <svg id="zones" viewBox="0 0 1080 1920" preserveAspectRatio="none">
   <rect x="0" y="0" width="1080" height="220" fill="rgba(255,0,0,.18)"/><rect x="0" y="1500" width="1080" height="420" fill="rgba(255,0,0,.18)"/>
@@ -322,7 +331,8 @@ function buildBudInternals(b) {
   P['budChip' + s] = chip.position.clone();
   const bat = new THREE.Group(); bat.position.copy(P['budBatPos' + s]); I.add(bat);
   const cell = cylY(3.6, 4.0, MAT.steel, 0, 0, 0, bat, 48); cell.rotation.z = Math.PI / 2; cell.rotation.y = -0.35 * Math.sign(STEM[s].x);
-  P['budBat' + s] = bat.position.clone();
+  P['budBat' + s] = bat.position.clone(); const bg = sprite(HALO_G, 10); bg.position.copy(bat.position); bg.visible = false; I.add(bg); b.batGlow = bg;
+  cell.material = new THREE.MeshStandardMaterial({ color: 0xd3d8df, metalness: 1, roughness: 0.26, emissive: 0x4fdc5a, emissiveIntensity: 0 }); b.batCell = cell;
   // flex: contacts → chip → battery
   const pts = [ax(1.6), ax(4), chip.position.clone(), ax(11), ax(14), bat.position.clone().add(new THREE.Vector3(0, -3.2, 0))];
   P['budPath' + s] = pts;
@@ -531,6 +541,12 @@ function title3(top, big, sub, u, t0 = 0, red = false) {   // small white / big 
     $('title').innerHTML = (top ? `<span class="t-top">${top}</span>` : '') + `<span class="t-big${red ? ' red' : ''}">${big}</span>` + (sub ? `<span class="t-sub">${sub}</span>` : ''); }
   [...$('title').children].forEach((el, i) => { const a = easeOut(ramp(u, t0 + i * 0.25, t0 + i * 0.25 + 0.35)); el.style.opacity = a; el.style.transform = `translateY(${(1 - a) * 1.6}vh)`; });
 }
+function chargeHud(a, l, r, c) {   // iOS-style battery widget: rings fill as the buds charge
+  $('chg').style.opacity = a; $('chg').style.transform = `translateY(${(1 - a) * 2}vh)`;
+  const ring = (id, v, col) => $(id).style.background = `conic-gradient(${col} ${v * 3.6}deg, rgba(255,255,255,.12) 0)`;
+  ring('rL', l, '#63e06a'); ring('rR', r, '#63e06a'); ring('rC', c, '#ffffff');
+  $('pL').textContent = Math.round(l) + '%'; $('pR').textContent = Math.round(r) + '%'; $('pC').textContent = Math.round(c) + '%';
+}
 let lastTitle = '';
 function title(lines, times, u) {
   const key = lines.join('|'); if (key !== lastTitle) { lastTitle = key; $('title').innerHTML = lines.map(l => `<span class="ln">${l}</span>`).join(''); }
@@ -617,8 +633,15 @@ const SHOTS = [
     const pinGlow = ease(ramp(u, 1.6, 2.2)) * (0.75 + 0.25 * Math.sin(t * 6)); GLOW.pin.emissiveIntensity = 1.6 * pinGlow;
     const zin = ease(ramp(u, 0.6, 2.8)), zout = ease(ramp(u, 5.4, 6.8));
     const tA = V(0, -8, 0), pA = V(-30, 60, 250), tB = W2(CB, STEM.R.clone().add(V(-2, 3, 0))), pB = W2(CB, STEM.R.clone().add(V(-18, 26, 112))), tC = W2(CB, V(11, -13, 0)), pC = W2(CB, V(-12, 22, 186));
-    VO = 0.0; look(vlerp(vlerp(pA, pB, zin), pC, zout), vlerp(vlerp(tA, tB, zin), tC, zout));
+    const zc = ease(ramp(u, 7.9, 8.7)), tD = W2(CB, V(9, -21, 0)), pD = W2(CB, V(-14, 10, 262));
+    VO = 0.0; look(vlerp(vlerp(vlerp(pA, pB, zin), pC, zout), pD, zc), vlerp(vlerp(vlerp(tA, tB, zin), tC, zout), tD, zc));
     const pr = ease(ramp(u, 5.4, 8.4)); power(pr, ease(ramp(u, 8.0, 8.6)), t);
+    const fill = ease(ramp(u, 8.4, 10.4)), live = ease(ramp(u, 8.2, 8.6));   // buds fill up (sped up), case gives a little
+    for (const s2 of ['R', 'L']) { const b2 = CA.buds[s2]; b2.batGlow.visible = live > 0.01; b2.batGlow.material.opacity = live * (0.35 + 0.45 * fill) * (0.8 + 0.2 * Math.sin(t * 8));
+      b2.batGlow.scale.setScalar(8 + 6 * fill); b2.batCell.material.emissiveIntensity = live * (0.2 + 0.9 * fill); }
+    GLOW.pin.emissiveIntensity = Math.max(GLOW.pin.emissiveIntensity, live * (1.2 + 0.6 * Math.sin(t * 10)));
+    chargeHud(ease(ramp(u, 8.2, 8.6)), 40 + 60 * fill, 38 + 62 * fill, 100 - 6 * fill);
+    if (u > 8.2) note(fill < 1 ? 'Sped up · real charging takes longer' : 'Illustrative · not to scale', 1);
     $('shTop').style.background = 'linear-gradient(rgba(0,0,0,.94), rgba(0,0,0,.82) 62%, transparent)'; $('shTop').style.height = '32%';
     if (u < 5.2) title3('Inside the case', 'Pins meet gold dots.', 'Magnets hold the bud down', u, 0.4); else title3('Inside the case', 'Battery → chip → bud.', 'The bud’s chip decides how fast it fills', u, 5.4);
     const a1 = ease(ramp(u, 1.8, 2.2)) * (1 - ease(ramp(u, 5.0, 5.4)));
@@ -631,7 +654,7 @@ const SHOTS = [
               ['chip', 'Charging chip', bud.g.localToWorld(P.budChipR.clone()), 1, ease(ramp(u, 7.4, 7.8)), 'blue'],
               ['bbat', 'Bud battery', bud.g.localToWorld(P.budBatR.clone()), 1, ease(ramp(u, 8.0, 8.4)), 'blue']]);
     tag('bat', 'Case battery', W2(CB, V(-7, -11, 4)), -W * 0.06, -H * 0.075, a2, 'blue');
-    note('Illustrative · not to scale', 1);
+    if (u <= 8.2) note('Illustrative · not to scale', 1);
   },
   (u, t) => { // 4. light turns green; the phone slides in, screen still dark
     CA.root.visible = false; CB.root.position.set(-34 * ease(ramp(u, 1.2, 2.2)), -6, 0); CB.root.rotation.set(0, -0.12, 0); setLid(CB, ease(ramp(u, 0.0, 0.5)));
@@ -697,10 +720,10 @@ const CUTS = () => B.slice(2, B.length - 1);
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   let i = 0; while (i < B.length - 2 && t >= B[i + 1]) i++;
-  hideTags(); $('back').style.opacity = 0; $('shTop').style.background = ''; $('shTop').style.height = ''; for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('note').style.top = ''; $('note').style.fontSize = ''; $('note').style.color = ''; $('title').style.opacity = 1;
+  hideTags(); $('back').style.opacity = 0; $('chg').style.opacity = 0; $('shTop').style.background = ''; $('shTop').style.height = ''; for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('note').style.top = ''; $('note').style.fontSize = ''; $('note').style.color = ''; $('title').style.opacity = 1;
   CA.root.visible = true; CB.root.visible = true; PHONE.visible = false; LINK.visible = false;
   for (const C of [CA, CB]) { setXray(C, 0); setLight(C, 'green', 0); C.buds.R.g.visible = false; C.buds.L.g.visible = false; }
-  for (const s of ['R', 'L']) { CA.buds[s].g.visible = true; budXray(CA.buds[s], 0); }
+  for (const s of ['R', 'L']) { CA.buds[s].g.visible = true; budXray(CA.buds[s], 0); if (CA.buds[s].batGlow) { CA.buds[s].batGlow.visible = false; CA.buds[s].batCell.material.emissiveIntensity = 0; } }
   power(0, 0, t); GLOW.pin.emissiveIntensity = 0;
   renderer.domElement.style.filter = ''; END.a = 0; END.brand = 0;
   const span = B[i + 1] - B[i]; SHOTS[i]((i >= 1 && i <= 6) ? (t - B[i]) * ORIG[i] / span : t - B[i], t);
