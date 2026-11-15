@@ -4327,7 +4327,7 @@ let lastScreen = '';
 /* picture of our own 3D case for the pop-up sheet (rendered once on a white background) */
 const CASE_IMG = { cv: null, pts: [] };
 function makeCaseImg() {
-  const bg = scene.background; scene.background = new THREE.Color(0xffffff);
+  const bg = scene.background; scene.background = new THREE.Color('#1c1c1e').convertSRGBToLinear();
   CA.root.visible = false; PHONE.visible = false; LINK.visible = false; CB.root.visible = true;
   CB.root.position.set(0, 0, 0); CB.root.rotation.set(0.12, 0, 0); setLid(CB, 1); setXray(CB, 0); setLight(CB, 'amber', 0.0);
   CB.light.material.emissive.set(0xffa030); CB.light.material.emissiveIntensity = 2; if (CB.engrave) CB.engrave.visible = false;
@@ -4337,6 +4337,11 @@ function makeCaseImg() {
   const cv = document.createElement('canvas'); cv.width = 560; cv.height = 448;
   cv.getContext('2d').drawImage(renderer.domElement, sx * dpr, sy * dpr, sw * dpr, sh * dpr, 0, 0, 560, 448);
   CASE_IMG.pts = ['L', 'R'].map(s => { const [px, py] = proj(W2(CB, STEM[s].clone().add(V(s === 'R' ? -6 : 6, 22, 0)))); return [(px - sx) / sw * 560, (py - sy) / sh * 448]; });
+  { // swap the render background for the card colour (#262628), blending the soft edge
+    const g = cv.getContext('2d'), im = g.getImageData(0, 0, 560, 448), p = im.data, b0 = [p[16], p[17], p[18]], C = [38, 38, 40];
+    for (let i = 0; i < p.length; i += 4) { const d = Math.hypot(p[i] - b0[0], p[i + 1] - b0[1], p[i + 2] - b0[2]), k = Math.min(1, Math.max(0, (d - 6) / 26));
+      for (let j = 0; j < 3; j++) p[i + j] = C[j] + (p[i + j] - C[j]) * k; }
+    g.putImageData(im, 0, 0); CASE_IMG.bg = '#262628'; }
   CASE_IMG.cv = cv; scene.background = bg; if (CB.engrave) CB.engrave.visible = true; CA.root.visible = true;
 }
 function screen(state, k = 1) {   // state: off | alert | fixed ; k = sheet slide-up progress
@@ -4348,21 +4353,21 @@ function screen(state, k = 1) {   // state: off | alert | fixed ; k = sheet slid
   x.font = '500 32px "IBM Plex Sans", Arial'; x.fillStyle = 'rgba(255,255,255,.6)'; x.fillText('Saturday 15 November', w / 2, 135);
   // card in the lower half of the screen, the same size as the real iPhone alert
   const e = easeOut(k), cw = w - 40, ch = 640, cx = 20, cy = h - ch - 22 + (1 - e) * 700;
-  x.fillStyle = '#ffffff'; x.beginPath(); x.roundRect(cx, cy, cw, ch, 56); x.fill();
-  x.fillStyle = '#e9e9ee'; x.beginPath(); x.arc(cx + cw - 46, cy + 46, 20, 0, 7); x.fill();
-  x.strokeStyle = '#8a8a90'; x.lineWidth = 4; x.lineCap = 'round'; x.beginPath(); x.moveTo(cx + cw - 54, cy + 38); x.lineTo(cx + cw - 38, cy + 54); x.moveTo(cx + cw - 38, cy + 38); x.lineTo(cx + cw - 54, cy + 54); x.stroke();
+  x.fillStyle = CASE_IMG.bg || '#1c1c1e'; x.beginPath(); x.roundRect(cx, cy, cw, ch, 56); x.fill();   // dark mode
+  x.fillStyle = '#3a3a3c'; x.beginPath(); x.arc(cx + cw - 46, cy + 46, 20, 0, 7); x.fill();
+  x.strokeStyle = '#ffffff'; x.lineWidth = 4; x.lineCap = 'round'; x.beginPath(); x.moveTo(cx + cw - 54, cy + 38); x.lineTo(cx + cw - 38, cy + 54); x.moveTo(cx + cw - 38, cy + 38); x.lineTo(cx + cw - 54, cy + 54); x.stroke();
   const ok = state === 'fixed';
-  x.fillStyle = '#000'; x.font = '700 46px Sora, Arial';
+  x.fillStyle = '#ffffff'; x.font = '700 46px Sora, Arial';
   x.fillText(ok ? 'AirPods Pro' : 'Mismatched', w / 2, cy + 98); x.fillText(ok ? 'Connected' : 'AirPods Pro', w / 2, cy + 150);
-  x.fillStyle = '#1c1c1e'; x.font = '500 23px "IBM Plex Sans", Arial';
+  x.fillStyle = '#ebebf0'; x.font = '500 23px "IBM Plex Sans", Arial';
   if (ok) { x.fillText('These AirPods are back in their', w / 2, cy + 196); x.fillText('own case and work together.', w / 2, cy + 226); }
   else { x.fillText('The AirPods in the charging case do not', w / 2, cy + 196); x.fillText('belong to you and do not work together.', w / 2, cy + 226); }
   if (CASE_IMG.cv) {
     const iw = 380, ih = 304, ix = (w - iw) / 2, iy = cy + 318; x.drawImage(CASE_IMG.cv, ix, iy, iw, ih);
-    const col = ok ? '#1f9d4c' : '#e5484d';
+    const col = ok ? '#30d158' : '#ff453a';
     CASE_IMG.pts.forEach(([px, py], i) => { const X = ix + px * iw / 560, Y = iy + py * ih / 448, lx = i ? w / 2 + 110 : w / 2 - 110;
       x.strokeStyle = col; x.lineWidth = 3; x.beginPath(); x.moveTo(lx, cy + 312); x.lineTo(X, Y); x.stroke(); x.fillStyle = col; x.beginPath(); x.arc(X, Y, 7, 0, 7); x.fill();
-      x.fillStyle = '#000'; x.font = '500 22px "IBM Plex Sans", Arial'; x.fillText(i ? 'Right AirPod' : 'Left AirPod', lx, cy + 276);
+      x.fillStyle = '#ffffff'; x.font = '500 22px "IBM Plex Sans", Arial'; x.fillText(i ? 'Right AirPod' : 'Left AirPod', lx, cy + 276);
       x.fillStyle = col; x.fillText(ok ? 'Yours ✓' : 'Not Yours', lx, cy + 302); });
   }
   SCREEN_TEX.needsUpdate = true;
