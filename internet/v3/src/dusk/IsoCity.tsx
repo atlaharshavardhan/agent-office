@@ -64,13 +64,13 @@ export const IsoCity: React.FC = () => {
   const bus = prog(f, 0.5, 2.9, easeInOut), busP = along(bus);
   const reach = prog(f, 3.5, 4.3, easeOut), fail = prog(f, 4.3, 4.6) * (1 - prog(f, 5.1, 5.4));
   const curve = (a: readonly number[], b: readonly number[], sag: number, u = 1) => Array.from({ length: 17 }).map((_, i) => { const k = (i / 16) * u; return `${lerp(a[0], b[0], k)},${lerp(a[1], b[1], k) + sag * Math.sin(Math.PI * k)}`; }).join(' ');
-  const H0 = 8.3, hop = clamp01((t - H0) / 2.4) * 3, hs = Math.min(2, Math.floor(hop)), hu = easeInOut(hop - hs), hp = [lerp(RT[hs][0], RT[hs + 1][0], hu), lerp(RT[hs][1], RT[hs + 1][1], hu) + 26 * Math.sin(Math.PI * hu)];
+  const H0 = 8.9, hop = clamp01((t - H0) / 2.4) * 3, hs = Math.min(2, Math.floor(hop)), hu = easeInOut(hop - hs), hp = [lerp(RT[hs][0], RT[hs + 1][0], hu), lerp(RT[hs][1], RT[hs + 1][1], hu) + 26 * Math.sin(Math.PI * hu)];
   const got = prog(f, H0 + 2.5, H0 + 2.75, easeOut);
   const herHome = g(3, -1.9, -0.4, 4.6), herXY = bus < 1 ? [busP[0], busP[1] - 110] : [herHome[0], herHome[1] - got * 8];
   const himXY = g(0, -1.3, 0.4, 2.6);
   // camera: close on home, ride with the bus, pull back to the whole region, then follow the message hop by hop
   const all = { x: 540, y: 950, z: 0.9 }, home = { x: g(0)[0], y: g(0)[1] - 70, z: 1.55 }, city = { x: g(3)[0], y: g(3)[1] - 150, z: 1.4 };
-  const keys: [number, { x: number; y: number; z: number }][] = [[0, home], [0.5, home], [1.2, { x: busP[0], y: busP[1] - 60, z: 1.35 }], [2.6, { x: busP[0], y: busP[1] - 60, z: 1.35 }], [3.2, city], [3.5, city], [4.6, all], [7.9, all], [8.5, { x: hp[0], y: hp[1], z: 1.2 }], [10.4, { x: hp[0], y: hp[1], z: 1.25 }], [11.0, city], [12, city]];
+  const keys: [number, { x: number; y: number; z: number }][] = [[0, home], [0.5, home], [1.2, { x: busP[0], y: busP[1] - 60, z: 1.35 }], [2.6, { x: busP[0], y: busP[1] - 60, z: 1.35 }], [3.2, city], [3.5, city], [4.6, all], [7.3, all], [8.3, { x: g(0)[0] + 230, y: g(0)[1] - 120, z: 1.25 }], [9.0, { x: g(0)[0] + 230, y: g(0)[1] - 120, z: 1.25 }], [9.4, { x: hp[0] + 190, y: hp[1], z: 1.2 }], [11.2, { x: hp[0] + 190, y: hp[1], z: 1.22 }], [11.9, { x: city.x + 200, y: city.y, z: 1.3 }], [13, { x: city.x + 200, y: city.y, z: 1.32 }]];
   let ki = 0; while (ki < keys.length - 2 && t > keys[ki + 1][0]) ki++;
   const ka = keys[ki], kb = keys[ki + 1], ku = easeInOut(clamp01((t - ka[0]) / (kb[0] - ka[0])));
   const cam = { x: lerp(ka[1].x, kb[1].x, ku), y: lerp(ka[1].y, kb[1].y, ku), z: Math.exp(lerp(Math.log(ka[1].z), Math.log(kb[1].z), ku)) };
@@ -136,6 +136,7 @@ export const IsoCity: React.FC = () => {
           {/* hop counters and the travelling HELLO */}
           {[0, 1, 2].map((i) => { const a = prog(f, H0 + i * 0.8 + 0.6, H0 + i * 0.8 + 0.8, easeOut); return a > 0 ? <g key={'h' + i} opacity={a} transform={`translate(${(RT[i][0] + RT[i + 1][0]) / 2 - 80} ${(RT[i][1] + RT[i + 1][1]) / 2 - 24}) scale(${0.8 + 0.2 * a})`}><rect x={-58} y={-24} width={116} height={46} rx={14} fill="#ffe08a" /><text y={9} textAnchor="middle" style={{ font: `800 28px ${FONT.ui}` }} fill="#3a2a05">hop {i + 1}</text></g> : null; })}
           {t > H0 && t < H0 + 2.5 && <g transform={`translate(${hp[0]} ${hp[1]})`}><circle r={40} fill="#ffe08a" opacity={0.3} /><rect x={-26} y={-17} width={52} height={34} rx={7} fill="#ffe08a" /><path d="M -22 -13 L 0 5 L 22 -13" stroke="#8a5a10" strokeWidth={4} fill="none" /></g>}
+          {t > 8.7 && t < 9.2 && [0, 1, 2].map((i) => { const u = clamp01((t - 8.7 - i * 0.08) / 0.3); return u > 0 && u < 1 ? <circle key={'wf' + i} cx={himXY[0]} cy={himXY[1] - 60} r={50 + u * 90} fill="none" stroke="#9fe9ff" strokeWidth={5} opacity={1 - u} /> : null; })}
           {/* the two of them, as portrait pins */}
           <Face kind="man" x={himXY[0]} y={himXY[1] - 60} ring="#3fb8a8" id="m" />
           <Face kind="woman" x={herXY[0]} y={herXY[1] - 60} ring="#ff8672" id="w" smile={bus < 1 ? 0.6 : 1} />
@@ -145,6 +146,29 @@ export const IsoCity: React.FC = () => {
           {CT.map((q, i) => { const c = g(i), r = (q.r + 2.0) * S * 0.92, hero = i === 0 || i === 3, w = NAMES[i].length * (hero ? 23 : 18) + 44; return <g key={'nm' + i} transform={`translate(${c[0]} ${c[1] + r * 0.58 + 4})`}><rect x={-w / 2} y={-24} width={w} height={hero ? 52 : 42} rx={14} fill={hero ? (i ? '#ff6f91' : '#2f9c95') : '#1a2250'} stroke={hero ? '#fff' : '#aab6ee'} strokeWidth={hero ? 3 : 2} /><text y={hero ? 13 : 6} textAnchor="middle" style={{ font: `800 ${hero ? 34 : 26}px ${FONT.ui}`, letterSpacing: '0.04em' }} fill="#fff">{NAMES[i]}</text></g>; })}
         </g>
       </svg>
+      {/* his phone, on the right: type HELLO, send, then watch it go step by step */}
+      {t > 7.4 && (() => { const a = prog(f, 7.4, 7.8, easeOut), typed = 'Hello'.slice(0, Math.max(0, Math.min(5, Math.floor((t - 7.9) / 0.12)))), sent = t >= 8.7, press = t > 8.6 && t < 8.78;
+        const rows: [string, number][] = [['Your phone', 8.75], ['Home router · ' + NAMES[0], H0 + 0.1], ['Router · ' + NAMES[1], H0 + 0.8], ['Router · ' + NAMES[2], H0 + 1.6], ['City router · ' + NAMES[3], H0 + 2.4], ['Her phone', H0 + 2.6]];
+        const done = rows.filter(([, at]) => t >= at).length, delivered = t >= H0 + 2.6, reply = prog(f, H0 + 3.1, H0 + 3.3, easeOut);
+        return <div style={{ position: 'absolute', left: 640, top: 455, width: 292, height: 600, borderRadius: 44, background: '#05060f', border: '5px solid #2b3154', boxShadow: '0 30px 80px rgba(0,0,0,.6)', transform: `translateX(${(1 - a) * 560}px) scale(1.28)`, transformOrigin: 'right top', overflow: 'hidden', fontFamily: FONT.ui }}>
+          <div style={{ position: 'absolute', inset: 8, borderRadius: 36, background: 'linear-gradient(#141a44,#0d1230)', overflow: 'hidden' }}>
+            <div style={{ height: 62, background: '#1c2458', display: 'flex', alignItems: 'center', gap: 10, padding: '0 14px' }}><div style={{ width: 38, height: 38, borderRadius: 19, background: '#ff8672', display: 'grid', placeItems: 'center', font: `800 20px ${FONT.ui}`, color: '#fff' }}>♥</div><div><div style={{ font: `800 21px ${FONT.ui}`, color: '#fff' }}>Her</div><div style={{ font: `600 13px ${FONT.ui}`, color: '#9fb0ff' }}>{NAMES[3][0] + NAMES[3].slice(1).toLowerCase()}</div></div></div>
+            <div style={{ padding: '12px 12px 0', height: 126 }}>
+              {sent && <div style={{ marginLeft: 'auto', width: 'fit-content', background: '#2f9c95', color: '#fff', borderRadius: '18px 18px 4px 18px', padding: '8px 14px', font: `700 24px ${FONT.ui}` }}>Hello <span style={{ font: `700 15px ${FONT.ui}`, color: delivered ? '#9fe9ff' : '#cfe' }}>{delivered ? '✓✓' : '✓'}</span></div>}
+              {reply > 0 && <div style={{ marginTop: 10, width: 'fit-content', background: '#2a3270', color: '#fff', borderRadius: '18px 18px 18px 4px', padding: '8px 14px', font: `700 24px ${FONT.ui}`, opacity: reply, transform: `scale(${0.8 + 0.2 * reply})`, transformOrigin: 'left bottom' }}>Hi! ❤️</div>}
+            </div>
+            <div style={{ margin: '0 10px', borderRadius: 18, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(159,233,255,.25)', padding: '10px 12px', opacity: sent ? 1 : 0.25 }}>
+              <div style={{ font: `600 13px ${FONT.mono}`, letterSpacing: '0.1em', color: '#9fb0ff', marginBottom: 6 }}>STEP BY STEP</div>
+              {rows.map(([name], i) => { const ok = i < done, cur = i === done && sent; return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9, height: 39, opacity: ok || cur ? 1 : 0.4 }}>
+                <div style={{ width: 24, height: 24, borderRadius: 12, flex: '0 0 auto', background: ok ? '#3ddc97' : 'transparent', border: `2.5px solid ${ok ? '#3ddc97' : cur ? '#ffe08a' : '#5a648f'}`, display: 'grid', placeItems: 'center', font: `800 14px ${FONT.ui}`, color: '#06261a' }}>{ok ? '✓' : ''}</div>
+                <div style={{ font: `700 16.5px ${FONT.ui}`, color: ok ? '#fff' : cur ? '#ffe08a' : '#a9b4dd', whiteSpace: 'nowrap' }}>{name}</div></div>; })}
+            </div>
+            <div style={{ position: 'absolute', left: 10, right: 10, bottom: 12, height: 48, borderRadius: 24, background: '#1c2458', display: 'flex', alignItems: 'center', padding: '0 6px 0 16px', gap: 8 }}>
+              <div style={{ flex: 1, font: `700 21px ${FONT.ui}`, color: '#fff' }}>{sent ? <span style={{ color: '#6a74a8' }}>Message</span> : <>{typed}<span style={{ opacity: Math.sin(t * 10) > 0 ? 1 : 0, color: '#9fe9ff' }}>|</span></>}</div>
+              <div style={{ width: 38, height: 38, borderRadius: 19, background: press ? '#fff' : '#2f9c95', display: 'grid', placeItems: 'center', font: `800 20px ${FONT.ui}`, color: press ? '#2f9c95' : '#fff', transform: `scale(${press ? 1.25 : 1})` }}>➤</div>
+            </div>
+          </div>
+        </div>; })()}
       {line && <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div>}
       <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
       <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}>
