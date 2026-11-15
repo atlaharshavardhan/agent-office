@@ -395,10 +395,10 @@ function setXray(x, keepBase = false) {   // V4 (Harsh): keepBase: only the lid 
   LAYERS.visible = x > 0.5 || EXPL > 0.02;
 }
 function tapeOff(v) { const t = FOAM.userData.tape; t.material.opacity = 0.92 * (1 - v); t.visible = v < 0.99; t.position.y = 4.4 - 14 * ease(v); }
-function logoGlow(v, s = 1) { // 0 = off (dark metal), 1 = full glow; s scales the glow (hook: 0.85)
+function logoGlow(v, s = 1, haze = s) {   // haze scales only the soft spill around the logo // 0 = off (dark metal), 1 = full glow; s scales the glow (hook: 0.85)
   LOGO.material.emissiveIntensity = 1.25 * v * (1 - 0.8 * (1 - s));   // ~27% less than v2
   LOGO.material.color.setRGB(lerp(0.07, 0.87, v), lerp(0.075, 0.89, v), lerp(0.09, 0.92, v));   // dark chrome when off (mirror coating), light passes when on   // mirror-coated: shiny when off, light passes through when on
-  [SHELL.userData.halo, SHELL.userData.halo2].forEach(h => { h.material.opacity = h.userData.op * v * s; h.visible = v > 0.01; });   // spill on the aluminium; bloom adds the soft halo
+  [SHELL.userData.halo, SHELL.userData.halo2].forEach(h => { h.material.opacity = h.userData.op * v * haze; h.visible = v > 0.01; });   // spill on the aluminium; bloom adds the soft halo
   const p = LID.localToWorld(LOGO_C.clone().add(new THREE.Vector3(0, 70 + LAYER_Y.shell * ease(EXPL), 0))); logoLight.position.copy(p); logoLight.intensity = 0; }   // no point light: its highlight made a white dot on the mirror logo (bloom does the glow)
 function ledOn(list) { LEDS.forEach((L, i) => { const v = list[i] || 0; L.die.material.emissiveIntensity = 3 * v; LED_HALOS[i].visible = v > 0.01; LED_HALOS[i].material.opacity = v; LED_HALOS[i].scale.setScalar(9 + 9 * v); }); }
 function diffGlow(v) { DIFF.userData.mesh.material.emissiveIntensity = 0.9 * v; DIFF.userData.halo.material.opacity = 0.6 * v; DIFF.userData.halo.visible = v > 0.01; }
@@ -462,11 +462,11 @@ const OPEN = 108;
 const SHOTS = [
   [B[0], B[1], u => { // 1. hook: extreme close-up of the dark logo, it lights within 0.5 s, the camera pulls back to the MacBook
     tapeOff(0); lidOpen(OPEN); explode(0); setXray(0); room(0); ledOn([]); diffGlow(0);
-    screenOn(ease(ramp(u, 0.1, 0.6)), 0); logoGlow(ease(ramp(u, 0.08, 0.55)), 0.85);   // V4: ~15% less bloom, sharper edges
+    screenOn(ease(ramp(u, 0.1, 0.6)), 0); logoGlow(ease(ramp(u, 0.08, 0.55)), 0.85, 0.5);   // V4 (Harsh): less blur haze around the logo in the hook   // V4: ~15% less bloom, sharper edges
     const k = ease(ramp(u, 0.55, 2.75)), L = lidPoint(LOGO_C);
     const tgt = L.clone().lerp(L.clone().add(new THREE.Vector3(0, -38, 0)), k), dist = 215 * Math.pow(1640 / 215, k);
     VO = 0.075 * k; orbit(tgt, lerp(0, -8, k), lerp(-17, 12.5, k), dist);
-    BLOOM.strength = 0.85 * lerp(0.1, 0.36, k); BLOOM.radius = lerp(0.13, 0.33, k);
+    BLOOM.strength = 0.65 * lerp(0.1, 0.36, k); BLOOM.radius = lerp(0.1, 0.3, k);
     $('title').classList.add('hook'); title(['THE GLOW', 'IS BACK.'], [0.35, 0.55], u);
   }],
   [B[1], B[2], (u, d) => { // 2. orbit to the side; the lid turns to glass: every OLED pixel lights itself, there is no backlight
