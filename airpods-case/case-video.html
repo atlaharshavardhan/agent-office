@@ -4014,7 +4014,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffe
 renderer.setPixelRatio(devicePixelRatio); renderer.setSize(W, H);
 renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
 document.body.prepend(renderer.domElement);
-const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, W / H, 1, 8000);
+const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, W / H, 10, 3000);
 let ready = false;
 
 /* background + studio environment (same look as the ear Short) */
@@ -4288,11 +4288,18 @@ function power(prog, flow, t) {
 /* ---------- phone (generic, no logo) ---------- */
 const PHONE = new THREE.Group(); scene.add(PHONE);
 let SCREEN_CV, SCREEN_TEX, SCREEN_MAT;
+const GLASS_SRC = [];
+function sheenTex() {   // faint diagonal light band + corner glow, like light on a glass screen
+  const c = document.createElement('canvas'); c.width = 256; c.height = 512; const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 256, 512); g.addColorStop(0, 'rgba(255,255,255,0.10)'); g.addColorStop(0.28, 'rgba(255,255,255,0.02)');
+  g.addColorStop(0.36, 'rgba(255,255,255,0.13)'); g.addColorStop(0.42, 'rgba(255,255,255,0.02)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 512);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+}
 /* iPhone Pro: HyperFrames "vfx-iphone-device" model (Apache 2.0); Apple logo hidden, our own screen */
 function buildPhone() {
   SCREEN_CV = document.createElement('canvas'); SCREEN_CV.width = 660; SCREEN_CV.height = 1380;
   SCREEN_TEX = new THREE.CanvasTexture(SCREEN_CV); SCREEN_TEX.encoding = THREE.sRGBEncoding; SCREEN_TEX.anisotropy = 8;
-  SCREEN_MAT = new THREE.MeshBasicMaterial({ map: SCREEN_TEX, toneMapped: false });
+  SCREEN_MAT = new THREE.MeshBasicMaterial({ map: SCREEN_TEX, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
   const bytes = Uint8Array.from(atob(window.IPHONE_GLB), c => c.charCodeAt(0)).buffer;
   return new Promise(res => new THREE.GLTFLoader().parse(bytes, '', gltf => {
     const m = gltf.scene; m.updateMatrixWorld(true);
@@ -4301,14 +4308,22 @@ function buildPhone() {
     m.traverse(o => { if (!o.isMesh) return;
       if (/^apple-logo/.test(o.name) || /^apple-logo/.test(o.parent && o.parent.name)) o.visible = false;      // no brand logos
       if (o.name.indexOf('front-glass') === 0 || (o.parent && o.parent.name === 'front-glass')) {
-        const g = o.geometry; g.computeBoundingBox(); const bb = g.boundingBox, pa = g.attributes.position, uv = new Float32Array(pa.count * 2);
-        for (let i = 0; i < pa.count; i++) { uv[i * 2] = (pa.getX(i) - bb.min.x) / (bb.max.x - bb.min.x || 1); uv[i * 2 + 1] = (pa.getY(i) - bb.min.y) / (bb.max.y - bb.min.y || 1); }
-        g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); o.material = SCREEN_MAT; }
+        o.material = new THREE.MeshPhysicalMaterial({ color: 0x020203, metalness: 0, roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 1.6 }); GLASS_SRC.push(o); }
     });
     const holder = new THREE.Group(); holder.add(m); m.updateMatrixWorld(true);
     const f = m.getObjectByName('front-glass'), r = m.getObjectByName('rear-window');
     if (f && r) { const fp = f.getWorldPosition(new THREE.Vector3()), rp = r.getWorldPosition(new THREE.Vector3()); if (fp.z < rp.z) holder.rotation.y = Math.PI; }   // screen faces +z (camera)
-    PHONE.add(holder); res();
+    PHONE.add(holder); PHONE.updateMatrixWorld(true);
+    // our screen: a flat panel just under the glass face, then a glossy glass sheen on top
+    const fb = new THREE.Box3(); GLASS_SRC.forEach(o => fb.expandByObject(o)); const fc = fb.getCenter(new THREE.Vector3()), fs = fb.getSize(new THREE.Vector3());
+    const sw = fs.x - 3.2, shh = fs.y - 3.2, sg = new THREE.ShapeGeometry(rrShape(sw, shh, 9), 24);
+    { const pa = sg.attributes.position, uv = []; for (let i = 0; i < pa.count; i++) uv.push(pa.getX(i) / sw + 0.5, pa.getY(i) / shh + 0.5); sg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); }
+    const scr = new THREE.Mesh(sg, SCREEN_MAT); scr.position.set(fc.x, fc.y, fb.max.z + 0.3); PHONE.add(scr);
+    const sheen = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ map: sheenTex(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+    sheen.position.set(fc.x, fc.y, fb.max.z + 0.5); sheen.renderOrder = 4; PHONE.add(sheen);
+    const cover = new THREE.Mesh(sg, new THREE.MeshPhysicalMaterial({ color: 0x000000, roughness: 0.02, clearcoat: 1, clearcoatRoughness: 0.01, envMapIntensity: 2.4, transparent: true, opacity: 0.16, depthWrite: false }));
+    cover.position.set(fc.x, fc.y, fb.max.z + 0.4); cover.renderOrder = 3; PHONE.add(cover);
+    res();
   }));
 }
 let lastScreen = '';
