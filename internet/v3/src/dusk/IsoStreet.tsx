@@ -212,6 +212,7 @@ export const IsoHook: React.FC = () => <IsoStreet hook />;
 export const IsoFull: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire /></Sequence><Sequence from={690} durationInFrames={555}><IsoStreet move /></Sequence></AbsoluteFill>);
 export const IsoHookCine: React.FC = () => <IsoStreet hook cine />;
 export const IsoFullCine: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute cine /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire cine /></Sequence><Sequence from={690} durationInFrames={555}><IsoStreet move cine /></Sequence></AbsoluteFill>);
+export const IsoHookView: React.FC = () => <IsoStreet hook cine mute view={{ fx: 600, fy: 850, z: 1.45 }} />;
 export const IsoWire: React.FC = () => <IsoStreet wire />;
 export const IsoDetail: React.FC = () => <IsoStreet hook detail mute />;
 export const IsoMoveDetail: React.FC = () => <IsoStreet move detail />;
@@ -231,10 +232,10 @@ export const IsoMove: React.FC = () => <IsoStreet move />;
 export const Concept: React.FC<{ k: string }> = ({ k }) => <IsoStreet concept={k} />;
 const CSUB: Record<string, React.ReactNode> = { '1a': <>She moves down the <em>street.</em> The wire can't follow.</>, '1b': <>So every house plugs into <em>one box.</em></>, '2a': <>Now the whole <em>street</em> wants in.</>, '2b': <>One box untangles it: the <em>router.</em></> };
 const GRAN = { hair: '#d9d9e3', top: '#7fbf9a', topSh: '#5a9a78', glasses: true, bun: true }, UNCLE = { hair: '#8d8d9a', top: '#c97b4a', topSh: '#9a5a32', moustache: true }, KIDT = { top: '#f6c34a', topSh: '#cf9a26' }, AUNTY = { top: '#e06a8c', topSh: '#b04a6a', bun: true };
-export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean; mute?: boolean; concept?: string; move?: boolean; detail?: boolean; cine?: boolean }> = ({ hook, wire, net, mute, concept, move, detail = true, cine = false }) => {
+export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean; mute?: boolean; concept?: string; move?: boolean; detail?: boolean; cine?: boolean; view?: { fx: number; fy: number; z: number } }> = ({ hook, wire, net, mute, concept, move, detail = true, cine = false, view }) => {
   DETAIL = !!detail;
   const f = useCurrentFrame(); const t = f / FPS;
-  let on = 1; const cam = hook ? camAt(t) : wire ? camAt(t, WIRE_KEYS) : net ? camAt(t, NET_KEYS) : move ? camAt(t, MOVE_KEYS) : concept ? { fx: 800, fy: 900, z: 0.74 } : { fx: 540, fy: 960, z: 1 };
+  let on = 1; const cam = view ? view : hook ? camAt(t) : wire ? camAt(t, WIRE_KEYS) : net ? camAt(t, NET_KEYS) : move ? camAt(t, MOVE_KEYS) : concept ? { fx: 800, fy: 900, z: 0.74 } : { fx: 540, fy: 960, z: 1 };
   HOSTEL_LIT = !!move;
   NB_LIT = net ? 0.25 : move ? 7.0 : concept ? -5 : -1; const cv = concept ? concept[0] : '', cb = concept ? concept[1] === 'b' : false;
   if (hook) { on = Math.max(...BLINKS.map(([a, b]) => pulse(f, a, b))); HBITS.forEach((b, i) => { if (b) on = Math.max(on, pulse(f, BIT0 + i * BITD, BIT0 + i * BITD + 0.1)); }); }
