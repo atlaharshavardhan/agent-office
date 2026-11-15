@@ -23,3 +23,6 @@ Use this to make a **similar Short on a new topic** in a fresh session. The fini
 - `render.cjs` (Playwright frames → ffmpeg; needs `phone-teardown` three.js + fonts, see its README), `sheet.sh` (stills), `render-parts.sh` (parallel render).
 - `voice/make_voice.py`, `voice/make_timeline.py` (Kokoro → voice.wav, scene cuts, captions, SRT), `audio/make_sounds.py`, `audio/mix.sh`, `tools/watermark.py`.
 - Kokoro setup: `python3 -m venv kvenv && kvenv/bin/pip install kokoro-onnx soundfile`, models from github.com/thewh1teagle/kokoro-onnx releases (model-files-v1.0).
+
+## 3D model note (15 Nov 2026)
+There is no free 3D model of the 2026 PROLED MacBook Pro yet, so the Short uses "Macbook Pro 13 inch 2020" by timblewee (CC BY 4.0). Accurate 14/16-inch models are paid (CGTrader, TurboSquid, RenderHub). A free CC BY candidate for a future MacBook Short: Sketchfab "Macbook Pro [+FREE]" (check size, licence and glTF download first). Skip "MacBook Pro 2021" by KangaroOz 3D: non-commercial licence. Switch to a real PROLED body once a free one exists.
