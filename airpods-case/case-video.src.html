@@ -1,40 +1,50 @@
 <title>AirPods in someone else's case</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
-  :root { --red: #ff3b55; --green: #2fd36b; --blue: #5fd0ff; --amber: #ffb340; }
+  :root { --red: #ff453a; --green: #63e06a; --acc: #63e06a; --blue: #63e06a; --amber: #ffb340; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: #000; font-family: 'IBM Plex Sans', Arial, sans-serif; }
   body > canvas { display: block; position: fixed; inset: 0; z-index: 1; }
-  #back { position: fixed; z-index: 0; left: 0; right: 0; text-align: center; color: #f5f5f7; font: 800 25vw/0.86 Sora, Arial, sans-serif; letter-spacing: -0.045em; pointer-events: none; opacity: 0; }
-  #back .ln { display: block; } #back small { display: block; font: 700 4.6vw Sora, Arial, sans-serif; letter-spacing: 0; color: #4cd964; margin-bottom: 2.4vw; }
+  #back { position: fixed; z-index: 0; left: 0; right: 0; text-align: center; color: #f5f5f7; font: 800 25vw/0.86 Inter, Arial, sans-serif; letter-spacing: -0.06em; pointer-events: none; opacity: 0; }
+  #back .ln { display: block; } #back small { display: block; font: 600 4.6vw Inter, Arial, sans-serif; letter-spacing: -0.01em; color: var(--acc); margin-bottom: 2.4vw; }
   .shade { position: fixed; left: 0; right: 0; pointer-events: none; z-index: 2; }
   #shTop { top: 0; height: 28%; background: linear-gradient(rgba(0,0,0,.6), transparent); }
   #shBot { bottom: 0; height: 40%; background: linear-gradient(transparent, rgba(0,0,0,.5) 40%, rgba(0,0,0,.8)); }
   .ov { position: fixed; z-index: 3; pointer-events: none; }
   /* safe zones (1080x1920): title 220-450 px, subject 450-1500, subtitles 1250-1450, nothing right of 940 below 1100 */
-  #title { top: 12.4%; left: 4%; right: 4%; text-align: center; color: #fff; font: 700 6.2vw/1.13 Sora, Arial, sans-serif; letter-spacing: -0.015em; text-shadow: 0 4px 24px rgba(0,0,0,.8); }
+  #title { top: 12.2%; left: 4%; right: 4%; text-align: center; color: #fff; font: 600 4.1vw/1.2 Inter, Arial, sans-serif; letter-spacing: -0.01em; }
+  #title .t-top { display: block; color: rgba(255,255,255,.92); font-weight: 600; }
+  #title .t-big { display: block; color: var(--acc); font: 700 8.6vw/1.08 Inter, Arial, sans-serif; letter-spacing: -0.03em; margin: 0.6vw 0 0.8vw; }
+  #title .t-big.red { color: var(--red); }
+  #title .t-sub { display: block; color: rgba(255,255,255,.8); font-weight: 500; }
   #title .ln { display: block; }
   #title em { font-style: normal; color: var(--red); } #title em.g { color: var(--green); } #title em.b { color: var(--blue); }
   #note { top: 76.2%; left: 3.7%; right: 16.7%; text-align: center; font-size: 2.5vw; color: rgba(255,255,255,.62); }
-  #sub { top: 65.1%; height: 10.4%; left: 3.7%; right: 16.7%; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font: 700 5.8vw/1.15 Sora, Arial, sans-serif; -webkit-text-stroke: 1.1vw rgba(0,0,0,.85); paint-order: stroke fill; text-shadow: 0 4px 18px rgba(0,0,0,.7); }
-  .tag { position: fixed; z-index: 3; transform: translate(-50%, -50%); pointer-events: none; color: #fff; font: 600 3.5vw 'IBM Plex Sans', Arial, 'Noto Color Emoji', sans-serif; white-space: nowrap;
-    padding: 1.3vw 2.8vw; border-radius: 3vw; background: rgba(14,14,20,.85); border: 1px solid rgba(255,255,255,.22); opacity: 0; }
-  .tag.red { border-color: var(--red); color: #ffdbe0; } .tag.green { border-color: var(--green); color: #d6ffe4; } .tag.blue { border-color: var(--blue); color: #dff5ff; }
+  #sub { top: 65.1%; height: 10.4%; left: 3.7%; right: 16.7%; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font: 800 5.9vw/1.15 Inter, Arial, sans-serif; letter-spacing: -0.01em; -webkit-text-stroke: 1.1vw rgba(0,0,0,.85); paint-order: stroke fill; text-shadow: 0 4px 18px rgba(0,0,0,.7); }
+  .tag { position: fixed; z-index: 3; transform: translate(-50%, -50%); pointer-events: none; color: #fff; font: 600 3.5vw Inter, Arial, 'Noto Color Emoji', sans-serif; letter-spacing: -0.01em; white-space: nowrap;
+    padding: 1.4vw 3vw; border-radius: 2.6vw; background: rgba(28,28,30,.94); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 10px 30px rgba(0,0,0,.5); opacity: 0; }
+  .tag.red { color: #ff6961; } .tag.green, .tag.blue { color: var(--acc); }
   #lines { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: 2; pointer-events: none; overflow: visible; }
   #big { position: fixed; z-index: 3; transform: translate(-50%, -50%); font: 800 22vw Sora, Arial, sans-serif; color: var(--red); text-shadow: 0 0 40px rgba(255,59,85,.5); opacity: 0; pointer-events: none; }
   #q { position: fixed; z-index: 3; transform: translate(-50%, -50%); font: 800 20vw Sora, Arial, sans-serif; color: #fff; text-shadow: 0 0 40px rgba(95,208,255,.7); opacity: 0; pointer-events: none; }
-  #endcard { position: fixed; z-index: 4; left: 8%; right: 16%; top: 23.5%; height: 34.5%; border-radius: 5vw; overflow: hidden; border: 1px solid rgba(255,255,255,.22);
-    box-shadow: 0 30px 80px rgba(0,0,0,.6); opacity: 0; pointer-events: none; background: #0b1230; }
+  /* end card: a tile grid in the black studio look, one green accent */
+  #endcard { position: fixed; z-index: 4; inset: 0; background: #000; opacity: 0; pointer-events: none; }
+  #bento { position: absolute; left: 4.1%; width: 82.9%; top: 13.2%; height: 50.2%; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1.95fr 1fr 1fr 0.9fr; gap: 1.5vw; }
+  .tile { background: #161618; border-radius: 4vw; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; font: 600 3.1vw/1.2 Inter, Arial, sans-serif; letter-spacing: -0.01em; opacity: 0; }
+  .tile .big { font: 700 7.4vw/1.05 Inter, Arial, sans-serif; color: var(--acc); letter-spacing: -0.03em; margin: 0.6vw 0; }
+  .tile .big.red { color: var(--red); } .tile .dim { color: rgba(255,255,255,.75); font-weight: 500; }
+  #tA { grid-column: 1 / 3; grid-row: 1; justify-content: flex-end; padding-bottom: 1.6vw; }
+  #tA .big { font-size: 6.4vw; }
+  #tC .big { font-size: 5.3vw; white-space: nowrap; }
   #ecScene { position: absolute; inset: 0; width: 100%; height: 100%; }
-  #ecShade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,18,60,.25), rgba(10,18,60,.78) 55%, rgba(8,12,40,.92)); opacity: 0; }
-  #ecBrand { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; }
-  #ecLogo { width: 17vw; height: 17vw; border-radius: 50%; box-shadow: 0 0 0 1.4vw rgba(74,168,255,.12), 0 0 50px rgba(74,168,255,.55); }
-  #ecName { margin-top: 2vw; font: 800 9vw/1 Sora, Arial, sans-serif; letter-spacing: -0.02em; } #ecName b { color: #4fc3f7; font-weight: 800; }
-  #ecHandle { margin-top: 1.4vw; font: 600 4.2vw Sora, Arial, sans-serif; color: rgba(255,255,255,.9); }
-  #ecIcons { display: flex; gap: 7vw; margin-top: 2.6vw; } #ecIcons div { display: flex; flex-direction: column; align-items: center; font: 600 3.2vw 'IBM Plex Sans', sans-serif; }
-  #ecIcons svg { width: 6.4vw; height: 6.4vw; margin-bottom: .6vw; }
-  #ecSub { margin-top: 2.6vw; padding: 1.8vw 7vw; border-radius: 6vw; background: #e53935; font: 700 4.4vw Sora, Arial, sans-serif; box-shadow: 0 0 30px rgba(229,57,53,.55); }
-  #ecPill { position: fixed; z-index: 4; left: 42%; top: 60.2%; transform: translateX(-50%); display: flex; border-radius: 2.4vw; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.45); opacity: 0; font: 800 5.6vw/1 Sora, Arial, sans-serif; white-space: nowrap; }
-  #ecPill .a { background: #f4f4f6; color: #10142a; padding: 2vw 1.6vw 2vw 3.2vw; } #ecPill .b { background: #2fd36b; color: #fff; padding: 2vw 3.2vw 2vw 1.6vw; }
+  #tA .lbl { position: relative; text-shadow: 0 2px 14px #000; }
+  #tB { grid-column: 3; grid-row: 1; } #tC { grid-column: 1; grid-row: 2; } #tD { grid-column: 2 / 4; grid-row: 2; flex-direction: row; gap: 3vw; }
+  #tE { grid-column: 1 / 3; grid-row: 3; } #tF { grid-column: 3; grid-row: 3; } #tG { grid-column: 1 / 4; grid-row: 4; flex-direction: row; justify-content: space-around; padding: 0 3vw; }
+  #ecLogo { width: 13vw; height: 13vw; border-radius: 50%; box-shadow: 0 0 34px rgba(99,224,106,.35); }
+  #ecName { font: 800 7.2vw/1 Inter, Arial, sans-serif; letter-spacing: -0.04em; text-align: left; } #ecName b { color: var(--acc); font-weight: 800; }
+  #ecHandle { margin-top: 1vw; font: 600 3.4vw Inter, Arial, sans-serif; color: rgba(255,255,255,.85); }
+  #tG .ic { display: flex; flex-direction: column; align-items: center; font: 600 2.9vw Inter, Arial, sans-serif; } #tG svg { width: 6vw; height: 6vw; margin-bottom: .5vw; }
+  #ecSub { padding: 1.8vw 5.4vw; border-radius: 6vw; background: #ff3b30; font: 700 4vw Inter, Arial, sans-serif; box-shadow: 0 0 28px rgba(255,59,48,.45); }
+  #ecPill { display: none; }
   #fade { position: fixed; inset: 0; z-index: 5; background: #000; opacity: 0; pointer-events: none; }
   #zones { position: fixed; inset: 0; z-index: 9; pointer-events: none; display: none; }
 </style>
@@ -44,13 +54,19 @@
 <div class="ov" id="note"></div>
 <div class="ov" id="sub"></div>
 <div id="big">✕</div><div id="q">?</div>
-<div id="endcard"><canvas id="ecScene"></canvas><div id="ecShade"></div>
-  <div id="ecBrand"><img id="ecLogo" src="__LOGO__" alt=""><div id="ecName"><span>Invisi</span><b>Tech</b></div><div id="ecHandle">@TheInvisiTech</div>
-  <div id="ecIcons"><div><svg viewBox="0 0 24 24"><path d="M2 10h4v11H2zM8 21h9.5a2 2 0 0 0 2-1.6l1.4-7A2 2 0 0 0 19 10h-5.5l.8-4.2A2 2 0 0 0 12.4 3.5L8 9z" fill="#4aa8ff"/></svg>Like</div>
-  <div><svg viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.3 1.1 4.4 2.9 6L4 21l4.3-2c1.1.4 2.4.6 3.7.6 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" fill="none" stroke="#f5a623" stroke-width="2"/><circle cx="8" cy="11.5" r="1.2" fill="#f5a623"/><circle cx="12" cy="11.5" r="1.2" fill="#f5a623"/><circle cx="16" cy="11.5" r="1.2" fill="#f5a623"/></svg>Comment</div>
-  <div><svg viewBox="0 0 24 24"><circle cx="9" cy="7.5" r="4" fill="#4aa8ff"/><path d="M1.5 21c0-4.4 3.4-7.5 7.5-7.5s7.5 3.1 7.5 7.5z" fill="#4aa8ff"/><path d="M19 4v6M16 7h6" stroke="#4aa8ff" stroke-width="2.2" stroke-linecap="round"/></svg>Follow</div></div>
-  <div id="ecSub">Subscribe</div></div></div>
-<div id="ecPill"><span class="a">Same model</span><span class="b">= it charges.</span></div>
+<div id="endcard"><div id="bento">
+  <div class="tile" id="tA"><canvas id="ecScene"></canvas><div class="lbl"><span class="dim">Same model</span> · <b style="color:var(--acc)">it charges.</b></div></div>
+  <div class="tile" id="tB">Each slot<div class="big">2 pins</div><span class="dim">on 2 gold dots</span></div>
+  <div class="tile" id="tC">Case battery<div class="big">1.334 Wh</div></div>
+  <div class="tile" id="tD"><img id="ecLogo" src="__LOGO__" alt=""><div><div id="ecName">Invisi<b>Tech</b></div><div id="ecHandle">@TheInvisiTech</div></div></div>
+  <div class="tile" id="tE">Swapped case?<div class="big">Set up again.</div><span class="dim">after Find My removal</span></div>
+  <div class="tile" id="tF">Other generation<div class="big red">✕</div></div>
+  <div class="tile" id="tG"><div class="ic"><svg viewBox="0 0 24 24"><path d="M2 10h4v11H2zM8 21h9.5a2 2 0 0 0 2-1.6l1.4-7A2 2 0 0 0 19 10h-5.5l.8-4.2A2 2 0 0 0 12.4 3.5L8 9z" fill="#63e06a"/></svg>Like</div>
+    <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.3 1.1 4.4 2.9 6L4 21l4.3-2c1.1.4 2.4.6 3.7.6 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" fill="none" stroke="#63e06a" stroke-width="2"/></svg>Comment</div>
+    <div class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="7.5" r="4" fill="#63e06a"/><path d="M1.5 21c0-4.4 3.4-7.5 7.5-7.5s7.5 3.1 7.5 7.5z" fill="#63e06a"/><path d="M19 4v6M16 7h6" stroke="#63e06a" stroke-width="2.2" stroke-linecap="round"/></svg>Follow</div>
+    <div id="ecSub">Subscribe</div></div>
+</div></div>
+<div id="ecPill"></div>
 <div id="fade"></div>
 <svg id="zones" viewBox="0 0 1080 1920" preserveAspectRatio="none">
   <rect x="0" y="0" width="1080" height="220" fill="rgba(255,0,0,.18)"/><rect x="0" y="1500" width="1080" height="420" fill="rgba(255,0,0,.18)"/>
@@ -345,10 +361,10 @@ function buildPower(C) {
   const pts = [P.batt.clone().add(new THREE.Vector3(8, 0, 0)), new THREE.Vector3(12.8, -18.5, 3.6), new THREE.Vector3(14, -22.5, 3.6), new THREE.Vector3(17.5, -25.0, 2.4),
     P.pins.R.clone().add(new THREE.Vector3(-0.4, -2.2, 0)), P.pins.R.clone(), ...P.budPathR.slice(1).map(toCase)];
   POWER.curve = new THREE.CatmullRomCurve3(pts);
-  POWER.tube = new THREE.Mesh(new THREE.TubeGeometry(POWER.curve, 200, 0.55, 10), new THREE.MeshBasicMaterial({ color: 0x2a9dff, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
+  POWER.tube = new THREE.Mesh(new THREE.TubeGeometry(POWER.curve, 200, 0.55, 10), new THREE.MeshBasicMaterial({ color: 0x4fdc5a, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
   POWER.tube.renderOrder = 20; C.body.add(POWER.tube);
-  POWER.head = sprite(HALO_B, 7); C.body.add(POWER.head);
-  for (let i = 0; i < 7; i++) { const s = sprite(HALO_B, 3.6); C.body.add(s); POWER.pk.push(s); }
+  POWER.head = sprite(HALO_G, 7); C.body.add(POWER.head);
+  for (let i = 0; i < 7; i++) { const s = sprite(HALO_G, 3.6); C.body.add(s); POWER.pk.push(s); }
 }
 function power(prog, flow, t) {
   const idx = POWER.tube.geometry.index.count; POWER.tube.geometry.setDrawRange(0, Math.floor(idx * prog / 6) * 6); POWER.tube.visible = prog > 0.01;
@@ -510,6 +526,11 @@ function back(lines, small, a, top) {   // huge words behind the product, small 
   const el = $('back'), key = lines.join('|') + small; if (key !== lastBack) { lastBack = key; el.innerHTML = (small ? `<small>${small}</small>` : '') + lines.map(l => `<span class="ln">${l}</span>`).join(''); }
   el.style.opacity = a; el.style.top = top; el.style.transform = `translateY(${(1 - a) * 2}vh) scale(${0.97 + 0.03 * a})`;
 }
+function title3(top, big, sub, u, t0 = 0, red = false) {   // small white / big green / small white, like Apple's launch frames
+  const key = [top, big, sub, red].join('|'); if (key !== lastTitle) { lastTitle = key;
+    $('title').innerHTML = (top ? `<span class="t-top">${top}</span>` : '') + `<span class="t-big${red ? ' red' : ''}">${big}</span>` + (sub ? `<span class="t-sub">${sub}</span>` : ''); }
+  [...$('title').children].forEach((el, i) => { const a = easeOut(ramp(u, t0 + i * 0.25, t0 + i * 0.25 + 0.35)); el.style.opacity = a; el.style.transform = `translateY(${(1 - a) * 1.6}vh)`; });
+}
 let lastTitle = '';
 function title(lines, times, u) {
   const key = lines.join('|'); if (key !== lastTitle) { lastTitle = key; $('title').innerHTML = lines.map(l => `<span class="ln">${l}</span>`).join(''); }
@@ -520,7 +541,7 @@ const TAGS = {}; const svg = $('lines');
 function tagEl(id, text, cls) { if (!TAGS[id]) { const el = document.createElement('div'); document.body.appendChild(el);
   const l = document.createElementNS('http://www.w3.org/2000/svg', 'line'), c = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); svg.append(l, c); TAGS[id] = { el, l, c }; }
   const T = TAGS[id]; T.el.textContent = text; T.el.className = 'tag ' + (cls || ''); return T; }
-const colOf = cls => cls === 'red' ? '#ff3b55' : cls === 'green' ? '#2fd36b' : cls === 'blue' ? '#5fd0ff' : 'rgba(255,255,255,.75)';
+const colOf = cls => cls === 'red' ? '#ff453a' : (cls === 'green' || cls === 'blue') ? '#63e06a' : 'rgba(255,255,255,.75)';
 function proj(v) { const p = v.clone().project(camera); return [(p.x + 1) / 2 * W, (1 - p.y) / 2 * H]; }
 function tag(id, text, world, dx, dy, a, cls, noLine) {
   const T = tagEl(id, text, cls), [x, y] = proj(world), col = colOf(cls);
@@ -598,7 +619,8 @@ const SHOTS = [
     const tA = V(0, -8, 0), pA = V(-30, 60, 250), tB = W2(CB, STEM.R.clone().add(V(-2, 3, 0))), pB = W2(CB, STEM.R.clone().add(V(-18, 26, 112))), tC = W2(CB, V(11, -13, 0)), pC = W2(CB, V(-12, 22, 186));
     VO = 0.0; look(vlerp(vlerp(pA, pB, zin), pC, zout), vlerp(vlerp(tA, tB, zin), tC, zout));
     const pr = ease(ramp(u, 5.4, 8.4)); power(pr, ease(ramp(u, 8.0, 8.6)), t);
-    title(u < 5.2 ? ['<em class="b">Spring pins</em> touch', 'two <em class="b">gold dots</em>'] : ['Case battery', '→ the bud’s own <em class="b">chip</em>'], u < 5.2 ? [0.4, 1.4] : [5.4, 7.2], u);
+    $('shTop').style.background = 'linear-gradient(rgba(0,0,0,.94), rgba(0,0,0,.82) 62%, transparent)'; $('shTop').style.height = '32%';
+    if (u < 5.2) title3('Inside the case', 'Pins meet gold dots.', 'Magnets hold the bud down', u, 0.4); else title3('Inside the case', 'Battery → chip → bud.', 'The bud’s chip decides how fast it fills', u, 5.4);
     const a1 = ease(ramp(u, 1.8, 2.2)) * (1 - ease(ramp(u, 5.0, 5.4)));
     const bud = CA.buds.R;
     sideTags([['pin', 'Spring pins', W2(CB, P.pins.R), 1, a1, 'blue'],
@@ -617,7 +639,7 @@ const SHOTS = [
     const gk = ease(ramp(u, 0.35, 0.7)); setLight(CB, gk > 0.5 ? 'green' : 'white', gk > 0.5 ? 1 : 0.6);
     PHONE.visible = true; const pk = ease(ramp(u, 1.3, 2.3)); PHONE.position.set(lerp(140, 33, pk), -2, -6); PHONE.rotation.set(0, -0.3, 0.0); PHONE.scale.setScalar(0.5); screen('off');
     VO = 0.0; look(V(0, 40, 470), V(0, -6, 0));
-    title(['Same pins → <em class="g">yes, they charge</em>', 'but your iPhone <em>notices</em>'], [0.4, 1.4], u);
+    title3('Karan’s case · same pins', 'Yes, they charge.', 'But your iPhone notices', u, 0.4);
     tag('ok', 'Charging ✓', W2(CB, P.light), -W * 0.02, H * 0.09, ease(ramp(u, 0.7, 1.0)) * (1 - ease(ramp(u, 1.2, 1.5))), 'green');
   },
   (u, t) => { // 5. the catch: Mismatched AirPods; the link to their own case breaks
@@ -634,7 +656,7 @@ const SHOTS = [
     tag('set', 'Paired as a set', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, -14, 0)), 0, 0, lk * (1 - brk), '', true);
     glyph('big', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, 12, 0)), ease(ramp(u, 6.4, 6.8)), 0.35);
     tag('ya2', 'Harsha’s case ⭐', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8))); tag('fr2', 'Karan’s case 🌙', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8)));
-    title(['Now the <em>catch</em>…', '<em>“Mismatched AirPods Pro”</em>'], [0.0, 1.0], u);
+    title3('The catch', 'Mismatched.', 'Your buds and case were set up as a pair', u, 0.0, true);
   },
   (u, t) => { // 6. back in their own case (or set up again): warning gone
     CA.root.visible = true; CA.root.position.set(-38, -17.5, 0); CB.root.position.set(38, -17.5, 0); CA.root.rotation.set(0.12, 0.25, 0); CB.root.rotation.set(0.12, -0.25, 0); setLid(CA, 1); setLid(CB, 1);
@@ -643,8 +665,8 @@ const SHOTS = [
     PHONE.visible = true; PHONE.position.set(0, 46, -10); PHONE.rotation.set(0, 0, 0); PHONE.scale.setScalar(0.55);
     screen(home ? 'fixed' : 'alert', home ? ramp(u, 2.5, 3.0) : 1);
     VO = 0.0; look(V(0, 10, 628), V(0, 0, 0));
-    title(['Own case <em class="g">✓</em>', 'or <em class="b">set up again</em>'], [0.6, 3.6], u);
-    note('…after your friend removes them from <b>their Find My</b>', ease(ramp(u, 4.2, 4.6)), true); $('note').style.top = '20.6%'; $('note').style.fontSize = '3.4vw'; $('note').style.color = '#cfe9ff';
+    title3('The fix', 'Back home. ✓', 'Or set up again, after Find My removal', u, 0.6);
+    
     tag('ya3', 'Harsha’s case ⭐', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, 1); tag('fr3', 'Karan’s case 🌙', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, 1);
   },
   (u, t) => { // 7. a different generation: fits perfectly, still doesn't work properly
@@ -660,23 +682,22 @@ const SHOTS = [
     tag('g2', 'Different generation', other.g.localToWorld(V(0, 26, 0)), 0, -H * 0.045, ease(ramp(u, 0.3, 0.6)) * (1 - ease(ramp(u, 0.95, 1.1))), 'red', true);
     tag('fits', 'Fits ✓', W2(CB, STEM.R.clone().add(V(-6, 22, 0))), -W * 0.4, -H * 0.03, ease(ramp(u, 2.3, 2.6)), 'green');
     glyph('big', W2(CB, STEM.R.clone().add(V(-2, 50, 0))), ease(ramp(u, 3.0, 3.3)), 0.42 + 0.05 * bump(u, 3.0, 3.4));
-    title(['Different generation?', '<em class="g">Fits.</em> Won’t work <em>properly.</em>'], [0.2, 2.2], u);
+    title3('Different generation', 'Fits. Doesn’t work.', 'Not properly, anyway', u, 0.2, true);
   },
   (u, t) => { // 8. end card
-    CA.root.visible = false; PHONE.visible = false; CB.root.position.set(0, 0, 0); CB.root.rotation.set(0.15, 0.5 + 0.35 * u, 0); setLid(CB, 1);
+    CA.root.visible = false; PHONE.visible = false; CB.root.position.set(0, 0, 0); CB.root.rotation.set(0.12, -0.22 + 0.12 * u, 0); setLid(CB, 1);
     for (const s of ['R', 'L']) seat(CA.buds[s], CB); CB.buds.R.g.visible = false; CB.buds.L.g.visible = false;
-    setXray(CB, 1); budXray(CA.buds.R, 1); budXray(CA.buds.L, 1); GLOW.pin.emissiveIntensity = 1.2; setLight(CB, 'green', 0.9);
-    power(1, 1, t);
-    VO = 0.02; look(V(0, 30, 200), V(0, -6, 0));
-    renderer.domElement.style.filter = 'blur(12px) brightness(0.85) saturate(1.4)'; title([], [], u);
-    END.a = easeOut(ramp(u, 0, 0.45)); END.brand = ramp(u, 0.75, 2.4);
+    setXray(CB, 0); budXray(CA.buds.R, 0); budXray(CA.buds.L, 0); setLight(CB, 'green', 1.0);
+    VO = 0.0; look(V(0, 50, 600), V(0, -4, 0));
+    title([], [], u);
+    END.a = easeOut(ramp(u, 0, 0.35)); END.brand = ramp(u, 0.2, 2.0);
   },
 ];
 const CUTS = () => B.slice(2, B.length - 1);
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   let i = 0; while (i < B.length - 2 && t >= B[i + 1]) i++;
-  hideTags(); $('back').style.opacity = 0; for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('note').style.top = ''; $('note').style.fontSize = ''; $('note').style.color = ''; $('title').style.opacity = 1;
+  hideTags(); $('back').style.opacity = 0; $('shTop').style.background = ''; $('shTop').style.height = ''; for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('note').style.top = ''; $('note').style.fontSize = ''; $('note').style.color = ''; $('title').style.opacity = 1;
   CA.root.visible = true; CB.root.visible = true; PHONE.visible = false; LINK.visible = false;
   for (const C of [CA, CB]) { setXray(C, 0); setLight(C, 'green', 0); C.buds.R.g.visible = false; C.buds.L.g.visible = false; }
   for (const s of ['R', 'L']) { CA.buds[s].g.visible = true; budXray(CA.buds[s], 0); }
@@ -690,16 +711,13 @@ function renderAt(t) {
 }
 const END = { a: 0, brand: 0 };
 function endCard() {
-  const ec = $('endcard'), pill = $('ecPill'), a = END.a, b = END.brand; ec.style.opacity = a; ec.style.transform = `scale(${0.9 + 0.1 * a})`;
-  const pv = easeOut(ramp(b, 0.75, 0.95)); pill.style.opacity = pv; pill.style.transform = `translateX(-50%) translateY(${(1 - pv) * 2}vh)`;
-  if (a < 0.01) { pill.style.opacity = 0; return; }
-  const cv = $('ecScene'), r = ec.getBoundingClientRect(), dpr = renderer.getPixelRatio(); cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
-  cv.getContext('2d').drawImage(renderer.domElement, r.left * dpr, r.top * dpr, r.width * dpr, r.height * dpr, 0, 0, cv.width, cv.height);
-  $('ecShade').style.opacity = ease(ramp(b, 0, 0.2));
-  const pop = (el, k) => { const v = easeOut(k); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 2}vh) scale(${0.85 + 0.15 * v})`; };
-  pop($('ecLogo'), ramp(b, 0.0, 0.18)); pop($('ecName'), ramp(b, 0.12, 0.3)); pop($('ecHandle'), ramp(b, 0.22, 0.4));
-  [...$('ecIcons').children].forEach((el, i) => pop(el, ramp(b, 0.35 + i * 0.08, 0.5 + i * 0.08)));
-  pop($('ecSub'), ramp(b, 0.62, 0.8));
+  const ec = $('endcard'), a = END.a, b = END.brand; ec.style.opacity = a;
+  if (a < 0.01) return;
+  const tA = $('tA'), r = tA.getBoundingClientRect(), cv = $('ecScene'), dpr = renderer.getPixelRatio();
+  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+  const sw = W * 0.82, sh = sw * r.height / r.width, sx = (W - sw) / 2, sy = H * 0.5 - sh * 0.42;   // the case, rendered in the middle of the frame
+  cv.getContext('2d').drawImage(renderer.domElement, sx * dpr, sy * dpr, sw * dpr, sh * dpr, 0, 0, cv.width, cv.height);
+  ['tA', 'tB', 'tC', 'tD', 'tE', 'tF', 'tG'].forEach((id, i) => { const v = easeOut(ramp(b, i * 0.07, i * 0.07 + 0.3)), el = $(id); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 1.6}vh) scale(${0.94 + 0.06 * v})`; });
 }
 
 /* which internal parts poke out of the shells? (debug) */

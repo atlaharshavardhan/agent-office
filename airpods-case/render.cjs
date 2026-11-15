@@ -10,6 +10,7 @@ const fontCss = [
   ['Sora', 'fontsource-sora-5.0.18', 'sora', [500, 600, 700]],
   ['IBM Plex Sans', 'fontsource-ibm-plex-sans-5.0.20', 'ibm-plex-sans', [400, 500, 600]],
   ['IBM Plex Mono', 'fontsource-ibm-plex-mono-5.0.12', 'ibm-plex-mono', [400, 500]],
+  ['Inter', 'fontsource-inter-5.0.20', 'inter', [400, 500, 600, 700, 800]],
 ].flatMap(([fam, pkg, base, ws]) => ws.map(w => `@font-face{font-family:"${fam}";font-weight:${w};font-style:normal;src:url(https://fonts.gstatic.com/local/${pkg}/${base}-latin-${w}-normal.woff2) format("woff2")}`)).join('\n');
 (async () => {
   const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });

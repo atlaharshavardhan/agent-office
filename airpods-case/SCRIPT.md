@@ -90,3 +90,4 @@ About 124 words, ~48 s with Michael at 1.12 (limit 50 s).
 - Look: black studio like Apple's launch frames (pure black, top softbox + side rim lights), and huge white words behind the product with a small green line above in the hook ("Wrong case?") and the close-up ("Will it charge?"). Our own words, no logos.
 - Behind the alert: dark-mode home screen with generic app icons (no real logos), blurred and dimmed as the card slides up.
 - Phone wallpaper: purple (lilac/pink at the top into deep purple), apps blurred behind the card (Harsh's reference).
+- Green accent (Apple launch green #63e06a), Inter font, stacked titles (small white / big green / small white; red for warnings), labels as dark tiles, green power path, end card as a tile grid with the case, facts, logo, @TheInvisiTech, Like/Comment/Follow, Subscribe.
