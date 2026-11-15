@@ -60,7 +60,7 @@ place(sfx, impact(70, 0.6), at(2, 0.7), 0.25)
 for i in range(6): place(sfx, click(), at(2, 1.25 + i * 0.3), 0.32, (-0.4 if i < 3 else 0.4))
 # 4 four LEDs: an electronic activation tone on each one, in time with the picture
 place(sfx, impact(60, 0.8), at(3, 0.05), 0.3)
-for i in range(4): place(sfx, activate(784 * 2 ** (i * 2 / 12)), at(3, 1.0 + i * 0.42), 0.32, [-0.5, -0.17, 0.17, 0.5][i]); place(sfx, shimmer(0.45, 2600 + 200 * i), at(3, 1.0 + i * 0.42), 0.05)
+for i in range(4): place(sfx, activate(784 * 2 ** (i * 2 / 12)), at(3, 1.0 + i * 0.5), 0.32, [-0.5, -0.17, 0.17, 0.5][i]); place(sfx, shimmer(0.45, 2600 + 200 * i), at(3, 1.0 + i * 0.5), 0.05)
 place(sfx, click(), at(3, 2.9), 0.32, -0.4); place(sfx, click(), at(3, 3.6), 0.32, 0.4)
 # 5 bounce → spread → shine; layers close with a soft click
 place(sfx, shimmer(1.0, 1700), at(4, 0.1), 0.14, -0.3); place(sfx, click(), at(4, 0.7), 0.3, -0.4); place(sfx, click(), at(4, 1.0), 0.28, 0.4)
