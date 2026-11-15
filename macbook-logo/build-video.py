@@ -3,7 +3,7 @@ so it plays on a phone and renders in render.cjs from file://. Run build-data.py
 import base64, json, os, re
 here = os.path.dirname(os.path.abspath(__file__))
 import sys
-VOICE = sys.argv[1] if len(sys.argv) > 1 else 'george'   # voice/george (default) or voice/ (v1, Michael: pass '.')
+VOICE = sys.argv[1] if len(sys.argv) > 1 else 'george40'   # V4: george40 = ~40 s timing; voice/george (default) or voice/ (v1, Michael: pass '.')
 src = open(os.path.join(here, 'logo-video.src.html'), encoding='utf-8').read()
 def inline(m):
     return '<script>\n' + open(os.path.normpath(os.path.join(here, m.group(1))), encoding='utf-8').read() + '\n</script>'

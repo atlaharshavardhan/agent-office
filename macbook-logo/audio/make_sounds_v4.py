@@ -3,7 +3,7 @@ V4: sound effects only (no whooshes): soft electronic activation tones, soft mec
 Writes music.wav (bed, starts at 0 s: music-first hook) and sfx.wav, 48 kHz stereo, the length of the voice timeline.
 Effect times follow the scene page: scenes 2–6 are stretched from their v1 lengths (ORIG) onto this voice's cuts."""
 import json, sys, numpy as np, soundfile as sf
-VOICE = sys.argv[1] if len(sys.argv) > 1 else 'george'
+VOICE = sys.argv[1] if len(sys.argv) > 1 else 'george40'
 TL = json.load(open(f'../voice/{VOICE}/timeline.json')); B = TL['B']
 SR = 48000; DUR = B[-1]; N = int(SR * DUR); rng = np.random.default_rng(11)
 ORIG = [0, 8.06, 3.26, 6.29, 7.23, 7.52, 0, 0]
