@@ -61,6 +61,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="../face-id/assets/GLTFLoader.js"></script>
 <script src="assets/Reflector.js"></script>
+<script src="assets/post/CopyShader.js"></script>
+<script src="assets/post/LuminosityHighPassShader.js"></script>
+<script src="assets/post/GammaCorrectionShader.js"></script>
+<script src="assets/post/EffectComposer.js"></script>
+<script src="assets/post/MaskPass.js"></script>
+<script src="assets/post/RenderPass.js"></script>
+<script src="assets/post/ShaderPass.js"></script>
+<script src="assets/post/UnrealBloomPass.js"></script>
 <script src="assets/mbp-data.js"></script>
 <script>
 (() => {
@@ -76,6 +84,13 @@ renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESF
 document.body.prepend(renderer.domElement);
 const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, W / H, 5, 20000);
 let ready = false;
+/* premium finish: render through a multisampled target, soft bloom on everything that glows, then sRGB */
+const RT = new THREE.WebGLMultisampleRenderTarget(Math.round(W * renderer.getPixelRatio()), Math.round(H * renderer.getPixelRatio()), { format: THREE.RGBAFormat, stencilBuffer: true }); RT.samples = 4;   // stencil → 24-bit depth (16-bit z-fights on the thin lid)
+const composer = new THREE.EffectComposer(renderer, RT); composer.setSize(W, H);
+composer.addPass(new THREE.RenderPass(scene, camera));
+const BLOOM = new THREE.UnrealBloomPass(new THREE.Vector2(W, H), 0.6, 0.5, 0.78); composer.addPass(BLOOM);
+composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));
+const draw = () => composer.render();
 
 /* ---------- room: dark backdrop that can brighten (scene 6), studio environment ---------- */
 function gradTex(stops) { const c = document.createElement('canvas'); c.width = 64; c.height = 512; const x = c.getContext('2d'), g = x.createRadialGradient(32, 200, 10, 32, 200, 430);
@@ -84,7 +99,7 @@ const BG_DARK = gradTex([[0, '#1d2130'], [0.45, '#0d0f16'], [1, '#040506']]), BG
 const backdrop = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({ depthTest: false, depthWrite: false,
   uniforms: { a: { value: BG_DARK }, b: { value: BG_DAY }, k: { value: 0 } },
   vertexShader: 'varying vec2 vU; void main(){ vU = uv; gl_Position = vec4(position.xy, 0.9999, 1.0); }',
-  fragmentShader: 'uniform sampler2D a; uniform sampler2D b; uniform float k; varying vec2 vU; void main(){ gl_FragColor = mix(texture2D(a, vU), texture2D(b, vU), k); }' }));
+  fragmentShader: 'uniform sampler2D a; uniform sampler2D b; uniform float k; varying vec2 vU; void main(){ vec4 c = mix(texture2D(a, vU), texture2D(b, vU), k); gl_FragColor = vec4(pow(c.rgb, vec3(2.2)), 1.0); }   // sRGB canvas → linear (gamma is applied at the end)' }));
 backdrop.frustumCulled = false; backdrop.renderOrder = -10; scene.add(backdrop);
 {
   const pm = new THREE.PMREMGenerator(renderer), env = new THREE.Scene(), e = document.createElement('canvas'); e.width = 16; e.height = 256; const ex = e.getContext('2d');
@@ -110,7 +125,7 @@ DESK.rotation.x = -Math.PI / 2; DESK.position.y = 0; scene.add(DESK);
 const MIRROR = new THREE.Reflector(new THREE.CircleGeometry(1500, 64), { textureWidth: Math.round(W * renderer.getPixelRatio()), textureHeight: Math.round(H * renderer.getPixelRatio()), clipBias: 0.003,
   shader: { uniforms: { color: { value: null }, tDiffuse: { value: null }, textureMatrix: { value: null }, strength: { value: 0.8 }, scrH: { value: H * renderer.getPixelRatio() } },
     vertexShader: 'uniform mat4 textureMatrix; varying vec4 vUv; varying vec2 vP; void main(){ vUv = textureMatrix * vec4(position, 1.0); vP = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-    fragmentShader: 'uniform sampler2D tDiffuse; uniform float strength; uniform float scrH; varying vec4 vUv; varying vec2 vP; void main(){ vec4 b = texture2DProj(tDiffuse, vUv); float f = smoothstep(0.42, 0.06, distance(vP, vec2(0.5))); float y = gl_FragCoord.y / scrH; f *= smoothstep(0.35, 0.5, y); gl_FragColor = vec4(pow(b.rgb, vec3(0.6)), f * strength); }' } });
+    fragmentShader: 'uniform sampler2D tDiffuse; uniform float strength; uniform float scrH; varying vec4 vUv; varying vec2 vP; void main(){ vec4 b = texture2DProj(tDiffuse, vUv); float f = smoothstep(0.42, 0.06, distance(vP, vec2(0.5))); float y = gl_FragCoord.y / scrH; f *= smoothstep(0.35, 0.5, y); gl_FragColor = vec4(b.rgb * 1.15, f * strength); }' } });
 MIRROR.material.transparent = true; MIRROR.material.depthWrite = false; MIRROR.rotation.x = -Math.PI / 2; MIRROR.position.y = 0.05; MIRROR.renderOrder = 1; scene.add(MIRROR);
 { const ob = MIRROR.onBeforeRender; MIRROR.onBeforeRender = function (...a) { backdrop.visible = false; ob.apply(this, a); backdrop.visible = true; }; }
 { // soften the desk's edge into the backdrop
@@ -171,38 +186,39 @@ LAYERS.add(GLASS, TOUCH, OLED, FOAM, REFL, DIFF);
 const LEDS = [], LED_HALOS = [];
 let STRIP_C = new THREE.Vector3();
 function etchTex(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 8; return t; }
+function edges(mesh, col, op) { const l = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry), new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: op, blending: THREE.AdditiveBlending, depthWrite: false })); l.renderOrder = 5; mesh.add(l); return l; }
 function buildLayers() {
   const cx = LOGO_C.x, cz = LOGO_C.z, S = 92, PW = 286, PD = 186, PZ = 104;   // light box footprint around the logo; panel size and centre
   // cover glass with its rubber trim
   const glass = new THREE.Mesh(new THREE.BoxGeometry(PW + 4, 0.7, PD + 4), new THREE.MeshPhysicalMaterial({ color: 0xbfd4ff, metalness: 0, roughness: 0.03, transparent: true, opacity: 0.22, clearcoat: 1, envMapIntensity: 2, depthWrite: false }));
-  glass.position.set(0, 2.3, PZ); GLASS.add(glass);
+  glass.position.set(0, 2.3, PZ); GLASS.add(glass); edges(glass, 0x9fe3ff, 0.55);
   const trimM = new THREE.MeshStandardMaterial({ color: 0x0b0c0f, roughness: 0.7 });
   for (const [w, d, x, z] of [[PW + 6, 2, 0, PZ - PD / 2 - 2], [PW + 6, 2, 0, PZ + PD / 2 + 2], [2, PD + 6, -PW / 2 - 2, PZ], [2, PD + 6, PW / 2 + 2, PZ]]) { const t = new THREE.Mesh(new THREE.BoxGeometry(w, 1.2, d), trimM); t.position.set(x, 2.3, z); GLASS.add(t); }
   // capacitive touch layer: a clear film with a fine diamond grid
   const grid = etchTex(512, 512, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = 'rgba(255,196,120,0.55)'; x.lineWidth = 1.2; for (let i = -h; i < w; i += 16) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + h, h); x.stroke(); x.beginPath(); x.moveTo(i + h, 0); x.lineTo(i, h); x.stroke(); } });
   grid.wrapS = grid.wrapT = THREE.RepeatWrapping; grid.repeat.set(4, 2.6);
   const touch = new THREE.Mesh(new THREE.BoxGeometry(PW, 0.3, PD), new THREE.MeshBasicMaterial({ map: grid, transparent: true, opacity: 0.9, depthWrite: false, side: THREE.DoubleSide }));
-  touch.position.set(0, 2.9, PZ); TOUCH.add(touch);
+  touch.position.set(0, 2.9, PZ); TOUCH.add(touch); edges(touch, 0xffc078, 0.5);
   const tint = new THREE.Mesh(new THREE.BoxGeometry(PW, 0.25, PD), new THREE.MeshBasicMaterial({ color: 0xffc078, transparent: true, opacity: 0.06, depthWrite: false })); tint.position.copy(touch.position); TOUCH.add(tint);
   // tandem OLED: black panel, pixels on the screen side (-y); blue subpixels bigger, as under iFixit's microscope
   const pix = etchTex(512, 512, (x, w, h) => { x.fillStyle = '#05060a'; x.fillRect(0, 0, w, h); for (let i = 0; i < w; i += 8) for (let j = 0; j < h; j += 8) { x.fillStyle = '#ff3b55'; x.fillRect(i + 0.8, j + 1, 1.6, 2.6); x.fillStyle = '#2fd36b'; x.fillRect(i + 0.8, j + 4.2, 1.6, 2.6); x.fillStyle = '#3d7bff'; x.fillRect(i + 3.4, j + 1, 3.6, 5.8); } });
   pix.wrapS = pix.wrapT = THREE.RepeatWrapping; pix.repeat.set(5, 3.5);
   const oled = new THREE.Mesh(new THREE.BoxGeometry(PW, 1.0, PD), [0, 1, 2, 3, 4, 5].map(i => i === 3 ? new THREE.MeshStandardMaterial({ map: pix, emissive: 0xffffff, emissiveMap: pix, emissiveIntensity: 0, roughness: 0.3 })
     : new THREE.MeshStandardMaterial({ color: 0x07080b, metalness: 0.3, roughness: 0.25 })));
-  oled.position.set(0, 3.6, PZ); OLED.add(oled); OLED.userData.mesh = oled;
+  oled.position.set(0, 3.6, PZ); OLED.add(oled); OLED.userData.mesh = oled; edges(oled, 0x6f8dff, 0.55);
   const oled2 = new THREE.Mesh(new THREE.BoxGeometry(PW - 2, 0.3, PD - 2), new THREE.MeshStandardMaterial({ color: 0x0b0d16, emissive: 0x1c2450, emissiveIntensity: 0.12, roughness: 0.3, metalness: 0.3 })); oled2.position.set(0, 4.25, PZ); OLED.add(oled2);   // second light-emitting layer
   // two rigid foam pads flanking the logo, a taped patch over the light box between them
-  const foamT = etchTex(256, 256, (x, w, h) => { x.fillStyle = '#c9ccd2'; x.fillRect(0, 0, w, h); for (let i = 0; i < 7000; i++) { const v = 170 + Math.random() * 60; x.fillStyle = `rgba(${v},${v},${v + 5},.6)`; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 0.6 + Math.random() * 1.4, 0, 7); x.fill(); } });
-  const foamM = new THREE.MeshStandardMaterial({ map: foamT, roughness: 0.95, metalness: 0 });
+  const foamT = etchTex(256, 256, (x, w, h) => { x.fillStyle = '#2a2d33'; x.fillRect(0, 0, w, h); for (let i = 0; i < 7000; i++) { const v = 34 + Math.random() * 36; x.fillStyle = `rgba(${v},${v},${v + 5},.6)`; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 0.6 + Math.random() * 1.4, 0, 7); x.fill(); } });
+  const foamM = new THREE.MeshStandardMaterial({ map: foamT, roughness: 0.9, metalness: 0, envMapIntensity: 0.5 });
   const xL0 = -PW / 2 + 6, xL1 = cx - S / 2 - 6, xR0 = cx + S / 2 + 6, xR1 = PW / 2 - 6;
-  for (const [x0, x1] of [[xL0, xL1], [xR0, xR1]]) { const f = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, 1.6, PD - 24), foamM); f.position.set((x0 + x1) / 2, 4.9, PZ); FOAM.add(f); }
+  for (const [x0, x1] of [[xL0, xL1], [xR0, xR1]]) { const f = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, 1.6, PD - 24), foamM); f.position.set((x0 + x1) / 2, 4.9, PZ); FOAM.add(f); edges(f, 0xbfc8d8, 0.35); }
   const tapeT = etchTex(256, 256, (x, w, h) => { x.fillStyle = '#16171b'; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(255,255,255,0.08)'; for (let i = 0; i < w; i += 6) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, h); x.stroke(); } });
   const tape = new THREE.Mesh(new THREE.BoxGeometry(S + 10, 0.25, S + 10), new THREE.MeshStandardMaterial({ map: tapeT, roughness: 0.55, metalness: 0.1, transparent: true, opacity: 0.92 }));
   tape.position.set(cx, 4.4, cz); FOAM.add(tape); FOAM.userData.tape = tape;
   // reflective layer: polished mirror sheet on a navy carrier
   const carrier = new THREE.Mesh(new THREE.BoxGeometry(S + 6, 0.6, S + 6), new THREE.MeshStandardMaterial({ color: 0x12204a, metalness: 0.2, roughness: 0.45 }));
-  carrier.position.set(cx, 4.6, cz); REFL.add(carrier);
-  const mirror = new THREE.Mesh(new THREE.BoxGeometry(S, 0.3, S), new THREE.MeshStandardMaterial({ color: 0xf2f5fa, metalness: 1, roughness: 0.05, envMapIntensity: 2.4 }));
+  carrier.position.set(cx, 4.6, cz); REFL.add(carrier); edges(carrier, 0x8fdcff, 0.7);
+  const mirror = new THREE.Mesh(new THREE.BoxGeometry(S, 0.3, S), new THREE.MeshStandardMaterial({ color: 0x6d7888, metalness: 1, roughness: 0.16, envMapIntensity: 0.9 }));
   mirror.position.set(cx, 5.0, cz); REFL.add(mirror); REFL.userData.mirror = mirror;
   // a strip of four LEDs along ONE edge (the hinge side here: iFixit only says "along one edge"), shining across the mirror
   const ez = cz - S / 2 + 4; STRIP_C.set(cx, 5.6, ez);
@@ -221,7 +237,7 @@ function buildLayers() {
   // diffuser: frosted sheet that spreads the light out
   const frost = etchTex(256, 256, (x, w, h) => { x.fillStyle = '#e9eef5'; x.fillRect(0, 0, w, h); for (let i = 0; i < 9000; i++) { const v = 200 + Math.random() * 55; x.fillStyle = `rgba(${v},${v},${v + 4},.5)`; x.fillRect(Math.random() * w, Math.random() * h, 1.5, 1.5); } });
   const diff = new THREE.Mesh(new THREE.BoxGeometry(S + 4, 1.0, S + 4), new THREE.MeshStandardMaterial({ color: 0xf2f6fc, map: frost, roughness: 0.95, transparent: true, opacity: 0.72, emissive: 0xffffff, emissiveIntensity: 0, depthWrite: false }));
-  diff.position.set(cx, 6.3, cz); DIFF.add(diff); DIFF.userData.mesh = diff;
+  diff.position.set(cx, 6.3, cz); DIFF.add(diff); DIFF.userData.mesh = diff; edges(diff, 0xffffff, 0.6);
   const dHalo = sprite(HALO_W, 120); dHalo.position.set(cx, 7.5, cz); DIFF.add(dHalo); DIFF.userData.halo = dHalo;
   // outer glow on the logo
   const lh = sprite(HALO_W, 46); lh.position.copy(LOGO_C).y += 1.5; SHELL.add(lh); SHELL.userData.halo = lh;
@@ -275,8 +291,8 @@ function setXray(x) {
 }
 function tapeOff(v) { const t = FOAM.userData.tape; t.material.opacity = 0.92 * (1 - v); t.visible = v < 0.99; t.position.y = 4.4 - 14 * ease(v); }
 function logoGlow(v) { // 0 = off (dark metal), 1 = full glow
-  LOGO.material.emissiveIntensity = 2.4 * v;   // mirror-coated: shiny when off, light passes through when on
-  SHELL.userData.halo.material.opacity = 0.18 * v; SHELL.userData.halo2.material.opacity = 0.22 * v; SHELL.userData.halo.visible = SHELL.userData.halo2.visible = v > 0.01;
+  LOGO.material.emissiveIntensity = 1.7 * v;   // mirror-coated: shiny when off, light passes through when on
+  SHELL.userData.halo.material.opacity = 0.1 * v; SHELL.userData.halo2.material.opacity = 0.07 * v;   // bloom does the rest SHELL.userData.halo.visible = SHELL.userData.halo2.visible = v > 0.01;
   const p = LID.localToWorld(LOGO_C.clone().add(new THREE.Vector3(0, 12 + LAYER_Y.shell * ease(EXPL), 0))); logoLight.position.copy(p); logoLight.intensity = 0.6 * v; }
 function ledOn(list) { LEDS.forEach((L, i) => { const v = list[i] || 0; L.die.material.emissiveIntensity = 3 * v; LED_HALOS[i].visible = v > 0.01; LED_HALOS[i].material.opacity = v; LED_HALOS[i].scale.setScalar(16 + 14 * v); }); }
 function diffGlow(v) { DIFF.userData.mesh.material.emissiveIntensity = 0.9 * v; DIFF.userData.halo.material.opacity = 0.6 * v; DIFF.userData.halo.visible = v > 0.01; }
@@ -352,7 +368,7 @@ const SHOTS = [
               ['back', '✕  No light behind', lidPoint(new THREE.Vector3(0, 7, 150)), -1, b * (1 - ramp(u, 7.6, 8)), 'red']]);
   }],
   [B[2], B[3], (u, d) => { // 3. the lid opens up into its layers (after iFixit's teardown)
-    lidOpen(OPEN); room(0); ledOn([]); diffGlow(0); tapeOff(0); setXray(1); logoGlow(0.15 * (1 - ramp(u, 0, 0.6))); screenOn(1, 0.0);
+    rim.intensity = 1.8; rim.color.setHex(0x6fa8ff); lidOpen(OPEN); room(0); ledOn([]); diffGlow(0); tapeOff(0); setXray(1); logoGlow(0.15 * (1 - ramp(u, 0, 0.6))); screenOn(1, 0.0);
     explode(ease(ramp(u, 0.7, 2.2))); setXray(1);
     const k = ease(u / d);
     VO = 0.0; orbit(lidPoint(new THREE.Vector3(LOGO_C.x, 52, LOGO_C.z)), lerp(112, 62, k), lerp(16, 22, k), lerp(1200, 1020, k));
@@ -366,7 +382,7 @@ const SHOTS = [
               ['l6', 'Mirror-coated logo', lidPoint(LOGO_C.clone().add(new THREE.Vector3(8, LAYER_Y.shell, 0))), 1, a(5)]]);
   }],
   [B[3], B[4], (u, d) => { // 4. under the taped patch: a strip of four tiny LEDs along one edge
-    lidOpen(OPEN); room(0); setXray(1); explode(1); screenOn(0.6, 0); logoGlow(0); diffGlow(0); tapeOff(ease(ramp(u, 0.2, 0.9)));
+    rim.intensity = 1.8; rim.color.setHex(0x6fa8ff); lidOpen(OPEN); room(0); setXray(1); explode(1); screenOn(0.6, 0); logoGlow(0); diffGlow(0); tapeOff(ease(ramp(u, 0.2, 0.9)));
     ledOn(LEDS.map((_, i) => ease(ramp(u, 1.0 + i * 0.3, 1.2 + i * 0.3))));
     const k = ease(u / d);
     DIFF.visible = false; SHELL.visible = false; GHOST.forEach(o => o.material.uniforms.alpha.value = 0.12);   // look past the diffuser and the lid straight at the strip
@@ -379,7 +395,7 @@ const SHOTS = [
               ['own', 'Made just for the logo', lidPoint(STRIP_C.clone().add(new THREE.Vector3(30, LAYER_Y.refl + 0.5, 0))), 1, ease(ramp(u, 3.4, 3.9))]]);
   }],
   [B[4], B[5], (u, d) => { // 5. bounce → spread → shine through the logo; layers close
-    lidOpen(OPEN); room(0); setXray(1 - ease(ramp(u, 5.9, 7.0))); screenOn(0.6, 0);
+    rim.intensity = 1.8; rim.color.setHex(0x6fa8ff); lidOpen(OPEN); room(0); setXray(1 - ease(ramp(u, 5.9, 7.0))); screenOn(0.6, 0);
     const close = ease(ramp(u, 5.4, 6.6)); explode(1 - close); tapeOff(1 - close); ledOn([1, 1, 1, 1].map(v => v * (1 - close)));
     const r1 = ramp(u, 0.1, 0.9), r2 = ramp(u, 0.8, 1.6), r3 = ramp(u, 2.2, 3.2), fadeR = 1 - ramp(u, 5.2, 5.6);
     RAYS.led.forEach(R => setTube(R.t, r1, fadeR)); RAYS.bounce.forEach(R => setTube(R.t, r2, fadeR)); RAYS.spread.forEach(R => setTube(R.t, r3, fadeR * (0.7 + 0.3 * Math.sin(u * 6 + R.n))));
@@ -417,6 +433,7 @@ const SHOTS = [
     const p1 = new THREE.Vector3(Math.sin(y1) * Math.cos(pi1), Math.sin(pi1), -Math.cos(y1) * Math.cos(pi1)).multiplyScalar(d1).add(tgt1);
     VO = 0.03 * z; camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix();
     camera.position.copy(p0.clone().lerp(p1, z)); camera.lookAt(c.clone().lerp(tgt1, z)); camera.updateMatrixWorld();
+    BLOOM.strength = lerp(0.6, 0.18, ease(ramp(u, 0.9, 1.6)));
     END.screen = 1; END.card = ease(ramp(u, 1.1, 1.7)); END.brand = ramp(u, 1.5, 3.0);
   }],
 ];
@@ -425,14 +442,14 @@ const CUTS = B.slice(1, -2);   // no dip to black into the end: the video shrink
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
-  hideTags(); renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
+  hideTags(); renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.6; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
   const k = ORIG[i] ? ORIG[i] / (b - a) : 1; fn((t - a) * k, ORIG[i] || b - a);   // scenes 2–6 were timed on v1's voice: stretch them to this voice's lines
   if (i === 6) title([], [], 0);
   note((i >= 1 && i <= 4 ? '3D illustration · inner layers not to scale · not affiliated with Apple' : '3D illustration · not affiliated with Apple'), 1);
   const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
   $('fade').style.opacity = Math.max(0, ...CUTS.map(c => 0.85 - Math.abs(t - c) / 0.2));
-  SCREEN.visible = false; if (!END.screen) renderer.render(scene, camera);
+  SCREEN.visible = false; if (!END.screen) draw();
   endCard();
 }
 const END = { a: 0, brand: 0, screen: 0, card: 0 };
@@ -445,7 +462,7 @@ SCREEN.rotation.x = Math.PI / 2; SCREEN.position.copy(SCR_C); SCREEN.visible = f
 let SNAP = null;
 function rr(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
 function snapshot() { // the last frame of scene 6 (laptop, switch card off), kept to play on the MacBook screen
-  if (SNAP) return; const d = ORIG[5]; SHOTS[5][2](d - 0.001, d); renderer.render(scene, camera);
+  if (SNAP) return; const d = ORIG[5]; SHOTS[5][2](d - 0.001, d); draw();
   SNAP = document.createElement('canvas'); SNAP.width = renderer.domElement.width; SNAP.height = renderer.domElement.height; const x = SNAP.getContext('2d'), k = SNAP.width / W;
   x.drawImage(renderer.domElement, 0, 0);
   const vw = SNAP.width / 100, sx = 15 * vw, sy = 0.136 * SNAP.height, sw = 70 * vw, sh = 14.4 * vw;   // the switch card, as it was on screen
@@ -487,7 +504,7 @@ function drawScreen() {
 function endCard() {
   $('endcard').style.opacity = 0; SCREEN.visible = END.screen > 0;
   const pill = $('ecPill'), pa = easeOut(ramp(END.brand, 0.75, 0.95)) * END.screen; pill.style.opacity = pa; pill.style.transform = `translateX(-50%) translateY(${(1 - pa) * 2}vh)`;
-  if (END.screen > 0) { drawScreen(); renderer.render(scene, camera); }
+  if (END.screen > 0) { drawScreen(); draw(); }
 }
 loadMac().then(() => {
   buildLayers(); buildRays(); lidOpen(OPEN); explode(0); renderAt(0); ready = true;
