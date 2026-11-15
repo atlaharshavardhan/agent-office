@@ -9,7 +9,8 @@ here = os.path.dirname(os.path.abspath(__file__))
 ap = argparse.ArgumentParser(); ap.add_argument('src'); ap.add_argument('dst'); ap.add_argument('--hide-last', type=float, default=0); ap.add_argument('--scale', type=float, default=1)
 ap.add_argument('--bitrate', default='')   # e.g. 18M (1080) or 50M (4K); empty = CRF
 ap.add_argument('--pos', default='right-middle', choices=['right-middle', 'safe-bottom-right'])   # safe-bottom-right: inside the 100/180/220/350 safe area, below the subtitles (V4)
-ap.add_argument('--drift', action='store_true')   # faint moving copy through the middle: off by default (Harsh, 15 Nov 2026)
+ap.add_argument('--drift', action='store_true')
+ap.add_argument('--cbr', action='store_true')   # with --bitrate: constant bitrate (x264 nal-hrd=cbr), for a platform spec that asks for a minimum   # faint moving copy through the middle: off by default (Harsh, 15 Nov 2026)
 a = ap.parse_args(); k = a.scale
 tmp = tempfile.mkdtemp()
 woff = os.path.join(here, '..', '..', 'phone-teardown', 'fonts', 'fontsource-sora-5.0.18', 'package', 'files', 'sora-latin-600-normal.woff2')
@@ -29,7 +30,10 @@ fc = (f"[1:v]format=rgba,colorchannelmixer=aa=0.92[w1];"
 if a.drift: fc = fc.replace('[w1];', '[w1];[1:v]format=rgba,colorchannelmixer=aa=0.13,scale=iw*0.8:-1[w2];', 1) + f"[a];[a][w2]overlay=x='W*0.1+W*0.48*(0.5+0.5*sin(t*0.21))':y='H*0.27+H*0.33*(0.5+0.5*sin(t*0.13+1.3))':enable='lt(t,{end:.3f})'"
 enc = ['-c:v', 'libx264', '-preset', 'slow', '-profile:v', 'high', '-r', '30', '-pix_fmt', 'yuv420p']
 base = ['ffmpeg', '-loglevel', 'error', '-y', '-i', a.src, '-i', png, '-filter_complex', fc]
-if a.bitrate:   # two-pass: hits the target bitrate (one pass undershoots on these dark frames)
+if a.bitrate and a.cbr:
+    rate = ['-b:v', a.bitrate, '-minrate', a.bitrate, '-maxrate', a.bitrate, '-bufsize', a.bitrate, '-x264-params', 'nal-hrd=cbr']
+    subprocess.check_call(base + ['-map', '0:a?', '-c:a', 'copy'] + enc + rate + ['-movflags', '+faststart', a.dst])
+elif a.bitrate:   # two-pass: hits the target bitrate (one pass undershoots on these dark frames)
     br = float(a.bitrate[:-1]); rate = ['-b:v', a.bitrate, '-maxrate', f'{br * 1.15:.0f}M', '-bufsize', f'{br * 2:.0f}M']; log = os.path.join(tmp, 'x264')
     subprocess.check_call(base + enc + rate + ['-pass', '1', '-passlogfile', log, '-an', '-f', 'mp4', os.devnull])
     subprocess.check_call(base + ['-map', '0:a?', '-c:a', 'copy'] + enc + rate + ['-pass', '2', '-passlogfile', log, '-movflags', '+faststart', a.dst])
