@@ -370,7 +370,7 @@ function logoGlow(v) { // 0 = off (dark metal), 1 = full glow
   const p = LID.localToWorld(LOGO_C.clone().add(new THREE.Vector3(0, 70 + LAYER_Y.shell * ease(EXPL), 0))); logoLight.position.copy(p); logoLight.intensity = 0; }   // no point light: its highlight made a white dot on the mirror logo (bloom does the glow)
 function ledOn(list) { LEDS.forEach((L, i) => { const v = list[i] || 0; L.die.material.emissiveIntensity = 3 * v; LED_HALOS[i].visible = v > 0.01; LED_HALOS[i].material.opacity = v; LED_HALOS[i].scale.setScalar(9 + 9 * v); }); }
 function diffGlow(v) { DIFF.userData.mesh.material.emissiveIntensity = 0.9 * v; DIFF.userData.halo.material.opacity = 0.6 * v; DIFF.userData.halo.visible = v > 0.01; }
-function screenOn(v, fwd = 0) { const m = OLED.userData.mesh.material[3]; m.emissiveIntensity = 0.45 * v;
+function screenOn(v, fwd = 0) { const m = OLED.userData.mesh.material[3]; m.emissiveIntensity = 0.45 * v; SCREEN_ON = v;
   if (SCREEN_IMG) { SCREEN_IMG.material.emissive = SCREEN_IMG.material.emissive || new THREE.Color(); SCREEN_IMG.material.emissive.setHex(0xffffff); SCREEN_IMG.material.emissiveMap = SCREEN_IMG.material.map; SCREEN_IMG.material.emissiveIntensity = 0.32 * v; }
   OLED.userData.fwd.visible = fwd > 0.01; OLED.userData.fwd.children.forEach((m, i) => m.material.opacity = m.userData.o * fwd * (1 - i * 0.1));
   const p = LID.localToWorld(new THREE.Vector3(0, -120, 104)); screenLight.position.copy(p); screenLight.intensity = 1.6 * v; }
@@ -540,14 +540,14 @@ const CUTS = B.slice(1, -2);   // no dip to black into the end: the video shrink
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
-  hideTags(); if (SCREEN_IMG) SCREEN_IMG.visible = true; $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
+  hideTags(); if (SCREEN_IMG) SCREEN_IMG.visible = false; $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
   const k = ORIG[i] ? ORIG[i] / (b - a) : 1; fn((t - a) * k, ORIG[i] || b - a);   // scenes 2–6 were timed on v1's voice: stretch them to this voice's lines
   if (i >= 6) title([], [], 0);
   note(i === 3 ? 'Source: iFixit teardown · 3D, not to scale · not affiliated with Apple' : i === 5 && t > B[5] + (B[6] - B[5]) * 5.3 / 7.52 ? 'Command: Apple Support · 3D illustration · not affiliated with Apple' : (i >= 1 && i <= 4 ? '3D illustration · not to scale · not affiliated with Apple' : '3D illustration · not affiliated with Apple'), i === 7 ? 0 : 1);
   const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
   $('fade').style.opacity = Math.max(0, ...CUTS.map(c => 0.55 - Math.abs(t - c) / 0.22));
-  SCREEN.visible = false; if (!END.screen) draw();
+  if (!END.screen) { SCREEN.material.map = WALL; SCREEN.material.color.setScalar(0.04 + 0.96 * SCREEN_ON); SCREEN.visible = true; draw(); }
   endCard();
 }
 const END = { a: 0, brand: 0, screen: 0, card: 0, outro: -1 };
@@ -557,7 +557,21 @@ const SCV = document.createElement('canvas'); SCV.width = 1600; SCV.height = Mat
 const SCT = new THREE.CanvasTexture(SCV); SCT.encoding = THREE.sRGBEncoding; SCT.anisotropy = 8;
 const SCREEN = new THREE.Mesh(new THREE.PlaneGeometry(SCR_W + 4, SCR_H + 3), new THREE.MeshBasicMaterial({ map: SCT, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
 SCREEN.rotation.x = Math.PI / 2; SCREEN.position.copy(SCR_C); SCREEN.visible = false; LID.add(SCREEN);
-let SNAP = null;
+let SNAP = null, SCREEN_ON = 1;
+const WALL = (() => {   // dark wallpaper of flowing silver light streaks (own design, no lettering)
+  const c = document.createElement('canvas'); c.width = 2048; c.height = Math.round(2048 * 180 / 286); const x = c.getContext('2d'), w = c.width, h = c.height;
+  x.fillStyle = '#010102'; x.fillRect(0, 0, w, h); let sd = 11; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+  const bands = [[0.16, 0.13], [0.43, 0.12], [0.69, 0.11], [0.9, 0.07]];   // bright ribbons with dark gaps between them
+  for (let i = 0; i < w; i += 2) {
+    const f = i / w; let e = 0; bands.forEach(([c0, wd]) => { const d = (f - c0) / wd; e = Math.max(e, Math.exp(-d * d * 2.2)); }); if (e < 0.03) continue;
+    const r = rnd(), v = e * (0.45 + 0.55 * r), top = h * (0.06 + 0.22 * (1 - e) + 0.05 * Math.sin(f * 17)), bot = h * (0.94 - 0.2 * (1 - e) - 0.05 * Math.cos(f * 13));
+    const g = x.createLinearGradient(0, top, 0, bot); g.addColorStop(0, `rgba(255,255,255,0)`); g.addColorStop(0.18, `rgba(236,242,255,${0.9 * v})`); g.addColorStop(0.55, `rgba(214,224,240,${v})`); g.addColorStop(0.88, `rgba(150,162,184,${0.6 * v})`); g.addColorStop(1, 'rgba(120,130,150,0)');
+    x.fillStyle = g; x.fillRect(i, top, r > 0.8 ? 1.6 : 1.1, bot - top);
+    if (r > 0.985) { x.fillStyle = rnd() > 0.5 ? `rgba(255,150,80,${0.5 * e})` : `rgba(90,160,255,${0.5 * e})`; x.fillRect(i, top + (bot - top) * 0.25, 1.2, (bot - top) * 0.5); }   // rare warm / blue accents
+  }
+  const g2 = document.createElement('canvas'); g2.width = w; g2.height = h; const y = g2.getContext('2d'); y.filter = 'blur(10px)'; y.globalAlpha = 0.6; y.drawImage(c, 0, 0); x.globalCompositeOperation = 'lighter'; x.drawImage(g2, 0, 0);   // soft glow
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 8; return t;
+})();
 const STREAK = { c: document.createElement('canvas'), n: [] }; STREAK.c.width = 1600; STREAK.c.height = Math.round(1600 * 180 / 286); STREAK.m = document.createElement('canvas'); STREAK.m.width = STREAK.c.width; STREAK.m.height = STREAK.c.height; for (let i = 0; i < 600; i++) STREAK.n.push(Math.random());
 function rr(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
 function snapshot() { // the last frame of scene 6 (laptop, switch card off), kept to play on the MacBook screen
@@ -582,35 +596,22 @@ function drawScreen() {
     x.save(); x.filter = 'blur(28px) brightness(0.45)'; x.drawImage(SNAP, -w * 0.1, -h * 0.9, w * 1.2, w * 1.2 * SNAP.height / SNAP.width); x.restore();
     const vh = h, vw2 = vh * SNAP.width / SNAP.height; x.drawImage(SNAP, (w - vw2) / 2, 0, vw2, vh);
   }
-  if (END.brand > 0) {   // branding: 'InvisiTech' made of glowing light streaks on black, then the logo and tagline
-    x.globalAlpha = END.brand; x.fillStyle = '#020203'; x.fillRect(0, 0, w, h);
-    const u = Math.max(0, END.outro), tt = u * 0.9, ap = END.outro < 0 ? 0 : easeOut(ramp(u, 0.0, 0.7));
-    const sc = STREAK.c, sx = sc.getContext('2d'); sx.globalCompositeOperation = 'source-over'; sx.clearRect(0, 0, w, h);
-    for (let i = 0; i < w; i += 3) {   // vertical light streaks, slowly drifting
-      const n = STREAK.n[(i / 3) | 0], v = Math.max(0, 0.35 + 0.65 * Math.sin(i * 0.031 + n * 9 + tt * (0.8 + n)) * (0.6 + 0.4 * Math.sin(i * 0.007 - tt * 0.6)));
-      const g = sx.createLinearGradient(0, 0, 0, h); const a = 0.25 + 0.75 * v;
-      g.addColorStop(0, `rgba(255,255,255,${0.05 * a})`); g.addColorStop(0.35 + 0.1 * n, `rgba(240,246,255,${a})`); g.addColorStop(0.62, `rgba(200,214,235,${0.7 * a})`); g.addColorStop(1, `rgba(120,130,150,${0.08 * a})`);
-      sx.fillStyle = g; sx.fillRect(i, 0, n > 0.93 ? 2.8 : 2.2, h);
-      if (n > 0.965) { sx.fillStyle = n > 0.985 ? 'rgba(255,170,90,0.55)' : 'rgba(90,170,255,0.55)'; sx.fillRect(i + 1, h * 0.2, 1.2, h * 0.6); }   // rare warm / blue accent lines
-    }
-    const mk = STREAK.m, mx = mk.getContext('2d'); mx.clearRect(0, 0, w, h); mx.font = '800 272px Sora, Arial'; mx.textBaseline = 'alphabetic';
-    const A = mx.measureText('Invisi').width, Tw = mx.measureText('Tech').width, X0 = (w - A - Tw) / 2, BY = h * 0.66;
-    mx.fillStyle = '#fff'; mx.fillText('Invisi', X0, BY); mx.fillText('Tech', X0 + A, BY);
-    sx.globalCompositeOperation = 'destination-in'; sx.drawImage(mk, 0, 0);   // keep the streaks only inside the letters (one mask for both words)
-    sx.globalCompositeOperation = 'source-atop'; sx.fillStyle = 'rgba(79,195,247,0.5)'; sx.fillRect(X0 + A, 0, Tw + 20, h);   // 'Tech' in the brand blue
-    sx.globalCompositeOperation = 'source-over';
-    x.save(); x.globalAlpha = END.brand * ap; const rev = ease(ramp(u, 0.0, 0.8)); x.beginPath(); x.rect(0, 0, w, h * rev + 1); x.clip();   // the streaks pour in from the top
-    x.shadowColor = 'rgba(210,225,255,0.6)'; x.shadowBlur = 30; x.drawImage(sc, 0, 0); x.shadowBlur = 0; x.globalCompositeOperation = 'lighter'; x.drawImage(sc, 0, 0); x.restore();   // drawn twice (additive) for brighter streaks
-    const logo = $('ecLogo'), la = END.outro < 0 ? 0 : easeOut(ramp(u, 0.45, 0.95));
-    if (la > 0.01 && logo.complete) { x.save(); x.globalAlpha = END.brand * la; x.shadowColor = 'rgba(74,168,255,.7)'; x.shadowBlur = 40; x.beginPath(); x.arc(w / 2, h * 0.2, 92, 0, 7); x.fillStyle = 'rgba(74,168,255,.12)'; x.fill(); x.shadowBlur = 0;
-      x.beginPath(); x.arc(w / 2, h * 0.2, 78, 0, 7); x.clip(); x.drawImage(logo, w / 2 - 78, h * 0.2 - 78, 156, 156); x.restore(); }
-    const ta = END.outro < 0 ? 0 : easeOut(ramp(u, 0.7, 1.2));
-    if (ta > 0.01) { x.save(); x.globalAlpha = END.brand * ta; x.textAlign = 'center'; x.font = '500 62px "IBM Plex Sans", Arial'; x.fillStyle = 'rgba(255,255,255,.8)'; x.fillText('The tech behind everyday life.', w / 2, h * 0.84); x.restore(); }
+  if (END.brand > 0) {   // clean branding: dark background, logo, InvisiTech, tagline
+    x.globalAlpha = END.brand; const g = x.createRadialGradient(w / 2, h * 0.42, 30, w / 2, h * 0.5, w * 0.62); g.addColorStop(0, '#141a2c'); g.addColorStop(0.6, '#080a12'); g.addColorStop(1, '#030406');
+    x.fillStyle = g; x.fillRect(0, 0, w, h);
+    const u = Math.max(0, END.outro), pop = (k, fn) => { const v = END.outro < 0 ? 0 : easeOut(k); if (v < 0.01) return; x.save(); x.globalAlpha = END.brand * v; x.translate(w / 2, (1 - v) * 18); fn(v); x.restore(); };
+    const logo = $('ecLogo');
+    pop(ramp(u, 0.05, 0.55), v => { x.shadowColor = 'rgba(74,168,255,.75)'; x.shadowBlur = 50 + 40 * v; x.beginPath(); x.arc(0, 300, 150, 0, 7); x.fillStyle = 'rgba(74,168,255,.12)'; x.fill(); x.shadowBlur = 0;
+      x.save(); x.beginPath(); x.arc(0, 300, 128, 0, 7); x.clip(); if (logo.complete) x.drawImage(logo, -128, 172, 256, 256); x.restore(); });
+    x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+    pop(ramp(u, 0.3, 0.8), () => { x.font = '800 190px Sora, Arial'; const a = x.measureText('Invisi').width, t = x.measureText('Tech').width; x.fillStyle = '#fff'; x.fillText('Invisi', -(a + t) / 2, 665); x.fillStyle = '#4fc3f7'; x.fillText('Tech', -(a + t) / 2 + a, 665); });
+    x.textAlign = 'center';
+    pop(ramp(u, 0.55, 1.05), () => { x.font = '500 66px "IBM Plex Sans", Arial'; x.fillStyle = 'rgba(255,255,255,.78)'; x.fillText('The tech behind everyday life.', 0, 790); });
   }
   x.globalAlpha = 1; SCT.needsUpdate = true;
 }
 function endCard() {
-  $('endcard').style.opacity = 0; $('ecPill').style.opacity = 0; SCREEN.visible = END.screen > 0;
+  $('endcard').style.opacity = 0; $('ecPill').style.opacity = 0; if (END.screen > 0) { SCREEN.visible = true; SCREEN.material.map = SCT; SCREEN.material.color.setScalar(1); }
   if (END.screen > 0) { drawScreen(); draw(); }
   const o = $('outro'), u = END.outro; o.style.opacity = 0;
   if (false) { const pop = (el, a0, a1, s0) => { const v = easeOut(ramp(u, a0, a1)); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 1.2}vh) scale(${s0 + (1 - s0) * v})`; };
