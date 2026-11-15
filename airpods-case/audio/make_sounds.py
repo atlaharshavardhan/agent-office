@@ -70,6 +70,8 @@ place(sfx, click(), at(6, 0.58), 0.8, 0.3); place(sfx, click(2700), at(6, 0.58) 
 t0 = at(7, 0.12); place(sfx, whoosh(0.8, 400, 2600), t0, 0.45, -0.2); place(sfx, click(), t0 + 0.9, 0.85, 0.3); place(sfx, click(2700), t0 + 0.99, 0.75, 0.4); place(sfx, ping([76, 83]), t0 + 1.15, 0.24)
 place(sfx, shimmer(1.0), at(7, 0.36), 0.26); place(sfx, hum(d[7] * 0.2), at(7, 0.4), 0.25); place(sfx, shimmer(0.7), at(7, 0.6), 0.16)
 place(sfx, snap(), at(7, 0.82), 1.0, -0.3); place(sfx, snap(), at(7, 0.82) + 0.05, 0.8, 0.3); place(sfx, hit(), at(7, 0.82), 0.6); place(sfx, whoosh(1.6, 250, 1500), at(7, 0.72), 0.3)
+# 9. title
+place(sfx, hit(), B[8] + 0.05, 0.7); place(sfx, shimmer(1.4), B[8] + 0.15, 0.3); place(sfx, ping([69, 76, 81], 0.1, 1.2), B[8] + 0.25, 0.2)
 sf.write(os.path.join(here, 'sfx.wav'), (sfx * 0.9).astype(np.float32), SR)
 # ---- music: dark, minimal electronic bed, 96 bpm, A minor ----
 bed = np.zeros((N, 2)); beat = 60 / 96; bar = 4 * beat
