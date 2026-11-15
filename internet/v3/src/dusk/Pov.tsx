@@ -33,14 +33,19 @@ export const Pov: React.FC = () => {
         <rect width={1080} height={1920} fill="url(#pSky)" />
         {Array.from({ length: 70 }).map((_, i) => <circle key={i} cx={hash(i * 3) * 1080} cy={hash(i * 7) * 420} r={1 + hash(i) * 1.8} fill="#dfe6ff" opacity={0.35 + 0.4 * Math.sin(t * 2 + i)} />)}
         {/* neighbours, held back in shadow */}
-        <g opacity={0.55}><rect x={-60} y={470} width={280} height={680} fill="#35508a" /><rect x={-70} y={450} width={300} height={26} fill="#4a68a8" /><Win x={40} y={560} w={90} h={130} dim={0.7} /><Win x={40} y={860} w={90} h={130} lit={false} />
-          <rect x={870} y={420} width={280} height={730} fill="#8a4f74" /><rect x={860} y={400} width={300} height={26} fill="#a8688c" /><Win x={940} y={520} w={90} h={130} lit={false} /><Win x={940} y={840} w={90} h={130} dim={0.7} /></g>
+        {/* left: the park. right: the pink hostel. Both held back in shadow, as in the street scene */}
+        <rect x={-20} y={700} width={230} height={420} fill="#143a36" /><ellipse cx={60} cy={705} rx={200} ry={46} fill="#143a36" />
+        {[[30, 700, 74], [130, 760, 60], [-10, 860, 66], [110, 900, 78], [40, 1000, 62], [160, 1020, 50]].map(([x, y, r], i) => <g key={'pt' + i}><rect x={x - 7} y={y} width={14} height={r * 1.3} fill="#1c1630" /><circle cx={x} cy={y} r={r} fill={i % 2 ? '#1f5a44' : '#1a4c3c'} /><circle cx={x - r * 0.3} cy={y - r * 0.3} r={r * 0.55} fill="#2c6e52" /></g>)}
+        {Array.from({ length: 26 }).map((_, i) => { const x = 6 + hash(i * 3) * 180 + Math.sin(t * 0.8 + i) * 8, y = 640 + hash(i * 7) * 440 + Math.cos(t * 0.6 + i * 2) * 8; return <g key={'ff' + i} opacity={0.5 + 0.5 * Math.sin(t * 3 + i * 1.7)}><circle cx={x} cy={y} r={7} fill="#d8ff8a" opacity={0.25} /><circle cx={x} cy={y} r={2.4} fill="#f2ffc0" /></g>; })}
+        <g opacity={0.6}><rect x={870} y={420} width={280} height={730} fill="#b0568a" /><rect x={860} y={400} width={300} height={26} fill="#d078a8" /><Win x={940} y={520} w={90} h={130} lit={false} /><Win x={940} y={840} w={90} h={130} dim={0.7} /></g>
         {/* her house, straight ahead */}
         <rect x={190} y={350} width={700} height={790} fill="url(#pWall)" />
         {Array.from({ length: 44 }).map((_, i) => <line key={i} x1={190} y1={368 + i * 18} x2={890} y2={368 + i * 18} stroke="#000" strokeWidth={1.5} opacity={0.13} />)}
         {Array.from({ length: 44 * 12 }).map((_, i) => { const r = Math.floor(i / 12), c = i % 12; return <line key={i} x1={190 + c * 60 + (r % 2) * 30} y1={368 + r * 18} x2={190 + c * 60 + (r % 2) * 30} y2={386 + r * 18} stroke="#000" strokeWidth={1.2} opacity={0.1} />; })}
         <rect x={170} y={318} width={740} height={40} fill="#9a8cf0" /><rect x={170} y={352} width={740} height={10} fill="#5a4cb0" />
         <rect x={300} y={248} width={70} height={72} rx={6} fill="#14152a" /><ellipse cx={335} cy={248} rx={35} ry={10} fill="#2a2d55" />
+        <line x1={420} y1={318} x2={420} y2={236} stroke="#14152a" strokeWidth={5} /><line x1={600} y1={318} x2={600} y2={236} stroke="#14152a" strokeWidth={5} /><line x1={420} y1={242} x2={600} y2={242} stroke="#cfd3de" strokeWidth={2} />{['#e0b84a', '#7fd0f0', '#f3f0ea', '#ff8672'].map((c, i) => <rect key={c} x={436 + i * 40} y={244} width={28} height={40 + (i % 2) * 8} fill={c} opacity={0.85} />)}
+        <polygon points="780,318 880,318 866,286 794,286" fill="#1c3a7a" stroke="#9fb4ff" strokeWidth={2} />
         <line x1={720} y1={318} x2={720} y2={262} stroke="#14152a" strokeWidth={5} /><ellipse cx={722} cy={258} rx={26} ry={16} fill="#cfd3de" transform="rotate(-25 722 258)" />
         {Array.from({ length: 19 }).map((_, i) => <g key={i}><circle cx={190 + i * 39} cy={366 + Math.sin(i * 1.4) * 5} r={9} fill={i % 2 ? '#9fe9ff' : '#fff1d0'} opacity={0.22} /><circle cx={190 + i * 39} cy={366 + Math.sin(i * 1.4) * 5} r={4} fill={i % 2 ? '#9fe9ff' : '#fff1d0'} opacity={0.6 + 0.4 * Math.sin(t * 3 + i)} /></g>)}
         <rect x={190} y={728} width={700} height={14} fill="#9a8cf0" opacity={0.8} />
@@ -61,6 +66,7 @@ export const Pov: React.FC = () => {
         <rect x={0} y={1150} width={1080} height={50} fill="#4a4f8a" /><polygon points="0,1200 1080,1200 1080,1920 0,1920" fill="#15183a" />
         {[0, 1, 2, 3, 4, 5].map((i) => <polygon key={i} points={`${380 + i * 56},1210 ${420 + i * 56},1210 ${340 + i * 96 + 60},1470 ${340 + i * 96 - 10},1470`} fill="#8e8cc0" opacity={0.5} />)}
         {[140, 930].map((x) => <g key={x}><ellipse cx={x} cy={1200} rx={170} ry={50} fill="url(#pLamp)" /><line x1={x} y1={1196} x2={x} y2={920} stroke="#0c0d20" strokeWidth={8} /><circle cx={x} cy={914} r={46} fill="url(#pLamp)" /><circle cx={x} cy={914} r={11} fill="#fff3d6" /></g>)}
+        <g transform="translate(150 1290)"><ellipse cx={0} cy={58} rx={150} ry={18} fill="#000" opacity={0.4} /><rect x={-140} y={-10} width={280} height={62} rx={20} fill="#c8553a" /><path d="M -90 -10 L -60 -62 L 70 -62 L 104 -10 Z" fill="#a8432c" /><path d="M -74 -12 L -52 -52 L 0 -52 L 0 -12 Z M 10 -12 L 10 -52 L 62 -52 L 88 -12 Z" fill="#9fd0ff" opacity={0.6} /><circle cx={-84} cy={52} r={26} fill="#14152a" /><circle cx={84} cy={52} r={26} fill="#14152a" /><circle cx={-84} cy={52} r={10} fill="#cfd3de" /><circle cx={84} cy={52} r={10} fill="#cfd3de" /><circle cx={136} cy={16} r={9} fill="#fff6d8" /></g>
         {/* selective light: the world drops back, she stays bright */}
         <rect x={-460} y={-420} width={2000} height={2200} fill="url(#pSpot)" />
         {/* the beam from your torch to her */}
