@@ -22,7 +22,7 @@ export const Root: React.FC = () => (
     <Composition id="DressSheet" component={DressSheet} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="IsoHook" component={IsoHook} durationInFrames={468} fps={30} width={1080} height={1920} />
     <Composition id="IsoWire" component={IsoWire} durationInFrames={222} fps={30} width={1080} height={1920} />
-    <Composition id="IsoFull" component={IsoFull} durationInFrames={1194} fps={30} width={1080} height={1920} />
+    <Composition id="IsoFull" component={IsoFull} durationInFrames={1245} fps={30} width={1080} height={1920} />
     <Composition id="IsoNet" component={IsoNet} durationInFrames={285} fps={30} width={1080} height={1920} />
     <Composition id="C1a" component={Concept} defaultProps={{ k: '1a' }} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="C1b" component={Concept} defaultProps={{ k: '1b' }} durationInFrames={30} fps={30} width={1080} height={1920} />
@@ -30,7 +30,7 @@ export const Root: React.FC = () => (
     <Composition id="C2b" component={Concept} defaultProps={{ k: '2b' }} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="C3a" component={MapConcept} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="C3b" component={MapConcept} defaultProps={{ star: true }} durationInFrames={30} fps={30} width={1080} height={1920} />
-    <Composition id="IsoMove" component={IsoMove} durationInFrames={504} fps={30} width={1080} height={1920} />
+    <Composition id="IsoMove" component={IsoMove} durationInFrames={555} fps={30} width={1080} height={1920} />
     <Composition id="IsoCity" component={IsoCity} durationInFrames={360} fps={30} width={1080} height={1920} />
     <Composition id="IsoDetail" component={IsoDetail} durationInFrames={468} fps={30} width={1080} height={1920} />
     <Composition id="IsoMoveDetail" component={IsoMoveDetail} durationInFrames={504} fps={30} width={1080} height={1920} />
