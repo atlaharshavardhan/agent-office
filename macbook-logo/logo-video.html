@@ -5196,7 +5196,7 @@ function buildLayers() {
 const PIX = { cv: document.createElement('canvas'), cols: 36, rows: 22, order: [] };
 const RING = radial([[0, 'rgba(255,255,255,0)'], [0.62, 'rgba(255,240,215,0)'], [0.74, 'rgba(255,240,215,0.85)'], [0.86, 'rgba(255,240,215,0)'], [1, 'rgba(255,240,215,0)']], 256);
 const POOL = radial([[0, 'rgba(255,238,205,0.9)'], [0.35, 'rgba(255,225,180,0.35)'], [1, 'rgba(255,220,170,0)']]);
-const RINGS = [], POOLS = [], HOTS = [];
+const RINGS = [], POOLS = [], HOTS = [], RIPPLES = [];
 let PIXM, NOBL, FLOW;
 function softShadowTex() { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'); x.filter = 'blur(16px)'; x.fillStyle = '#000'; x.fillRect(34, 34, 188, 188); const t = new THREE.CanvasTexture(c); return t; }
 function buildV3() {
@@ -5221,6 +5221,10 @@ function buildV3() {
     pl.rotation.x = -Math.PI / 2; pl.position.copy(L.p).add(new THREE.Vector3(0, -0.75, 18)); REFL.add(pl); POOLS.push(pl);
     const h = sprite(HALO_LED, 22); h.position.set(L.p.x, 5.6, L.p.z + 26); h.visible = false; DIFF.add(h); HOTS.push(h);
   });
+  // V4 (Harsh): "wow" on the diffuser: cyan ripples spreading out from the 4 bright spots across the frosted sheet
+  const RIPT = radial([[0, 'rgba(143,220,255,0)'], [0.6, 'rgba(143,220,255,0)'], [0.76, 'rgba(120,215,255,1)'], [0.9, 'rgba(143,220,255,0)'], [1, 'rgba(143,220,255,0)']], 256);
+  HOTS.forEach(h => { for (let w = 0; w < 3; w++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: RIPT, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+    m.rotation.x = -Math.PI / 2; m.position.set(h.position.x, 6.95, h.position.z); m.visible = false; m.userData.w = w; DIFF.add(m); RIPPLES.push(m); } });
   // light particles: LED → mirror → diffuser, then diffuser → logo (exploded layout)
   FLOW = { g: new THREE.Group(), a: [], b: [] }; LID.add(FLOW.g);
   const Y = LAYER_Y;
@@ -5415,11 +5419,14 @@ const SHOTS = [
     diffGlow(ease(ramp(u, 2.2, 3.0)) * (1 - close)); flow(FLOW.b, u, 0.7, ease(ramp(u, 2.6, 3.1)) * fadeR); logoGlow(ease(ramp(u, 3.0, 3.8)));
     POOLS.forEach(pl => pl.material.opacity = 0);
     const k = ease(u / d);
-    VO = 0.0; orbit(lidPoint(new THREE.Vector3(LOGO_C.x, 52 * (1 - close), LOGO_C.z)), lerp(62, 20, k), lerp(26, 14, k), lerp(900, 1000, k));
+    const zin = ease(ramp(u, 2.0, 2.8)) * (1 - ease(ramp(u, 4.2, 5.0))), cy = ease(ramp(u, 2.3, 2.9)) * (1 - ease(ramp(u, 3.9, 4.6)));   // V4 (Harsh): zoom in on the diffuser, cyan while it spreads the light
+    const dm = DIFF.userData.mesh.material, hc = new THREE.Color(0xffffff).lerp(new THREE.Color(0x8fdcff), cy); dm.emissive.copy(hc); dm.color.setHex(0xf2f6fc).lerp(new THREE.Color(0x6cc8ff), cy); dm.emissiveIntensity *= 1 - 0.55 * cy; DIFF.userData.halo.material.color.copy(hc); DIFF.userData.halo.material.opacity *= 1 - 0.5 * cy;
+    RIPPLES.forEach((m, n) => { const i = Math.floor(n / 3), f = (u - 2.4 - m.userData.w * 0.4 - i * 0.07) / 1.3; m.visible = cy > 0.01 && f > 0 && f < 1; m.scale.setScalar(8 + 58 * easeOut(f)); m.material.opacity = Math.min(1, 1.6 * (1 - f)) * cy; });
+    VO = 0.0; orbit(lidPoint(new THREE.Vector3(LOGO_C.x, lerp(52, LAYER_Y.diff + 6, zin) * (1 - close), LOGO_C.z)), lerp(62, 20, k), lerp(26, 14, k) + 10 * zin, lerp(900, 1000, k) * (1 - 0.48 * zin));
     if (u < 4.3) title(['Bounce, <em>spread</em>,', '<em>shine</em>'], [0.05, 2.2], u);
     else title(['One <em>even</em> glow'], [4.4], u);
     const fo = 1 - ramp(u, 5.0, 5.4);
-    sideTags([['b1', 'Mirror bounces it', lidPoint(new THREE.Vector3(LOGO_C.x - 40, 5 + LAYER_Y.refl, LOGO_C.z)), -1, ease(ramp(u, 0.7, 1.1)) * fo, 'big'],
+    sideTags([['b1', 'Mirror bounces it', lidPoint(new THREE.Vector3(LOGO_C.x - 40, 5 + LAYER_Y.refl, LOGO_C.z)), -1, ease(ramp(u, 0.7, 1.1)) * fo * (1 - ease(ramp(u, 2.0, 2.4))) + ease(ramp(u, 4.6, 5.0)) * fo, 'big'],   // V4: b1 hidden while we zoom on the diffuser
               ['b0', '4 bright spots', lidPoint(new THREE.Vector3(LOGO_C.x - 20, 5.6 + LAYER_Y.diff, STRIP_C.z + 26)), 1, hot, 'big', -260],
               ['b2', 'Diffuser spreads it evenly', lidPoint(new THREE.Vector3(LOGO_C.x + 40, 6 + LAYER_Y.diff, LOGO_C.z)), 1, ease(ramp(u, 2.6, 3.0)) * fo, 'big', -260],   // V4: above the light path, not on the glowing diffuser
               ['b3', '✓  Even glow', lidPoint(LOGO_C.clone().add(new THREE.Vector3(0, LAYER_Y.shell, 0))), 1, ease(ramp(u, 4.0, 4.4)) * fo, 'green big']]);
@@ -5463,7 +5470,7 @@ const CUTS = B.slice(1, -3);   // V4: no dip before the end either: scene 6 cont
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
-  camera.zoom = 1; hideTags(); if (SCREEN_IMG) SCREEN_IMG.visible = false; $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
+  camera.zoom = 1; RIPPLES.forEach(m => m.visible = false); if (DIFF.userData.mesh) { DIFF.userData.mesh.material.emissive.setHex(0xffffff); DIFF.userData.mesh.material.color.setHex(0xf2f6fc); DIFF.userData.halo.material.color.setHex(0xffffff); } hideTags(); if (SCREEN_IMG) SCREEN_IMG.visible = false; $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
   const k = ORIG[i] ? ORIG[i] / (b - a) : 1; fn((t - a) * k, ORIG[i] || b - a);   // scenes 2–6 were timed on v1's voice: stretch them to this voice's lines
   if (i >= 6) title([], [], 0);

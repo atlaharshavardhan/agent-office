@@ -64,7 +64,7 @@ for i in range(4): place(sfx, activate(784 * 2 ** (i * 2 / 12)), at(3, 1.0 + i *
 place(sfx, click(), at(3, 2.9), 0.32, -0.4); place(sfx, click(), at(3, 3.6), 0.32, 0.4)
 # 5 bounce → spread → shine; layers close with a soft click
 place(sfx, shimmer(1.0, 1700), at(4, 0.1), 0.14, -0.3); place(sfx, click(), at(4, 0.7), 0.3, -0.4); place(sfx, click(), at(4, 1.0), 0.28, 0.4)
-place(sfx, shimmer(1.6, 1300), at(4, 2.2), 0.16); place(sfx, click(), at(4, 2.6), 0.3, 0.4); place(sfx, glow_on(1.5), at(4, 3.0), 0.32)
+place(sfx, shimmer(1.6, 1300), at(4, 2.2), 0.16); place(sfx, activate(1319, 0.5), at(4, 2.35), 0.14); place(sfx, shimmer(1.4, 2400), at(4, 2.4), 0.12)   # V4: cyan ripples on the diffuser; place(sfx, click(), at(4, 2.6), 0.3, 0.4); place(sfx, glow_on(1.5), at(4, 3.0), 0.32)
 place(sfx, activate(1175, 0.4), at(4, 4.0), 0.22, 0.4); place(sfx, click(1.2), at(4, 6.5), 0.45); place(sfx, impact(62, 0.6), at(4, 6.5), 0.2)
 # 6 room light up, down; the glow switches off
 place(sfx, glow_on(0.9), at(5, 2.4), 0.18); place(sfx, glow_on(0.9), at(5, 3.9), 0.1)
