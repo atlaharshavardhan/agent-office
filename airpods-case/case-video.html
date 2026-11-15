@@ -4633,6 +4633,7 @@ const SHOTS = [
     aside(CA, ease(ramp(k, 0.62, 0.9)));
     { const hin = easeOut(ramp(u, 0.36, 0.6)), a = hin * (1 - ease(ramp(k, 0.9, 0.99))); head('Wrong<br>case?', a, 'hook'); const c = $('title').firstChild; if (c) c.style.transform = `scale(${0.9 + 0.1 * hin})`; }
     tag('ok', 'Charging', W2(CB, P.light), W * 0.13, H * 0.13, ease(ramp(u, 2.4, 2.7)) * (1 - ease(ramp(k, 0.72, 0.82))), 'green');
+    tag('ok2', 'Charging', W2(CB, P.light), -W * 0.34, H * 0.115, ease(ramp(k, 0.78, 0.86)) * (1 - ease(ramp(k, 0.95, 1))), 'green');   /* close-up: badge sits lower left of the light */
     note('3D illustration · not affiliated with Apple', ease(ramp(k, 0.3, 0.38)) * (1 - ramp(k, 0.86, 0.96)));
   },
   (k, u, t, d) => { // 2. the secret inside: glass shell, 120° orbit, a brief exploded view, then in towards the socket
