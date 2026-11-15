@@ -4,6 +4,7 @@ import { FPS, hash, lerp } from '../lib/anim';
 import { DUSK, StickPose } from './Dusk';
 import { Adult, Heart, A_SHOULDER, A_UPPER, A_FORE, A_TIP } from './Adult';
 import { Audio, Img, Sequence, staticFile } from 'remotion';
+import { Pov, POV_A, POV_B } from './Pov';
 import { prog, pulse, clamp01, easeOut, easeInOut } from '../lib/anim';
 import { FONT, TECH } from '../lib/palette';
 import '@fontsource/manrope/700.css'; import '@fontsource/manrope/800.css'; import '@fontsource/ibm-plex-mono/600.css';
@@ -212,6 +213,9 @@ export const IsoHook: React.FC = () => <IsoStreet hook />;
 export const IsoFull: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire /></Sequence><Sequence from={690} durationInFrames={555}><IsoStreet move /></Sequence></AbsoluteFill>);
 export const IsoHookCine: React.FC = () => <IsoStreet hook cine />;
 export const IsoFullCine: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute cine /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire cine /></Sequence><Sequence from={690} durationInFrames={555}><IsoStreet move cine /></Sequence></AbsoluteFill>);
+const HookCut: React.FC = () => { const f = useCurrentFrame(); return f >= POV_A && f < POV_B ? null : <IsoStreet hook mute cine />; };
+/* the full street part, with the first-person "Hi" shot cut into the torch scene */
+export const IsoFullHi: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><HookCut /></Sequence><Sequence from={POV_A} durationInFrames={POV_B - POV_A}><Pov hi /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire cine /></Sequence><Sequence from={690} durationInFrames={555}><IsoStreet move cine /></Sequence></AbsoluteFill>);
 export const IsoHookView: React.FC = () => <IsoStreet hook cine mute view={{ fx: 600, fy: 850, z: 1.45 }} />;
 export const IsoWire: React.FC = () => <IsoStreet wire />;
 export const IsoDetail: React.FC = () => <IsoStreet hook detail mute />;

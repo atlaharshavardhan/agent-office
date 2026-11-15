@@ -1,7 +1,7 @@
 import React from 'react';
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
-import { FPS, hash } from '../lib/anim';
-import { FONT } from '../lib/palette';
+import { FPS, hash, prog, pulse, lerp, easeOut } from '../lib/anim';
+import { FONT, TECH } from '../lib/palette';
 import { Adult } from './Adult';
 import type { StickPose } from './Dusk';
 
@@ -11,10 +11,16 @@ const Win: React.FC<{ x: number; y: number; w: number; h: number; lit?: boolean;
     {lit && <rect x={x} y={y} width={w * 0.34} height={h} fill="#e98f6a" opacity={0.75} />}
     <line x1={x + w / 2} y1={y} x2={x + w / 2} y2={y + h} stroke="#3d3280" strokeWidth={6} /><line x1={x} y1={y + h * 0.45} x2={x + w} y2={y + h * 0.45} stroke="#3d3280" strokeWidth={6} />
     <rect x={x - 14} y={y + h + 6} width={w + 28} height={12} fill="#a898f0" /></g>);
-export const Pov: React.FC = () => {
-  const f = useCurrentFrame(), t = f / FPS;
-  const her: StickPose = { blink: 0, smile: 1, look: 0, armR: [150 + Math.sin(t * 9) * 14, 172 + Math.sin(t * 9 + 1) * 16], armL: [-10, -6], tilt: 3 + Math.sin(t * 9) * 2 };
-  const HX = 540, HY = 716, lens = { x: 668, y: 1318 }, tg = { x: HX, y: HY - 150 };
+/* "Hi" by torch: H = 01001000, i = 01101001. Runs on the hook clock, 8.4 s to 12.8 s. */
+export const HI = [0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1], HB0 = 10.25, HBD = 0.128, HFLY = 0.5, POV_A = 252, POV_B = 384;
+const HVO: [number, React.ReactNode][] = [[8.4, <>On is <em>one</em>. Off is <em>zero</em>.</>], [10.5, <>Eight blinks make <em>one letter</em>.</>], [12.45, <>But <em>"hello"</em> takes forty blinks.</>]];
+export const Pov: React.FC<{ hi?: boolean }> = ({ hi }) => {
+  const f = useCurrentFrame(), t = f / FPS, F = f + POV_A, T = F / FPS;
+  let on = 1; const done = hi ? prog(F, HB0 + 15 * HBD + HFLY - 0.1, HB0 + 15 * HBD + HFLY + 0.1, easeOut) : 1;
+  if (hi) { on = pulse(F, 8.95, 9.5); HI.forEach((b, i) => { if (b) on = Math.max(on, pulse(F, HB0 + i * HBD, HB0 + i * HBD + 0.085, 0.02)); }); }
+  const wv = hi ? done : 1, dy = hi ? 130 : 0;
+  const her: StickPose = { blink: hi ? Math.max(0, 1 - Math.abs(T - 9.8) / 0.07) : 0, smile: lerp(0.6, 1, wv), look: 0, armR: [lerp(8, 150 + Math.sin(t * 9) * 14, wv), lerp(5, 172 + Math.sin(t * 9 + 1) * 16, wv)], armL: [-10, -6], tilt: (3 + Math.sin(t * 9) * 2) * wv };
+  const HX = 540, HY = 716, lens = { x: 668, y: 1318 + dy }, tg = { x: HX, y: HY - 150 };
   const ang = Math.atan2(tg.y - lens.y, tg.x - lens.x) * 180 / Math.PI, len = Math.hypot(tg.x - lens.x, tg.y - lens.y);
   return (
     <AbsoluteFill style={{ backgroundColor: '#0b1030' }}>
@@ -53,13 +59,13 @@ export const Pov: React.FC = () => {
         <rect x={462} y={836} width={156} height={304} fill="#2a1f5c" stroke="#8f7fe0" strokeWidth={8} /><circle cx={596} cy={996} r={7} fill="#ffd38a" />
         {/* her balcony door, her, the railing */}
         <rect x={452} y={418} width={176} height={300} fill="#fff1d0" /><rect x={462} y={428} width={156} height={290} fill="#33266e" /><circle cx={482} cy={590} r={7} fill="#ffd38a" />
-        <ellipse cx={HX} cy={HY - 150} rx={210} ry={230} fill="url(#pWarm)" opacity={0.55} />
+        <ellipse cx={HX} cy={HY - 150} rx={210} ry={230} fill="url(#pWarm)" opacity={0.2 + 0.35 * on} />
         <g transform={`translate(${HX} ${HY}) scale(0.84)`}><Adult kind="woman" p={her} id="pv" /></g>
-        {[0, 1, 2].map((i) => { const u = (t * 0.9 + i / 3) % 1, x = HX + 70 + i * 26 + Math.sin(t * 2 + i) * 8, y = HY - 290 - u * 90; return <path key={i} d={`M ${x} ${y} c -14 -16 -34 2 0 26 c 34 -24 14 -42 0 -26 Z`} fill="#ff6f91" opacity={(1 - u) * 0.9} />; })}
+        {[0, 1, 2].map((i) => { const u = (t * 0.9 + i / 3) % 1, x = HX + 70 + i * 26 + Math.sin(t * 2 + i) * 8, y = HY - 290 - u * 90; return <path key={i} d={`M ${x} ${y} c -14 -16 -34 2 0 26 c 34 -24 14 -42 0 -26 Z`} fill="#ff6f91" opacity={(1 - u) * 0.9 * wv} />; })}
         <rect x={310} y={716} width={460} height={26} fill="#8f7fe0" /><rect x={310} y={742} width={460} height={12} fill="#3d3280" />
         <line x1={318} y1={612} x2={762} y2={612} stroke="#14152a" strokeWidth={8} strokeLinecap="round" />
         {Array.from({ length: 13 }).map((_, i) => <line key={i} x1={320 + i * 36.6} y1={612} x2={320 + i * 36.6} y2={718} stroke="#14152a" strokeWidth={5} />)}
-        {[0, 0.5].map((d) => { const u = (t * 1.2 + d) % 1; return <circle key={d} cx={tg.x} cy={tg.y} r={40 + u * 150} fill="none" stroke="#ffe2a8" strokeWidth={6 * (1 - u) + 1} opacity={(1 - u) * 0.6} />; })}
+        {[0, 0.5].map((d) => { const u = (t * 1.2 + d) % 1; return <circle key={d} cx={tg.x} cy={tg.y} r={40 + u * 150} fill="none" stroke="#ffe2a8" strokeWidth={6 * (1 - u) + 1} opacity={(1 - u) * 0.6 * on} />; })}
         {/* hedge, footpath, street */}
         <rect x={0} y={1108} width={1080} height={48} fill="#1f5a44" /><rect x={0} y={1100} width={1080} height={14} fill="#2a6a4a" />
         {[90, 990].map((x) => <g key={x}><rect x={x - 8} y={1010} width={16} height={130} fill="#2a1f3a" /><circle cx={x} cy={990} r={62} fill="#1f5a44" /><circle cx={x - 20} cy={966} r={36} fill="#2c6e52" /></g>)}
@@ -70,7 +76,7 @@ export const Pov: React.FC = () => {
         {/* selective light: the world drops back, she stays bright */}
         <rect x={-460} y={-420} width={2000} height={2200} fill="url(#pSpot)" />
         {/* the beam from your torch to her */}
-        <g transform={`translate(${lens.x} ${lens.y}) rotate(${ang})`} style={{ mixBlendMode: 'screen' }}>
+        <g transform={`translate(${lens.x} ${lens.y}) rotate(${ang})`} style={{ mixBlendMode: 'screen' }} opacity={on}>
           <path d={`M 0 -62 L ${len} -22 L ${len} 22 L 0 62 Z`} fill="url(#pBeam)" opacity={0.55} filter="url(#pB)" />
           <path d={`M 0 -30 L ${len} -8 L ${len} 8 L 0 30 Z`} fill="url(#pBeam)" opacity={0.75} filter="url(#pB2)" />
           {[0, 0.5].map((d) => { const u = (t * 1.4 + d) % 1; return <g key={d} opacity={Math.sin(Math.PI * u)}><circle cx={len * u} cy={0} r={70 - 40 * u} fill="url(#pWarm)" /><circle cx={len * u} cy={0} r={9 - 4 * u} fill="#fffbee" /></g>; })}
@@ -78,10 +84,16 @@ export const Pov: React.FC = () => {
         {/* your balcony railing, out of focus */}
         <g filter="url(#pB2)"><line x1={-40} y1={1585} x2={1120} y2={1525} stroke="#070818" strokeWidth={30} strokeLinecap="round" />{Array.from({ length: 9 }).map((_, i) => <line key={i} x1={40 + i * 128} y1={1582 - i * 6.6} x2={40 + i * 128} y2={1940} stroke="#070818" strokeWidth={18} />)}
           <line x1={-40} y1={1578} x2={1120} y2={1518} stroke="#3a4a9a" strokeWidth={5} opacity={0.6} /></g>
+        {/* the bits fly from your torch to her, and the letters land beside her */}
+        {hi && HI.map((b, i) => { const u = (T - (HB0 + i * HBD)) / HFLY; if (u < 0 || u > 1) return null; const x = lerp(lens.x, tg.x, u), y = lerp(lens.y - 40, tg.y, u), k = lerp(1, 0.5, u);
+          return <g key={'b' + i} transform={`translate(${x} ${y}) scale(${k})`} opacity={Math.min(1, u * 8, (1 - u) * 6)}><rect x={-30} y={-38} width={60} height={76} rx={14} fill="#0a0e24" stroke={b ? '#ffe08a' : '#9fb0ff'} strokeWidth={4} /><text x={0} y={20} textAnchor="middle" style={{ font: `700 56px ${FONT.mono}` }} fill={b ? '#ffe08a' : '#9fb0ff'}>{b}</text></g>; })}
+        {hi && (() => { const a0 = prog(F, HB0 + 7 * HBD + HFLY - 0.05, HB0 + 7 * HBD + HFLY + 0.12, easeOut), a1 = prog(F, HB0 + 15 * HBD + HFLY - 0.05, HB0 + 15 * HBD + HFLY + 0.12, easeOut); if (a0 <= 0) return null;
+          return <g transform={`translate(${HX + 168} ${HY - 196}) scale(${0.7 + 0.3 * a0 + 0.12 * Math.sin(Math.PI * a1)})`} opacity={a0}><path d="M -78 -58 h 156 a 22 22 0 0 1 22 22 v 72 a 22 22 0 0 1 -22 22 h -120 l -40 30 l 8 -30 h -4 a 22 22 0 0 1 -22 -22 v -72 a 22 22 0 0 1 22 -22 Z" fill="#0a0e24" stroke="#ffd38a" strokeWidth={5} />
+            <text x={0} y={30} textAnchor="middle" style={{ font: `800 88px ${FONT.ui}` }} fill="#ffd38a">H<tspan opacity={a1}>i</tspan></text></g>; })()}
         {/* your arm and the torch */}
         <g>
-          <polygon points="1080,1640 1080,1920 800,1920 688,1452 782,1404" fill="#2f9c95" /><polygon points="1080,1640 1080,1760 830,1500 782,1404" fill="#3fb8a8" opacity={0.6} />
-          <polygon points="676,1462 792,1396 806,1424 692,1492" fill="#f3f0ea" />
+          <g transform={`translate(0 ${dy})`}><polygon points="1080,1640 1080,1920 800,1920 688,1452 782,1404" fill="#2f9c95" /><polygon points="1080,1640 1080,1760 830,1500 782,1404" fill="#3fb8a8" opacity={0.6} />
+          <polygon points="676,1462 792,1396 806,1424 692,1492" fill="#f3f0ea" /></g>
           <g transform={`translate(${lens.x} ${lens.y}) rotate(${ang})`}>
             <rect x={-205} y={-34} width={150} height={68} rx={16} fill="#3a3f5c" /><rect x={-205} y={-34} width={150} height={22} rx={11} fill="#5a6088" opacity={0.7} />
             <polygon points="-62,-36 0,-58 0,58 -62,36" fill="#cfd3de" /><polygon points="-62,-36 0,-58 0,-30 -62,-18" fill="#fff" opacity={0.5} /><rect x={-8} y={-60} width={14} height={120} rx={5} fill="#8a90a8" />
@@ -90,14 +102,25 @@ export const Pov: React.FC = () => {
           <g transform={`translate(${lens.x} ${lens.y}) rotate(${ang})`}><ellipse cx={-128} cy={6} rx={74} ry={56} fill="#d6a481" /><ellipse cx={-128} cy={-30} rx={66} ry={26} fill="#e2b592" opacity={0.7} />
             {[0, 1, 2, 3].map((k) => <rect key={k} x={-190 + k * 30} y={-52} width={26} height={66} rx={13} fill="#d6a481" stroke="#b98863" strokeWidth={2.5} />)}
             <rect x={-96} y={-62} width={30} height={74} rx={14} fill="#dcae8a" stroke="#b98863" strokeWidth={2.5} transform="rotate(28 -80 -30)" /></g>
-          <circle cx={lens.x} cy={lens.y} r={150} fill="url(#pWarm)" style={{ mixBlendMode: 'screen' }} />
+          <circle cx={lens.x} cy={lens.y} r={150} fill="url(#pWarm)" style={{ mixBlendMode: 'screen' }} opacity={on} />
         </g>
         <rect width={1080} height={1920} fill="url(#pVig)" />
         <rect width={1080} height={1920} filter="url(#pGrain)" opacity={0.1} style={{ mixBlendMode: 'overlay' }} />
       </svg>
+      {hi && (() => { let line: React.ReactNode = null; for (const [a, txt] of HVO) if (T >= a) line = txt; const bitsOn = T >= 10.15;
+        return <>
+          <div style={{ position: 'absolute', top: 226, left: 70, right: 70, height: 224, borderRadius: 40, background: 'rgba(10,14,36,.86)', border: '1px solid rgba(160,176,255,.25)', boxShadow: '0 20px 60px rgba(0,0,0,.45)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, opacity: prog(F, 8.8, 9.0) }}>
+            {!bitsOn ? <><div style={{ font: `700 120px/1 ${FONT.mono}`, color: T < 9.5 ? '#ffe08a' : '#9fb0ff' }}>{T < 9.5 ? '1' : '0'}</div><div style={{ font: `600 30px ${FONT.mono}`, letterSpacing: '0.2em', color: '#cfd8ff' }}>{T < 9.5 ? 'LIGHT ON' : 'LIGHT OFF'}</div></> : <>
+              <div style={{ display: 'flex', gap: 6, font: `600 44px ${FONT.mono}` }}>{HI.map((b, i) => { const shown = T > HB0 + i * HBD; return <span key={i} style={{ width: 46, height: 66, marginLeft: i === 8 ? 22 : 0, borderRadius: 11, display: 'grid', placeItems: 'center', background: shown && b ? 'rgba(255,224,138,.16)' : 'rgba(255,255,255,.05)', border: `1px solid ${shown && b ? 'rgba(255,224,138,.8)' : 'rgba(255,255,255,.16)'}`, color: shown ? (b ? '#ffe08a' : '#9fb0ff') : 'rgba(255,255,255,.2)' }}>{shown ? b : '·'}</span>; })}</div>
+              <div style={{ display: 'flex', width: 848, font: `800 74px/1 ${FONT.ui}`, color: '#ffd38a' }}>{[0, 1].map((j) => <div key={j} style={{ width: j ? 410 : 438, textAlign: 'center', opacity: prog(F, HB0 + (j * 8 + 7) * HBD + 0.05, HB0 + (j * 8 + 7) * HBD + 0.2), color: '#ffd38a' }}>{'Hi'[j]}</div>)}</div></>}
+          </div>
+          {line && <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div>}
+          <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style></>; })()}
       <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}>
         <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>
       </div>
     </AbsoluteFill>
   );
 };
+
+export const PovHi: React.FC = () => <Pov hi />;

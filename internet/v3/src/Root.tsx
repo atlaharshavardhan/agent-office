@@ -4,13 +4,13 @@ import { Prototype } from './Prototype';
 import { DuskTorch } from './dusk/Dusk';
 import { DuskHouses } from './dusk/Houses';
 import { NightHook } from './dusk/NightHook';
-import { IsoStreet, IsoHook, IsoWire, IsoFull, IsoNet, Concept, IsoMove, IsoDetail, IsoMoveDetail, IsoHookCine, IsoFullCine, IsoHookView } from './dusk/IsoStreet';
+import { IsoStreet, IsoHook, IsoWire, IsoFull, IsoNet, Concept, IsoMove, IsoDetail, IsoMoveDetail, IsoHookCine, IsoFullCine, IsoHookView, IsoFullHi } from './dusk/IsoStreet';
 import { KidSheet } from './dusk/Kid';
 import { AdultSheet, DressSheet } from './dusk/Adult';
 import { MapConcept } from './dusk/MapConcept';
 import { IsoCity } from './dusk/IsoCity';
 import { IsoCity2 } from './dusk/IsoCity2';
-import { Pov } from './dusk/Pov';
+import { Pov, PovHi } from './dusk/Pov';
 
 export const Root: React.FC = () => (
   <>
@@ -37,6 +37,8 @@ export const Root: React.FC = () => (
     <Composition id="IsoHookCine" component={IsoHookCine} durationInFrames={468} fps={30} width={1080} height={1920} />
     <Composition id="IsoFullCine" component={IsoFullCine} durationInFrames={1245} fps={30} width={1080} height={1920} />
     <Composition id="IsoHookView" component={IsoHookView} durationInFrames={468} fps={30} width={1080} height={1920} />
+    <Composition id="PovHi" component={PovHi} durationInFrames={132} fps={30} width={1080} height={1920} />
+    <Composition id="IsoFullHi" component={IsoFullHi} durationInFrames={1245} fps={30} width={1080} height={1920} />
     <Composition id="Pov" component={Pov} durationInFrames={90} fps={30} width={1080} height={1920} />
     <Composition id="IsoCity2" component={IsoCity2} durationInFrames={390} fps={30} width={1080} height={1920} />
     <Composition id="IsoDetail" component={IsoDetail} durationInFrames={468} fps={30} width={1080} height={1920} />
