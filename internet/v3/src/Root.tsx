@@ -10,6 +10,7 @@ import { AdultSheet, DressSheet } from './dusk/Adult';
 import { MapConcept } from './dusk/MapConcept';
 import { IsoCity } from './dusk/IsoCity';
 import { IsoCity2 } from './dusk/IsoCity2';
+import { Pov } from './dusk/Pov';
 
 export const Root: React.FC = () => (
   <>
@@ -36,6 +37,7 @@ export const Root: React.FC = () => (
     <Composition id="IsoHookCine" component={IsoHookCine} durationInFrames={468} fps={30} width={1080} height={1920} />
     <Composition id="IsoFullCine" component={IsoFullCine} durationInFrames={1245} fps={30} width={1080} height={1920} />
     <Composition id="IsoHookView" component={IsoHookView} durationInFrames={468} fps={30} width={1080} height={1920} />
+    <Composition id="Pov" component={Pov} durationInFrames={90} fps={30} width={1080} height={1920} />
     <Composition id="IsoCity2" component={IsoCity2} durationInFrames={390} fps={30} width={1080} height={1920} />
     <Composition id="IsoDetail" component={IsoDetail} durationInFrames={468} fps={30} width={1080} height={1920} />
     <Composition id="IsoMoveDetail" component={IsoMoveDetail} durationInFrames={504} fps={30} width={1080} height={1920} />
