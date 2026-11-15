@@ -14,6 +14,7 @@
   #sub { top: 65.1%; height: 10.4%; left: 11.1%; right: 16.7%; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font: 700 5.8vw/1.15 Sora, Arial, sans-serif; -webkit-text-stroke: .45vw rgba(0,0,0,.55); paint-order: stroke fill; text-shadow: 0 4px 18px rgba(0,0,0,.7); }
   .tag { position: fixed; z-index: 3; pointer-events: none; color: #fff; font: 600 3.15vw 'IBM Plex Sans', Arial, sans-serif; white-space: nowrap;
     padding: 1.2vw 2.6vw; border-radius: 3vw; background: rgba(12,14,20,.86); border: 1px solid rgba(255,255,255,.24); opacity: 0; }
+  .tag.big { font-size: 3.62vw; padding: 1.38vw 3vw; background: rgba(8,10,15,.94); border-color: rgba(255,255,255,.4); box-shadow: 0 6px 18px rgba(0,0,0,.55); }
   .tag.acc { border-color: var(--acc); color: #e3f6ff; } .tag.red { border-color: var(--red); color: #ffdbe0; } .tag.green { border-color: var(--green); color: #d6ffe4; }
   #lines { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: 2; pointer-events: none; overflow: visible; }
   /* room-light card and the switch (title zone, never on the laptop) */
@@ -27,12 +28,12 @@
   #sw { position: fixed; z-index: 3; left: 15%; right: 15%; top: 13.6%; display: flex; align-items: center; justify-content: space-between; padding: 3vw 4.2vw; border-radius: 4.5vw; opacity: 0; pointer-events: none;
     background: linear-gradient(160deg, rgba(34,36,46,.9), rgba(14,15,22,.94)); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 24px 60px rgba(0,0,0,.55); color: #fff; font: 600 4vw Sora, Arial, sans-serif; }
   #sw .tg { width: 15vw; height: 8.4vw; border-radius: 5vw; background: #2fd36b; position: relative; transition: none; } #sw .tg i { position: absolute; top: .8vw; left: .8vw; width: 6.8vw; height: 6.8vw; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
-  #term { position: fixed; z-index: 3; left: 11.1%; right: 16.7%; top: 11.6%; border-radius: 2.6vw; overflow: hidden; opacity: 0; pointer-events: none;
+  #term { position: fixed; z-index: 3; left: 9.3%; right: 16.7%; top: 11.6%; border-radius: 2.6vw; overflow: hidden; opacity: 0; pointer-events: none;
     background: rgba(14,15,19,.94); border: 1px solid rgba(255,255,255,.16); box-shadow: 0 24px 60px rgba(0,0,0,.6); }
-  #term .bar { height: 6vw; display: flex; align-items: center; gap: 1.4vw; padding: 0 2.6vw; background: rgba(255,255,255,.06); font: 600 2.6vw 'IBM Plex Sans', sans-serif; color: rgba(255,255,255,.55); }
-  #term .bar i { width: 2.2vw; height: 2.2vw; border-radius: 50%; background: #5a5d66; display: inline-block; } #term .bar span { margin-left: 2vw; }
-  #term pre { margin: 0; padding: 2.4vw 3vw 2.8vw; font: 500 3.15vw/1.42 'IBM Plex Mono', monospace; color: #e8ecf2; white-space: pre; }
-  #term pre b { color: #8fdcff; font-weight: 500; } #term .cur { display: inline-block; width: 1.7vw; height: 3.4vw; background: #e8ecf2; vertical-align: -0.5vw; }
+  #term .bar { height: 7.2vw; display: flex; align-items: center; gap: 1.4vw; padding: 0 3.1vw; background: rgba(255,255,255,.06); font: 600 3.1vw 'IBM Plex Sans', sans-serif; color: rgba(255,255,255,.55); }
+  #term .bar i { width: 2.6vw; height: 2.6vw; border-radius: 50%; background: #5a5d66; display: inline-block; } #term .bar span { margin-left: 2vw; }
+  #term pre { margin: 0; padding: 2.9vw 3.4vw 3.3vw; font: 500 3.78vw/1.42 'IBM Plex Mono', monospace; color: #e8ecf2; white-space: pre; }
+  #term pre b { color: #8fdcff; font-weight: 500; } #term pre mark { background: rgba(143,220,255,.14); color: #bfeaff; border-radius: .8vw; padding: 0 .5vw; box-shadow: inset 0 -.35vw 0 rgba(143,220,255,.55); } #term .cur { display: inline-block; width: 2vw; height: 4.1vw; background: #e8ecf2; vertical-align: -0.5vw; }
   #outro { position: fixed; inset: 0; z-index: 6; opacity: 0; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
     background: radial-gradient(60% 40% at 50% 46%, #111522 0%, #07080c 60%, #040506 100%); color: #fff; text-align: center; }
   #oLogo { width: 21vw; height: 21vw; border-radius: 50%; }
@@ -5253,10 +5254,10 @@ function setXray(x) {
   LAYERS.visible = x > 0.5 || EXPL > 0.02;
 }
 function tapeOff(v) { const t = FOAM.userData.tape; t.material.opacity = 0.92 * (1 - v); t.visible = v < 0.99; t.position.y = 4.4 - 14 * ease(v); }
-function logoGlow(v) { // 0 = off (dark metal), 1 = full glow
-  LOGO.material.emissiveIntensity = 1.25 * v;   // ~27% less than v2
+function logoGlow(v, s = 1) { // 0 = off (dark metal), 1 = full glow; s scales the glow (hook: 0.85)
+  LOGO.material.emissiveIntensity = 1.25 * v * (1 - 0.8 * (1 - s));   // ~27% less than v2
   LOGO.material.color.setRGB(lerp(0.07, 0.87, v), lerp(0.075, 0.89, v), lerp(0.09, 0.92, v));   // dark chrome when off (mirror coating), light passes when on   // mirror-coated: shiny when off, light passes through when on
-  [SHELL.userData.halo, SHELL.userData.halo2].forEach(h => { h.material.opacity = h.userData.op * v; h.visible = v > 0.01; });   // spill on the aluminium; bloom adds the soft halo
+  [SHELL.userData.halo, SHELL.userData.halo2].forEach(h => { h.material.opacity = h.userData.op * v * s; h.visible = v > 0.01; });   // spill on the aluminium; bloom adds the soft halo
   const p = LID.localToWorld(LOGO_C.clone().add(new THREE.Vector3(0, 70 + LAYER_Y.shell * ease(EXPL), 0))); logoLight.position.copy(p); logoLight.intensity = 0; }   // no point light: its highlight made a white dot on the mirror logo (bloom does the glow)
 function ledOn(list) { LEDS.forEach((L, i) => { const v = list[i] || 0; L.die.material.emissiveIntensity = 3 * v; LED_HALOS[i].visible = v > 0.01; LED_HALOS[i].material.opacity = v; LED_HALOS[i].scale.setScalar(9 + 9 * v); }); }
 function diffGlow(v) { DIFF.userData.mesh.material.emissiveIntensity = 0.9 * v; DIFF.userData.halo.material.opacity = 0.6 * v; DIFF.userData.halo.visible = v > 0.01; }
@@ -5286,7 +5287,7 @@ function sideTags(list) { // callouts in the side margins: [id, text, worldPoint
     if (k === '1') { c.forEach(o => { if (o.ty > H * 0.43 && o.ty < H * 0.57) o.ty = o.ty < H * 0.5 ? H * 0.425 : H * 0.575; }); c.sort((a, b) => a.ty - b.ty);
       for (let i = 1; i < c.length; i++) { c[i].ty = Math.max(c[i].ty, c[i - 1].ty + gap); if (c[i].ty > H * 0.43 && c[i].ty < H * 0.57) c[i].ty = H * 0.575; } } }   // 120 px / 180 px safe margins; keep clear of the right-middle watermark without stacking tags
   for (const k in cols) cols[k].forEach(({ L, x, y, ty }) => {
-    const [id, text, , side, a, cls] = L, T = tagEl(id, text, cls), col = COLS[cls] || 'rgba(255,255,255,.75)';
+    const [id, text, , side, a, cls] = L, T = tagEl(id, text, cls), col = COLS[(cls || '').replace(' big', '')] || 'rgba(255,255,255,.75)';
     const edge = side < 0 ? W * 0.111 : W * 0.833; T.el.style.left = edge + 'px'; T.el.style.top = ty + 'px'; T.el.style.opacity = a;
     T.el.style.transform = side < 0 ? 'translate(0,-50%)' : 'translate(-100%,-50%)';
     const w = T.el.offsetWidth, tx = side < 0 ? edge + w : edge - w;
@@ -5300,7 +5301,8 @@ function roomCard(a, roomK, logoK, night) { const r = $('room'); r.style.opacity
 const CMD = ['sudo defaults write', 'com.apple.CoreBrightness', 'LEBacklightMode -int 0'];   // Apple Support, 5 Nov 2026
 function terminal(a, typed, done, u) { const tm = $('term'); tm.style.opacity = a; tm.style.transform = `translateY(${(1 - a) * 2}vh)`; if (a < 0.01) return;
   const all = CMD.join('\n'), n = Math.floor(all.length * clamp01(typed)), shown = all.slice(0, n), cur = done ? '' : (Math.floor(u * 4) % 2 || typed < 1 ? '<span class="cur"></span>' : '');
-  $('tPre').innerHTML = '<b>$</b> ' + shown.replace(/\n/g, '\n  ') + cur + (done ? '\n<b>$</b> <span class="cur"></span>' : ''); }
+  const KEY = 'LEBacklightMode -int 0', ki = all.indexOf(KEY), hl = n > ki ? shown.slice(0, ki) + '<mark>' + shown.slice(ki) + '</mark>' : shown;   // V4: highlight the part that switches the glow off
+  $('tPre').innerHTML = '<b>$</b> ' + hl.replace(/\n/g, '\n  ') + cur + (done ? '\n<b>$</b> <span class="cur"></span>' : ''); }
 function switchCard(a, on) { const s = $('sw'); s.style.opacity = a; s.style.transform = `translateY(${(1 - a) * 2}vh)`;
   const tg = s.querySelector('.tg'); tg.style.background = `rgb(${lerp(80, 47, on)},${lerp(84, 211, on)},${lerp(96, 107, on)})`; tg.firstChild.style.left = lerp(0.8, 7.4, on) + 'vw'; }
 
@@ -5319,11 +5321,11 @@ const OPEN = 108;
 const SHOTS = [
   [B[0], B[1], u => { // 1. hook: extreme close-up of the dark logo, it lights within 0.5 s, the camera pulls back to the MacBook
     tapeOff(0); lidOpen(OPEN); explode(0); setXray(0); room(0); ledOn([]); diffGlow(0);
-    screenOn(ease(ramp(u, 0.1, 0.6)), 0); logoGlow(ease(ramp(u, 0.08, 0.55)));
+    screenOn(ease(ramp(u, 0.1, 0.6)), 0); logoGlow(ease(ramp(u, 0.08, 0.55)), 0.85);   // V4: ~15% less bloom, sharper edges
     const k = ease(ramp(u, 0.55, 2.75)), L = lidPoint(LOGO_C);
     const tgt = L.clone().lerp(L.clone().add(new THREE.Vector3(0, -38, 0)), k), dist = 215 * Math.pow(1640 / 215, k);
     VO = 0.075 * k; orbit(tgt, lerp(0, -8, k), lerp(-17, 12.5, k), dist);
-    BLOOM.strength = lerp(0.1, 0.36, k); BLOOM.radius = lerp(0.15, 0.35, k);
+    BLOOM.strength = 0.85 * lerp(0.1, 0.36, k); BLOOM.radius = lerp(0.13, 0.33, k);
     $('title').classList.add('hook'); title(['THE GLOW', 'IS BACK.'], [0.35, 0.55], u);
   }],
   [B[1], B[2], (u, d) => { // 2. orbit to the side; the lid turns to glass: every OLED pixel lights itself, there is no backlight
@@ -5363,7 +5365,7 @@ const SHOTS = [
       POOLS[i].material.opacity = 0; });
     DIFF.visible = false; SHELL.visible = false; GHOST.forEach(o => o.material.uniforms.alpha.value = 0.12);   // look past the diffuser and the lid straight at the strip
     const k = ease(u / d), tg = lidPoint(STRIP_C.clone().add(new THREE.Vector3(0, LAYER_Y.refl, 10)));
-    camera.setViewOffset(W, H, 0, 0, W, H); camera.updateProjectionMatrix();
+    camera.zoom = 1 + 0.07 * ease(ramp(u, 0.9, d)); camera.setViewOffset(W, H, 0, 0, W, H); camera.updateProjectionMatrix();   // V4: continuous push-in, starts as the first LED lights
     camera.position.copy(lidPoint(STRIP_C.clone().add(new THREE.Vector3(lerp(-125, -70, k), LAYER_Y.refl + lerp(245, 200, k), lerp(150, 120, k))))); camera.lookAt(tg); camera.updateMatrixWorld();
     $('title').classList.add('hook'); title(['4 HIDDEN', 'LEDs'], [0.05, 0.25], u);
     const sp = (dx) => lidPoint(STRIP_C.clone().add(new THREE.Vector3(dx, LAYER_Y.refl + 0.5, 0)));
@@ -5385,10 +5387,10 @@ const SHOTS = [
     if (u < 4.3) title(['Bounce, <em>spread</em>,', '<em>shine</em>'], [0.05, 2.2], u);
     else title(['One <em>even</em> glow'], [4.4], u);
     const fo = 1 - ramp(u, 5.0, 5.4);
-    sideTags([['b1', 'Mirror bounces it', lidPoint(new THREE.Vector3(LOGO_C.x - 40, 5 + LAYER_Y.refl, LOGO_C.z)), -1, ease(ramp(u, 0.7, 1.1)) * fo],
-              ['b0', '4 bright spots', lidPoint(new THREE.Vector3(LOGO_C.x - 20, 5.6 + LAYER_Y.diff, STRIP_C.z + 26)), 1, hot],
-              ['b2', 'Diffuser spreads it evenly', lidPoint(new THREE.Vector3(LOGO_C.x + 40, 6 + LAYER_Y.diff, LOGO_C.z)), 1, ease(ramp(u, 2.6, 3.0)) * fo],
-              ['b3', '✓  Even glow', lidPoint(LOGO_C.clone().add(new THREE.Vector3(0, LAYER_Y.shell, 0))), 1, ease(ramp(u, 4.0, 4.4)) * fo, 'green']]);
+    sideTags([['b1', 'Mirror bounces it', lidPoint(new THREE.Vector3(LOGO_C.x - 40, 5 + LAYER_Y.refl, LOGO_C.z)), -1, ease(ramp(u, 0.7, 1.1)) * fo, 'big'],
+              ['b0', '4 bright spots', lidPoint(new THREE.Vector3(LOGO_C.x - 20, 5.6 + LAYER_Y.diff, STRIP_C.z + 26)), 1, hot, 'big', -260],
+              ['b2', 'Diffuser spreads it evenly', lidPoint(new THREE.Vector3(LOGO_C.x + 40, 6 + LAYER_Y.diff, LOGO_C.z)), 1, ease(ramp(u, 2.6, 3.0)) * fo, 'big', -260],   // V4: above the light path, not on the glowing diffuser
+              ['b3', '✓  Even glow', lidPoint(LOGO_C.clone().add(new THREE.Vector3(0, LAYER_Y.shell, 0))), 1, ease(ramp(u, 4.0, 4.4)) * fo, 'green big']]);
   }],
   [B[5], B[6], (u, d) => { // 6. follows the room light; a switch turns it off
     tapeOff(0); lidOpen(OPEN); explode(0); setXray(0); ledOn([]); diffGlow(0); screenOn(1, 0);
@@ -5413,15 +5415,14 @@ const SHOTS = [
 ];
 const ORIG = [0, 8.06, 3.26, 6.29, 7.23, 7.52, 0, 0];
 function endShot(u) {   // shared camera for the last two shots: from the video filling the frame back to the MacBook seen from the front
-  snapshot(); roomCard(0, 0, 0); terminal(0, 0, 0, 0);
+  roomCard(0, 0, 0); terminal(0, 0, 0, 0);
   tapeOff(0); lidOpen(OPEN); explode(0); setXray(0); ledOn([]); diffGlow(0); screenOn(0, 0); room(0); logoGlow(0);
-  const z = ease(ramp(u, 0.15, 2.4));
-  const c = lidPoint(SCR_C), n = lidPoint(SCR_C.clone().add(new THREE.Vector3(0, -1, 0))).sub(c).normalize();
-  const p0 = c.clone().addScaledVector(n, 90 / Math.tan(THREE.MathUtils.degToRad(15)));   // the portrait video fills the frame exactly
-  const tgt1 = c.clone().add(new THREE.Vector3(0, -70, 75)), y1 = THREE.MathUtils.degToRad(180), pi1 = THREE.MathUtils.degToRad(44 - 2 * Math.max(0, u - 2.4)), d1 = 1080 - 22 * Math.max(0, u - 2.4);
-  const p1 = new THREE.Vector3(Math.sin(y1) * Math.cos(pi1), Math.sin(pi1), -Math.cos(y1) * Math.cos(pi1)).multiplyScalar(d1).add(tgt1);
-  VO = 0.03 * z; camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix();
-  camera.position.copy(p0.clone().lerp(p1, z)); camera.lookAt(c.clone().lerp(tgt1, z)); camera.updateMatrixWorld();
+  // V4: no fly-through the keyboard any more. A calm front view of the MacBook showing its lock screen, slowly rising to the high, dark angle of the branding
+  const z = ease(ramp(u, 0, 3.4)), c = lidPoint(SCR_C);
+  const tgt1 = c.clone().add(new THREE.Vector3(0, -70, 75)), tgt0 = c.clone().add(new THREE.Vector3(0, -45, 40)), tg = tgt0.clone().lerp(tgt1, z);
+  const pi = THREE.MathUtils.degToRad(lerp(30, 44, z) - 2 * Math.max(0, u - 3.4)), d1 = lerp(1180, 1080, z) - 22 * Math.max(0, u - 3.4);
+  VO = lerp(0.1, 0.03, z); camera.setViewOffset(W, H, 0, H * VO, W, H);   // laptop starts higher: subtitles stay off the keyboard camera.updateProjectionMatrix();
+  camera.position.set(0, Math.sin(pi), Math.cos(pi)).multiplyScalar(d1).add(tg); camera.lookAt(tg); camera.updateMatrixWorld();
   const dk = ease(ramp(u, 1.2, 3.2)); hemi.intensity = lerp(0.6, 0.12, dk); key.intensity = lerp(1.2, 0.25, dk); edgeRim.intensity = lerp(1.15, 0.45, dk); rim.intensity = lerp(0.9, 0.3, dk); renderer.toneMappingExposure = lerp(1.05, 0.7, dk);
   if (SCREEN_IMG) SCREEN_IMG.visible = false;   // the model's own screen picture peeked out at the edges as thin white lines
   END.screen = 1; const sl = lidPoint(new THREE.Vector3(0, -90, 110)); screenLight.position.copy(sl); screenLight.intensity = 1.6 * END.brand;
@@ -5430,7 +5431,7 @@ const CUTS = B.slice(1, -2);   // no dip to black into the end: the video shrink
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
-  hideTags(); if (SCREEN_IMG) SCREEN_IMG.visible = false; $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
+  camera.zoom = 1; hideTags(); if (SCREEN_IMG) SCREEN_IMG.visible = false; $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
   const k = ORIG[i] ? ORIG[i] / (b - a) : 1; fn((t - a) * k, ORIG[i] || b - a);   // scenes 2–6 were timed on v1's voice: stretch them to this voice's lines
   if (i >= 6) title([], [], 0);
@@ -5482,9 +5483,13 @@ const ICONS = [['Like', '#4aa8ff', ['M2 10h4v11H2zM8 21h9.5a2 2 0 0 0 2-1.6l1.4-
 function drawScreen() {
   const x = SCV.getContext('2d'), w = SCV.width, h = SCV.height;
   x.globalAlpha = 1; x.fillStyle = '#000'; x.fillRect(0, 0, w, h);
-  if (SNAP && END.brand < 1) { // the vertical video, with a blurred copy behind it (like a Short playing on a Mac)
-    x.save(); x.filter = 'blur(28px) brightness(0.45)'; x.drawImage(SNAP, -w * 0.1, -h * 0.9, w * 1.2, w * 1.2 * SNAP.height / SNAP.width); x.restore();
-    const vh = h, vw2 = vh * SNAP.width / SNAP.height; x.drawImage(SNAP, (w - vw2) / 2, 0, vw2, vh);
+  if (END.brand < 1) { // V4: the Mac's lock screen: light-streak wallpaper, date and time
+    x.drawImage(WALL.image, 0, 0, w, h);
+    const g = x.createLinearGradient(0, 0, 0, h * 0.55); g.addColorStop(0, 'rgba(0,0,0,.45)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h * 0.55);
+    x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = 24;
+    x.fillStyle = 'rgba(255,255,255,.88)'; x.font = '600 50px Sora, Arial'; x.fillText('Sunday 15 November', w / 2, 150);
+    x.fillStyle = 'rgba(255,255,255,.94)'; x.font = '700 250px Sora, Arial'; x.fillText('9:41', w / 2, 390);
+    x.shadowBlur = 0;
   }
   if (END.brand > 0) {   // clean branding: dark background, logo, InvisiTech, tagline
     x.globalAlpha = END.brand; const g = x.createRadialGradient(w / 2, h * 0.42, 30, w / 2, h * 0.5, w * 0.62); g.addColorStop(0, '#141a2c'); g.addColorStop(0.6, '#080a12'); g.addColorStop(1, '#030406');
