@@ -49,3 +49,16 @@ Sources:
 - Scene page: `logo-video.src.html` → `python3 build-data.py && python3 build-video.py` → `logo-video.html` (self-contained). Stills: `./sheet.sh <dir> <sheet.jpg> t1 t2 …` (uses `render.cjs`, which needs three.js + fonts in `../phone-teardown`, see its README).
 - Stills v1 in `stills-v1/`. Stills v2 in `stills-v2/`: + mirror effect (glossy desk reflects the laptop and the glowing logo, fading out above the subtitles; `assets/Reflector.js` from three.js r128, MIT), wide shots pulled back to make room for the reflection. Waiting for Harsh's OK before the video render.
 - Stills v3 (`stills-v3/ending-board.jpg`): Harsh's new ending: after the switch-off, the whole video shrinks onto the MacBook's screen (the Short playing on the Mac), the camera pulls back to the laptop from the front, and the InvisiTech card (logo, Invisi**Tech**, @TheInvisiTech, Like/Comment/Follow, Subscribe) plays on that screen; "Hidden LEDs." pill below. End card now 4.8 s (total 39.8 s).
+
+## iFixit's own teardown (read 15 Nov 2026): "We Tore Down the MacBook PROLED XDR and Found the Secret of the Glowing Apple"
+https://www.ifixit.com/News/120152/we-tore-down-the-macbook-proled-xdr-and-found-the-secret-of-the-glowing-apple
+- The laptop: 14-inch MacBook Pro with PROLED XDR, the first touchscreen MacBook; tandem OLED (two light-emitting layers), 120 Hz, 2,000 nits peak; M5 Pro / M5 Max; 1.38 kg.
+- "Behind that fancy display, there's a much less fancy LED strip, featuring four little lights that give the apple its glow."
+- iFixit had to break the screen to get in: "The rubber trim lifted. Then the glass delaminated, cracking the OLED and capacitive layers underneath." / "getting inside that lid cost us the panel."
+- "two light, rigid foam pads flanking the logo. Our best guess is they give the OLED a little backing when you press on the glass."
+- "Under a taped patch in the middle we found four LEDs, all in a strip along one edge. The light hits a reflective layer and passes through a diffuser, turning four little points of light into one evenly glowing apple."
+- "The logo itself has a mirror-like coating that looks shiny with the lights off."
+- "this is an insane repair path for reaching the glowing logo." Repairability 5/10 (would be 4 under their 2027 rubric).
+- Microscope: the OLED's blue subpixel is much bigger than red and green (blue materials wear faster).
+- Photos in the article (reference only, iFixit's copyright, not for the video): "Apple logo pulled out of the lid", "Stacked layers over Apple logo", "Under the MacBook PROLED display", "Closeup of the foam backing", "Apple-lid-cutout".
+- Fix needed in our 3D: the four LEDs are one strip along one edge (not at four corners), under a taped patch, between two foam pads; the logo is a two-way-mirror window.
