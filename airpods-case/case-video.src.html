@@ -7,13 +7,13 @@
   #wash { position: fixed; inset: 0; z-index: 0; opacity: 0; pointer-events: none; }
   #bloom { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; filter: blur(1.5vw) brightness(1.2); mix-blend-mode: screen; opacity: .2; }
   #vig { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(120% 78% at 50% 46%, transparent 52%, rgba(2,4,9,.55) 100%); }
-  #title .t-head { display: block; font: 800 8.2vw/1.04 Inter, Arial, sans-serif; text-transform: uppercase; color: #F5F5F7; text-shadow: 0 0.6vw 3vw rgba(0,0,0,.7); }
+  #title .t-head { display: block; font: 800 7.6vw/1.06 Inter, Arial, sans-serif; text-transform: uppercase; color: #F5F5F7; text-shadow: 0 0.6vw 3vw rgba(0,0,0,.7); }
   #title .t-head.red { color: #FF4545; } #title .t-head.green i { font-style: normal; color: #22C55E; } #title .t-head.gold { color: #F5F5F7; }
   #back { position: fixed; z-index: 0; left: 0; right: 0; text-align: center; color: #f5f5f7; font: 800 23vw/0.98 Inter, Arial, sans-serif; letter-spacing: -0.05em; text-transform: uppercase; pointer-events: none; opacity: 0; }
   #back .ln { display: block; } #back small { display: block; font: 600 4.6vw Inter, Arial, sans-serif; letter-spacing: -0.01em; color: var(--acc); margin-bottom: 2.4vw; }
   .shade { position: fixed; left: 0; right: 0; pointer-events: none; z-index: 2; }
-  #shTop { top: 0; height: 26%; background: linear-gradient(rgba(4,6,11,.72), transparent); }
-  #shBot { bottom: 0; height: 40%; background: linear-gradient(transparent, rgba(0,0,0,.5) 40%, rgba(0,0,0,.8)); }
+  #shTop { top: 0; height: 27.5%; background: linear-gradient(#060a12 0%, #070b14 84%, transparent); }
+  #shBot { bottom: 0; height: 38%; background: linear-gradient(transparent, #060a12 9%, #04060b 100%); }
   .ov { position: fixed; z-index: 3; pointer-events: none; }
   /* safe zones (1080x1920): title 220-450 px, subject 450-1500, subtitles 1250-1450, nothing right of 940 below 1100 */
   #title { top: 12.2%; left: 4%; right: 4%; text-align: center; color: #fff; font: 600 4.1vw/1.2 Inter, Arial, sans-serif; letter-spacing: -0.01em; }
@@ -24,7 +24,7 @@
   #title .t-sub { display: block; color: rgba(255,255,255,.8); font-weight: 500; }
   #title .ln { display: block; }
   #title em { font-style: normal; color: var(--red); } #title em.g { color: var(--green); } #title em.b { color: var(--blue); }
-  #note { top: 76.2%; left: 13%; right: 13%; text-align: center; font-size: 2.5vw; color: rgba(255,255,255,.62); }
+  #note { top: 76.5%; left: 34%; right: 5%; text-align: right; text-align: center; font-size: 2.5vw; color: rgba(255,255,255,.62); }
   #sub { top: 65.1%; height: 10.4%; left: 13%; right: 13%; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font: 800 5.9vw/1.15 Inter, Arial, sans-serif; letter-spacing: -0.01em; -webkit-text-stroke: 1.1vw rgba(0,0,0,.85); paint-order: stroke fill; text-shadow: 0 4px 18px rgba(0,0,0,.7); }
   .tag { position: fixed; z-index: 3; transform: translate(-50%, -50%); pointer-events: none; color: #fff; font: 600 3.5vw Inter, Arial, 'Noto Color Emoji', sans-serif; letter-spacing: -0.01em; white-space: nowrap;
     padding: 1.4vw 3vw; border-radius: 2.6vw; background: rgba(28,28,30,.94); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 10px 30px rgba(0,0,0,.5); opacity: 0; }
@@ -59,8 +59,8 @@
   #chg .ring i { width: 5.2vw; height: 5.2vw; border-radius: 50%; background: #1c1c1e; display: grid; place-items: center; font-style: normal; font-size: 2.6vw; color: var(--acc); }
   #chg .lb { display: flex; flex-direction: column; line-height: 1.1; } #chg .lb small { font: 500 2.6vw Inter, Arial, sans-serif; color: rgba(255,255,255,.6); }
   /* channel watermark: right edge, vertical centre; hidden on the end card */
-  #wm { position: fixed; z-index: 4; right: 1.6%; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 1.2vw; opacity: .78; pointer-events: none; }
-  #wm img { width: 5.6vw; height: 5.6vw; border-radius: 50%; } #wm span { writing-mode: vertical-rl; font: 600 2.3vw Inter, Arial, sans-serif; color: #fff; letter-spacing: .02em; text-shadow: 0 1px 6px #000; }
+  #wm { position: fixed; z-index: 4; left: 5%; top: 76.1%; display: flex; flex-direction: row; align-items: center; gap: 1.2vw; opacity: .7; pointer-events: none; }
+  #wm img { width: 4vw; height: 4vw; border-radius: 50%; } #wm span { font: 600 2.3vw Inter, Arial, sans-serif; color: #fff; letter-spacing: .02em; text-shadow: 0 1px 6px #000; }
   #fade { position: fixed; inset: 0; z-index: 5; background: #000; opacity: 0; pointer-events: none; }
   #zones { position: fixed; inset: 0; z-index: 9; pointer-events: none; display: none; }
 </style>
@@ -577,7 +577,8 @@ const colOf = cls => /red/.test(cls) ? '#FF4545' : /green/.test(cls) ? '#22C55E'
 function proj(v) { const p = v.clone().project(camera); return [(p.x + 1) / 2 * W, (1 - p.y) / 2 * H]; }
 function tag(id, text, world, dx, dy, a, cls, noLine) {
   const T = tagEl(id, text, cls), [x, y] = proj(world), col = colOf(cls);
-  T.el.style.transform = 'translate(-50%,-50%)'; T.el.style.left = (x + dx) + 'px'; T.el.style.top = (y + dy) + 'px'; T.el.style.opacity = a;
+  const ly = Math.max(H * 0.305, Math.min(H * 0.605, y + dy)), lx = Math.max(W * 0.2, Math.min(W * 0.8, x + dx)); dy = ly - y; dx = lx - x;   // labels stay inside the picture band
+  T.el.style.transform = 'translate(-50%,-50%)'; T.el.style.left = lx + 'px'; T.el.style.top = ly + 'px'; T.el.style.opacity = a;
   const la = noLine ? 0 : a;
   T.l.setAttribute('x1', x); T.l.setAttribute('y1', y); T.l.setAttribute('x2', x + dx * 0.8); T.l.setAttribute('y2', y + dy * 0.8); T.l.setAttribute('stroke', col); T.l.setAttribute('stroke-width', 2.5); T.l.style.opacity = la;
   T.c.setAttribute('cx', x); T.c.setAttribute('cy', y); T.c.setAttribute('r', 6); T.c.setAttribute('fill', col); T.c.style.opacity = la;
@@ -598,7 +599,7 @@ function sideTags(list) { // callouts in the side margins: [id, text, world, sid
 }
 function hideTags() { for (const id in TAGS) { TAGS[id].el.style.opacity = 0; TAGS[id].l.style.opacity = 0; TAGS[id].c.style.opacity = 0; } }
 function glyph(id, world, a, scale = 1, dy = 0) { const el = $(id), [x, y] = proj(world); el.style.left = x + 'px'; el.style.top = (y + dy) + 'px'; el.style.opacity = a; el.style.transform = `translate(-50%,-50%) scale(${scale})`; }
-let VO = 0.035;
+let VO = 0.055;
 function look(pos, target, fov = 30) { camera.fov = fov; camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix(); camera.position.copy(pos); camera.up.set(0, 1, 0); camera.lookAt(target); camera.updateMatrixWorld(); }
 const V = (x, y, z) => new THREE.Vector3(x, y, z), vlerp = (a, b, k) => a.clone().lerp(b, k);
 const W2 = (C, v) => { C.root.updateMatrixWorld(true); return C.body.localToWorld(v.clone()); };
@@ -628,7 +629,7 @@ let CA, CB, CAPS = window.__CAPS || [];
 const HOME_A = V(-33.5, 0, 0), HOME_B = V(33.5, 0, 0);
 const bez = (a, b, c, k) => a.clone().multiplyScalar((1 - k) * (1 - k)).add(b.clone().multiplyScalar(2 * (1 - k) * k)).add(c.clone().multiplyScalar(k * k));
 const FOV = { hero: 30, close: 24, macro: 19 };                     // ≈ 50 mm, 85 mm, 105 mm on a tall frame
-const CAM0 = { p: V(-112, 66, 418), t: V(0, -3, 0), f: FOV.hero };    // opening = closing frame (seamless loop)
+const CAM0 = { p: V(-112, 62, 430), t: V(0, -2, 0), f: FOV.hero };    // opening = closing frame (seamless loop)
 function head(txt, a, cls) { const el = $('title'); const key = 'H|' + txt + cls; if (key !== lastTitle) { lastTitle = key; el.innerHTML = `<span class="t-head ${cls || ''}">${txt}</span>`; }
   const c = el.firstChild; if (c) { c.style.opacity = a; c.style.transform = `translateY(${(1 - a) * 1.4}vh)`; c.style.letterSpacing = (0.02 + 0.05 * (1 - a)) + 'em'; } }
 function wash(col, a) { const el = $('wash'); el.style.opacity = a; el.style.background = col === 'red' ? 'radial-gradient(90% 60% at 50% 46%, rgba(255,69,69,.34), rgba(255,69,69,.08) 55%, transparent 80%)' : 'radial-gradient(90% 60% at 50% 46%, rgba(34,197,94,.26), rgba(34,197,94,.06) 55%, transparent 80%)'; }
@@ -644,24 +645,24 @@ const SHOTS = [
     swap(CA, CB, u, 0.34, 0.9, 52); for (const s of ['R', 'L']) CB.buds[s].g.visible = false;
     const g = ease(ramp(u, 1.42, 1.7)); setLight(CB, 'green', g * (0.85 + 0.15 * Math.sin(t * 7))); wash('green', 0.55 * g * (1 - 0.4 * ramp(k, 0.8, 1)));
     const e = 0.3 * ease(ramp(k, 0, 0.5)) + 0.7 * ease(ramp(k, 0.42, 1));
-    const P2 = W2(CB, P.light.clone().add(V(-16, 10, 225))), T2 = W2(CB, P.light.clone().add(V(0, 1, 0)));
-    look(bez(CAM0.p, V(30, 50, 390), P2, e), vlerp(CAM0.t, T2, ease(ramp(k, 0.3, 1))), lerp(CAM0.f, FOV.close, ease(ramp(k, 0.4, 1))));
-    back(['Wrong', 'case?'], '', 1 - ease(ramp(k, 0.62, 0.8)), '13.5%');
+    const P2 = W2(CB, P.light.clone().add(V(-16, 10, 250))), T2 = W2(CB, P.light.clone().add(V(0, 1, 0)));
+    look(bez(CAM0.p, V(30, 50, 400), P2, e), vlerp(CAM0.t, T2, ease(ramp(k, 0.3, 1))), lerp(CAM0.f, FOV.close, ease(ramp(k, 0.4, 1))));
+    head('Wrong case?', 1 - ease(ramp(k, 0.86, 0.98)));
     tag('ok', 'Charging', W2(CB, P.light), -W * 0.2, H * 0.07, ease(ramp(u, 1.7, 2.0)) * (1 - ease(ramp(k, 0.86, 0.98))), 'green');
     note('3D illustration · not affiliated with Apple', ease(ramp(k, 0.44, 0.52)) * (1 - ramp(k, 0.86, 0.96)));
   },
   (k, u, t, d) => { // 2. the shell turns to glass; orbit 120° across the front, then push through the shell to the contacts
     home(u, t); CA.root.visible = false; setLid(CB, 1); for (const s of ['R', 'L']) seat(CA.buds[s], CB);
     const xr = ease(ramp(k, 0.0, 0.34)); setXray(CB, xr); for (const s of ['R', 'L']) budXray(CA.buds[s], xr); setLight(CB, 'green', 0.9); wash('green', 0.3 * (1 - xr));
-    const P2 = W2(CB, P.light.clone().add(V(-16, 10, 225))), T2 = W2(CB, P.light.clone().add(V(0, 1, 0)));
-    const a = lerp(-0.95, 1.1, ease(ramp(k, 0.05, 0.86))), r = lerp(190, 152, k), orb = W2(CB, V(Math.sin(a) * r, 26 - 14 * k, Math.cos(a) * r)), tO = W2(CB, V(0, -9, 0));
-    const P3 = W2(CB, STEM.R.clone().add(V(-16, 9, 54))), T3 = W2(CB, STEM.R.clone().add(V(0, -1.2, 0))), q = ease(ramp(k, 0.0, 0.3)), z = ease(ramp(k, 0.72, 1));
+    const P2 = W2(CB, P.light.clone().add(V(-16, 10, 250))), T2 = W2(CB, P.light.clone().add(V(0, 1, 0)));
+    const a = lerp(-0.95, 1.1, ease(ramp(k, 0.05, 0.86))), r = lerp(330, 285, k), orb = W2(CB, V(Math.sin(a) * r, 34 - 14 * k, Math.cos(a) * r)), tO = W2(CB, V(0, -5, 0));
+    const P3 = W2(CB, STEM.R.clone().add(V(Math.sin(-0.3) * 70, 7, Math.cos(-0.3) * 70))), T3 = W2(CB, STEM.R.clone().add(V(0, -2.4, 0))), q = ease(ramp(k, 0.0, 0.3)), z = ease(ramp(k, 0.72, 1));
     look(vlerp(vlerp(P2, orb, q), P3, z), vlerp(vlerp(T2, tO, q), T3, z), lerp(lerp(FOV.close, 27, q), FOV.macro, z));
     head('Inside the case', easeOut(ramp(k, 0.1, 0.3)) * (1 - ease(ramp(k, 0.9, 1))));
     const lab = (a0, a1) => ease(ramp(k, a0, a0 + 0.08)) * (1 - ease(ramp(k, a1, a1 + 0.08)));
     P.battGlow.visible = true; P.battGlow.material.opacity = 0.5 * lab(0.3, 0.52); GLOW.pin.emissiveIntensity = 1.6 * lab(0.6, 0.95);
     tag('t1', 'Battery', W2(CB, P.batt), -W * 0.2, -H * 0.085, lab(0.3, 0.52)); tag('t2', 'Circuit board', W2(CB, P.board), -W * 0.12, H * 0.07, lab(0.4, 0.62));
-    tag('t3', 'Magnet', W2(CB, P.mag.R), W * 0.16, -H * 0.07, lab(0.5, 0.72)); tag('t4', 'Charging contacts', W2(CB, P.pins.R), -W * 0.06, H * 0.075, lab(0.6, 0.86), 'gold');
+    tag('t3', 'Magnet', W2(CB, P.mag.R), W * 0.16, -H * 0.07, lab(0.5, 0.72)); tag('t4', 'Charging contacts', W2(CB, P.pins.R), -W * 0.2, -H * 0.05, lab(0.6, 0.86), 'gold');
     note('Illustrative · not to scale', 1);
   },
   (k, u, t, d) => { // 3. macro: the earbud comes down, the magnet pulls it in, the spring contacts compress, gold glow
@@ -671,12 +672,12 @@ const SHOTS = [
     const b = CA.buds.R; b.g.position.y += lift; b.g.rotation.z = -0.04 * Math.min(1, lift / 15); pins('R', lift);
     const on = ramp(k, 0.655, 0.7), pulse = 0.75 + 0.25 * Math.sin(t * 9); GLOW.pin.emissiveIntensity = 2.2 * on * pulse; P.gold.visible = on > 0.01; P.gold.material.opacity = on * 0.85 * pulse;
     P.magGlow.visible = true; P.magGlow.material.opacity = 0.55 * bump(k, 0.36, 0.72);
-    const a = lerp(-0.3, 0.42, ease(k)), r = lerp(58, 44, ease(ramp(k, 0.2, 0.8))), ty = -1.2 + 0.3 * lift;
+    const a = lerp(-0.3, 0.42, ease(k)), r = lerp(70, 56, ease(ramp(k, 0.2, 0.8))), ty = -2.4 + 0.3 * lift;
     look(W2(CB, STEM.R.clone().add(V(Math.sin(a) * r, 7 + 0.5 * lift, Math.cos(a) * r))), W2(CB, STEM.R.clone().add(V(0, ty, 0))), FOV.macro);
     focus(2.6 * bump(k, 0.5, 0.68));   // rack focus: earbud → contact point
     head('Contacts connect', easeOut(ramp(k, 0.05, 0.2)) * (1 - ease(ramp(k, 0.9, 1))), 'gold');
     tag('m1', 'Magnet pulls it in', W2(CB, P.mag.R), -W * 0.24, -H * 0.05, bump(k, 0.34, 0.66) > 0.2 ? ease(ramp(k, 0.34, 0.42)) * (1 - ease(ramp(k, 0.6, 0.68))) : 0);
-    tag('m2', 'Spring contacts', W2(CB, P.pins.R), -W * 0.2, H * 0.08, ease(ramp(k, 0.7, 0.78)) * (1 - ease(ramp(k, 0.92, 1))), 'gold');
+    tag('m2', 'Spring contacts', W2(CB, P.pins.R), -W * 0.26, -H * 0.02, ease(ramp(k, 0.7, 0.78)) * (1 - ease(ramp(k, 0.92, 1))), 'gold');
     note('Illustrative · not to scale', 1);
   },
   (k, u, t, d) => { // 4. follow the energy: battery → board → contacts → earbud; pull back to the whole system
@@ -685,8 +686,8 @@ const SHOTS = [
     P.battGlow.visible = true; P.battGlow.material.opacity = 0.75 * ease(ramp(k, 0.02, 0.14)) * (0.8 + 0.2 * Math.sin(t * 6));
     GLOW.pin.emissiveIntensity = 1.2 + 0.6 * Math.sin(t * 9); P.gold.visible = true; P.gold.material.opacity = 0.5;
     const fill = ease(ramp(k, 0.58, 1)); for (const s of ['R', 'L']) { const b2 = CA.buds[s]; b2.batGlow.visible = fill > 0.01; b2.batGlow.material.opacity = fill * (0.55 + 0.25 * Math.sin(t * 7)); b2.batGlow.scale.setScalar(8 + 5 * fill); b2.batCell.material.emissiveIntensity = fill; }
-    const hd = W2(CB, POWER.R.curve.getPoint(Math.min(0.999, pe))), ride = hd.clone().add(V(-9, 9, 62)), P3 = W2(CB, STEM.R.clone().add(V(Math.sin(0.42) * 44, 7, Math.cos(0.42) * 44))), T3 = W2(CB, STEM.R.clone().add(V(0, -1.2, 0)));
-    const q = ease(ramp(k, 0, 0.14)), z = ease(ramp(k, 0.6, 0.92)), PW = W2(CB, V(-16, 22, 236)), TW = W2(CB, V(0, -6, 0));
+    const hd = W2(CB, POWER.R.curve.getPoint(Math.min(0.999, pe))), ride = hd.clone().add(V(-9, 9, 96)), P3 = W2(CB, STEM.R.clone().add(V(Math.sin(0.42) * 56, 7, Math.cos(0.42) * 56))), T3 = W2(CB, STEM.R.clone().add(V(0, -2.4, 0)));
+    const q = ease(ramp(k, 0, 0.14)), z = ease(ramp(k, 0.6, 0.92)), PW = W2(CB, V(-20, 26, 345)), TW = W2(CB, V(0, -5, 0));
     look(vlerp(vlerp(P3, ride, q), PW, z), vlerp(vlerp(T3, hd, q), TW, z), lerp(lerp(FOV.macro, 22, q), 27, z));
     wash('green', 0.4 * fill);
     head('Power flows', easeOut(ramp(k, 0.05, 0.2)) * (1 - ease(ramp(k, 0.92, 1))), 'green');
@@ -700,8 +701,8 @@ const SHOTS = [
     const red = ease(ramp(k, 0.1, 0.4)); wash(red > 0.5 ? 'red' : 'green', red > 0.5 ? 0.9 * ease(ramp(red, 0.5, 1)) : 0.4 * (1 - red * 2)); setLight(CB, 'green', 0.9);
     const pin = easeOut(ramp(k, 0.12, 0.42)); PHONE.visible = pin > 0.001; const ph = HOME_B.clone().add(V(lerp(190, 66, pin), 4, lerp(-60, 14, pin))), ry = lerp(-1.3, -0.34, pin);
     PHONE.position.copy(ph); PHONE.rotation.set(0, ry, 0.02 * dsin(u - 0.42 * d, 2.5, 6)); PHONE.scale.setScalar(0.86); screen('alert', ramp(k, 0.38, 0.52));
-    const n = V(Math.sin(ry), 0, Math.cos(ry)), PW = W2(CB, V(-16, 22, 236)), TW = W2(CB, V(0, -6, 0));
-    const Pm = V(74, 34, 372), Tm = HOME_B.clone().add(V(30, 2, 0)), Pe = ph.clone().add(n.clone().multiplyScalar(236)).add(V(0, -22, 0)), Te = ph.clone().add(V(0, -30, 0));
+    const n = V(Math.sin(ry), 0, Math.cos(ry)), PW = W2(CB, V(-20, 26, 345)), TW = W2(CB, V(0, -5, 0));
+    const Pm = V(70, 34, 470), Tm = HOME_B.clone().add(V(30, 0, 0)), Pe = ph.clone().add(n.clone().multiplyScalar(352)).add(V(0, -30, 0)), Te = ph.clone().add(V(0, -39, 0));
     const q = easeOut(ramp(k, 0, 0.36)), z = ease(ramp(k, 0.5, 1));
     look(vlerp(vlerp(PW, Pm, q), Pe, z), vlerp(vlerp(TW, Tm, q), Te, z), lerp(lerp(27, 30, q), FOV.close, z));
     head('The catch', easeOut(ramp(k, 0.14, 0.3)), 'red');
@@ -718,8 +719,8 @@ const SHOTS = [
       const o = CB.buds[s], st2 = dB + (s === 'L' ? 0.09 : 0), k2 = ramp(u, st2 - 0.5, st2); o.g.visible = k > 0.4; resetBud(o); o.g.position.y += 44 * (1 - ease(k2)) + 3.4 * dbnc(u - st2, 3.6, 5.5); CB.root.position.y -= 2.2 * dsin(u - st2, 2.8, 7); }
     const gA = ease(ramp(u, dA + 0.15, dA + 0.45)); setLight(CA, 'green', gA * (0.85 + 0.15 * Math.sin(t * 7)));
     const bB = u > dB + 0.2; setLight(CB, 'amber', bB ? 0.55 + 0.45 * Math.sin(t * 9) : 0);
-    const LA = { p: HOME_A.clone().add(V(-52, 50, 318)), t: HOME_A.clone().add(V(0, -4, 0)) }, RB = { p: HOME_B.clone().add(V(52, 50, 318)), t: HOME_B.clone().add(V(0, -4, 0)) }, EN = { p: HOME_A.clone().add(V(-30, 34, 236)), t: HOME_A.clone().add(V(0, -6, 0)) };
-    const n0 = V(Math.sin(-0.34), 0, Math.cos(-0.34)), ph = HOME_B.clone().add(V(66, 4, 14)), Pe = ph.clone().add(n0.multiplyScalar(236)).add(V(0, -22, 0)), Te = ph.clone().add(V(0, -30, 0));
+    const LA = { p: HOME_A.clone().add(V(-56, 52, 372)), t: HOME_A.clone().add(V(0, -7, 0)) }, RB = { p: HOME_B.clone().add(V(56, 52, 372)), t: HOME_B.clone().add(V(0, -7, 0)) }, EN = { p: HOME_A.clone().add(V(-36, 40, 320)), t: HOME_A.clone().add(V(0, -8, 0)) };
+    const n0 = V(Math.sin(-0.34), 0, Math.cos(-0.34)), ph = HOME_B.clone().add(V(66, 4, 14)), Pe = ph.clone().add(n0.multiplyScalar(352)).add(V(0, -30, 0)), Te = ph.clone().add(V(0, -39, 0));
     const a = ease(ramp(k, 0.0, 0.17)), b2 = ease(ramp(k, 0.4, 0.54)), c = ease(ramp(k, 0.8, 1));
     look(vlerp(vlerp(vlerp(Pe, LA.p, a), RB.p, b2), EN.p, c).add(V(6 * Math.sin(t * 0.7), 0, 0)), vlerp(vlerp(vlerp(Te, LA.t, a), RB.t, b2), EN.t, c), lerp(FOV.close, 27, a));
     head('Compatibility<br>matters', easeOut(ramp(k, 0.1, 0.22)) * (1 - ease(ramp(k, 0.92, 1))));
@@ -732,10 +733,10 @@ const SHOTS = [
     for (const s of ['R', 'L']) { const b = CA.buds[s]; seat(b, CA); b.g.position.y += 12 * bump(k, 0.04, 0.34) + 2.6 * dbnc(u - 0.34 * d, 3.6, 6);
       const o = CB.buds[s]; resetBud(o); o.g.visible = k < 0.16; o.g.position.y += 60 * ease(ramp(k, 0, 0.16)); }
     setLight(CA, 'green', (1 - ease(ramp(k, 0.86, 1))) * (0.85 + 0.15 * Math.sin(t * 7))); wash('green', 0.5 * bump(k, 0.1, 0.9));
-    const EN = { p: HOME_A.clone().add(V(-30, 34, 236)), t: HOME_A.clone().add(V(0, -6, 0)) }, e = ease(ramp(k, 0.0, 0.8));
+    const EN = { p: HOME_A.clone().add(V(-36, 40, 320)), t: HOME_A.clone().add(V(0, -8, 0)) }, e = ease(ramp(k, 0.0, 0.8));
     look(bez(EN.p, V(-120, 60, 250), CAM0.p, e), vlerp(EN.t, CAM0.t, e), lerp(27, CAM0.f, e));
     head('Yes. <i>If compatible.</i>', easeOut(ramp(k, 0.04, 0.2)) * (1 - ease(ramp(k, 0.9, 0.99))), 'green');
-    note('@TheInvisiTech · follow for more', easeOut(ramp(k, 0.3, 0.45)) * (1 - ease(ramp(k, 0.9, 0.99))));
+    note('Follow for more', easeOut(ramp(k, 0.3, 0.45)) * (1 - ease(ramp(k, 0.9, 0.99))));
   },
 ];
 const KEYS = ['friend’s case', "friend's case", 'a catch', 'power system', 'metal contacts', 'charging circuit', 'Power flows', 'circuit board', 'earbuds', 'work normally', 'compatible case', 'may not fit', 'charge correctly', 'So yes', 'AirPods'];
