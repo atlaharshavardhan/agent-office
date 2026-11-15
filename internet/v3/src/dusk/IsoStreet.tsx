@@ -212,6 +212,7 @@ export const IsoHook: React.FC = () => <IsoStreet hook />;
 export const IsoFull: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire /></Sequence><Sequence from={690} durationInFrames={504}><IsoStreet move /></Sequence></AbsoluteFill>);
 export const IsoWire: React.FC = () => <IsoStreet wire />;
 export const IsoDetail: React.FC = () => <IsoStreet hook detail mute />;
+export const IsoMoveDetail: React.FC = () => <IsoStreet move detail />;
 /* street scene (local 0 - 9.5 s): the neighbours want in, 45 wires tangle, one router box untangles it */
 const NET_KEYS: Key[] = [[0, 590, 900, 1.15], [0.4, 590, 900, 1.15], [1.7, 600, 960, 0.64], [9.5, 600, 960, 0.67]];
 const NVO: [number, React.ReactNode][] = [[0.3, <>Now the whole <em>street</em> wants in.</>], [2.3, <>Ten houses would need <em>forty-five</em> wires!</>], [5.0, <>So every wire goes to <em>one box:</em></>], [7.2, <>the <em>router.</em></>]];
