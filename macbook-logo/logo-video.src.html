@@ -60,6 +60,7 @@
 <div id="fade"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="../face-id/assets/GLTFLoader.js"></script>
+<script src="assets/Reflector.js"></script>
 <script src="assets/mbp-data.js"></script>
 <script>
 (() => {
@@ -92,7 +93,7 @@ backdrop.frustumCulled = false; backdrop.renderOrder = -10; scene.add(backdrop);
   for (const [px, py, pz, s] of [[60, 50, 40, 40], [-70, 30, -30, 30], [0, 80, -60, 50], [40, -10, 80, 25]]) { const q = new THREE.Mesh(new THREE.PlaneGeometry(s, s), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })); q.position.set(px, py, pz); q.lookAt(0, 0, 0); env.add(q); }
   scene.environment = pm.fromScene(env, 0.04).texture;
 }
-scene.fog = new THREE.Fog(0x07080c, 1750, 2700);
+scene.fog = new THREE.Fog(0x07080c, 2100, 3200);
 const hemi = new THREE.HemisphereLight(0x9aa4c0, 0x120e12, 0.5); scene.add(hemi);
 const key = new THREE.DirectionalLight(0xfff1e6, 1.2); key.position.set(500, 700, -600); scene.add(key);
 const rim = new THREE.DirectionalLight(0x8fa8ff, 0.9); rim.position.set(-600, 300, 700); scene.add(rim);
@@ -105,6 +106,13 @@ function deskTex() { const c = document.createElement('canvas'); c.width = c.hei
   const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(3, 3); return t; }
 const DESK = new THREE.Mesh(new THREE.CircleGeometry(1500, 64), new THREE.MeshStandardMaterial({ map: deskTex(), roughness: 0.85, metalness: 0, envMapIntensity: 0.25, transparent: true, depthWrite: false }));
 DESK.rotation.x = -Math.PI / 2; DESK.position.y = 0; scene.add(DESK);
+/* mirror effect: the glossy desk reflects the laptop and its glow, fading out towards the edge */
+const MIRROR = new THREE.Reflector(new THREE.CircleGeometry(1500, 64), { textureWidth: Math.round(W * renderer.getPixelRatio()), textureHeight: Math.round(H * renderer.getPixelRatio()), clipBias: 0.003,
+  shader: { uniforms: { color: { value: null }, tDiffuse: { value: null }, textureMatrix: { value: null }, strength: { value: 0.8 }, scrH: { value: H * renderer.getPixelRatio() } },
+    vertexShader: 'uniform mat4 textureMatrix; varying vec4 vUv; varying vec2 vP; void main(){ vUv = textureMatrix * vec4(position, 1.0); vP = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'uniform sampler2D tDiffuse; uniform float strength; uniform float scrH; varying vec4 vUv; varying vec2 vP; void main(){ vec4 b = texture2DProj(tDiffuse, vUv); float f = smoothstep(0.42, 0.06, distance(vP, vec2(0.5))); float y = gl_FragCoord.y / scrH; f *= smoothstep(0.35, 0.5, y); gl_FragColor = vec4(pow(b.rgb, vec3(0.6)), f * strength); }' } });
+MIRROR.material.transparent = true; MIRROR.material.depthWrite = false; MIRROR.rotation.x = -Math.PI / 2; MIRROR.position.y = 0.05; MIRROR.renderOrder = 1; scene.add(MIRROR);
+{ const ob = MIRROR.onBeforeRender; MIRROR.onBeforeRender = function (...a) { backdrop.visible = false; ob.apply(this, a); backdrop.visible = true; }; }
 { // soften the desk's edge into the backdrop
   const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'), g = x.createRadialGradient(128, 128, 30, 128, 128, 128);
   x.fillStyle = '#000'; x.fillRect(0, 0, 256, 256); g.addColorStop(0, '#fff'); g.addColorStop(0.25, '#b0b0b0'); g.addColorStop(0.7, '#202020'); g.addColorStop(1, '#000'); x.fillStyle = g; x.fillRect(0, 0, 256, 256);
@@ -302,7 +310,7 @@ const SHOTS = [
     lidOpen(OPEN); explode(0); setXray(0); room(0); ledOn([]); diffGlow(0);
     const wake = ease(ramp(u, 0.15, 0.6)), g = ease(ramp(u, 0.35, 1.3));
     screenOn(wake, 0); logoGlow(g);
-    VO = 0.02; orbit(lidPoint(LOGO_C).add(new THREE.Vector3(0, -38, 0)), -14 + 6 * u, 12 + 1.2 * u, 1500 - 120 * u);
+    VO = 0.075; orbit(lidPoint(LOGO_C).add(new THREE.Vector3(0, -38, 0)), -14 + 6 * u, 12 + 1.2 * u, 1780 - 140 * u);
     title(['Back after', '<em>10 years</em>'], [0.25, 0.55], u);
   }],
   [B[1], B[2], (u, d) => { // 2. orbit to the side; the lid turns to glass: the OLED only lights forward
@@ -361,7 +369,7 @@ const SHOTS = [
     room(day * 0.85);
     const glowK = 0.62 + 0.38 * day - 0.32 * night, off = ease(ramp(u, 6.4, 6.9));
     logoGlow(glowK * (1 - off));
-    VO = 0.0; orbit(lidPoint(LOGO_C).add(new THREE.Vector3(0, -40, 0)), lerp(-6, 8, u / d), 11, 1400);
+    VO = 0.075; orbit(lidPoint(LOGO_C).add(new THREE.Vector3(0, -40, 0)), lerp(-6, 8, u / d), 11, 1700);
     const cardA = ease(ramp(u, 0.2, 0.6)) * (1 - ease(ramp(u, 5.0, 5.3)));
     roomCard(cardA, day * 0.85 + 0.15 * (1 - night), glowK * (1 - off), night > 0.5);
     switchCard(ease(ramp(u, 5.4, 5.8)), 1 - ease(ramp(u, 6.3, 6.6)));
@@ -369,7 +377,7 @@ const SHOTS = [
   }],
   [B[6], B[7], u => { // 7. end card
     lidOpen(OPEN); explode(0); setXray(0); ledOn([]); diffGlow(0); screenOn(1, 0); room(0); logoGlow(1);
-    VO = 0.0; orbit(lidPoint(LOGO_C).add(new THREE.Vector3(0, -40, 0)), -10 + 6 * u, 11, 1300);
+    VO = 0.075; orbit(lidPoint(LOGO_C).add(new THREE.Vector3(0, -40, 0)), -10 + 6 * u, 11, 1600);
     renderer.domElement.style.filter = 'blur(12px) brightness(0.85) saturate(1.3)';
     END.a = easeOut(ramp(u, 0, 0.45)); END.brand = ramp(u, 0.75, 2.4);
   }],

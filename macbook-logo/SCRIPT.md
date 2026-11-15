@@ -47,4 +47,4 @@ Sources:
 - Script v2 and the Apple logo approved (logo shown with "3D illustration · not affiliated with Apple" on screen the whole time).
 - Voice: Michael (Kokoro am_michael, speed 1.12): `voice/make_voice.py` then `voice/make_timeline.py` → `voice/voice.wav`, `timeline.json` (scene cuts), `captions.json`, `../macbook-logo-glow.en.srt`. 39.2 s; voice 0.6–36.8 s.
 - Scene page: `logo-video.src.html` → `python3 build-data.py && python3 build-video.py` → `logo-video.html` (self-contained). Stills: `./sheet.sh <dir> <sheet.jpg> t1 t2 …` (uses `render.cjs`, which needs three.js + fonts in `../phone-teardown`, see its README).
-- Stills v1 in `stills-v1/` (board.jpg, board-safe-zones.jpg): waiting for Harsh's OK before the video render.
+- Stills v1 in `stills-v1/`. Stills v2 in `stills-v2/`: + mirror effect (glossy desk reflects the laptop and the glowing logo, fading out above the subtitles; `assets/Reflector.js` from three.js r128, MIT), wide shots pulled back to make room for the reflection. Waiting for Harsh's OK before the video render.
