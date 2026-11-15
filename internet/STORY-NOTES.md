@@ -24,3 +24,9 @@
   4. She moves overseas: glass cable under the sea, light inside it; anchors cut cables, so there are hundreds.
   5. Ending: he still reaches her instantly; "that is how this video reached you".
 - He stays on his balcony the whole time; the camera travels with her.
+
+## Step 2 look chosen (15 Nov 2026)
+- Router scene uses the simple version: small router, one cyan wire per house, dots flowing towards the router, door numbers -> IP addresses.
+- The full glowing web/mesh (dots + thin lines + bokeh over the whole neighbourhood) is built but switched off (MESH_ON in IsoStreet.tsx).
+  Harsh wants to use it LATER, for a bigger-network scene (city / world).
+- Timing is not final; to be fixed later.

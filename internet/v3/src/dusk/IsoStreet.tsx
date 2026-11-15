@@ -180,6 +180,7 @@ export const IsoNet: React.FC = () => <IsoStreet net />;
 const MOVE_KEYS: Key[] = [[0, 590, 900, 1.12], [0.5, 590, 900, 1.12], [2.0, 1000, 1040, 0.63], [16.8, 1000, 1040, 0.655]];
 const MVO: [number, React.ReactNode][] = [[0.2, <>Then she moves to a <em>hostel.</em> New wire.</>], [3.2, <>Then a friend's place. <em>Another wire.</em></>], [5.1, <>Then <em>another!</em></>], [6.0, <>Now the neighbours want in <em>too.</em></>], [7.4, <>So every house plugs into <em>one box:</em></>], [8.9, <>the <em>router.</em></>], [9.9, <>Every house gets a number, like a <em>door number.</em></>], [12.75, <>That's its <em>IP address.</em></>], [14.4, <>The router reads it and <em>delivers.</em></>]];
 const SHOTS = [2.2, 3.8, 5.3], AIMS: [number, number][] = [[90, 93], [60, 57], [103, 104]], ARR = [-9, 2.0, 3.5, 5.0], LEAVE = [0.6, 3.0, 4.6, 99];
+const MESH_ON = false;
 export const IsoMove: React.FC = () => <IsoStreet move />;
 /* concept stills for the "many houses" scene: 1a/1b follow her, 2a/2b neighbour chaos */
 export const Concept: React.FC<{ k: string }> = ({ k }) => <IsoStreet concept={k} />;
@@ -476,7 +477,7 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
                 return <g key={i}><polyline points={curve(q, RT, 22, u)} fill="none" stroke="#5fe3ff" strokeWidth={15} opacity={0.22} filter="url(#iB)" /><polyline points={curve(q, RT, 22, u)} fill="none" stroke="#9fe9ff" strokeWidth={5} strokeLinecap="round" />
                   {live > 0 && <circle cx={lerp(q[0], RT[0], kk)} cy={lerp(q[1], RT[1], kk) + 22 * Math.sin(Math.PI * kk)} r={7} fill="#fff" opacity={live} />}{i > 4 && <circle cx={q[0]} cy={q[1]} r={9} fill="#0e1430" stroke="#5fe3ff" strokeWidth={3} />}</g>; })}
               {/* the network mesh: glowing dots on every house, thin lines to their nearest neighbours, soft bokeh */}
-              {(() => { const mesh = prog(f, 8.1, 9.6);
+              {(() => { const mesh = MESH_ON ? prog(f, 8.1, 9.6) : 0;   // full web look is kept for a later scene
                 if (mesh <= 0) return null;
                 const pts: number[][] = [RT as unknown as number[], ...star.map(([q]) => q as unknown as number[])];
                 [-19.5, -16, -12.5, -9.9, -6.5, -3.4, 0, 3.4, 6, 8.6, 11.5, 14.6, 17.5, 20.5].forEach((y, r) => { for (let x = -18; x <= 18; x += 2.2) { const xx = x + (r % 2) * 1.5 + (hash(r * 31 + x) - 0.5) * 0.8, q = iso(xx, y + (hash(r * 17 + x * 3) - 0.5) * 1.2, 2.6 + hash(r * 7 + x) * 2.2); if (pts.every((o) => Math.hypot(o[0] - q[0], o[1] - q[1]) > 105)) pts.push([q[0], q[1]]); } });
