@@ -1,0 +1,104 @@
+<title>Internet Short Tracker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one column. A film strip of the 89 seconds drawn to scale, then the parts as a table, then open issues. */
+:root {
+  --bg: #f3f4fb; --panel: #ffffff; --ink: #14183a; --soft: #5b6190; --line: #d9dcef;
+  --cyan: #0a8fb0; --gold: #b07a10; --coral: #d2553f;
+  --ready: #1c8a5a; --run: #b07a10; --wait: #7a80a8;
+  --ui: 'Manrope', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #070a22; --panel: #0e1430; --ink: #eef1ff; --soft: #a9b4dd; --line: #262c5c;
+  --cyan: #5fe3ff; --gold: #ffd38a; --coral: #ff9c8a; --ready: #7dffb0; --run: #ffd38a; --wait: #7a84b8; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #070a22; --panel: #0e1430; --ink: #eef1ff; --soft: #a9b4dd; --line: #262c5c;
+  --cyan: #5fe3ff; --gold: #ffd38a; --coral: #ff9c8a; --ready: #7dffb0; --run: #ffd38a; --wait: #7a84b8; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font: 500 16px/1.55 var(--ui); padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
+h1 { font: 800 30px/1.15 var(--ui); margin: 0; text-wrap: balance; }
+h2 { font: 800 19px/1.2 var(--ui); margin: 0 0 12px; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow { font: 700 12px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--soft); }
+.head { display: flex; flex-direction: column; gap: 8px; }
+.updated { font: 500 13px var(--mono); color: var(--soft); }
+.strip { display: flex; gap: 3px; height: 46px; border-radius: 10px; overflow: hidden; }
+.strip div { min-width: 0; display: flex; align-items: center; justify-content: center; font: 700 11px var(--mono); color: var(--bg); }
+.s-ready { background: var(--ready); } .s-run { background: var(--run); } .s-wait { background: var(--wait); }
+.scale { display: flex; justify-content: space-between; font: 500 12px var(--mono); color: var(--soft); margin-top: 6px; font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--soft); margin-top: 10px; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 14.5px; }
+th { text-align: left; font: 700 11.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); padding: 12px 14px; border-bottom: 1px solid var(--line); }
+td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.num { font: 500 13.5px var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pill { display: inline-block; font: 700 11.5px var(--mono); letter-spacing: .06em; padding: 3px 9px; border-radius: 20px; border: 1.5px solid currentColor; white-space: nowrap; }
+.ready { color: var(--ready); } .run { color: var(--run); } .wait { color: var(--wait); }
+ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 7px; max-width: 70ch; }
+code { font: 500 13px var(--mono); color: var(--cyan); overflow-wrap: anywhere; }
+.note { color: var(--soft); font-size: 14px; }
+</style>
+<main>
+  <div class="head">
+    <div class="eyebrow">InvisiTech · YouTube Short</div>
+    <h1>How the internet works, from one torch to the whole world</h1>
+    <p>Where each part of the film stands. Clips are sent in the chat as they finish; when every part is rendered they are joined into one 1080 × 1920 preview.</p>
+    <div class="updated">Last updated 15 Nov 2026, 13:35 UTC</div>
+  </div>
+
+  <section>
+    <h2>The film, to scale (about 89 seconds)</h2>
+    <div class="strip" role="img" aria-label="Film timeline: opening ready, rest of street rendering, cities waiting, second half rendering">
+      <div class="s-ready" style="flex:4.2" title="Opening, 0 to 4 s">1</div>
+      <div class="s-run" style="flex:37.3" title="Street, 4 to 41.5 s">street</div>
+      <div class="s-wait" style="flex:13" title="Cities, 41.5 to 54.5 s">cities</div>
+      <div class="s-run" style="flex:34.2" title="Second half, 54.5 to 88.7 s">second half</div>
+    </div>
+    <div class="scale"><span>0 s</span><span>41.5 s</span><span>54.5 s</span><span>88.7 s</span></div>
+    <div class="legend"><span><span class="dot s-ready"></span>Sent to you</span><span><span class="dot s-run"></span>Rendering now</span><span><span class="dot s-wait"></span>Waiting its turn</span></div>
+  </section>
+
+  <section>
+    <h2>Parts</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Part</th><th>What happens</th><th>Time in film</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>1 · Opening</td><td>Torch already up, beam crosses the street, title “This torch explains the internet.”</td><td class="num">0:00 – 0:04</td><td><span class="pill ready">SENT</span></td></tr>
+        <tr><td>2 · Torch and “Hi”</td><td>On is one, off is zero. First-person shot: 16 blinks spell “Hi”. Hello takes forty blinks.</td><td class="num">0:04 – 0:16</td><td><span class="pill run">RENDERING</span></td></tr>
+        <tr><td>3 · Wire</td><td>The wire between balconies, with the cut-open glass fibre and a billion blinks a second.</td><td class="num">0:16 – 0:23</td><td><span class="pill run">RENDERING</span></td></tr>
+        <tr><td>4 · Neighbours and router</td><td>She moves house, wires pile up, one router, door numbers become IP addresses, router close-up.</td><td class="num">0:23 – 0:41</td><td><span class="pill run">RENDERING</span></td></tr>
+        <tr><td>5 · Cities</td><td>She moves to Mumbai. The message hops Hyderabad, Solapur, Pune, Mumbai. She replies.</td><td class="num">0:41 – 0:54</td><td><span class="pill wait">WAITING</span></td></tr>
+        <tr><td>6 · Packets</td><td>His video is cut into 12 numbered pieces, each takes its own road, her phone puts them back in order.</td><td class="num">0:54 – 1:00</td><td><span class="pill run">RENDERING</span></td></tr>
+        <tr><td>7 · Flight and cable</td><td>She flies to London. A cable is drawn from Mumbai to the UK along the real sea route.</td><td class="num">1:00 – 1:07</td><td><span class="pill run">RENDERING</span></td></tr>
+        <tr><td>8 · Under the sea</td><td>The seabed cable, a lens showing steel armour, copper and glass fibres, then the planet's cables.</td><td class="num">1:07 – 1:13</td><td><span class="pill run">RENDERING</span></td></tr>
+        <tr><td>9 · Cable cut</td><td>A ship's anchor snaps the cable. 570+ cables exist, so the packets go the long way round Africa.</td><td class="num">1:13 – 1:18</td><td><span class="pill run">RENDERING</span></td></tr>
+        <tr><td>10 · Ending</td><td>Her reply from a London balcony, his reaction on his own balcony with the torch on the railing, end card.</td><td class="num">1:18 – 1:29</td><td><span class="pill run">RENDERING</span></td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:10px">Parts 2 to 5 and parts 6 to 10 render side by side on one machine, so each batch takes roughly 20 to 40 minutes.</p>
+  </section>
+
+  <section>
+    <h2>Open points for your decision</h2>
+    <ul>
+      <li>The new scenes (parts 6 to 10, the “Hi” shot, the fibre and router close-ups) are flat front-on drawings. The street and cities are isometric. Same colours and characters, two drawing styles.</li>
+      <li>In the “Hi” shot the bubble reads “Hi” for only about a tenth of a second before the cut.</li>
+      <li>Torch click sounds are still timed for 8 blinks, not 16.</li>
+      <li>Subtitles sit over the phone in the packets scene and over the house wall in the London and ending scenes.</li>
+      <li>Nothing has been watched in motion yet. Checks so far are stills and file validity.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>After your approval</h2>
+    <ul>
+      <li>Join all parts into one file: <code>internet/video/internet-full-film-v3.mp4</code></li>
+      <li>Export the 4K master.</li>
+      <li>Title, description and thumbnail.</li>
+    </ul>
+    <p class="note" style="margin-top:10px">The last working version before these changes is kept as <code>internet/video/internet-full-cine-v2.mp4</code>.</p>
+  </section>
+</main>
