@@ -314,12 +314,14 @@ function buildBudInternals(b) {
 }
 
 /* free engraving (names + emoji), like Apple offers, so we can tell the two cases apart */
-const ENGRAVE = { A: ['Harsha', '🚀'], B: ['Karan', '🎸'] };
+const ENGRAVE = { A: ['Harsha', '⭐'], B: ['Karan', '🌙'] };
 function engraveTex(name, emoji) {
   const c = document.createElement('canvas'); c.width = 512; c.height = 256; const x = c.getContext('2d');
   x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.filter = 'grayscale(1) contrast(1.4) brightness(1.1)'; x.font = '150px "Noto Color Emoji"'; x.fillText(emoji, 256, 92); x.filter = 'none';
-  x.font = '600 78px Sora, Arial'; x.fillStyle = '#000'; x.fillText(name, 256, 206);
+  // one line, name then a small emoji, like a simple engraving
+  x.font = '500 72px Sora, Arial'; x.fillStyle = '#000'; const tw = x.measureText(name).width, ew = 64, gap = 18, x0 = 256 - (tw + gap + ew) / 2;
+  x.textAlign = 'left'; x.fillText(name, x0, 150);
+  x.filter = 'grayscale(1) contrast(1.3)'; x.font = '58px "Noto Color Emoji"'; x.fillText(emoji, x0 + tw + gap, 146); x.filter = 'none';
   // engraved look: soft grey etch with a faint dark lower edge
   const d = x.getImageData(0, 0, 512, 256), px = d.data;
   for (let i = 0; i < px.length; i += 4) { const lum = (px[i] + px[i + 1] + px[i + 2]) / 3, a = px[i + 3] / 255; px[i] = px[i + 1] = px[i + 2] = 95 + lum * 0.25; px[i + 3] = a * 255 * 0.92; }
@@ -573,7 +575,7 @@ const SHOTS = [
     setLight(CB, 'white', 0.9 * bump(u, 1.4, 1.95)); setLight(CA, 'green', 0);
     VO = 0.0; look(V(0, 150, 590), V(0, 6, 0));
     title([], [], 1); back(['Wrong', 'case?'], 'Will it charge?', 1, '16%');
-    tag('ya', 'Yours · Harsha 🚀', W2(CA, V(0, -36, 6)), 0, 34, 1, '', true); tag('fr', 'Friend’s · Karan 🎸', W2(CB, V(0, -36, 6)), 0, 34, 1, '', true);
+    tag('ya', 'Yours · Harsha ⭐', W2(CA, V(0, -36, 6)), 0, 34, 1, '', true); tag('fr', 'Friend’s · Karan 🌙', W2(CB, V(0, -36, 6)), 0, 34, 1, '', true);
     note('3D illustration · not affiliated with Apple', 1, true);
   },
   (u, t) => { // 2. close on case B, "?" over the status light
@@ -628,7 +630,7 @@ const SHOTS = [
     link(W2(CA, V(0, 6, 0)), W2(CB, V(0, 10, 0)).add(V(0, 0, 0)), lk, brk, t);
     tag('set', 'Paired as a set', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, -14, 0)), 0, 0, lk * (1 - brk), '', true);
     glyph('big', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, 12, 0)), ease(ramp(u, 6.4, 6.8)), 0.35);
-    tag('ya2', 'Harsha’s case 🚀', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8))); tag('fr2', 'Karan’s case 🎸', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8)));
+    tag('ya2', 'Harsha’s case ⭐', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8))); tag('fr2', 'Karan’s case 🌙', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8)));
     title(['Now the <em>catch</em>…', '<em>“Mismatched AirPods Pro”</em>'], [0.0, 1.0], u);
   },
   (u, t) => { // 6. back in their own case (or set up again): warning gone
@@ -640,7 +642,7 @@ const SHOTS = [
     VO = 0.0; look(V(0, 10, 628), V(0, 0, 0));
     title(['Own case <em class="g">✓</em>', 'or <em class="b">set up again</em>'], [0.6, 3.6], u);
     note('…after your friend removes them from <b>their Find My</b>', ease(ramp(u, 4.2, 4.6)), true); $('note').style.top = '20.6%'; $('note').style.fontSize = '3.4vw'; $('note').style.color = '#cfe9ff';
-    tag('ya3', 'Harsha’s case 🚀', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, 1); tag('fr3', 'Karan’s case 🎸', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, 1);
+    tag('ya3', 'Harsha’s case ⭐', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, 1); tag('fr3', 'Karan’s case 🌙', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, 1);
   },
   (u, t) => { // 7. a different generation: fits perfectly, still doesn't work properly
     CA.root.visible = false; CB.root.position.set(8.7, 2, 0); CB.root.rotation.set(0.1, -0.2, 0); setLid(CB, 1);
