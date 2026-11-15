@@ -8,6 +8,7 @@
   #bloom { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; filter: blur(1.5vw) brightness(1.2); mix-blend-mode: screen; opacity: .2; }
   #vig { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(120% 78% at 50% 46%, transparent 52%, rgba(2,4,9,.55) 100%); }
   #title .t-head { display: block; font: 800 7.6vw/1.06 Inter, Arial, sans-serif; text-transform: uppercase; color: #F5F5F7; text-shadow: 0 0.6vw 3vw rgba(0,0,0,.7); }
+  #title .t-head.hook { line-height: 0.96; letter-spacing: -0.02em !important; transform-origin: 50% 40%; }
   #title .t-head.red { color: #FF4545; } #title .t-head.green i { font-style: normal; color: #22C55E; } #title .t-head.gold { color: #F5F5F7; }
   #back { position: fixed; z-index: 0; left: 0; right: 0; text-align: center; color: #f5f5f7; font: 800 23vw/0.98 Inter, Arial, sans-serif; letter-spacing: -0.05em; text-transform: uppercase; pointer-events: none; opacity: 0; }
   #back .ln { display: block; } #back small { display: block; font: 600 4.6vw Inter, Arial, sans-serif; letter-spacing: -0.01em; color: var(--acc); margin-bottom: 2.4vw; }
@@ -16,7 +17,7 @@
   #shBot { bottom: 0; height: 38%; background: linear-gradient(transparent 0%, rgba(5,8,14,.16) 22%, rgba(5,8,14,.16) 40%, rgba(5,8,14,.5) 70%, rgba(5,8,14,.72) 100%); }
   .ov { position: fixed; z-index: 3; pointer-events: none; }
   /* safe zones (1080x1920): title 220-450 px, subject 450-1500, subtitles 1250-1450, nothing right of 940 below 1100 */
-  #title { top: 12.2%; left: 4%; right: 4%; text-align: center; color: #fff; font: 600 4.1vw/1.2 Inter, Arial, sans-serif; letter-spacing: -0.01em; }
+  #title { top: 11.8%; left: 4%; right: 4%; text-align: center; color: #fff; font: 600 4.1vw/1.2 Inter, Arial, sans-serif; letter-spacing: -0.01em; }
   #sub em { font-style: normal; color: var(--acc); }
   #title .t-top { display: block; color: rgba(255,255,255,.92); font-weight: 600; }
   #title .t-big { display: block; color: var(--acc); font: 700 8.6vw/1.08 Inter, Arial, sans-serif; letter-spacing: -0.03em; margin: 0.6vw 0 0.8vw; }
@@ -4588,7 +4589,7 @@ const HOME_A = V(-21, -8, 30), HOME_B = V(21, 8, -30);
 const bez = (a, b, c, k) => a.clone().multiplyScalar((1 - k) * (1 - k)).add(b.clone().multiplyScalar(2 * (1 - k) * k)).add(c.clone().multiplyScalar(k * k));
 const FOV = { hero: 30, close: 24, macro: 19 };                     // ≈ 50 mm, 85 mm, 105 mm on a tall frame
 const CAM0 = { p: V(-90, 46, 452), t: V(0, -6, 0), f: FOV.hero };    // opening = closing frame (seamless loop)
-function head(txt, a, cls) { const el = $('title'); const key = 'H|' + txt + cls; if (key !== lastTitle) { lastTitle = key; el.innerHTML = `<span class="t-head ${cls || ''}" style="font-size:${txt.replace(/<[^>]+>/g, '').length > 20 ? 5.5 : 7.6}vw">${txt}</span>`; }
+function head(txt, a, cls) { const el = $('title'); const key = 'H|' + txt + cls; if (key !== lastTitle) { lastTitle = key; el.innerHTML = `<span class="t-head ${cls || ''}" style="font-size:${/hook/.test(cls || '') ? 14.4 : txt.replace(/<[^>]+>/g, '').length > 20 ? 5.5 : 7.6}vw">${txt}</span>`; }
   const c = el.firstChild; if (c) { c.style.opacity = a; c.style.transform = `translateY(${(1 - a) * 1.4}vh)`; c.style.letterSpacing = (0.02 + 0.05 * (1 - a)) + 'em'; } }
 function wash(col, a) { const el = $('wash'); el.style.opacity = a; el.style.background = col === 'red' ? 'radial-gradient(90% 60% at 50% 46%, rgba(255,69,69,.34), rgba(255,69,69,.08) 55%, transparent 80%)' : 'radial-gradient(90% 60% at 50% 46%, rgba(34,197,94,.26), rgba(34,197,94,.06) 55%, transparent 80%)'; }
 function focus(px) { renderer.domElement.style.filter = px > 0.05 ? `blur(${px.toFixed(2)}px)` : ''; }
@@ -4617,7 +4618,7 @@ const SHOTS = [
     const X = camX(), q = easeOut(ramp(u, 0.02, 0.6)), z = ease(ramp(k, 0.6, 1)), P2 = W2(CB, P.light.clone().add(V(40, 24, 335))), T2 = W2(CB, P.light.clone().add(V(0, 4, 0)));
     look(vlerp(vlerp(X.p, CAM0.p, q), P2, z).add(V(26 * Math.sin(Math.PI * z), 0, 0)), vlerp(vlerp(X.t, CAM0.t, q), T2, z), lerp(lerp(X.f, CAM0.f, q), FOV.close, z));
     aside(CA, ease(ramp(k, 0.62, 0.9)));
-    head('Wrong case?', easeOut(ramp(u, 0.1, 0.4)) * (1 - ease(ramp(k, 0.9, 0.99))));
+    { const hin = easeOut(ramp(u, 0.36, 0.6)), a = hin * (1 - ease(ramp(k, 0.9, 0.99))); head('Wrong<br>case?', a, 'hook'); const c = $('title').firstChild; if (c) c.style.transform = `scale(${0.9 + 0.1 * hin})`; }
     tag('ok', 'Charging', W2(CB, P.light), -W * 0.2, H * 0.06, ease(ramp(u, 2.4, 2.7)) * (1 - ease(ramp(k, 0.84, 0.96))), 'green');
     note('3D illustration · not affiliated with Apple', ease(ramp(k, 0.3, 0.38)) * (1 - ramp(k, 0.86, 0.96)));
   },
