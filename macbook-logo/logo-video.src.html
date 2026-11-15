@@ -388,13 +388,14 @@ const SHOTS = [
     END.screen = 1; END.card = ease(ramp(u, 1.1, 1.7)); END.brand = ramp(u, 1.5, 3.0);
   }],
 ];
+const ORIG = [0, 8.06, 3.26, 6.29, 7.23, 7.52, 0];   // scene lengths the animations were written for (v1 voice)
 const CUTS = B.slice(1, -2);   // no dip to black into the end: the video shrinks onto the MacBook screen
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
   hideTags(); renderer.domElement.style.filter = ''; END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
-  fn(t - a, b - a);
+  const k = ORIG[i] ? ORIG[i] / (b - a) : 1; fn((t - a) * k, ORIG[i] || b - a);   // scenes 2–6 were timed on v1's voice: stretch them to this voice's lines
   if (i === 6) title([], [], 0);
   note((i >= 1 && i <= 4 ? '3D illustration · inner layers not to scale · not affiliated with Apple' : '3D illustration · not affiliated with Apple'), 1);
   const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
@@ -412,7 +413,7 @@ SCREEN.rotation.x = Math.PI / 2; SCREEN.position.copy(SCR_C); SCREEN.visible = f
 let SNAP = null;
 function rr(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
 function snapshot() { // the last frame of scene 6 (laptop, switch card off), kept to play on the MacBook screen
-  if (SNAP) return; const d = B[6] - B[5]; SHOTS[5][2](d - 0.001, d); renderer.render(scene, camera);
+  if (SNAP) return; const d = ORIG[5]; SHOTS[5][2](d - 0.001, d); renderer.render(scene, camera);
   SNAP = document.createElement('canvas'); SNAP.width = renderer.domElement.width; SNAP.height = renderer.domElement.height; const x = SNAP.getContext('2d'), k = SNAP.width / W;
   x.drawImage(renderer.domElement, 0, 0);
   const vw = SNAP.width / 100, sx = 15 * vw, sy = 0.136 * SNAP.height, sw = 70 * vw, sh = 14.4 * vw;   // the switch card, as it was on screen

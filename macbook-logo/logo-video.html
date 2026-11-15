@@ -3897,7 +3897,7 @@ window.MBP_GLTF = "{\"accessors\": [{\"bufferView\": 2, \"componentType\": 5126,
 </script>
 <script>
 (() => {
-const TL = {"B": [0.0, 2.64, 10.7, 13.96, 20.25, 27.48, 35.0, 39.82], "starts": [0.6, 2.83, 10.89, 14.15, 20.44, 27.67, 35.19], "total": 39.82, "voice": "am_michael", "speed": 1.12}, CAPS = [[0.6, 1.07, "This logo"], [1.07, 2.45, "shouldn't be able to glow"], [2.83, 3.73, "After ten years"], [3.73, 4.91, "Apple brought it back"], [4.91, 6.21, "on the new MacBook Pro"], [6.33, 7.37, "But its OLED screen"], [7.37, 8.25, "only makes light"], [8.25, 9.08, "from the front"], [9.2, 10.0, "There's no light"], [10.0, 10.51, "behind it"], [10.89, 11.91, "So where's the glow"], [11.91, 12.56, "coming from?"], [12.68, 13.77, "Let's open the lid"], [14.15, 15.77, "Hidden behind the screen"], [15.77, 17.06, "are four tiny LEDs"], [17.18, 17.71, "Apple says"], [17.71, 19.1, "it built this light source"], [19.1, 20.06, "just for the logo"], [20.44, 21.37, "A mirror-like layer"], [21.37, 22.36, "bounces their light"], [22.48, 23.3, "a frosted sheet"], [23.3, 24.51, "spreads it out evenly"], [24.63, 25.24, "and it shines"], [25.24, 26.04, "through the logo"], [26.16, 27.29, "No bright spots"], [27.67, 28.15, "It glows"], [28.15, 29.77, "whenever your Mac is awake"], [29.89, 31.31, "Brighter in a bright room"], [31.31, 32.46, "dimmer in a dark one"], [32.58, 33.32, "Don't like it?"], [33.44, 34.12, "Apple lets you"], [34.12, 34.81, "switch it off"], [35.19, 36.25, "Follow InvisiTech"], [36.25, 36.82, "for more"]];
+const TL = {"B": [0.0, 2.78, 11.33, 14.73, 21.2, 29.21, 36.92, 41.94], "starts": [0.6, 2.97, 11.52, 14.92, 21.39, 29.4, 37.11], "total": 41.94, "voice": "george"}, CAPS = [[0.6, 1.11, "This logo"], [1.11, 2.59, "shouldn't be able to glow"], [2.97, 3.9, "After ten years"], [3.9, 5.12, "Apple brought it back"], [5.12, 6.46, "on the new MacBook Pro"], [6.58, 7.68, "But its OLED screen"], [7.68, 8.61, "only makes light"], [8.61, 9.48, "from the front"], [9.6, 10.55, "There's no light"], [10.55, 11.14, "behind it"], [11.52, 12.55, "So where's the glow"], [12.55, 13.2, "coming from?"], [13.32, 14.54, "Let's open the lid"], [14.92, 16.55, "Hidden behind the screen"], [16.55, 17.84, "are four tiny LEDs"], [17.96, 18.52, "Apple says"], [18.52, 19.99, "it built this light source"], [19.99, 21.01, "just for the logo"], [21.39, 22.44, "A mirror-like layer"], [22.44, 23.56, "bounces their light"], [23.68, 24.57, "a frosted sheet"], [24.57, 25.88, "spreads it out evenly"], [26.0, 26.78, "and it shines"], [26.78, 27.8, "through the logo"], [27.92, 29.02, "No bright spots"], [29.4, 29.92, "It glows"], [29.92, 31.68, "whenever your Mac is awake"], [31.8, 33.16, "Brighter in a bright room"], [33.16, 34.26, "dimmer in a dark one"], [34.38, 35.2, "Don't like it?"], [35.32, 36.02, "Apple lets you"], [36.02, 36.73, "switch it off"], [37.11, 38.3, "Follow InvisiTech"], [38.3, 38.94, "for more"]];
 const Q = new URLSearchParams(location.search);
 const W = innerWidth, H = innerHeight, TOTAL = TL.total, B = TL.B;
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
@@ -4221,13 +4221,14 @@ const SHOTS = [
     END.screen = 1; END.card = ease(ramp(u, 1.1, 1.7)); END.brand = ramp(u, 1.5, 3.0);
   }],
 ];
+const ORIG = [0, 8.06, 3.26, 6.29, 7.23, 7.52, 0];   // scene lengths the animations were written for (v1 voice)
 const CUTS = B.slice(1, -2);   // no dip to black into the end: the video shrinks onto the MacBook screen
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
   hideTags(); renderer.domElement.style.filter = ''; END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
-  fn(t - a, b - a);
+  const k = ORIG[i] ? ORIG[i] / (b - a) : 1; fn((t - a) * k, ORIG[i] || b - a);   // scenes 2–6 were timed on v1's voice: stretch them to this voice's lines
   if (i === 6) title([], [], 0);
   note((i >= 1 && i <= 4 ? '3D illustration · inner layers not to scale · not affiliated with Apple' : '3D illustration · not affiliated with Apple'), 1);
   const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
@@ -4245,7 +4246,7 @@ SCREEN.rotation.x = Math.PI / 2; SCREEN.position.copy(SCR_C); SCREEN.visible = f
 let SNAP = null;
 function rr(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
 function snapshot() { // the last frame of scene 6 (laptop, switch card off), kept to play on the MacBook screen
-  if (SNAP) return; const d = B[6] - B[5]; SHOTS[5][2](d - 0.001, d); renderer.render(scene, camera);
+  if (SNAP) return; const d = ORIG[5]; SHOTS[5][2](d - 0.001, d); renderer.render(scene, camera);
   SNAP = document.createElement('canvas'); SNAP.width = renderer.domElement.width; SNAP.height = renderer.domElement.height; const x = SNAP.getContext('2d'), k = SNAP.width / W;
   x.drawImage(renderer.domElement, 0, 0);
   const vw = SNAP.width / 100, sx = 15 * vw, sy = 0.136 * SNAP.height, sw = 70 * vw, sh = 14.4 * vw;   // the switch card, as it was on screen

@@ -3,7 +3,10 @@ caption chunks (captions.json) and a sentence-level English SRT.
 Chunks are timed inside each sentence by their share of letters (after trimming the silence)."""
 import json, numpy as np, soundfile as sf
 from pathlib import Path
-HERE = Path(__file__).parent
+import sys
+ROOT = Path(__file__).parent
+WHO = sys.argv[1] if len(sys.argv) > 1 else "george"
+HERE = ROOT / WHO if WHO != "michael" else ROOT   # sentence WAVs + outputs for this voice
 S = json.load(open(HERE / "sentences.json"))
 SR = 24000
 START, IN_LINE, BETWEEN, TAIL = 0.6, 0.12, 0.38, 3.0   # voice starts over the music; breath inside a line; gap at a scene cut; end-card hold
@@ -26,9 +29,9 @@ for s in S:
 total = round(t + TAIL, 2); B.append(total)
 v = np.concatenate(parts + [np.zeros(int(TAIL * SR))])
 sf.write(HERE / "voice.wav", v, SR)
-json.dump({"B": B, "starts": starts, "total": total, "voice": "am_michael", "speed": 1.12}, open(HERE / "timeline.json", "w"))
+json.dump({"B": B, "starts": starts, "total": total, "voice": WHO}, open(HERE / "timeline.json", "w"))
 json.dump(caps, open(HERE / "captions.json", "w"))
 def ts(x): h, m, s = int(x // 3600), int(x % 3600 // 60), x % 60; return f"{h:02d}:{m:02d}:{int(s):02d},{int(round((s - int(s)) * 1000)):03d}"
 srt = "".join(f"{i}\n{ts(a)} --> {ts(b)}\n{txt}\n\n" for i, (a, b, txt) in enumerate(sents, 1))
-open(HERE.parent / "macbook-logo-glow.en.srt", "w").write(srt)
+open(ROOT.parent / "macbook-logo-glow.en.srt", "w").write(srt)
 print("B", B); print("starts", starts); print("total", total, "voice ends", round(t, 2))
