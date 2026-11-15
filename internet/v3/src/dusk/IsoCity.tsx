@@ -37,7 +37,7 @@ const CT: { c: readonly [number, number]; n: number; cols: string[]; h: [number,
   { c: [6.5, -13], n: 8, cols: ['#2f8f96', '#c95a8c', '#5a4d94'], h: [1.2, 2.8], r: 1.6, seed: 310 },
   { c: [-10, -12.5], n: 8, cols: ['#7a5ad0', '#3a6fd0', '#a3688c'], h: [1.2, 2.8], r: 1.6, seed: 340 },
 ];
-const NAMES = ['WARANGAL', 'JANGAON', 'BHONGIR', 'HYDERABAD', 'KHAMMAM', 'KARIMNAGAR', 'NALGONDA', 'SIDDIPET', 'SURYAPET', 'NIZAMABAD', 'MAHBUBNAGAR', 'MEDAK'];
+const NAMES = ['HYDERABAD', 'SOLAPUR', 'PUNE', 'MUMBAI', 'CHENNAI', 'NAGPUR', 'BENGALURU', 'AHMEDABAD', 'KOLKATA', 'DELHI', 'GOA', 'JAIPUR'];
 const LINKS: [number, number][] = [[0, 1], [1, 2], [2, 3], [1, 4], [4, 6], [6, 3], [0, 5], [5, 7], [7, 3], [2, 7], [0, 8], [8, 4], [0, 9], [9, 5], [6, 10], [10, 3], [7, 11], [11, 3], [2, 6], [1, 5]];
 const town = (c: readonly number[], n: number, cols: string[], hMin: number, hMax: number, seed: number, r: number): B[] => Array.from({ length: n }).map((_, i) => { const a = (i / n) * Math.PI * 2 + hash(seed + i) * 0.8, rr = 0.9 + hash(seed + i * 3) * r; return { x: c[0] + Math.cos(a) * rr - 0.55, y: c[1] + Math.sin(a) * rr - 0.55, w: 1.1, d: 1.1, h: hMin + hash(seed + i * 5) * (hMax - hMin), c: cols[i % cols.length], lit: 0.8 }; });
 const VO: [number, React.ReactNode][] = [[0.2, <>Then she moves to another <em>city.</em></>], [3.3, <>One router can't reach <em>that far.</em></>], [5.3, <>So routers connect to <em>other routers,</em></>], [8.0, <>and pass the message along, <em>hop by hop.</em></>]];
