@@ -40,12 +40,16 @@ td.num { font: 500 13.5px var(--mono); font-variant-numeric: tabular-nums; white
 ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 7px; max-width: 70ch; }
 code { font: 500 13px var(--mono); color: var(--cyan); overflow-wrap: anywhere; }
 .note { color: var(--soft); font-size: 14px; }
+.clips { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.clip { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.clip video { width: 100%; aspect-ratio: 9 / 16; border-radius: 12px; background: #070a22; border: 1px solid var(--line); }
+.clip b { font: 700 14.5px var(--ui); } .clip span { font: 500 12.5px var(--mono); color: var(--soft); }
 </style>
 <main>
   <div class="head">
     <div class="eyebrow">InvisiTech · YouTube Short</div>
     <h1>How the internet works, from one torch to the whole world</h1>
-    <p>Where each part of the film stands. Clips are sent in the chat as they finish; when every part is rendered they are joined into one 1080 × 1920 preview.</p>
+    <p>Where each part of the film stands. Finished clips play on this page and are also sent in the chat; when every part is rendered they are joined into one 1080 × 1920 preview.</p>
     <div class="updated">Last updated 15 Nov 2026, 13:35 UTC</div>
   </div>
 
@@ -59,6 +63,14 @@ code { font: 500 13px var(--mono); color: var(--cyan); overflow-wrap: anywhere; 
     </div>
     <div class="scale"><span>0 s</span><span>41.5 s</span><span>54.5 s</span><span>88.7 s</span></div>
     <div class="legend"><span><span class="dot s-ready"></span>Sent to you</span><span><span class="dot s-run"></span>Rendering now</span><span><span class="dot s-wait"></span>Waiting its turn</span></div>
+  </section>
+
+  <section>
+    <h2>Watch the finished parts</h2>
+    <div class="clips">
+      <div class="clip"><video id="v-part-01" src="part-01.mp4" controls playsinline preload="metadata"></video><b>1 · Opening</b><span>0:00 – 0:04 · with sound</span></div>
+    </div>
+    <p class="note" style="margin-top:10px">These are smaller copies for quick viewing (720 × 1280). The full-quality files are the ones sent in the chat. New parts appear here as they finish.</p>
   </section>
 
   <section>
