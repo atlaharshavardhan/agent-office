@@ -37,36 +37,39 @@ def pop(f): n = int(0.14 * SR); t = tt(n); return np.sin(2 * np.pi * f * (1 + 0.
 sfx = np.zeros((N, 2))
 def hinge(): n = int(0.22 * SR); t = tt(n); return (hp(noise(n), 2200) * np.exp(-t * 60) * 0.6 + np.sin(2 * np.pi * (300 - 500 * t) * t) * np.exp(-t * 22) * 0.5)
 def zap(d=0.5): n = int(d * SR); t = tt(n) / d; return (sine(900 + 1500 * t, n) * 0.35 + hp(noise(n), 5000) * 0.25) * np.sin(np.pi * t) ** 2
-d = [B[i + 1] - B[i] for i in range(7)]
-# 1. hook: hinges open, buds fly, magnetic snaps, LED on, push-in whoosh
-place(sfx, hinge(), 0.02, 0.6, -0.4); place(sfx, hinge(), 0.06, 0.5, 0.4)
-place(sfx, whoosh(0.8, 400, 2600), 0.34, 0.5, -0.2); place(sfx, whoosh(0.8, 500, 3000), 0.43, 0.4, 0.2)
-place(sfx, click(), 1.24, 0.85, 0.3); place(sfx, click(2700), 1.33, 0.75, 0.4); place(sfx, hit(), 1.26, 0.5)
-place(sfx, ping([76, 83]), 1.5, 0.24); place(sfx, whoosh(1.6, 250, 1500), at(0, 0.5), 0.3)
-# 2. glass reveal + orbit, component blips, push through the shell
-place(sfx, shimmer(1.3), at(1, 0.0), 0.32); place(sfx, whoosh(2.2, 250, 1300), at(1, 0.1), 0.2)
-for j, k in enumerate([0.3, 0.4, 0.5, 0.6]): place(sfx, pop(700 + j * 90), at(1, k), 0.2, (j % 2) * 0.5 - 0.25)
-place(sfx, whoosh(0.9, 400, 2400), at(1, 0.72), 0.32)
-# 3. earbud lifts, comes down, magnet pull, snap, metallic click, electrical activation
-place(sfx, whoosh(0.6, 500, 2600), at(2, 0.02), 0.2); place(sfx, hum(d[2] * 0.3), at(2, 0.32), 0.16)
-place(sfx, click(), at(2, 0.655), 0.9, 0.2); place(sfx, tick(), at(2, 0.66), 0.5, 0.25); place(sfx, tick(4000), at(2, 0.675), 0.4, 0.3)
-place(sfx, zap(0.45), at(2, 0.69), 0.4); place(sfx, ping([84], 0.1, 0.5), at(2, 0.7), 0.14)
-# 4. energy pulse travels, then the earbuds start charging
-place(sfx, hit(), at(3, 0.04), 0.35); place(sfx, hum(d[3] * 0.52), at(3, 0.1), 0.42)
-for j in range(5): place(sfx, zap(0.22), at(3, 0.14 + j * 0.09), 0.16, j * 0.2 - 0.4)
-place(sfx, whoosh(1.4, 250, 1500), at(3, 0.58), 0.26); place(sfx, ping([72, 79], 0.1, 0.9), at(3, 0.66), 0.22)
-# 5. the catch: drop to red, phone swings in, real warning tone
-place(sfx, hit(), at(4, 0.1), 0.7); place(sfx, buzz(0.3), at(4, 0.12), 0.12); place(sfx, whoosh(0.9, 350, 2200), at(4, 0.12), 0.4, 0.5)
-place(sfx, ping([70, 66], 0.14, 0.5), at(4, 0.4), 0.3); place(sfx, whoosh(1.4, 250, 1500), at(4, 0.5), 0.26)
-# 6. comparison: whip to the left case, drop + green ping; track right, drop + error buzz; back to the left
-place(sfx, whoosh(0.8, 400, 2600), at(5, 0.0), 0.4, -0.5)
-place(sfx, click(), at(5, 0.2), 0.8, -0.3); place(sfx, click(2700), at(5, 0.2) + 0.09, 0.7, -0.4); place(sfx, ping([72, 76, 79], 0.09), at(5, 0.2) + 0.3, 0.24)
-place(sfx, whoosh(0.9, 400, 2400), at(5, 0.4), 0.34, 0.4)
-place(sfx, click(), at(5, 0.56), 0.8, 0.3); place(sfx, click(2700), at(5, 0.56) + 0.09, 0.7, 0.4); place(sfx, buzz(0.42), at(5, 0.56) + 0.3, 0.26)
-place(sfx, whoosh(0.9, 400, 2400), at(5, 0.8), 0.3, -0.4)
-# 7. hero: re-seat, LED, lids snap shut
-place(sfx, click(), at(6, 0.34), 0.6, -0.2); place(sfx, ping([76, 83]), at(6, 0.38), 0.2); place(sfx, whoosh(1.6, 250, 1400), at(6, 0.1), 0.22)
-place(sfx, snap(), at(6, 0.64), 1.0, -0.3); place(sfx, snap(), at(6, 0.64) + 0.05, 0.8, 0.3); place(sfx, hit(), at(6, 0.64), 0.6)
+d = [B[i + 1] - B[i] for i in range(8)]
+# 1. hook: deep impact, fast pull-back, hinges, buds fly, magnetic snaps, LED, push-in
+place(sfx, hit(), 0.0, 0.9); place(sfx, whoosh(0.9, 300, 2200), 0.05, 0.45)
+place(sfx, hinge(), 0.52, 0.6, -0.4); place(sfx, hinge(), 0.56, 0.5, 0.4)
+place(sfx, whoosh(0.8, 400, 2600), 1.05, 0.5, -0.2); place(sfx, whoosh(0.8, 500, 3000), 1.14, 0.4, 0.2)
+place(sfx, click(), 1.95, 0.85, 0.3); place(sfx, click(2700), 2.04, 0.75, 0.4); place(sfx, hit(), 1.96, 0.45)
+place(sfx, ping([76, 83]), 2.2, 0.24); place(sfx, whoosh(1.8, 250, 1500), at(0, 0.6), 0.3)
+# 2. glass reveal, orbit, exploded view out and back, push to the socket
+place(sfx, shimmer(1.3), at(1, 0.08), 0.32); place(sfx, whoosh(2.0, 250, 1300), at(1, 0.1), 0.18)
+place(sfx, whoosh(0.5, 600, 3200), at(1, 0.4), 0.3); [place(sfx, pop(700 + j * 90), at(1, 0.44 + j * 0.04), 0.2, j * 0.4 - 0.4) for j in range(3)]
+place(sfx, whoosh(0.5, 500, 2600), at(1, 0.7), 0.26); place(sfx, click(1500), at(1, 0.84), 0.4); place(sfx, whoosh(0.8, 400, 2400), at(1, 0.8), 0.3)
+# 3. magnetic alignment: lift, field hum, glide down
+place(sfx, whoosh(0.6, 500, 2600), at(2, 0.02), 0.2); place(sfx, hum(d[2] * 0.5), at(2, 0.22), 0.2); place(sfx, shimmer(0.9), at(2, 0.22), 0.14)
+place(sfx, whoosh(1.4, 300, 1600), at(2, 0.42), 0.2); place(sfx, click(1700), at(2, 0.8), 0.45, 0.2)
+# 4. electrical contact: snap, metallic clicks, activation, pulse up the stem
+place(sfx, click(), at(3, 0.3), 0.9, 0.2); place(sfx, tick(), at(3, 0.305), 0.5, 0.25); place(sfx, tick(4000), at(3, 0.32), 0.4, 0.3)
+place(sfx, zap(0.45), at(3, 0.34), 0.4); place(sfx, ping([84], 0.1, 0.5), at(3, 0.36), 0.14); place(sfx, zap(0.3), at(3, 0.64), 0.22); place(sfx, whoosh(1.2, 300, 1800), at(3, 0.62), 0.22)
+# 5. the journey: energy pulses, pull-back, charging chime
+place(sfx, hit(), at(4, 0.04), 0.35); place(sfx, hum(d[4] * 0.5), at(4, 0.12), 0.42)
+for j in range(5): place(sfx, zap(0.22), at(4, 0.16 + j * 0.09), 0.16, j * 0.2 - 0.4)
+place(sfx, whoosh(1.4, 250, 1500), at(4, 0.58), 0.26); place(sfx, rise(d[4] * 0.36), at(4, 0.6), 0.1); place(sfx, ping([72, 79], 0.1, 0.9), at(4, 0.94), 0.2)
+# 6. the catch: tension, bass impact, phone, link breaks, warning tone
+place(sfx, buzz(0.5), at(5, 0.02), 0.1); place(sfx, hit(), at(5, 0.08), 0.75); place(sfx, whoosh(0.9, 350, 2200), at(5, 0.08), 0.4, 0.5)
+place(sfx, crack(), at(5, 0.35), 0.4); place(sfx, ping([70, 66], 0.14, 0.5), at(5, 0.37), 0.3); place(sfx, whoosh(1.4, 250, 1500), at(5, 0.44), 0.24); place(sfx, whoosh(0.8, 300, 1800), at(5, 0.84), 0.2)
+# 7. comparison
+place(sfx, whoosh(0.8, 400, 2600), at(6, 0.0), 0.4, -0.5)
+place(sfx, click(), at(6, 0.24), 0.8, -0.3); place(sfx, click(2700), at(6, 0.24) + 0.09, 0.7, -0.4); place(sfx, ping([72, 76, 79], 0.09), at(6, 0.24) + 0.3, 0.24)
+place(sfx, whoosh(0.9, 400, 2400), at(6, 0.42), 0.34, 0.4)
+place(sfx, click(), at(6, 0.58), 0.8, 0.3); place(sfx, click(2700), at(6, 0.58) + 0.09, 0.7, 0.4); place(sfx, buzz(0.42), at(6, 0.58) + 0.3, 0.26); place(sfx, whoosh(1.0, 300, 2000), at(6, 0.8), 0.28)
+# 8. the answer: buds cross, snap, LED, power path reveal, lids shut, push to the opening frame
+t0 = at(7, 0.12); place(sfx, whoosh(0.8, 400, 2600), t0, 0.45, -0.2); place(sfx, click(), t0 + 0.9, 0.85, 0.3); place(sfx, click(2700), t0 + 0.99, 0.75, 0.4); place(sfx, ping([76, 83]), t0 + 1.15, 0.24)
+place(sfx, shimmer(1.0), at(7, 0.36), 0.26); place(sfx, hum(d[7] * 0.2), at(7, 0.4), 0.25); place(sfx, shimmer(0.7), at(7, 0.6), 0.16)
+place(sfx, snap(), at(7, 0.82), 1.0, -0.3); place(sfx, snap(), at(7, 0.82) + 0.05, 0.8, 0.3); place(sfx, hit(), at(7, 0.82), 0.6); place(sfx, whoosh(1.6, 250, 1500), at(7, 0.72), 0.3)
 sf.write(os.path.join(here, 'sfx.wav'), (sfx * 0.9).astype(np.float32), SR)
 # ---- music: dark, minimal electronic bed, 96 bpm, A minor ----
 bed = np.zeros((N, 2)); beat = 60 / 96; bar = 4 * beat
