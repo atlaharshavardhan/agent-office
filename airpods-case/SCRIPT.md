@@ -63,7 +63,7 @@ Sources:
 Harsh approved v2 with one change: line 6 now says "after your friend removes it from their Find My", because AirPods can only be linked to one Apple Account in Find My (Apple HT212611, read through search results since support.apple.com is blocked here). About 130 words, ~45 s, still under the 50 s limit.
 
 ## Build notes (stills round 2, 2026-11-15)
-- Cases engraved like Apple's free engraving, to tell them apart: "Rahul 🚀" (yours) and "Priya 🌸" (your friend's). Tags use the same names.
+- Cases engraved like Apple's free engraving, to tell them apart: "Rahul 🚀" (yours) and "Karan 🎸" (your friend's). Tags use the same names.
 - Phone: iPhone Pro model from the HyperFrames registry block `vfx-iphone-device` (Apache 2.0), Apple logo hidden (rule 14), our own screen.
 
 Credits for the description:

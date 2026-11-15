@@ -309,7 +309,7 @@ function buildBudInternals(b) {
 }
 
 /* free engraving (names + emoji), like Apple offers, so we can tell the two cases apart */
-const ENGRAVE = { A: ['Rahul', '🚀'], B: ['Priya', '🌸'] };
+const ENGRAVE = { A: ['Rahul', '🚀'], B: ['Karan', '🎸'] };
 function engraveTex(name, emoji) {
   const c = document.createElement('canvas'); c.width = 512; c.height = 256; const x = c.getContext('2d');
   x.textAlign = 'center'; x.textBaseline = 'middle';
@@ -485,7 +485,7 @@ const SHOTS = [
     setLight(CB, 'white', 0.9 * bump(u, 1.4, 1.95)); setLight(CA, 'green', 0);
     VO = 0.0; look(V(0, 150, 590), V(0, 6, 0));
     title(['Wrong case…', '<em class="b">will it charge?</em>'], [0, 0], 1);
-    tag('ya', 'Yours · Rahul 🚀', W2(CA, V(0, -36, 6)), 0, 34, 1, '', true); tag('fr', 'Friend’s · Priya 🌸', W2(CB, V(0, -36, 6)), 0, 34, 1, '', true);
+    tag('ya', 'Yours · Rahul 🚀', W2(CA, V(0, -36, 6)), 0, 34, 1, '', true); tag('fr', 'Friend’s · Karan 🎸', W2(CB, V(0, -36, 6)), 0, 34, 1, '', true);
     note('3D illustration · not affiliated with Apple', 1, true);
   },
   (u, t) => { // 2. close on case B, "?" over the status light
@@ -541,7 +541,7 @@ const SHOTS = [
     link(W2(CA, V(0, 6, 0)), W2(CB, V(0, 10, 0)).add(V(0, 0, 0)), lk, brk, t);
     tag('set', 'Paired as a set', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, -14, 0)), 0, 0, lk * (1 - brk), '', true);
     glyph('big', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, 12, 0)), ease(ramp(u, 6.4, 6.8)), 0.35);
-    tag('ya2', 'Rahul’s case 🚀', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8))); tag('fr2', 'Priya’s case 🌸', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8)));
+    tag('ya2', 'Rahul’s case 🚀', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8))); tag('fr2', 'Karan’s case 🎸', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8)));
     title(['Now the <em>catch</em>…', '<em>“Mismatched AirPods”</em>'], [0.0, 1.0], u);
   },
   (u, t) => { // 6. back in their own case (or set up again): warning gone
@@ -553,7 +553,7 @@ const SHOTS = [
     VO = 0.0; look(V(0, 10, 628), V(0, 0, 0));
     title(['Own case <em class="g">✓</em>', 'or <em class="b">set up again</em>'], [0.6, 3.6], u);
     note('…after your friend removes them from <b>their Find My</b>', ease(ramp(u, 4.2, 4.6)), true); $('note').style.top = '20.6%'; $('note').style.fontSize = '3.4vw'; $('note').style.color = '#cfe9ff';
-    tag('ya3', 'Rahul’s case 🚀', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, 1); tag('fr3', 'Priya’s case 🌸', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, 1);
+    tag('ya3', 'Rahul’s case 🚀', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, 1); tag('fr3', 'Karan’s case 🎸', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, 1);
   },
   (u, t) => { // 7. a different generation: fits perfectly, still doesn't work properly
     CA.root.visible = false; CB.root.position.set(8.7, 2, 0); CB.root.rotation.set(0.1, -0.2, 0); setLid(CB, 1);
