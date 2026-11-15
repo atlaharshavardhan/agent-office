@@ -4346,25 +4346,24 @@ function screen(state, k = 1) {   // state: off | alert | fixed ; k = sheet slid
   if (state === 'off') { SCREEN_TEX.needsUpdate = true; return; }
   x.textAlign = 'center'; x.fillStyle = 'rgba(255,255,255,.92)'; x.font = '600 110px Sora, Arial'; x.fillText('9:41', w / 2, 240);
   x.font = '500 32px "IBM Plex Sans", Arial'; x.fillStyle = 'rgba(255,255,255,.6)'; x.fillText('Saturday 15 November', w / 2, 135);
-  // bottom sheet, like the real iPhone alert
-  const e = easeOut(k), sy = 330 + (1 - e) * 1050, sx = 18, sw = w - 36, shh = h - sy - 18;
-  x.fillStyle = '#ffffff'; x.beginPath(); x.roundRect(sx, sy, sw, shh + 40, 64); x.fill();
-  x.fillStyle = '#e9e9ee'; x.beginPath(); x.arc(sx + sw - 62, sy + 62, 26, 0, 7); x.fill();
-  x.strokeStyle = '#8a8a90'; x.lineWidth = 5; x.lineCap = 'round'; x.beginPath(); x.moveTo(sx + sw - 72, sy + 52); x.lineTo(sx + sw - 52, sy + 72); x.moveTo(sx + sw - 52, sy + 52); x.lineTo(sx + sw - 72, sy + 72); x.stroke();
+  // card in the lower half of the screen, the same size as the real iPhone alert
+  const e = easeOut(k), cw = w - 40, ch = 640, cx = 20, cy = h - ch - 22 + (1 - e) * 700;
+  x.fillStyle = '#ffffff'; x.beginPath(); x.roundRect(cx, cy, cw, ch, 56); x.fill();
+  x.fillStyle = '#e9e9ee'; x.beginPath(); x.arc(cx + cw - 46, cy + 46, 20, 0, 7); x.fill();
+  x.strokeStyle = '#8a8a90'; x.lineWidth = 4; x.lineCap = 'round'; x.beginPath(); x.moveTo(cx + cw - 54, cy + 38); x.lineTo(cx + cw - 38, cy + 54); x.moveTo(cx + cw - 38, cy + 38); x.lineTo(cx + cw - 54, cy + 54); x.stroke();
   const ok = state === 'fixed';
-  x.fillStyle = '#000'; x.font = '700 58px Sora, Arial';
-  if (ok) { x.fillText('AirPods Pro', w / 2, sy + 160); x.fillText('Connected', w / 2, sy + 226); }
-  else { x.fillText('Mismatched', w / 2, sy + 160); x.fillText('AirPods Pro', w / 2, sy + 226); }
-  x.fillStyle = '#1c1c1e'; x.font = '500 29px "IBM Plex Sans", Arial';
-  if (ok) { x.fillText('These AirPods are back in their', w / 2, sy + 292); x.fillText('own case and work together.', w / 2, sy + 330); }
-  else { x.fillText('The AirPods in the charging case do not', w / 2, sy + 292); x.fillText('belong to you and do not work together.', w / 2, sy + 330); }
+  x.fillStyle = '#000'; x.font = '700 46px Sora, Arial';
+  x.fillText(ok ? 'AirPods Pro' : 'Mismatched', w / 2, cy + 98); x.fillText(ok ? 'Connected' : 'AirPods Pro', w / 2, cy + 150);
+  x.fillStyle = '#1c1c1e'; x.font = '500 23px "IBM Plex Sans", Arial';
+  if (ok) { x.fillText('These AirPods are back in their', w / 2, cy + 196); x.fillText('own case and work together.', w / 2, cy + 226); }
+  else { x.fillText('The AirPods in the charging case do not', w / 2, cy + 196); x.fillText('belong to you and do not work together.', w / 2, cy + 226); }
   if (CASE_IMG.cv) {
-    const iw = 560, ih = 448, ix = (w - iw) / 2, iy = sy + 440; x.drawImage(CASE_IMG.cv, ix, iy, iw, ih);
+    const iw = 380, ih = 304, ix = (w - iw) / 2, iy = cy + 318; x.drawImage(CASE_IMG.cv, ix, iy, iw, ih);
     const col = ok ? '#1f9d4c' : '#e5484d';
-    CASE_IMG.pts.forEach(([px, py], i) => { const X = ix + px * iw / 560, Y = iy + py * ih / 448, lx = i ? w / 2 + 130 : w / 2 - 130;
-      x.strokeStyle = col; x.lineWidth = 4; x.beginPath(); x.moveTo(lx, sy + 420); x.lineTo(X, Y); x.stroke(); x.fillStyle = col; x.beginPath(); x.arc(X, Y, 9, 0, 7); x.fill();
-      x.fillStyle = '#000'; x.font = '500 28px "IBM Plex Sans", Arial'; x.fillText(i ? 'Right AirPod' : 'Left AirPod', lx, sy + 378);
-      x.fillStyle = col; x.fillText(ok ? 'Yours ✓' : 'Not Yours', lx, sy + 412); });
+    CASE_IMG.pts.forEach(([px, py], i) => { const X = ix + px * iw / 560, Y = iy + py * ih / 448, lx = i ? w / 2 + 110 : w / 2 - 110;
+      x.strokeStyle = col; x.lineWidth = 3; x.beginPath(); x.moveTo(lx, cy + 312); x.lineTo(X, Y); x.stroke(); x.fillStyle = col; x.beginPath(); x.arc(X, Y, 7, 0, 7); x.fill();
+      x.fillStyle = '#000'; x.font = '500 22px "IBM Plex Sans", Arial'; x.fillText(i ? 'Right AirPod' : 'Left AirPod', lx, cy + 276);
+      x.fillStyle = col; x.fillText(ok ? 'Yours ✓' : 'Not Yours', lx, cy + 302); });
   }
   SCREEN_TEX.needsUpdate = true;
 }

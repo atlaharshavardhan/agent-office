@@ -85,3 +85,4 @@ About 124 words, ~48 s with Michael at 1.12 (limit 50 s).
 | 6 | Put them back in their own case, or set them up again after your friend removes them from Find My. | Buds hop home; "Connected" |
 | 7 | A different generation can fit perfectly, and still not work properly. | Look-alike bud drops in, red ✕ |
 | 8 | Follow InvisiTech for more. | End card |
+- Alert card sized like the real one (Harsh's photo): lower half of the screen, small margins.
