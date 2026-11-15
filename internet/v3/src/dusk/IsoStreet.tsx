@@ -18,8 +18,9 @@ const shade = (hex: string, k: number) => { const n = parseInt(hex.slice(1), 16)
 type H = { x0: number; y0: number; w: number; d: number; h: number; c: string; roof: 'flat' | 'gable' | 'hip'; hero?: 'boy' | 'girl'; seed: number };
 const LIT = '#ffd38a';
 
+let NB_LIT = -1;   // street scene: time at which the neighbours start switching their lights on (-1 = stay dim)
 const HouseIso: React.FC<{ b: H; f: number }> = ({ b, f }) => {
-  const { x0, y0, w, d, h, c } = b; const x1 = x0 + w, y1 = y0 + d; const dim = b.hero ? 1 : 0.5;
+  const { x0, y0, w, d, h, c } = b; const x1 = x0 + w, y1 = y0 + d; const dim = b.hero || (NB_LIT >= 0 && f / FPS > NB_LIT + hash(b.seed * 13) * 0.9) ? 1 : 0.5;
   const floors = h > 2.6 ? 2 : 1, fh = h / floors;
   const fy = (u: number, v: number) => iso(x0 + u, y1, v);      // face toward lower-left (y1)
   const fx = (u: number, v: number) => iso(x1, y0 + u, v);      // face toward lower-right (x1)
@@ -168,9 +169,16 @@ const WVO: [number, React.ReactNode][] = [[0.2, <>So we use a <em>wire.</em></>]
 export const IsoHook: React.FC = () => <IsoStreet hook />;
 export const IsoFull: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire /></Sequence></AbsoluteFill>);
 export const IsoWire: React.FC = () => <IsoStreet wire />;
-export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; mute?: boolean }> = ({ hook, wire, mute }) => {
+/* street scene (local 0 - 9.5 s): the neighbours want in, 45 wires tangle, one router box untangles it */
+const NET_KEYS: Key[] = [[0, 590, 900, 1.15], [0.4, 590, 900, 1.15], [1.7, 600, 960, 0.64], [9.5, 600, 960, 0.67]];
+const NVO: [number, React.ReactNode][] = [[0.3, <>Now the whole <em>street</em> wants in.</>], [2.3, <>Ten houses would need <em>forty-five</em> wires!</>], [5.0, <>So every wire goes to <em>one box:</em></>], [7.2, <>the <em>router.</em></>]];
+const NODES: [number, number, number][] = [[-2.0, 3.3, 3.5], [-2.9, -4.3, 3.5], [-5.1, 3.35, 3.0], [4.4, 3.35, 3.1], [7.5, 3.35, 2.9], [-8.2, -7.7, 2.8], [-5.0, -7.7, 3.1], [-1.8, -7.7, 3.4], [3.0, 8.6, 2.8], [6.2, 8.6, 3.1]];
+const PAIRS: [number, number][] = []; for (let i = 0; i < 10; i++) for (let j = i + 1; j < 10; j++) PAIRS.push([i, j]);
+export const IsoNet: React.FC = () => <IsoStreet net />;
+export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean; mute?: boolean }> = ({ hook, wire, net, mute }) => {
   const f = useCurrentFrame(); const t = f / FPS;
-  let on = 1; const cam = hook ? camAt(t) : wire ? camAt(t, WIRE_KEYS) : { fx: 540, fy: 960, z: 1 };
+  let on = 1; const cam = hook ? camAt(t) : wire ? camAt(t, WIRE_KEYS) : net ? camAt(t, NET_KEYS) : { fx: 540, fy: 960, z: 1 };
+  NB_LIT = net ? 0.25 : -1;
   if (hook) { on = Math.max(...BLINKS.map(([a, b]) => pulse(f, a, b))); HBITS.forEach((b, i) => { if (b) on = Math.max(on, pulse(f, BIT0 + i * BITD, BIT0 + i * BITD + 0.1)); }); }
   let raise = hook ? prog(f, 0.25, 0.85, easeOut) : 1, notice = hook ? prog(f, 2.1, 2.4, easeOut) : 1;
   let wave = hook ? prog(f, 4.6, 4.9) * (1 - prog(f, 7.0, 7.4)) : 1, sleepy = hook ? prog(f, 14.25, 14.6) : 0;
@@ -183,6 +191,8 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; mute?: boolea
   const wDraw = wire ? prog(f, 0.75, 1.4) : 0, wLive = wire ? prog(f, 2.35, 2.6) : 0, got = wire ? prog(f, 5.45, 5.7, easeOut) : 0;
   if (wire) { on = 0; raise = prog(f, 0.05, 0.5, easeOut) * (1 - prog(f, 1.9, 2.3, easeInOut)); sleepy = 1 - prog(f, 1.4, 1.6); wave = got; cheer = prog(f, 5.9, 6.2); startle = prog(f, 1.4, 1.5, easeOut) * (1 - prog(f, 2.1, 2.5)) * 0.6; }
   const kick = wire ? (t < 0.75 ? 0 : Math.exp(-(t - 0.75) * 7) * (1 + 0.5 * Math.cos((t - 0.75) * 26)) / 1.5) : 0, thud = wire && t > 1.4 ? Math.exp(-(t - 1.4) * 9) : 0;
+  const worry = net ? prog(f, 2.9, 3.3) * (1 - prog(f, 4.8, 5.2)) : 0, glad = net ? prog(f, 6.6, 6.9) : 0;
+  if (net) { on = 0; raise = 0; wave = glad; cheer = glad; }
   const breathe = Math.sin(t * 2.4), gHop = Math.abs(Math.sin(t * 9)) * 9 * wave + Math.sin(Math.PI * clamp01((t - 2.05) / 0.35)) * 14 * (hook ? 1 : 0) + (wire ? Math.sin(Math.PI * clamp01((t - 1.4) / 0.4)) * 22 + Math.sin(Math.PI * clamp01((t - 2.4) / 0.3)) * 10 + Math.abs(Math.sin(t * 7)) * 4 * prog(f, 2.8, 3.0) * (1 - prog(f, 4.6, 4.9)) : 0);
   const bHop = Math.abs(Math.sin(t * 8.5)) * 10 * cheer;
   if (hook && t > 12.5 && t < 14.15) on = Math.max(on, Math.sin(t * 2 * Math.PI * 5.5) > 0.1 ? 1 : 0);   // forty quick blinks
@@ -199,6 +209,10 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; mute?: boolea
     armR: [lerp(8, 150, wave) + lerp(0, 118, yawn), lerp(5, 168, wave) + Math.sin(t * 11) * 14 * wave + lerp(0, 150, yawn)],
     armL: [lerp(-10, -112, startle) + lerp(0, -22, bored * (1 - sleepy)), lerp(-6, -150, startle) + lerp(0, -128, bored * (1 - sleepy))],
     tilt: 4 * notice + 14 * sleepy + breathe * 1.2 + Math.sin(t * 2 * Math.PI / (BITD * 2)) * 5 * count + 9 * bored * (1 - sleepy) - 6 * startle };
+  if (net) {   // both look around at the neighbours, hold their heads at the tangle, cheer at the router
+    girl.armR = [girl.armR[0] + 150 * worry, girl.armR[1] + 168 * worry]; girl.armL = [-10 - 150 * worry, -6 - 168 * worry]; girl.smile = Math.max(glad, 0.5 * (1 - worry)); girl.tilt = breathe * 1.2 + Math.sin(t * 9) * 4 * worry; girl.look = -0.8 + 1.6 * prog(f, 0.6, 0.9) * (1 - prog(f, 1.6, 1.9));
+    boy.armR = [8 + 142 * worry, 5 + 160 * worry]; boy.armL = [boy.armL[0] - 138 * worry, boy.armL[1] - 160 * worry]; boy.smile = Math.max(glad, 0.5 * (1 - worry)); boy.tilt = breathe * 1.2 + Math.sin(t * 9 + 1) * 4 * worry; boy.look = 0.8 - 1.6 * prog(f, 0.8, 1.1) * (1 - prog(f, 1.8, 2.1));
+  }
   if (wire) {   // her side of the wire scene: dozing nod, jump when the anchor lands, peek at it, clap as it lights up, bounce and wave when HELLO lands
     const jump = prog(f, 1.4, 1.5, easeOut) * (1 - prog(f, 1.85, 2.1)), peek = prog(f, 1.95, 2.25, easeInOut) * (1 - prog(f, 2.35, 2.55)), clap = prog(f, 2.7, 2.95) * (1 - prog(f, 4.5, 4.8)), watch = prog(f, 4.9, 5.1) * (1 - prog(f, 5.4, 5.5));
     girl.tilt = (girl.tilt || 0) + Math.sin(t * 3.2) * 5 * sleepy + 12 * peek - 5 * jump + Math.sin(t * 7) * 3 * clap;
@@ -340,6 +354,32 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; mute?: boolea
             {sending && Array.from({ length: 40 }).map((_, i) => { const k = send * 1.5 - i * 0.012; if (k < 0 || k > 1) return null; const q = Pt(k); const b = (0x48454c4c4f / Math.pow(2, 39 - i)) & 1; return <text key={i} x={q[0]} y={q[1] - 22 - (i % 2) * 12} textAnchor="middle" style={{ font: `600 15px ${FONT.mono}` }} fill={b ? '#ffe08a' : '#9fe9ff'}>{b}</text>; })}
             {got > 0 && <g opacity={got} transform={`translate(${gx + 6} ${gy - 232 - got * 8}) scale(${0.8 + 0.2 * got})`}><rect x={-64} y={-30} width={128} height={44} rx={14} fill="#0e1430" stroke="#5fe3ff" strokeWidth={2} /><text y={3} textAnchor="middle" style={{ font: `800 28px ${FONT.ui}` }} fill="#fff">HELLO</text><circle cx={64} cy={-30} r={13} fill="#3ddc97" /><path d="M 58 -30 L 62 -25 L 70 -35" stroke="#06261a" strokeWidth={3.5} fill="none" strokeLinecap="round" /></g>}
           </g>; })()}
+        {net && (() => {
+          const N = NODES.map(([x, y, z]) => iso(x, y, z)), RT = iso(1.0, 0, 3.6), RB = iso(1.0, 0, 0);
+          const tangle = 1 - prog(f, 4.9, 5.5), rise = prog(f, 5.1, 5.7, easeOut), shake = prog(f, 3.6, 3.9) * tangle;
+          const curve = (a: readonly number[], b: readonly number[], sag: number, u = 1) => { const pts: string[] = []; for (let i = 0; i <= 14; i++) { const k = (i / 14) * u; pts.push(`${lerp(a[0], b[0], k)},${lerp(a[1], b[1], k) + sag * Math.sin(Math.PI * k)}`); } return pts.join(' '); };
+          return <g>
+            {/* every house hooks up to every other house: 45 wires */}
+            {tangle > 0 && PAIRS.map(([i, j], n) => { const u = prog(f, 1.9 + n * 0.035, 2.3 + n * 0.035, easeOut); if (u <= 0) return null; const sg = 30 + hash(n) * 70; const jx = Math.sin(t * 38 + n) * 5 * shake;
+              return <g key={n} opacity={tangle} transform={`translate(${jx} 0)`}><polyline points={curve(N[i], N[j], sg, u)} fill="none" stroke="#000" strokeWidth={7} opacity={0.25} transform="translate(0 8)" /><polyline points={curve(N[i], N[j], sg, u)} fill="none" stroke={shake > 0.5 ? '#ff7a5a' : '#c9843a'} strokeWidth={5} strokeLinecap="round" /></g>; })}
+            {/* "me too!" from the neighbours */}
+            {N.slice(2).map((q, i) => { const a = prog(f, 0.5 + i * 0.12, 0.7 + i * 0.12, easeOut) * (1 - prog(f, 1.9, 2.2)); return a > 0 ? <g key={i} opacity={a} transform={`translate(${q[0]} ${q[1] - 40 - a * 14}) scale(2.3)`}><rect x={-46} y={-22} width={92} height={36} rx={12} fill="#fff6e0" /><path d="M -8 14 L 0 26 L 8 14 Z" fill="#fff6e0" /><text y={3} textAnchor="middle" style={{ font: `800 20px ${FONT.ui}` }} fill="#1b1520">Me too!</text></g> : null; })}
+            {/* the router on its pole, and one wire from each house */}
+            {rise > 0 && <g opacity={rise}>
+              <line x1={RB[0]} y1={RB[1]} x2={RT[0]} y2={RT[1] + (1 - rise) * 120} stroke="#2b2e3a" strokeWidth={10} strokeLinecap="round" />
+              {N.map((q, i) => { const u = prog(f, 5.7 + i * 0.08, 6.2 + i * 0.08, easeOut); if (u <= 0) return null; const pk = ((t * 0.9 + i * 0.37) % 1), dir = i % 2, kk = dir ? pk : 1 - pk; const live = prog(f, 6.7, 7.0);
+                return <g key={i}><polyline points={curve(q, RT, 26, u)} fill="none" stroke="#5fe3ff" strokeWidth={14} opacity={0.22} filter="url(#iB)" /><polyline points={curve(q, RT, 26, u)} fill="none" stroke="#9fe9ff" strokeWidth={4.5} strokeLinecap="round" />
+                  {live > 0 && <circle cx={lerp(q[0], RT[0], kk)} cy={lerp(q[1], RT[1], kk) + 26 * Math.sin(Math.PI * kk)} r={8} fill="#fff" opacity={live} />}
+                  <circle cx={q[0]} cy={q[1]} r={9} fill="#0e1430" stroke="#5fe3ff" strokeWidth={3} /></g>; })}
+              <g transform={`translate(${RT[0]} ${RT[1] + (1 - rise) * 120}) scale(1.7)`}>
+                <circle r={90} fill="#5fe3ff" opacity={0.22} filter="url(#iB2)" />
+                <line x1={-34} y1={-20} x2={-46} y2={-74} stroke="#d9d6cf" strokeWidth={6} strokeLinecap="round" /><line x1={34} y1={-20} x2={46} y2={-74} stroke="#d9d6cf" strokeWidth={6} strokeLinecap="round" />
+                <rect x={-62} y={-26} width={124} height={52} rx={14} fill="#f3f0ea" /><rect x={-62} y={8} width={124} height={18} rx={9} fill="#cfd3de" />
+                {[0, 1, 2, 3].map((i) => <circle key={i} cx={-36 + i * 24} cy={-6} r={6} fill={Math.sin(t * 9 + i * 1.7) > 0 ? '#3ddc97' : '#1f6a4c'} />)}
+                <text y={-96} textAnchor="middle" style={{ font: `800 40px ${FONT.ui}` }} fill="#fff" stroke="#0a0e24" strokeWidth={8} paintOrder="stroke" opacity={prog(f, 7.2, 7.5)}>ROUTER</text>
+              </g>
+            </g>}
+          </g>; })()}
         {/* the binary rides in the beam: bright = on (1), dark gap = off (0) */}
         {hook && t > BIT0 - 0.05 && t < 12.45 && <line x1={lens.x} y1={lens.y} x2={tgt.x} y2={tgt.y} stroke="#8a92d8" strokeWidth={2} strokeDasharray="3 10" opacity={0.6} />}
         {hook && HBITS.map((b, i) => { const u = (t - (BIT0 + i * BITD)) / FLY; if (u < -0.05 || u > 1.05 || t > 12.45) return null;
@@ -363,6 +403,7 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; mute?: boolea
       </svg>
       {hook && <HookOverlays f={f} t={t} macro={macro} mute={mute} />}
       {wire && <WireOverlays f={f} t={t} />}
+      {net && <NetOverlays f={f} t={t} />}
     </AbsoluteFill>
   );
 };
@@ -452,6 +493,36 @@ const WireOverlays: React.FC<{ f: number; t: number }> = ({ f, t }) => {
         </div>
       )}
       {line && t >= 0.2 && (
+        <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}>
+          <div className="sub">{line}</div>
+        </div>
+      )}
+      <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
+      <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}>
+        <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} />
+        <span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>
+      </div>
+    </>
+  );
+};
+
+const NetOverlays: React.FC<{ f: number; t: number }> = ({ f, t }) => {
+  let line: React.ReactNode = null; for (const [a, txt] of NVO) if (t >= a) line = txt;
+  const n = Math.min(45, Math.max(0, Math.round((t - 1.9) / 0.035)));
+  return (
+    <>
+      {t > 2.2 && (
+        <div style={{ position: 'absolute', top: 236, left: 90, right: 90, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.86)', border: '1px solid rgba(160,176,255,.3)', boxShadow: '0 20px 60px rgba(0,0,0,.45)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, opacity: prog(f, 2.2, 2.45) }}>
+          {t < 5.6 ? (
+            <><div style={{ font: `800 70px ${FONT.ui}`, color: TECH.text }}>10 houses = <span style={{ color: '#ff9a7a' }}>{n}</span> wires</div>
+              <div style={{ font: `600 26px ${FONT.mono}`, letterSpacing: '0.1em', color: '#a9b4dd' }}>EVERY HOUSE TO EVERY HOUSE</div></>
+          ) : (
+            <><div style={{ font: `800 70px ${FONT.ui}`, color: TECH.text }}>1 box = <span style={{ color: '#9fe9ff' }}>10</span> wires</div>
+              <div style={{ font: `600 26px ${FONT.mono}`, letterSpacing: '0.1em', color: '#a9b4dd' }}>EVERY HOUSE TO THE ROUTER</div></>
+          )}
+        </div>
+      )}
+      {line && t >= 0.3 && (
         <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}>
           <div className="sub">{line}</div>
         </div>
