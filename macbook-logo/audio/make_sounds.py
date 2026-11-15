@@ -23,71 +23,56 @@ noise = lambda n: rng.standard_normal(n)
 midi = lambda m: 440 * 2 ** ((m - 69) / 12)
 tt = lambda d: np.arange(int(d * SR)) / SR
 
-# ---------- music: calm "tech reveal" bed, 96 bpm: warm pad, bell arpeggio, soft kick + hats from bar 2 ----------
-music = np.zeros((N, 2)); beat = 60 / 96; bar = 4 * beat
-chords = [[50, 57, 62, 65, 69], [46, 53, 58, 62, 65], [43, 50, 55, 58, 62], [45, 52, 57, 61, 64]]   # Dm9-ish, Bb, Gm, A
-nb = int(DUR / bar) + 2
-for b in range(nb):
+# ---------- music (v3): minimal — a soft pad with a few sparse bell notes, no drums; fades out before the 2-second outro ----------
+music = np.zeros((N, 2)); beat = 60 / 84; bar = 4 * beat
+chords = [[50, 57, 62, 65, 69], [46, 53, 58, 62, 65], [43, 50, 55, 58, 62], [45, 52, 57, 61, 64]]
+for b in range(int(DUR / bar) + 2):
     ch = chords[b % 4]; t0 = b * bar
-    t = tt(bar + 1.5); sw = np.minimum(1, t / 0.6) * np.minimum(1, (t[-1] - t) / 1.2)
-    for k, m in enumerate(ch):   # detuned saw-ish pad, low-passed
-        f = midi(m); x = sum(np.sin(2 * np.pi * f * d * t + k) / (h + 1) * (0.5 if h else 1) for h, d in enumerate([1, 1.004, 0.996]))
-        place(music, lp(x * sw, 0.08) * 0.05, t0, 1, (k - 2) * 0.25)
-    t = tt(bar); place(music, np.sin(2 * np.pi * midi(ch[0] - 12) * t) * env(len(t), 0.02, 2.0, 1.2) * 0.16, t0)   # bass
-    for q in range(8):   # bell arpeggio in 8ths
-        m = ch[[1, 2, 3, 4, 3, 2, 4, 1][q]] + 12; t = tt(0.9)
-        bell = (np.sin(2 * np.pi * midi(m) * t) + 0.3 * np.sin(2 * np.pi * midi(m) * 2.76 * t) * np.exp(-t * 9)) * env(len(t), 0.002, 0.5, 4)
-        place(music, bell, t0 + q * beat / 2, 0.045 * (0.7 if q % 2 else 1), 0.4 * np.sin(q))
-    if b >= 1:
-        for q in range(4):
-            bt = t0 + q * beat
-            if q in (0, 2): t = tt(0.35); place(music, np.sin(2 * np.pi * (48 + 80 * np.exp(-t * 28)) * t) * env(len(t), 0.002, 0.22, 6), bt, 0.32)
-            for h in (0, 0.5): n = int(0.04 * SR); place(music, hp(noise(n), 0.3) * env(n, 0.001, 0.03, 6), bt + h * beat, 0.035, 0.3)
-            if q in (1, 3): n = int(0.18 * SR); place(music, lp(noise(n), 0.25) * env(n, 0.001, 0.1, 7), bt, 0.07)
-fo = int(2.0 * SR); music[-fo:] *= np.linspace(1, 0, fo)[:, None] ** 1.4
-music /= np.max(np.abs(music)) / 0.7
+    t = tt(bar + 1.5); sw = np.minimum(1, t / 0.8) * np.minimum(1, (t[-1] - t) / 1.4)
+    for k, m in enumerate(ch):
+        f = midi(m); x = sum(np.sin(2 * np.pi * f * d * t + k) for d in [1, 1.003, 0.997]) / 3
+        place(music, lp(x * sw, 0.05) * 0.05, t0, 1, (k - 2) * 0.25)
+    t = tt(bar); place(music, np.sin(2 * np.pi * midi(ch[0] - 12) * t) * env(len(t), 0.05, 2.2, 1.0) * 0.1, t0)
+    for q in (0, 3, 6):   # three soft bell notes per bar
+        m = ch[[2, 4, 3][q // 3]] + 12; t = tt(1.2)
+        place(music, np.sin(2 * np.pi * midi(m) * t) * env(len(t), 0.004, 0.9, 3) , t0 + q * beat / 2, 0.022, 0.3 * np.sin(q + b))
+end = B[-2]; fo = int(1.4 * SR); i1 = int(end * SR); music[i1 - fo:i1] *= np.linspace(1, 0, fo)[:, None] ** 1.3; music[i1:] = 0
+music /= np.max(np.abs(music)) / 0.6
 
-# ---------- sound effects ----------
+# ---------- sound effects (v3): subtle clicks, soft activations, gentle mechanics, one restrained impact. No whooshes. ----------
 sfx = np.zeros((N, 2))
-def whoosh(d=0.7, bright=0.12, up=True):
-    t = tt(d); n = noise(len(t)); sh = np.sin(np.pi * t / d) ** 2; x = lp(n, bright) * sh
-    return hp(x, 0.02) * 1.6
+def click(f=1600, d=0.025, bright=0.4): n = int(d * SR); return hp(noise(n), bright) * env(n, 0.0003, d * 0.6, 9) * 0.6 + np.sin(2 * np.pi * f * np.arange(n) / SR) * env(n, 0.0003, d, 9) * 0.4
+def tink(f=2600): t = tt(0.5); return (np.sin(2 * np.pi * f * t) + 0.35 * np.sin(2 * np.pi * f * 2.76 * t)) * env(len(t), 0.001, 0.35, 5)
+def hum(d=0.9, f0=60): t = tt(d); return (np.sin(2 * np.pi * f0 * t) + 0.5 * np.sin(2 * np.pi * 2 * f0 * t) + 0.25 * np.sin(2 * np.pi * 3 * f0 * t)) * np.minimum(1, t / 0.15) * np.exp(-t * 3.2)
+def crackle(d=0.35, dens=90): n = int(d * SR); x = np.zeros(n); idx = rng.integers(0, n, int(dens * d)); x[idx] = rng.uniform(-1, 1, len(idx)); return hp(lp(x, 0.6), 0.1) * np.linspace(1, 0.2, n)
+def swell(d=1.2, f=440): t = tt(d); return (np.sin(2 * np.pi * f * t) + 0.5 * np.sin(2 * np.pi * f * 1.5 * t) + 0.3 * np.sin(2 * np.pi * f * 2 * t)) * np.sin(np.pi * t / d) ** 2 * 0.5
+def slide(d=0.35): n = int(d * SR); return lp(noise(n), 0.04) * np.sin(np.pi * np.arange(n) / n) * 1.2
+def thud(): t = tt(0.4); return np.sin(2 * np.pi * (55 + 40 * np.exp(-t * 25)) * t) * env(len(t), 0.003, 0.3, 6) + lp(noise(len(t)), 0.08) * env(len(t), 0.001, 0.04, 9) * 0.3
 def shimmer(d=1.2, base=1800):
-    t = tt(d); x = sum(np.sin(2 * np.pi * base * r * t + r) for r in [1, 1.5, 2.01, 2.99, 4.02]) * env(len(t), 0.25, d, 2.5) / 5
-    return x * (0.6 + 0.4 * np.sin(2 * np.pi * 7 * t))
-def tick(f=2600, d=0.06): t = tt(d); return np.sin(2 * np.pi * f * t) * env(len(t), 0.0005, d, 8)
-def pop(f=900): t = tt(0.12); return np.sin(2 * np.pi * f * (1 + 0.6 * np.exp(-t * 40)) * t) * env(len(t), 0.001, 0.1, 6)
-def click(): n = int(0.03 * SR); return hp(noise(n), 0.4) * env(n, 0.0003, 0.02, 9) + tick(1400, 0.03) * 0.5
-def thunk(): t = tt(0.3); return np.sin(2 * np.pi * (70 + 60 * np.exp(-t * 30)) * t) * env(len(t), 0.002, 0.25, 7) + lp(noise(len(t)), 0.1) * env(len(t), 0.001, 0.05, 8) * 0.4
-def glow_on(d=1.4): # soft rising tone for a light coming on
-    t = tt(d); f = 520 * (1 + 0.5 * t / d); return (np.sin(2 * np.pi * np.cumsum(f) / SR) + 0.4 * np.sin(4 * np.pi * np.cumsum(f) / SR)) * np.minimum(1, t / 0.5) * np.exp(-t * 1.6) * 0.6
-def hum(d=1.0): t = tt(d); return (np.sin(2 * np.pi * 60 * t) + 0.5 * np.sin(2 * np.pi * 120 * t)) * np.minimum(1, t / 0.2) * np.exp(-t * 2.5)
+    t = tt(d); x = sum(np.sin(2 * np.pi * base * r * t + r) for r in [1, 1.5, 2.01, 2.99]) * env(len(t), 0.3, d, 2.5) / 4; return x * (0.7 + 0.3 * np.sin(2 * np.pi * 6 * t))
+def powerdown(d=0.6): t = tt(d); f = 520 * np.exp(-t * 2.2); return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 4) * 0.6
 
-# 1 hook: the Mac wakes (hum + click), the logo glows up
-place(sfx, click(), 0.12, 0.5); place(sfx, hum(1.2), 0.15, 0.25); place(sfx, glow_on(1.6), 0.38, 0.45); place(sfx, shimmer(1.6, 2100), 0.5, 0.18)
-# 2 orbit; glass x-ray; tags
-place(sfx, whoosh(1.1, 0.08), at(1, 0.0) - 0.2, 0.35, -0.3); place(sfx, shimmer(1.2, 1500), at(1, 2.9), 0.22)
-place(sfx, glow_on(1.0), at(1, 3.6), 0.25); place(sfx, pop(1100), at(1, 4.4), 0.25, 0.4); place(sfx, pop(700), at(1, 6.0), 0.3, -0.4)
-# 3 lid opens into layers
-place(sfx, whoosh(0.6, 0.15), at(2, 0.0) - 0.15, 0.3, 0.3)
-for k in range(3): place(sfx, whoosh(0.45, 0.2), at(2, 0.9 + k * 0.42), 0.28, (k - 1) * 0.5); place(sfx, click(), at(2, 1.1 + k * 0.42), 0.3)
-for k in range(4): place(sfx, pop(900 + 80 * k), at(2, 1.9 + k * 0.05), 0.12, (k - 1.5) * 0.4)
-# 4 four LEDs: one tick + spark each
-place(sfx, whoosh(0.6, 0.12), at(3, 0.0) - 0.15, 0.25)
-for i in range(4): place(sfx, tick(2400 + 300 * i, 0.08), at(3, 0.8 + i * 0.35), 0.4, [-0.6, 0.6, -0.3, 0.3][i]); place(sfx, shimmer(0.5, 2600 + 200 * i), at(3, 0.8 + i * 0.35), 0.08)
-place(sfx, pop(1200), at(3, 2.2), 0.2, -0.4); place(sfx, pop(1000), at(3, 3.4), 0.2, 0.4)
-# 5 bounce → spread → shine; layers close
-place(sfx, shimmer(1.0, 1700), at(4, 0.1), 0.2, -0.3); place(sfx, shimmer(1.0, 2000), at(4, 0.8), 0.2, 0.3)
-place(sfx, shimmer(1.6, 1300), at(4, 2.2), 0.22); place(sfx, glow_on(1.5), at(4, 3.0), 0.4)
-place(sfx, pop(1300), at(4, 4.0), 0.22, 0.4); place(sfx, whoosh(1.0, 0.1), at(4, 5.3), 0.3); place(sfx, thunk(), at(4, 6.5), 0.5)
-# 6 room light up, down; the switch
-place(sfx, whoosh(0.8, 0.06), at(5, 2.2), 0.25, 0.3); place(sfx, glow_on(0.9), at(5, 2.4), 0.2)
-place(sfx, whoosh(0.8, 0.04), at(5, 3.8), 0.25, -0.3)
-place(sfx, pop(800), at(5, 5.4), 0.2); place(sfx, click(), at(5, 6.3), 0.7); place(sfx, thunk(), at(5, 6.35), 0.25)
-# 7 zoom out onto the MacBook screen, the card pops, Subscribe
-place(sfx, whoosh(1.8, 0.07), B[6] + 0.05, 0.45); place(sfx, shimmer(1.0, 1600), B[6] + 1.1, 0.15)
-for k, b in enumerate([0.0, 0.12, 0.22, 0.35, 0.43, 0.51]): place(sfx, pop(700 + 90 * k), B[6] + 1.5 + 1.5 * b, 0.16, (k % 3 - 1) * 0.4)
-place(sfx, tick(1800, 0.25) + tick(2700, 0.25) * 0.6, B[6] + 1.5 + 1.5 * 0.62, 0.35); place(sfx, pop(950), B[6] + 1.5 + 1.5 * 0.75, 0.22)
+# 1 hook: electrical activation as the logo lights (0.08–0.55 s)
+place(sfx, click(1200, 0.02), 0.06, 0.35); place(sfx, crackle(0.3), 0.08, 0.12); place(sfx, hum(1.1), 0.08, 0.22); place(sfx, swell(1.4, 392), 0.12, 0.16); place(sfx, shimmer(1.4, 2100), 0.3, 0.06)
+# 2 glass x-ray; pixels switch on (tiny ticks)
+place(sfx, shimmer(1.0, 1500), at(1, 2.9), 0.09)
+for k in range(14): place(sfx, click(3000 + 400 * (k % 4), 0.012, 0.6), at(1, 3.5 + k * 0.1), 0.06, (k % 5 - 2) * 0.3)
+place(sfx, thud() * 0.5, at(1, 6.0), 0.15)
+# 3 the lid opens into layers: gentle mechanical slides
+for k in range(3): place(sfx, slide(0.32), at(2, 0.75 + k * 0.45), 0.22, (k - 1) * 0.4); place(sfx, click(900, 0.02, 0.3), at(2, 1.05 + k * 0.45), 0.18)
+# 4 main reveal: tape peels, each LED switches on with a satisfying tink
+place(sfx, crackle(0.6, 160) * 0.6, at(3, 0.25), 0.18)
+for i in range(4): t0 = at(3, 1.0 + i * 0.42); place(sfx, click(1800, 0.02), t0, 0.3, [-0.5, -0.15, 0.15, 0.5][i]); place(sfx, tink(2300 + 220 * i), t0 + 0.005, 0.2, [-0.5, -0.15, 0.15, 0.5][i])
+# 5 light path: soft shimmer, the even glow swells in, layers close with one restrained impact
+place(sfx, shimmer(2.0, 1700), at(4, 0.2), 0.07); place(sfx, swell(1.6, 523), at(4, 2.3), 0.12); place(sfx, thud(), at(4, 6.45), 0.4)
+# 6 Terminal: typing, Return, the logo powers down
+n_keys = 26
+for k in range(n_keys): place(sfx, click(1400 + 300 * (k % 3), 0.018, 0.5), at(5, 5.6 + k * (0.65 / n_keys)) + rng.uniform(0, 0.01), 0.16, 0.2 * np.sin(k))
+place(sfx, click(1000, 0.03, 0.35), at(5, 6.32), 0.32); place(sfx, powerdown(), at(5, 6.42), 0.18)
+# 8 outro: soft sonic logo (two warm notes + air)
+t = tt(1.9); so = (np.sin(2 * np.pi * midi(74) * t) * env(len(t), 0.01, 1.4, 2.2) + 0.8 * np.sin(2 * np.pi * midi(81) * np.maximum(0, t - 0.18)) * env(len(t), 0.01, 1.5, 2.0) * (t > 0.18)
+      + 0.25 * np.sin(2 * np.pi * midi(62) * t) * np.sin(np.pi * t / 1.9) ** 2)
+place(sfx, so, B[-2] + 0.08, 0.32)
 sfx /= max(1, np.max(np.abs(sfx)) / 0.9)
 sf.write('music.wav', music.astype(np.float32), SR); sf.write('sfx.wav', sfx.astype(np.float32), SR)
 print('ok', DUR)

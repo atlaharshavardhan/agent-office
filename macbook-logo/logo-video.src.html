@@ -8,16 +8,16 @@
   #shTop { top: 0; height: 28%; background: linear-gradient(rgba(4,5,8,.82), rgba(4,5,8,.4) 60%, transparent); }
   #shBot { bottom: 0; height: 38%; background: linear-gradient(transparent, rgba(4,5,8,.5) 40%, rgba(4,5,8,.8)); }
   .ov { position: fixed; z-index: 3; pointer-events: none; }
-  #title { top: 13.2%; left: 5%; right: 5%; text-align: center; color: #fff; font: 700 6.4vw/1.12 Sora, Arial, sans-serif; letter-spacing: -0.015em; text-shadow: 0 4px 24px rgba(0,0,0,.85); }
-  #title .ln { display: block; } #title em { font-style: normal; color: var(--acc); } #title em.r { color: var(--red); }
-  #note { top: 76.3%; left: 3.7%; right: 13%; text-align: center; font-size: 2.45vw; color: rgba(255,255,255,.6); letter-spacing: .01em; }
-  #sub { top: 65.1%; height: 10.4%; left: 3.7%; right: 16.7%; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font: 700 5.8vw/1.15 Sora, Arial, sans-serif; -webkit-text-stroke: 1.1vw rgba(0,0,0,.85); paint-order: stroke fill; text-shadow: 0 4px 18px rgba(0,0,0,.7); }
-  .tag { position: fixed; z-index: 3; pointer-events: none; color: #fff; font: 600 3.4vw 'IBM Plex Sans', Arial, sans-serif; white-space: nowrap;
+  #title { top: 13.2%; left: 11.1%; right: 16.7%; text-align: center; color: #fff; font: 700 6.4vw/1.12 Sora, Arial, sans-serif; letter-spacing: -0.015em; text-shadow: 0 4px 24px rgba(0,0,0,.85); }
+  #title .ln { display: block; } #title.hook { font-size: 8.2vw; line-height: 1.04; letter-spacing: .01em; text-shadow: 0 6px 28px rgba(0,0,0,.7); } #title em { font-style: normal; color: var(--acc); } #title em.r { color: var(--red); }
+  #note { top: 76.3%; left: 11.1%; right: 16.7%; text-align: center; font-size: 2.25vw; color: rgba(255,255,255,.6); white-space: nowrap; letter-spacing: .01em; }
+  #sub { top: 65.1%; height: 10.4%; left: 11.1%; right: 16.7%; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font: 700 5.8vw/1.15 Sora, Arial, sans-serif; -webkit-text-stroke: .45vw rgba(0,0,0,.55); paint-order: stroke fill; text-shadow: 0 4px 18px rgba(0,0,0,.7); }
+  .tag { position: fixed; z-index: 3; pointer-events: none; color: #fff; font: 600 3.15vw 'IBM Plex Sans', Arial, sans-serif; white-space: nowrap;
     padding: 1.2vw 2.6vw; border-radius: 3vw; background: rgba(12,14,20,.86); border: 1px solid rgba(255,255,255,.24); opacity: 0; }
   .tag.acc { border-color: var(--acc); color: #e3f6ff; } .tag.red { border-color: var(--red); color: #ffdbe0; } .tag.green { border-color: var(--green); color: #d6ffe4; }
   #lines { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: 2; pointer-events: none; overflow: visible; }
   /* room-light card and the switch (title zone, never on the laptop) */
-  #room { position: fixed; z-index: 3; left: 9%; right: 9%; top: 12.4%; padding: 2.4vw 3.6vw; border-radius: 4.5vw; color: #fff; opacity: 0; pointer-events: none;
+  #room { position: fixed; z-index: 3; left: 11.1%; right: 16.7%; top: 12.4%; padding: 2.4vw 3.6vw; border-radius: 4.5vw; color: #fff; opacity: 0; pointer-events: none;
     background: linear-gradient(160deg, rgba(34,36,46,.88), rgba(14,15,22,.92)); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 24px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08); }
   #room .row { display: flex; align-items: center; gap: 3vw; margin: 1vw 0; font: 600 3.3vw 'IBM Plex Sans', sans-serif; }
   #room .row b { width: 25vw; font-weight: 600; color: rgba(255,255,255,.75); }
@@ -27,6 +27,17 @@
   #sw { position: fixed; z-index: 3; left: 15%; right: 15%; top: 13.6%; display: flex; align-items: center; justify-content: space-between; padding: 3vw 4.2vw; border-radius: 4.5vw; opacity: 0; pointer-events: none;
     background: linear-gradient(160deg, rgba(34,36,46,.9), rgba(14,15,22,.94)); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 24px 60px rgba(0,0,0,.55); color: #fff; font: 600 4vw Sora, Arial, sans-serif; }
   #sw .tg { width: 15vw; height: 8.4vw; border-radius: 5vw; background: #2fd36b; position: relative; transition: none; } #sw .tg i { position: absolute; top: .8vw; left: .8vw; width: 6.8vw; height: 6.8vw; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+  #term { position: fixed; z-index: 3; left: 11.1%; right: 16.7%; top: 11.6%; border-radius: 2.6vw; overflow: hidden; opacity: 0; pointer-events: none;
+    background: rgba(14,15,19,.94); border: 1px solid rgba(255,255,255,.16); box-shadow: 0 24px 60px rgba(0,0,0,.6); }
+  #term .bar { height: 6vw; display: flex; align-items: center; gap: 1.4vw; padding: 0 2.6vw; background: rgba(255,255,255,.06); font: 600 2.6vw 'IBM Plex Sans', sans-serif; color: rgba(255,255,255,.55); }
+  #term .bar i { width: 2.2vw; height: 2.2vw; border-radius: 50%; background: #5a5d66; display: inline-block; } #term .bar span { margin-left: 2vw; }
+  #term pre { margin: 0; padding: 2.4vw 3vw 2.8vw; font: 500 3.15vw/1.42 'IBM Plex Mono', monospace; color: #e8ecf2; white-space: pre; }
+  #term pre b { color: #8fdcff; font-weight: 500; } #term .cur { display: inline-block; width: 1.7vw; height: 3.4vw; background: #e8ecf2; vertical-align: -0.5vw; }
+  #outro { position: fixed; inset: 0; z-index: 6; opacity: 0; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(60% 40% at 50% 46%, #111522 0%, #07080c 60%, #040506 100%); color: #fff; text-align: center; }
+  #oLogo { width: 21vw; height: 21vw; border-radius: 50%; }
+  #oName { margin-top: 3.4vw; font: 800 10vw/1 Sora, Arial, sans-serif; letter-spacing: -0.02em; } #oName b { color: #4fc3f7; font-weight: 800; }
+  #oTag { margin-top: 2.4vw; font: 500 3.7vw 'IBM Plex Sans', Arial, sans-serif; color: rgba(255,255,255,.72); letter-spacing: .01em; }
   #endcard { position: fixed; z-index: 4; left: 8%; right: 16%; top: 23.5%; height: 34.5%; border-radius: 5vw; overflow: hidden; border: 1px solid rgba(255,255,255,.22);
     box-shadow: 0 30px 80px rgba(0,0,0,.6); opacity: 0; pointer-events: none; background: #0b1230; }
   #ecScene { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -50,6 +61,8 @@
 <div id="room"><div class="row"><span class="ic" id="rIc">☀</span><b>Room light</b><div class="bar" id="rBar"><i></i></div></div>
   <div class="row"><span class="ic"></span><b>Logo glow</b><div class="bar" id="lBar"><i></i></div></div></div>
 <div id="sw"><span>Glowing logo</span><div class="tg"><i></i></div></div>
+<div id="term"><div class="bar"><i></i><i></i><i></i><span>Terminal</span></div><pre id="tPre"></pre></div>
+<div id="outro"><img id="oLogo" src="__LOGO__" alt=""><div id="oName"><span>Invisi</span><b>Tech</b></div><div id="oTag">The tech behind everyday life.</div></div>
 <div id="endcard"><canvas id="ecScene"></canvas><div id="ecShade"></div>
   <div id="ecBrand"><img id="ecLogo" src="__LOGO__" alt=""><div id="ecName"><span>Invisi</span><b>Tech</b></div><div id="ecHandle">@TheInvisiTech</div>
   <div id="ecIcons"><div><svg viewBox="0 0 24 24"><path d="M2 10h4v11H2zM8 21h9.5a2 2 0 0 0 2-1.6l1.4-7A2 2 0 0 0 19 10h-5.5l.8-4.2A2 2 0 0 0 12.4 3.5L8 9z" fill="#4aa8ff"/></svg>Like</div>
@@ -88,7 +101,7 @@ let ready = false;
 const RT = new THREE.WebGLMultisampleRenderTarget(Math.round(W * renderer.getPixelRatio()), Math.round(H * renderer.getPixelRatio()), { format: THREE.RGBAFormat, type: THREE.HalfFloatType, stencilBuffer: true }); RT.samples = 4;   // stencil → 24-bit depth (16-bit z-fights on the thin lid)
 const composer = new THREE.EffectComposer(renderer, RT); composer.setSize(W, H);
 composer.addPass(new THREE.RenderPass(scene, camera));
-const BLOOM = new THREE.UnrealBloomPass(new THREE.Vector2(W, H), 0.45, 0.35, 0.9); composer.addPass(BLOOM);   // high threshold: only LEDs, logo and rays bloom, not the whole screen
+const BLOOM = new THREE.UnrealBloomPass(new THREE.Vector2(W, H), 0.36, 0.35, 0.9); composer.addPass(BLOOM);   // high threshold: only LEDs, logo and rays bloom, not the whole screen
 [...BLOOM.renderTargetsHorizontal, ...BLOOM.renderTargetsVertical, BLOOM.renderTargetBright].forEach(t => t.texture.type = THREE.HalfFloatType);   // half-float: no blocky, banded glow
 composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));
 const draw = Q.get("nopost") ? () => renderer.render(scene, camera) : () => composer.render();
@@ -110,7 +123,8 @@ backdrop.frustumCulled = false; backdrop.renderOrder = -10; scene.add(backdrop);
   scene.environment = pm.fromScene(env, 0.04).texture;
 }
 scene.fog = new THREE.Fog(0x07080c, 2100, 3200);
-const hemi = new THREE.HemisphereLight(0x9aa4c0, 0x120e12, 0.5); scene.add(hemi);
+const hemi = new THREE.HemisphereLight(0x9aa4c0, 0x161219, 0.6); scene.add(hemi);
+const edgeRim = new THREE.DirectionalLight(0xe4ecff, 1.15); edgeRim.position.set(350, 650, 900); scene.add(edgeRim);   // rim light that traces the MacBook's edges
 const key = new THREE.DirectionalLight(0xfff1e6, 1.2); key.position.set(500, 700, -600); scene.add(key);
 const rim = new THREE.DirectionalLight(0x8fa8ff, 0.9); rim.position.set(-600, 300, 700); scene.add(rim);
 const logoLight = new THREE.PointLight(0xffffff, 0, 420, 2); scene.add(logoLight);
@@ -128,6 +142,11 @@ const MIRROR = new THREE.Reflector(new THREE.CircleGeometry(1500, 64), { texture
     vertexShader: 'uniform mat4 textureMatrix; varying vec4 vUv; varying vec2 vP; void main(){ vUv = textureMatrix * vec4(position, 1.0); vP = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
     fragmentShader: 'uniform sampler2D tDiffuse; uniform float strength; uniform float scrH; varying vec4 vUv; varying vec2 vP; void main(){ vec4 b = texture2DProj(tDiffuse, vUv); float f = smoothstep(0.42, 0.06, distance(vP, vec2(0.5))); float y = gl_FragCoord.y / scrH; f *= smoothstep(0.35, 0.5, y); gl_FragColor = vec4(b.rgb * 1.15, f * strength); }' } });
 MIRROR.material.transparent = true; MIRROR.material.depthWrite = false; MIRROR.rotation.x = -Math.PI / 2; MIRROR.position.y = 0.05; MIRROR.renderOrder = 1; scene.add(MIRROR);
+{ // soft contact shadow under the laptop
+  const c = document.createElement('canvas'); c.width = 256; c.height = 256; const x = c.getContext('2d'); x.filter = 'blur(18px)'; x.fillStyle = 'rgba(0,0,0,0.9)'; x.fillRect(40, 52, 176, 152);
+  const sh = new THREE.Mesh(new THREE.PlaneGeometry(470, 380), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, opacity: 0.75 }));
+  sh.rotation.x = -Math.PI / 2; sh.position.set(0, 0.2, 0); sh.renderOrder = 2; scene.add(sh);
+}
 { const ob = MIRROR.onBeforeRender; MIRROR.onBeforeRender = function (...a) { backdrop.visible = false; ob.apply(this, a); backdrop.visible = true; }; }
 { // soften the desk's edge into the backdrop
   const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'), g = x.createRadialGradient(128, 128, 30, 128, 128, 128);
@@ -251,6 +270,56 @@ function buildLayers() {
     m.position.set(0, -75 + 3, 30 + i * 25); m.rotation.set(Math.PI / 2, 0, 0); m.rotateX(Math.PI / 2); m.userData.o = 0.035; fwd.add(m); }
 }
 
+/* ---------- V3 pieces: OLED pixel grid, the missing backlight, layer shadows, LED rings + light pools, light particles ---------- */
+const PIX = { cv: document.createElement('canvas'), cols: 36, rows: 22, order: [] };
+const RING = radial([[0, 'rgba(255,255,255,0)'], [0.62, 'rgba(255,240,215,0)'], [0.74, 'rgba(255,240,215,0.85)'], [0.86, 'rgba(255,240,215,0)'], [1, 'rgba(255,240,215,0)']], 256);
+const POOL = radial([[0, 'rgba(255,238,205,0.9)'], [0.35, 'rgba(255,225,180,0.35)'], [1, 'rgba(255,220,170,0)']]);
+const RINGS = [], POOLS = [], HOTS = [];
+let PIXM, NOBL, FLOW;
+function softShadowTex() { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'); x.filter = 'blur(16px)'; x.fillStyle = '#000'; x.fillRect(34, 34, 188, 188); const t = new THREE.CanvasTexture(c); return t; }
+function buildV3() {
+  // pixel grid on the screen side: each pixel lights itself up
+  PIX.cv.width = 576; PIX.cv.height = 352; for (let i = 0; i < PIX.cols * PIX.rows; i++) PIX.order.push(Math.random());
+  const pt = new THREE.CanvasTexture(PIX.cv); pt.encoding = THREE.sRGBEncoding;
+  PIXM = new THREE.Mesh(new THREE.PlaneGeometry(276, 176), new THREE.MeshBasicMaterial({ map: pt, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
+  PIXM.rotation.x = Math.PI / 2; PIXM.position.set(0, 1.6, 104); PIXM.visible = false; LID.add(PIXM);
+  // where an LCD would have its backlight: an empty, dashed sheet behind the panel
+  NOBL = new THREE.Group(); LID.add(NOBL); NOBL.visible = false;
+  const nb = new THREE.Mesh(new THREE.BoxGeometry(280, 0.2, 180), new THREE.MeshBasicMaterial({ color: 0x0a0b10, transparent: true, opacity: 0.55, depthWrite: false })); nb.position.set(0, 26, 104); NOBL.add(nb);
+  const dl = new THREE.LineSegments(new THREE.EdgesGeometry(nb.geometry), new THREE.LineDashedMaterial({ color: 0xff3b55, dashSize: 6, gapSize: 4, transparent: true, opacity: 0.9 })); dl.computeLineDistances(); nb.add(dl); NOBL.userData.parts = [nb, dl];
+  // soft shadows in the gaps between separated layers
+  const st = softShadowTex();
+  [[TOUCH, 290, 190, 2.55], [OLED, 290, 190, 4.05], [FOAM, 280, 170, 4.9], [REFL, 104, 104, 4.6], [DIFF, 100, 100, 6.3]].forEach(([g, w, d, y]) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.08, d * 1.08), new THREE.MeshBasicMaterial({ map: st, transparent: true, opacity: 0, depthWrite: false }));
+    m.rotation.x = -Math.PI / 2; m.position.set(g === REFL || g === DIFF ? LOGO_C.x : 0, y - 3.2, g === REFL || g === DIFF ? LOGO_C.z : 104); m.userData.shadow = true; g.add(m); });
+  // LED activation rings, light pools on the mirror, concentrated hot spots on the diffuser
+  LEDS.forEach((L, i) => {
+    const r = sprite(RING, 30); r.position.copy(L.p).add(new THREE.Vector3(0, 0.6, 1)); r.visible = false; REFL.add(r); RINGS.push(r);
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(13, 36), new THREE.MeshBasicMaterial({ map: POOL, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+    pl.rotation.x = -Math.PI / 2; pl.position.copy(L.p).add(new THREE.Vector3(0, -0.75, 18)); REFL.add(pl); POOLS.push(pl);
+    const h = sprite(HALO_LED, 22); h.position.set(L.p.x, 5.6, L.p.z + 26); h.visible = false; DIFF.add(h); HOTS.push(h);
+  });
+  // light particles: LED → mirror → diffuser, then diffuser → logo (exploded layout)
+  FLOW = { g: new THREE.Group(), a: [], b: [] }; LID.add(FLOW.g);
+  const Y = LAYER_Y;
+  LEDS.forEach((L, i) => [16, 40, 62].forEach((dz, k) => {
+    const p0 = L.p.clone().add(new THREE.Vector3(0, Y.refl, 1.8)), p1 = new THREE.Vector3(L.p.x + (k - 1) * 6, 5.15 + Y.refl, L.p.z + dz), p2 = new THREE.Vector3(p1.x, 5.8 + Y.diff, p1.z);
+    for (let j = 0; j < 3; j++) { const sp = sprite(HALO_LED, 4.2); sp.userData = { pts: [p0, p1, p2], ph: (j / 3 + i * 0.11 + k * 0.23) % 1 }; FLOW.g.add(sp); FLOW.a.push(sp); }
+  }));
+  for (let n = 0; n < 20; n++) {
+    const a = n / 20 * Math.PI * 2 * 2.05, r = 6 + 26 * ((n * 7) % 20) / 20;
+    const p0 = new THREE.Vector3(LOGO_C.x + Math.cos(a) * r, 6.8 + Y.diff, LOGO_C.z + Math.sin(a) * r), p1 = new THREE.Vector3(LOGO_C.x + Math.cos(a) * r * 0.35, 7.0 + Y.shell, LOGO_C.z + Math.sin(a) * r * 0.4);
+    for (let j = 0; j < 2; j++) { const sp = sprite(HALO_W, 3.4); sp.userData = { pts: [p0, p1], ph: (j / 2 + n * 0.137) % 1 }; FLOW.g.add(sp); FLOW.b.push(sp); }
+  }
+}
+function flow(list, t, speed, a) { list.forEach(sp => { const P = sp.userData.pts, f = (t * speed + sp.userData.ph) % 1, segs = P.length - 1, x = f * segs, i = Math.min(segs - 1, Math.floor(x));
+  sp.position.copy(P[i]).lerp(P[i + 1], x - i); sp.material.opacity = a * Math.sin(Math.PI * f) ** 0.6; sp.visible = a > 0.01; }); }
+function drawPixels(frac, t) { const c = PIX.cv, x = c.getContext('2d'), cw = c.width / PIX.cols, ch = c.height / PIX.rows; x.clearRect(0, 0, c.width, c.height);
+  for (let j = 0; j < PIX.rows; j++) for (let i = 0; i < PIX.cols; i++) { const o = PIX.order[j * PIX.cols + i]; if (o > frac) continue; const v = Math.min(1, (frac - o) * 8);
+    const X = i * cw, Y = j * ch; x.globalAlpha = v; x.fillStyle = '#ff4060'; x.fillRect(X + 2, Y + 3, cw * 0.18, ch - 6); x.fillStyle = '#3ddc7a'; x.fillRect(X + 2 + cw * 0.26, Y + 3, cw * 0.18, ch - 6); x.fillStyle = '#4d86ff'; x.fillRect(X + 2 + cw * 0.52, Y + 3, cw * 0.34, ch - 6); }
+  x.globalAlpha = 1; PIXM.material.map.needsUpdate = true; }
+function layerShadows(a) { LAYERS.traverse(o => { if (o.userData && o.userData.shadow) o.material.opacity = 0.42 * a; }); }
+
 /* beams of light (additive tubes) */
 function tube(a, b, r, col, op) { const d = b.clone().sub(a), len = Math.max(0.01, d.length()), g = new THREE.Group();
   for (const [rr, o] of [[r, op], [r * 3.2, op * 0.18]]) { const m = new THREE.Mesh(new THREE.CylinderGeometry(rr, rr, 1, 10, 1, true), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: o, blending: THREE.AdditiveBlending, depthWrite: false }));
@@ -285,7 +354,7 @@ function explode(e) { EXPL = e; const k = ease(e);
   RAYS.led.forEach(R => { R.t.userData.a.y = 6.0 + LAYER_Y.refl * k; R.t.userData.b.y = 5.15 + LAYER_Y.refl * k; });
   RAYS.bounce.forEach(R => { R.t.userData.a.y = 5.15 + LAYER_Y.refl * k; R.t.userData.b.y = 6.3 + LAYER_Y.diff * k - 0.6; });
   RAYS.spread.forEach(R => { R.t.userData.a.y = 6.8 + LAYER_Y.diff * k; R.t.userData.b.y = 7.0 + LAYER_Y.shell * k; });
-  MAC.updateMatrixWorld(true); }
+  layerShadows(ease(e)); MAC.updateMatrixWorld(true); }
 function setXray(x) {
   SOLID.forEach(o => { const m = o.material; m.transparent = x > 0.001; m.opacity = 1 - x; m.depthWrite = x < 0.5; });
   GHOST.forEach(o => { o.material.uniforms.alpha.value = x; o.visible = x > 0.001; });
@@ -293,9 +362,10 @@ function setXray(x) {
 }
 function tapeOff(v) { const t = FOAM.userData.tape; t.material.opacity = 0.92 * (1 - v); t.visible = v < 0.99; t.position.y = 4.4 - 14 * ease(v); }
 function logoGlow(v) { // 0 = off (dark metal), 1 = full glow
-  LOGO.material.emissiveIntensity = 1.7 * v;   // mirror-coated: shiny when off, light passes through when on
+  LOGO.material.emissiveIntensity = 1.25 * v;   // ~27% less than v2
+  LOGO.material.color.setRGB(lerp(0.07, 0.87, v), lerp(0.075, 0.89, v), lerp(0.09, 0.92, v));   // dark chrome when off (mirror coating), light passes when on   // mirror-coated: shiny when off, light passes through when on
   SHELL.userData.halo.material.opacity = 0.1 * v; SHELL.userData.halo2.material.opacity = 0.07 * v;   // bloom does the rest SHELL.userData.halo.visible = SHELL.userData.halo2.visible = v > 0.01;
-  const p = LID.localToWorld(LOGO_C.clone().add(new THREE.Vector3(0, 12 + LAYER_Y.shell * ease(EXPL), 0))); logoLight.position.copy(p); logoLight.intensity = 0.6 * v; }
+  const p = LID.localToWorld(LOGO_C.clone().add(new THREE.Vector3(0, 70 + LAYER_Y.shell * ease(EXPL), 0))); logoLight.position.copy(p); logoLight.intensity = 0; }   // no point light: its highlight made a white dot on the mirror logo (bloom does the glow)
 function ledOn(list) { LEDS.forEach((L, i) => { const v = list[i] || 0; L.die.material.emissiveIntensity = 3 * v; LED_HALOS[i].visible = v > 0.01; LED_HALOS[i].material.opacity = v; LED_HALOS[i].scale.setScalar(16 + 14 * v); }); }
 function diffGlow(v) { DIFF.userData.mesh.material.emissiveIntensity = 0.9 * v; DIFF.userData.halo.material.opacity = 0.6 * v; DIFF.userData.halo.visible = v > 0.01; }
 function screenOn(v, fwd = 0) { const m = OLED.userData.mesh.material[3]; m.emissiveIntensity = 0.7 * v;
@@ -319,22 +389,26 @@ function proj(v) { const p = v.clone().project(camera); return [(p.x + 1) / 2 * 
 const COLS = { red: '#ff3b55', acc: '#8fdcff', green: '#2fd36b' };
 function sideTags(list) { // callouts in the side margins: [id, text, worldPoint, side(-1 left / 1 right), alpha, cls]
   const gap = H * 0.052, cols = { '-1': [], '1': [] };
-  list.forEach(L => { const [x, y] = proj(L[2]); cols[L[3]].push({ L, x, y, ty: Math.min(H * 0.62, Math.max(H * 0.25, y)) }); });
+  list.forEach(L => { const [x, y] = proj(L[2]); cols[L[3]].push({ L, x, y, ty: Math.min(H * 0.62, Math.max(H * 0.25, y + (L[6] || 0))) }); });
   for (const k in cols) { const c = cols[k].filter(o => o.L[4] > 0.01).sort((a, b) => a.ty - b.ty); for (let i = 1; i < c.length; i++) c[i].ty = Math.max(c[i].ty, c[i - 1].ty + gap);
     if (k === '1') { c.forEach(o => { if (o.ty > H * 0.43 && o.ty < H * 0.57) o.ty = o.ty < H * 0.5 ? H * 0.425 : H * 0.575; }); c.sort((a, b) => a.ty - b.ty);
-      for (let i = 1; i < c.length; i++) { c[i].ty = Math.max(c[i].ty, c[i - 1].ty + gap); if (c[i].ty > H * 0.43 && c[i].ty < H * 0.57) c[i].ty = H * 0.575; } } }   // keep clear of the right-middle watermark, without stacking tags   // keep clear of the right-middle watermark
+      for (let i = 1; i < c.length; i++) { c[i].ty = Math.max(c[i].ty, c[i - 1].ty + gap); if (c[i].ty > H * 0.43 && c[i].ty < H * 0.57) c[i].ty = H * 0.575; } } }   // 120 px / 180 px safe margins; keep clear of the right-middle watermark without stacking tags
   for (const k in cols) cols[k].forEach(({ L, x, y, ty }) => {
     const [id, text, , side, a, cls] = L, T = tagEl(id, text, cls), col = COLS[cls] || 'rgba(255,255,255,.75)';
-    const edge = side < 0 ? W * 0.04 : W * 0.96; T.el.style.left = edge + 'px'; T.el.style.top = ty + 'px'; T.el.style.opacity = a;
+    const edge = side < 0 ? W * 0.111 : W * 0.833; T.el.style.left = edge + 'px'; T.el.style.top = ty + 'px'; T.el.style.opacity = a;
     T.el.style.transform = side < 0 ? 'translate(0,-50%)' : 'translate(-100%,-50%)';
     const w = T.el.offsetWidth, tx = side < 0 ? edge + w : edge - w;
-    T.l.setAttribute('x1', x); T.l.setAttribute('y1', y); T.l.setAttribute('x2', tx); T.l.setAttribute('y2', ty); T.l.setAttribute('stroke', col); T.l.setAttribute('stroke-width', 2.5); T.l.style.opacity = a;
-    T.c.setAttribute('cx', x); T.c.setAttribute('cy', y); T.c.setAttribute('r', 6); T.c.setAttribute('fill', col); T.c.style.opacity = a;
+    T.l.setAttribute('x1', x); T.l.setAttribute('y1', y); T.l.setAttribute('x2', tx); T.l.setAttribute('y2', ty); T.l.setAttribute('stroke', col); T.l.setAttribute('stroke-width', 1.4); T.l.style.opacity = a;
+    T.c.setAttribute('cx', x); T.c.setAttribute('cy', y); T.c.setAttribute('r', 4); T.c.setAttribute('fill', col); T.c.style.opacity = a;
   });
 }
 function hideTags() { for (const id in TAGS) { TAGS[id].el.style.opacity = 0; TAGS[id].l.style.opacity = 0; TAGS[id].c.style.opacity = 0; } }
 function roomCard(a, roomK, logoK, night) { const r = $('room'); r.style.opacity = a; r.style.transform = `translateY(${(1 - a) * 2}vh)`;
   $('rBar').firstChild.style.width = (8 + 92 * roomK).toFixed(1) + '%'; $('lBar').firstChild.style.width = (8 + 92 * logoK).toFixed(1) + '%'; $('rIc').textContent = night ? '☾' : '☀'; }
+const CMD = ['sudo defaults write', 'com.apple.CoreBrightness', 'LEBacklightMode -int 0'];   // Apple Support, 5 Nov 2026
+function terminal(a, typed, done, u) { const tm = $('term'); tm.style.opacity = a; tm.style.transform = `translateY(${(1 - a) * 2}vh)`; if (a < 0.01) return;
+  const all = CMD.join('\n'), n = Math.floor(all.length * clamp01(typed)), shown = all.slice(0, n), cur = done ? '' : (Math.floor(u * 4) % 2 || typed < 1 ? '<span class="cur"></span>' : '');
+  $('tPre').innerHTML = '<b>$</b> ' + shown.replace(/\n/g, '\n  ') + cur + (done ? '\n<b>$</b> <span class="cur"></span>' : ''); }
 function switchCard(a, on) { const s = $('sw'); s.style.opacity = a; s.style.transform = `translateY(${(1 - a) * 2}vh)`;
   const tg = s.querySelector('.tg'); tg.style.background = `rgb(${lerp(80, 47, on)},${lerp(84, 211, on)},${lerp(96, 107, on)})`; tg.firstChild.style.left = lerp(0.8, 7.4, on) + 'vw'; }
 
@@ -351,23 +425,26 @@ function orbit(target, yaw, pitch, dist) { // yaw 0 = behind the laptop (sees th
 /* ---------- shots (each gets local time u in seconds) ---------- */
 const OPEN = 108;
 const SHOTS = [
-  [B[0], B[1], u => { // 1. hook: dark desk, the Mac wakes, the logo glows up
+  [B[0], B[1], u => { // 1. hook: extreme close-up of the dark logo, it lights within 0.5 s, the camera pulls back to the MacBook
     tapeOff(0); lidOpen(OPEN); explode(0); setXray(0); room(0); ledOn([]); diffGlow(0);
-    const wake = ease(ramp(u, 0.15, 0.6)), g = ease(ramp(u, 0.35, 1.3));
-    screenOn(wake, 0); logoGlow(g);
-    VO = 0.075; orbit(lidPoint(LOGO_C).add(new THREE.Vector3(0, -38, 0)), -14 + 6 * u, 12 + 1.2 * u, 1780 - 140 * u);
-    title(['Back after', '<em>10 years</em>'], [0.25, 0.55], u);
+    screenOn(ease(ramp(u, 0.1, 0.6)), 0); logoGlow(ease(ramp(u, 0.08, 0.55)));
+    const k = ease(ramp(u, 0.55, 2.75)), L = lidPoint(LOGO_C);
+    const tgt = L.clone().lerp(L.clone().add(new THREE.Vector3(0, -38, 0)), k), dist = 215 * Math.pow(1640 / 215, k);
+    VO = 0.075 * k; orbit(tgt, lerp(0, -8, k), lerp(-17, 12.5, k), dist);
+    $('title').classList.add('hook'); title(['THE GLOW', 'IS BACK.'], [0.35, 0.55], u);
   }],
-  [B[1], B[2], (u, d) => { // 2. orbit to the side; the lid turns to glass: the OLED only lights forward
+  [B[1], B[2], (u, d) => { // 2. orbit to the side; the lid turns to glass: every OLED pixel lights itself, there is no backlight
     tapeOff(0); lidOpen(OPEN); explode(0); room(0); ledOn([]); diffGlow(0);
     const k = ease(u / d), x = ease(ramp(u, 2.9, 3.9));
-    setXray(x); logoGlow(1 - 0.85 * ease(ramp(u, 2.9, 3.6))); screenOn(1, ease(ramp(u, 3.6, 4.6)));
+    setXray(x); logoGlow(1 - 0.85 * ease(ramp(u, 2.9, 3.6)));
+    const pf = ramp(u, 3.5, 5.0);   // "only makes light from the front": pixels switch on one by one
+    screenOn(0.15 + 0.5 * ease(ramp(u, 4.6, 5.4)), 0.8 * ease(ramp(u, 4.9, 5.6)));
+    PIXM.visible = pf > 0; PIXM.material.opacity = ease(ramp(u, 3.4, 3.7)) * (1 - 0.6 * ease(ramp(u, 5.4, 6.0))); if (pf > 0) drawPixels(pf, u);
+    const nb = ease(ramp(u, 5.9, 6.4)) * (1 - ease(ramp(u, 7.6, 8.0))); NOBL.visible = nb > 0.01; NOBL.userData.parts.forEach(m => m.material.opacity = (m.isLineSegments ? 0.9 : 0.55) * nb);
     VO = 0.0; orbit(lidPoint(new THREE.Vector3(0, 0, 100)).add(new THREE.Vector3(0, -10, 0)), lerp(-8, 112, k), lerp(12, 16, k), lerp(1350, 1250, k));
-    if (u < 3.4) title(['Apple brought it', '<em>back</em>'], [0.1, 0.35], u);
-    else title(['OLED: light only', 'goes <em>forward</em>'], [3.5, 3.8], u);
-    const a = ease(ramp(u, 4.4, 4.9)), b = ease(ramp(u, 6.0, 6.4));
-    sideTags([['scr', 'OLED pixels → light forward', lidPoint(new THREE.Vector3(0, -40, 150)), 1, a * (1 - ramp(u, 7.6, 8)), 'acc'],
-              ['back', '✕  No light behind', lidPoint(new THREE.Vector3(0, 7, 150)), -1, b * (1 - ramp(u, 7.6, 8)), 'red']]);
+    if (u > 3.4) title(['OLED: every pixel', 'makes its <em>own light</em>'], [3.5, 3.8], u);
+    sideTags([['scr', 'Pixels light themselves', lidPoint(new THREE.Vector3(0, -40, 150)), 1, ease(ramp(u, 4.6, 5.0)) * (1 - ramp(u, 7.6, 8)), 'acc'],
+              ['back', '✕  No backlight', lidPoint(new THREE.Vector3(-100, 26, 150)), -1, ease(ramp(u, 6.0, 6.4)) * (1 - ramp(u, 7.6, 8)), 'red']]);
   }],
   [B[2], B[3], (u, d) => { // 3. the lid opens up into its layers (after iFixit's teardown)
     rim.intensity = 1.8; rim.color.setHex(0x6fa8ff); lidOpen(OPEN); room(0); ledOn([]); diffGlow(0); tapeOff(0); setXray(1); logoGlow(0.15 * (1 - ramp(u, 0, 0.6))); screenOn(1, 0.0);
@@ -375,40 +452,49 @@ const SHOTS = [
     const k = ease(u / d);
     VO = 0.0; orbit(lidPoint(new THREE.Vector3(LOGO_C.x, 52, LOGO_C.z)), lerp(112, 62, k), lerp(16, 22, k), lerp(1200, 1020, k));
     title(['Where is the', '<em>glow</em> from?'], [0.05, 0.3], u);
-    const a = i => ease(ramp(u, 1.6 + i * 0.12, 2.0 + i * 0.12));
-    sideTags([['l1', 'Glass + touch layer', lidPoint(new THREE.Vector3(-120, 2.6 + LAYER_Y.touch * 0.5, 160)), -1, a(0)],
+    const a = i => ease(ramp(u, 1.25 + i * 0.3, 1.55 + i * 0.3));   // labels arrive one by one
+    sideTags([['l1', 'Glass + touch', lidPoint(new THREE.Vector3(-120, 2.6 + LAYER_Y.touch * 0.5, 160)), -1, a(0)],
               ['l2', 'Tandem OLED', lidPoint(new THREE.Vector3(-95, 3.6 + LAYER_Y.oled, 150)), -1, a(1)],
-              ['l3', 'Foam pads + taped patch', lidPoint(new THREE.Vector3(-90, 4.9 + LAYER_Y.foam, 140)), -1, a(2)],
-              ['l4', 'Reflective layer + LEDs', lidPoint(new THREE.Vector3(LOGO_C.x + 40, 5 + LAYER_Y.refl, LOGO_C.z + 30)), 1, a(3)],
+              ['l3', 'Foam pads + tape', lidPoint(new THREE.Vector3(-90, 4.9 + LAYER_Y.foam, 140)), -1, a(2)],
+              ['l4', 'Reflector + 4 LEDs', lidPoint(new THREE.Vector3(LOGO_C.x + 40, 5 + LAYER_Y.refl, LOGO_C.z + 30)), 1, a(3)],
               ['l5', 'Diffuser', lidPoint(new THREE.Vector3(LOGO_C.x + 42, 6.3 + LAYER_Y.diff, LOGO_C.z + 30)), 1, a(4)],
               ['l6', 'Mirror-coated logo', lidPoint(LOGO_C.clone().add(new THREE.Vector3(8, LAYER_Y.shell, 0))), 1, a(5)]]);
   }],
-  [B[3], B[4], (u, d) => { // 4. under the taped patch: a strip of four tiny LEDs along one edge
-    rim.intensity = 1.8; rim.color.setHex(0x6fa8ff); lidOpen(OPEN); room(0); setXray(1); explode(1); screenOn(0.6, 0); logoGlow(0); diffGlow(0); tapeOff(ease(ramp(u, 0.2, 0.9)));
-    ledOn(LEDS.map((_, i) => ease(ramp(u, 1.0 + i * 0.3, 1.2 + i * 0.3))));
-    const k = ease(u / d);
+  [B[3], B[4], (u, d) => { // 4. MAIN REVEAL: under the taped patch, a strip of four LEDs along one edge, switching on one by one
+    lidOpen(OPEN); room(0); setXray(1); explode(1); screenOn(0.35, 0); logoGlow(0); diffGlow(0); tapeOff(ease(ramp(u, 0.2, 0.9)));
+    const on = LEDS.map((_, i) => ramp(u, 1.0 + i * 0.42, 1.12 + i * 0.42));
+    ledOn(on.map(v => ease(v)));
+    LEDS.forEach((L, i) => { const t0 = 1.0 + i * 0.42, f = clamp01((u - t0) / 0.55), r = RINGS[i];   // activation: a ring of light and a short flash
+      r.visible = f > 0 && f < 1; r.material.opacity = (1 - f) * 0.9; r.scale.setScalar(8 + 20 * easeOut(f));
+      LED_HALOS[i].scale.setScalar(16 + 14 * ease(on[i]) + 18 * Math.max(0, 1 - Math.abs(u - t0 - 0.08) / 0.18));
+      POOLS[i].material.opacity = 0; });
     DIFF.visible = false; SHELL.visible = false; GHOST.forEach(o => o.material.uniforms.alpha.value = 0.12);   // look past the diffuser and the lid straight at the strip
-    VO = 0.0; const tg = lidPoint(STRIP_C.clone().add(new THREE.Vector3(0, LAYER_Y.refl, 8)));
+    const k = ease(u / d), tg = lidPoint(STRIP_C.clone().add(new THREE.Vector3(0, LAYER_Y.refl, 10)));
     camera.setViewOffset(W, H, 0, 0, W, H); camera.updateProjectionMatrix();
-    camera.position.copy(lidPoint(STRIP_C.clone().add(new THREE.Vector3(lerp(-120, -80, k), LAYER_Y.refl + lerp(250, 215, k), lerp(150, 125, k))))); camera.lookAt(tg); camera.updateMatrixWorld();
-    title(['<em>4 tiny LEDs</em>', 'in one strip'], [0.05, 0.3], u);
-    const sp = (dy) => lidPoint(STRIP_C.clone().add(new THREE.Vector3(-30, LAYER_Y.refl + dy, 0)));
-    sideTags([['led', '4 LEDs along one edge', sp(0.5), -1, ease(ramp(u, 2.0, 2.5)), 'acc'],
-              ['own', 'Made just for the logo', lidPoint(STRIP_C.clone().add(new THREE.Vector3(30, LAYER_Y.refl + 0.5, 0))), 1, ease(ramp(u, 3.4, 3.9))]]);
+    camera.position.copy(lidPoint(STRIP_C.clone().add(new THREE.Vector3(lerp(-125, -70, k), LAYER_Y.refl + lerp(245, 200, k), lerp(150, 120, k))))); camera.lookAt(tg); camera.updateMatrixWorld();
+    $('title').classList.add('hook'); title(['4 HIDDEN', 'LEDs'], [0.05, 0.25], u);
+    const sp = (dx) => lidPoint(STRIP_C.clone().add(new THREE.Vector3(dx, LAYER_Y.refl + 0.5, 0)));
+    sideTags([['led', 'One strip, along one edge', sp(-27), -1, ease(ramp(u, 2.9, 3.3)), 'acc', 85],
+              ['own', 'Made just for the logo', sp(27), 1, ease(ramp(u, 3.6, 4.0)), '', -95]]);
   }],
-  [B[4], B[5], (u, d) => { // 5. bounce → spread → shine through the logo; layers close
-    rim.intensity = 1.8; rim.color.setHex(0x6fa8ff); lidOpen(OPEN); room(0); setXray(1 - ease(ramp(u, 5.9, 7.0))); screenOn(0.6, 0);
+  [B[4], B[5], (u, d) => { // 5. bounce → spread → shine: concentrated LED light becomes one even glow
+    rim.intensity = 1.8; rim.color.setHex(0x6fa8ff); lidOpen(OPEN); room(0); setXray(1 - ease(ramp(u, 5.9, 7.0))); screenOn(0.35, 0);
     const close = ease(ramp(u, 5.4, 6.6)); explode(1 - close); tapeOff(1 - close); ledOn([1, 1, 1, 1].map(v => v * (1 - close)));
-    const r1 = ramp(u, 0.1, 0.9), r2 = ramp(u, 0.8, 1.6), r3 = ramp(u, 2.2, 3.2), fadeR = 1 - ramp(u, 5.2, 5.6);
-    RAYS.led.forEach(R => setTube(R.t, r1, fadeR)); RAYS.bounce.forEach(R => setTube(R.t, r2, fadeR)); RAYS.spread.forEach(R => setTube(R.t, r3, fadeR * (0.7 + 0.3 * Math.sin(u * 6 + R.n))));
-    diffGlow(ease(ramp(u, 2.0, 2.8)) * (1 - close)); logoGlow(ease(ramp(u, 3.0, 3.8)));
+    const fadeR = 1 - ramp(u, 5.0, 5.4);
+    RAYS.led.forEach(R => setTube(R.t, ramp(u, 0.1, 0.7), 0.22 * fadeR)); RAYS.bounce.forEach(R => setTube(R.t, ramp(u, 0.6, 1.2), 0.22 * fadeR));   // faint guides
+    flow(FLOW.a, u, 0.55, ease(ramp(u, 0.1, 0.6)) * fadeR);
+    const hot = ease(ramp(u, 1.0, 1.5)) * (1 - ease(ramp(u, 2.2, 3.0)));   // concentrated: four hot spots under the diffuser
+    HOTS.forEach(h => { h.visible = hot > 0.01; h.material.opacity = hot; });
+    diffGlow(ease(ramp(u, 2.2, 3.0)) * (1 - close)); flow(FLOW.b, u, 0.7, ease(ramp(u, 2.6, 3.1)) * fadeR); logoGlow(ease(ramp(u, 3.0, 3.8)));
+    POOLS.forEach(pl => pl.material.opacity = 0);
     const k = ease(u / d);
-    VO = 0.0; orbit(lidPoint(new THREE.Vector3(LOGO_C.x, 40 * (1 - close), LOGO_C.z)), lerp(62, 20, k), lerp(26, 14, k), lerp(900, 1000, k));
+    VO = 0.0; orbit(lidPoint(new THREE.Vector3(LOGO_C.x, 52 * (1 - close), LOGO_C.z)), lerp(62, 20, k), lerp(26, 14, k), lerp(900, 1000, k));
     if (u < 4.3) title(['Bounce, <em>spread</em>,', '<em>shine</em>'], [0.05, 2.2], u);
-    else title(['Even glow,', '<em>no bright spots</em>'], [4.4, 4.7], u);
+    else title(['One <em>even</em> glow'], [4.4], u);
     const fo = 1 - ramp(u, 5.0, 5.4);
-    sideTags([['b1', 'Mirror bounces it', lidPoint(new THREE.Vector3(LOGO_C.x - 40, 5 + LAYER_Y.refl, LOGO_C.z)), -1, ease(ramp(u, 0.9, 1.4)) * fo],
-              ['b2', 'Frosted sheet spreads it', lidPoint(new THREE.Vector3(LOGO_C.x + 40, 6 + LAYER_Y.diff, LOGO_C.z)), 1, ease(ramp(u, 2.0, 2.5)) * fo],
+    sideTags([['b1', 'Mirror bounces it', lidPoint(new THREE.Vector3(LOGO_C.x - 40, 5 + LAYER_Y.refl, LOGO_C.z)), -1, ease(ramp(u, 0.7, 1.1)) * fo],
+              ['b0', '4 bright spots', lidPoint(new THREE.Vector3(LOGO_C.x - 20, 5.6 + LAYER_Y.diff, STRIP_C.z + 26)), 1, hot],
+              ['b2', 'Diffuser spreads it evenly', lidPoint(new THREE.Vector3(LOGO_C.x + 40, 6 + LAYER_Y.diff, LOGO_C.z)), 1, ease(ramp(u, 2.6, 3.0)) * fo],
               ['b3', '✓  Even glow', lidPoint(LOGO_C.clone().add(new THREE.Vector3(0, LAYER_Y.shell, 0))), 1, ease(ramp(u, 4.0, 4.4)) * fo, 'green']]);
   }],
   [B[5], B[6], (u, d) => { // 6. follows the room light; a switch turns it off
@@ -416,45 +502,49 @@ const SHOTS = [
     // bright room → dark room → off
     const day = ease(ramp(u, 2.3, 3.0)) * (1 - ease(ramp(u, 3.9, 4.6)));
     const night = ease(ramp(u, 3.9, 4.6));
-    room(day * 0.85);
-    const glowK = 0.62 + 0.38 * day - 0.32 * night, off = ease(ramp(u, 6.4, 6.9));
+    room(day * 0.7);
+    const glowK = 0.62 + 0.38 * day - 0.32 * night, off = ease(ramp(u, 6.4, 6.8));
     logoGlow(glowK * (1 - off));
     VO = 0.075; orbit(lidPoint(LOGO_C).add(new THREE.Vector3(0, -40, 0)), lerp(-6, 8, u / d), 11, 1700);
     const cardA = ease(ramp(u, 0.2, 0.6)) * (1 - ease(ramp(u, 5.0, 5.3)));
     roomCard(cardA, day * 0.85 + 0.15 * (1 - night), glowK * (1 - off), night > 0.5);
-    switchCard(ease(ramp(u, 5.4, 5.8)), 1 - ease(ramp(u, 6.3, 6.6)));
+    terminal(ease(ramp(u, 5.35, 5.7)) , ramp(u, 5.6, 6.25), u > 6.3 ? 1 : 0, u);
     if (u < 0.2) title([], [], u);
   }],
-  [B[6], B[7], u => { // 7. end card ON the MacBook: the video we just watched shrinks onto its screen, the camera pulls back, the InvisiTech card plays there
-    snapshot(); roomCard(0, 0, 0); switchCard(0, 1);
-    tapeOff(0); lidOpen(OPEN); explode(0); setXray(0); ledOn([]); diffGlow(0); screenOn(0, 0); room(0); logoGlow(1);
-    const z = ease(ramp(u, 0.15, 1.9));
+  [B[6], B[7], u => { // 7. the video we just watched shrinks onto the MacBook's own screen, the camera pulls back
+    snapshot(); roomCard(0, 0, 0); terminal(0, 0, 0, 0);
+    tapeOff(0); lidOpen(OPEN); explode(0); setXray(0); ledOn([]); diffGlow(0); screenOn(0, 0); room(0); logoGlow(0);
+    const z = ease(ramp(u, 0.15, 2.4));
     const c = lidPoint(SCR_C), n = lidPoint(SCR_C.clone().add(new THREE.Vector3(0, -1, 0))).sub(c).normalize();
     const p0 = c.clone().addScaledVector(n, 90 / Math.tan(THREE.MathUtils.degToRad(15)));   // the portrait video fills the frame exactly
-    const tgt1 = c.clone().add(new THREE.Vector3(0, -48, 0)), y1 = THREE.MathUtils.degToRad(181 + 2.5 * u), pi1 = THREE.MathUtils.degToRad(11), d1 = 1200;
+    const tgt1 = c.clone().add(new THREE.Vector3(0, -48, 0)), y1 = THREE.MathUtils.degToRad(181 + 2 * u), pi1 = THREE.MathUtils.degToRad(11), d1 = 1200;
     const p1 = new THREE.Vector3(Math.sin(y1) * Math.cos(pi1), Math.sin(pi1), -Math.cos(y1) * Math.cos(pi1)).multiplyScalar(d1).add(tgt1);
     VO = 0.03 * z; camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix();
     camera.position.copy(p0.clone().lerp(p1, z)); camera.lookAt(c.clone().lerp(tgt1, z)); camera.updateMatrixWorld();
-    BLOOM.strength = lerp(0.45, 0.15, ease(ramp(u, 0.9, 1.6)));
-    END.screen = 1; END.card = ease(ramp(u, 1.1, 1.7)); END.brand = ramp(u, 1.5, 3.0);
+    END.screen = 1;
+  }],
+  [B[7], B[8], u => { // 8. branding: exactly 2 seconds
+    lidOpen(OPEN); explode(0); setXray(0); room(0); logoGlow(1); screenOn(1, 0);
+    VO = 0.075; orbit(lidPoint(LOGO_C).add(new THREE.Vector3(0, -40, 0)), -8, 11, 1640);
+    END.outro = u;
   }],
 ];
-const ORIG = [0, 8.06, 3.26, 6.29, 7.23, 7.52, 0];   // scene lengths the animations were written for (v1 voice)
+const ORIG = [0, 8.06, 3.26, 6.29, 7.23, 7.52, 0, 0];   // scene lengths the animations were written for (v1 voice)
 const CUTS = B.slice(1, -2);   // no dip to black into the end: the video shrinks onto the MacBook screen
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
-  hideTags(); renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.45; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
+  hideTags(); $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
   const k = ORIG[i] ? ORIG[i] / (b - a) : 1; fn((t - a) * k, ORIG[i] || b - a);   // scenes 2–6 were timed on v1's voice: stretch them to this voice's lines
-  if (i === 6) title([], [], 0);
-  note((i >= 1 && i <= 4 ? '3D illustration · inner layers not to scale · not affiliated with Apple' : '3D illustration · not affiliated with Apple'), 1);
+  if (i >= 6) title([], [], 0);
+  note(i === 3 ? 'Source: iFixit teardown · 3D, not to scale · not affiliated with Apple' : i === 5 && t > B[5] + (B[6] - B[5]) * 5.3 / 7.52 ? 'Command: Apple Support · 3D illustration · not affiliated with Apple' : (i >= 1 && i <= 4 ? '3D illustration · not to scale · not affiliated with Apple' : '3D illustration · not affiliated with Apple'), i === 7 ? 0 : 1);
   const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
-  $('fade').style.opacity = Math.max(0, ...CUTS.map(c => 0.85 - Math.abs(t - c) / 0.2));
+  $('fade').style.opacity = Math.max(0, ...CUTS.map(c => 0.55 - Math.abs(t - c) / 0.22));
   SCREEN.visible = false; if (!END.screen) draw();
   endCard();
 }
-const END = { a: 0, brand: 0, screen: 0, card: 0 };
+const END = { a: 0, brand: 0, screen: 0, card: 0, outro: -1 };
 /* the MacBook's own screen: a canvas texture over the display (lid space, faces the keyboard side) */
 const SCR_C = new THREE.Vector3(0, 2.6, 106), SCR_W = 286, SCR_H = 180;
 const SCV = document.createElement('canvas'); SCV.width = 1600; SCV.height = Math.round(1600 * SCR_H / SCR_W);
@@ -467,11 +557,13 @@ function snapshot() { // the last frame of scene 6 (laptop, switch card off), ke
   if (SNAP) return; const d = ORIG[5]; SHOTS[5][2](d - 0.001, d); draw();
   SNAP = document.createElement('canvas'); SNAP.width = renderer.domElement.width; SNAP.height = renderer.domElement.height; const x = SNAP.getContext('2d'), k = SNAP.width / W;
   x.drawImage(renderer.domElement, 0, 0);
-  const vw = SNAP.width / 100, sx = 15 * vw, sy = 0.136 * SNAP.height, sw = 70 * vw, sh = 14.4 * vw;   // the switch card, as it was on screen
-  rr(x, sx, sy, sw, sh, 4.5 * vw); x.fillStyle = 'rgba(24,25,34,.93)'; x.fill(); x.strokeStyle = 'rgba(255,255,255,.14)'; x.lineWidth = k; x.stroke();
-  x.fillStyle = '#fff'; x.font = `600 ${4 * vw}px Sora, Arial`; x.textBaseline = 'middle'; x.fillText('Glowing logo', sx + 4.2 * vw, sy + sh / 2);
-  rr(x, sx + sw - 4.2 * vw - 15 * vw, sy + 3 * vw, 15 * vw, 8.4 * vw, 4.2 * vw); x.fillStyle = 'rgb(80,84,96)'; x.fill();
-  x.beginPath(); x.arc(sx + sw - 4.2 * vw - 15 * vw + 0.8 * vw + 3.4 * vw, sy + 3 * vw + 4.2 * vw, 3.4 * vw, 0, 7); x.fillStyle = '#fff'; x.fill();
+  const vw = SNAP.width / 100, sx = 11.1 * vw, sy = 0.116 * SNAP.height, sw = (100 - 11.1 - 16.7) * vw, sh = 33 * vw;   // the Terminal window, as it was on screen
+  rr(x, sx, sy, sw, sh, 2.6 * vw); x.fillStyle = 'rgba(14,15,19,.95)'; x.fill(); x.strokeStyle = 'rgba(255,255,255,.16)'; x.lineWidth = k; x.stroke();
+  x.save(); rr(x, sx, sy, sw, 6 * vw, 2.6 * vw); x.clip(); x.fillStyle = 'rgba(255,255,255,.06)'; x.fillRect(sx, sy, sw, 6 * vw); x.restore();
+  for (let i = 0; i < 3; i++) { x.beginPath(); x.arc(sx + 3.7 * vw + i * 3.6 * vw, sy + 3 * vw, 1.1 * vw, 0, 7); x.fillStyle = '#5a5d66'; x.fill(); }
+  x.fillStyle = 'rgba(255,255,255,.55)'; x.font = `600 ${2.6 * vw}px "IBM Plex Sans", Arial`; x.textBaseline = 'middle'; x.fillText('Terminal', sx + 14.6 * vw, sy + 3 * vw);
+  x.font = `500 ${3.15 * vw}px "IBM Plex Mono", monospace`; const lh = 3.15 * 1.42 * vw;
+  ['$ ' + CMD[0], '  ' + CMD[1], '  ' + CMD[2], '$'].forEach((l, i) => { x.fillStyle = '#e8ecf2'; x.fillText(l, sx + 3 * vw, sy + 6 * vw + 2.4 * vw + lh * (i + 0.5)); });
 }
 const ICONS = [['Like', '#4aa8ff', ['M2 10h4v11H2zM8 21h9.5a2 2 0 0 0 2-1.6l1.4-7A2 2 0 0 0 19 10h-5.5l.8-4.2A2 2 0 0 0 12.4 3.5L8 9z', 'f']],
   ['Comment', '#f5a623', ['M12 3C6.5 3 2 6.8 2 11.5c0 2.3 1.1 4.4 2.9 6L4 21l4.3-2c1.1.4 2.4.6 3.7.6 5.5 0 10-3.8 10-8.5S17.5 3 12 3z', 's'], ['M7 11.5a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0 -2.4 0M10.8 11.5a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0 -2.4 0M14.8 11.5a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0 -2.4 0', 'f']],
@@ -479,7 +571,7 @@ const ICONS = [['Like', '#4aa8ff', ['M2 10h4v11H2zM8 21h9.5a2 2 0 0 0 2-1.6l1.4-
 function drawScreen() {
   const x = SCV.getContext('2d'), w = SCV.width, h = SCV.height, b = END.brand;
   x.globalAlpha = 1; x.fillStyle = '#000'; x.fillRect(0, 0, w, h);
-  if (SNAP && END.card < 1) { // the vertical video, with a blurred copy behind it (like a Short playing on a Mac)
+  if (SNAP) { // the vertical video, with a blurred copy behind it (like a Short playing on a Mac)
     x.save(); x.filter = 'blur(28px) brightness(0.45)'; x.drawImage(SNAP, -w * 0.1, -h * 0.9, w * 1.2, w * 1.2 * SNAP.height / SNAP.width); x.restore();
     const vh = h, vw2 = vh * SNAP.width / SNAP.height; x.drawImage(SNAP, (w - vw2) / 2, 0, vw2, vh);
   }
@@ -504,12 +596,16 @@ function drawScreen() {
   x.globalAlpha = 1; SCT.needsUpdate = true;
 }
 function endCard() {
-  $('endcard').style.opacity = 0; SCREEN.visible = END.screen > 0;
-  const pill = $('ecPill'), pa = easeOut(ramp(END.brand, 0.75, 0.95)) * END.screen; pill.style.opacity = pa; pill.style.transform = `translateX(-50%) translateY(${(1 - pa) * 2}vh)`;
+  $('endcard').style.opacity = 0; $('ecPill').style.opacity = 0; SCREEN.visible = END.screen > 0;
   if (END.screen > 0) { drawScreen(); draw(); }
+  const o = $('outro'), u = END.outro; o.style.opacity = u < 0 ? 0 : ease(ramp(u, 0, 0.22));
+  if (u >= 0) { const pop = (el, a0, a1, s0) => { const v = easeOut(ramp(u, a0, a1)); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 1.2}vh) scale(${s0 + (1 - s0) * v})`; };
+    pop($('oLogo'), 0.1, 0.6, 0.92); $('oLogo').style.boxShadow = `0 0 ${30 + 40 * ease(ramp(u, 0.2, 0.9))}px rgba(74,168,255,${0.25 + 0.3 * ease(ramp(u, 0.2, 0.9))})`;
+    pop($('oName'), 0.35, 0.85, 0.96); pop($('oTag'), 0.6, 1.1, 1); }
 }
+
 loadMac().then(() => {
-  buildLayers(); buildRays(); lidOpen(OPEN); explode(0); renderAt(0); ready = true;
+  buildLayers(); buildRays(); buildV3(); lidOpen(OPEN); explode(0); renderAt(0); ready = true;
   window.__tour = { total: TOTAL, renderAt };
   if (!/render=1/.test(location.search)) { const t0 = performance.now(); const loop = () => { renderAt(((performance.now() - t0) / 1000) % TOTAL); requestAnimationFrame(loop); }; loop(); }
 });
