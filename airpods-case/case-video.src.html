@@ -1,13 +1,18 @@
 <title>AirPods in someone else's case</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
-  :root { --red: #ff453a; --green: #63e06a; --acc: #63e06a; --blue: #63e06a; --amber: #ffb340; }
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; font-family: 'IBM Plex Sans', Arial, sans-serif; }
+  :root { --red: #FF4545; --green: #22C55E; --acc: #22C55E; --blue: #38BDF8; --amber: #ffb340; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: radial-gradient(115% 70% at 50% 42%, #1a2438 0%, #111827 28%, #0a0f1a 58%, #080C14 78%, #04060b 100%); font-family: 'IBM Plex Sans', Arial, sans-serif; }
   body > canvas { display: block; position: fixed; inset: 0; z-index: 1; }
-  #back { position: fixed; z-index: 0; left: 0; right: 0; text-align: center; color: #f5f5f7; font: 800 22.5vw/1.02 Inter, Arial, sans-serif; letter-spacing: -0.05em; pointer-events: none; opacity: 0; }
+  #wash { position: fixed; inset: 0; z-index: 0; opacity: 0; pointer-events: none; }
+  #bloom { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; filter: blur(1.5vw) brightness(1.2); mix-blend-mode: screen; opacity: .2; }
+  #vig { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(120% 78% at 50% 46%, transparent 52%, rgba(2,4,9,.55) 100%); }
+  #title .t-head { display: block; font: 800 8.2vw/1.04 Inter, Arial, sans-serif; text-transform: uppercase; color: #F5F5F7; text-shadow: 0 0.6vw 3vw rgba(0,0,0,.7); }
+  #title .t-head.red { color: #FF4545; } #title .t-head.green i { font-style: normal; color: #22C55E; } #title .t-head.gold { color: #F5F5F7; }
+  #back { position: fixed; z-index: 0; left: 0; right: 0; text-align: center; color: #f5f5f7; font: 800 23vw/0.98 Inter, Arial, sans-serif; letter-spacing: -0.05em; text-transform: uppercase; pointer-events: none; opacity: 0; }
   #back .ln { display: block; } #back small { display: block; font: 600 4.6vw Inter, Arial, sans-serif; letter-spacing: -0.01em; color: var(--acc); margin-bottom: 2.4vw; }
   .shade { position: fixed; left: 0; right: 0; pointer-events: none; z-index: 2; }
-  #shTop { top: 0; height: 28%; background: linear-gradient(rgba(0,0,0,.6), transparent); }
+  #shTop { top: 0; height: 26%; background: linear-gradient(rgba(4,6,11,.72), transparent); }
   #shBot { bottom: 0; height: 40%; background: linear-gradient(transparent, rgba(0,0,0,.5) 40%, rgba(0,0,0,.8)); }
   .ov { position: fixed; z-index: 3; pointer-events: none; }
   /* safe zones (1080x1920): title 220-450 px, subject 450-1500, subtitles 1250-1450, nothing right of 940 below 1100 */
@@ -23,10 +28,10 @@
   #sub { top: 65.1%; height: 10.4%; left: 13%; right: 13%; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font: 800 5.9vw/1.15 Inter, Arial, sans-serif; letter-spacing: -0.01em; -webkit-text-stroke: 1.1vw rgba(0,0,0,.85); paint-order: stroke fill; text-shadow: 0 4px 18px rgba(0,0,0,.7); }
   .tag { position: fixed; z-index: 3; transform: translate(-50%, -50%); pointer-events: none; color: #fff; font: 600 3.5vw Inter, Arial, 'Noto Color Emoji', sans-serif; letter-spacing: -0.01em; white-space: nowrap;
     padding: 1.4vw 3vw; border-radius: 2.6vw; background: rgba(28,28,30,.94); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 10px 30px rgba(0,0,0,.5); opacity: 0; }
-  .tag.sm { font-size: 3vw; padding: 1.2vw 2.4vw; } .tag.red { color: #ff6961; } .tag.green, .tag.blue { color: var(--acc); }
+  .tag.sm { font-size: 3vw; padding: 1.2vw 2.4vw; } .tag.red { color: #ff6b6b; } .tag.green { color: #4ade80; } .tag.blue { color: #38BDF8; } .tag.gold { color: #e9c766; }
   #lines { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: 2; pointer-events: none; overflow: visible; }
   #big { position: fixed; z-index: 3; transform: translate(-50%, -50%); font: 800 22vw Sora, Arial, sans-serif; color: var(--red); text-shadow: 0 0 40px rgba(255,59,85,.5); opacity: 0; pointer-events: none; }
-  #q { position: fixed; z-index: 3; transform: translate(-50%, -50%); font: 800 20vw Sora, Arial, sans-serif; color: #fff; text-shadow: 0 0 40px rgba(95,208,255,.7); opacity: 0; pointer-events: none; }
+  #q { position: fixed; z-index: 3; transform: translate(-50%, -50%); font: 800 20vw Sora, Arial, sans-serif; color: #22C55E; text-shadow: 0 0 40px rgba(34,197,94,.6); opacity: 0; pointer-events: none; }
   /* end card: a tile grid in the black studio look, one green accent */
   #endcard { position: fixed; z-index: 4; inset: 0; background: #000; opacity: 0; pointer-events: none; }
   #bento { position: absolute; left: 4.1%; width: 82.9%; top: 13.2%; height: 50.2%; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr 1.75fr 1fr 0.95fr; gap: 1.5vw; }
@@ -59,12 +64,12 @@
   #fade { position: fixed; inset: 0; z-index: 5; background: #000; opacity: 0; pointer-events: none; }
   #zones { position: fixed; inset: 0; z-index: 9; pointer-events: none; display: none; }
 </style>
-<div id="back"></div><div class="shade" id="shTop"></div><div class="shade" id="shBot"></div>
+<div id="wash"></div><div id="back"></div><canvas id="bloom" width="270" height="480"></canvas><div id="vig"></div><div class="shade" id="shTop"></div><div class="shade" id="shBot"></div>
 <svg id="lines"></svg>
 <div class="ov" id="title"></div>
 <div class="ov" id="note"></div>
 <div class="ov" id="sub"></div>
-<div id="big">✕</div><div id="q">?</div>
+<div id="big">✕</div><div id="q">✓</div>
 <div id="endcard"><div id="bento">
   <div class="tile" id="tA"><canvas id="ecScene"></canvas><div class="lbl"><span class="dim">Same model</span> · <b style="color:var(--acc)">it charges.</b></div></div>
   <div class="tile" id="tB">Each slot<div class="big">2 pins</div><span class="dim">on 2 gold dots</span></div>
@@ -102,8 +107,7 @@ const Q = new URLSearchParams(location.search);
 if (Q.get('zones')) document.getElementById('zones').style.display = 'block';
 const W = innerWidth, H = innerHeight;
 /* scene boundaries (seconds); replaced by the voice timeline once the narration is recorded */
-const B = window.__B || [0, 2.0, 8.6, 22.0, 29.0, 34.6, 41.8, 46.0, 49.0];
-const ORIG = [2.0, 3.5, 10.5, 3.0, 9.0, 9.0, 6.0, 3.0];   // the length each shot was designed at
+const B = window.__B || [0, 4.5, 8.2, 13.2, 18.2, 22.4, 29.1, 34.0];
 const TOTAL = B[B.length - 1];
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
 const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3), lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
@@ -129,10 +133,12 @@ let ready = false;
 }
 scene.add(new THREE.HemisphereLight(0xffffff, 0x2a2a2a, 0.44));
 const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(0, 500, 120); scene.add(key);
-const rim = new THREE.DirectionalLight(0xffffff, 1.6); rim.position.set(-420, 120, -320); scene.add(rim);
-const rim2 = new THREE.DirectionalLight(0xffffff, 1.6); rim2.position.set(420, 120, -320); scene.add(rim2);
+const rim = new THREE.DirectionalLight(0x7fd4ff, 1.5); rim.position.set(-420, 120, -320); scene.add(rim);
+const rim2 = new THREE.DirectionalLight(0x9adfff, 1.3); rim2.position.set(420, 120, -320); scene.add(rim2);
+const SHAD = [0, 1].map(() => { const m = new THREE.Mesh(new THREE.PlaneGeometry(120, 70), new THREE.MeshBasicMaterial({ map: null, transparent: true, depthWrite: false, color: 0x000000 })); m.rotation.x = -Math.PI / 2; scene.add(m); return m; });
 
-function radial(stops, size = 128) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'), g = x.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2); stops.forEach(([o, col]) => g.addColorStop(o, col)); x.fillStyle = g; x.fillRect(0, 0, size, size); return new THREE.CanvasTexture(c); }
+function radial(stops, size = 128) { /* textures */ const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'), g = x.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2); stops.forEach(([o, col]) => g.addColorStop(o, col)); x.fillStyle = g; x.fillRect(0, 0, size, size); return new THREE.CanvasTexture(c); }
+SHAD.forEach(m => { m.material.map = radial([[0, 'rgba(255,255,255,0.9)'], [0.45, 'rgba(255,255,255,0.4)'], [1, 'rgba(255,255,255,0)']]); m.material.alphaMap = m.material.map; });
 const HALO_B = radial([[0, 'rgba(235,248,255,1)'], [0.2, 'rgba(120,200,255,0.85)'], [0.55, 'rgba(80,170,255,0.2)'], [1, 'rgba(80,170,255,0)']]);
 const HALO_G = radial([[0, 'rgba(235,255,240,1)'], [0.2, 'rgba(90,240,140,0.85)'], [0.55, 'rgba(47,211,107,0.22)'], [1, 'rgba(47,211,107,0)']]);
 const HALO_A = radial([[0, 'rgba(255,248,230,1)'], [0.2, 'rgba(255,190,90,0.85)'], [0.55, 'rgba(255,170,60,0.22)'], [1, 'rgba(255,170,60,0)']]);
@@ -292,7 +298,7 @@ function buildCaseInternals(C) {
   const cell = rrBox(25, 9.5, 7.2, 1.8, 0.6, new THREE.MeshStandardMaterial({ color: 0x0b0c0e, roughness: 0.6, envMapIntensity: 0.35 })); bt.add(cell);
   const lb = new THREE.Mesh(new THREE.PlaneGeometry(15, 5.2), new THREE.MeshStandardMaterial({ map: labelTex([['1.334 Wh', 64], ['Li-ion', 36]], '#0b0c0e', '#cfd3d9', 512, 170), roughness: 0.6, envMapIntensity: 0.3 })); lb.position.z = 3.62; bt.add(lb);
   box(1.2, 8.4, 7.4, MAT.gold, -12.4, 0, 0, bt); box(1.2, 8.4, 7.4, MAT.gold, 12.4, 0, 0, bt);
-  P.batt = new THREE.Vector3(0, -15.5, 4.3);
+  P.batt = new THREE.Vector3(0, -15.5, 4.3); P.battGlow = sprite(HALO_G, 44); P.battGlow.position.copy(P.batt); P.battGlow.visible = false; I.add(P.battGlow);
   // flex from the battery down to the board
   I.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(12.4, -18, 3.2), new THREE.Vector3(14.5, -21.5, 3.2), new THREE.Vector3(12, -24.9, 3.2)]), 24, 0.35, 8), FLEX));
   // MagSafe / Qi2 coil on the back wall (copper rings, magnet ring)
@@ -304,7 +310,7 @@ function buildCaseInternals(C) {
   const sh = rrBox(8.9, 3.2, 2.8, 1.5, 0.2, MAT.steel); sh.rotation.x = Math.PI / 2; us.add(sh);
   box(6.4, 2.6, 0.7, MAT.black, 0, 0, 0, us);
   // wells: two spring pins under each stem's gold dots, a magnet beside each stem
-  P.pins = {}; P.mag = {};
+  P.pins = {}; P.mag = {}; P.pinParts = {};
   for (const s of ['R', 'L']) {
     const pins = [];
     DOTS[s].forEach(({ p }, k) => {
@@ -314,7 +320,7 @@ function buildCaseInternals(C) {
       const tip = new THREE.Mesh(new THREE.SphereGeometry(0.36, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), GLOW.pin); tip.position.y = 0.04; pg.add(tip);
       const spring = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(Array.from({ length: 40 }, (_, i) => new THREE.Vector3(Math.cos(i * 1.2) * 0.62, -0.9 - i * 0.055, Math.sin(i * 1.2) * 0.62))), 80, 0.07, 6), MAT.copper); pg.add(spring);
       const pad = box(1.4, 0.15, 1.4, MAT.gold, 0, -3.15, 0, pg);
-      pins.push(pg);
+      pins.push(pg); (P.pinParts[s] = P.pinParts[s] || []).push({ plunger, tip, spring });
       // trace from the pin down to the board
       const a = p.clone().add(new THREE.Vector3(0, -3.2, 0)), b = new THREE.Vector3(Math.sign(p.x) * 19.5, -25.1, 1.2 + (k ? 1.2 : -1.2));
       I.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([a, a.clone().lerp(b, 0.5).add(new THREE.Vector3(0, 0.3, 0)), b]), 12, 0.22, 6), FLEX));
@@ -323,6 +329,8 @@ function buildCaseInternals(C) {
     const mp = new THREE.Vector3(Math.sign(STEM[s].x) * 16.6, -12.5, 1.8);
     const mg = box(2.4, 7.0, 4.2, MAT.magnet, mp.x, mp.y, mp.z, I); P.mag[s] = mp;
   }
+  P.gold = sprite(HALO_Y, 9); P.gold.position.copy(P.pins.R).add(new THREE.Vector3(0, 1.4, 0)); P.gold.visible = false; I.add(P.gold);
+  P.magGlow = sprite(HALO_B, 16); P.magGlow.position.copy(P.mag.R); P.magGlow.visible = false; I.add(P.magGlow);
   P.light = C.halo.position.clone();
 }
 function buildBudInternals(b) {
@@ -372,21 +380,20 @@ function buildEngraving() {
 }
 
 /* power path: glowing tube + moving packets (blue) */
-const POWER = { tube: null, head: null, curve: null, pk: [] };
+const POWER = {};
 function buildPower(C) {
-  const b = C.buds.R, toCase = v => b.g.position.clone().add(v);   // bud frame → case frame (seated, no rotation)
-  const pts = [P.batt.clone().add(new THREE.Vector3(8, 0, 0)), new THREE.Vector3(12.8, -18.5, 3.6), new THREE.Vector3(14, -22.5, 3.6), new THREE.Vector3(17.5, -25.0, 2.4),
-    P.pins.R.clone().add(new THREE.Vector3(-0.4, -2.2, 0)), P.pins.R.clone(), ...P.budPathR.slice(1).map(toCase)];
-  POWER.curve = new THREE.CatmullRomCurve3(pts);
-  POWER.tube = new THREE.Mesh(new THREE.TubeGeometry(POWER.curve, 200, 0.55, 10), new THREE.MeshBasicMaterial({ color: 0x4fdc5a, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
-  POWER.tube.renderOrder = 20; C.body.add(POWER.tube);
-  POWER.head = sprite(HALO_G, 7); C.body.add(POWER.head);
-  for (let i = 0; i < 7; i++) { const s = sprite(HALO_G, 3.6); C.body.add(s); POWER.pk.push(s); }
+  for (const s of ['R', 'L']) { const g = s === 'R' ? 1 : -1, b = C.buds[s], toCase = v => STEM[s].clone().add(v);   // bud frame → case frame (seated)
+    const pts = [P.batt.clone().add(V(8 * g, 0, 0)), V(12.8 * g, -18.5, 3.6), V(14 * g, -22.5, 3.6), V(17.5 * g, -25.0, 2.4), P.pins[s].clone().add(V(-0.4 * g, -2.2, 0)), P.pins[s].clone(), ...P['budPath' + s].slice(1).map(toCase)];
+    const o = POWER[s] = { curve: new THREE.CatmullRomCurve3(pts), pk: [] };
+    o.tube = new THREE.Mesh(new THREE.TubeGeometry(o.curve, 200, 0.5, 10), new THREE.MeshBasicMaterial({ color: 0x22c55e, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
+    o.tube.renderOrder = 20; C.body.add(o.tube); o.head = sprite(HALO_G, 8); C.body.add(o.head);
+    for (let i = 0; i < 6; i++) { const sp = sprite(HALO_G, 3.4); C.body.add(sp); o.pk.push(sp); } }
 }
 function power(prog, flow, t) {
-  const idx = POWER.tube.geometry.index.count; POWER.tube.geometry.setDrawRange(0, Math.floor(idx * prog / 6) * 6); POWER.tube.visible = prog > 0.01;
-  POWER.head.visible = prog > 0.01 && prog < 0.995; POWER.head.position.copy(POWER.curve.getPoint(Math.min(prog, 1)));
-  POWER.pk.forEach((s, i) => { const f = (t * 0.35 + i / POWER.pk.length) % 1; s.visible = flow > 0.01; s.position.copy(POWER.curve.getPoint(f)); s.material.opacity = flow * Math.sin(Math.PI * f); });
+  for (const s of ['R', 'L']) { const o = POWER[s], pr = s === 'R' ? prog : Math.max(0, prog * 1.08 - 0.08);
+    const idx = o.tube.geometry.index.count; o.tube.geometry.setDrawRange(0, Math.floor(idx * pr / 6) * 6); o.tube.visible = pr > 0.01;
+    o.head.visible = pr > 0.01 && pr < 0.995; o.head.position.copy(o.curve.getPoint(Math.min(pr, 1)));
+    o.pk.forEach((sp, i) => { const f = (t * 0.45 + i / o.pk.length) % 1; sp.visible = flow > 0.01; sp.position.copy(o.curve.getPoint(f)); sp.material.opacity = flow * Math.sin(Math.PI * f); }); }
 }
 
 /* ---------- phone (generic, no logo) ---------- */
@@ -566,7 +573,7 @@ const TAGS = {}; const svg = $('lines');
 function tagEl(id, text, cls) { if (!TAGS[id]) { const el = document.createElement('div'); document.body.appendChild(el);
   const l = document.createElementNS('http://www.w3.org/2000/svg', 'line'), c = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); svg.append(l, c); TAGS[id] = { el, l, c }; }
   const T = TAGS[id]; T.el.textContent = text; T.el.className = 'tag ' + (cls || ''); return T; }
-const colOf = cls => cls === 'red' ? '#ff453a' : (cls === 'green' || cls === 'blue') ? '#63e06a' : 'rgba(255,255,255,.75)';
+const colOf = cls => /red/.test(cls) ? '#FF4545' : /green/.test(cls) ? '#22C55E' : /gold/.test(cls) ? '#D4AF37' : /blue/.test(cls) ? '#38BDF8' : 'rgba(255,255,255,.7)';
 function proj(v) { const p = v.clone().project(camera); return [(p.x + 1) / 2 * W, (1 - p.y) / 2 * H]; }
 function tag(id, text, world, dx, dy, a, cls, noLine) {
   const T = tagEl(id, text, cls), [x, y] = proj(world), col = colOf(cls);
@@ -591,8 +598,8 @@ function sideTags(list) { // callouts in the side margins: [id, text, world, sid
 }
 function hideTags() { for (const id in TAGS) { TAGS[id].el.style.opacity = 0; TAGS[id].l.style.opacity = 0; TAGS[id].c.style.opacity = 0; } }
 function glyph(id, world, a, scale = 1, dy = 0) { const el = $(id), [x, y] = proj(world); el.style.left = x + 'px'; el.style.top = (y + dy) + 'px'; el.style.opacity = a; el.style.transform = `translate(-50%,-50%) scale(${scale})`; }
-let VO = 0.06;
-function look(pos, target) { camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix(); camera.position.copy(pos); camera.lookAt(target); camera.updateMatrixWorld(); }
+let VO = 0.035;
+function look(pos, target, fov = 30) { camera.fov = fov; camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix(); camera.position.copy(pos); camera.up.set(0, 1, 0); camera.lookAt(target); camera.updateMatrixWorld(); }
 const V = (x, y, z) => new THREE.Vector3(x, y, z), vlerp = (a, b, k) => a.clone().lerp(b, k);
 const W2 = (C, v) => { C.root.updateMatrixWorld(true); return C.body.localToWorld(v.clone()); };
 
@@ -616,156 +623,138 @@ function swap(from, to, u, t0, dur, lift) {   // both buds: press down, pop out,
 }
 function seat(b, C) { if (b.g.parent !== C.body) C.body.add(b.g); resetBud(b); }
 
-/* ---------- timeline ---------- */
-let CA, CB, BUDS, CAPS = window.__CAPS || [];
-const DRAFT = ['', 'You just put your AirPods in your friend’s case. Will they charge? First, how does charging even work?',
-  'Two tiny spring pins in each slot touch two gold dots on the stem. Magnets hold the bud down. Power flows from the case battery, and a chip in the earbud decides how fast to fill it.',
-  'Your friend’s case has the same pins in the same place. So yes, they charge. But your iPhone notices.',
-  'It pops up “Mismatched AirPods”, because your buds and case were set up as a pair.',
-  'Put them back in their own case, or set them up again after your friend removes them from Find My.',
-  'A different generation can fit perfectly, and still not work properly.', 'Follow InvisiTech for more.'];
-if (!CAPS.length) DRAFT.forEach((line, i) => { if (!line) return; const w = line.split(' '), ch = []; for (let k = 0; k < w.length; k += 4) ch.push(w.slice(k, k + 4).join(' '));
-  const a = B[i] + 0.25, d = (B[i + 1] - 0.2 - a) / ch.length; ch.forEach((c, j) => CAPS.push([a + j * d, a + (j + 1) * d - 0.12, c.replace(/[.,]$/, '')])); });
+/* ---------- timeline (V2: one continuous cinematic take; every shot starts where the last one ended) ---------- */
+let CA, CB, CAPS = window.__CAPS || [];
+const HOME_A = V(-33.5, 0, 0), HOME_B = V(33.5, 0, 0);
+const bez = (a, b, c, k) => a.clone().multiplyScalar((1 - k) * (1 - k)).add(b.clone().multiplyScalar(2 * (1 - k) * k)).add(c.clone().multiplyScalar(k * k));
+const FOV = { hero: 30, close: 24, macro: 19 };                     // ≈ 50 mm, 85 mm, 105 mm on a tall frame
+const CAM0 = { p: V(-112, 66, 418), t: V(0, -3, 0), f: FOV.hero };    // opening = closing frame (seamless loop)
+function head(txt, a, cls) { const el = $('title'); const key = 'H|' + txt + cls; if (key !== lastTitle) { lastTitle = key; el.innerHTML = `<span class="t-head ${cls || ''}">${txt}</span>`; }
+  const c = el.firstChild; if (c) { c.style.opacity = a; c.style.transform = `translateY(${(1 - a) * 1.4}vh)`; c.style.letterSpacing = (0.02 + 0.05 * (1 - a)) + 'em'; } }
+function wash(col, a) { const el = $('wash'); el.style.opacity = a; el.style.background = col === 'red' ? 'radial-gradient(90% 60% at 50% 46%, rgba(255,69,69,.34), rgba(255,69,69,.08) 55%, transparent 80%)' : 'radial-gradient(90% 60% at 50% 46%, rgba(34,197,94,.26), rgba(34,197,94,.06) 55%, transparent 80%)'; }
+function focus(px) { renderer.domElement.style.filter = px > 0.05 ? `blur(${px.toFixed(2)}px)` : ''; }
+function pins(side, lift) { const e = Math.min(1, Math.max(0, lift / 0.7)) * 0.7; P.pinParts[side].forEach(q => { q.plunger.position.y = -0.45 + e; q.tip.position.y = 0.04 + e; q.spring.scale.y = 1 - e * 0.28; q.spring.position.y = e * 0.75; }); }
+function home(u, t) {   // both cases float gently; soft contact shadows under them
+  CA.root.position.copy(HOME_A); CB.root.position.copy(HOME_B); CA.root.rotation.set(0.05, 0.3, 0); CB.root.rotation.set(0.05, -0.3, 0);
+  const bob = Math.sin(2 * Math.PI * t / TOTAL * 6); CA.root.position.y += 1.1 * bob; CB.root.position.y -= 1.1 * bob;
+}
 const SHOTS = [
-  (u, t) => { // 1. hook: both buds lift out of case A and drop into case B; B's lid snaps shut
-    CA.root.position.set(-37.5, -6, 0); CB.root.position.set(37.5, -6, 0); CA.root.rotation.set(0.05, 0.3, 0); CB.root.rotation.set(0.05, -0.3, 0);
-    setLid(CA, 1); setLid(CB, 1 - ease(ramp(u, 1.6, 1.82)) + 0.07 * dbnc(u - 1.82, 5, 9)); CB.root.position.y -= 1.2 * dsin(u - 1.82, 4, 9);
-    swap(CA, CB, u, 0.3, 0.95, 50);
-    for (const s of ['R', 'L']) CB.buds[s].g.visible = false;
-    setLight(CB, 'white', 0.9 * bump(u, 1.4, 1.95)); setLight(CA, 'green', 0);
-    VO = 0.0; look(V(0, 150, 610), V(0, 18, 0));
-    title([], [], 1); back(['Wrong', 'case?'], 'Will it charge?', 1, '12.6%');
-    tag('ya', 'Yours · ' + NAMES.A, W2(CA, V(0, -36, 6)), -W * 0.012, 38, 1, 'sm', true); tag('fr', 'Friend’s · ' + NAMES.B, W2(CB, V(0, -36, 6)), W * 0.012, 38, 1, 'sm', true);
-    note('3D illustration · not affiliated with Apple', 1, true);
+  (k, u, t, d) => { // 1. hook: lids open, the buds jump into the friend's case, LED goes green, push in to the light
+    home(u, t); const op = easeOut(ramp(u, 0.0, 0.42)); setLid(CA, op + 0.05 * dbnc(u - 0.42, 4, 8)); setLid(CB, op + 0.05 * dbnc(u - 0.46, 4, 8));
+    swap(CA, CB, u, 0.34, 0.9, 52); for (const s of ['R', 'L']) CB.buds[s].g.visible = false;
+    const g = ease(ramp(u, 1.42, 1.7)); setLight(CB, 'green', g * (0.85 + 0.15 * Math.sin(t * 7))); wash('green', 0.55 * g * (1 - 0.4 * ramp(k, 0.8, 1)));
+    const e = 0.3 * ease(ramp(k, 0, 0.5)) + 0.7 * ease(ramp(k, 0.42, 1));
+    const P2 = W2(CB, P.light.clone().add(V(-16, 10, 225))), T2 = W2(CB, P.light.clone().add(V(0, 1, 0)));
+    look(bez(CAM0.p, V(30, 50, 390), P2, e), vlerp(CAM0.t, T2, ease(ramp(k, 0.3, 1))), lerp(CAM0.f, FOV.close, ease(ramp(k, 0.4, 1))));
+    back(['Wrong', 'case?'], '', 1 - ease(ramp(k, 0.62, 0.8)), '13.5%');
+    tag('ok', 'Charging', W2(CB, P.light), -W * 0.2, H * 0.07, ease(ramp(u, 1.7, 2.0)) * (1 - ease(ramp(k, 0.86, 0.98))), 'green');
+    note('3D illustration · not affiliated with Apple', ease(ramp(k, 0.44, 0.52)) * (1 - ramp(k, 0.86, 0.96)));
   },
-  (u, t) => { // 2. close on case B, "?" over the status light
-    CA.root.visible = false; CB.root.position.set(0, 0, 0); CB.root.rotation.set(0, -0.18 + 0.06 * u / 3.5, 0); setLid(CB, 0);
-    for (const s of ['R', 'L']) { seat(CA.buds[s], CB); CA.buds[s].g.visible = false; CB.buds[s].g.visible = false; }   // lid shut: buds hidden inside
-    setLight(CB, 'white', 0.5 + 0.2 * Math.sin(t * 5));
-    VO = 0.0; look(V(0, 34, 520 - 16 * u / 3.5), V(0, 15, 0));
-    title([], [], u); back(['Will it', 'charge?'], u > 2.2 ? 'First: how charging works' : ENGRAVE.B[0] + '’s case', 1, '17%', '20vw');
+  (k, u, t, d) => { // 2. the shell turns to glass; orbit 120° across the front, then push through the shell to the contacts
+    home(u, t); CA.root.visible = false; setLid(CB, 1); for (const s of ['R', 'L']) seat(CA.buds[s], CB);
+    const xr = ease(ramp(k, 0.0, 0.34)); setXray(CB, xr); for (const s of ['R', 'L']) budXray(CA.buds[s], xr); setLight(CB, 'green', 0.9); wash('green', 0.3 * (1 - xr));
+    const P2 = W2(CB, P.light.clone().add(V(-16, 10, 225))), T2 = W2(CB, P.light.clone().add(V(0, 1, 0)));
+    const a = lerp(-0.95, 1.1, ease(ramp(k, 0.05, 0.86))), r = lerp(190, 152, k), orb = W2(CB, V(Math.sin(a) * r, 26 - 14 * k, Math.cos(a) * r)), tO = W2(CB, V(0, -9, 0));
+    const P3 = W2(CB, STEM.R.clone().add(V(-16, 9, 54))), T3 = W2(CB, STEM.R.clone().add(V(0, -1.2, 0))), q = ease(ramp(k, 0.0, 0.3)), z = ease(ramp(k, 0.72, 1));
+    look(vlerp(vlerp(P2, orb, q), P3, z), vlerp(vlerp(T2, tO, q), T3, z), lerp(lerp(FOV.close, 27, q), FOV.macro, z));
+    head('Inside the case', easeOut(ramp(k, 0.1, 0.3)) * (1 - ease(ramp(k, 0.9, 1))));
+    const lab = (a0, a1) => ease(ramp(k, a0, a0 + 0.08)) * (1 - ease(ramp(k, a1, a1 + 0.08)));
+    P.battGlow.visible = true; P.battGlow.material.opacity = 0.5 * lab(0.3, 0.52); GLOW.pin.emissiveIntensity = 1.6 * lab(0.6, 0.95);
+    tag('t1', 'Battery', W2(CB, P.batt), -W * 0.2, -H * 0.085, lab(0.3, 0.52)); tag('t2', 'Circuit board', W2(CB, P.board), -W * 0.12, H * 0.07, lab(0.4, 0.62));
+    tag('t3', 'Magnet', W2(CB, P.mag.R), W * 0.16, -H * 0.07, lab(0.5, 0.72)); tag('t4', 'Charging contacts', W2(CB, P.pins.R), -W * 0.06, H * 0.075, lab(0.6, 0.86), 'gold');
+    note('Illustrative · not to scale', 1);
   },
-  (u, t) => { // 3. glass x-ray: pins, gold dots, magnets, then the power path into the bud's own chip and battery
-    CA.root.visible = false; CB.root.position.set(0, 0, 0); setLid(CB, 0); setLight(CB, 'green', 0.8);
-    CB.root.rotation.set(0, -0.5 + 0.15 * ease(u / 10.5), 0);
-    for (const s of ['R', 'L']) { seat(CA.buds[s], CB); }
-    const xr = ease(ramp(u, 0.2, 1.4)); setXray(CB, xr); for (const s of ['R', 'L']) budXray(CA.buds[s], xr * (s === 'R' ? 1 : 0.8));
-    const pinGlow = ease(ramp(u, 1.6, 2.2)) * (0.75 + 0.25 * Math.sin(t * 6)); GLOW.pin.emissiveIntensity = 1.6 * pinGlow;
-    const zin = ease(ramp(u, 0.6, 2.8)), zout = ease(ramp(u, 5.4, 6.8));
-    const tA = V(0, -8, 0), pA = V(-30, 60, 250), tB = W2(CB, STEM.R.clone().add(V(-2, 3, 0))), pB = W2(CB, STEM.R.clone().add(V(-18, 26, 112))), tC = W2(CB, V(4, -19, 0)), pC = W2(CB, V(-10, 12, 300));
-    const zc = ease(ramp(u, 7.9, 8.7)), tD = W2(CB, V(0, -20, 0)), pD = W2(CB, V(-6, 8, 335));
-    VO = 0.0; look(vlerp(vlerp(vlerp(pA, pB, zin), pC, zout), pD, zc), vlerp(vlerp(vlerp(tA, tB, zin), tC, zout), tD, zc));
-    const pr = ease(ramp(u, 5.4, 8.4)); power(pr, ease(ramp(u, 8.0, 8.6)), t);
-    const fill = ease(ramp(u, 8.4, 10.4)), live = ease(ramp(u, 8.2, 8.6));   // buds fill up (sped up), case gives a little
-    for (const s2 of ['R', 'L']) { const b2 = CA.buds[s2]; b2.batGlow.visible = live > 0.01; b2.batGlow.material.opacity = live * (0.35 + 0.45 * fill) * (0.8 + 0.2 * Math.sin(t * 8));
-      b2.batGlow.scale.setScalar(8 + 6 * fill); b2.batCell.material.emissiveIntensity = live * (0.2 + 0.9 * fill); }
-    GLOW.pin.emissiveIntensity = Math.max(GLOW.pin.emissiveIntensity, live * (1.2 + 0.6 * Math.sin(t * 10)));
-    chargeHud(ease(ramp(u, 8.2, 8.6)), 40 + 60 * fill, 38 + 62 * fill, 100 - 6 * fill);
-    if (u > 8.2) note(fill < 1 ? 'Sped up · real charging takes longer' : 'Illustrative · not to scale', 1);
-    $('shTop').style.background = 'linear-gradient(#000, #000 78%, transparent)'; $('shTop').style.height = '33%';
-    if (u < 5.2) title3('Inside the case', 'Pins meet gold dots.', 'Magnets hold the bud down', u, 0.4); else title3('Inside the case', 'Battery → chip → bud.', 'The bud’s chip decides how fast it fills', u, 5.4);
-    const a1 = ease(ramp(u, 1.8, 2.2)) * (1 - ease(ramp(u, 5.0, 5.4)));
-    const bud = CA.buds.R;
-    sideTags([['pin', 'Spring pins', W2(CB, P.pins.R), 1, a1, 'blue'],
-              ['dot', 'Gold dots', bud.g.localToWorld(DOTS.R[0].p.clone().sub(STEM.R)), -1, a1 * ease(ramp(u, 2.6, 3.0)), 'blue'],
-              ['mag', 'Magnet', W2(CB, P.mag.R), 1, ease(ramp(u, 3.4, 3.8)) * (1 - ease(ramp(u, 5.0, 5.4)))]]);
-    const a2 = ease(ramp(u, 5.6, 6.0));
-    sideTags([
-              ['chip', 'Charging chip', bud.g.localToWorld(P.budChipR.clone()), 1, ease(ramp(u, 7.4, 7.8)), 'blue'],
-              ['bbat', 'Bud battery', bud.g.localToWorld(P.budBatR.clone()), 1, ease(ramp(u, 8.0, 8.4)), 'blue']]);
-    tag('bat', 'Case battery', W2(CB, V(-7, -11, 4)), -W * 0.06, -H * 0.075, a2, 'blue');
-    if (u <= 8.2) note('Illustrative · not to scale', 1);
+  (k, u, t, d) => { // 3. macro: the earbud comes down, the magnet pulls it in, the spring contacts compress, gold glow
+    home(u, t); CA.root.visible = false; setLid(CB, 1); for (const s of ['R', 'L']) seat(CA.buds[s], CB); setXray(CB, 1); for (const s of ['R', 'L']) budXray(CA.buds[s], 1); setLight(CB, 'green', 0.5);
+    const up = 15 * ease(ramp(k, 0.0, 0.2)), dn = ease(ramp(k, 0.3, 0.6)), snap = Math.pow(ramp(k, 0.6, 0.655), 2.2);
+    const lift = k < 0.3 ? up : 15 - 13.4 * dn - 1.6 * snap + 0.5 * dbnc(u - 0.655 * d, 4.5, 9);
+    const b = CA.buds.R; b.g.position.y += lift; b.g.rotation.z = -0.04 * Math.min(1, lift / 15); pins('R', lift);
+    const on = ramp(k, 0.655, 0.7), pulse = 0.75 + 0.25 * Math.sin(t * 9); GLOW.pin.emissiveIntensity = 2.2 * on * pulse; P.gold.visible = on > 0.01; P.gold.material.opacity = on * 0.85 * pulse;
+    P.magGlow.visible = true; P.magGlow.material.opacity = 0.55 * bump(k, 0.36, 0.72);
+    const a = lerp(-0.3, 0.42, ease(k)), r = lerp(58, 44, ease(ramp(k, 0.2, 0.8))), ty = -1.2 + 0.3 * lift;
+    look(W2(CB, STEM.R.clone().add(V(Math.sin(a) * r, 7 + 0.5 * lift, Math.cos(a) * r))), W2(CB, STEM.R.clone().add(V(0, ty, 0))), FOV.macro);
+    focus(2.6 * bump(k, 0.5, 0.68));   // rack focus: earbud → contact point
+    head('Contacts connect', easeOut(ramp(k, 0.05, 0.2)) * (1 - ease(ramp(k, 0.9, 1))), 'gold');
+    tag('m1', 'Magnet pulls it in', W2(CB, P.mag.R), -W * 0.24, -H * 0.05, bump(k, 0.34, 0.66) > 0.2 ? ease(ramp(k, 0.34, 0.42)) * (1 - ease(ramp(k, 0.6, 0.68))) : 0);
+    tag('m2', 'Spring contacts', W2(CB, P.pins.R), -W * 0.2, H * 0.08, ease(ramp(k, 0.7, 0.78)) * (1 - ease(ramp(k, 0.92, 1))), 'gold');
+    note('Illustrative · not to scale', 1);
   },
-  (u, t) => { // 4. light turns green; the phone slides in, screen still dark
-    CA.root.visible = false; CB.root.position.set(-34 * ease(ramp(u, 1.2, 2.2)), -6, 0); CB.root.rotation.set(0, -0.12, 0); setLid(CB, ease(ramp(u, 0.0, 0.5)));
-    for (const s of ['R', 'L']) { seat(CA.buds[s], CB); CB.buds[s].g.visible = false; }
-    const gk = ease(ramp(u, 0.35, 0.7)); setLight(CB, gk > 0.5 ? 'green' : 'white', gk > 0.5 ? 1 : 0.6);
-    PHONE.visible = true; const pk = ease(ramp(u, 1.3, 2.3)); PHONE.position.set(lerp(140, 33, pk), -2, -6); PHONE.rotation.set(0, -0.3, 0.0); PHONE.scale.setScalar(0.5); screen('off');
-    VO = 0.0; look(V(0, 40, 470), V(0, -6, 0));
-    title3(ENGRAVE.B[0] + '’s case · same pins', 'Yes, they charge.', 'But your iPhone notices', u, 0.4);
-    tag('ok', 'Charging ✓', W2(CB, P.light), -W * 0.3, -H * 0.005, ease(ramp(u, 0.7, 1.0)) * (1 - ease(ramp(u, 1.2, 1.5))), 'green');
+  (k, u, t, d) => { // 4. follow the energy: battery → board → contacts → earbud; pull back to the whole system
+    home(u, t); CA.root.visible = false; setLid(CB, 1); for (const s of ['R', 'L']) seat(CA.buds[s], CB); setXray(CB, 1); for (const s of ['R', 'L']) budXray(CA.buds[s], 1); setLight(CB, 'green', 0.9); pins('R', 0);
+    const pr = ramp(k, 0.1, 0.6), pe = ease(pr); power(pe, ease(ramp(k, 0.56, 0.66)), t);
+    P.battGlow.visible = true; P.battGlow.material.opacity = 0.75 * ease(ramp(k, 0.02, 0.14)) * (0.8 + 0.2 * Math.sin(t * 6));
+    GLOW.pin.emissiveIntensity = 1.2 + 0.6 * Math.sin(t * 9); P.gold.visible = true; P.gold.material.opacity = 0.5;
+    const fill = ease(ramp(k, 0.58, 1)); for (const s of ['R', 'L']) { const b2 = CA.buds[s]; b2.batGlow.visible = fill > 0.01; b2.batGlow.material.opacity = fill * (0.55 + 0.25 * Math.sin(t * 7)); b2.batGlow.scale.setScalar(8 + 5 * fill); b2.batCell.material.emissiveIntensity = fill; }
+    const hd = W2(CB, POWER.R.curve.getPoint(Math.min(0.999, pe))), ride = hd.clone().add(V(-9, 9, 62)), P3 = W2(CB, STEM.R.clone().add(V(Math.sin(0.42) * 44, 7, Math.cos(0.42) * 44))), T3 = W2(CB, STEM.R.clone().add(V(0, -1.2, 0)));
+    const q = ease(ramp(k, 0, 0.14)), z = ease(ramp(k, 0.6, 0.92)), PW = W2(CB, V(-16, 22, 236)), TW = W2(CB, V(0, -6, 0));
+    look(vlerp(vlerp(P3, ride, q), PW, z), vlerp(vlerp(T3, hd, q), TW, z), lerp(lerp(FOV.macro, 22, q), 27, z));
+    wash('green', 0.4 * fill);
+    head('Power flows', easeOut(ramp(k, 0.05, 0.2)) * (1 - ease(ramp(k, 0.92, 1))), 'green');
+    tag('e1', 'Charging', CA.buds.R.g.localToWorld(P.budBatR.clone()), W * 0.02, -H * 0.075, ease(ramp(k, 0.74, 0.82)) * (1 - ease(ramp(k, 0.93, 1))), 'green');
+    tag('e2', 'Charging', CA.buds.L.g.localToWorld(P.budBatL.clone()), -W * 0.02, -H * 0.075, ease(ramp(k, 0.78, 0.86)) * (1 - ease(ramp(k, 0.93, 1))), 'green');
+    note('Illustrative · not to scale', 1);
   },
-  (u, t) => { // 5. the catch: Mismatched AirPods; the link to their own case breaks
-    CA.root.visible = true; setXray(CB, 0); for (const s of ['R', 'L']) budXray(CA.buds[s], 0); GLOW.pin.emissiveIntensity = 0;
-    CA.root.position.set(-38, -17.5, 0); CB.root.position.set(38, -17.5, 0); CA.root.rotation.set(0.12, 0.25, 0); CB.root.rotation.set(0.12, -0.25, 0); setLid(CA, 1); setLid(CB, 1);
-    for (const s of ['R', 'L']) { seat(CA.buds[s], CB); }
-    setLight(CB, 'green', 0.9); setLight(CA, 'white', 0.0);
-    const sh = ease(ramp(u, 3.6, 4.6)); PHONE.visible = true; PHONE.position.set(0, lerp(18, 46, sh), lerp(60, -10, sh)); PHONE.rotation.set(0, 0.0, 0); PHONE.scale.setScalar(lerp(0.82, 0.55, sh));
-    CA.root.position.y = CB.root.position.y = lerp(-110, -17.5, sh); CA.root.visible = CB.root.visible = sh > 0.02;
-    screen('alert', ramp(u, 0.6, 1.1));
-    VO = 0.0; look(V(0, 10, 628), V(0, 0, 0));
-    const lk = ease(ramp(u, 4.6, 5.2)), brk = ease(ramp(u, 6.2, 7.2));
-    link(W2(CA, V(0, 6, 0)), W2(CB, V(0, 10, 0)).add(V(0, 0, 0)), lk, brk, t);
-    tag('set', 'Paired as a set', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, -14, 0)), 0, 0, lk * (1 - brk), '', true);
-    glyph('big', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, 12, 0)), ease(ramp(u, 6.4, 6.8)), 0.35);
-    tag('ya2', ENGRAVE.A[0] + '’s case ' + ENGRAVE.A[1], W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8))); tag('fr2', ENGRAVE.B[0] + '’s case ' + ENGRAVE.B[1], W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8)));
-    title3('The catch', 'Mismatched.', 'Your buds and case were set up as a pair', u, 0.0, true);
+  (k, u, t, d) => { // 5. the catch: green turns to red, the iPhone swings in, push into the real warning
+    home(u, t); CA.root.visible = false; setLid(CB, 1); for (const s of ['R', 'L']) seat(CA.buds[s], CB);
+    const xr = 1 - ease(ramp(k, 0.0, 0.22)); setXray(CB, xr); for (const s of ['R', 'L']) budXray(CA.buds[s], xr);
+    const red = ease(ramp(k, 0.1, 0.4)); wash(red > 0.5 ? 'red' : 'green', red > 0.5 ? 0.9 * ease(ramp(red, 0.5, 1)) : 0.4 * (1 - red * 2)); setLight(CB, 'green', 0.9);
+    const pin = easeOut(ramp(k, 0.12, 0.42)); PHONE.visible = pin > 0.001; const ph = HOME_B.clone().add(V(lerp(190, 66, pin), 4, lerp(-60, 14, pin))), ry = lerp(-1.3, -0.34, pin);
+    PHONE.position.copy(ph); PHONE.rotation.set(0, ry, 0.02 * dsin(u - 0.42 * d, 2.5, 6)); PHONE.scale.setScalar(0.86); screen('alert', ramp(k, 0.38, 0.52));
+    const n = V(Math.sin(ry), 0, Math.cos(ry)), PW = W2(CB, V(-16, 22, 236)), TW = W2(CB, V(0, -6, 0));
+    const Pm = V(74, 34, 372), Tm = HOME_B.clone().add(V(30, 2, 0)), Pe = ph.clone().add(n.clone().multiplyScalar(236)).add(V(0, -22, 0)), Te = ph.clone().add(V(0, -30, 0));
+    const q = easeOut(ramp(k, 0, 0.36)), z = ease(ramp(k, 0.5, 1));
+    look(vlerp(vlerp(PW, Pm, q), Pe, z), vlerp(vlerp(TW, Tm, q), Te, z), lerp(lerp(27, 30, q), FOV.close, z));
+    head('The catch', easeOut(ramp(k, 0.14, 0.3)), 'red');
+    tag('c1', 'Charging ✓', W2(CB, V(0, 30, 0)), 0, -H * 0.02, ease(ramp(k, 0.2, 0.3)) * (1 - ease(ramp(k, 0.56, 0.68))), 'green', true);
+    tag('c2', 'Recognised as yours ✕', W2(CB, V(0, 30, 0)), 0, -H * 0.062, ease(ramp(k, 0.36, 0.46)) * (1 - ease(ramp(k, 0.56, 0.68))), 'red', true);
   },
-  (u, t) => { // 6. back in their own case (or set up again): warning gone
-    CA.root.visible = true; CA.root.position.set(-38, -17.5, 0); CB.root.position.set(38, -17.5, 0); CA.root.rotation.set(0.12, 0.25, 0); CB.root.rotation.set(0.12, -0.25, 0); setLid(CA, 1); setLid(CB, 1);
-    swap(CB, CA, u, 1.0, 1.2, 36);
-    const home = u > 2.4; setLight(CA, 'green', home ? 0.9 : 0); setLight(CB, 'white', home ? 0 : 0.0);
-    PHONE.visible = true; PHONE.position.set(0, 46, -10); PHONE.rotation.set(0, 0, 0); PHONE.scale.setScalar(0.55);
-    screen(home ? 'fixed' : 'alert', home ? ramp(u, 2.5, 3.0) : 1);
-    VO = 0.0; look(V(0, 10, 628), V(0, 0, 0));
-    title3('The fix', 'Back home. ✓', 'Or set up again, after Find My removal', u, 0.6);
-    
-    tag('ya3', ENGRAVE.A[0] + '’s case ' + ENGRAVE.A[1], W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, 1); tag('fr3', ENGRAVE.B[0] + '’s case ' + ENGRAVE.B[1], W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, 1);
+  (k, u, t, d) => { // 6. compatibility: left = same model, charges; right = different generation, doesn't work properly
+    home(u, t); setLid(CA, 1); setLid(CB, 1);
+    const out = ease(ramp(k, 0, 0.16)); PHONE.visible = out < 0.99; PHONE.position.copy(HOME_B.clone().add(V(66 + 240 * out, 4, 14))); PHONE.rotation.set(0, -0.34 - 0.5 * out, 0); PHONE.scale.setScalar(0.86); screen('alert', 1);
+    wash('red', 0.9 * (1 - out));
+    const dA = 0.2 * d, dB = 0.56 * d;   // drop times
+    for (const s of ['R', 'L']) { const b = CA.buds[s], st = dA + (s === 'L' ? 0.09 : 0), kk = ramp(u, st - 0.5, st); seat(b, CA); b.g.visible = k > 0.05;
+      b.g.position.y += 44 * (1 - ease(kk)) + 3.4 * dbnc(u - st, 3.6, 5.5); CA.root.position.y -= 2.2 * dsin(u - st, 2.8, 7);
+      const o = CB.buds[s], st2 = dB + (s === 'L' ? 0.09 : 0), k2 = ramp(u, st2 - 0.5, st2); o.g.visible = k > 0.4; resetBud(o); o.g.position.y += 44 * (1 - ease(k2)) + 3.4 * dbnc(u - st2, 3.6, 5.5); CB.root.position.y -= 2.2 * dsin(u - st2, 2.8, 7); }
+    const gA = ease(ramp(u, dA + 0.15, dA + 0.45)); setLight(CA, 'green', gA * (0.85 + 0.15 * Math.sin(t * 7)));
+    const bB = u > dB + 0.2; setLight(CB, 'amber', bB ? 0.55 + 0.45 * Math.sin(t * 9) : 0);
+    const LA = { p: HOME_A.clone().add(V(-52, 50, 318)), t: HOME_A.clone().add(V(0, -4, 0)) }, RB = { p: HOME_B.clone().add(V(52, 50, 318)), t: HOME_B.clone().add(V(0, -4, 0)) }, EN = { p: HOME_A.clone().add(V(-30, 34, 236)), t: HOME_A.clone().add(V(0, -6, 0)) };
+    const n0 = V(Math.sin(-0.34), 0, Math.cos(-0.34)), ph = HOME_B.clone().add(V(66, 4, 14)), Pe = ph.clone().add(n0.multiplyScalar(236)).add(V(0, -22, 0)), Te = ph.clone().add(V(0, -30, 0));
+    const a = ease(ramp(k, 0.0, 0.17)), b2 = ease(ramp(k, 0.4, 0.54)), c = ease(ramp(k, 0.8, 1));
+    look(vlerp(vlerp(vlerp(Pe, LA.p, a), RB.p, b2), EN.p, c).add(V(6 * Math.sin(t * 0.7), 0, 0)), vlerp(vlerp(vlerp(Te, LA.t, a), RB.t, b2), EN.t, c), lerp(FOV.close, 27, a));
+    head('Compatibility<br>matters', easeOut(ramp(k, 0.1, 0.22)) * (1 - ease(ramp(k, 0.92, 1))));
+    const sA = ease(ramp(u, dA + 0.3, dA + 0.55)) * (1 - b2) + c * ease(ramp(u, dA + 0.3, dA + 0.55)), sB = ease(ramp(u, dB + 0.3, dB + 0.55)) * (1 - c);
+    tag('k1', 'Same model · charges ✓', W2(CA, V(0, 30, 0)), 0, -H * 0.03, sA, 'green', true); tag('k2', 'Different generation ✕', W2(CB, V(0, 30, 0)), 0, -H * 0.03, sB, 'red', true);
   },
-  (u, t) => { // 7. a different generation: fits perfectly, still doesn't work properly
-    CA.root.visible = false; CB.root.position.set(8.7, 2, 0); CB.root.rotation.set(0.1, -0.2, 0); setLid(CB, 1);
-    PHONE.visible = false;
-    seat(CA.buds.L, CB); CA.buds.L.g.visible = false;
-    const other = CB.buds.R, mine = CA.buds.R; other.g.visible = true; seat(mine, CB);
-    mine.g.position.add(V(-62 - 60 * ease(ramp(u, 1.9, 2.5)), 26, 6)); mine.g.rotation.set(0, 0, 0.12);   // look-alike bud waiting at the side
-    const k = ramp(u, 1.0, 2.0); other.g.position.copy(STEM.R).add(V(0, 46 * (1 - ease(k)) + 3.4 * dbnc(u - 2.0, 3.6, 5.5), 0)); other.g.rotation.set(0, 0, -0.15 * (1 - ease(k))); CB.root.position.y -= 2.2 * dsin(u - 2.0, 2.8, 7);
-    const inn = k >= 1; setLight(CB, 'amber', inn ? 0.6 + 0.4 * Math.sin(t * 7) : 0);
-    VO = 0.0; look(V(0, 60, 380), V(0, 0, 0));
-    tag('g1', 'Same generation', mine.g.localToWorld(V(-3, 26, 0)), 0, -H * 0.045, ease(ramp(u, 0.3, 0.6)) * (1 - ease(ramp(u, 1.7, 1.95))), 'green', true);
-    tag('g2', 'Different generation', other.g.localToWorld(V(0, 26, 0)), 0, -H * 0.045, ease(ramp(u, 0.3, 0.6)) * (1 - ease(ramp(u, 0.95, 1.1))), 'red', true);
-    tag('fits', 'Fits ✓', W2(CB, STEM.R.clone().add(V(-6, 22, 0))), -W * 0.4, -H * 0.03, ease(ramp(u, 2.3, 2.6)), 'green');
-    glyph('big', W2(CB, STEM.R.clone().add(V(-2, 50, 0))), ease(ramp(u, 3.0, 3.3)), 0.42 + 0.05 * bump(u, 3.0, 3.4));
-    title3('Different generation', 'Fits. Doesn’t work.', 'Not properly, anyway', u, 0.2, true);
-  },
-  (u, t) => { // 8. end card
-    CA.root.visible = false; PHONE.visible = false; CB.root.position.set(0, 0, 0); CB.root.rotation.set(0.12, -0.22 + 0.12 * u, 0); setLid(CB, 1);
-    for (const s of ['R', 'L']) seat(CA.buds[s], CB); CB.buds.R.g.visible = false; CB.buds.L.g.visible = false;
-    setXray(CB, 0); budXray(CA.buds.R, 0); budXray(CA.buds.L, 0); setLight(CB, 'green', 1.0);
-    VO = 0.0; look(V(0, 50, 600), V(0, -4, 0));
-    title([], [], u);
-    END.a = easeOut(ramp(u, 0, 0.35)); END.brand = ramp(u, 0.2, 2.0);
+  (k, u, t, d) => { // 7. hero: back to the opening frame, the case shuts with a snap (loops into shot 1)
+    home(u, t); const cl = ease(ramp(k, 0.5, 0.64)), sn = u - 0.64 * d; setLid(CA, 1 - cl + 0.06 * dbnc(sn, 5, 9)); setLid(CB, 1 - cl + 0.06 * dbnc(sn - 0.05, 5, 9));
+    CA.root.position.y -= 1.2 * dsin(sn, 4, 9); CB.root.position.y -= 1.2 * dsin(sn - 0.05, 4, 9);
+    for (const s of ['R', 'L']) { const b = CA.buds[s]; seat(b, CA); b.g.position.y += 12 * bump(k, 0.04, 0.34) + 2.6 * dbnc(u - 0.34 * d, 3.6, 6);
+      const o = CB.buds[s]; resetBud(o); o.g.visible = k < 0.16; o.g.position.y += 60 * ease(ramp(k, 0, 0.16)); }
+    setLight(CA, 'green', (1 - ease(ramp(k, 0.86, 1))) * (0.85 + 0.15 * Math.sin(t * 7))); wash('green', 0.5 * bump(k, 0.1, 0.9));
+    const EN = { p: HOME_A.clone().add(V(-30, 34, 236)), t: HOME_A.clone().add(V(0, -6, 0)) }, e = ease(ramp(k, 0.0, 0.8));
+    look(bez(EN.p, V(-120, 60, 250), CAM0.p, e), vlerp(EN.t, CAM0.t, e), lerp(27, CAM0.f, e));
+    head('Yes. <i>If compatible.</i>', easeOut(ramp(k, 0.04, 0.2)) * (1 - ease(ramp(k, 0.9, 0.99))), 'green');
+    note('@TheInvisiTech · follow for more', easeOut(ramp(k, 0.3, 0.45)) * (1 - ease(ramp(k, 0.9, 0.99))));
   },
 ];
-const KEYS = ['friend’s case', "friend's case", 'charge?', 'spring pins', 'gold dots', 'Magnets', 'case battery', 'chip', 'same pins', 'they charge', 'iPhone notices', 'Mismatched AirPods', 'as a pair', 'own case', 'Find My', 'different generation', 'fit perfectly', 'not work', 'InvisiTech', 'AirPods', 'charging'];
+const KEYS = ['friend’s case', "friend's case", 'a catch', 'power system', 'metal contacts', 'charging circuit', 'Power flows', 'circuit board', 'earbuds', 'work normally', 'compatible case', 'may not fit', 'charge correctly', 'So yes', 'AirPods'];
 const hi = txt => { for (const k of KEYS) { const i = txt.indexOf(k); if (i >= 0) return txt.slice(0, i) + '<em>' + k + '</em>' + txt.slice(i + k.length); } return txt; };
-const CUTS = () => B.slice(2, B.length - 1);
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   let i = 0; while (i < B.length - 2 && t >= B[i + 1]) i++;
-  hideTags(); $('back').style.opacity = 0; $('chg').style.opacity = 0; $('shTop').style.background = ''; $('shTop').style.height = ''; for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('note').style.top = ''; $('note').style.fontSize = ''; $('note').style.color = ''; $('title').style.opacity = 1;
-  CA.root.visible = true; CB.root.visible = true; PHONE.visible = false; LINK.visible = false;
-  for (const C of [CA, CB]) { setXray(C, 0); setLight(C, 'green', 0); C.buds.R.g.visible = false; C.buds.L.g.visible = false; }
-  for (const s of ['R', 'L']) { CA.buds[s].g.visible = true; budXray(CA.buds[s], 0); if (CA.buds[s].batGlow) { CA.buds[s].batGlow.visible = false; CA.buds[s].batCell.material.emissiveIntensity = 0; } }
+  hideTags(); $('back').style.opacity = 0; $('chg').style.opacity = 0; for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('wash').style.opacity = 0; focus(0);
+  if (!lastTitle.startsWith('H|')) $('title').innerHTML = ''; if ($('title').firstChild) $('title').firstChild.style.opacity = 0;
+  CA.root.visible = true; CB.root.visible = true; PHONE.visible = false; LINK.visible = false; P.battGlow.visible = false; P.gold.visible = false; P.magGlow.visible = false;
+  for (const C of [CA, CB]) { setXray(C, 0); setLight(C, 'green', 0); C.buds.R.g.visible = false; C.buds.L.g.visible = false; C.root.rotation.z = 0; }
+  for (const s of ['R', 'L']) { CA.buds[s].g.visible = true; budXray(CA.buds[s], 0); CA.buds[s].batGlow.visible = false; CA.buds[s].batCell.material.emissiveIntensity = 0; pins(s, 0); }
   power(0, 0, t); GLOW.pin.emissiveIntensity = 0;
-  renderer.domElement.style.filter = ''; END.a = 0; END.brand = 0;
-  const span = B[i + 1] - B[i]; SHOTS[i]((i >= 1 && i <= 6) ? (t - B[i]) * ORIG[i] / span : t - B[i], t);
-  const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').innerHTML = cp ? '<span>' + hi(cp[2]) + '</span>' : '';
-  $('fade').style.opacity = Math.max(0, ...CUTS().map(c => 1 - Math.abs(t - c) / 0.2)) * 0.9;
+  const d = B[i + 1] - B[i], u = t - B[i]; SHOTS[i](u / d, u, t, d);
+  for (const [C, sh] of [[CA, SHAD[0]], [CB, SHAD[1]]]) { sh.visible = C.root.visible; sh.position.set(C.root.position.x, -47, C.root.position.z); sh.material.opacity = 0.5 - 0.02 * (C.root.position.y); }
+  const cp = CAPS.find(c => t >= c[0] - 0.03 && t < c[1] + 0.08); $('sub').innerHTML = cp && !Q.get('nosub') ? '<span>' + hi(cp[2]) + '</span>' : '';
+  $('wm').style.opacity = Q.get('nowm') ? 0 : 0.7;
   renderer.render(scene, camera);
-  endCard();
-}
-const END = { a: 0, brand: 0 };
-function endCard() {
-  const ec = $('endcard'), a = END.a, b = END.brand; ec.style.opacity = a; $('wm').style.opacity = Q.get('nowm') ? 0 : 0.78 * (1 - a);
-  if (a < 0.01) return;
-  const tA = $('tA'), r = tA.getBoundingClientRect(), cv = $('ecScene'), dpr = renderer.getPixelRatio();
-  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
-  const sw = W * 0.82, sh = sw * r.height / r.width, sx = (W - sw) / 2, sy = H * 0.5 - sh * 0.42;   // the case, rendered in the middle of the frame
-  cv.getContext('2d').drawImage(renderer.domElement, sx * dpr, sy * dpr, sw * dpr, sh * dpr, 0, 0, cv.width, cv.height);
-  ['tA', 'tB', 'tC', 'tD', 'tE', 'tF', 'tG'].forEach((id, i) => { const v = easeOut(ramp(b, i * 0.07, i * 0.07 + 0.3)), el = $(id); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 1.6}vh) scale(${0.94 + 0.06 * v})`; });
-  const hero = ease(ramp(b, 0.72, 0.95));   // the facts fall back, InvisiTech stays sharp and grows a touch
-  ['tA', 'tB', 'tC', 'tE', 'tF'].forEach(id => { $(id).style.filter = `blur(${(hero * 0.9).toFixed(2)}vw) brightness(${(1 - 0.5 * hero).toFixed(2)})`; });
-  $('tD').style.transform += ` scale(${1 + 0.04 * hero})`;
+  const bc = $('bloom'), bx = bc.getContext('2d'); bx.clearRect(0, 0, bc.width, bc.height); bx.drawImage(renderer.domElement, 0, 0, bc.width, bc.height);   // soft bloom
 }
 
 /* which internal parts poke out of the shells? (debug) */

@@ -1,0 +1,7 @@
+You just put your AirPods in your friend's case. Will they charge? First, how does charging even work?
+Two tiny spring pins in each slot touch two gold dots on the stem. Magnets hold the bud down. Power flows from the case battery, and a chip in the earbud decides how fast to fill it.
+Your friend's case has the same pins in the same place. So yes, they charge. But your iPhone notices.
+It pops up, Mismatched AirPods, because your buds and case were set up as a pair.
+Put them back in their own case, or set them up again after your friend removes them from Find My.
+A different generation can fit perfectly, and still not work properly.
+Follow InvisiTech for more.

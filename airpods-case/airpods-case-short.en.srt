@@ -1,51 +1,39 @@
 1
-00:00:02,220 --> 00:00:05,036
-You just put your AirPods in your friend's case.
+00:00:00,260 --> 00:00:03,067
+Your AirPods can charge inside your friend's case.
 
 2
-00:00:05,086 --> 00:00:06,111
-Will they charge?
+00:00:03,117 --> 00:00:04,266
+But there's a catch.
 
 3
-00:00:06,161 --> 00:00:08,261
-First, how does charging even work?
+00:00:04,660 --> 00:00:07,921
+Inside every charging case is a tiny power system.
 
 4
-00:00:08,810 --> 00:00:12,985
-Two tiny spring pins in each slot touch two gold dots on the stem.
+00:00:08,310 --> 00:00:12,957
+When the earbuds snap into place, their metal contacts connect to the charging circuit.
 
 5
-00:00:13,035 --> 00:00:14,714
-Magnets hold the bud down.
+00:00:13,350 --> 00:00:17,941
+Power flows from the case's battery, through its circuit board, and into the earbuds.
 
 6
-00:00:14,764 --> 00:00:20,411
-Power flows from the case battery, and a chip in the earbud decides how fast to fill it.
+00:00:18,330 --> 00:00:22,155
+But charging doesn't necessarily mean everything will work normally.
 
 7
-00:00:20,960 --> 00:00:24,388
-Your friend's case has the same pins in the same place.
+00:00:22,540 --> 00:00:25,204
+A compatible case can charge your AirPods.
 
 8
-00:00:24,438 --> 00:00:25,716
-So yes, they charge.
+00:00:25,254 --> 00:00:28,887
+But incompatible models may not fit or charge correctly.
 
 9
-00:00:25,766 --> 00:00:27,297
-But your iPhone notices.
+00:00:29,280 --> 00:00:29,691
+So yes.
 
 10
-00:00:27,850 --> 00:00:32,508
-It pops up “Mismatched AirPods”, because your buds and case were set up as a pair.
-
-11
-00:00:33,060 --> 00:00:38,738
-Put them back in their own case, or set them up again after your friend removes them from Find My.
-
-12
-00:00:39,290 --> 00:00:43,226
-A different generation can fit perfectly, and still not work properly.
-
-13
-00:00:43,770 --> 00:00:45,394
-Follow InvisiTech for more.
+00:00:29,741 --> 00:00:33,182
+A different compatible case can charge your AirPods.

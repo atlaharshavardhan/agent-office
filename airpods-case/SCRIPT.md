@@ -142,3 +142,18 @@ Description lines:
 4. Charging scene: case centred and below the title, widget / subtitle / note on one centre line, missing right-side labels restored (a stray comment had disabled them).
 5. A little more light on the AirPods.
 6. End card: Case battery tile moved under "2 pins"; InvisiTech tile full width, bigger, green glow; fact tiles blur and dim; Like/Comment/Follow/Subscribe stays sharp.
+
+## V2 "cinematic upgrade" (Harsh's brief, 2026-11-15) — 34.0 s
+Narration (Michael, Kokoro am_michael 1.12), starts with the hook, no long pauses:
+1. Your AirPods can charge inside your friend's case. But there's a catch. — WRONG CASE?
+2. Inside every charging case is a tiny power system. — INSIDE THE CASE
+3. When the earbuds snap into place, their metal contacts connect to the charging circuit. — CONTACTS CONNECT
+4. Power flows from the case's battery, through its circuit board, and into the earbuds. — POWER FLOWS
+5. But charging doesn't necessarily mean everything will work normally. — THE CATCH
+6. A compatible case can charge your AirPods. But incompatible models may not fit or charge correctly. — COMPATIBILITY MATTERS
+7. So yes. A different compatible case can charge your AirPods. — YES. IF COMPATIBLE.
+
+One continuous take: every shot starts on the camera pose the last one ended on, and the last frame matches the first (loop).
+Accuracy notes: warning card wording is Apple's real "Mismatched AirPods Pro" alert (Harsh's screenshots); 1.334 Wh = AirPods Pro 3 case (iFixit);
+spring contacts + magnets per the Pro 3 teardown; "may not fit or charge correctly" is kept hedged, the on-screen label says "Different generation".
+V1 scene file, voice and sound script are kept in `versions/v1/`.

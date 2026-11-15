@@ -3,9 +3,8 @@ Writes voice.wav (lines placed on the timeline), bed.wav (music) and sfx.wav, 48
 import json, os, numpy as np, soundfile as sf
 here = os.path.dirname(os.path.abspath(__file__)); V = os.path.join(here, '..', 'voice')
 T = json.load(open(os.path.join(V, 'timeline.json'))); B, starts = T['B'], T['starts']
-ORIG = [2.0, 3.5, 10.5, 3.0, 9.0, 9.0, 6.0, 3.0]
 SR = 48000; DUR = B[-1]; N = int(SR * DUR); rng = np.random.default_rng(11)
-at = lambda i, u: B[i] + (u * (B[i + 1] - B[i]) / ORIG[i] if 1 <= i <= 6 else u)   # shot-design time → real time
+at = lambda i, k: B[i] + k * (B[i + 1] - B[i])   # shot i (0-based), fraction k of the shot → seconds
 tt = lambda n: np.arange(n) / SR
 def env(n, a=0.005, r=0.2, shape=4.0): t = tt(n); return np.minimum(1, t / max(a, 1e-4)) * np.exp(-shape * t / max(r, 1e-4))
 def place(buf, sig, t0, gain=1.0, pan=0.0):
@@ -36,29 +35,38 @@ def buzz(d=0.32): n = int(d * SR); t = tt(n); return lp(np.sign(np.sin(2 * np.pi
 def crack(): n = int(0.25 * SR); t = tt(n); return hp(noise(n), 2500) * np.exp(-t * 40) * (1 + 0.8 * (rng.random(n) > 0.995))
 def pop(f): n = int(0.14 * SR); t = tt(n); return np.sin(2 * np.pi * f * (1 + 0.5 * np.exp(-t * 60)) * t) * np.exp(-t * 28)
 sfx = np.zeros((N, 2))
-# 1. hook
-place(sfx, whoosh(0.9, 400, 2600), 0.3, 0.5, -0.3); place(sfx, whoosh(0.9, 500, 3000), 0.39, 0.4, 0.2)
-place(sfx, click(), 1.25, 0.8, 0.3); place(sfx, click(2700), 1.34, 0.7, 0.4); place(sfx, snap(), 1.82, 1.0, 0.3); place(sfx, hit(), 1.82, 0.7)
-# 2. question
-place(sfx, hit(), at(1, 0.05), 0.45); place(sfx, ping([67]), at(1, 2.2), 0.14)
-# 3. x-ray
-place(sfx, shimmer(1.4), at(2, 0.2), 0.3); place(sfx, whoosh(1.6, 300, 1600), at(2, 0.6), 0.22)
-place(sfx, tick(), at(2, 1.7), 0.5, 0.2); place(sfx, tick(4000), at(2, 1.95), 0.5, 0.3); place(sfx, click(1500), at(2, 3.4), 0.35, 0.3)
-d = at(2, 8.4) - at(2, 5.4); place(sfx, hum(d), at(2, 5.4), 0.4)
-d = at(2, 10.4) - at(2, 8.4); place(sfx, rise(d), at(2, 8.4), 0.16); place(sfx, ping([72, 79], 0.1, 0.9), at(2, 10.35), 0.22)
-# 4. yes, they charge
-place(sfx, click(1800), at(3, 0.1), 0.4); place(sfx, ping([76, 83]), at(3, 0.6), 0.26); place(sfx, whoosh(0.5, 600, 3000), at(3, 1.3), 0.3, 0.5)
-# 5. mismatched
-place(sfx, whoosh(0.35, 800, 3500), at(4, 0.55), 0.3); place(sfx, ping([70, 66], 0.14, 0.5), at(4, 0.7), 0.26)
-place(sfx, whoosh(0.6, 400, 2000), at(4, 3.6), 0.25); place(sfx, shimmer(0.7), at(4, 4.6), 0.18)
-place(sfx, crack(), at(4, 6.3), 0.5); place(sfx, buzz(), at(4, 6.45), 0.22)
-# 6. back home
-place(sfx, whoosh(0.7, 400, 2600), at(5, 1.0), 0.4, 0.3); place(sfx, whoosh(0.7, 500, 3000), at(5, 1.09), 0.3, -0.1)
-place(sfx, click(), at(5, 2.2), 0.7, -0.3); place(sfx, click(2700), at(5, 2.29), 0.6, -0.4); place(sfx, ping([72, 76, 79], 0.09), at(5, 2.5), 0.24)
-# 7. different generation
-place(sfx, whoosh(0.5, 500, 2800), at(6, 1.0), 0.35); place(sfx, click(), at(6, 2.0), 0.7, 0.2); place(sfx, tick(), at(6, 2.3), 0.3); place(sfx, buzz(0.4), at(6, 3.0), 0.28)
-# 8. end-card tiles
-for i in range(7): place(sfx, pop(520 + i * 70), B[7] + 0.2 + 1.8 * 0.07 * i, 0.3, (i % 3 - 1) * 0.4)
+def hinge(): n = int(0.22 * SR); t = tt(n); return (hp(noise(n), 2200) * np.exp(-t * 60) * 0.6 + np.sin(2 * np.pi * (300 - 500 * t) * t) * np.exp(-t * 22) * 0.5)
+def zap(d=0.5): n = int(d * SR); t = tt(n) / d; return (sine(900 + 1500 * t, n) * 0.35 + hp(noise(n), 5000) * 0.25) * np.sin(np.pi * t) ** 2
+d = [B[i + 1] - B[i] for i in range(7)]
+# 1. hook: hinges open, buds fly, magnetic snaps, LED on, push-in whoosh
+place(sfx, hinge(), 0.02, 0.6, -0.4); place(sfx, hinge(), 0.06, 0.5, 0.4)
+place(sfx, whoosh(0.8, 400, 2600), 0.34, 0.5, -0.2); place(sfx, whoosh(0.8, 500, 3000), 0.43, 0.4, 0.2)
+place(sfx, click(), 1.24, 0.85, 0.3); place(sfx, click(2700), 1.33, 0.75, 0.4); place(sfx, hit(), 1.26, 0.5)
+place(sfx, ping([76, 83]), 1.5, 0.24); place(sfx, whoosh(1.6, 250, 1500), at(0, 0.5), 0.3)
+# 2. glass reveal + orbit, component blips, push through the shell
+place(sfx, shimmer(1.3), at(1, 0.0), 0.32); place(sfx, whoosh(2.2, 250, 1300), at(1, 0.1), 0.2)
+for j, k in enumerate([0.3, 0.4, 0.5, 0.6]): place(sfx, pop(700 + j * 90), at(1, k), 0.2, (j % 2) * 0.5 - 0.25)
+place(sfx, whoosh(0.9, 400, 2400), at(1, 0.72), 0.32)
+# 3. earbud lifts, comes down, magnet pull, snap, metallic click, electrical activation
+place(sfx, whoosh(0.6, 500, 2600), at(2, 0.02), 0.2); place(sfx, hum(d[2] * 0.3), at(2, 0.32), 0.16)
+place(sfx, click(), at(2, 0.655), 0.9, 0.2); place(sfx, tick(), at(2, 0.66), 0.5, 0.25); place(sfx, tick(4000), at(2, 0.675), 0.4, 0.3)
+place(sfx, zap(0.45), at(2, 0.69), 0.4); place(sfx, ping([84], 0.1, 0.5), at(2, 0.7), 0.14)
+# 4. energy pulse travels, then the earbuds start charging
+place(sfx, hit(), at(3, 0.04), 0.35); place(sfx, hum(d[3] * 0.52), at(3, 0.1), 0.42)
+for j in range(5): place(sfx, zap(0.22), at(3, 0.14 + j * 0.09), 0.16, j * 0.2 - 0.4)
+place(sfx, whoosh(1.4, 250, 1500), at(3, 0.58), 0.26); place(sfx, ping([72, 79], 0.1, 0.9), at(3, 0.66), 0.22)
+# 5. the catch: drop to red, phone swings in, real warning tone
+place(sfx, hit(), at(4, 0.1), 0.7); place(sfx, buzz(0.3), at(4, 0.12), 0.12); place(sfx, whoosh(0.9, 350, 2200), at(4, 0.12), 0.4, 0.5)
+place(sfx, ping([70, 66], 0.14, 0.5), at(4, 0.4), 0.3); place(sfx, whoosh(1.4, 250, 1500), at(4, 0.5), 0.26)
+# 6. comparison: whip to the left case, drop + green ping; track right, drop + error buzz; back to the left
+place(sfx, whoosh(0.8, 400, 2600), at(5, 0.0), 0.4, -0.5)
+place(sfx, click(), at(5, 0.2), 0.8, -0.3); place(sfx, click(2700), at(5, 0.2) + 0.09, 0.7, -0.4); place(sfx, ping([72, 76, 79], 0.09), at(5, 0.2) + 0.3, 0.24)
+place(sfx, whoosh(0.9, 400, 2400), at(5, 0.4), 0.34, 0.4)
+place(sfx, click(), at(5, 0.56), 0.8, 0.3); place(sfx, click(2700), at(5, 0.56) + 0.09, 0.7, 0.4); place(sfx, buzz(0.42), at(5, 0.56) + 0.3, 0.26)
+place(sfx, whoosh(0.9, 400, 2400), at(5, 0.8), 0.3, -0.4)
+# 7. hero: re-seat, LED, lids snap shut
+place(sfx, click(), at(6, 0.34), 0.6, -0.2); place(sfx, ping([76, 83]), at(6, 0.38), 0.2); place(sfx, whoosh(1.6, 250, 1400), at(6, 0.1), 0.22)
+place(sfx, snap(), at(6, 0.64), 1.0, -0.3); place(sfx, snap(), at(6, 0.64) + 0.05, 0.8, 0.3); place(sfx, hit(), at(6, 0.64), 0.6)
 sf.write(os.path.join(here, 'sfx.wav'), (sfx * 0.9).astype(np.float32), SR)
 # ---- music: dark, minimal electronic bed, 96 bpm, A minor ----
 bed = np.zeros((N, 2)); beat = 60 / 96; bar = 4 * beat
@@ -68,7 +76,7 @@ def pad(ch, d): n = int(d * SR); t = tt(n); s = sum(np.sin(2 * np.pi * midi(m) *
 def kick(): n = int(0.3 * SR); t = tt(n); return np.sin(2 * np.pi * (42 + 80 * np.exp(-t * 35)) * t) * np.exp(-t * 11)
 nb = int(DUR / bar) + 1
 for b in range(nb):
-    ch = prog[b % 4]; t0 = b * bar; intro = t0 < 1.6; outro = t0 >= B[7] - 0.5
+    ch = prog[b % 4]; t0 = b * bar; intro = False; outro = False
     place(bed, pad(ch, bar + 1.2), t0, 0.16)
     L = int(bar * SR); t = tt(L); place(bed, lp(np.sin(2 * np.pi * midi(ch[0] - 12) * t) * (0.6 + 0.4 * np.sin(2 * np.pi * t / beat * 0.5) ** 2), 200), t0, 0.26)
     for q in range(8):
@@ -76,9 +84,7 @@ for b in range(nb):
         place(bed, pluck(m), tq, 0.075 if not intro else 0.11, [-0.4, 0.4][q % 2])
         if q % 2 == 0 and not outro: place(bed, kick(), tq, 0.22 if q in (0, 4) else 0.0)
         n = int(0.04 * SR); place(bed, hp(noise(n), 6000) * env(n, 0.001, 0.02, 5), tq + beat / 4, 0.02, 0.3)
-# hook: music plays alone, cuts with the lid snap for a short breath, then comes back under the voice
-cut, back_ = int(1.84 * SR), int(2.15 * SR); f = int(0.02 * SR); g = np.ones(N); g[cut - f:cut] = np.linspace(1, 0, f); g[cut:back_] = 0; g[back_:back_ + int(0.8 * SR)] = np.linspace(0, 1, int(0.8 * SR))
-g[: int(1.84 * SR)] *= 1.5; fo = int(1.4 * SR); g[-fo:] *= np.linspace(1, 0, fo) ** 1.5
+g = np.ones(N); fi = int(0.25 * SR); g[:fi] = np.linspace(0.3, 1, fi); fo = int(0.9 * SR); g[-fo:] *= np.linspace(1, 0.3, fo)   # loop-friendly: no hard start or stop
 bed *= g[:, None]; sf.write(os.path.join(here, 'bed.wav'), (bed / np.max(np.abs(bed)) * 0.7).astype(np.float32), SR)
 # ---- voice track ----
 voice = np.zeros((N, 2))
