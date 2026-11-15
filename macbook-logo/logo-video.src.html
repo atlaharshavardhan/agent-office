@@ -528,17 +528,18 @@ function endShot(u) {   // shared camera for the last two shots: from the video 
   const z = ease(ramp(u, 0.15, 2.4));
   const c = lidPoint(SCR_C), n = lidPoint(SCR_C.clone().add(new THREE.Vector3(0, -1, 0))).sub(c).normalize();
   const p0 = c.clone().addScaledVector(n, 90 / Math.tan(THREE.MathUtils.degToRad(15)));   // the portrait video fills the frame exactly
-  const tgt1 = c.clone().add(new THREE.Vector3(0, -48, 0)), y1 = THREE.MathUtils.degToRad(178.6 + 0.4 * u), pi1 = THREE.MathUtils.degToRad(11), d1 = 1200 - 25 * Math.max(0, u - 2.4);
+  const tgt1 = c.clone().add(new THREE.Vector3(0, -70, 75)), y1 = THREE.MathUtils.degToRad(180), pi1 = THREE.MathUtils.degToRad(44 - 2 * Math.max(0, u - 2.4)), d1 = 1080 - 22 * Math.max(0, u - 2.4);
   const p1 = new THREE.Vector3(Math.sin(y1) * Math.cos(pi1), Math.sin(pi1), -Math.cos(y1) * Math.cos(pi1)).multiplyScalar(d1).add(tgt1);
   VO = 0.03 * z; camera.setViewOffset(W, H, 0, H * VO, W, H); camera.updateProjectionMatrix();
   camera.position.copy(p0.clone().lerp(p1, z)); camera.lookAt(c.clone().lerp(tgt1, z)); camera.updateMatrixWorld();
-  END.screen = 1;
+  const dk = ease(ramp(u, 1.2, 3.2)); hemi.intensity = lerp(0.6, 0.12, dk); key.intensity = lerp(1.2, 0.25, dk); edgeRim.intensity = lerp(1.15, 0.45, dk); rim.intensity = lerp(0.9, 0.3, dk); renderer.toneMappingExposure = lerp(1.05, 0.7, dk);
+  END.screen = 1; const sl = lidPoint(new THREE.Vector3(0, -90, 110)); screenLight.position.copy(sl); screenLight.intensity = 1.6 * END.brand;
 }   // scene lengths the animations were written for (v1 voice)
 const CUTS = B.slice(1, -2);   // no dip to black into the end: the video shrinks onto the MacBook screen
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
-  hideTags(); $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
+  hideTags(); $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
   const k = ORIG[i] ? ORIG[i] / (b - a) : 1; fn((t - a) * k, ORIG[i] || b - a);   // scenes 2–6 were timed on v1's voice: stretch them to this voice's lines
   if (i >= 6) title([], [], 0);
@@ -556,6 +557,7 @@ const SCT = new THREE.CanvasTexture(SCV); SCT.encoding = THREE.sRGBEncoding; SCT
 const SCREEN = new THREE.Mesh(new THREE.PlaneGeometry(SCR_W, SCR_H), new THREE.MeshBasicMaterial({ map: SCT, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
 SCREEN.rotation.x = Math.PI / 2; SCREEN.position.copy(SCR_C); SCREEN.visible = false; LID.add(SCREEN);
 let SNAP = null;
+const STREAK = { c: document.createElement('canvas'), n: [] }; STREAK.c.width = 1600; STREAK.c.height = Math.round(1600 * 180 / 286); STREAK.m = document.createElement('canvas'); STREAK.m.width = STREAK.c.width; STREAK.m.height = STREAK.c.height; for (let i = 0; i < 600; i++) STREAK.n.push(Math.random());
 function rr(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
 function snapshot() { // the last frame of scene 6 (laptop, switch card off), kept to play on the MacBook screen
   if (SNAP) return; const d = ORIG[5]; SHOTS[5][2](d - 0.001, d); draw();
@@ -579,17 +581,30 @@ function drawScreen() {
     x.save(); x.filter = 'blur(28px) brightness(0.45)'; x.drawImage(SNAP, -w * 0.1, -h * 0.9, w * 1.2, w * 1.2 * SNAP.height / SNAP.width); x.restore();
     const vh = h, vw2 = vh * SNAP.width / SNAP.height; x.drawImage(SNAP, (w - vw2) / 2, 0, vw2, vh);
   }
-  if (END.brand > 0) {   // clean branding: dark background, logo, InvisiTech, tagline
-    x.globalAlpha = END.brand; const g = x.createRadialGradient(w / 2, h * 0.42, 30, w / 2, h * 0.5, w * 0.62); g.addColorStop(0, '#141a2c'); g.addColorStop(0.6, '#080a12'); g.addColorStop(1, '#030406');
-    x.fillStyle = g; x.fillRect(0, 0, w, h);
-    const u = Math.max(0, END.outro), pop = (k, fn) => { const v = END.outro < 0 ? 0 : easeOut(k); if (v < 0.01) return; x.save(); x.globalAlpha = END.brand * v; x.translate(w / 2, (1 - v) * 18); fn(v); x.restore(); };
-    const logo = $('ecLogo');
-    pop(ramp(u, 0.05, 0.55), v => { x.shadowColor = 'rgba(74,168,255,.75)'; x.shadowBlur = 50 + 40 * v; x.beginPath(); x.arc(0, 300, 150, 0, 7); x.fillStyle = 'rgba(74,168,255,.12)'; x.fill(); x.shadowBlur = 0;
-      x.save(); x.beginPath(); x.arc(0, 300, 128, 0, 7); x.clip(); if (logo.complete) x.drawImage(logo, -128, 172, 256, 256); x.restore(); });
-    x.textAlign = 'left'; x.textBaseline = 'alphabetic';
-    pop(ramp(u, 0.3, 0.8), () => { x.font = '800 190px Sora, Arial'; const a = x.measureText('Invisi').width, t = x.measureText('Tech').width; x.fillStyle = '#fff'; x.fillText('Invisi', -(a + t) / 2, 665); x.fillStyle = '#4fc3f7'; x.fillText('Tech', -(a + t) / 2 + a, 665); });
-    x.textAlign = 'center';
-    pop(ramp(u, 0.55, 1.05), () => { x.font = '500 66px "IBM Plex Sans", Arial'; x.fillStyle = 'rgba(255,255,255,.78)'; x.fillText('The tech behind everyday life.', 0, 790); });
+  if (END.brand > 0) {   // branding: 'InvisiTech' made of glowing light streaks on black, then the logo and tagline
+    x.globalAlpha = END.brand; x.fillStyle = '#020203'; x.fillRect(0, 0, w, h);
+    const u = Math.max(0, END.outro), tt = u * 0.9, ap = END.outro < 0 ? 0 : easeOut(ramp(u, 0.0, 0.7));
+    const sc = STREAK.c, sx = sc.getContext('2d'); sx.globalCompositeOperation = 'source-over'; sx.clearRect(0, 0, w, h);
+    for (let i = 0; i < w; i += 3) {   // vertical light streaks, slowly drifting
+      const n = STREAK.n[(i / 3) | 0], v = Math.max(0, 0.35 + 0.65 * Math.sin(i * 0.031 + n * 9 + tt * (0.8 + n)) * (0.6 + 0.4 * Math.sin(i * 0.007 - tt * 0.6)));
+      const g = sx.createLinearGradient(0, 0, 0, h); const a = 0.25 + 0.75 * v;
+      g.addColorStop(0, `rgba(255,255,255,${0.05 * a})`); g.addColorStop(0.35 + 0.1 * n, `rgba(240,246,255,${a})`); g.addColorStop(0.62, `rgba(200,214,235,${0.7 * a})`); g.addColorStop(1, `rgba(120,130,150,${0.08 * a})`);
+      sx.fillStyle = g; sx.fillRect(i, 0, n > 0.93 ? 2.8 : 2.2, h);
+      if (n > 0.965) { sx.fillStyle = n > 0.985 ? 'rgba(255,170,90,0.55)' : 'rgba(90,170,255,0.55)'; sx.fillRect(i + 1, h * 0.2, 1.2, h * 0.6); }   // rare warm / blue accent lines
+    }
+    const mk = STREAK.m, mx = mk.getContext('2d'); mx.clearRect(0, 0, w, h); mx.font = '800 272px Sora, Arial'; mx.textBaseline = 'alphabetic';
+    const A = mx.measureText('Invisi').width, Tw = mx.measureText('Tech').width, X0 = (w - A - Tw) / 2, BY = h * 0.66;
+    mx.fillStyle = '#fff'; mx.fillText('Invisi', X0, BY); mx.fillText('Tech', X0 + A, BY);
+    sx.globalCompositeOperation = 'destination-in'; sx.drawImage(mk, 0, 0);   // keep the streaks only inside the letters (one mask for both words)
+    sx.globalCompositeOperation = 'source-atop'; sx.fillStyle = 'rgba(79,195,247,0.5)'; sx.fillRect(X0 + A, 0, Tw + 20, h);   // 'Tech' in the brand blue
+    sx.globalCompositeOperation = 'source-over';
+    x.save(); x.globalAlpha = END.brand * ap; const rev = ease(ramp(u, 0.0, 0.8)); x.beginPath(); x.rect(0, 0, w, h * rev + 1); x.clip();   // the streaks pour in from the top
+    x.shadowColor = 'rgba(210,225,255,0.6)'; x.shadowBlur = 30; x.drawImage(sc, 0, 0); x.shadowBlur = 0; x.globalCompositeOperation = 'lighter'; x.drawImage(sc, 0, 0); x.restore();   // drawn twice (additive) for brighter streaks
+    const logo = $('ecLogo'), la = END.outro < 0 ? 0 : easeOut(ramp(u, 0.45, 0.95));
+    if (la > 0.01 && logo.complete) { x.save(); x.globalAlpha = END.brand * la; x.shadowColor = 'rgba(74,168,255,.7)'; x.shadowBlur = 40; x.beginPath(); x.arc(w / 2, h * 0.2, 92, 0, 7); x.fillStyle = 'rgba(74,168,255,.12)'; x.fill(); x.shadowBlur = 0;
+      x.beginPath(); x.arc(w / 2, h * 0.2, 78, 0, 7); x.clip(); x.drawImage(logo, w / 2 - 78, h * 0.2 - 78, 156, 156); x.restore(); }
+    const ta = END.outro < 0 ? 0 : easeOut(ramp(u, 0.7, 1.2));
+    if (ta > 0.01) { x.save(); x.globalAlpha = END.brand * ta; x.textAlign = 'center'; x.font = '500 62px "IBM Plex Sans", Arial'; x.fillStyle = 'rgba(255,255,255,.8)'; x.fillText('The tech behind everyday life.', w / 2, h * 0.84); x.restore(); }
   }
   x.globalAlpha = 1; SCT.needsUpdate = true;
 }
