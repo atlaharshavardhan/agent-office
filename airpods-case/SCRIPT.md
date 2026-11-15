@@ -1,4 +1,4 @@
-# AirPods in someone else's case — will they charge? (Short, draft v2, awaiting Harsh's OK)
+# AirPods in someone else's case — will they charge? (Short, script v2.1 — approved by Harsh 2026-11-15)
 
 Format: 9:16, ~45 s, continuous narration (Michael, Kokoro am_michael), 3D in the AirPods case teardown style.
 Hook = the swap itself; payoff = how the case charges.
@@ -7,6 +7,7 @@ Hook = the swap itself; payoff = how the case charges.
 | Fact | Source | Confidence |
 |---|---|---|
 | A same-model case charges another person's AirPods; you don't need to pair them for charging | Third-party guides (Burga, SmartNested, TechBloat) + Apple Community threads | Medium: consistent, but not stated by Apple |
+| AirPods can be linked to only one Apple Account in Find My; to set up someone else's, remove them from the other account first | Apple Support HT212611 (via search) | High |
 | iPhone shows a "Mismatched AirPods" / "AirPods Mismatch" alert when the AirPods in the case are a different generation or belong to someone else; the fix is to set them up again | Apple Support HT212611 (via search; support.apple.com is blocked in this cloud session) | High |
 | Different model/generation AirPods don't work with another model's case | Third-party guides (Burga, TinyGrab); some disagree on 1st vs 2nd gen basic AirPods | Medium; say "a different model" only |
 | Spring-loaded pins in each well press on the two metal contacts at the stem tip; magnets seat the bud | AirPods Pro 3 teardown page notes (iFixit / Lumafield) | High |
@@ -52,8 +53,11 @@ Sources:
 | 3 | 5.5–8.5 s | Yes, they will… but your iPhone is about to call you out. | Light turns green; iPhone slides in from the side, screen still dark |
 | 4 | 8.5–19 s | Inside each slot, two tiny spring pins touch two gold dots at the tip of the stem. Magnets snap the bud down, so they always touch. Power flows from the case battery, and a little chip inside the earbud decides how fast to fill it. | Glass x-ray of the case; zoom into the well; pins + stem dots glow; current path battery → pins → bud's charging chip → bud battery |
 | 5 | 19–28 s | Now the catch. Your iPhone pops up "Mismatched AirPods". Your buds and your case were set up as a pair, so your iPhone notices they're not together. | iPhone pop-up "Mismatched AirPods"; a dotted link between the original case and buds breaks |
-| 6 | 28–35 s | Charging still works. Put them back in their own case, or set them up again with this one, and the warning is gone. | Buds hop back to case A; pop-up clears with a tick |
-| 7 | 35–41 s | A different generation, though, can fit perfectly… and still not work properly. | Two look-alike buds; one drops in, red ✕ on the screen |
-| 8 | 41–44 s | Follow InvisiTech for more. | End card |
+| 6 | 28–37 s | Charging still works. Put them back in their own case, or set them up again with this one — after your friend removes it from their Find My — and the warning is gone. | Buds hop back to case A; pop-up clears with a tick |
+| 7 | 37–43 s | A different generation, though, can fit perfectly… and still not work properly. | Two look-alike buds; one drops in, red ✕ on the screen |
+| 8 | 43–46 s | Follow InvisiTech for more. | End card |
 
 ~120 words, ~43 s with Michael at 1.12. Credits: 0.
+
+## v2.1 (approved 2026-11-15)
+Harsh approved v2 with one change: line 6 now says "after your friend removes it from their Find My", because AirPods can only be linked to one Apple Account in Find My (Apple HT212611, read through search results since support.apple.com is blocked here). About 130 words, ~45 s, still under the 50 s limit.
