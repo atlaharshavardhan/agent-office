@@ -64,7 +64,7 @@ export const IsoCity: React.FC = () => {
   const bus = prog(f, 0.5, 2.9, easeInOut), busP = along(bus);
   const reach = prog(f, 3.5, 4.3, easeOut), fail = prog(f, 4.3, 4.6) * (1 - prog(f, 5.1, 5.4));
   const curve = (a: readonly number[], b: readonly number[], sag: number, u = 1) => Array.from({ length: 17 }).map((_, i) => { const k = (i / 16) * u; return `${lerp(a[0], b[0], k)},${lerp(a[1], b[1], k) + sag * Math.sin(Math.PI * k)}`; }).join(' ');
-  const H0 = 8.9, hop = clamp01((t - H0) / 2.4) * 3, hs = Math.min(2, Math.floor(hop)), hu = easeInOut(hop - hs), hp = [lerp(RT[hs][0], RT[hs + 1][0], hu), lerp(RT[hs][1], RT[hs + 1][1], hu) + 26 * Math.sin(Math.PI * hu)];
+  const H0 = 9.15, hop = clamp01((t - H0) / 2.4) * 3, hs = Math.min(2, Math.floor(hop)), hu = easeInOut(hop - hs), hp = [lerp(RT[hs][0], RT[hs + 1][0], hu), lerp(RT[hs][1], RT[hs + 1][1], hu) + 26 * Math.sin(Math.PI * hu)];
   const got = prog(f, H0 + 2.5, H0 + 2.75, easeOut);
   const herHome = g(3, -1.9, -0.4, 4.6), herXY = bus < 1 ? [busP[0], busP[1] - 110] : [herHome[0], herHome[1] - got * 8];
   const himXY = g(0, -1.3, 0.4, 2.6);
@@ -148,20 +148,13 @@ export const IsoCity: React.FC = () => {
       </svg>
       {/* his phone, on the right: type HELLO, send, then watch it go step by step */}
       {t > 7.4 && (() => { const a = prog(f, 7.4, 7.8, easeOut), typed = 'Hello'.slice(0, Math.max(0, Math.min(5, Math.floor((t - 7.9) / 0.12)))), sent = t >= 8.7, press = t > 8.6 && t < 8.78;
-        const rows: [string, number][] = [['Your phone', 8.75], ['Home router · ' + NAMES[0], H0 + 0.1], ['Router · ' + NAMES[1], H0 + 0.8], ['Router · ' + NAMES[2], H0 + 1.6], ['City router · ' + NAMES[3], H0 + 2.4], ['Her phone', H0 + 2.6]];
-        const done = rows.filter(([, at]) => t >= at).length, delivered = t >= H0 + 2.6, reply = prog(f, H0 + 3.1, H0 + 3.3, easeOut);
-        return <div style={{ position: 'absolute', left: 640, top: 455, width: 292, height: 600, borderRadius: 44, background: '#05060f', border: '5px solid #2b3154', boxShadow: '0 30px 80px rgba(0,0,0,.6)', transform: `translateX(${(1 - a) * 560}px) scale(1.28)`, transformOrigin: 'right top', overflow: 'hidden', fontFamily: FONT.ui }}>
+        const delivered = t >= H0 + 2.6, reply = prog(f, H0 + 3.1, H0 + 3.3, easeOut);
+        return <div style={{ position: 'absolute', left: 640, top: 470, width: 292, height: 330, borderRadius: 44, background: '#05060f', border: '5px solid #2b3154', boxShadow: '0 30px 80px rgba(0,0,0,.6)', transform: `translateX(${(1 - a) * 560}px) scale(1.28)`, transformOrigin: 'right top', overflow: 'hidden', fontFamily: FONT.ui }}>
           <div style={{ position: 'absolute', inset: 8, borderRadius: 36, background: 'linear-gradient(#141a44,#0d1230)', overflow: 'hidden' }}>
             <div style={{ height: 62, background: '#1c2458', display: 'flex', alignItems: 'center', gap: 10, padding: '0 14px' }}><div style={{ width: 38, height: 38, borderRadius: 19, background: '#ff8672', display: 'grid', placeItems: 'center', font: `800 20px ${FONT.ui}`, color: '#fff' }}>♥</div><div><div style={{ font: `800 21px ${FONT.ui}`, color: '#fff' }}>Her</div><div style={{ font: `600 13px ${FONT.ui}`, color: '#9fb0ff' }}>{NAMES[3][0] + NAMES[3].slice(1).toLowerCase()}</div></div></div>
-            <div style={{ padding: '12px 12px 0', height: 126 }}>
-              {sent && <div style={{ marginLeft: 'auto', width: 'fit-content', background: '#2f9c95', color: '#fff', borderRadius: '18px 18px 4px 18px', padding: '8px 14px', font: `700 24px ${FONT.ui}` }}>Hello <span style={{ font: `700 15px ${FONT.ui}`, color: delivered ? '#9fe9ff' : '#cfe' }}>{delivered ? '✓✓' : '✓'}</span></div>}
+            <div style={{ padding: '14px 12px 0', height: 150 }}>
+              {sent && <div style={{ marginLeft: 'auto', width: 'fit-content', opacity: t < 9.15 ? 0.35 : 1, background: '#2f9c95', color: '#fff', borderRadius: '18px 18px 4px 18px', padding: '8px 14px', font: `700 24px ${FONT.ui}` }}>Hello <span style={{ font: `700 15px ${FONT.ui}`, color: delivered ? '#9fe9ff' : '#cfe' }}>{delivered ? '✓✓' : '✓'}</span></div>}
               {reply > 0 && <div style={{ marginTop: 10, width: 'fit-content', background: '#2a3270', color: '#fff', borderRadius: '18px 18px 18px 4px', padding: '8px 14px', font: `700 24px ${FONT.ui}`, opacity: reply, transform: `scale(${0.8 + 0.2 * reply})`, transformOrigin: 'left bottom' }}>Hi! ❤️</div>}
-            </div>
-            <div style={{ margin: '0 10px', borderRadius: 18, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(159,233,255,.25)', padding: '10px 12px', opacity: sent ? 1 : 0.25 }}>
-              <div style={{ font: `600 13px ${FONT.mono}`, letterSpacing: '0.1em', color: '#9fb0ff', marginBottom: 6 }}>STEP BY STEP</div>
-              {rows.map(([name], i) => { const ok = i < done, cur = i === done && sent; return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9, height: 39, opacity: ok || cur ? 1 : 0.4 }}>
-                <div style={{ width: 24, height: 24, borderRadius: 12, flex: '0 0 auto', background: ok ? '#3ddc97' : 'transparent', border: `2.5px solid ${ok ? '#3ddc97' : cur ? '#ffe08a' : '#5a648f'}`, display: 'grid', placeItems: 'center', font: `800 14px ${FONT.ui}`, color: '#06261a' }}>{ok ? '✓' : ''}</div>
-                <div style={{ font: `700 16.5px ${FONT.ui}`, color: ok ? '#fff' : cur ? '#ffe08a' : '#a9b4dd', whiteSpace: 'nowrap' }}>{name}</div></div>; })}
             </div>
             <div style={{ position: 'absolute', left: 10, right: 10, bottom: 12, height: 48, borderRadius: 24, background: '#1c2458', display: 'flex', alignItems: 'center', padding: '0 6px 0 16px', gap: 8 }}>
               <div style={{ flex: 1, font: `700 21px ${FONT.ui}`, color: '#fff' }}>{sent ? <span style={{ color: '#6a74a8' }}>Message</span> : <>{typed}<span style={{ opacity: Math.sin(t * 10) > 0 ? 1 : 0, color: '#9fe9ff' }}>|</span></>}</div>
@@ -169,6 +162,9 @@ export const IsoCity: React.FC = () => {
             </div>
           </div>
         </div>; })()}
+      {t >= 8.7 && t < 9.15 && (() => { const u = easeInOut(clamp01((t - 8.7) / 0.45)), tx = 540 + cam.z * (RT[0][0] - cam.x), ty = 960 + cam.z * (RT[0][1] - cam.y), x = lerp(840, tx, u), y = lerp(585, ty, u) - 90 * Math.sin(Math.PI * u), sc = lerp(1.28, 0.6, u);
+        return <><div style={{ position: 'absolute', left: x, top: y, transform: `translate(-50%,-50%) scale(${sc})`, background: '#2f9c95', color: '#fff', borderRadius: '18px 18px 4px 18px', padding: '8px 14px', font: `700 24px ${FONT.ui}`, boxShadow: '0 0 30px rgba(95,227,255,.9)' }}>Hello</div>
+          {[0.25, 0.5, 0.75].map((k) => <div key={k} style={{ position: 'absolute', left: lerp(840, tx, u * k), top: lerp(585, ty, u * k) - 90 * Math.sin(Math.PI * u * k), width: 10, height: 10, borderRadius: 5, background: '#9fe9ff', opacity: 0.7 * k, transform: 'translate(-50%,-50%)' }} />)}</>; })()}
       {line && <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div>}
       <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
       <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}>
