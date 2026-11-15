@@ -1,4 +1,4 @@
-# How does the new MacBook Pro's Apple logo glow? (Short, draft v2, awaiting Harsh's OK)
+# How does the new MacBook Pro's Apple logo glow? (Short, script v2 approved by Harsh on 15 Nov 2026)
 
 Format: 9:16, ~40 s, continuous narration (Michael, Kokoro am_michael 1.12), premium glass x-ray 3D.
 Harsh's direction: no comparison with the old glowing logo — the "back after 10 years" news is the hook only; the video is the teardown of how it works inside.
@@ -42,3 +42,9 @@ Sources:
 | 7 | 35–38 s | Follow InvisiTech for more. | End card |
 
 ~105 words, ~38–40 s. Credits: "Macbook Pro 13 inch 2020" 3D model by timblewee (sketchfab.com/timblewee), CC BY 4.0, modified.
+
+## Build status
+- Script v2 and the Apple logo approved (logo shown with "3D illustration · not affiliated with Apple" on screen the whole time).
+- Voice: Michael (Kokoro am_michael, speed 1.12): `voice/make_voice.py` then `voice/make_timeline.py` → `voice/voice.wav`, `timeline.json` (scene cuts), `captions.json`, `../macbook-logo-glow.en.srt`. 39.2 s; voice 0.6–36.8 s.
+- Scene page: `logo-video.src.html` → `python3 build-data.py && python3 build-video.py` → `logo-video.html` (self-contained). Stills: `./sheet.sh <dir> <sheet.jpg> t1 t2 …` (uses `render.cjs`, which needs three.js + fonts in `../phone-teardown`, see its README).
+- Stills v1 in `stills-v1/` (board.jpg, board-safe-zones.jpg): waiting for Harsh's OK before the video render.

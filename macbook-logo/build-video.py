@@ -1,0 +1,13 @@
+"""Make logo-video.html: one self-contained file (scripts, model, logo, voice timeline and captions inlined),
+so it plays on a phone and renders in render.cjs from file://. Run build-data.py first if the model changes."""
+import base64, json, os, re
+here = os.path.dirname(os.path.abspath(__file__))
+src = open(os.path.join(here, 'logo-video.src.html'), encoding='utf-8').read()
+def inline(m):
+    return '<script>\n' + open(os.path.normpath(os.path.join(here, m.group(1))), encoding='utf-8').read() + '\n</script>'
+out = re.sub(r'<script src="((?:\.\./|assets/)[^"]+)"></script>', inline, src)
+logo = base64.b64encode(open(os.path.join(here, 'assets', 'invisitech-logo.png'), 'rb').read()).decode()
+tl = json.load(open(os.path.join(here, 'voice', 'timeline.json'))); caps = json.load(open(os.path.join(here, 'voice', 'captions.json')))
+out = out.replace('__LOGO__', 'data:image/png;base64,' + logo).replace('__TL__', json.dumps(tl)).replace('__CAPS__', json.dumps(caps))
+open(os.path.join(here, 'logo-video.html'), 'w', encoding='utf-8').write(out)
+print('ok', len(out) // 1024, 'KB')

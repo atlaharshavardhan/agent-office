@@ -1,0 +1,104 @@
+[
+ {
+  "line": 1,
+  "file": "l1_1.wav",
+  "text": "This logo | shouldn't be able to glow.",
+  "dur": 1.984
+ },
+ {
+  "line": 2,
+  "file": "l2_1.wav",
+  "text": "After ten years, | Apple brought it back | on the new MacBook Pro.",
+  "dur": 3.648
+ },
+ {
+  "line": 2,
+  "file": "l2_2.wav",
+  "text": "But its OLED screen | only makes light | from the front.",
+  "dur": 2.944
+ },
+ {
+  "line": 2,
+  "file": "l2_3.wav",
+  "text": "There's no light | behind it.",
+  "dur": 1.621
+ },
+ {
+  "line": 3,
+  "file": "l3_1.wav",
+  "text": "So where's the glow | coming from?",
+  "dur": 1.963
+ },
+ {
+  "line": 3,
+  "file": "l3_2.wav",
+  "text": "Let's open the lid.",
+  "dur": 1.344
+ },
+ {
+  "line": 4,
+  "file": "l4_1.wav",
+  "text": "Hidden behind the screen | are four tiny LEDs.",
+  "dur": 3.029
+ },
+ {
+  "line": 4,
+  "file": "l4_2.wav",
+  "text": "Apple says | it built this light source | just for the logo.",
+  "dur": 3.136
+ },
+ {
+  "line": 5,
+  "file": "l5_1.wav",
+  "text": "A mirror-like layer | bounces their light,",
+  "dur": 2.261
+ },
+ {
+  "line": 5,
+  "file": "l5_2.wav",
+  "text": "a frosted sheet | spreads it out evenly,",
+  "dur": 2.176
+ },
+ {
+  "line": 5,
+  "file": "l5_3.wav",
+  "text": "and it shines | through the logo.",
+  "dur": 1.792
+ },
+ {
+  "line": 5,
+  "file": "l5_4.wav",
+  "text": "No bright spots.",
+  "dur": 1.365
+ },
+ {
+  "line": 6,
+  "file": "l6_1.wav",
+  "text": "It glows | whenever your Mac is awake.",
+  "dur": 2.197
+ },
+ {
+  "line": 6,
+  "file": "l6_2.wav",
+  "text": "Brighter in a bright room, | dimmer in a dark one.",
+  "dur": 2.731
+ },
+ {
+  "line": 6,
+  "file": "l6_3.wav",
+  "text": "Don't like it?",
+  "dur": 1.045
+ },
+ {
+  "line": 6,
+  "file": "l6_4.wav",
+  "text": "Apple lets you | switch it off.",
+  "dur": 1.664
+ },
+ {
+  "line": 7,
+  "file": "l7_1.wav",
+  "text": "Follow InvisiTech | for more.",
+  "dur": 1.792
+ }
+]
