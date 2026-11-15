@@ -4,7 +4,7 @@ import { Prototype } from './Prototype';
 import { DuskTorch } from './dusk/Dusk';
 import { DuskHouses } from './dusk/Houses';
 import { NightHook } from './dusk/NightHook';
-import { IsoStreet, IsoHook, IsoWire, IsoFull, IsoNet, Concept, IsoMove, IsoDetail, IsoMoveDetail, IsoHookCine } from './dusk/IsoStreet';
+import { IsoStreet, IsoHook, IsoWire, IsoFull, IsoNet, Concept, IsoMove, IsoDetail, IsoMoveDetail, IsoHookCine, IsoFullCine } from './dusk/IsoStreet';
 import { KidSheet } from './dusk/Kid';
 import { AdultSheet, DressSheet } from './dusk/Adult';
 import { MapConcept } from './dusk/MapConcept';
@@ -34,6 +34,7 @@ export const Root: React.FC = () => (
     <Composition id="IsoMove" component={IsoMove} durationInFrames={555} fps={30} width={1080} height={1920} />
     <Composition id="IsoCity" component={IsoCity} durationInFrames={390} fps={30} width={1080} height={1920} />
     <Composition id="IsoHookCine" component={IsoHookCine} durationInFrames={468} fps={30} width={1080} height={1920} />
+    <Composition id="IsoFullCine" component={IsoFullCine} durationInFrames={1245} fps={30} width={1080} height={1920} />
     <Composition id="IsoCity2" component={IsoCity2} durationInFrames={390} fps={30} width={1080} height={1920} />
     <Composition id="IsoDetail" component={IsoDetail} durationInFrames={468} fps={30} width={1080} height={1920} />
     <Composition id="IsoMoveDetail" component={IsoMoveDetail} durationInFrames={504} fps={30} width={1080} height={1920} />

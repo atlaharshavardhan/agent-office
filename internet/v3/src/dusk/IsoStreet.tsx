@@ -211,6 +211,7 @@ const WVO: [number, React.ReactNode][] = [[0.2, <>So we use a <em>wire.</em></>]
 export const IsoHook: React.FC = () => <IsoStreet hook />;
 export const IsoFull: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire /></Sequence><Sequence from={690} durationInFrames={555}><IsoStreet move /></Sequence></AbsoluteFill>);
 export const IsoHookCine: React.FC = () => <IsoStreet hook cine />;
+export const IsoFullCine: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute cine /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire cine /></Sequence><Sequence from={690} durationInFrames={555}><IsoStreet move cine /></Sequence></AbsoluteFill>);
 export const IsoWire: React.FC = () => <IsoStreet wire />;
 export const IsoDetail: React.FC = () => <IsoStreet hook detail mute />;
 export const IsoMoveDetail: React.FC = () => <IsoStreet move detail />;
@@ -418,9 +419,9 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
         {[-19.1, -15.9, -12.7, -9.5, -6.3, -3.1, 0.1, 3.3, 6.5, 9.7, 12.9, 16.1].map((x, i) => <HouseIso key={'bt' + i} b={{ x0: x, y0: 15.4, w: 2.4, d: 2.4, h: 2.0, c: C1[(i + 1) % 6], roof: i % 2 ? 'gable' : 'hip', seed: 80 + i }} f={f} />)}
         {Array.from({ length: 12 }).map((_, i) => <HouseIso key={'bt2' + i} b={{ x0: -20 + i * 3.2, y0: 18.8, w: 2.4, d: 2.4, h: 2.0 + (i % 2) * 0.3, c: C1[(i + 4) % 6], roof: i % 2 ? 'gable' : 'hip', seed: 120 + i }} f={f} />)}
         {/* cinematic pass: everything except the two balconies drops back, so the eye goes to the light */}
-        {cine && hook && <g><defs><radialGradient id="ciHole"><stop offset="0" stopColor="#000" /><stop offset=".55" stopColor="#000" stopOpacity=".9" /><stop offset="1" stopColor="#000" stopOpacity="0" /></radialGradient><radialGradient id="ciWarm"><stop offset="0" stopColor="#fff6dc" stopOpacity=".95" /><stop offset=".3" stopColor="#ffd98a" stopOpacity=".45" /><stop offset="1" stopColor="#ffc864" stopOpacity="0" /></radialGradient>
-          <mask id="ciSpot" maskUnits="userSpaceOnUse" x={-1500} y={-1500} width={4200} height={5000}><rect x={-1500} y={-1500} width={4200} height={5000} fill="#fff" /><ellipse cx={bx} cy={by - 110} rx={270} ry={250} fill="url(#ciHole)" /><ellipse cx={gx} cy={gy - 110} rx={270} ry={250} fill="url(#ciHole)" opacity={0.55 + 0.45 * on} /></mask></defs>
-          <rect x={-1500} y={-1500} width={4200} height={5000} fill="#040820" opacity={0.52} mask="url(#ciSpot)" /></g>}
+        {cine && (hook || wire || move) && <g><defs><radialGradient id="ciHole"><stop offset="0" stopColor="#000" /><stop offset=".55" stopColor="#000" stopOpacity=".9" /><stop offset="1" stopColor="#000" stopOpacity="0" /></radialGradient><radialGradient id="ciWarm"><stop offset="0" stopColor="#fff6dc" stopOpacity=".95" /><stop offset=".3" stopColor="#ffd98a" stopOpacity=".45" /><stop offset="1" stopColor="#ffc864" stopOpacity="0" /></radialGradient>
+          <mask id="ciSpot" maskUnits="userSpaceOnUse" x={-1500} y={-1500} width={4200} height={5000}><rect x={-1500} y={-1500} width={4200} height={5000} fill="#fff" /><ellipse cx={bx} cy={by - 110} rx={270} ry={250} fill="url(#ciHole)" /><ellipse cx={gx} cy={gy - 110} rx={270} ry={250} fill="url(#ciHole)" opacity={hook ? 0.55 + 0.45 * on : 1} />{move && <ellipse cx={iso(1.7, -0.5, 2.6)[0]} cy={iso(1.7, -0.5, 2.6)[1]} rx={230} ry={230} fill="url(#ciHole)" opacity={prog(f, 6.9, 7.5)} />}</mask></defs>
+          <rect x={-1500} y={-1500} width={4200} height={5000} fill="#040820" opacity={hook ? 0.52 : wire ? 0.46 : 0.42 * (1 - prog(f, 9.3, 10.0))} mask="url(#ciSpot)" /></g>}
         {/* the torch beam across the street */}
         <g transform={`translate(${lens.x} ${lens.y}) rotate(${ang})`} style={{ mixBlendMode: 'screen' }} opacity={on}>
           <path d={`M 0 -3 L ${len} -26 L ${len} 26 L 0 3 Z`} fill="url(#iBeam)" opacity={0.7} filter="url(#iB2)" />
