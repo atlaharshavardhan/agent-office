@@ -30,3 +30,10 @@
 - The full glowing web/mesh (dots + thin lines + bokeh over the whole neighbourhood) is built but switched off (MESH_ON in IsoStreet.tsx).
   Harsh wants to use it LATER, for a bigger-network scene (city / world).
 - Timing is not final; to be fixed later.
+
+## Detail pass approved (15 Nov 2026): "This is really amazing, let's go with this"
+- From the next render onward, every street scene uses the detail pass (now the default in IsoStreet.tsx):
+  bricks, framed windows + curtains, tiled roofs, chimneys with smoke, rooftop solar panels / dishes / washing lines,
+  doormats, plants, paving, lamp reflections, scooter, bench + cat, fireflies, haze, vignette, film grain.
+- Still to do: bring the step 3 region map (IsoCity.tsx) up to the same level; re-render hook, wire and step 2 in this look.
+- Offered but not yet confirmed: dim neighbours behind the router, move the router pole off the FRIEND'S house, dark band behind subtitles.
