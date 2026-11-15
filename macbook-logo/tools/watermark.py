@@ -24,5 +24,5 @@ end = dur - a.hide_last
 fc = (f"[1:v]format=rgba,colorchannelmixer=aa=0.92[w1];[1:v]format=rgba,colorchannelmixer=aa=0.13,scale=iw*0.8:-1[w2];"
       f"[0:v][w1]overlay=x=W-w-{int(24 * k)}:y=(H-h)/2:enable='lt(t,{end:.3f})'[a];"
       f"[a][w2]overlay=x='W*0.12+W*0.5*(0.5+0.5*sin(t*0.21))':y='H*0.27+H*0.33*(0.5+0.5*sin(t*0.13+1.3))':enable='lt(t,{end:.3f})'")
-subprocess.check_call(['ffmpeg', '-loglevel', 'error', '-y', '-i', a.src, '-i', png, '-filter_complex', fc, '-map', '0:a?', '-c:a', 'copy', '-c:v', 'libx264', '-preset', 'medium', '-crf', '17' if k > 1 else '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', a.dst])
+subprocess.check_call(['ffmpeg', '-loglevel', 'error', '-y', '-i', a.src, '-i', png, '-filter_complex', fc, '-map', '0:a?', '-c:a', 'copy', '-c:v', 'libx264', '-preset', 'slow', '-crf', '16' if k > 1 else '17', '-profile:v', 'high', '-r', '30', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', a.dst])
 print('ok', a.dst)
