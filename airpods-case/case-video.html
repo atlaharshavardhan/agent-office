@@ -4323,33 +4323,49 @@ function buildPhone() {
   }));
 }
 let lastScreen = '';
-function screen(state, k = 1) {   // state: off | alert | fixed ; k = card pop progress
+/* picture of our own 3D case for the pop-up sheet (rendered once on a white background) */
+const CASE_IMG = { cv: null, pts: [] };
+function makeCaseImg() {
+  const bg = scene.background; scene.background = new THREE.Color(0xffffff);
+  CA.root.visible = false; PHONE.visible = false; LINK.visible = false; CB.root.visible = true;
+  CB.root.position.set(0, 0, 0); CB.root.rotation.set(0.12, 0, 0); setLid(CB, 1); setXray(CB, 0); setLight(CB, 'amber', 0.0);
+  CB.light.material.emissive.set(0xffa030); CB.light.material.emissiveIntensity = 2; if (CB.engrave) CB.engrave.visible = false;
+  for (const s of ['R', 'L']) { seat(CA.buds[s], CB); budXray(CA.buds[s], 0); CA.buds[s].g.visible = true; }
+  power(0, 0, 0); CB.halo.visible = false; VO = 0; look(V(0, 70, 250), V(0, -2, 0)); renderer.render(scene, camera);
+  const sw = W * 0.92, sh = sw * 0.8, sx = (W - sw) / 2, sy = H * 0.5 - sh * 0.52, dpr = renderer.getPixelRatio();
+  const cv = document.createElement('canvas'); cv.width = 560; cv.height = 448;
+  cv.getContext('2d').drawImage(renderer.domElement, sx * dpr, sy * dpr, sw * dpr, sh * dpr, 0, 0, 560, 448);
+  CASE_IMG.pts = ['L', 'R'].map(s => { const [px, py] = proj(W2(CB, STEM[s].clone().add(V(s === 'R' ? -6 : 6, 22, 0)))); return [(px - sx) / sw * 560, (py - sy) / sh * 448]; });
+  CASE_IMG.cv = cv; scene.background = bg; if (CB.engrave) CB.engrave.visible = true; CA.root.visible = true;
+}
+function screen(state, k = 1) {   // state: off | alert | fixed ; k = sheet slide-up progress
   const key = state + ':' + k.toFixed(2); if (key === lastScreen) return; lastScreen = key;
   const c = SCREEN_CV, x = c.getContext('2d'), w = c.width, h = c.height;
-  x.fillStyle = '#000'; x.fillRect(0, 0, w, h);
+  x.fillStyle = '#000'; x.fillRect(0, 0, w, h);   // black glass
   if (state === 'off') { SCREEN_TEX.needsUpdate = true; return; }
-  x.fillStyle = '#000'; x.fillRect(0, 0, w, h);   // black glass wallpaper
-  x.fillStyle = 'rgba(255,255,255,.92)'; x.textAlign = 'center'; x.font = '600 120px Sora, Arial'; x.fillText('9:41', w / 2, 260); x.font = '500 34px "IBM Plex Sans", Arial'; x.fillStyle = 'rgba(255,255,255,.7)'; x.fillText('Saturday 15 November', w / 2, 150);
-  x.fillStyle = '#000'; x.beginPath(); x.roundRect ? x.roundRect(w / 2 - 95, 22, 190, 54, 27) : x.rect(w / 2 - 95, 22, 190, 54); x.fill();   // island
-  // card
-  const e = easeOut(k), cw = w - 60, ch = 640, cx = 30, cy = 400 + (1 - e) * 90;
-  x.globalAlpha = e; x.fillStyle = 'rgba(28,28,34,.96)'; x.beginPath(); x.roundRect(cx, cy, cw, ch, 56); x.fill();
-  // two-bud glyph
-  const bx = w / 2, by = cy + 150, col = state === 'fixed' ? '#2fd36b' : '#ffb340';
-  for (const sx of [-1, 1]) { x.save(); x.translate(bx + sx * 46, by); x.scale(sx, 1); x.fillStyle = '#f1f2f4'; x.beginPath(); x.ellipse(0, -30, 30, 34, 0, 0, 7); x.fill(); x.beginPath(); x.roundRect(4, -18, 20, 98, 10); x.fill(); x.restore(); }
-  x.textAlign = 'center';
-  if (state === 'alert') {
-    x.fillStyle = '#fff'; x.font = '700 60px Sora, Arial'; x.fillText('Mismatched', w / 2, cy + 300); x.fillText('AirPods', w / 2, cy + 366);
-    x.fillStyle = 'rgba(255,255,255,.65)'; x.font = '500 32px "IBM Plex Sans", Arial'; x.fillText('These AirPods and this case', w / 2, cy + 420); x.fillText('aren’t a set.', w / 2, cy + 460);
-    x.fillStyle = '#ffb340'; x.beginPath(); x.arc(bx + 110, by - 58, 26, 0, 7); x.fill(); x.fillStyle = '#1a1206'; x.font = '800 36px Sora, Arial'; x.fillText('!', bx + 110, by - 45);
-    x.fillStyle = '#3a7bff'; x.beginPath(); x.roundRect(cx + 60, cy + ch - 120, cw - 120, 84, 42); x.fill(); x.fillStyle = '#fff'; x.font = '600 36px Sora, Arial'; x.fillText('Set up', w / 2, cy + ch - 66);
-  } else {
-    x.fillStyle = '#fff'; x.font = '700 54px Sora, Arial'; x.fillText('Connected', w / 2, cy + 320);
-    x.fillStyle = 'rgba(255,255,255,.65)'; x.font = '500 32px "IBM Plex Sans", Arial'; x.fillText('Warning gone', w / 2, cy + 376);
-    x.fillStyle = '#2fd36b'; x.beginPath(); x.arc(bx + 110, by - 58, 28, 0, 7); x.fill(); x.strokeStyle = '#062a12'; x.lineWidth = 9; x.lineCap = 'round'; x.beginPath(); x.moveTo(bx + 97, by - 58); x.lineTo(bx + 107, by - 47); x.lineTo(bx + 124, by - 70); x.stroke();
-    x.fillStyle = 'rgba(255,255,255,.12)'; x.beginPath(); x.roundRect(cx + 60, cy + ch - 120, cw - 120, 84, 42); x.fill(); x.fillStyle = '#fff'; x.font = '600 36px Sora, Arial'; x.fillText('Done', w / 2, cy + ch - 66);
+  x.textAlign = 'center'; x.fillStyle = 'rgba(255,255,255,.92)'; x.font = '600 110px Sora, Arial'; x.fillText('9:41', w / 2, 240);
+  x.font = '500 32px "IBM Plex Sans", Arial'; x.fillStyle = 'rgba(255,255,255,.6)'; x.fillText('Saturday 15 November', w / 2, 135);
+  // bottom sheet, like the real iPhone alert
+  const e = easeOut(k), sy = 330 + (1 - e) * 1050, sx = 18, sw = w - 36, shh = h - sy - 18;
+  x.fillStyle = '#ffffff'; x.beginPath(); x.roundRect(sx, sy, sw, shh + 40, 64); x.fill();
+  x.fillStyle = '#e9e9ee'; x.beginPath(); x.arc(sx + sw - 62, sy + 62, 26, 0, 7); x.fill();
+  x.strokeStyle = '#8a8a90'; x.lineWidth = 5; x.lineCap = 'round'; x.beginPath(); x.moveTo(sx + sw - 72, sy + 52); x.lineTo(sx + sw - 52, sy + 72); x.moveTo(sx + sw - 52, sy + 52); x.lineTo(sx + sw - 72, sy + 72); x.stroke();
+  const ok = state === 'fixed';
+  x.fillStyle = '#000'; x.font = '700 58px Sora, Arial';
+  if (ok) { x.fillText('AirPods Pro', w / 2, sy + 160); x.fillText('Connected', w / 2, sy + 226); }
+  else { x.fillText('Mismatched', w / 2, sy + 160); x.fillText('AirPods Pro', w / 2, sy + 226); }
+  x.fillStyle = '#1c1c1e'; x.font = '500 29px "IBM Plex Sans", Arial';
+  if (ok) { x.fillText('These AirPods are back in their', w / 2, sy + 292); x.fillText('own case and work together.', w / 2, sy + 330); }
+  else { x.fillText('The AirPods in the charging case do not', w / 2, sy + 292); x.fillText('belong to you and do not work together.', w / 2, sy + 330); }
+  if (CASE_IMG.cv) {
+    const iw = 560, ih = 448, ix = (w - iw) / 2, iy = sy + 440; x.drawImage(CASE_IMG.cv, ix, iy, iw, ih);
+    const col = ok ? '#1f9d4c' : '#e5484d';
+    CASE_IMG.pts.forEach(([px, py], i) => { const X = ix + px * iw / 560, Y = iy + py * ih / 448, lx = i ? w / 2 + 130 : w / 2 - 130;
+      x.strokeStyle = col; x.lineWidth = 4; x.beginPath(); x.moveTo(lx, sy + 420); x.lineTo(X, Y); x.stroke(); x.fillStyle = col; x.beginPath(); x.arc(X, Y, 9, 0, 7); x.fill();
+      x.fillStyle = '#000'; x.font = '500 28px "IBM Plex Sans", Arial'; x.fillText(i ? 'Right AirPod' : 'Left AirPod', lx, sy + 378);
+      x.fillStyle = col; x.fillText(ok ? 'Yours ✓' : 'Not Yours', lx, sy + 412); });
   }
-  x.globalAlpha = 1; SCREEN_TEX.needsUpdate = true;
+  SCREEN_TEX.needsUpdate = true;
 }
 
 /* ---------- dotted "paired as a set" link that breaks ---------- */
@@ -4489,7 +4505,7 @@ const SHOTS = [
     tag('set', 'Paired as a set', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, -14, 0)), 0, 0, lk * (1 - brk), '', true);
     glyph('big', W2(CA, V(0, 6, 0)).lerp(W2(CB, V(0, 10, 0)), 0.5).add(V(0, 12, 0)), ease(ramp(u, 6.4, 6.8)), 0.35);
     tag('ya2', 'Harsha’s case 🚀', W2(CA, V(0, 8, 6)), -W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8))); tag('fr2', 'Karan’s case 🎸', W2(CB, V(0, 8, 6)), W * 0.03, -H * 0.1, ease(ramp(u, 4.4, 4.8)));
-    title(['Now the <em>catch</em>…', '<em>“Mismatched AirPods”</em>'], [0.0, 1.0], u);
+    title(['Now the <em>catch</em>…', '<em>“Mismatched AirPods Pro”</em>'], [0.0, 1.0], u);
   },
   (u, t) => { // 6. back in their own case (or set up again): warning gone
     CA.root.visible = true; CA.root.position.set(-38, -17.5, 0); CB.root.position.set(38, -17.5, 0); CA.root.rotation.set(0.12, 0.25, 0); CB.root.rotation.set(0.12, -0.25, 0); setLid(CA, 1); setLid(CB, 1);
@@ -4586,6 +4602,7 @@ loadModel().then(() => {
   buildPower(CB); buildLink(); buildEngraving();
   return buildPhone();
 }).then(() => {
+  makeCaseImg();
   window.__dbg = { STEM, DOTS, P, K, CA, CB, setLid, setXray, look, V, scene, camera, renderer, THREE, PHONE };
   renderAt(0); ready = true;
   window.__tour = { total: TOTAL, renderAt };

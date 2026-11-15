@@ -70,3 +70,4 @@ Credits for the description:
 - "AirPods Pro" 3D model by Jed Falcone (CC BY 4.0, modified).
 - iPhone model from HyperFrames (heygen-com/hyperframes, Apache 2.0).
 - Phone screen: plain black glass, no reflections or shine (Harsh's choice).
+- Pop-up rebuilt like the real iPhone alert Harsh shared (screenshot, 2026-11-15): white sheet, "Mismatched AirPods Pro", "The AirPods in the charging case do not belong to you and do not work together.", Left/Right AirPod "Not Yours" labels on a picture of the case (our own 3D case, not Apple's image). Fixed state: "AirPods Pro Connected", "Yours ✓".
