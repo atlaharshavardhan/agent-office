@@ -1,39 +1,47 @@
 1
-00:00:00,260 --> 00:00:03,067
-Your AirPods can charge inside your friend's case.
+00:00:00,220 --> 00:00:03,052
+Can your AirPods charge in someone else's case?
 
 2
-00:00:03,117 --> 00:00:04,266
-But there's a catch.
+00:00:03,102 --> 00:00:03,358
+Yes.
 
 3
-00:00:04,660 --> 00:00:07,921
-Inside every charging case is a tiny power system.
+00:00:03,408 --> 00:00:04,646
+But there's a catch.
 
 4
-00:00:08,310 --> 00:00:12,957
-When the earbuds snap into place, their metal contacts connect to the charging circuit.
+00:00:05,050 --> 00:00:07,538
+The secret is hidden inside this tiny case.
 
 5
-00:00:13,350 --> 00:00:17,941
-Power flows from the case's battery, through its circuit board, and into the earbuds.
+00:00:07,920 --> 00:00:12,779
+Magnets guide the earbuds into position, lining up their tiny charging contacts.
 
 6
-00:00:18,330 --> 00:00:22,155
-But charging doesn't necessarily mean everything will work normally.
+00:00:13,180 --> 00:00:18,150
+Once those metal contacts connect, the case delivers power directly to the earbuds.
 
 7
-00:00:22,540 --> 00:00:25,204
-A compatible case can charge your AirPods.
+00:00:18,540 --> 00:00:23,548
+Power travels from the case's battery, through its charging circuit, into each AirPod.
 
 8
-00:00:25,254 --> 00:00:28,887
-But incompatible models may not fit or charge correctly.
+00:00:23,950 --> 00:00:26,401
+But charging is only part of the story.
 
 9
-00:00:29,280 --> 00:00:29,691
-So yes.
+00:00:26,451 --> 00:00:30,696
+Your iPhone may notice the AirPods and case don't belong together.
 
 10
-00:00:29,741 --> 00:00:33,182
-A different compatible case can charge your AirPods.
+00:00:31,100 --> 00:00:36,776
+A compatible case may charge your AirPods, but different models aren't always interchangeable.
+
+11
+00:00:37,160 --> 00:00:40,682
+So yes, another compatible case can charge your AirPods.
+
+12
+00:00:40,732 --> 00:00:42,596
+But not every case will work.
