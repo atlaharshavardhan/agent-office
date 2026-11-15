@@ -34,6 +34,10 @@ export const routePts = (r: LL[], u = 1, step = 0.012): LL[] => {
 };
 export const routeAt = (r: LL[], u: number): LL => { const p = routePts(r, u, 0.05); return p[p.length - 1]; };
 
+/* drop coastline points closer than `min` pixels to the last kept one: they are smaller than a pixel, so the picture is unchanged, but the browser has far less to draw */
+const thin = (d: string, min = 0.6): string => { let out = '', lx = 1e9, ly = 1e9; const re = /([MLZ])([-\d.]+)?,?([-\d.]+)?/g; let m: RegExpExecArray | null;
+  while ((m = re.exec(d))) { if (m[1] === 'Z') { out += 'Z'; continue; } const x = +m[2]!, y = +m[3]!; if (m[1] === 'M' || Math.abs(x - lx) + Math.abs(y - ly) >= min) { out += m[1] + x.toFixed(1) + ',' + y.toFixed(1); lx = x; ly = y; } }
+  return out; };
 export type GlobeApi = { xy: (p: LL) => [number, number]; vis: (p: LL) => number; line: (pts: LL[]) => string; R: number };
 export const Globe: React.FC<{ id: string; rot: LL; R: number; cx?: number; cy?: number; f: number; lights?: number; children?: (g: GlobeApi) => React.ReactNode }> = ({ id, rot, R, cx = 540, cy = 900, f, lights = 1, children }) => {
   const proj = geoOrthographic().rotate([-rot[0], -rot[1]]).scale(R).translate([cx, cy]).clipAngle(90).precision(0.3);
@@ -41,7 +45,7 @@ export const Globe: React.FC<{ id: string; rot: LL; R: number; cx?: number; cy?:
   const xy = (p: LL) => proj(p) as [number, number];
   const vis = (p: LL) => { const d = geoDistance(p, rot); return Math.max(0, Math.min(1, (Math.PI / 2 - d) / 0.12)); };
   const line = (pts: LL[]) => path({ type: 'LineString', coordinates: pts } as any) || '';
-  const landD = path(LAND) || '', grat = path(geoGraticule10()) || '';
+  const landD = thin(path(LAND) || ''), grat = path(geoGraticule10()) || '';
   return (
     <g>
       <defs>
