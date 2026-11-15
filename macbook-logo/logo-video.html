@@ -25,9 +25,9 @@
   #room .bar { flex: 1; height: 2.2vw; border-radius: 2vw; background: rgba(255,255,255,.12); overflow: hidden; } #room .bar i { display: block; height: 100%; width: 50%; border-radius: 2vw; }
   #rBar i { background: linear-gradient(90deg, #4a5a80, #ffd36b); } #lBar i { background: linear-gradient(90deg, #6a7890, #ffffff); box-shadow: 0 0 18px rgba(255,255,255,.7); }
   #room .ic { width: 6vw; text-align: center; font-size: 4.4vw; }
-  #sw { position: fixed; z-index: 3; left: 15%; right: 15%; top: 13.6%; display: flex; align-items: center; justify-content: space-between; padding: 3vw 4.2vw; border-radius: 4.5vw; opacity: 0; pointer-events: none;
-    background: linear-gradient(160deg, rgba(34,36,46,.9), rgba(14,15,22,.94)); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 24px 60px rgba(0,0,0,.55); color: #fff; font: 600 4vw Sora, Arial, sans-serif; }
-  #sw .tg { width: 15vw; height: 8.4vw; border-radius: 5vw; background: #2fd36b; position: relative; transition: none; } #sw .tg i { position: absolute; top: .8vw; left: .8vw; width: 6.8vw; height: 6.8vw; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+  #sw { position: fixed; z-index: 3; left: 11.1%; right: 16.7%; top: 13.6%; display: flex; align-items: center; justify-content: space-between; padding: 3.6vw 4.6vw; border-radius: 4.5vw; opacity: 0; pointer-events: none;
+    background: linear-gradient(160deg, rgba(34,36,46,.9), rgba(14,15,22,.94)); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 24px 60px rgba(0,0,0,.55); color: #fff; font: 600 5vw Sora, Arial, sans-serif; }
+  #sw .tg { width: 19vw; height: 10.6vw; border-radius: 6vw; background: #2fd36b; position: relative; transition: none; } #sw .tg i { position: absolute; top: .9vw; left: .9vw; width: 8.8vw; height: 8.8vw; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
   #term { position: fixed; z-index: 3; left: 9.3%; right: 16.7%; top: 11.6%; border-radius: 2.6vw; overflow: hidden; opacity: 0; pointer-events: none;
     background: rgba(14,15,19,.94); border: 1px solid rgba(255,255,255,.16); box-shadow: 0 24px 60px rgba(0,0,0,.6); }
   #term .bar { height: 7.2vw; display: flex; align-items: center; gap: 1.4vw; padding: 0 3.1vw; background: rgba(255,255,255,.06); font: 600 3.1vw 'IBM Plex Sans', sans-serif; color: rgba(255,255,255,.55); }
@@ -5304,7 +5304,7 @@ function terminal(a, typed, done, u) { const tm = $('term'); tm.style.opacity = 
   const KEY = 'LEBacklightMode -int 0', ki = all.indexOf(KEY), hl = n > ki ? shown.slice(0, ki) + '<mark>' + shown.slice(ki) + '</mark>' : shown;   // V4: highlight the part that switches the glow off
   $('tPre').innerHTML = '<b>$</b> ' + hl.replace(/\n/g, '\n  ') + cur + (done ? '\n<b>$</b> <span class="cur"></span>' : ''); }
 function switchCard(a, on) { const s = $('sw'); s.style.opacity = a; s.style.transform = `translateY(${(1 - a) * 2}vh)`;
-  const tg = s.querySelector('.tg'); tg.style.background = `rgb(${lerp(80, 47, on)},${lerp(84, 211, on)},${lerp(96, 107, on)})`; tg.firstChild.style.left = lerp(0.8, 7.4, on) + 'vw'; }
+  const tg = s.querySelector('.tg'); tg.style.background = `rgb(${lerp(80, 47, on)},${lerp(84, 211, on)},${lerp(96, 107, on)})`; tg.firstChild.style.left = lerp(0.9, 9.3, on) + 'vw'; }
 
 /* ---------- camera ---------- */
 let VO = 0;
@@ -5398,12 +5398,12 @@ const SHOTS = [
     const day = ease(ramp(u, 2.3, 3.0)) * (1 - ease(ramp(u, 3.9, 4.6)));
     const night = ease(ramp(u, 3.9, 4.6));
     room(day * 0.7);
-    const glowK = 0.62 + 0.38 * day - 0.32 * night, off = ease(ramp(u, 6.4, 6.8));
+    const glowK = 0.62 + 0.38 * day - 0.32 * night, off = ease(ramp(u, 6.95, 7.3));
     logoGlow(glowK * (1 - off));
     VO = 0.075; orbit(lidPoint(LOGO_C).add(new THREE.Vector3(0, -40, 0)), lerp(-6, 8, u / d), 11, 1700);
     const cardA = ease(ramp(u, 0.2, 0.6)) * (1 - ease(ramp(u, 5.0, 5.3)));
     roomCard(cardA, day * 0.85 + 0.15 * (1 - night), glowK * (1 - off), night > 0.5);
-    terminal(ease(ramp(u, 5.35, 5.7)) , ramp(u, 5.6, 6.25), u > 6.3 ? 1 : 0, u);
+    switchCard(ease(ramp(u, 5.35, 5.7)), 1 - ease(ramp(u, 6.8, 7.0)));   // flips on "switch it off"   // V4 (Harsh): a slide switch instead of the Terminal; the real method is Apple's Terminal command (see the note)
     if (u < 0.2) title([], [], u);
   }],
   [B[6], B[7], u => { // 7. the video we just watched shrinks onto the MacBook's own screen, the camera pulls back
@@ -5435,7 +5435,7 @@ function renderAt(t) {
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
   const k = ORIG[i] ? ORIG[i] / (b - a) : 1; fn((t - a) * k, ORIG[i] || b - a);   // scenes 2–6 were timed on v1's voice: stretch them to this voice's lines
   if (i >= 6) title([], [], 0);
-  note(i === 3 ? 'Source: iFixit teardown · 3D, not to scale · not affiliated with Apple' : i === 5 && t > B[5] + (B[6] - B[5]) * 5.3 / 7.52 ? 'Command: Apple Support · 3D illustration · not affiliated with Apple' : (i >= 1 && i <= 4 ? '3D illustration · not to scale · not affiliated with Apple' : '3D illustration · not affiliated with Apple'), i === 7 ? 0 : 1);
+  note(i === 3 ? 'Source: iFixit teardown · 3D, not to scale · not affiliated with Apple' : i === 5 && t > B[5] + (B[6] - B[5]) * 5.3 / 7.52 ? 'Switched off via Terminal (Apple Support) · not affiliated with Apple' : (i >= 1 && i <= 4 ? '3D illustration · not to scale · not affiliated with Apple' : '3D illustration · not affiliated with Apple'), i === 7 ? 0 : 1);
   const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
   $('fade').style.opacity = Math.max(0, ...CUTS.map(c => 0.55 - Math.abs(t - c) / 0.22));
   if (!END.screen) { SCREEN.material.map = WALL; SCREEN.material.color.setScalar(0.04 + 0.96 * SCREEN_ON); SCREEN.visible = true; draw(); }
