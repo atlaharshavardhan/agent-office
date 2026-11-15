@@ -5368,6 +5368,7 @@ const SHOTS = [
     PIXM.visible = pf > 0; PIXM.material.opacity = ease(ramp(u, 3.4, 3.7)) * (1 - 0.6 * ease(ramp(u, 5.4, 6.0))); if (pf > 0) drawPixels(pf, u);
     const nb = ease(ramp(u, 5.9, 6.4)) * (1 - ease(ramp(u, 7.6, 8.0))); NOBL.visible = nb > 0.01; NOBL.userData.parts.forEach(m => m.material.opacity = (m.isLineSegments ? 0.9 : 0.55) * nb);
     VO = 0.0; orbit(lidPoint(new THREE.Vector3(0, 0, 100)).add(new THREE.Vector3(0, -10, 0)), lerp(-8, 112, k), lerp(12, 16, k), lerp(1350, 1250, k));
+    LAYERS.visible = false;   // V4 (Harsh): the stacked inner layers (not opened yet) reflected a stepped studio-light edge over the screen; they appear in scene 3
     if (u > 3.4) title(['OLED: every pixel', 'makes its <em>own light</em>'], [3.5, 3.8], u);
     sideTags([['scr', 'Pixels light themselves', lidPoint(new THREE.Vector3(0, -40, 150)), 1, ease(ramp(u, 4.6, 5.0)) * (1 - ramp(u, 7.6, 8)), 'acc'],
               ['back', '✕  No backlight', lidPoint(new THREE.Vector3(-100, 26, 150)), -1, ease(ramp(u, 6.0, 6.4)) * (1 - ramp(u, 7.6, 8)), 'red']]);
@@ -5469,7 +5470,7 @@ function renderAt(t) {
   note(i === 3 ? 'Source: iFixit teardown · 3D, not to scale · not affiliated with Apple' : i === 5 && t > B[5] + (B[6] - B[5]) * 5.3 / 7.52 ? 'Switched off via Terminal (Apple Support) · not affiliated with Apple' : (i >= 1 && i <= 4 ? '3D illustration · not to scale · not affiliated with Apple' : '3D illustration · not affiliated with Apple'), i >= 6 ? 0 : 1);   // V4: no note on the ending
   const cp = i >= 6 ? null : CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';   // V4 (Harsh): no subtitles on the zoom-out and title; "Follow" is on the title card
   $('fade').style.opacity = Math.max(0, ...CUTS.map(c => 0.55 - Math.abs(t - c) / 0.22));
-  if (!END.screen) { SCREEN.material.map = WALL; SCREEN.material.color.setScalar(0.04 + 0.96 * SCREEN_ON); SCREEN.visible = true; draw(); }
+  if (!END.screen) { SCREEN.material.map = WALL; SCREEN.material.color.setScalar(i === 1 ? 0 : 0.04 + 0.96 * SCREEN_ON); SCREEN.visible = true; draw(); }   // V4 (Harsh): black screen in the OLED scene: any picture on it showed a staircase edge under the see-through lid layers
   endCard();
 }
 const END = { a: 0, brand: 0, screen: 0, card: 0, outro: -1 };
