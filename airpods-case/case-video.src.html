@@ -2,11 +2,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root { --red: #ff3b55; --green: #2fd36b; --blue: #5fd0ff; --amber: #ffb340; }
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #08080b; font-family: 'IBM Plex Sans', Arial, sans-serif; }
-  canvas { display: block; position: fixed; inset: 0; }
-  .shade { position: fixed; left: 0; right: 0; pointer-events: none; z-index: 1; }
-  #shTop { top: 0; height: 28%; background: linear-gradient(rgba(5,5,8,.8), rgba(5,5,8,.4) 60%, transparent); }
-  #shBot { bottom: 0; height: 40%; background: linear-gradient(transparent, rgba(5,5,8,.5) 40%, rgba(5,5,8,.8)); }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; font-family: 'IBM Plex Sans', Arial, sans-serif; }
+  body > canvas { display: block; position: fixed; inset: 0; z-index: 1; }
+  #back { position: fixed; z-index: 0; left: 0; right: 0; text-align: center; color: #f5f5f7; font: 800 25vw/0.86 Sora, Arial, sans-serif; letter-spacing: -0.045em; pointer-events: none; opacity: 0; }
+  #back .ln { display: block; } #back small { display: block; font: 700 4.6vw Sora, Arial, sans-serif; letter-spacing: 0; color: #4cd964; margin-bottom: 2.4vw; }
+  .shade { position: fixed; left: 0; right: 0; pointer-events: none; z-index: 2; }
+  #shTop { top: 0; height: 28%; background: linear-gradient(rgba(0,0,0,.6), transparent); }
+  #shBot { bottom: 0; height: 40%; background: linear-gradient(transparent, rgba(0,0,0,.5) 40%, rgba(0,0,0,.8)); }
   .ov { position: fixed; z-index: 3; pointer-events: none; }
   /* safe zones (1080x1920): title 220-450 px, subject 450-1500, subtitles 1250-1450, nothing right of 940 below 1100 */
   #title { top: 12.4%; left: 4%; right: 4%; text-align: center; color: #fff; font: 700 6.2vw/1.13 Sora, Arial, sans-serif; letter-spacing: -0.015em; text-shadow: 0 4px 24px rgba(0,0,0,.8); }
@@ -36,7 +38,7 @@
   #fade { position: fixed; inset: 0; z-index: 5; background: #000; opacity: 0; pointer-events: none; }
   #zones { position: fixed; inset: 0; z-index: 9; pointer-events: none; display: none; }
 </style>
-<div class="shade" id="shTop"></div><div class="shade" id="shBot"></div>
+<div id="back"></div><div class="shade" id="shTop"></div><div class="shade" id="shBot"></div>
 <svg id="lines"></svg>
 <div class="ov" id="title"></div>
 <div class="ov" id="note"></div>
@@ -75,27 +77,29 @@ const TOTAL = B[B.length - 1];
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
 const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3), lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
 const bump = (u, a, b) => Math.sin(Math.PI * ramp(u, a, b));
-const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true }); renderer.setClearColor(0x000000, 0);
 renderer.setPixelRatio(devicePixelRatio); renderer.setSize(W, H);
 renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
 document.body.prepend(renderer.domElement);
 const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, W / H, 10, 3000);
 let ready = false;
 
-/* background + studio environment (same look as the ear Short) */
+/* black studio, like a product launch film: pure black, light from above and from both sides behind,
+   so white plastic gets bright edges and soft dark middles. The renderer is transparent so big words can sit behind the product. */
 {
-  const c = document.createElement('canvas'); c.width = 64; c.height = 512; const x = c.getContext('2d');
-  const g = x.createRadialGradient(32, 210, 10, 32, 210, 420); g.addColorStop(0, '#24283a'); g.addColorStop(0.45, '#121320'); g.addColorStop(1, '#050507');
-  x.fillStyle = g; x.fillRect(0, 0, 64, 512); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; scene.background = t;
-  const pm = new THREE.PMREMGenerator(renderer), env = new THREE.Scene(), e = document.createElement('canvas'); e.width = 16; e.height = 256; const ex = e.getContext('2d');
-  const eg = ex.createLinearGradient(0, 0, 0, 256); eg.addColorStop(0, '#9aa3b8'); eg.addColorStop(0.5, '#2a2c34'); eg.addColorStop(1, '#0b0b0e'); ex.fillStyle = eg; ex.fillRect(0, 0, 16, 256);
-  env.add(new THREE.Mesh(new THREE.SphereGeometry(100, 32, 16), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(e), side: THREE.BackSide })));
-  for (const [px, py, pz, s] of [[60, 50, 40, 40], [-70, 30, -30, 30], [0, 80, -60, 50], [40, -10, 80, 25]]) { const q = new THREE.Mesh(new THREE.PlaneGeometry(s, s), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })); q.position.set(px, py, pz); q.lookAt(0, 0, 0); env.add(q); }
-  scene.environment = pm.fromScene(env, 0.04).texture;
+  const pm = new THREE.PMREMGenerator(renderer), env = new THREE.Scene();
+  env.add(new THREE.Mesh(new THREE.SphereGeometry(100, 32, 16), new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide })));
+  const soft = (w, h, x, y, z, v) => { const q = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(v, v, v), side: THREE.DoubleSide })); q.position.set(x, y, z); q.lookAt(0, 0, 0); env.add(q); };
+  soft(90, 50, 0, 85, 10, 1.6);          // big softbox overhead
+  soft(16, 140, -80, 10, -45, 2.4);      // tall strip, back left (rim)
+  soft(16, 140, 80, 10, -45, 2.4);       // tall strip, back right (rim)
+  soft(50, 34, 0, 30, 90, 0.42);         // soft front fill
+  scene.environment = pm.fromScene(env, 0.03).texture; scene.background = null;
 }
-scene.add(new THREE.HemisphereLight(0x9aa4c0, 0x120e12, 0.45));
-const key = new THREE.DirectionalLight(0xfff1e6, 1.25); key.position.set(300, 360, 380); scene.add(key);
-const rim = new THREE.DirectionalLight(0x8fa8ff, 1.0); rim.position.set(-200, 160, -400); scene.add(rim);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x222222, 0.32));
+const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(0, 500, 120); scene.add(key);
+const rim = new THREE.DirectionalLight(0xffffff, 1.6); rim.position.set(-420, 120, -320); scene.add(rim);
+const rim2 = new THREE.DirectionalLight(0xffffff, 1.6); rim2.position.set(420, 120, -320); scene.add(rim2);
 
 function radial(stops, size = 128) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'), g = x.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2); stops.forEach(([o, col]) => g.addColorStop(o, col)); x.fillStyle = g; x.fillRect(0, 0, size, size); return new THREE.CanvasTexture(c); }
 const HALO_B = radial([[0, 'rgba(235,248,255,1)'], [0.2, 'rgba(120,200,255,0.85)'], [0.55, 'rgba(80,170,255,0.2)'], [1, 'rgba(80,170,255,0)']]);
@@ -450,6 +454,11 @@ function link(a, b, alpha, brk, t) {   // brk 0..1: the middle opens up and the 
 
 /* ---------- overlays ---------- */
 const $ = id => document.getElementById(id);
+let lastBack = '';
+function back(lines, small, a, top) {   // huge words behind the product, small green line above
+  const el = $('back'), key = lines.join('|') + small; if (key !== lastBack) { lastBack = key; el.innerHTML = (small ? `<small>${small}</small>` : '') + lines.map(l => `<span class="ln">${l}</span>`).join(''); }
+  el.style.opacity = a; el.style.top = top; el.style.transform = `translateY(${(1 - a) * 2}vh) scale(${0.97 + 0.03 * a})`;
+}
 let lastTitle = '';
 function title(lines, times, u) {
   const key = lines.join('|'); if (key !== lastTitle) { lastTitle = key; $('title').innerHTML = lines.map(l => `<span class="ln">${l}</span>`).join(''); }
@@ -517,7 +526,7 @@ const SHOTS = [
     for (const s of ['R', 'L']) CB.buds[s].g.visible = false;
     setLight(CB, 'white', 0.9 * bump(u, 1.4, 1.95)); setLight(CA, 'green', 0);
     VO = 0.0; look(V(0, 150, 590), V(0, 6, 0));
-    title(['Wrong case…', '<em class="b">will it charge?</em>'], [0, 0], 1);
+    title([], [], 1); back(['Wrong', 'case?'], 'Will it charge?', 1, '16%');
     tag('ya', 'Yours · Harsha 🚀', W2(CA, V(0, -36, 6)), 0, 34, 1, '', true); tag('fr', 'Friend’s · Karan 🎸', W2(CB, V(0, -36, 6)), 0, 34, 1, '', true);
     note('3D illustration · not affiliated with Apple', 1, true);
   },
@@ -525,9 +534,8 @@ const SHOTS = [
     CA.root.visible = false; CB.root.position.set(0, 0, 0); CB.root.rotation.set(0, -0.18 + 0.06 * u / 3.5, 0); setLid(CB, 0);
     for (const s of ['R', 'L']) { seat(CA.buds[s], CB); CA.buds[s].g.visible = false; CB.buds[s].g.visible = false; }   // lid shut: buds hidden inside
     setLight(CB, 'white', 0.5 + 0.2 * Math.sin(t * 5));
-    VO = 0.0; look(V(0, 34, 300 - 14 * u / 3.5), V(0, -13, 0));
-    glyph('q', W2(CB, V(0, 19, 12)), easeOut(ramp(u, 0.3, 0.7)), 0.8 + 0.05 * Math.sin(t * 6));
-    title(['Will they <em class="b">charge?</em>', 'First: how charging works'], [0.1, 2.2], u);
+    VO = 0.0; look(V(0, 34, 520 - 16 * u / 3.5), V(0, 15, 0));
+    title([], [], u); back(['Will it', 'charge?'], u > 2.2 ? 'First: how charging works' : 'Karan’s case', 1, '22%');
   },
   (u, t) => { // 3. glass x-ray: pins, gold dots, magnets, then the power path into the bud's own chip and battery
     CA.root.visible = false; CB.root.position.set(0, 0, 0); setLid(CB, 0); setLight(CB, 'green', 0.8);
@@ -617,7 +625,7 @@ const CUTS = () => B.slice(2, B.length - 1);
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   let i = 0; while (i < B.length - 2 && t >= B[i + 1]) i++;
-  hideTags(); for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('note').style.top = ''; $('note').style.fontSize = ''; $('note').style.color = ''; $('title').style.opacity = 1;
+  hideTags(); $('back').style.opacity = 0; for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('note').style.top = ''; $('note').style.fontSize = ''; $('note').style.color = ''; $('title').style.opacity = 1;
   CA.root.visible = true; CB.root.visible = true; PHONE.visible = false; LINK.visible = false;
   for (const C of [CA, CB]) { setXray(C, 0); setLight(C, 'green', 0); C.buds.R.g.visible = false; C.buds.L.g.visible = false; }
   for (const s of ['R', 'L']) { CA.buds[s].g.visible = true; budXray(CA.buds[s], 0); }

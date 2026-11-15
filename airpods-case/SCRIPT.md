@@ -87,3 +87,4 @@ About 124 words, ~48 s with Michael at 1.12 (limit 50 s).
 | 8 | Follow InvisiTech for more. | End card |
 - Alert card sized like the real one (Harsh's photo): lower half of the screen, small margins.
 - Alert in iPhone dark mode (Harsh's screenshot): dark grey card, white text, red "Not Yours" / green "Yours ✓".
+- Look: black studio like Apple's launch frames (pure black, top softbox + side rim lights), and huge white words behind the product with a small green line above in the hook ("Wrong case?") and the close-up ("Will it charge?"). Our own words, no logos.
