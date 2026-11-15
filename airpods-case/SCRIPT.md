@@ -112,3 +112,25 @@ About 124 words, ~48 s with Michael at 1.12 (limit 50 s).
 | Different generation drop / ✕ | click, then error buzz |
 | End-card tiles | soft pops, one per tile |
 | Music | dark, minimal electronic bed (Apple-launch feel), ducked under Michael |
+
+## Copyright and trademark check (2026-11-15)
+| Item | Where it comes from | Status |
+|---|---|---|
+| AirPods case, lid, buds (3D) | "AirPods Pro" by Jed Falcone, CC BY 4.0, modified | OK with the credit line in the description |
+| iPhone (3D) | HyperFrames block `vfx-iphone-device`, Apache 2.0; Apple logo hidden | OK with the credit line |
+| Case internals, pins, coil, battery, power path | Built by us in code | Ours |
+| Voice | Kokoro TTS (am_michael), Apache 2.0 model | OK for commercial use |
+| Music and every sound effect | Synthesised in `audio/make_sounds.py`; no samples, no Apple sounds | Ours |
+| Fonts | Inter, Sora, IBM Plex (SIL Open Font License); emoji = Noto Color Emoji (OFL) | Free for video; no Apple font or Apple emoji used |
+| "Mismatched AirPods Pro" card | Redrawn by us; wording quoted from the real alert; case picture is our own render | Low risk: a short quote of real interface text to explain it (commentary / education) |
+| Home screen behind the card | Our own purple gradient and made-up app icons | Ours; the two icons that looked like Apple's (Photos flower, Activity rings) were replaced |
+| Black studio look, big words behind the product, green accent, tile grid | A style, re-made with our own words and layout | Styles are not protected; no Apple image, slogan or logo is copied |
+| "AirPods", "AirPods Pro", "iPhone", "Find My", "MagSafe" | Apple trademarks, used only as names to say what the video is about | Allowed as naming use; keep "not affiliated with Apple" (on screen in the hook + in the description) |
+| InvisiTech logo, names "Harsha" and "Karan" | Ours / made up | Ours |
+
+Things to avoid when publishing: Apple's own product photos or keynote clips in the cover, the Apple logo, Apple's slogans ("All-new", "Rebuilt from the sound up"), and copyrighted music added in the Instagram / YouTube app.
+
+Description lines:
+- "AirPods Pro" 3D model by Jed Falcone (sketchfab.com/jedlas012), CC BY 4.0, modified.
+- iPhone 3D model from HyperFrames (github.com/heygen-com/hyperframes), Apache 2.0.
+- 3D illustration, not to scale. Not affiliated with or endorsed by Apple. AirPods, iPhone and Find My are trademarks of Apple Inc.
