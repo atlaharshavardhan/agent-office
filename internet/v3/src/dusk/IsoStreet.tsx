@@ -18,6 +18,7 @@ const shade = (hex: string, k: number) => { const n = parseInt(hex.slice(1), 16)
 type H = { x0: number; y0: number; w: number; d: number; h: number; c: string; roof: 'flat' | 'gable' | 'hip'; hero?: 'boy' | 'girl'; seed: number };
 const LIT = '#ffd38a';
 
+let DETAIL = false;   // detail pass: bricks, roof tiles, window frames, rooftop clutter, street life, haze and grain
 let HOSTEL_LIT = false;
 let NB_LIT = -1;   // street scene: time at which the neighbours start switching their lights on (-1 = stay dim)
 const HouseIso: React.FC<{ b: H; f: number }> = ({ b, f }) => {
@@ -30,6 +31,15 @@ const HouseIso: React.FC<{ b: H; f: number }> = ({ b, f }) => {
       <polygon points={P([face(u, v), face(u + ww, v), face(u + ww, v + wh), face(u, v + wh)])} fill={lit ? (dim < 1 ? '#9a7f52' : LIT) : '#12142c'} />
       {lit && dim === 1 && <polygon points={P([face(u - 0.12, v - 0.12), face(u + ww + 0.12, v - 0.12), face(u + ww + 0.12, v + wh + 0.12), face(u - 0.12, v + wh + 0.12)])} fill="#ffc46a" opacity={0.22} filter="url(#iB)" />}
       <polygon points={P([face(u - 0.05, v - 0.07), face(u + ww + 0.05, v - 0.07), face(u + ww + 0.05, v), face(u - 0.05, v)])} fill={shade(c, 1.5)} />
+      {DETAIL && <>
+        {lit && hash(b.seed * 3 + u * 7 + v) < 0.6 && <polygon points={P([face(u, v + wh * 0.35), face(u + ww * 0.3, v + wh * 0.5), face(u + ww * 0.3, v + wh), face(u, v + wh)])} fill="#e98f6a" opacity={0.75} />}
+        {lit && hash(b.seed * 5 + u * 3 + v) < 0.35 && <polygon points={P([face(u + ww * 0.55, v), face(u + ww * 0.8, v), face(u + ww * 0.8, v + wh * 0.45), face(u + ww * 0.55, v + wh * 0.45)])} fill="#3a2a22" opacity={0.6} />}
+        <polygon points={P([face(u, v), face(u + ww, v), face(u + ww, v + wh), face(u, v + wh)])} fill="none" stroke={shade(c, 0.5)} strokeWidth={3} />
+        <line x1={face(u + ww / 2, v)[0]} y1={face(u + ww / 2, v)[1]} x2={face(u + ww / 2, v + wh)[0]} y2={face(u + ww / 2, v + wh)[1]} stroke={shade(c, 0.5)} strokeWidth={2.4} />
+        <line x1={face(u, v + wh * 0.6)[0]} y1={face(u, v + wh * 0.6)[1]} x2={face(u + ww, v + wh * 0.6)[0]} y2={face(u + ww, v + wh * 0.6)[1]} stroke={shade(c, 0.5)} strokeWidth={2.4} />
+        <polygon points={P([face(u - 0.08, v + wh), face(u + ww + 0.08, v + wh), face(u + ww + 0.08, v + wh + 0.07), face(u - 0.08, v + wh + 0.07)])} fill={shade(c, 1.7)} />
+        {lit && dim === 1 && <polygon points={P([face(u - 0.1, v - 0.75), face(u + ww + 0.1, v - 0.75), face(u + ww, v - 0.08), face(u, v - 0.08)])} fill="#ffc46a" opacity={0.06} />}
+      </>}
     </g>
   );
   const lightCols = b.hero === 'boy' ? ['#7fe3d4', '#d6fff8', '#4fc9b8'] : b.hero === 'girl' ? ['#c9b8ff', '#f0e9ff', '#a58cf0'] : ['#ffd38a', '#fff1d6', '#ffb0a0'];
@@ -44,11 +54,26 @@ const HouseIso: React.FC<{ b: H; f: number }> = ({ b, f }) => {
       {/* walls */}
       <polygon points={P([iso(x0, y1, 0), iso(x1, y1, 0), iso(x1, y1, h), iso(x0, y1, h)])} fill={shade(c, 1.0)} />
       <polygon points={P([iso(x1, y0, 0), iso(x1, y1, 0), iso(x1, y1, h), iso(x1, y0, h)])} fill={shade(c, 0.72)} />
+      {DETAIL && <>
+        <polygon points={P([iso(x0, y1, 0), iso(x1, y1, 0), iso(x1, y1, h), iso(x0, y1, h)])} fill="url(#brL)" />
+        <polygon points={P([iso(x1, y0, 0), iso(x1, y1, 0), iso(x1, y1, h), iso(x1, y0, h)])} fill="url(#brR)" />
+        <polygon points={P([iso(x0, y1, 0), iso(x1, y1, 0), iso(x1, y1, h), iso(x0, y1, h)])} fill="url(#wallSh)" />
+        <polygon points={P([iso(x1, y0, 0), iso(x1, y1, 0), iso(x1, y1, h), iso(x1, y0, h)])} fill="url(#wallSh)" />
+        <polygon points={P([iso(x0, y1, 0), iso(x1, y1, 0), iso(x1, y1, 0.22), iso(x0, y1, 0.22)])} fill={shade(c, 0.6)} /><polygon points={P([iso(x1, y0, 0), iso(x1, y1, 0), iso(x1, y1, 0.22), iso(x1, y0, 0.22)])} fill={shade(c, 0.45)} />
+        <line x1={iso(x1, y1, 0)[0]} y1={iso(x1, y1, 0)[1]} x2={iso(x1, y1, h)[0]} y2={iso(x1, y1, h)[1]} stroke={shade(c, 1.5)} strokeWidth={2.5} opacity={0.7} />
+      </>}
       {floors === 2 && <><polygon points={P([fy(0, fh - 0.06), fy(w, fh - 0.06), fy(w, fh + 0.06), fy(0, fh + 0.06)])} fill={shade(c, 1.35)} /><polygon points={P([fx(0, fh - 0.06), fx(d, fh - 0.06), fx(d, fh + 0.06), fx(0, fh + 0.06)])} fill={shade(c, 1.0)} /></>}
       {/* windows + door */}
       {Array.from({ length: floors }).map((_, fl) => [0, 1].map((i) => win(fy, 0.35 + i * (w - 1.25), fl * fh + fh * 0.32, 0.55, fh * 0.42, `y${fl}${i}`, hash(b.seed * 7 + fl * 3 + i) < (dim < 1 ? 0.45 : 0.9))))}
       {Array.from({ length: floors }).map((_, fl) => [0, 1].map((i) => win(fx, 0.4 + i * (d - 1.35), fl * fh + fh * 0.32, 0.55, fh * 0.42, `x${fl}${i}`, hash(b.seed * 11 + fl * 5 + i) < (dim < 1 ? 0.4 : 0.9))))}
       <polygon points={P([fy(w / 2 - 0.28, 0), fy(w / 2 + 0.28, 0), fy(w / 2 + 0.28, fh * 0.62), fy(w / 2 - 0.28, fh * 0.62)])} fill="#0f1024" />
+      {DETAIL && <>
+        <polygon points={P([fy(w / 2 - 0.34, 0), fy(w / 2 + 0.34, 0), fy(w / 2 + 0.34, fh * 0.66), fy(w / 2 - 0.34, fh * 0.66)])} fill="none" stroke={shade(c, 1.6)} strokeWidth={4} />
+        <polygon points={P([fy(w / 2 - 0.2, fh * 0.34), fy(w / 2 + 0.2, fh * 0.34), fy(w / 2 + 0.2, fh * 0.56), fy(w / 2 - 0.2, fh * 0.56)])} fill="#2a2140" /><polygon points={P([fy(w / 2 - 0.2, 0.08), fy(w / 2 + 0.2, 0.08), fy(w / 2 + 0.2, fh * 0.28), fy(w / 2 - 0.2, fh * 0.28)])} fill="#2a2140" />
+        <circle cx={fy(w / 2 + 0.2, fh * 0.31)[0]} cy={fy(w / 2 + 0.2, fh * 0.31)[1]} r={3} fill="#ffd36b" />
+        <polygon points={P([iso(x0 + w / 2 - 0.45, y1), iso(x0 + w / 2 + 0.45, y1), iso(x0 + w / 2 + 0.45, y1 + 0.3), iso(x0 + w / 2 - 0.45, y1 + 0.3)])} fill="#4a5088" /><polygon points={P([iso(x0 + w / 2 - 0.25, y1 + 0.06), iso(x0 + w / 2 + 0.25, y1 + 0.06), iso(x0 + w / 2 + 0.25, y1 + 0.24), iso(x0 + w / 2 - 0.25, y1 + 0.24)])} fill="#b0503a" />
+        {hash(b.seed * 19) < 0.7 && [0.7, 0.95].map((dx, i) => { const q = iso(x0 + w / 2 + dx, y1 + 0.12); return <g key={i}><rect x={q[0] - 7} y={q[1] - 10} width={14} height={11} rx={2} fill="#b0603a" /><circle cx={q[0]} cy={q[1] - 17} r={9} fill="#2f7a4e" /><circle cx={q[0] - 4} cy={q[1] - 21} r={3} fill={i ? '#ff8672' : '#ffd36b'} /></g>; })}
+      </>}
       <circle cx={fy(w / 2 + 0.5, fh * 0.6)[0]} cy={fy(w / 2 + 0.5, fh * 0.6)[1]} r={3.5} fill="#fff1d6" opacity={dim} />
       <circle cx={fy(w / 2 + 0.5, fh * 0.6)[0]} cy={fy(w / 2 + 0.5, fh * 0.6)[1]} r={26} fill="url(#iHalo)" opacity={0.7 * dim} />
       {/* roofs */}
@@ -60,6 +85,16 @@ const HouseIso: React.FC<{ b: H; f: number }> = ({ b, f }) => {
           <polygon points={P([iso(x1 + 0.12, y0 - 0.12, h), iso(x1 + 0.12, y1 + 0.12, h), iso(x1 + 0.12, y1 + 0.12, h + 0.22), iso(x1 + 0.12, y0 - 0.12, h + 0.22)])} fill={shade(c, 0.9)} />
           {/* water tank */}
           {(() => { const [tx, ty] = iso(x0 + 0.6, y0 + 0.6, h + 0.22); return <g><rect x={tx - 17} y={ty - 34} width={34} height={34} fill="#14152a" /><ellipse cx={tx} cy={ty} rx={17} ry={9} fill="#14152a" /><ellipse cx={tx} cy={ty - 34} rx={17} ry={9} fill="#232545" /></g>; })()}
+          {DETAIL && (() => { const z = h + 0.22, tl = Array.from({ length: 6 }).map((_, i) => <line key={'rt' + i} x1={iso(x0 + 0.1 + i * (w - 0.2) / 6, y0 + 0.1, z)[0]} y1={iso(x0 + 0.1 + i * (w - 0.2) / 6, y0 + 0.1, z)[1]} x2={iso(x0 + 0.1 + i * (w - 0.2) / 6, y1 - 0.1, z)[0]} y2={iso(x0 + 0.1 + i * (w - 0.2) / 6, y1 - 0.1, z)[1]} stroke="#000" strokeWidth={1.5} opacity={0.14} />);
+            const sp = [iso(x0 + 1.25, y0 + 0.35, z + 0.02), iso(x0 + 2.2, y0 + 0.35, z + 0.3), iso(x0 + 2.2, y0 + 1.0, z + 0.3), iso(x0 + 1.25, y0 + 1.0, z + 0.02)] as (readonly [number, number])[];
+            const c1 = iso(x0 + 0.4, y0 + 1.5, z + 0.75), c2 = iso(x0 + 0.4, y1 - 0.3, z + 0.75), d0 = iso(x1 - 0.45, y1 - 0.5, z);
+            return <g>{tl}
+              <polygon points={P(sp)} fill="#1c3a7a" stroke="#9fb4ff" strokeWidth={1.5} />{[0.33, 0.66].map((k) => <line key={k} x1={lerp(sp[0][0], sp[1][0], k)} y1={lerp(sp[0][1], sp[1][1], k)} x2={lerp(sp[3][0], sp[2][0], k)} y2={lerp(sp[3][1], sp[2][1], k)} stroke="#9fb4ff" strokeWidth={1.2} opacity={0.7} />)}
+              <line x1={iso(x0 + 0.4, y0 + 1.5, z)[0]} y1={iso(x0 + 0.4, y0 + 1.5, z)[1]} x2={c1[0]} y2={c1[1]} stroke="#101022" strokeWidth={3} /><line x1={iso(x0 + 0.4, y1 - 0.3, z)[0]} y1={iso(x0 + 0.4, y1 - 0.3, z)[1]} x2={c2[0]} y2={c2[1]} stroke="#101022" strokeWidth={3} /><line x1={c1[0]} y1={c1[1]} x2={c2[0]} y2={c2[1]} stroke="#d9d6cf" strokeWidth={1.4} />
+              {[0.2, 0.42, 0.64, 0.84].map((k, i) => { const sw = Math.sin(f / 14 + i + b.seed) * 2; return <polygon key={k} points={`${lerp(c1[0], c2[0], k) - 8},${lerp(c1[1], c2[1], k) - 3} ${lerp(c1[0], c2[0], k) + 8},${lerp(c1[1], c2[1], k) + 5} ${lerp(c1[0], c2[0], k) + 8 + sw},${lerp(c1[1], c2[1], k) + 30} ${lerp(c1[0], c2[0], k) - 8 + sw},${lerp(c1[1], c2[1], k) + 22}`} fill={['#ff8672', '#f3f0ea', '#7fd0f0', '#f6c34a'][i]} opacity={0.92} />; })}
+              <line x1={d0[0]} y1={d0[1]} x2={d0[0]} y2={d0[1] - 26} stroke="#101022" strokeWidth={3} /><ellipse cx={d0[0] + 6} cy={d0[1] - 30} rx={15} ry={11} fill="#cfd3de" transform={`rotate(-28 ${d0[0] + 6} ${d0[1] - 30})`} /><ellipse cx={d0[0] + 8} cy={d0[1] - 31} rx={10} ry={7} fill="#8e97ab" transform={`rotate(-28 ${d0[0] + 8} ${d0[1] - 31})`} />
+              {[[0.35, 0.3], [0.65, 0.25], [0.3, 0.6]].map(([dx, dy], i) => { const q = iso(x1 - dx - 0.3, y0 + dy + 0.2, z); return <g key={'pt' + i}><rect x={q[0] - 6} y={q[1] - 9} width={12} height={10} rx={2} fill="#b0603a" /><circle cx={q[0]} cy={q[1] - 15} r={8} fill="#2f7a4e" /></g>; })}
+            </g>; })()}
           {lights(iso(x0 - 0.12, y1 + 0.12, h + 0.2), iso(x1 + 0.12, y1 + 0.12, h + 0.2), 9, 'a')}
           {lights(iso(x1 + 0.12, y1 + 0.12, h + 0.2), iso(x1 + 0.12, y0 - 0.12, h + 0.2), 9, 'b')}
         </g>
@@ -69,6 +104,10 @@ const HouseIso: React.FC<{ b: H; f: number }> = ({ b, f }) => {
           <polygon points={P([iso(x0 - 0.15, y0 - 0.15, h), iso(x1 + 0.15, y0 - 0.15, h), iso(x1 + 0.15, yc, h + rh), iso(x0 - 0.15, yc, h + rh)])} fill={shade(c, 0.55)} />
           <polygon points={P([iso(x1, y0, h), iso(x1, y1, h), iso(x1, yc, h + rh)])} fill={shade(c, 0.72)} />
           <polygon points={P([iso(x0 - 0.15, y1 + 0.15, h - 0.05), iso(x1 + 0.15, y1 + 0.15, h - 0.05), iso(x1 + 0.15, yc, h + rh), iso(x0 - 0.15, yc, h + rh)])} fill={shade(c, 0.62)} />
+          {DETAIL && <>{[0.14, 0.28, 0.42, 0.56, 0.7, 0.84].map((k) => <line key={k} x1={iso(x0 - 0.15, lerp(y1 + 0.15, yc, k), lerp(h - 0.05, h + rh, k))[0]} y1={iso(x0 - 0.15, lerp(y1 + 0.15, yc, k), lerp(h - 0.05, h + rh, k))[1]} x2={iso(x1 + 0.15, lerp(y1 + 0.15, yc, k), lerp(h - 0.05, h + rh, k))[0]} y2={iso(x1 + 0.15, lerp(y1 + 0.15, yc, k), lerp(h - 0.05, h + rh, k))[1]} stroke="#000" strokeWidth={2} opacity={0.22} />)}
+            {Array.from({ length: 9 }).map((_, i) => { const xx = x0 + i * (w / 8); return <line key={'v' + i} x1={iso(xx, y1 + 0.15, h - 0.05)[0]} y1={iso(xx, y1 + 0.15, h - 0.05)[1]} x2={iso(xx, yc, h + rh)[0]} y2={iso(xx, yc, h + rh)[1]} stroke="#fff" strokeWidth={1.2} opacity={0.06} />; })}
+            <line x1={iso(x0 - 0.15, yc, h + rh)[0]} y1={iso(x0 - 0.15, yc, h + rh)[1]} x2={iso(x1 + 0.15, yc, h + rh)[0]} y2={iso(x1 + 0.15, yc, h + rh)[1]} stroke={shade(c, 1.5)} strokeWidth={4} strokeLinecap="round" />
+            {(() => { const q = iso(x0 + w * 0.7, yc + 0.5, h + rh * 0.55); return <g><rect x={q[0] - 9} y={q[1] - 34} width={18} height={34} fill={shade(c, 0.9)} /><rect x={q[0] - 11} y={q[1] - 38} width={22} height={6} fill={shade(c, 1.4)} />{[0, 1, 2].map((k) => { const u = ((f / 90 + k * 0.33 + b.seed) % 1); return <circle key={k} cx={q[0] + u * 22 + Math.sin(u * 5 + k) * 5} cy={q[1] - 44 - u * 60} r={8 + u * 12} fill="#cfd6ee" opacity={0.2 * (1 - u)} />; })}</g>; })()}</>}
           <polygon points={P([iso(x0 - 0.15, y1 + 0.15, h - 0.05), iso(x1 + 0.15, y1 + 0.15, h - 0.05), iso(x1 + 0.15, y1 + 0.15, h + 0.03), iso(x0 - 0.15, y1 + 0.15, h + 0.03)])} fill={shade(c, 1.3)} />
           {lights(iso(x0 - 0.15, y1 + 0.15, h - 0.02), iso(x1 + 0.15, y1 + 0.15, h - 0.02), 9, 'a')}
         </g>
@@ -77,6 +116,8 @@ const HouseIso: React.FC<{ b: H; f: number }> = ({ b, f }) => {
         <g>
           <polygon points={P([iso(x0 - 0.15, y1 + 0.15, h), iso(x1 + 0.15, y1 + 0.15, h), iso(x0 + w / 2, yc, h + rh * 1.2)])} fill={shade(c, 0.62)} />
           <polygon points={P([iso(x1 + 0.15, y0 - 0.15, h), iso(x1 + 0.15, y1 + 0.15, h), iso(x0 + w / 2, yc, h + rh * 1.2)])} fill={shade(c, 0.48)} />
+          {DETAIL && <>{[0.2, 0.4, 0.6, 0.8].map((k) => { const ap = iso(x0 + w / 2, yc, h + rh * 1.2), a = iso(x0 - 0.15, y1 + 0.15, h), e = iso(x1 + 0.15, y1 + 0.15, h), g2 = iso(x1 + 0.15, y0 - 0.15, h); return <g key={k}><line x1={lerp(a[0], ap[0], k)} y1={lerp(a[1], ap[1], k)} x2={lerp(e[0], ap[0], k)} y2={lerp(e[1], ap[1], k)} stroke="#000" strokeWidth={2} opacity={0.22} /><line x1={lerp(e[0], ap[0], k)} y1={lerp(e[1], ap[1], k)} x2={lerp(g2[0], ap[0], k)} y2={lerp(g2[1], ap[1], k)} stroke="#000" strokeWidth={2} opacity={0.25} /></g>; })}
+            <line x1={iso(x1 + 0.15, y1 + 0.15, h)[0]} y1={iso(x1 + 0.15, y1 + 0.15, h)[1]} x2={iso(x0 + w / 2, yc, h + rh * 1.2)[0]} y2={iso(x0 + w / 2, yc, h + rh * 1.2)[1]} stroke={shade(c, 1.3)} strokeWidth={3} /></>}
           {lights(iso(x0 - 0.15, y1 + 0.15, h), iso(x1 + 0.15, y1 + 0.15, h), 9, 'a')}
           {lights(iso(x1 + 0.15, y1 + 0.15, h), iso(x1 + 0.15, y0 - 0.15, h), 9, 'b')}
         </g>
@@ -86,7 +127,7 @@ const HouseIso: React.FC<{ b: H; f: number }> = ({ b, f }) => {
 };
 const TreeIso: React.FC<{ x: number; y: number; s?: number }> = ({ x, y, s = 1 }) => { const [a, b] = iso(x, y); return (
   <g><ellipse cx={a + 6} cy={b + 4} rx={22 * s} ry={9 * s} fill="#000" opacity={0.25} /><rect x={a - 3} y={b - 38 * s} width={6} height={38 * s} fill="#1a1626" />
-    <circle cx={a} cy={b - 58 * s} r={28 * s} fill="#234636" /><circle cx={a - 12 * s} cy={b - 44 * s} r={20 * s} fill="#1d3a2e" /><circle cx={a + 13 * s} cy={b - 46 * s} r={19 * s} fill="#1d3a2e" /><circle cx={a - 6 * s} cy={b - 66 * s} r={12 * s} fill="#2f5a46" opacity={0.7} /></g>); };
+    <circle cx={a} cy={b - 58 * s} r={28 * s} fill="#234636" /><circle cx={a - 12 * s} cy={b - 44 * s} r={20 * s} fill="#1d3a2e" /><circle cx={a + 13 * s} cy={b - 46 * s} r={19 * s} fill="#1d3a2e" /><circle cx={a - 6 * s} cy={b - 66 * s} r={12 * s} fill="#2f5a46" opacity={0.7} />{DETAIL && <>{[[-14, -52, 5], [8, -70, 6], [14, -50, 4], [-2, -78, 5], [-18, -40, 4], [4, -44, 5]].map(([dx, dy, r], i) => <circle key={i} cx={a + dx * s} cy={b + dy * s} r={r * s} fill={i % 2 ? '#3f7a5a' : '#16302a'} opacity={0.8} />)}<path d={`M ${a + 10 * s} ${b - 82 * s} A ${28 * s} ${28 * s} 0 0 1 ${a + 27 * s} ${b - 52 * s}`} stroke="#ffd9a0" strokeWidth={2.5 * s} fill="none" opacity={0.35} /></>}</g>); };
 const LampIso: React.FC<{ x: number; y: number }> = ({ x, y }) => { const [a, b] = iso(x, y); return (
   <g><ellipse cx={a} cy={b + 6} rx={70} ry={30} fill="url(#iPool)" /><rect x={a - 2.5} y={b - 110} width={5} height={110} fill="#101022" /><circle cx={a} cy={b - 112} r={44} fill="url(#iHalo)" /><circle cx={a} cy={b - 112} r={7} fill="#fff3d6" /></g>); };
 
@@ -170,6 +211,7 @@ const WVO: [number, React.ReactNode][] = [[0.2, <>So we use a <em>wire.</em></>]
 export const IsoHook: React.FC = () => <IsoStreet hook />;
 export const IsoFull: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire /></Sequence><Sequence from={690} durationInFrames={504}><IsoStreet move /></Sequence></AbsoluteFill>);
 export const IsoWire: React.FC = () => <IsoStreet wire />;
+export const IsoDetail: React.FC = () => <IsoStreet hook detail mute />;
 /* street scene (local 0 - 9.5 s): the neighbours want in, 45 wires tangle, one router box untangles it */
 const NET_KEYS: Key[] = [[0, 590, 900, 1.15], [0.4, 590, 900, 1.15], [1.7, 600, 960, 0.64], [9.5, 600, 960, 0.67]];
 const NVO: [number, React.ReactNode][] = [[0.3, <>Now the whole <em>street</em> wants in.</>], [2.3, <>Ten houses would need <em>forty-five</em> wires!</>], [5.0, <>So every wire goes to <em>one box:</em></>], [7.2, <>the <em>router.</em></>]];
@@ -186,7 +228,8 @@ export const IsoMove: React.FC = () => <IsoStreet move />;
 export const Concept: React.FC<{ k: string }> = ({ k }) => <IsoStreet concept={k} />;
 const CSUB: Record<string, React.ReactNode> = { '1a': <>She moves down the <em>street.</em> The wire can't follow.</>, '1b': <>So every house plugs into <em>one box.</em></>, '2a': <>Now the whole <em>street</em> wants in.</>, '2b': <>One box untangles it: the <em>router.</em></> };
 const GRAN = { hair: '#d9d9e3', top: '#7fbf9a', topSh: '#5a9a78', glasses: true, bun: true }, UNCLE = { hair: '#8d8d9a', top: '#c97b4a', topSh: '#9a5a32', moustache: true }, KIDT = { top: '#f6c34a', topSh: '#cf9a26' }, AUNTY = { top: '#e06a8c', topSh: '#b04a6a', bun: true };
-export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean; mute?: boolean; concept?: string; move?: boolean }> = ({ hook, wire, net, mute, concept, move }) => {
+export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean; mute?: boolean; concept?: string; move?: boolean; detail?: boolean }> = ({ hook, wire, net, mute, concept, move, detail }) => {
+  DETAIL = !!detail;
   const f = useCurrentFrame(); const t = f / FPS;
   let on = 1; const cam = hook ? camAt(t) : wire ? camAt(t, WIRE_KEYS) : net ? camAt(t, NET_KEYS) : move ? camAt(t, MOVE_KEYS) : concept ? { fx: 800, fy: 900, z: 0.74 } : { fx: 540, fy: 960, z: 1 };
   HOSTEL_LIT = !!move;
@@ -284,6 +327,12 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
           <radialGradient id="iPool"><stop offset="0" stopColor="#ffc46a" stopOpacity=".4" /><stop offset="1" stopColor="#ffc46a" stopOpacity="0" /></radialGradient>
           <radialGradient id="iMilky"><stop offset="0" stopColor="#8f9be0" stopOpacity=".2" /><stop offset="1" stopColor="#8f9be0" stopOpacity="0" /></radialGradient>
           <linearGradient id="iBeam" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#fffaea" stopOpacity=".95" /><stop offset="1" stopColor="#ffe2b0" stopOpacity=".15" /></linearGradient>
+          <pattern id="brL" patternUnits="userSpaceOnUse" width={0.56} height={0.3} patternTransform={`matrix(${0.866 * S} ${0.5 * S} 0 ${-S} ${OX} ${OY})`}><path d="M 0 0.01 H 0.56 M 0 0.16 H 0.56 M 0.02 0 V 0.15 M 0.3 0.15 V 0.3" stroke="#000" strokeWidth={0.022} opacity={0.2} fill="none" /><path d="M 0 0.035 H 0.56 M 0 0.185 H 0.56" stroke="#fff" strokeWidth={0.012} opacity={0.07} fill="none" /></pattern>
+          <pattern id="brR" patternUnits="userSpaceOnUse" width={0.56} height={0.3} patternTransform={`matrix(${-0.866 * S} ${0.5 * S} 0 ${-S} ${OX} ${OY})`}><path d="M 0 0.01 H 0.56 M 0 0.16 H 0.56 M 0.02 0 V 0.15 M 0.3 0.15 V 0.3" stroke="#000" strokeWidth={0.022} opacity={0.26} fill="none" /></pattern>
+          <linearGradient id="wallSh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".06" /><stop offset=".5" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#060818" stopOpacity=".38" /></linearGradient>
+          <linearGradient id="hazeT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#5a6fd0" stopOpacity=".5" /><stop offset=".35" stopColor="#3a4aa0" stopOpacity=".12" /><stop offset=".6" stopColor="#3a4aa0" stopOpacity="0" /></linearGradient>
+          <radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".55" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#02030c" stopOpacity=".7" /></radialGradient>
+          <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed={f} /><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 -0.12" /></filter>
           <filter id="iB"><feGaussianBlur stdDeviation="5" /></filter><filter id="iB2"><feGaussianBlur stdDeviation="9" /></filter>
         </defs>
         <rect width={1080} height={1920} fill="url(#iSky)" />
@@ -295,6 +344,16 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
         <polygon points={P([iso(X0, -26, 0), iso(X1, -26, 0), iso(X1, 26), iso(X0, 26)])} fill="#15263c" />
         {[[-13.4, -12.9], [-9.1, -6.1], [-4.7, -1.9], [1.9, 7.2], [9.9, 10.4], [14.2, 18]].map(([y0, y1], i) => <polygon key={i} points={P([iso(X0, y0), iso(X1, y0), iso(X1, y1), iso(X0, y1)])} fill={i % 2 ? '#15263c' : '#172a3e'} />)}
         <Road y={-11} x0={X0} x1={X1} /><Road y={0} x0={X0} x1={X1} /><Road y={12.3} x0={X0} x1={X1} />
+        {detail && <>
+          {/* footpath paving seams, road wear, wet reflections under the lamps, manholes */}
+          {[-1.6, 1.6].map((yy) => Array.from({ length: 60 }).map((_, i) => { const x = -24 + i * 0.8; return <line key={yy + '_' + i} x1={iso(x, yy - 0.28)[0]} y1={iso(x, yy - 0.28)[1]} x2={iso(x, yy + 0.28)[0]} y2={iso(x, yy + 0.28)[1]} stroke="#1a1f4a" strokeWidth={2} opacity={0.7} />; }))}
+          {[-1.3, 1.3].map((yy) => <line key={'kb' + yy} x1={iso(X0, yy)[0]} y1={iso(X0, yy)[1]} x2={iso(X1, yy)[0]} y2={iso(X1, yy)[1]} stroke="#5a62a8" strokeWidth={3} opacity={0.7} />)}
+          {Array.from({ length: 40 }).map((_, i) => { const q = iso(-22 + hash(i * 3) * 44, -1.1 + hash(i * 7) * 2.2); return <ellipse key={'wr' + i} cx={q[0]} cy={q[1]} rx={30 + hash(i) * 50} ry={5 + hash(i * 5) * 6} fill={i % 3 ? '#0c0e26' : '#20265a'} opacity={0.5} transform={`rotate(30 ${q[0]} ${q[1]})`} />; })}
+          {[[-8.2, -0.9], [-2.2, -0.9], [4.6, -0.9], [-5.4, 0.9], [0.9, 0.9], [7.4, 0.9]].map(([x, y], i) => { const q = iso(x, y); return <g key={'rf' + i}><ellipse cx={q[0]} cy={q[1]} rx={26} ry={62} fill="#ffd9a0" opacity={0.2} filter="url(#iB2)" transform={`rotate(30 ${q[0]} ${q[1]})`} /><ellipse cx={q[0]} cy={q[1]} rx={7} ry={34} fill="#fff3d6" opacity={0.22} filter="url(#iB)" transform={`rotate(30 ${q[0]} ${q[1]})`} /></g>; })}
+          {[[-6.5, 0.4], [2.8, -0.5]].map(([x, y], i) => { const q = iso(x, y); return <g key={'mh' + i}><ellipse cx={q[0]} cy={q[1]} rx={22} ry={12} fill="#0a0c20" /><ellipse cx={q[0]} cy={q[1]} rx={17} ry={9} fill="none" stroke="#3a4080" strokeWidth={2} /></g>; })}
+          {/* garden: grass tufts and flowers in the park and yards */}
+          {Array.from({ length: 220 }).map((_, i) => { const x = -16 + hash(i * 3 + 1) * 20, y = -5.4 + hash(i * 5 + 2) * 3.2; if (x > -4.6 && x < 4.3) return null; const q = iso(x, y); return i % 4 === 0 ? <g key={'fl' + i}><circle cx={q[0]} cy={q[1]} r={3.2} fill={['#ff8672', '#ffd36b', '#f58fb4', '#fff'][i % 4 === 0 ? (i / 4) % 4 | 0 : 0]} /><circle cx={q[0]} cy={q[1]} r={1.2} fill="#3a2a05" /></g> : <path key={'gr' + i} d={`M ${q[0] - 4} ${q[1]} l 2 -8 l 2 8 l 2 -10 l 2 10`} stroke="#2f6a4a" strokeWidth={1.6} fill="none" opacity={0.8} />; })}
+        </>}
         {/* zebra crossing + garden paths */}
         {Array.from({ length: 6 }).map((_, k) => <polygon key={k} points={P([iso(-1.75, -1.15 + k * 0.42), iso(-1.0, -1.15 + k * 0.42), iso(-1.0, -0.93 + k * 0.42), iso(-1.75, -0.93 + k * 0.42)])} fill="#b9b6e6" opacity={0.6} />)}
         {FAR.map((b, i) => <polygon key={i} points={P([iso(b.x0 + b.w / 2 - 0.2, b.y0 + b.d), iso(b.x0 + b.w / 2 + 0.2, b.y0 + b.d), iso(b.x0 + b.w / 2 + 0.2, -1.9), iso(b.x0 + b.w / 2 - 0.2, -1.9)])} fill="#2a3166" />)}
@@ -329,6 +388,12 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
         <CarIso x={-(((t * 1.9 + 21) % 34) - 17)} y={0.65} dir={-1} c="#3fa7a0" />
         <CarIso x={-(((t * 2.4 + 6) % 34) - 17)} y={0.65} dir={-1} c="#8a6fd8" />
         {concept === '2a' && <CarIso x={1.6} y={-0.65} dir={1} c="#e0b84a" />}
+        {detail && <>
+          {/* a parked scooter, a bicycle, a bench with a cat, a postbox */}
+          {(() => { const q = iso(-0.4, -1.55); return <g><ellipse cx={q[0]} cy={q[1] + 4} rx={26} ry={8} fill="#000" opacity={0.3} /><circle cx={q[0] - 15} cy={q[1] - 4} r={8} fill="#101022" /><circle cx={q[0] + 15} cy={q[1] - 4} r={8} fill="#101022" /><path d={`M ${q[0] - 15} ${q[1] - 6} L ${q[0] - 4} ${q[1] - 10} L ${q[0] + 10} ${q[1] - 10} L ${q[0] + 15} ${q[1] - 6}`} stroke="#3fb8a8" strokeWidth={9} fill="none" strokeLinecap="round" /><rect x={q[0] - 14} y={q[1] - 22} width={18} height={6} rx={3} fill="#1b1520" /><line x1={q[0] + 13} y1={q[1] - 8} x2={q[0] + 9} y2={q[1] - 28} stroke="#cfd3de" strokeWidth={3} /><line x1={q[0] + 3} y1={q[1] - 29} x2={q[0] + 15} y2={q[1] - 27} stroke="#1b1520" strokeWidth={4} strokeLinecap="round" /></g>; })()}
+          {(() => { const q = iso(-7.3, -1.6); return <g><rect x={q[0] - 26} y={q[1] - 16} width={52} height={6} fill="#7a5a3a" /><rect x={q[0] - 26} y={q[1] - 30} width={52} height={5} fill="#7a5a3a" /><rect x={q[0] - 24} y={q[1] - 12} width={4} height={12} fill="#2b2e3a" /><rect x={q[0] + 20} y={q[1] - 12} width={4} height={12} fill="#2b2e3a" /><ellipse cx={q[0] + 6} cy={q[1] - 21} rx={10} ry={6} fill="#f3f0ea" /><circle cx={q[0] + 15} cy={q[1] - 25} r={5} fill="#f3f0ea" /><path d={`M ${q[0] + 11} ${q[1] - 29} l 2 -5 l 2 4 M ${q[0] + 16} ${q[1] - 30} l 2 -4 l 1 5`} stroke="#f3f0ea" strokeWidth={2} fill="none" /><path d={`M ${q[0] - 4} ${q[1] - 21} q -10 -2 -8 -12`} stroke="#f3f0ea" strokeWidth={3} fill="none" strokeLinecap="round" /></g>; })()}
+          {(() => { const q = iso(2.0, 1.55); return <g><rect x={q[0] - 3} y={q[1] - 30} width={6} height={30} fill="#2b2e3a" /><rect x={q[0] - 11} y={q[1] - 52} width={22} height={26} rx={5} fill="#c8553a" /><rect x={q[0] - 7} y={q[1] - 44} width={14} height={3} fill="#3a1a12" /></g>; })()}
+        </>}
         <LampIso x={-5.4} y={1.6} /><LampIso x={0.9} y={1.6} /><LampIso x={7.4} y={1.6} />
         {[-9.8, -6.65, -3.55, 2.85, 5.95].map((x, i) => <TreeIso key={i} x={x} y={2.55} s={0.7} />)}
         {NEAR.map((b) => <HouseIso key={b.seed} b={b} f={f} />)}
@@ -524,6 +589,15 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
         {hook && t > BIT0 + 7 * BITD + FLY && t < 12.6 && <text x={gx + 62} y={gy - 150} textAnchor="middle" style={{ font: `800 80px ${FONT.ui}` }} fill="#ffd38a" stroke="#0a0e24" strokeWidth={8} paintOrder="stroke" opacity={prog(f, BIT0 + 7 * BITD + FLY, BIT0 + 7 * BITD + FLY + 0.15)}>H</text>}
         {sleepy > 0 && <text x={gx + 26} y={gy - 190 - (t - 14.3) * 14} style={{ font: `800 26px ${FONT.ui}` }} fill="#eaf0ff" stroke="#0a0e24" strokeWidth={4} paintOrder="stroke" opacity={sleepy}>z Z z</text>}
         </g>
+        {detail && <>
+          {/* fireflies in the park, moths at the lamps, bats, distance haze, vignette, film grain */}
+          {Array.from({ length: 40 }).map((_, i) => { const x = 20 + hash(i * 3) * 520 + Math.sin(t * 0.8 + i) * 16, y = 300 + hash(i * 7) * 460 + Math.cos(t * 0.6 + i * 2) * 14, tw = 0.5 + 0.5 * Math.sin(t * 3 + i * 1.7); return <g key={'ff' + i} opacity={tw}><circle cx={x} cy={y} r={9} fill="#d8ff8a" opacity={0.18} /><circle cx={x} cy={y} r={5} fill="#d8ff8a" opacity={0.3} /><circle cx={x} cy={y} r={2} fill="#f2ffc0" /></g>; })}
+          {[[590, 850], [565, 1208], [270, 1560]].map(([lx, ly], i) => [0, 1, 2].map((k) => <circle key={`mo${i}${k}`} cx={lx + Math.sin(t * 5 + k * 2 + i) * 22} cy={ly + Math.cos(t * 6.3 + k * 1.3) * 16} r={2.2} fill="#fff" opacity={0.8} />))}
+          {[0, 1, 2].map((i) => { const x = ((t * 60 + i * 420) % 1400) - 150, y = 150 + i * 90 + Math.sin(t * 2 + i) * 20, wv = Math.sin(t * 16 + i) * 7; return <path key={'bat' + i} d={`M ${x - 14} ${y + wv} Q ${x - 6} ${y - 8} ${x} ${y} Q ${x + 6} ${y - 8} ${x + 14} ${y + wv}`} stroke="#05060f" strokeWidth={4} fill="none" strokeLinecap="round" />; })}
+          <rect width={1080} height={1920} fill="url(#hazeT)" style={{ mixBlendMode: 'screen' }} />
+          <rect width={1080} height={1920} fill="url(#vig)" />
+          <rect width={1080} height={1920} filter="url(#grain)" opacity={0.1} style={{ mixBlendMode: 'overlay' }} />
+        </>}
         {/* HELLO floats over the park while the count runs */}
         {hook && t > 12.45 && t < 14.3 && 'HELLO'.split('').map((ch, j) => { const a = prog(f, 12.5 + j * 0.2, 12.75 + j * 0.2, easeOut); return (
           <g key={j} opacity={a * (1 - prog(f, 14.1, 14.3))} transform={`translate(${78 + j * 92} ${640 - a * 30})`}>
