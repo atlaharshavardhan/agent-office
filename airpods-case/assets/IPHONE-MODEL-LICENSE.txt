@@ -1,0 +1,4 @@
+iPhone model: "models/iphone.glb" from the HyperFrames registry block "vfx-iphone-device"
+(github.com/heygen-com/hyperframes, registry/blocks/vfx-iphone-device), Apache License 2.0.
+Repacked here as iphone-glb.js (base64, unchanged). In the video the Apple logo parts are hidden
+(InvisiTech rule 14: no real brand logos) and the screen shows our own illustration.
