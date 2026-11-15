@@ -134,3 +134,11 @@ Description lines:
 - "AirPods Pro" 3D model by Jed Falcone (sketchfab.com/jedlas012), CC BY 4.0, modified.
 - iPhone 3D model from HyperFrames (github.com/heygen-com/hyperframes), Apache 2.0.
 - 3D illustration, not to scale. Not affiliated with or endorsed by Apple. AirPods, iPhone and Find My are trademarks of Apple Inc.
+
+## v2 change list (Harsh, 2026-11-15) — applied to the scene file; video not rendered until he says "render"
+1. Hook: more space in the big "Wrong case?" words and between the two labels.
+2. Subtitles centred on screen; one key word per line in green.
+3. Engraving bigger. OPEN: which name on the friend's case (Karan, as now, or Harsha: `?swap=1`).
+4. Charging scene: case centred and below the title, widget / subtitle / note on one centre line, missing right-side labels restored (a stray comment had disabled them).
+5. A little more light on the AirPods.
+6. End card: Case battery tile moved under "2 pins"; InvisiTech tile full width, bigger, green glow; fact tiles blur and dim; Like/Comment/Follow/Subscribe stays sharp.
