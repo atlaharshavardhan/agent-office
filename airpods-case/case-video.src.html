@@ -69,7 +69,8 @@ const Q = new URLSearchParams(location.search);
 if (Q.get('zones')) document.getElementById('zones').style.display = 'block';
 const W = innerWidth, H = innerHeight;
 /* scene boundaries (seconds); replaced by the voice timeline once the narration is recorded */
-const B = window.__B || [0, 2.0, 5.5, 8.5, 19.0, 28.0, 37.0, 43.0, 46.5];
+const B = window.__B || [0, 2.0, 8.6, 22.0, 29.0, 34.6, 41.8, 46.0, 49.0];
+const ORIG = [2.0, 3.5, 10.5, 3.0, 9.0, 9.0, 6.0, 3.0];   // the length each shot was designed at
 const TOTAL = B[B.length - 1];
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
 const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3), lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
@@ -496,11 +497,12 @@ function seat(b, C) { if (b.g.parent !== C.body) C.body.add(b.g); resetBud(b); }
 
 /* ---------- timeline ---------- */
 let CA, CB, BUDS, CAPS = window.__CAPS || [];
-const DRAFT = ['', 'You just put your AirPods in your friend’s case. Will they charge?', 'Yes, they will… but your iPhone is about to call you out.',
-  'Inside each slot, two tiny spring pins touch two gold dots at the tip of the stem. Magnets snap the bud down, so they always touch. Power flows from the case battery, and a little chip inside the earbud decides how fast to fill it.',
-  'Now the catch. Your iPhone pops up “Mismatched AirPods”. Your buds and your case were set up as a pair, so your iPhone notices they’re not together.',
-  'Charging still works. Put them back in their own case, or set them up again with this one, after your friend removes it from their Find My, and the warning is gone.',
-  'A different generation, though, can fit perfectly… and still not work properly.', 'Follow InvisiTech for more.'];
+const DRAFT = ['', 'You just put your AirPods in your friend’s case. Will they charge? First, how does charging even work?',
+  'Two tiny spring pins in each slot touch two gold dots on the stem. Magnets hold the bud down. Power flows from the case battery, and a chip in the earbud decides how fast to fill it.',
+  'Your friend’s case has the same pins in the same place. So yes, they charge. But your iPhone notices.',
+  'It pops up “Mismatched AirPods”, because your buds and case were set up as a pair.',
+  'Put them back in their own case, or set them up again after your friend removes them from Find My.',
+  'A different generation can fit perfectly, and still not work properly.', 'Follow InvisiTech for more.'];
 if (!CAPS.length) DRAFT.forEach((line, i) => { if (!line) return; const w = line.split(' '), ch = []; for (let k = 0; k < w.length; k += 4) ch.push(w.slice(k, k + 4).join(' '));
   const a = B[i] + 0.25, d = (B[i + 1] - 0.2 - a) / ch.length; ch.forEach((c, j) => CAPS.push([a + j * d, a + (j + 1) * d - 0.12, c.replace(/[.,]$/, '')])); });
 const SHOTS = [
@@ -520,20 +522,11 @@ const SHOTS = [
     for (const s of ['R', 'L']) { seat(CA.buds[s], CB); CA.buds[s].g.visible = false; CB.buds[s].g.visible = false; }   // lid shut: buds hidden inside
     setLight(CB, 'white', 0.5 + 0.2 * Math.sin(t * 5));
     VO = 0.0; look(V(0, 34, 300 - 14 * u / 3.5), V(0, -13, 0));
-    glyph('q', W2(CB, V(0, 25, 12)), easeOut(ramp(u, 0.3, 0.7)), 0.8 + 0.05 * Math.sin(t * 6));
-    title(['Will they <em class="b">charge?</em>'], [0.1], u);
+    glyph('q', W2(CB, V(0, 19, 12)), easeOut(ramp(u, 0.3, 0.7)), 0.8 + 0.05 * Math.sin(t * 6));
+    title(['Will they <em class="b">charge?</em>', 'First: how charging works'], [0.1, 2.2], u);
   },
-  (u, t) => { // 3. light turns green; the phone slides in, screen still dark
-    CA.root.visible = false; CB.root.position.set(-34 * ease(ramp(u, 1.2, 2.2)), -6, 0); CB.root.rotation.set(0, -0.12, 0); setLid(CB, ease(ramp(u, 0.0, 0.5)));
-    for (const s of ['R', 'L']) { seat(CA.buds[s], CB); CB.buds[s].g.visible = false; }
-    const gk = ease(ramp(u, 0.35, 0.7)); setLight(CB, gk > 0.5 ? 'green' : 'white', gk > 0.5 ? 1 : 0.6);
-    PHONE.visible = true; const pk = ease(ramp(u, 1.3, 2.3)); PHONE.position.set(lerp(140, 33, pk), -2, -6); PHONE.rotation.set(0, -0.3, 0.0); PHONE.scale.setScalar(0.5); screen('off');
-    VO = 0.0; look(V(0, 40, 470), V(0, -6, 0));
-    title(['Yes, they <em class="g">charge</em>…', 'but your iPhone <em>notices</em>'], [0.4, 1.4], u);
-    tag('ok', 'Charging ✓', W2(CB, P.light), -W * 0.02, H * 0.09, ease(ramp(u, 0.7, 1.0)) * (1 - ease(ramp(u, 1.2, 1.5))), 'green');
-  },
-  (u, t) => { // 4. glass x-ray: pins, gold dots, magnets, then the power path into the bud's own chip and battery
-    CA.root.visible = false; CB.root.position.set(0, 0, 0); setLid(CB, 1 - ease(ramp(u, 0.0, 0.8))); setLight(CB, 'green', 0.8);
+  (u, t) => { // 3. glass x-ray: pins, gold dots, magnets, then the power path into the bud's own chip and battery
+    CA.root.visible = false; CB.root.position.set(0, 0, 0); setLid(CB, 0); setLight(CB, 'green', 0.8);
     CB.root.rotation.set(0, -0.5 + 0.15 * ease(u / 10.5), 0);
     for (const s of ['R', 'L']) { seat(CA.buds[s], CB); }
     const xr = ease(ramp(u, 0.2, 1.4)); setXray(CB, xr); for (const s of ['R', 'L']) budXray(CA.buds[s], xr * (s === 'R' ? 1 : 0.8));
@@ -554,6 +547,15 @@ const SHOTS = [
               ['bbat', 'Bud battery', bud.g.localToWorld(P.budBatR.clone()), 1, ease(ramp(u, 8.0, 8.4)), 'blue']]);
     tag('bat', 'Case battery', W2(CB, V(-7, -11, 4)), -W * 0.06, -H * 0.075, a2, 'blue');
     note('Illustrative · not to scale', 1);
+  },
+  (u, t) => { // 4. light turns green; the phone slides in, screen still dark
+    CA.root.visible = false; CB.root.position.set(-34 * ease(ramp(u, 1.2, 2.2)), -6, 0); CB.root.rotation.set(0, -0.12, 0); setLid(CB, ease(ramp(u, 0.0, 0.5)));
+    for (const s of ['R', 'L']) { seat(CA.buds[s], CB); CB.buds[s].g.visible = false; }
+    const gk = ease(ramp(u, 0.35, 0.7)); setLight(CB, gk > 0.5 ? 'green' : 'white', gk > 0.5 ? 1 : 0.6);
+    PHONE.visible = true; const pk = ease(ramp(u, 1.3, 2.3)); PHONE.position.set(lerp(140, 33, pk), -2, -6); PHONE.rotation.set(0, -0.3, 0.0); PHONE.scale.setScalar(0.5); screen('off');
+    VO = 0.0; look(V(0, 40, 470), V(0, -6, 0));
+    title(['Same pins → <em class="g">yes, they charge</em>', 'but your iPhone <em>notices</em>'], [0.4, 1.4], u);
+    tag('ok', 'Charging ✓', W2(CB, P.light), -W * 0.02, H * 0.09, ease(ramp(u, 0.7, 1.0)) * (1 - ease(ramp(u, 1.2, 1.5))), 'green');
   },
   (u, t) => { // 5. the catch: Mismatched AirPods; the link to their own case breaks
     CA.root.visible = true; setXray(CB, 0); for (const s of ['R', 'L']) budXray(CA.buds[s], 0); GLOW.pin.emissiveIntensity = 0;
@@ -617,7 +619,7 @@ function renderAt(t) {
   for (const s of ['R', 'L']) { CA.buds[s].g.visible = true; budXray(CA.buds[s], 0); }
   power(0, 0, t); GLOW.pin.emissiveIntensity = 0;
   renderer.domElement.style.filter = ''; END.a = 0; END.brand = 0;
-  SHOTS[i](t - B[i], t);
+  const span = B[i + 1] - B[i]; SHOTS[i]((i >= 1 && i <= 6) ? (t - B[i]) * ORIG[i] / span : t - B[i], t);
   const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : (window.__SUB || '');
   $('fade').style.opacity = Math.max(0, ...CUTS().map(c => 1 - Math.abs(t - c) / 0.2)) * 0.9;
   renderer.render(scene, camera);

@@ -1,4 +1,4 @@
-# AirPods in someone else's case — will they charge? (Short, script v2.1 — approved by Harsh 2026-11-15)
+# AirPods in someone else's case — will they charge? (Short, script v3 — approved by Harsh 2026-11-15)
 
 Format: 9:16, ~45 s, continuous narration (Michael, Kokoro am_michael), 3D in the AirPods case teardown style.
 Hook = the swap itself; payoff = how the case charges.
@@ -72,7 +72,7 @@ Credits for the description:
 - Phone screen: plain black glass, no reflections or shine (Harsh's choice).
 - Pop-up rebuilt like the real iPhone alert Harsh shared (screenshot, 2026-11-15): white sheet, "Mismatched AirPods Pro", "The AirPods in the charging case do not belong to you and do not work together.", Left/Right AirPod "Not Yours" labels on a picture of the case (our own 3D case, not Apple's image). Fixed state: "AirPods Pro Connected", "Yours ✓".
 
-## Script v3 draft (2026-11-15): Harsh's new order: hook → how AirPods charge → the swap
+## Script v3 (APPROVED 2026-11-15): Harsh's new order: hook → how AirPods charge → the swap
 About 124 words, ~48 s with Michael at 1.12 (limit 50 s).
 
 | # | Narration | Visual |
