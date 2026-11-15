@@ -177,7 +177,7 @@ const PAIRS: [number, number][] = []; for (let i = 0; i < 10; i++) for (let j = 
 export const IsoNet: React.FC = () => <IsoStreet net />;
 /* concept stills for the "many houses" scene: 1a/1b follow her, 2a/2b neighbour chaos */
 export const Concept: React.FC<{ k: string }> = ({ k }) => <IsoStreet concept={k} />;
-const CSUB: Record<string, React.ReactNode> = { '1a': <>She visits <em>Grandma</em>. The wire can't follow.</>, '1b': <>So every house plugs into <em>one box.</em></>, '2a': <>Now the whole <em>street</em> wants in.</>, '2b': <>One box untangles it: the <em>router.</em></> };
+const CSUB: Record<string, React.ReactNode> = { '1a': <>She moves down the <em>street.</em> The wire can't follow.</>, '1b': <>So every house plugs into <em>one box.</em></>, '2a': <>Now the whole <em>street</em> wants in.</>, '2b': <>One box untangles it: the <em>router.</em></> };
 const GRAN = { hair: '#d9d9e3', top: '#7fbf9a', topSh: '#5a9a78', glasses: true, bun: true }, UNCLE = { hair: '#8d8d9a', top: '#c97b4a', topSh: '#9a5a32', moustache: true }, KIDT = { top: '#f6c34a', topSh: '#cf9a26' }, AUNTY = { top: '#e06a8c', topSh: '#b04a6a', bun: true };
 export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean; mute?: boolean; concept?: string }> = ({ hook, wire, net, mute, concept }) => {
   const f = useCurrentFrame(); const t = f / FPS;
@@ -289,7 +289,7 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
         {balFront(GYC, ['#c9b8ff', '#f0e9ff', '#a58cf0'], GBX)}
         {concept && (() => { const st = (x: number, y: number, flip: boolean, node: React.ReactNode) => { const [a, b] = iso(x, y, 0); return <g transform={`translate(${a} ${b}) scale(${flip ? -SC : SC} ${SC})`}>{node}</g>; };
           const idle: StickPose = { blink: 0, smile: 1, look: -0.6, armR: [150, 170], armL: [-10, -6], tilt: 3 }, aim: StickPose = { blink: 0, smile: 0.9, look: 0.7, armR: [100, 104], armL: [-12, -8], holdTorch: true, tilt: -3 }, yay: StickPose = { blink: 0, smile: 1, look: 0, armR: [150, 170], armL: [-150, -170], tilt: 0 };
-          return cv === '1' ? <>{st(4.55, -1.72, true, <Adult kind="woman" dress={3} p={cb ? yay : idle} id="gr" tint={GRAN} />)}</>
+          return cv === '1' ? <></>
             : <>{st(4.4, -1.72, true, <Adult kind="woman" dress={3} p={cb ? yay : aim} id="au" tint={AUNTY} gun={!cb} />)}{st(7.4, -1.72, true, <Adult kind="man" p={cb ? yay : aim} id="un" tint={UNCLE} gun={!cb} />)}<g transform={`translate(${iso(-6.2, -1.72)[0]} ${iso(-6.2, -1.72)[1]}) scale(0.72)`}><g transform={`scale(${SC})`}><Adult kind="man" p={cb ? yay : aim} id="kd" tint={KIDT} gun={!cb} /></g></g></>; })()}
         {wave > 0.5 && !concept && [0, 1, 2].map((i) => { const u = ((t * 0.5 + i * 0.33) % 1); return <Heart key={'h' + i} x={gx + 34 + Math.sin(u * 6 + i) * 10} y={gy - 360 * SC - u * 70} s={1.3 - u * 0.5} o={(1 - u) * 0.9} />; })}
         {/* her side garden */}
