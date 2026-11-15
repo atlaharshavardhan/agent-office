@@ -71,3 +71,17 @@ Credits for the description:
 - iPhone model from HyperFrames (heygen-com/hyperframes, Apache 2.0).
 - Phone screen: plain black glass, no reflections or shine (Harsh's choice).
 - Pop-up rebuilt like the real iPhone alert Harsh shared (screenshot, 2026-11-15): white sheet, "Mismatched AirPods Pro", "The AirPods in the charging case do not belong to you and do not work together.", Left/Right AirPod "Not Yours" labels on a picture of the case (our own 3D case, not Apple's image). Fixed state: "AirPods Pro Connected", "Yours ✓".
+
+## Script v3 draft (2026-11-15): Harsh's new order: hook → how AirPods charge → the swap
+About 124 words, ~48 s with Michael at 1.12 (limit 50 s).
+
+| # | Narration | Visual |
+|---|---|---|
+| 1 | (music; text "Wrong case… will it charge?") | Both buds jump from Harsha's case into Karan's case; lid snaps shut |
+| 2 | You just put your AirPods in your friend's case. Will they charge? First, how does charging even work? | Close on Karan's case, "?" over the light |
+| 3 | Two tiny spring pins in each slot touch two gold dots on the stem. Magnets hold the bud down. Power flows from the case battery, and a chip in the earbud decides how fast to fill it. | Glass x-ray: pins + gold dots + magnet, then the power path battery → pins → bud chip → bud battery |
+| 4 | Your friend's case has the same pins in the same place. So yes, they charge. But your iPhone notices. | Back to Karan's case, light turns green; iPhone slides in |
+| 5 | It pops up "Mismatched AirPods", because your buds and case were set up as a pair. | Real-style alert ("Not Yours"); the pair link breaks |
+| 6 | Put them back in their own case, or set them up again after your friend removes them from Find My. | Buds hop home; "Connected" |
+| 7 | A different generation can fit perfectly, and still not work properly. | Look-alike bud drops in, red ✕ |
+| 8 | Follow InvisiTech for more. | End card |
