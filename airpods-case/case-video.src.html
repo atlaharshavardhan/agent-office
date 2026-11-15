@@ -61,8 +61,8 @@
   #chg .ring i { width: 5.2vw; height: 5.2vw; border-radius: 50%; background: #1c1c1e; display: grid; place-items: center; font-style: normal; font-size: 2.6vw; color: var(--acc); }
   #chg .lb { display: flex; flex-direction: column; line-height: 1.1; } #chg .lb small { font: 500 2.6vw Inter, Arial, sans-serif; color: rgba(255,255,255,.6); }
   /* channel watermark: right edge, vertical centre; hidden on the end card */
-  #wm { position: fixed; z-index: 4; left: 5%; top: 76.1%; display: flex; flex-direction: row; align-items: center; gap: 1.2vw; opacity: .7; pointer-events: none; }
-  #wm img { width: 4vw; height: 4vw; border-radius: 50%; } #wm span { font: 600 2.3vw Inter, Arial, sans-serif; color: #fff; letter-spacing: .02em; text-shadow: 0 1px 6px #000; }
+  #wm { position: fixed; z-index: 4; right: 3.2%; top: 37%; display: flex; flex-direction: column; align-items: center; gap: 1.6vw; opacity: .75; pointer-events: none; }
+  #wm img { width: 6vw; height: 6vw; border-radius: 50%; } #wm span { writing-mode: vertical-rl; font: 600 2.9vw Inter, Arial, sans-serif; color: #fff; letter-spacing: .02em; text-shadow: 0 1px 6px #000; }
   /* 2-second InvisiTech title at the end, on the clean studio background (nothing behind the text) */
   #pulse { position: fixed; z-index: 4; width: 12vw; height: 12vw; border-radius: 50%; background: radial-gradient(circle, rgba(220,255,235,.95) 0%, rgba(34,197,94,.55) 30%, rgba(34,197,94,0) 70%); opacity: 0; pointer-events: none; }
   #brandbg { position: fixed; inset: 0; z-index: 4; opacity: 0; pointer-events: none; background: radial-gradient(90% 55% at 50% 42%, #162457 0%, #0b1230 38%, #060914 72%, #03040a 100%); }
@@ -695,7 +695,7 @@ const SHOTS = [
     look(vlerp(vlerp(X.p, CAM0.p, q), P2, z).add(V(26 * Math.sin(Math.PI * z), 0, 0)), vlerp(vlerp(X.t, CAM0.t, q), T2, z), lerp(lerp(X.f, CAM0.f, q), FOV.close, z));
     aside(CA, ease(ramp(k, 0.62, 0.9)));
     { const hin = easeOut(ramp(u, 0.36, 0.6)), a = hin * (1 - ease(ramp(k, 0.9, 0.99))); head('Wrong<br>case?', a, 'hook'); const c = $('title').firstChild; if (c) c.style.transform = `scale(${0.9 + 0.1 * hin})`; }
-    tag('ok', 'Charging', W2(CB, P.light), -W * 0.2, H * 0.06, ease(ramp(u, 2.4, 2.7)) * (1 - ease(ramp(k, 0.84, 0.96))), 'green');
+    tag('ok', 'Charging', W2(CB, P.light), W * 0.13, H * 0.13, ease(ramp(u, 2.4, 2.7)) * (1 - ease(ramp(k, 0.72, 0.82))), 'green');
     note('3D illustration · not affiliated with Apple', ease(ramp(k, 0.3, 0.38)) * (1 - ramp(k, 0.86, 0.96)));
   },
   (k, u, t, d) => { // 2. the secret inside: glass shell, 120° orbit, a brief exploded view, then in towards the socket
@@ -824,7 +824,7 @@ function renderAt(t) {
   for (const [C, sh] of [[CA, SHAD[0]], [CB, SHAD[1]]]) { sh.visible = C.root.visible; sh.position.set(C.root.position.x, FLOOR_Y + 0.15, C.root.position.z); sh.material.opacity = Math.max(0, 0.5 - 0.03 * Math.abs(C.root.position.y)); sh.scale.set(0.9, 0.95, 1); }
   BOKEH.children.forEach(m => { m.position.x = m.userData.x + 14 * Math.sin(t * 0.25 + m.userData.ph); });
   const cp = CAPS.find(c => t >= c[0] - 0.03 && t < c[1] + 0.08); $('sub').innerHTML = cp && !Q.get('nosub') ? '<span>' + hi(cp[2]) + '</span>' : '';
-  $('wm').style.opacity = 0;   // V2: no watermark (brand line appears in the last scene)
+  $('wm').style.opacity = Q.get('nowm') ? 0 : 0.75 * (1 - ($('brandbg').style.opacity || 0));   // side watermark, hidden under the end card
   draw();
   $('bloom').style.opacity = 0.12 * (1 - 0.6 * Math.max(CA.x || 0, CB.x || 0)) * (1 - ($('brandbg').style.opacity || 0));
   const bc = $('bloom'), bx = bc.getContext('2d'); bx.clearRect(0, 0, bc.width, bc.height); bx.drawImage(renderer.domElement, 0, 0, bc.width, bc.height);   // soft bloom
