@@ -1,0 +1,1571 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><title>What happens when an entire stadium panics</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #05070c; font-family: 'IBM Plex Sans', Arial, sans-serif; }
+  canvas { display: block; position: fixed; inset: 0; }
+  .ov { position: fixed; z-index: 3; pointer-events: none; }
+  #title { top: 13%; left: 11.1%; right: 16.7%; text-align: center; color: #fff; font: 700 7vw/1.08 Sora, Arial, sans-serif; letter-spacing: -0.01em; text-shadow: 0 6px 28px rgba(0,0,0,.75); }
+  #title em { font-style: normal; color: #ffb547; } #title .ln { display: block; }
+  #sub { top: 65.1%; height: 10.4%; left: 11.1%; right: 16.7%; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font: 700 5.6vw/1.15 Sora, Arial, sans-serif; -webkit-text-stroke: .45vw rgba(0,0,0,.55); paint-order: stroke fill; text-shadow: 0 3px 14px rgba(0,0,0,.75); }
+  #note { top: 76.3%; left: 11.1%; right: 16.7%; text-align: center; font-size: 2.3vw; color: rgba(255,255,255,.6); }
+  .concept { position: fixed; z-index: 3; left: 11.1%; right: 16.7%; text-align: center; color: #fff; font: 700 9vw/1 Sora, Arial, sans-serif; letter-spacing: -.01em; opacity: 0; text-shadow: 0 6px 30px rgba(0,0,0,.8); }
+  .concept small { display: block; margin-top: 1.6vw; font: 600 3.4vw 'IBM Plex Sans', sans-serif; color: rgba(255,255,255,.75); letter-spacing: 0; }
+  #outro { position: fixed; inset: 0; z-index: 6; opacity: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(60% 40% at 50% 46%, #111522 0%, #07080c 60%, #040506 100%); color: #fff; }
+  #oLogo { width: 21vw; height: 21vw; border-radius: 50%; box-shadow: 0 0 60px rgba(74,168,255,.45); }
+  #oName { margin-top: 3.4vw; font: 800 10vw/1 Sora, Arial, sans-serif; letter-spacing: -0.02em; } #oName b { color: #4fc3f7; }
+  #oTag { margin-top: 2.4vw; font: 500 3.7vw 'IBM Plex Sans', Arial, sans-serif; color: rgba(255,255,255,.72); }
+</style>
+<div class="ov" id="title"></div>
+<div class="ov" id="sub"></div>
+<div class="ov" id="note">3D illustration · fictional stadium and incident</div>
+<div class="concept" id="cA" style="top:14%">Uncertainty<small>No one knows what is happening</small></div>
+<div class="concept" id="cB" style="top:14%">Social influence<small>People copy those around them</small></div>
+<div class="concept" id="cC" style="top:14%">Stress<small>Narrows attention, speeds up decisions</small></div>
+<div id="outro"><img id="oLogo" src="data:image/png;base64,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" alt=""><div id="oName"><span>Invisi</span><b>Tech</b></div><div id="oTag">The tech behind everyday life.</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+( function () {
+
+	/**
+ * Full-screen textured quad shader
+ */
+	var CopyShader = {
+		uniforms: {
+			'tDiffuse': {
+				value: null
+			},
+			'opacity': {
+				value: 1.0
+			}
+		},
+		vertexShader:
+  /* glsl */
+  `
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vUv = uv;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+		}`,
+		fragmentShader:
+  /* glsl */
+  `
+
+		uniform float opacity;
+
+		uniform sampler2D tDiffuse;
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vec4 texel = texture2D( tDiffuse, vUv );
+			gl_FragColor = opacity * texel;
+
+		}`
+	};
+
+	THREE.CopyShader = CopyShader;
+
+} )();
+
+</script>
+<script>
+( function () {
+
+	/**
+ * Luminosity
+ * http://en.wikipedia.org/wiki/Luminosity
+ */
+
+	const LuminosityHighPassShader = {
+		shaderID: 'luminosityHighPass',
+		uniforms: {
+			'tDiffuse': {
+				value: null
+			},
+			'luminosityThreshold': {
+				value: 1.0
+			},
+			'smoothWidth': {
+				value: 1.0
+			},
+			'defaultColor': {
+				value: new THREE.Color( 0x000000 )
+			},
+			'defaultOpacity': {
+				value: 0.0
+			}
+		},
+		vertexShader:
+  /* glsl */
+  `
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vUv = uv;
+
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+		}`,
+		fragmentShader:
+  /* glsl */
+  `
+
+		uniform sampler2D tDiffuse;
+		uniform vec3 defaultColor;
+		uniform float defaultOpacity;
+		uniform float luminosityThreshold;
+		uniform float smoothWidth;
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vec4 texel = texture2D( tDiffuse, vUv );
+
+			vec3 luma = vec3( 0.299, 0.587, 0.114 );
+
+			float v = dot( texel.xyz, luma );
+
+			vec4 outputColor = vec4( defaultColor.rgb, defaultOpacity );
+
+			float alpha = smoothstep( luminosityThreshold, luminosityThreshold + smoothWidth, v );
+
+			gl_FragColor = mix( outputColor, texel, alpha );
+
+		}`
+	};
+
+	THREE.LuminosityHighPassShader = LuminosityHighPassShader;
+
+} )();
+
+</script>
+<script>
+( function () {
+
+	/**
+ * Gamma Correction Shader
+ * http://en.wikipedia.org/wiki/gamma_correction
+ */
+	const GammaCorrectionShader = {
+		uniforms: {
+			'tDiffuse': {
+				value: null
+			}
+		},
+		vertexShader:
+  /* glsl */
+  `
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vUv = uv;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+		}`,
+		fragmentShader:
+  /* glsl */
+  `
+
+		uniform sampler2D tDiffuse;
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vec4 tex = texture2D( tDiffuse, vUv );
+
+			gl_FragColor = LinearTosRGB( tex ); // optional: LinearToGamma( tex, float( GAMMA_FACTOR ) );
+
+		}`
+	};
+
+	THREE.GammaCorrectionShader = GammaCorrectionShader;
+
+} )();
+
+</script>
+<script>
+( function () {
+
+	/**
+ * Depth-of-field shader with bokeh
+ * ported from GLSL shader by Martins Upitis
+ * http://artmartinsh.blogspot.com/2010/02/glsl-lens-blur-filter-with-bokeh.html
+ */
+	const BokehShader = {
+		defines: {
+			'DEPTH_PACKING': 1,
+			'PERSPECTIVE_CAMERA': 1
+		},
+		uniforms: {
+			'tColor': {
+				value: null
+			},
+			'tDepth': {
+				value: null
+			},
+			'focus': {
+				value: 1.0
+			},
+			'aspect': {
+				value: 1.0
+			},
+			'aperture': {
+				value: 0.025
+			},
+			'maxblur': {
+				value: 0.01
+			},
+			'nearClip': {
+				value: 1.0
+			},
+			'farClip': {
+				value: 1000.0
+			}
+		},
+		vertexShader:
+  /* glsl */
+  `
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vUv = uv;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+		}`,
+		fragmentShader:
+  /* glsl */
+  `
+
+		#include <common>
+
+		varying vec2 vUv;
+
+		uniform sampler2D tColor;
+		uniform sampler2D tDepth;
+
+		uniform float maxblur; // max blur amount
+		uniform float aperture; // aperture - bigger values for shallower depth of field
+
+		uniform float nearClip;
+		uniform float farClip;
+
+		uniform float focus;
+		uniform float aspect;
+
+		#include <packing>
+
+		float getDepth( const in vec2 screenPosition ) {
+			#if DEPTH_PACKING == 1
+			return unpackRGBAToDepth( texture2D( tDepth, screenPosition ) );
+			#else
+			return texture2D( tDepth, screenPosition ).x;
+			#endif
+		}
+
+		float getViewZ( const in float depth ) {
+			#if PERSPECTIVE_CAMERA == 1
+			return perspectiveDepthToViewZ( depth, nearClip, farClip );
+			#else
+			return orthographicDepthToViewZ( depth, nearClip, farClip );
+			#endif
+		}
+
+
+		void main() {
+
+			vec2 aspectcorrect = vec2( 1.0, aspect );
+
+			float viewZ = getViewZ( getDepth( vUv ) );
+
+			float factor = ( focus + viewZ ); // viewZ is <= 0, so this is a difference equation
+
+			vec2 dofblur = vec2 ( clamp( factor * aperture, -maxblur, maxblur ) );
+
+			vec2 dofblur9 = dofblur * 0.9;
+			vec2 dofblur7 = dofblur * 0.7;
+			vec2 dofblur4 = dofblur * 0.4;
+
+			vec4 col = vec4( 0.0 );
+
+			col += texture2D( tColor, vUv.xy );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.0,   0.4  ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.15,  0.37 ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.29,  0.29 ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.37,  0.15 ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.40,  0.0  ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.37, -0.15 ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.29, -0.29 ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.15, -0.37 ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.0,  -0.4  ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.15,  0.37 ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.29,  0.29 ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.37,  0.15 ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.4,   0.0  ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.37, -0.15 ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.29, -0.29 ) * aspectcorrect ) * dofblur );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.15, -0.37 ) * aspectcorrect ) * dofblur );
+
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.15,  0.37 ) * aspectcorrect ) * dofblur9 );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.37,  0.15 ) * aspectcorrect ) * dofblur9 );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.37, -0.15 ) * aspectcorrect ) * dofblur9 );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.15, -0.37 ) * aspectcorrect ) * dofblur9 );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.15,  0.37 ) * aspectcorrect ) * dofblur9 );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.37,  0.15 ) * aspectcorrect ) * dofblur9 );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.37, -0.15 ) * aspectcorrect ) * dofblur9 );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.15, -0.37 ) * aspectcorrect ) * dofblur9 );
+
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.29,  0.29 ) * aspectcorrect ) * dofblur7 );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.40,  0.0  ) * aspectcorrect ) * dofblur7 );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.29, -0.29 ) * aspectcorrect ) * dofblur7 );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.0,  -0.4  ) * aspectcorrect ) * dofblur7 );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.29,  0.29 ) * aspectcorrect ) * dofblur7 );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.4,   0.0  ) * aspectcorrect ) * dofblur7 );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.29, -0.29 ) * aspectcorrect ) * dofblur7 );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.0,   0.4  ) * aspectcorrect ) * dofblur7 );
+
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.29,  0.29 ) * aspectcorrect ) * dofblur4 );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.4,   0.0  ) * aspectcorrect ) * dofblur4 );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.29, -0.29 ) * aspectcorrect ) * dofblur4 );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.0,  -0.4  ) * aspectcorrect ) * dofblur4 );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.29,  0.29 ) * aspectcorrect ) * dofblur4 );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.4,   0.0  ) * aspectcorrect ) * dofblur4 );
+			col += texture2D( tColor, vUv.xy + ( vec2( -0.29, -0.29 ) * aspectcorrect ) * dofblur4 );
+			col += texture2D( tColor, vUv.xy + ( vec2(  0.0,   0.4  ) * aspectcorrect ) * dofblur4 );
+
+			gl_FragColor = col / 41.0;
+			gl_FragColor.a = 1.0;
+
+		}`
+	};
+
+	THREE.BokehShader = BokehShader;
+
+} )();
+
+</script>
+<script>
+( function () {
+
+	class EffectComposer {
+
+		constructor( renderer, renderTarget ) {
+
+			this.renderer = renderer;
+
+			if ( renderTarget === undefined ) {
+
+				const parameters = {
+					minFilter: THREE.LinearFilter,
+					magFilter: THREE.LinearFilter,
+					format: THREE.RGBAFormat
+				};
+				const size = renderer.getSize( new THREE.Vector2() );
+				this._pixelRatio = renderer.getPixelRatio();
+				this._width = size.width;
+				this._height = size.height;
+				renderTarget = new THREE.WebGLRenderTarget( this._width * this._pixelRatio, this._height * this._pixelRatio, parameters );
+				renderTarget.texture.name = 'EffectComposer.rt1';
+
+			} else {
+
+				this._pixelRatio = 1;
+				this._width = renderTarget.width;
+				this._height = renderTarget.height;
+
+			}
+
+			this.renderTarget1 = renderTarget;
+			this.renderTarget2 = renderTarget.clone();
+			this.renderTarget2.texture.name = 'EffectComposer.rt2';
+			this.writeBuffer = this.renderTarget1;
+			this.readBuffer = this.renderTarget2;
+			this.renderToScreen = true;
+			this.passes = []; // dependencies
+
+			if ( THREE.CopyShader === undefined ) {
+
+				console.error( 'THREE.EffectComposer relies on THREE.CopyShader' );
+
+			}
+
+			if ( THREE.ShaderPass === undefined ) {
+
+				console.error( 'THREE.EffectComposer relies on THREE.ShaderPass' );
+
+			}
+
+			this.copyPass = new THREE.ShaderPass( THREE.CopyShader );
+			this.clock = new THREE.Clock();
+
+		}
+
+		swapBuffers() {
+
+			const tmp = this.readBuffer;
+			this.readBuffer = this.writeBuffer;
+			this.writeBuffer = tmp;
+
+		}
+
+		addPass( pass ) {
+
+			this.passes.push( pass );
+			pass.setSize( this._width * this._pixelRatio, this._height * this._pixelRatio );
+
+		}
+
+		insertPass( pass, index ) {
+
+			this.passes.splice( index, 0, pass );
+			pass.setSize( this._width * this._pixelRatio, this._height * this._pixelRatio );
+
+		}
+
+		removePass( pass ) {
+
+			const index = this.passes.indexOf( pass );
+
+			if ( index !== - 1 ) {
+
+				this.passes.splice( index, 1 );
+
+			}
+
+		}
+
+		isLastEnabledPass( passIndex ) {
+
+			for ( let i = passIndex + 1; i < this.passes.length; i ++ ) {
+
+				if ( this.passes[ i ].enabled ) {
+
+					return false;
+
+				}
+
+			}
+
+			return true;
+
+		}
+
+		render( deltaTime ) {
+
+			// deltaTime value is in seconds
+			if ( deltaTime === undefined ) {
+
+				deltaTime = this.clock.getDelta();
+
+			}
+
+			const currentRenderTarget = this.renderer.getRenderTarget();
+			let maskActive = false;
+
+			for ( let i = 0, il = this.passes.length; i < il; i ++ ) {
+
+				const pass = this.passes[ i ];
+				if ( pass.enabled === false ) continue;
+				pass.renderToScreen = this.renderToScreen && this.isLastEnabledPass( i );
+				pass.render( this.renderer, this.writeBuffer, this.readBuffer, deltaTime, maskActive );
+
+				if ( pass.needsSwap ) {
+
+					if ( maskActive ) {
+
+						const context = this.renderer.getContext();
+						const stencil = this.renderer.state.buffers.stencil; //context.stencilFunc( context.NOTEQUAL, 1, 0xffffffff );
+
+						stencil.setFunc( context.NOTEQUAL, 1, 0xffffffff );
+						this.copyPass.render( this.renderer, this.writeBuffer, this.readBuffer, deltaTime ); //context.stencilFunc( context.EQUAL, 1, 0xffffffff );
+
+						stencil.setFunc( context.EQUAL, 1, 0xffffffff );
+
+					}
+
+					this.swapBuffers();
+
+				}
+
+				if ( THREE.MaskPass !== undefined ) {
+
+					if ( pass instanceof THREE.MaskPass ) {
+
+						maskActive = true;
+
+					} else if ( pass instanceof THREE.ClearMaskPass ) {
+
+						maskActive = false;
+
+					}
+
+				}
+
+			}
+
+			this.renderer.setRenderTarget( currentRenderTarget );
+
+		}
+
+		reset( renderTarget ) {
+
+			if ( renderTarget === undefined ) {
+
+				const size = this.renderer.getSize( new THREE.Vector2() );
+				this._pixelRatio = this.renderer.getPixelRatio();
+				this._width = size.width;
+				this._height = size.height;
+				renderTarget = this.renderTarget1.clone();
+				renderTarget.setSize( this._width * this._pixelRatio, this._height * this._pixelRatio );
+
+			}
+
+			this.renderTarget1.dispose();
+			this.renderTarget2.dispose();
+			this.renderTarget1 = renderTarget;
+			this.renderTarget2 = renderTarget.clone();
+			this.writeBuffer = this.renderTarget1;
+			this.readBuffer = this.renderTarget2;
+
+		}
+
+		setSize( width, height ) {
+
+			this._width = width;
+			this._height = height;
+			const effectiveWidth = this._width * this._pixelRatio;
+			const effectiveHeight = this._height * this._pixelRatio;
+			this.renderTarget1.setSize( effectiveWidth, effectiveHeight );
+			this.renderTarget2.setSize( effectiveWidth, effectiveHeight );
+
+			for ( let i = 0; i < this.passes.length; i ++ ) {
+
+				this.passes[ i ].setSize( effectiveWidth, effectiveHeight );
+
+			}
+
+		}
+
+		setPixelRatio( pixelRatio ) {
+
+			this._pixelRatio = pixelRatio;
+			this.setSize( this._width, this._height );
+
+		}
+
+	}
+
+	class Pass {
+
+		constructor() {
+
+			// if set to true, the pass is processed by the composer
+			this.enabled = true; // if set to true, the pass indicates to swap read and write buffer after rendering
+
+			this.needsSwap = true; // if set to true, the pass clears its buffer before rendering
+
+			this.clear = false; // if set to true, the result of the pass is rendered to screen. This is set automatically by EffectComposer.
+
+			this.renderToScreen = false;
+
+		}
+
+		setSize( ) {}
+
+		render( ) {
+
+			console.error( 'THREE.Pass: .render() must be implemented in derived pass.' );
+
+		}
+
+	} // Helper for passes that need to fill the viewport with a single quad.
+
+
+	const _camera = new THREE.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 ); // https://github.com/mrdoob/three.js/pull/21358
+
+
+	const _geometry = new THREE.BufferGeometry();
+
+	_geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( [ - 1, 3, 0, - 1, - 1, 0, 3, - 1, 0 ], 3 ) );
+
+	_geometry.setAttribute( 'uv', new THREE.Float32BufferAttribute( [ 0, 2, 0, 0, 2, 0 ], 2 ) );
+
+	class FullScreenQuad {
+
+		constructor( material ) {
+
+			this._mesh = new THREE.Mesh( _geometry, material );
+
+		}
+
+		dispose() {
+
+			this._mesh.geometry.dispose();
+
+		}
+
+		render( renderer ) {
+
+			renderer.render( this._mesh, _camera );
+
+		}
+
+		get material() {
+
+			return this._mesh.material;
+
+		}
+
+		set material( value ) {
+
+			this._mesh.material = value;
+
+		}
+
+	}
+
+	THREE.EffectComposer = EffectComposer;
+	THREE.FullScreenQuad = FullScreenQuad;
+	THREE.Pass = Pass;
+
+} )();
+
+</script>
+<script>
+( function () {
+
+	class MaskPass extends THREE.Pass {
+
+		constructor( scene, camera ) {
+
+			super();
+			this.scene = scene;
+			this.camera = camera;
+			this.clear = true;
+			this.needsSwap = false;
+			this.inverse = false;
+
+		}
+
+		render( renderer, writeBuffer, readBuffer
+			/*, deltaTime, maskActive */
+		) {
+
+			const context = renderer.getContext();
+			const state = renderer.state; // don't update color or depth
+
+			state.buffers.color.setMask( false );
+			state.buffers.depth.setMask( false ); // lock buffers
+
+			state.buffers.color.setLocked( true );
+			state.buffers.depth.setLocked( true ); // set up stencil
+
+			let writeValue, clearValue;
+
+			if ( this.inverse ) {
+
+				writeValue = 0;
+				clearValue = 1;
+
+			} else {
+
+				writeValue = 1;
+				clearValue = 0;
+
+			}
+
+			state.buffers.stencil.setTest( true );
+			state.buffers.stencil.setOp( context.REPLACE, context.REPLACE, context.REPLACE );
+			state.buffers.stencil.setFunc( context.ALWAYS, writeValue, 0xffffffff );
+			state.buffers.stencil.setClear( clearValue );
+			state.buffers.stencil.setLocked( true ); // draw into the stencil buffer
+
+			renderer.setRenderTarget( readBuffer );
+			if ( this.clear ) renderer.clear();
+			renderer.render( this.scene, this.camera );
+			renderer.setRenderTarget( writeBuffer );
+			if ( this.clear ) renderer.clear();
+			renderer.render( this.scene, this.camera ); // unlock color and depth buffer for subsequent rendering
+
+			state.buffers.color.setLocked( false );
+			state.buffers.depth.setLocked( false ); // only render where stencil is set to 1
+
+			state.buffers.stencil.setLocked( false );
+			state.buffers.stencil.setFunc( context.EQUAL, 1, 0xffffffff ); // draw if == 1
+
+			state.buffers.stencil.setOp( context.KEEP, context.KEEP, context.KEEP );
+			state.buffers.stencil.setLocked( true );
+
+		}
+
+	}
+
+	class ClearMaskPass extends THREE.Pass {
+
+		constructor() {
+
+			super();
+			this.needsSwap = false;
+
+		}
+
+		render( renderer
+			/*, writeBuffer, readBuffer, deltaTime, maskActive */
+		) {
+
+			renderer.state.buffers.stencil.setLocked( false );
+			renderer.state.buffers.stencil.setTest( false );
+
+		}
+
+	}
+
+	THREE.ClearMaskPass = ClearMaskPass;
+	THREE.MaskPass = MaskPass;
+
+} )();
+
+</script>
+<script>
+( function () {
+
+	class RenderPass extends THREE.Pass {
+
+		constructor( scene, camera, overrideMaterial, clearColor, clearAlpha ) {
+
+			super();
+			this.scene = scene;
+			this.camera = camera;
+			this.overrideMaterial = overrideMaterial;
+			this.clearColor = clearColor;
+			this.clearAlpha = clearAlpha !== undefined ? clearAlpha : 0;
+			this.clear = true;
+			this.clearDepth = false;
+			this.needsSwap = false;
+			this._oldClearColor = new THREE.Color();
+
+		}
+
+		render( renderer, writeBuffer, readBuffer
+			/*, deltaTime, maskActive */
+		) {
+
+			const oldAutoClear = renderer.autoClear;
+			renderer.autoClear = false;
+			let oldClearAlpha, oldOverrideMaterial;
+
+			if ( this.overrideMaterial !== undefined ) {
+
+				oldOverrideMaterial = this.scene.overrideMaterial;
+				this.scene.overrideMaterial = this.overrideMaterial;
+
+			}
+
+			if ( this.clearColor ) {
+
+				renderer.getClearColor( this._oldClearColor );
+				oldClearAlpha = renderer.getClearAlpha();
+				renderer.setClearColor( this.clearColor, this.clearAlpha );
+
+			}
+
+			if ( this.clearDepth ) {
+
+				renderer.clearDepth();
+
+			}
+
+			renderer.setRenderTarget( this.renderToScreen ? null : readBuffer ); // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
+
+			if ( this.clear ) renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
+			renderer.render( this.scene, this.camera );
+
+			if ( this.clearColor ) {
+
+				renderer.setClearColor( this._oldClearColor, oldClearAlpha );
+
+			}
+
+			if ( this.overrideMaterial !== undefined ) {
+
+				this.scene.overrideMaterial = oldOverrideMaterial;
+
+			}
+
+			renderer.autoClear = oldAutoClear;
+
+		}
+
+	}
+
+	THREE.RenderPass = RenderPass;
+
+} )();
+
+</script>
+<script>
+( function () {
+
+	class ShaderPass extends THREE.Pass {
+
+		constructor( shader, textureID ) {
+
+			super();
+			this.textureID = textureID !== undefined ? textureID : 'tDiffuse';
+
+			if ( shader instanceof THREE.ShaderMaterial ) {
+
+				this.uniforms = shader.uniforms;
+				this.material = shader;
+
+			} else if ( shader ) {
+
+				this.uniforms = THREE.UniformsUtils.clone( shader.uniforms );
+				this.material = new THREE.ShaderMaterial( {
+					defines: Object.assign( {}, shader.defines ),
+					uniforms: this.uniforms,
+					vertexShader: shader.vertexShader,
+					fragmentShader: shader.fragmentShader
+				} );
+
+			}
+
+			this.fsQuad = new THREE.FullScreenQuad( this.material );
+
+		}
+
+		render( renderer, writeBuffer, readBuffer
+			/*, deltaTime, maskActive */
+		) {
+
+			if ( this.uniforms[ this.textureID ] ) {
+
+				this.uniforms[ this.textureID ].value = readBuffer.texture;
+
+			}
+
+			this.fsQuad.material = this.material;
+
+			if ( this.renderToScreen ) {
+
+				renderer.setRenderTarget( null );
+				this.fsQuad.render( renderer );
+
+			} else {
+
+				renderer.setRenderTarget( writeBuffer ); // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
+
+				if ( this.clear ) renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
+				this.fsQuad.render( renderer );
+
+			}
+
+		}
+
+	}
+
+	THREE.ShaderPass = ShaderPass;
+
+} )();
+
+</script>
+<script>
+( function () {
+
+	/**
+ * UnrealBloomPass is inspired by the bloom pass of Unreal Engine. It creates a
+ * mip map chain of bloom textures and blurs them with different radii. Because
+ * of the weighted combination of mips, and because larger blurs are done on
+ * higher mips, this effect provides good quality and performance.
+ *
+ * Reference:
+ * - https://docs.unrealengine.com/latest/INT/Engine/Rendering/PostProcessEffects/Bloom/
+ */
+
+	class UnrealBloomPass extends THREE.Pass {
+
+		constructor( resolution, strength, radius, threshold ) {
+
+			super();
+			this.strength = strength !== undefined ? strength : 1;
+			this.radius = radius;
+			this.threshold = threshold;
+			this.resolution = resolution !== undefined ? new THREE.Vector2( resolution.x, resolution.y ) : new THREE.Vector2( 256, 256 ); // create color only once here, reuse it later inside the render function
+
+			this.clearColor = new THREE.Color( 0, 0, 0 ); // render targets
+
+			const pars = {
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter,
+				format: THREE.RGBAFormat
+			};
+			this.renderTargetsHorizontal = [];
+			this.renderTargetsVertical = [];
+			this.nMips = 5;
+			let resx = Math.round( this.resolution.x / 2 );
+			let resy = Math.round( this.resolution.y / 2 );
+			this.renderTargetBright = new THREE.WebGLRenderTarget( resx, resy, pars );
+			this.renderTargetBright.texture.name = 'UnrealBloomPass.bright';
+			this.renderTargetBright.texture.generateMipmaps = false;
+
+			for ( let i = 0; i < this.nMips; i ++ ) {
+
+				const renderTargetHorizonal = new THREE.WebGLRenderTarget( resx, resy, pars );
+				renderTargetHorizonal.texture.name = 'UnrealBloomPass.h' + i;
+				renderTargetHorizonal.texture.generateMipmaps = false;
+				this.renderTargetsHorizontal.push( renderTargetHorizonal );
+				const renderTargetVertical = new THREE.WebGLRenderTarget( resx, resy, pars );
+				renderTargetVertical.texture.name = 'UnrealBloomPass.v' + i;
+				renderTargetVertical.texture.generateMipmaps = false;
+				this.renderTargetsVertical.push( renderTargetVertical );
+				resx = Math.round( resx / 2 );
+				resy = Math.round( resy / 2 );
+
+			} // luminosity high pass material
+
+
+			if ( THREE.LuminosityHighPassShader === undefined ) console.error( 'THREE.UnrealBloomPass relies on THREE.LuminosityHighPassShader' );
+			const highPassShader = THREE.LuminosityHighPassShader;
+			this.highPassUniforms = THREE.UniformsUtils.clone( highPassShader.uniforms );
+			this.highPassUniforms[ 'luminosityThreshold' ].value = threshold;
+			this.highPassUniforms[ 'smoothWidth' ].value = 0.01;
+			this.materialHighPassFilter = new THREE.ShaderMaterial( {
+				uniforms: this.highPassUniforms,
+				vertexShader: highPassShader.vertexShader,
+				fragmentShader: highPassShader.fragmentShader,
+				defines: {}
+			} ); // Gaussian Blur Materials
+
+			this.separableBlurMaterials = [];
+			const kernelSizeArray = [ 3, 5, 7, 9, 11 ];
+			resx = Math.round( this.resolution.x / 2 );
+			resy = Math.round( this.resolution.y / 2 );
+
+			for ( let i = 0; i < this.nMips; i ++ ) {
+
+				this.separableBlurMaterials.push( this.getSeperableBlurMaterial( kernelSizeArray[ i ] ) );
+				this.separableBlurMaterials[ i ].uniforms[ 'texSize' ].value = new THREE.Vector2( resx, resy );
+				resx = Math.round( resx / 2 );
+				resy = Math.round( resy / 2 );
+
+			} // Composite material
+
+
+			this.compositeMaterial = this.getCompositeMaterial( this.nMips );
+			this.compositeMaterial.uniforms[ 'blurTexture1' ].value = this.renderTargetsVertical[ 0 ].texture;
+			this.compositeMaterial.uniforms[ 'blurTexture2' ].value = this.renderTargetsVertical[ 1 ].texture;
+			this.compositeMaterial.uniforms[ 'blurTexture3' ].value = this.renderTargetsVertical[ 2 ].texture;
+			this.compositeMaterial.uniforms[ 'blurTexture4' ].value = this.renderTargetsVertical[ 3 ].texture;
+			this.compositeMaterial.uniforms[ 'blurTexture5' ].value = this.renderTargetsVertical[ 4 ].texture;
+			this.compositeMaterial.uniforms[ 'bloomStrength' ].value = strength;
+			this.compositeMaterial.uniforms[ 'bloomRadius' ].value = 0.1;
+			this.compositeMaterial.needsUpdate = true;
+			const bloomFactors = [ 1.0, 0.8, 0.6, 0.4, 0.2 ];
+			this.compositeMaterial.uniforms[ 'bloomFactors' ].value = bloomFactors;
+			this.bloomTintColors = [ new THREE.Vector3( 1, 1, 1 ), new THREE.Vector3( 1, 1, 1 ), new THREE.Vector3( 1, 1, 1 ), new THREE.Vector3( 1, 1, 1 ), new THREE.Vector3( 1, 1, 1 ) ];
+			this.compositeMaterial.uniforms[ 'bloomTintColors' ].value = this.bloomTintColors; // copy material
+
+			if ( THREE.CopyShader === undefined ) {
+
+				console.error( 'THREE.UnrealBloomPass relies on THREE.CopyShader' );
+
+			}
+
+			const copyShader = THREE.CopyShader;
+			this.copyUniforms = THREE.UniformsUtils.clone( copyShader.uniforms );
+			this.copyUniforms[ 'opacity' ].value = 1.0;
+			this.materialCopy = new THREE.ShaderMaterial( {
+				uniforms: this.copyUniforms,
+				vertexShader: copyShader.vertexShader,
+				fragmentShader: copyShader.fragmentShader,
+				blending: THREE.AdditiveBlending,
+				depthTest: false,
+				depthWrite: false,
+				transparent: true
+			} );
+			this.enabled = true;
+			this.needsSwap = false;
+			this._oldClearColor = new THREE.Color();
+			this.oldClearAlpha = 1;
+			this.basic = new THREE.MeshBasicMaterial();
+			this.fsQuad = new THREE.FullScreenQuad( null );
+
+		}
+
+		dispose() {
+
+			for ( let i = 0; i < this.renderTargetsHorizontal.length; i ++ ) {
+
+				this.renderTargetsHorizontal[ i ].dispose();
+
+			}
+
+			for ( let i = 0; i < this.renderTargetsVertical.length; i ++ ) {
+
+				this.renderTargetsVertical[ i ].dispose();
+
+			}
+
+			this.renderTargetBright.dispose();
+
+		}
+
+		setSize( width, height ) {
+
+			let resx = Math.round( width / 2 );
+			let resy = Math.round( height / 2 );
+			this.renderTargetBright.setSize( resx, resy );
+
+			for ( let i = 0; i < this.nMips; i ++ ) {
+
+				this.renderTargetsHorizontal[ i ].setSize( resx, resy );
+				this.renderTargetsVertical[ i ].setSize( resx, resy );
+				this.separableBlurMaterials[ i ].uniforms[ 'texSize' ].value = new THREE.Vector2( resx, resy );
+				resx = Math.round( resx / 2 );
+				resy = Math.round( resy / 2 );
+
+			}
+
+		}
+
+		render( renderer, writeBuffer, readBuffer, deltaTime, maskActive ) {
+
+			renderer.getClearColor( this._oldClearColor );
+			this.oldClearAlpha = renderer.getClearAlpha();
+			const oldAutoClear = renderer.autoClear;
+			renderer.autoClear = false;
+			renderer.setClearColor( this.clearColor, 0 );
+			if ( maskActive ) renderer.state.buffers.stencil.setTest( false ); // Render input to screen
+
+			if ( this.renderToScreen ) {
+
+				this.fsQuad.material = this.basic;
+				this.basic.map = readBuffer.texture;
+				renderer.setRenderTarget( null );
+				renderer.clear();
+				this.fsQuad.render( renderer );
+
+			} // 1. Extract Bright Areas
+
+
+			this.highPassUniforms[ 'tDiffuse' ].value = readBuffer.texture;
+			this.highPassUniforms[ 'luminosityThreshold' ].value = this.threshold;
+			this.fsQuad.material = this.materialHighPassFilter;
+			renderer.setRenderTarget( this.renderTargetBright );
+			renderer.clear();
+			this.fsQuad.render( renderer ); // 2. Blur All the mips progressively
+
+			let inputRenderTarget = this.renderTargetBright;
+
+			for ( let i = 0; i < this.nMips; i ++ ) {
+
+				this.fsQuad.material = this.separableBlurMaterials[ i ];
+				this.separableBlurMaterials[ i ].uniforms[ 'colorTexture' ].value = inputRenderTarget.texture;
+				this.separableBlurMaterials[ i ].uniforms[ 'direction' ].value = UnrealBloomPass.BlurDirectionX;
+				renderer.setRenderTarget( this.renderTargetsHorizontal[ i ] );
+				renderer.clear();
+				this.fsQuad.render( renderer );
+				this.separableBlurMaterials[ i ].uniforms[ 'colorTexture' ].value = this.renderTargetsHorizontal[ i ].texture;
+				this.separableBlurMaterials[ i ].uniforms[ 'direction' ].value = UnrealBloomPass.BlurDirectionY;
+				renderer.setRenderTarget( this.renderTargetsVertical[ i ] );
+				renderer.clear();
+				this.fsQuad.render( renderer );
+				inputRenderTarget = this.renderTargetsVertical[ i ];
+
+			} // Composite All the mips
+
+
+			this.fsQuad.material = this.compositeMaterial;
+			this.compositeMaterial.uniforms[ 'bloomStrength' ].value = this.strength;
+			this.compositeMaterial.uniforms[ 'bloomRadius' ].value = this.radius;
+			this.compositeMaterial.uniforms[ 'bloomTintColors' ].value = this.bloomTintColors;
+			renderer.setRenderTarget( this.renderTargetsHorizontal[ 0 ] );
+			renderer.clear();
+			this.fsQuad.render( renderer ); // Blend it additively over the input texture
+
+			this.fsQuad.material = this.materialCopy;
+			this.copyUniforms[ 'tDiffuse' ].value = this.renderTargetsHorizontal[ 0 ].texture;
+			if ( maskActive ) renderer.state.buffers.stencil.setTest( true );
+
+			if ( this.renderToScreen ) {
+
+				renderer.setRenderTarget( null );
+				this.fsQuad.render( renderer );
+
+			} else {
+
+				renderer.setRenderTarget( readBuffer );
+				this.fsQuad.render( renderer );
+
+			} // Restore renderer settings
+
+
+			renderer.setClearColor( this._oldClearColor, this.oldClearAlpha );
+			renderer.autoClear = oldAutoClear;
+
+		}
+
+		getSeperableBlurMaterial( kernelRadius ) {
+
+			return new THREE.ShaderMaterial( {
+				defines: {
+					'KERNEL_RADIUS': kernelRadius,
+					'SIGMA': kernelRadius
+				},
+				uniforms: {
+					'colorTexture': {
+						value: null
+					},
+					'texSize': {
+						value: new THREE.Vector2( 0.5, 0.5 )
+					},
+					'direction': {
+						value: new THREE.Vector2( 0.5, 0.5 )
+					}
+				},
+				vertexShader: `varying vec2 vUv;
+				void main() {
+					vUv = uv;
+					gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+				}`,
+				fragmentShader: `#include <common>
+				varying vec2 vUv;
+				uniform sampler2D colorTexture;
+				uniform vec2 texSize;
+				uniform vec2 direction;
+
+				float gaussianPdf(in float x, in float sigma) {
+					return 0.39894 * exp( -0.5 * x * x/( sigma * sigma))/sigma;
+				}
+				void main() {
+					vec2 invSize = 1.0 / texSize;
+					float fSigma = float(SIGMA);
+					float weightSum = gaussianPdf(0.0, fSigma);
+					vec3 diffuseSum = texture2D( colorTexture, vUv).rgb * weightSum;
+					for( int i = 1; i < KERNEL_RADIUS; i ++ ) {
+						float x = float(i);
+						float w = gaussianPdf(x, fSigma);
+						vec2 uvOffset = direction * invSize * x;
+						vec3 sample1 = texture2D( colorTexture, vUv + uvOffset).rgb;
+						vec3 sample2 = texture2D( colorTexture, vUv - uvOffset).rgb;
+						diffuseSum += (sample1 + sample2) * w;
+						weightSum += 2.0 * w;
+					}
+					gl_FragColor = vec4(diffuseSum/weightSum, 1.0);
+				}`
+			} );
+
+		}
+
+		getCompositeMaterial( nMips ) {
+
+			return new THREE.ShaderMaterial( {
+				defines: {
+					'NUM_MIPS': nMips
+				},
+				uniforms: {
+					'blurTexture1': {
+						value: null
+					},
+					'blurTexture2': {
+						value: null
+					},
+					'blurTexture3': {
+						value: null
+					},
+					'blurTexture4': {
+						value: null
+					},
+					'blurTexture5': {
+						value: null
+					},
+					'dirtTexture': {
+						value: null
+					},
+					'bloomStrength': {
+						value: 1.0
+					},
+					'bloomFactors': {
+						value: null
+					},
+					'bloomTintColors': {
+						value: null
+					},
+					'bloomRadius': {
+						value: 0.0
+					}
+				},
+				vertexShader: `varying vec2 vUv;
+				void main() {
+					vUv = uv;
+					gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+				}`,
+				fragmentShader: `varying vec2 vUv;
+				uniform sampler2D blurTexture1;
+				uniform sampler2D blurTexture2;
+				uniform sampler2D blurTexture3;
+				uniform sampler2D blurTexture4;
+				uniform sampler2D blurTexture5;
+				uniform sampler2D dirtTexture;
+				uniform float bloomStrength;
+				uniform float bloomRadius;
+				uniform float bloomFactors[NUM_MIPS];
+				uniform vec3 bloomTintColors[NUM_MIPS];
+
+				float lerpBloomFactor(const in float factor) {
+					float mirrorFactor = 1.2 - factor;
+					return mix(factor, mirrorFactor, bloomRadius);
+				}
+
+				void main() {
+					gl_FragColor = bloomStrength * ( lerpBloomFactor(bloomFactors[0]) * vec4(bloomTintColors[0], 1.0) * texture2D(blurTexture1, vUv) +
+						lerpBloomFactor(bloomFactors[1]) * vec4(bloomTintColors[1], 1.0) * texture2D(blurTexture2, vUv) +
+						lerpBloomFactor(bloomFactors[2]) * vec4(bloomTintColors[2], 1.0) * texture2D(blurTexture3, vUv) +
+						lerpBloomFactor(bloomFactors[3]) * vec4(bloomTintColors[3], 1.0) * texture2D(blurTexture4, vUv) +
+						lerpBloomFactor(bloomFactors[4]) * vec4(bloomTintColors[4], 1.0) * texture2D(blurTexture5, vUv) );
+				}`
+			} );
+
+		}
+
+	}
+
+	UnrealBloomPass.BlurDirectionX = new THREE.Vector2( 1.0, 0.0 );
+	UnrealBloomPass.BlurDirectionY = new THREE.Vector2( 0.0, 1.0 );
+
+	THREE.UnrealBloomPass = UnrealBloomPass;
+
+} )();
+
+</script>
+<script>
+( function () {
+
+	/**
+ * Depth-of-field post-process with bokeh shader
+ */
+
+	class BokehPass extends THREE.Pass {
+
+		constructor( scene, camera, params ) {
+
+			super();
+			this.scene = scene;
+			this.camera = camera;
+			const focus = params.focus !== undefined ? params.focus : 1.0;
+			const aspect = params.aspect !== undefined ? params.aspect : camera.aspect;
+			const aperture = params.aperture !== undefined ? params.aperture : 0.025;
+			const maxblur = params.maxblur !== undefined ? params.maxblur : 1.0; // render targets
+
+			const width = params.width || window.innerWidth || 1;
+			const height = params.height || window.innerHeight || 1;
+			this.renderTargetDepth = new THREE.WebGLRenderTarget( width, height, {
+				minFilter: THREE.NearestFilter,
+				magFilter: THREE.NearestFilter
+			} );
+			this.renderTargetDepth.texture.name = 'BokehPass.depth'; // depth material
+
+			this.materialDepth = new THREE.MeshDepthMaterial();
+			this.materialDepth.depthPacking = THREE.RGBADepthPacking;
+			this.materialDepth.blending = THREE.NoBlending; // bokeh material
+
+			if ( THREE.BokehShader === undefined ) {
+
+				console.error( 'THREE.BokehPass relies on THREE.BokehShader' );
+
+			}
+
+			const bokehShader = THREE.BokehShader;
+			const bokehUniforms = THREE.UniformsUtils.clone( bokehShader.uniforms );
+			bokehUniforms[ 'tDepth' ].value = this.renderTargetDepth.texture;
+			bokehUniforms[ 'focus' ].value = focus;
+			bokehUniforms[ 'aspect' ].value = aspect;
+			bokehUniforms[ 'aperture' ].value = aperture;
+			bokehUniforms[ 'maxblur' ].value = maxblur;
+			bokehUniforms[ 'nearClip' ].value = camera.near;
+			bokehUniforms[ 'farClip' ].value = camera.far;
+			this.materialBokeh = new THREE.ShaderMaterial( {
+				defines: Object.assign( {}, bokehShader.defines ),
+				uniforms: bokehUniforms,
+				vertexShader: bokehShader.vertexShader,
+				fragmentShader: bokehShader.fragmentShader
+			} );
+			this.uniforms = bokehUniforms;
+			this.needsSwap = false;
+			this.fsQuad = new THREE.FullScreenQuad( this.materialBokeh );
+			this._oldClearColor = new THREE.Color();
+
+		}
+
+		render( renderer, writeBuffer, readBuffer
+			/*, deltaTime, maskActive*/
+		) {
+
+			// Render depth into texture
+			this.scene.overrideMaterial = this.materialDepth;
+			renderer.getClearColor( this._oldClearColor );
+			const oldClearAlpha = renderer.getClearAlpha();
+			const oldAutoClear = renderer.autoClear;
+			renderer.autoClear = false;
+			renderer.setClearColor( 0xffffff );
+			renderer.setClearAlpha( 1.0 );
+			renderer.setRenderTarget( this.renderTargetDepth );
+			renderer.clear();
+			renderer.render( this.scene, this.camera ); // Render bokeh composite
+
+			this.uniforms[ 'tColor' ].value = readBuffer.texture;
+			this.uniforms[ 'nearClip' ].value = this.camera.near;
+			this.uniforms[ 'farClip' ].value = this.camera.far;
+
+			if ( this.renderToScreen ) {
+
+				renderer.setRenderTarget( null );
+				this.fsQuad.render( renderer );
+
+			} else {
+
+				renderer.setRenderTarget( writeBuffer );
+				renderer.clear();
+				this.fsQuad.render( renderer );
+
+			}
+
+			this.scene.overrideMaterial = null;
+			renderer.setClearColor( this._oldClearColor );
+			renderer.setClearAlpha( oldClearAlpha );
+			renderer.autoClear = oldAutoClear;
+
+		}
+
+	}
+
+	THREE.BokehPass = BokehPass;
+
+} )();
+
+</script>
+<script>
+(() => {
+const W = innerWidth, H = innerHeight, $ = id => document.getElementById(id);
+const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); }, lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
+let sd = 7; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(devicePixelRatio); renderer.setSize(W, H); renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(34, W / H, 0.3, 3000);
+scene.fog = new THREE.FogExp2(0x070a12, 0.0022);
+{ const c = document.createElement('canvas'); c.width = 16; c.height = 256; const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 0, 256);
+  g.addColorStop(0, '#02040a'); g.addColorStop(0.55, '#0b1424'); g.addColorStop(1, '#1a2238'); x.fillStyle = g; x.fillRect(0, 0, 16, 256); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; scene.background = t; }
+{ const pm = new THREE.PMREMGenerator(renderer), env = new THREE.Scene(); env.add(new THREE.Mesh(new THREE.SphereGeometry(50, 16, 8), new THREE.MeshBasicMaterial({ color: 0x1b2233, side: THREE.BackSide })));
+  for (const p of [[30, 25, 0], [-30, 25, 0], [0, 25, 30], [0, 25, -30]]) { const q = new THREE.Mesh(new THREE.PlaneGeometry(14, 6), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })); q.position.set(...p); q.lookAt(0, 0, 0); env.add(q); }
+  scene.environment = pm.fromScene(env, 0.04).texture; }
+scene.traverse(o => {});
+
+/* ---------- light: floodlights (warm-white key + fill), later tense red and calm neutral ---------- */
+const hemi = new THREE.HemisphereLight(0x5a6a8a, 0x0a0806, 0.22); scene.add(hemi);
+const flood = new THREE.DirectionalLight(0xfff4e2, 1.25); flood.position.set(60, 140, 50); flood.castShadow = true;
+flood.shadow.mapSize.set(4096, 4096); Object.assign(flood.shadow.camera, { left: -110, right: 110, top: 90, bottom: -90, near: 10, far: 400 }); flood.shadow.bias = -0.0004; flood.shadow.radius = 3; scene.add(flood);
+const flood2 = new THREE.DirectionalLight(0xdfe8ff, 0.45); flood2.position.set(-70, 120, -40); scene.add(flood2);
+const redL = new THREE.PointLight(0xff3b2e, 0, 260, 1.6); redL.position.set(0, 40, -70); scene.add(redL);
+
+/* ---------- composer: bloom + depth of field ---------- */
+const RT = new THREE.WebGLMultisampleRenderTarget(Math.round(W * renderer.getPixelRatio()), Math.round(H * renderer.getPixelRatio()), { format: THREE.RGBAFormat, type: THREE.HalfFloatType, stencilBuffer: true }); RT.samples = 4;
+const composer = new THREE.EffectComposer(renderer, RT); composer.setSize(W, H); composer.addPass(new THREE.RenderPass(scene, camera));
+const BOKEH = new THREE.BokehPass(scene, camera, { focus: 30, aperture: 0.00012, maxblur: 0.006, width: W, height: H }); composer.addPass(BOKEH);
+const BLOOM = new THREE.UnrealBloomPass(new THREE.Vector2(W, H), 0.5, 0.4, 0.85); [...BLOOM.renderTargetsHorizontal, ...BLOOM.renderTargetsVertical, BLOOM.renderTargetBright].forEach(t => t.texture.type = THREE.HalfFloatType); composer.addPass(BLOOM);
+composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));
+
+/* ---------- pitch ---------- */
+function pitchTex() { const c = document.createElement('canvas'); c.width = 2048; c.height = 1324; const x = c.getContext('2d'), w = c.width, h = c.height;
+  for (let i = 0; i < 18; i++) { x.fillStyle = i % 2 ? '#2f7a34' : '#36863b'; x.fillRect(i * w / 18, 0, w / 18 + 1, h); }
+  for (let i = 0; i < 26000; i++) { x.fillStyle = `rgba(${rnd() < .5 ? '20,60,20' : '90,150,80'},0.12)`; x.fillRect(rnd() * w, rnd() * h, 3, 3); }
+  x.strokeStyle = 'rgba(255,255,255,.9)'; x.lineWidth = 6; const m = 40; x.strokeRect(m, m, w - 2 * m, h - 2 * m); x.beginPath(); x.moveTo(w / 2, m); x.lineTo(w / 2, h - m); x.stroke();
+  x.beginPath(); x.arc(w / 2, h / 2, 180, 0, 7); x.stroke(); for (const s of [0, 1]) { const X = s ? w - m - 320 : m; x.strokeRect(X, h / 2 - 400, 320, 800); x.strokeRect(s ? w - m - 110 : m, h / 2 - 180, 110, 360); }
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 8; return t; }
+const PITCH = new THREE.Mesh(new THREE.PlaneGeometry(105, 68), new THREE.MeshStandardMaterial({ map: pitchTex(), roughness: 0.9, envMapIntensity: 0.2 })); PITCH.rotation.x = -Math.PI / 2; PITCH.receiveShadow = true; scene.add(PITCH);
+const APRON = new THREE.Mesh(new THREE.PlaneGeometry(132, 96), new THREE.MeshStandardMaterial({ color: 0x1d3f22, roughness: 0.95, envMapIntensity: 0.2 })); APRON.rotation.x = -Math.PI / 2; APRON.position.y = -0.05; APRON.receiveShadow = true; scene.add(APRON);
+for (const s of [-1, 1]) { const goal = new THREE.Group(); const mt = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
+  for (const [w, h, d, x, y, z] of [[0.15, 2.44, 0.15, 0, 1.22, -3.66], [0.15, 2.44, 0.15, 0, 1.22, 3.66], [0.15, 0.15, 7.4, 0, 2.44, 0]]) { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mt); b.position.set(x, y, z); goal.add(b); }
+  goal.position.set(s * 52.5, 0, 0); scene.add(goal); }
+
+/* ---------- the bowl: rounded-rectangle tiers of seats ---------- */
+const SE = (t, a, b, n = 4) => { const c = Math.cos(t), s = Math.sin(t); return [a * Math.sign(c) * Math.pow(Math.abs(c), 2 / n), b * Math.sign(s) * Math.pow(Math.abs(s), 2 / n)]; };
+const ROWS = 28, A0 = 64, B0 = 46, STEP = 0.9, RISE = 0.48, GAP_ROW = 14;   // lower and upper tier, concourse between
+const rowOff = r => r * STEP + (r >= GAP_ROW ? 3.2 : 0), rowY = r => 1.2 + r * RISE + (r >= GAP_ROW ? 2.6 : 0);
+const concrete = new THREE.MeshStandardMaterial({ color: 0x2c3038, roughness: 0.9, envMapIntensity: 0.25 });
+{ // stepped concrete: one strip per row (tread + riser), following the curve
+  const N = 360, pos = [], idx = [];
+  for (let r = 0; r < ROWS; r++) { const o0 = rowOff(r), o1 = o0 + STEP, y0 = rowY(r), yPrev = r ? rowY(r - 1) : 0, base = pos.length / 3;
+    for (let i = 0; i <= N; i++) { const t = i / N * Math.PI * 2, [x0, z0] = SE(t, A0 + o0, B0 + o0), [x1, z1] = SE(t, A0 + o1, B0 + o1);
+      pos.push(x0, yPrev, z0, x0, y0, z0, x1, y0, z1); }
+    for (let i = 0; i < N; i++) { const a = base + i * 3, b = a + 3; idx.push(a, b, a + 1, b, b + 1, a + 1, a + 1, b + 1, a + 2, b + 1, b + 2, a + 2); } }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+  const m = new THREE.Mesh(g, concrete); m.receiveShadow = true; m.castShadow = true; scene.add(m);
+  // outer wall + roof canopy
+  const wall = [], wi = [], o = rowOff(ROWS) + 0.5, yT = rowY(ROWS - 1) + 6;
+  for (let i = 0; i <= N; i++) { const t = i / N * Math.PI * 2, [x, z] = SE(t, A0 + o, B0 + o), [x2, z2] = SE(t, A0 + o - 16, B0 + o - 16); wall.push(x, 0, z, x, yT, z, x2, yT + 3, z2); }
+  for (let i = 0; i < N; i++) { const a = i * 3, b = a + 3; wi.push(a, b, a + 1, b, b + 1, a + 1, a + 1, b + 1, a + 2, b + 1, b + 2, a + 2); }
+  const wg = new THREE.BufferGeometry(); wg.setAttribute('position', new THREE.Float32BufferAttribute(wall, 3)); wg.setIndex(wi); wg.computeVertexNormals();
+  const roof = new THREE.Mesh(wg, new THREE.MeshStandardMaterial({ color: 0x2b3240, roughness: 0.6, metalness: 0.3, side: THREE.DoubleSide })); roof.castShadow = true; scene.add(roof);
+  // roof-edge floodlight strip
+  const lm = new THREE.MeshBasicMaterial({ color: 0xfff6e6, toneMapped: false }), lg = new THREE.BoxGeometry(2.2, 0.5, 0.6), LI = new THREE.InstancedMesh(lg, lm, 140), d = new THREE.Object3D();
+  for (let i = 0; i < 140; i++) { const t = i / 140 * Math.PI * 2, [x, z] = SE(t, A0 + o - 15.6, B0 + o - 15.6); d.position.set(x, yT + 2.6, z); d.lookAt(0, 0, 0); d.updateMatrix(); LI.setMatrixAt(i, d.matrix); } scene.add(LI);
+}
+/* seats */
+const seatSpots = [];
+for (let r = 0; r < ROWS; r++) { const o = rowOff(r) + STEP * 0.55, per = Math.round((2 * Math.PI * Math.sqrt(((A0 + o) ** 2 + (B0 + o) ** 2) / 2)) / 0.62);
+  for (let i = 0; i < per; i++) { const t = (i + 0.5) / per * Math.PI * 2; if ((i % 46) < 2) continue;   // aisles
+    const [x, z] = SE(t, A0 + o, B0 + o), [xa, za] = SE(t + 0.001, A0 + o, B0 + o); const tx = xa - x, tz = za - z, L = Math.hypot(tx, tz); seatSpots.push({ x, y: rowY(r), z, nx: tz / L, nz: -tx / L, r, t }); } }
+{ const sm = new THREE.InstancedMesh(new THREE.BoxGeometry(0.5, 0.42, 0.45), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 }), seatSpots.length), d = new THREE.Object3D(), c = new THREE.Color();
+  seatSpots.forEach((s, i) => { d.position.set(s.x, s.y + 0.21, s.z); d.rotation.set(0, Math.atan2(-s.nx, -s.nz), 0); d.updateMatrix(); sm.setMatrixAt(i, d.matrix); sm.setColorAt(i, c.setHex(s.r % 7 === 3 ? 0xd9e4f2 : 0x1d4fa8)); });
+  sm.receiveShadow = true; scene.add(sm); }
+
+/* ---------- people: head, hair, torso, arms, legs (stylised, never dots or capsules) ---------- */
+function geo(parts) {   // merge [geometry, matrix] parts into one non-indexed geometry
+  const P = [], N = []; parts.forEach(([g, m]) => { const q = g.toNonIndexed(); q.applyMatrix4(m); P.push(...q.attributes.position.array); N.push(...q.attributes.normal.array); });
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(N, 3)); return g; }
+const M = (x, y, z, rx = 0, ry = 0, rz = 0, s = 1) => new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)), new THREE.Vector3(s, s, s));
+const rbox = (w, h, d) => { const g = new THREE.BoxGeometry(w, h, d, 2, 2, 2), p = g.attributes.position, v = new THREE.Vector3();   // softly rounded box
+  for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); const k = 0.22, n = new THREE.Vector3(Math.sign(v.x) * w / 2, Math.sign(v.y) * h / 2, Math.sign(v.z) * d / 2); v.lerp(n.multiplyScalar(0.86), k); p.setXYZ(i, v.x, v.y, v.z); } g.computeVertexNormals(); return g; };
+const limb = (r0, r1, len) => new THREE.CylinderGeometry(r1, r0, len, 7, 1);
+const lathe = (pts, seg = 12) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), seg);
+const torsoG = (() => { const g = lathe([[0.001, 0.98], [0.16, 0.99], [0.175, 1.1], [0.17, 1.25], [0.19, 1.38], [0.205, 1.44], [0.17, 1.5], [0.07, 1.53], [0.001, 1.535]], 14); g.scale(1, 1, 0.62); return g; })();   // waist → chest → rounded shoulders
+const armG = (rot, side) => { const up = limb(0.048, 0.056, 0.3), lo = limb(0.04, 0.047, 0.28), hand = new THREE.SphereGeometry(0.045, 8, 6); return [up, lo, hand]; };
+function arm(side, sh, el) {   // side ±1; sh, el: [rx, rz] for shoulder and elbow
+  const S = new THREE.Matrix4().makeTranslation(side * 0.215, 1.43, 0).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(sh[0], 0, side * sh[1])));
+  const E = S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.29, 0)).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(el[0], 0, side * el[1])));
+  return [[limb(0.048, 0.056, 0.3), S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.15, 0))], [limb(0.04, 0.047, 0.27), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.135, 0))],
+          [new THREE.SphereGeometry(0.047, 8, 6), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.29, 0))]]; }
+const G = {
+  torso: geo([[torsoG, M(0, 0, 0)]]),
+  legs: geo([[lathe([[0.001, 0.86], [0.17, 0.92], [0.175, 1.0], [0.001, 1.0]], 12), M(0, 0, 0, 0, 0, 0)], [limb(0.07, 0.085, 0.47), M(-0.095, 0.69, 0)], [limb(0.07, 0.085, 0.47), M(0.095, 0.69, 0)],
+               [limb(0.055, 0.068, 0.44), M(-0.095, 0.24, 0)], [limb(0.055, 0.068, 0.44), M(0.095, 0.24, 0)], [rbox(0.11, 0.07, 0.25), M(-0.095, 0.035, 0.05)], [rbox(0.11, 0.07, 0.25), M(0.095, 0.035, 0.05)]]),
+  head: geo([[new THREE.SphereGeometry(0.105, 16, 12), M(0, 1.665, 0, 0, 0, 0)], [limb(0.042, 0.048, 0.1), M(0, 1.55, 0)], [new THREE.SphereGeometry(0.02, 6, 4), M(0, 1.655, 0.103)],   // head, neck, nose
+             [new THREE.SphereGeometry(0.022, 6, 4), M(-0.1, 1.665, 0)], [new THREE.SphereGeometry(0.022, 6, 4), M(0.1, 1.665, 0)]]),   // ears
+  eyes: geo([[new THREE.SphereGeometry(0.014, 6, 4), M(-0.036, 1.685, 0.094)], [new THREE.SphereGeometry(0.014, 6, 4), M(0.036, 1.685, 0.094)]]),
+  hair: geo([[new THREE.SphereGeometry(0.112, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), M(0, 1.675, -0.008, -0.32)], [new THREE.SphereGeometry(0.108, 12, 8, Math.PI * 0.15, Math.PI * 0.7, Math.PI * 0.35, Math.PI * 0.35), M(0, 1.665, -0.01, 0, Math.PI, 0)]]),
+  armsDown: geo([...arm(-1, [0, 0.1], [-0.15, 0]), ...arm(1, [0, 0.1], [-0.15, 0])]),
+  armsUp: geo([...arm(-1, [0.1, 2.75], [0, -0.25]), ...arm(1, [0.1, 2.75], [0, -0.25])]),
+  armPoint: geo([...arm(-1, [0, 0.1], [-0.15, 0]), ...arm(1, [-1.45, 0.25], [-0.1, 0])]),
+  armsHead: geo([...arm(-1, [-0.6, 0.55], [-2.2, 0]), ...arm(1, [-0.6, 0.55], [-2.2, 0])]),   // hands to the head (worry)
+};
+const SKIN = [0x8d5524, 0xc68642, 0xe0ac69, 0xf1c27d, 0x6b3e26, 0xa0663c, 0xd29b6c], HAIRC = [0x1b1410, 0x2c1b10, 0x4a2c18, 0x0e0e10, 0x7a5232, 0x3a3a3a], PANTS = [0x22252c, 0x2f3a52, 0x3a2f2a, 0x1c2a3a, 0x4a4f5a];
+const SHIRT = [0x1d4fa8, 0x1d4fa8, 0x2f6fe0, 0xe8edf4, 0xd8342c, 0xffffff, 0x1d4fa8, 0xf2c230, 0x3aa760, 0xe86a2c, 0x7b4fd6];
+class Crowd {   // one group of people drawn with instanced parts; per person: pose + colours
+  constructor(list, detail = 1) { this.list = list; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
+    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) { const m = new THREE.InstancedMesh(G[k], mat(k === 'head' ? 0.55 : k === 'eyes' ? 0.2 : 0.8), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scene.add(m); }
+    const c = new THREE.Color(); list.forEach((p, i) => { p.skin = p.skin ?? SKIN[(rnd() * SKIN.length) | 0]; p.shirt = p.shirt ?? SHIRT[(rnd() * SHIRT.length) | 0]; p.pants = PANTS[(rnd() * PANTS.length) | 0]; p.hairc = HAIRC[(rnd() * HAIRC.length) | 0]; p.h = 0.92 + rnd() * 0.16;
+      this.parts.torso.setColorAt(i, c.setHex(p.shirt)); this.parts.legs.setColorAt(i, c.setHex(p.pants)); this.parts.head.setColorAt(i, c.setHex(p.skin)); this.parts.hair.setColorAt(i, c.setHex(p.hairc)); this.parts.eyes.setColorAt(i, c.setHex(0x14100e));
+      for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead']) this.parts[k].setColorAt(i, c.setHex(p.shirt)); });
+    this.d = new THREE.Object3D(); this.hd = new THREE.Object3D(); this.zero = new THREE.Matrix4().makeScale(0, 0, 0); }
+  update(fn) {   // fn(p, i) → { pose, yaw, headYaw, headPitch, bob, tint }
+    const d = this.d, P = this.parts, hd = this.hd;
+    this.list.forEach((p, i) => { const s = fn(p, i); d.position.set(p.x, p.y + (s.bob || 0), p.z); d.rotation.set(0, p.yaw + (s.yaw || 0), 0); d.scale.setScalar(p.h); d.updateMatrix();
+      for (const k of ['torso', 'legs']) P[k].setMatrixAt(i, d.matrix);
+      for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead']) P[k].setMatrixAt(i, k === s.pose ? d.matrix : this.zero);
+      hd.position.set(0, 1.56, 0); hd.rotation.set(s.headPitch || 0, s.headYaw || 0, s.headRoll || 0); hd.updateMatrix();   // the head turns around the neck
+      const hm = d.matrix.clone().multiply(new THREE.Matrix4().makeTranslation(0, 1.56, 0)).multiply(new THREE.Matrix4().makeRotationFromEuler(hd.rotation)).multiply(new THREE.Matrix4().makeTranslation(0, -1.56, 0));
+      P.head.setMatrixAt(i, hm); P.hair.setMatrixAt(i, hm); P.eyes.setMatrixAt(i, hm); });
+    for (const k in P) { P[k].instanceMatrix.needsUpdate = true; if (P[k].instanceColor) P[k].instanceColor.needsUpdate = true; } }
+  tint(fn) { const c = new THREE.Color(); this.list.forEach((p, i) => { const t = fn(p, i); c.setHex(p.shirt); if (t) c.lerp(new THREE.Color(t[0]), t[1]); for (const k of ['torso', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) this.parts[k].setColorAt(i, c); }); }
+}
+// fans in the seats (stand in front of their seat, facing the pitch)
+const fans = seatSpots.filter(() => rnd() < 0.93).map(s => ({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, yaw: Math.atan2(-s.nx, -s.nz), r: s.r, t: s.t, ph: rnd() * 6.28, seed: rnd() }));
+const CROWD = new Crowd(fans);
+// stewards in hi-vis around the pitch (scene 5)
+const stewards = []; for (let i = 0; i < 26; i++) { const t = i / 26 * Math.PI * 2 + 0.1, [x, z] = SE(t, A0 - 4.5, B0 - 4.5); stewards.push({ x, y: 0, z, yaw: Math.atan2(x, z) + Math.PI, shirt: 0xd6ff2a, t }); }
+const STEW = new Crowd(stewards);
+STEW.parts.torso.material = STEW.parts.torso.material.clone(); STEW.parts.torso.material.emissive = new THREE.Color(0x3a4a00);
+
+/* ---------- scoreboard + the (fictional) electrical fault: smoke and sparks ---------- */
+const SB = new THREE.Group(); scene.add(SB);
+const sbC = document.createElement('canvas'); sbC.width = 1024; sbC.height = 384; const sbT = new THREE.CanvasTexture(sbC); sbT.encoding = THREE.sRGBEncoding;
+const sbM = new THREE.MeshBasicMaterial({ map: sbT, toneMapped: false });
+{ const frame = new THREE.Mesh(new THREE.BoxGeometry(34, 13, 1.6), new THREE.MeshStandardMaterial({ color: 0x15181f, roughness: 0.5, metalness: 0.4 })); SB.add(frame);
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(32, 11.4), sbM); scr.position.z = 0.82; SB.add(scr);
+  const leg = new THREE.Mesh(new THREE.BoxGeometry(1.2, 22, 1.2), frame.material); leg.position.set(-12, -15, -0.5); SB.add(leg); const leg2 = leg.clone(); leg2.position.x = 12; SB.add(leg2); }
+const sbY = rowY(ROWS - 1) + 14; SB.position.set(0, sbY, -(B0 + rowOff(ROWS) - 6)); SB.lookAt(0, sbY - 8, 0);
+function drawBoard(mode, k) { const x = sbC.getContext('2d'), w = sbC.width, h = sbC.height; x.fillStyle = '#05070b'; x.fillRect(0, 0, w, h);
+  if (mode === 'score') { x.fillStyle = '#ffffff'; x.font = '700 150px Sora, Arial'; x.textAlign = 'center'; x.fillText('2  –  1', w / 2, 210); x.font = '600 56px "IBM Plex Sans", Arial'; x.fillStyle = '#ffd35a'; x.fillText("78'", w / 2, 300);
+    x.fillStyle = '#9fc4ff'; x.font = '700 64px Sora'; x.fillText('HOME', 170, 200); x.fillText('AWAY', w - 170, 200); }
+  else if (mode === 'glitch') { for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(${200 + rnd() * 55},${rnd() * 80},${rnd() * 60},${rnd()})`; x.fillRect(rnd() * w, rnd() * h, rnd() * 300, 6 + rnd() * 30); } }
+  else if (mode === 'msg') { x.fillStyle = '#0a1a10'; x.fillRect(0, 0, w, h); x.fillStyle = '#ffffff'; x.textAlign = 'center'; x.font = '700 70px Sora, Arial'; x.fillText('PLEASE STAY CALM', w / 2, 150); x.font = '600 50px "IBM Plex Sans", Arial'; x.fillStyle = '#d6ff2a'; x.fillText('Follow the stewards in yellow', w / 2, 245); x.fillText('Use the exit nearest to you', w / 2, 310); }
+  sbT.needsUpdate = true; }
+function soft(stops) { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), g = x.createRadialGradient(64, 64, 0, 64, 64, 64); stops.forEach(([o, col]) => g.addColorStop(o, col)); x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); }
+const SMOKE_T = soft([[0, 'rgba(90,92,98,0.9)'], [0.5, 'rgba(70,72,78,0.45)'], [1, 'rgba(60,62,68,0)']]), SPARK_T = soft([[0, 'rgba(255,250,220,1)'], [0.3, 'rgba(255,170,60,0.8)'], [1, 'rgba(255,120,30,0)']]);
+const SMOKE = [], SPARKS = [];
+for (let i = 0; i < 70; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: SMOKE_T, transparent: true, depthWrite: false, opacity: 0 })); s.userData = { a: rnd(), dx: (rnd() - 0.5) * 8, sp: 0.6 + rnd() * 0.8, rot: rnd() * 6 }; scene.add(s); SMOKE.push(s); }
+for (let i = 0; i < 30; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: SPARK_T, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 })); s.userData = { a: rnd(), v: new THREE.Vector3((rnd() - 0.5) * 6, 2 + rnd() * 4, 2 + rnd() * 3) }; scene.add(s); SPARKS.push(s); }
+const SMOKE_O = SB.position.clone().add(new THREE.Vector3(10, -4, 4));
+function smoke(k, t) { SMOKE.forEach(s => { const u = s.userData, f = ((t * 0.12 * u.sp) + u.a) % 1, life = k * Math.sin(Math.PI * f); s.visible = life > 0.01;
+    s.position.copy(SMOKE_O).add(new THREE.Vector3(u.dx * (0.3 + f) + f * 6, f * 26, f * 3)); s.scale.setScalar(4 + f * 18); s.material.opacity = 0.75 * life; s.material.rotation = u.rot + f; });
+  SPARKS.forEach(s => { const u = s.userData, f = ((t * 0.9) + u.a) % 1, a = k * (1 - f) * (Math.sin(t * 13 + u.a * 20) > 0.2 ? 1 : 0.2); s.visible = a > 0.02;
+    s.position.copy(SMOKE_O).addScaledVector(u.v, f).add(new THREE.Vector3(0, -9 * f * f, 0)); s.scale.setScalar(0.8 + (1 - f)); s.material.opacity = a; }); }
+
+/* ---------- scene 3: crowd influence visualisation ---------- */
+const LINKS = new THREE.Group(); scene.add(LINKS);
+function buildLinks(center, count, col) { const near = fans.filter(p => Math.abs(p.t - center.t) < 0.05 && Math.abs(p.r - center.r) < 6).slice(0, count), g = new THREE.Group();
+  near.forEach(p => { const a = new THREE.Vector3(center.x, center.y + 1.75, center.z), b = new THREE.Vector3(p.x, p.y + 1.75, p.z), mid = a.clone().lerp(b, 0.5); mid.y += 1.2 + a.distanceTo(b) * 0.15;
+    const cv = new THREE.QuadraticBezierCurve3(a, mid, b), tg = new THREE.TubeGeometry(cv, 16, 0.035, 5, false);
+    const m = new THREE.Mesh(tg, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false })); m.userData.d = a.distanceTo(b); g.add(m); });
+  LINKS.add(g); return { g, near }; }
+
+/* ---------- camera helper ---------- */
+function shot(pos, tgt, fov = 34, focus = 60, ap = 0) { camera.fov = fov; camera.updateProjectionMatrix(); camera.position.copy(pos); camera.lookAt(tgt); BOKEH.uniforms.focus.value = focus; BOKEH.uniforms.aperture.value = ap; BOKEH.enabled = ap > 0; }
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const tTitle = (lines, k) => { $('title').innerHTML = lines.map(l => `<span class="ln">${l}</span>`).join(''); $('title').style.opacity = k; };
+const pick = (t, r) => fans.reduce((b, p) => Math.abs(p.t - t) + Math.abs(p.r - r) * 0.01 < Math.abs(b.t - t) + Math.abs(b.r - r) * 0.01 ? p : b, fans[0]);
+
+/* ---------- lighting moods ---------- */
+function mood(red, calm) { flood.intensity = lerp(1.25, 0.45, red) * lerp(1, 1.1, calm); flood2.intensity = lerp(0.45, 0.15, red); hemi.intensity = lerp(0.22, 0.14, red); hemi.color.setHex(red > 0.5 ? 0x8a4a52 : 0x5a6a8a);
+  redL.intensity = 3.2 * red * (0.85 + 0.15 * Math.sin(performance.now() * 0.01)); renderer.toneMappingExposure = lerp(0.95, 0.85, red); }
+
+/* ---------- stills (the Remotion build animates between these) ---------- */
+let LK = null;
+const STILLS = {
+  1: () => { mood(0.15, 0); drawBoard('glitch'); smoke(0.8, 3.2); CROWD.update(p => ({ pose: p.seed < 0.55 ? 'armsDown' : 'armsUp', headPitch: -0.1 }));
+    shot(V(95, 120, 150), V(0, 6, -10), 36); tTitle(['What happens', 'when a stadium <em>panics?</em>'], 1); $('sub').textContent = 'What happens when thousands of people panic'; },
+  2: () => { mood(0.35, 0); drawBoard('glitch'); smoke(1, 5); const c = pick(-Math.PI / 2 + 0.25, 4);
+    CROWD.update(p => { const near = Math.hypot(p.x - c.x, p.z - c.z) < 14; const s = p.seed; return { pose: !near ? (s < 0.8 ? 'armsDown' : 'armPoint') : (s < 0.3 ? 'armsHead' : s < 0.55 ? 'armPoint' : 'armsDown'), headYaw: near ? (s - 0.5) * 2.2 : (s - 0.5) * 0.8, headPitch: near ? (s < 0.5 ? 0.15 : -0.2) : -0.15 }; });
+    const P = V(c.x, c.y, c.z), n = V(-c.x, 0, -c.z).normalize(), tg = V(-n.z, 0, n.x); shot(P.clone().addScaledVector(n, 2.2).addScaledVector(tg, 5.5).add(V(0, 1.75, 0)), P.clone().add(V(0, 1.6, 0)), 28, 5.9, 0.0004);
+    tTitle([], 0); $('sub').textContent = 'Others wait, watching everyone around them'; },
+  3: () => { mood(0.25, 0); drawBoard('glitch'); smoke(0.7, 7); const c = pick(-Math.PI / 2 + 0.05, 9);
+    if (!LK) LK = [buildLinks(c, 14, 0xffb547), buildLinks(pick(-Math.PI / 2 + 0.12, 5), 10, 0x4fc3f7)];
+    LK.forEach(L => L.g.children.forEach(m => m.material.opacity = 0.9));
+    const hot = new Set(LK[0].near), cool = new Set(LK[1].near);
+    CROWD.tint(p => hot.has(p) ? [0xffb547, 0.75] : cool.has(p) ? [0x4fc3f7, 0.75] : [0x2a2f3a, 0.55]);   // groups glow, everyone else steps back
+    CROWD.update(p => ({ pose: hot.has(p) ? (p.seed < 0.5 ? 'armPoint' : 'armsDown') : 'armsDown', headYaw: hot.has(p) ? -0.6 : 0, headPitch: -0.1 }));
+    shot(V(c.x + 32, c.y + 26, c.z + 34), V(c.x, c.y + 2, c.z), 32); tTitle(['One reaction', '<em>spreads</em>'], 1); $('sub').textContent = 'One person’s reaction can influence the people nearby'; },
+  4: () => { mood(0.4, 0); drawBoard('glitch'); smoke(0.9, 9); CROWD.tint(() => null); LINKS.visible = false; const c = pick(-Math.PI / 2 + 0.25, 4);
+    CROWD.update(p => ({ pose: p.seed < 0.35 ? 'armsHead' : 'armsDown', headYaw: (p.seed - 0.5) * 1.6, headPitch: 0.1 }));
+    const P = V(c.x, c.y, c.z), n = V(-c.x, 0, -c.z).normalize(), tg = V(-n.z, 0, n.x); shot(P.clone().addScaledVector(n, 2.6).addScaledVector(tg, -4.2).add(V(0, 1.9, 0)), P.clone().add(V(0, 1.55, 0)), 28, 4.9, 0.0005);
+    tTitle([], 0); $('cA').style.opacity = 1; $('sub').textContent = 'Uncertainty, stress and social influence'; },
+  5: () => { mood(0, 1); drawBoard('msg'); smoke(0.25, 12); LINKS.visible = false; CROWD.tint(() => null);
+    CROWD.update(p => ({ pose: 'armsDown', headYaw: (p.seed - 0.5) * 0.4, headPitch: -0.05 }));
+    STEW.update(p => ({ pose: 'armPoint', yaw: 0 })); const s = stewards[19];
+    shot(V(s.x * 0.62, 10, s.z * 0.62 + 12), V(s.x, 2, s.z), 34, 24, 0.00012); tTitle(['Clear information', '<em>calms</em> a crowd'], 1); $('sub').textContent = 'That’s why clear communication matters'; },
+  6: () => { mood(0, 1); drawBoard('msg'); smoke(0, 0); CROWD.update(p => ({ pose: 'armsDown', headPitch: -0.1 })); STEW.update(() => ({ pose: 'armPoint' }));
+    shot(V(-150, 95, 170), V(0, 0, -5), 36); tTitle([], 0); $('sub').textContent = ''; },
+  7: () => { $('outro').style.opacity = 1; $('note').style.opacity = 0; $('sub').textContent = ''; },
+};
+function renderAt(t) { const k = Math.min(7, Math.max(1, Math.round(t)));
+  ['cA', 'cB', 'cC'].forEach(id => $(id).style.opacity = 0); $('outro').style.opacity = 0; $('note').style.opacity = 1; LINKS.visible = true; STEW.update(() => ({ pose: 'armsDown' }));
+  if (k < 5) STEW.list.forEach(() => {}), Object.values(STEW.parts).forEach(m => m.visible = k >= 5); else Object.values(STEW.parts).forEach(m => m.visible = true);
+  STILLS[k](); composer.render(); }
+window.__tour = { total: 8, renderAt }; window.__tourReady = () => true;
+})();
+</script>
+</body></html>
