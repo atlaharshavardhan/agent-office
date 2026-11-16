@@ -5,13 +5,14 @@ import { useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
+import { F, vfov, tr, clampX } from './frame';
 import { FONT } from '../lib/palette';
 import { winTex } from './Packets';
 import { Her } from './Flight';
 
 /* V4, 16:9: London, her new home. The river and its landmarks, then a street of brick terraced houses with bay windows,
    iron railings, a wet road and a red bus, then her at the bay window of her flat. Nothing here is reused from the Hyderabad street. */
-const W = 1920, H = 1080;
+
 export const LONDON_FRAMES = 420;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
@@ -125,13 +126,13 @@ const camAt = (t: number): Shot => {
   const p = V(lerp(SX - 16, SX + 5, a), lerp(2.6, 3.6, a), lerp(20, 18, a)).lerp(V(HX + 1.8, 5.4, 7.4), b), l = V(lerp(SX - 6, SX + 1, a), lerp(4.6, 4.4, a), 0).lerp(V(HX, 5.0, 0.6), b);
   return { p, l, fov: lerp(44, 34, b) };
 };
-const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = c.fov; cam.near = 0.1; cam.far = 900; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
+const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = vfov(c.fov); cam.near = 0.1; cam.far = 900; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
 
 export const London: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS, street = t >= T1, cut = clamp01(1 - Math.abs(t - T1) / 0.22);
   return (
     <AbsoluteFill style={{ background: '#070a22' }}>
-      <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 44, near: 0.1, far: 900 }}>
+      <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 44, near: 0.1, far: 900 }}>
         <Cam t={t} />
         <color attach="background" args={['#0b0e38']} />
         <fog attach="fog" args={['#141a52', street ? 26 : 70, street ? 150 : 320]} />
@@ -141,9 +142,9 @@ export const London: React.FC = () => {
         <EffectComposer><Bloom intensity={0.5} luminanceThreshold={0.86} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.75} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill style={{ background: '#03041a', opacity: cut }} />
-      <AbsoluteFill><svg width={W} height={H}>
-        <g opacity={seg(t, 0.5, 0.9) * (1 - seg(t, T1 - 0.7, T1 - 0.3))} transform="translate(120 890)"><text fill="#eef1ff" style={{ font: `800 60px ${FONT.ui}` }}>London</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>7,200 km from his balcony</text></g>
-        <g opacity={seg(t, 11.2, 11.7)} transform="translate(120 890)"><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Her new flat</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>waiting for his video</text></g>
+      <AbsoluteFill><svg width={F.W} height={F.H}>
+        <g opacity={seg(t, 0.5, 0.9) * (1 - seg(t, T1 - 0.7, T1 - 0.3))} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 60px ${FONT.ui}` }}>London</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>7,200 km from his balcony</text></g>
+        <g opacity={seg(t, 11.2, 11.7)} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Her new flat</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>waiting for his video</text></g>
       </svg></AbsoluteFill>
     </AbsoluteFill>
   );

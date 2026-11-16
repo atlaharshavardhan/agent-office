@@ -5,11 +5,12 @@ import { useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
+import { F, vfov, tr, clampX } from './frame';
 import { FONT } from '../lib/palette';
 
 /* V4 hero sequence, 16:9: a land fibre cable stripped open layer by layer, one glass fibre isolated,
    then the camera goes inside the glass core and rides with the light. Real 3D, frame-driven, no randomness. */
-export const W = 1920, H = 1080;
+
 export const FIBER_FRAMES = 780;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
@@ -61,7 +62,7 @@ export const inside = (t: number) => t >= T_IN && t < T_OUT;
 
 const Cam: React.FC<{ t: number }> = ({ t }) => {
   const { camera } = useThree();
-  useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = c.fov; cam.near = 0.01; cam.far = 900; cam.up.set(0, 1, 0); cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]);
+  useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = vfov(c.fov); cam.near = 0.01; cam.far = 900; cam.up.set(0, 1, 0); cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]);
   return null;
 };
 
@@ -191,9 +192,9 @@ const Ride: React.FC<{ t: number }> = ({ t }) => {
 };
 
 /* ---------- labels drawn over the picture, pinned to points in the 3D scene ---------- */
-const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(c.fov, W / H, 0.01, 900); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); cam.updateProjectionMatrix(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * W, (-q.y * 0.5 + 0.5) * H]; };
+const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.01, 900); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); cam.updateProjectionMatrix(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
 const Tag: React.FC<{ t: number; at: THREE.Vector3; text: string; sub?: string; a: number; b: number; dx?: number; dy?: number; col?: string }> = ({ t, at, text, sub, a, b, dx = 0, dy = -150, col = '#5fe3ff' }) => {
-  const o = seg(t, a, a + 0.4) * (1 - seg(t, b - 0.4, b)); if (o <= 0.001) return null; const [x, y] = project(t, at), w = Math.max(text.length * 19 + 44, (sub?.length ?? 0) * 11.5 + 44), lx = x + dx, ly = y + dy;
+  const o = seg(t, a, a + 0.4) * (1 - seg(t, b - 0.4, b)); if (o <= 0.001) return null; const [x, y] = project(t, at), w = Math.max(text.length * 19 + 44, (sub?.length ?? 0) * 11.5 + 44), lx = clampX(x + dx, w), ly = y + dy;
   return <g opacity={o}><line x1={x} y1={y} x2={lx} y2={ly + (dy < 0 ? 30 : -30)} stroke={col} strokeWidth={2.5} /><circle cx={x} cy={y} r={6} fill={col} stroke="#070a22" strokeWidth={2.5} />
     <g transform={`translate(${lx} ${ly})`}><rect x={-w / 2} y={-30} width={w} height={sub ? 76 : 56} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} />
       <text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>{text}</text>
@@ -208,7 +209,7 @@ export const FiberJourney: React.FC = () => {
   const heroTip = V(3.05, 0, 0.06);
   return (
     <AbsoluteFill style={{ background: COL.navy }}>
-      <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 30, near: 0.01, far: 900 }}>
+      <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 30, near: 0.01, far: 900 }}>
         <Cam t={t} />
         <color attach="background" args={[ins ? '#03051a' : '#0a0d2c']} />
         {!ins && <fog attach="fog" args={['#0a0d2c', 18, 70]} />}
@@ -221,7 +222,7 @@ export const FiberJourney: React.FC = () => {
         <EffectComposer><Bloom intensity={ins ? 0.7 : 0.6} luminanceThreshold={ins ? 0.75 : 0.8} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.72} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill style={{ background: '#d9f7ff', opacity: flash * 0.9 }} />
-      <AbsoluteFill><svg width={W} height={H}>
+      <AbsoluteFill><svg width={F.W} height={F.H}>
         {!ins && t < T_IN && <>
           <Tag t={t} at={V(-6.2, 1, 0)} text="OUTER JACKET" sub="keeps water and knocks out" a={4.4} b={9.4} dx={-60} />
           <Tag t={t} at={V(-4.5, 0.86, 0)} text="STRENGTH YARN" sub="takes the pull, not the glass" a={5.6} b={9.4} dx={10} dy={-210} />

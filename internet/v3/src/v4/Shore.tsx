@@ -5,13 +5,14 @@ import { useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
+import { F, vfov, tr, clampX } from './frame';
 import { FONT } from '../lib/palette';
 import { stripeTex } from './Fiber';
 import { winTex } from './Packets';
 
 /* V4, 16:9: the shore. The cable leaves the landing station, crosses the beach and goes into the sea, the city across the bay.
    The camera follows the amber light down the sand and under the water, ready to cut to the seabed. */
-const W = 1920, H = 1080;
+
 export const SHORE_FRAMES = 285;
 export const COAST_NAME = 'Mumbai coast';
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
@@ -31,7 +32,7 @@ const CAM: CK[] = [
   { t: 9.5, p: [-3, -1.6, -15], l: [0, -8, -38], fov: 50 },      // under the surface, following it down the slope
 ];
 const camAt = (t: number) => { let i = 0; while (i < CAM.length - 2 && t > CAM[i + 1].t) i++; const a = CAM[i], b = CAM[i + 1], u = smooth((t - a.t) / (b.t - a.t)); const L = (x: number[], y: number[]) => V(lerp(x[0], y[0], u), lerp(x[1], y[1], u), lerp(x[2], y[2], u)); return { p: L(a.p, b.p), l: L(a.l, b.l), fov: lerp(a.fov, b.fov, u) }; };
-const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = c.fov; cam.near = 0.05; cam.far = 500; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
+const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = vfov(c.fov); cam.near = 0.05; cam.far = 500; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
 
 const Beach: React.FC = () => { const geo = useMemo(() => { const g = new THREE.PlaneGeometry(160, 130, 120, 110); g.rotateX(-Math.PI / 2); g.translate(0, 0, -35); const p = g.attributes.position; for (let i = 0; i < p.count; i++) p.setY(i, sand(p.getX(i), p.getZ(i))); g.computeVertexNormals(); return g; }, []);
   const rock = useMemo(() => new THREE.IcosahedronGeometry(1, 1), []);
@@ -83,7 +84,7 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
       <pointLight color="#ffb454" intensity={260 * on} distance={46} decay={1.35} position={[0, 1.6, 0]} />
     </group>}
   </group>; };
-const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(c.fov, W / H, 0.05, 500); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * W, (-q.y * 0.5 + 0.5) * H]; };
+const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.05, 500); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
 const Box: React.FC<{ x: number; y: number; o: number; text: string; sub?: string; col?: string }> = ({ x, y, o, text, sub, col = '#5fe3ff' }) => { const ww = Math.max(text.length * 19 + 44, (sub?.length ?? 0) * 11.5 + 44);
   return <g opacity={o} transform={`translate(${x} ${y})`}><rect x={-ww / 2} y={-30} width={ww} height={sub ? 76 : 56} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>{text}</text>{sub && <text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>{sub}</text>}</g>; };
 
@@ -93,7 +94,7 @@ export const Shore: React.FC = () => {
   const bg = under > 0.5 ? '#08124a' : '#0a0d34';
   return (
     <AbsoluteFill style={{ background: '#070a22' }}>
-      <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 42, near: 0.05, far: 500 }}>
+      <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 42, near: 0.05, far: 500 }}>
         <Cam t={t} />
         <color attach="background" args={[bg]} />
         <fog attach="fog" args={[under > 0.5 ? '#0a1654' : '#0c1040', under > 0.5 ? 6 : 40, under > 0.5 ? 70 : 330]} />
@@ -106,9 +107,9 @@ export const Shore: React.FC = () => {
         <EffectComposer><Bloom intensity={0.5} luminanceThreshold={0.86} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.75} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill style={{ background: '#0a1e6a', opacity: under * 0.22 }} />
-      <AbsoluteFill><svg width={W} height={H}>
+      <AbsoluteFill><svg width={F.W} height={F.H}>
         <g opacity={stO}><line x1={sx} y1={sy} x2={sx - 40} y2={sy - 90} stroke="#5fe3ff" strokeWidth={2.5} /><Box x={sx - 60} y={sy - 122} o={1} text="CABLE LANDING STATION" sub="where land cables meet the sea cable" /></g>
-        <g opacity={seg(t, 0.4, 0.8) * (1 - seg(t, 5.6, 6.1))} transform="translate(120 880)"><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>{COAST_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>the cable goes into the sea</text></g>
+        <g opacity={seg(t, 0.4, 0.8) * (1 - seg(t, 5.6, 6.1))} transform={tr(120, 880)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>{COAST_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>the cable goes into the sea</text></g>
       </svg></AbsoluteFill>
     </AbsoluteFill>
   );

@@ -6,6 +6,7 @@ import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { geoInterpolate } from 'd3-geo';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
+import { F, vfov, tr, clampX } from './frame';
 import { FONT } from '../lib/palette';
 import { winTex } from './Packets';
 import { earthTex, atmoMat, ll, R } from './Planet';
@@ -13,7 +14,7 @@ import { MUMBAI, LONDON, LL } from '../tail/Globe';
 
 /* V4, 16:9: she flies to London. Three shots: she walks to her gate, the plane takes off, then her route across the globe.
    Her journey is drawn as a white dashed arc in the air, so it never looks like the amber data route under the sea. */
-const W = 1920, H = 1080;
+
 export const FLIGHT_FRAMES = 510;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
@@ -98,7 +99,7 @@ const camAt = (t: number): Shot => {
   if (t < T3) { const u = (t - T2) / (T3 - T2); return { p: V(lerp(-12, -8, u), 62.9, lerp(13, 10, u)), l: V(1.0, 62.1, 0), fov: 36 }; }
   const u = seg(t, T3, T3 + 5.4), mid = FL(lerp(0.3, 0.86, u)) as LL; return { p: ll([mid[0] + lerp(12, 4, u), mid[1] - lerp(20, 8, u)], lerp(27, 15.5, u)), l: ll(FL(lerp(0.45, 0.98, u)) as LL, R * 0.6), fov: 40 };
 };
-const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = c.fov; cam.near = 0.1; cam.far = 900; cam.up.set(0, 1, 0); cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
+const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = vfov(c.fov); cam.near = 0.1; cam.far = 900; cam.up.set(0, 1, 0); cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
 
 const GlobeShot: React.FC<{ t: number }> = ({ t }) => { const tex = useMemo(earthTex, []), atmo = useMemo(atmoMat, []), u = flightU(t);
   const dashes = useMemo(() => Array.from({ length: 70 }).map((_, i) => i / 70), []);
@@ -112,7 +113,7 @@ const GlobeShot: React.FC<{ t: number }> = ({ t }) => { const tex = useMemo(eart
     {Array.from({ length: 200 }).map((_, i) => { const a = hash(i) * 6.283, b = Math.acos(2 * hash(i + 7) - 1); return <mesh key={i} position={[300 * Math.sin(b) * Math.cos(a), 300 * Math.cos(b), 300 * Math.sin(b) * Math.sin(a)]}><sphereGeometry args={[0.3 + hash(i + 3) * 0.5, 6, 6]} /><meshBasicMaterial color="#cfd6ff" fog={false} /></mesh>; })}
   </group>; };
 
-const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(c.fov, W / H, 0.1, 900); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * W, (-q.y * 0.5 + 0.5) * H]; };
+const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.1, 900); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
 const Label: React.FC<{ x: number; y: number; o: number; text: string; col: string }> = ({ x, y, o, text, col }) => { const w = text.length * 20 + 40; return <g opacity={o} transform={`translate(${x} ${y})`}><rect x={-w / 2} y={-26} width={w} height={52} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} /><text y={10} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.08em' }}>{text}</text></g>; };
 
 export const Flight: React.FC = () => {
@@ -121,7 +122,7 @@ export const Flight: React.FC = () => {
   const [mx, my] = project(t, ll(MUMBAI, R * 1.01)), [lx, ly] = project(t, ll(LONDON, R * 1.01));
   return (
     <AbsoluteFill style={{ background: '#03041a' }}>
-      <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 38, near: 0.1, far: 900 }}>
+      <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 38, near: 0.1, far: 900 }}>
         <Cam t={t} />
         <color attach="background" args={[globe ? '#03041a' : air ? '#0c1250' : '#0a0d34']} />
         {!globe && <fog attach="fog" args={[air ? '#0c1250' : '#0c1040', 40, air ? 220 : 300]} />}
@@ -134,10 +135,10 @@ export const Flight: React.FC = () => {
         <EffectComposer><Bloom intensity={0.5} luminanceThreshold={0.86} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.75} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill style={{ background: '#03041a', opacity: clamp01(cut) }} />
-      <AbsoluteFill><svg width={W} height={H}>
-        <g opacity={seg(t, 0.4, 0.8) * (1 - seg(t, T1 - 0.6, T1 - 0.2))} transform="translate(120 890)"><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Mumbai airport</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>she is moving to London</text></g>
+      <AbsoluteFill><svg width={F.W} height={F.H}>
+        <g opacity={seg(t, 0.4, 0.8) * (1 - seg(t, T1 - 0.6, T1 - 0.2))} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Mumbai airport</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>she is moving to London</text></g>
         {globe && <><Label x={mx + 90} y={my + 70} o={seg(t, T3 + 0.3, T3 + 0.7)} text="MUMBAI" col="#ffe08a" /><Label x={lx - 110} y={ly - 70} o={seg(t, T3 + 2.4, T3 + 2.8)} text="LONDON" col="#ff9c8a" />
-          <g opacity={seg(t, T3 + 1.0, T3 + 1.5)} transform="translate(120 870)"><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Her flight: about 9 hours</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>7,200 km through the air</text></g></>}
+          <g opacity={seg(t, T3 + 1.0, T3 + 1.5)} transform={tr(120, 870)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Her flight: about 9 hours</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>7,200 km through the air</text></g></>}
       </svg></AbsoluteFill>
     </AbsoluteFill>
   );

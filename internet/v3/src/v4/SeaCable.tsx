@@ -5,12 +5,13 @@ import { useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
+import { F, vfov, tr, clampX } from './frame';
 import { FONT } from '../lib/palette';
 import { stripeTex, pulseMat } from './Fiber';
 
 /* V4, 16:9: how thin the undersea cable is, and what is inside it.
    First the cable beside a garden hose, then its layers slide out one after another, ending on the glass fibres. */
-const W = 1920, H = 1080;
+
 export const SEACABLE_FRAMES = 450;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
@@ -28,7 +29,7 @@ const CAM: CK[] = [
   { t: 15.2, p: P(9.2, 0.8, 4.0), l: P(8.8, 0, 0), fov: 30 },
 ];
 const camAt = (t: number) => { let i = 0; while (i < CAM.length - 2 && t > CAM[i + 1].t) i++; const a = CAM[i], b = CAM[i + 1], u = smooth((t - a.t) / (b.t - a.t)); const L = (x: number[], y: number[]) => V(lerp(x[0], y[0], u), lerp(x[1], y[1], u), lerp(x[2], y[2], u)); return { p: L(a.p, b.p), l: L(a.l, b.l), fov: lerp(a.fov, b.fov, u) }; };
-const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = c.fov; cam.near = 0.05; cam.far = 300; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
+const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = vfov(c.fov); cam.near = 0.05; cam.far = 300; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
 
 const Cyl: React.FC<{ r: number; x0: number; x1: number; children?: React.ReactNode; sg?: number }> = ({ r, x0, x1, children, sg = 40 }) => x1 - x0 < 0.001 ? null : <mesh position={[(x0 + x1) / 2, 0, 0]} rotation-z={Math.PI / 2}><cylinderGeometry args={[r, r, x1 - x0, sg]} />{children}</mesh>;
 const Ring: React.FC<{ r: number; wire: number; n: number; x0: number; x1: number; col: string }> = ({ r, wire, n, x0, x1, col }) => x1 - x0 < 0.001 ? null : <>{Array.from({ length: n }).map((_, k) => <mesh key={k} position={[(x0 + x1) / 2, Math.cos((k / n) * 6.283) * r, Math.sin((k / n) * 6.283) * r]} rotation-z={Math.PI / 2}><cylinderGeometry args={[wire, wire, x1 - x0, 10]} /><meshStandardMaterial color={col} roughness={0.3} metalness={0.5} /></mesh>)}</>;
@@ -71,9 +72,9 @@ const Floor: React.FC = () => { const rock = useMemo(() => new THREE.Icosahedron
   return <group><mesh position={[4, 2, -9]}><planeGeometry args={[150, 90]} /><meshStandardMaterial color="#2e3190" roughness={0.95} bumpMap={rip} bumpScale={1.4} /></mesh>
     {Array.from({ length: 70 }).map((_, i) => { const x = -40 + hash(i) * 90, y = -22 + hash(i + 5) * 50, s = 0.2 + hash(i + 9) ** 3 * 1.6; return <mesh key={i} geometry={rock} position={[x, y, -8.8]} scale={[s * 1.4, s, s * 0.5]} rotation={[hash(i + 2) * 3, hash(i + 4) * 3, 0]}><meshStandardMaterial color="#1b1e5e" roughness={0.9} flatShading /></mesh>; })}</group>; };
 
-const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(c.fov, W / H, 0.05, 300); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * W, (-q.y * 0.5 + 0.5) * H]; };
+const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.05, 300); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
 const Tag: React.FC<{ t: number; at: THREE.Vector3; text: string; sub?: string; a: number; b: number; dx: number; dy: number; col?: string }> = ({ t, at, text, sub, a, b, dx, dy, col = '#5fe3ff' }) => {
-  const o = seg(t, a, a + 0.4) * (1 - seg(t, b - 0.4, b)); if (o <= 0.001) return null; const [x, y] = project(t, at), w = Math.max(text.length * 19 + 44, (sub?.length ?? 0) * 11.5 + 44), lx = x + dx, ly = y + dy;
+  const o = seg(t, a, a + 0.4) * (1 - seg(t, b - 0.4, b)); if (o <= 0.001) return null; const [x, y] = project(t, at), w = Math.max(text.length * 19 + 44, (sub?.length ?? 0) * 11.5 + 44), lx = clampX(x + dx, w), ly = y + dy;
   return <g opacity={o}><line x1={x} y1={y} x2={lx} y2={ly + (dy < 0 ? 30 : -30)} stroke={col} strokeWidth={2.5} /><circle cx={x} cy={y} r={6} fill={col} stroke="#070a22" strokeWidth={2.5} />
     <g transform={`translate(${lx} ${ly})`}><rect x={-w / 2} y={-30} width={w} height={sub ? 76 : 56} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>{text}</text>{sub && <text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>{sub}</text>}</g></g>; };
 
@@ -81,7 +82,7 @@ export const SeaCable: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS, o = OUT(t);
   return (
     <AbsoluteFill style={{ background: '#070a22' }}>
-      <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 36, near: 0.05, far: 300 }}>
+      <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 36, near: 0.05, far: 300 }}>
         <Cam t={t} />
         <color attach="background" args={['#0a1040']} />
         <fog attach="fog" args={['#0d1650', 16, 70]} />
@@ -91,7 +92,7 @@ export const SeaCable: React.FC = () => {
         <Floor /><Cable t={t} /><Hose t={t} />
         <EffectComposer><Bloom intensity={0.5} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.75} /></EffectComposer>
       </ThreeCanvas>
-      <AbsoluteFill><svg width={W} height={H}>
+      <AbsoluteFill><svg width={F.W} height={F.H}>
         <Tag t={t} at={along(-5, 1, 0)} text="UNDERSEA CABLE" sub="deep sea: about 2 cm thick" a={0.6} b={4.0} dx={-150} dy={-190} />
         <Tag t={t} at={along(-0.5, -3.4, 0.4)} text="GARDEN HOSE" sub="about the same thickness" a={1.4} b={3.7} dx={330} dy={-40} col="#7dffb0" />
         <Tag t={t} at={along(-3, 1, 0)} text="STEEL WIRES" sub="armour against anchors and nets" a={4.8} b={9.6} dx={-170} dy={-190} />

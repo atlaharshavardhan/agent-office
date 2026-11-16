@@ -5,13 +5,14 @@ import { useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
+import { F, vfov, tr, clampX } from './frame';
 import { FONT } from '../lib/palette';
 import { glassMat, pulseMat } from './Fiber';
 import { winTex, Tower, TOWER } from './Packets';
 
 /* V4, 16:9: from the cell tower the packets go down into a fibre optic cable under the street.
    The ground is cut open like a slice of cake: street and houses on top, soil and stones below, the glass cable running through. */
-const W = 1920, H = 1080;
+
 export const UNDER_FRAMES = 270;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
@@ -27,7 +28,7 @@ const CAM: CK[] = [
   { t: 9, p: [34, -2.4, 10], l: [37, CY, 0], fov: 38 },
 ];
 const camAt = (t: number) => { let i = 0; while (i < CAM.length - 2 && t > CAM[i + 1].t) i++; const a = CAM[i], b = CAM[i + 1], u = smooth((t - a.t) / (b.t - a.t)); const L = (x: number[], y: number[]) => V(lerp(x[0], y[0], u), lerp(x[1], y[1], u), lerp(x[2], y[2], u)); return { p: L(a.p, b.p), l: L(a.l, b.l), fov: lerp(a.fov, b.fov, u) }; };
-const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = c.fov; cam.near = 0.05; cam.far = 400; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
+const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = vfov(c.fov); cam.near = 0.05; cam.far = 400; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
 /* where the amber light is: down the tower feed first, then along the cable just ahead of where the camera looks, so it never leaves the frame */
 const H0 = V(TX + 2.2, CY, CZ);
 const lightP = (t: number) => { if (t < 2.9) { const u = clamp01((t - 0.9) / 2.0); return PATH.getPointAt(lerp(0.01, 0.068, u)); } const x = lerp(H0.x, camAt(t).l.x + 1.5, seg(t, 2.9, 4.2)); return V(Math.max(H0.x, x), CY, CZ); };
@@ -79,14 +80,14 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
     </group>}
   </group>;
 };
-const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(c.fov, W / H, 0.05, 400); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * W, (-q.y * 0.5 + 0.5) * H]; };
+const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.05, 400); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
 
 export const Underground: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS;
   const o = seg(t, 4.4, 4.9) * (1 - seg(t, 8.3, 8.8)), [x, y] = project(t, lightP(t).add(V(-3.4, 0, 0)));
   return (
     <AbsoluteFill style={{ background: '#070a22' }}>
-      <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 40, near: 0.05, far: 400 }}>
+      <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 40, near: 0.05, far: 400 }}>
         <Cam t={t} />
         <color attach="background" args={['#0a0d34']} />
         <fog attach="fog" args={['#0c1040', 26, 110]} />
@@ -96,9 +97,9 @@ export const Underground: React.FC = () => {
         <group position={[TX - TOWER.x, 4.5 + 0.44, -9.5 - TOWER.z]}><Tower t={t + 6.2} /></group>
         <EffectComposer><Bloom intensity={0.5} luminanceThreshold={0.86} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.75} /></EffectComposer>
       </ThreeCanvas>
-      <AbsoluteFill><svg width={W} height={H}>
+      <AbsoluteFill><svg width={F.W} height={F.H}>
         <g opacity={o}><line x1={x} y1={y + 26} x2={x - 70} y2={y + 130} stroke="#5fe3ff" strokeWidth={2.5} /><circle cx={x} cy={y + 26} r={6} fill="#5fe3ff" stroke="#070a22" strokeWidth={2.5} />
-          <g transform={`translate(${x - 90} ${y + 160})`}><rect x={-200} y={-30} width={400} height={76} rx={12} fill="#0e1430" fillOpacity={0.92} stroke="#5fe3ff" strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>FIBRE OPTIC CABLE</text><text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>under the street, the data is light</text></g></g>
+          <g transform={`translate(${clampX(x - 90, 400)} ${y + 160})`}><rect x={-200} y={-30} width={400} height={76} rx={12} fill="#0e1430" fillOpacity={0.92} stroke="#5fe3ff" strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>FIBRE OPTIC CABLE</text><text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>under the street, the data is light</text></g></g>
       </svg></AbsoluteFill>
     </AbsoluteFill>
   );

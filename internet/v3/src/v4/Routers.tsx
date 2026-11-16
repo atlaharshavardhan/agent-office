@@ -5,11 +5,12 @@ import { useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
+import { F, vfov, tr, clampX } from './frame';
 import { FONT } from '../lib/palette';
 
 /* V4, 16:9: the router. Close on one router rack as our amber packet comes in on one cable and leaves on another,
    then wide: many routers joined by cables, the packet handed from one to the next, a busy link avoided. */
-const W = 1920, H = 1080;
+
 export const ROUTERS_FRAMES = 360;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
@@ -40,7 +41,7 @@ const CAM: CK[] = [
   { t: 12, p: [4, 17, 12], l: [34, 0, -38], fov: 44 },                  // drift after the packet
 ];
 const camAt = (t: number) => { let i = 0; while (i < CAM.length - 2 && t > CAM[i + 1].t) i++; const a = CAM[i], b = CAM[i + 1], u = smooth((t - a.t) / (b.t - a.t)); const L = (x: number[], y: number[]) => V(lerp(x[0], y[0], u), lerp(x[1], y[1], u), lerp(x[2], y[2], u)); return { p: L(a.p, b.p), l: L(a.l, b.l), fov: lerp(a.fov, b.fov, u) }; };
-const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = c.fov; cam.near = 0.05; cam.far = 500; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
+const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = vfov(c.fov); cam.near = 0.05; cam.far = 500; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
 
 /* ---------- the hero rack ---------- */
 const UNITS = 8, UH = 0.5, U0 = 0.9;      // unit count, height, y of the lowest
@@ -93,7 +94,7 @@ const Net: React.FC<{ t: number }> = ({ t }) => {
   </group>;
 };
 
-const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(c.fov, W / H, 0.05, 500); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * W, (-q.y * 0.5 + 0.5) * H]; };
+const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.05, 500); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
 const Box: React.FC<{ x: number; y: number; o: number; text: string; sub?: string; col?: string; w?: number }> = ({ x, y, o, text, sub, col = '#5fe3ff', w }) => { const ww = w ?? Math.max(text.length * 19 + 44, (sub?.length ?? 0) * 11.5 + 44);
   return <g opacity={o} transform={`translate(${x} ${y})`}><rect x={-ww / 2} y={-30} width={ww} height={sub ? 76 : 56} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>{text}</text>{sub && <text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>{sub}</text>}</g>; };
 
@@ -103,7 +104,7 @@ export const Routers: React.FC = () => {
   const tBusy = T_GO + HOP * 2, bm = linkCurve(BUSY[0], BUSY[1]).getPointAt(0.45), [bx, by] = project(t, V(bm.x, 0.6, bm.z)), busyO = seg(t, tBusy - 0.3, tBusy) * (1 - seg(t, tBusy + 1.0, tBusy + 1.4));
   return (
     <AbsoluteFill style={{ background: '#070a22' }}>
-      <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 36, near: 0.05, far: 500 }}>
+      <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 36, near: 0.05, far: 500 }}>
         <Cam t={t} />
         <color attach="background" args={['#080b2c']} />
         <fog attach="fog" args={['#0a0d38', 30, 150]} />
@@ -112,12 +113,12 @@ export const Routers: React.FC = () => {
         <Rack t={t} /><Net t={t} />
         <EffectComposer><Bloom intensity={0.55} luminanceThreshold={0.84} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.78} /></EffectComposer>
       </ThreeCanvas>
-      <AbsoluteFill><svg width={W} height={H}>
-        <Box x={1440} y={250} o={seg(t, 0.5, 0.9) * (1 - seg(t, 4.0, 4.5))} text="ROUTER" sub="reads the address on each packet" />
-        <Box x={1440} y={370} o={seg(t, 2.3, 2.6) * (1 - seg(t, 4.0, 4.5))} text="TO: HER · LONDON" sub="so it picks the cable that leads there" col="#ffb454" />
+      <AbsoluteFill><svg width={F.W} height={F.H}>
+        <Box x={F.v ? 540 : 1440} y={F.v ? 300 : 250} o={seg(t, 0.5, 0.9) * (1 - seg(t, 4.0, 4.5))} text="ROUTER" sub="reads the address on each packet" />
+        <Box x={F.v ? 540 : 1440} y={F.v ? 400 : 370} o={seg(t, 2.3, 2.6) * (1 - seg(t, 4.0, 4.5))} text="TO: HER · LONDON" sub="so it picks the cable that leads there" col="#ffb454" />
         <g opacity={tagO}><line x1={px} y1={py - 14} x2={px + 60} y2={py - 96} stroke="#ffb454" strokeWidth={2.5} /><g transform={`translate(${px + 120} ${py - 150})`}><rect x={-112} y={-34} width={224} height={84} rx={12} fill="#ffb454" /><rect x={-112} y={-34} width={224} height={26} rx={12} fill="#7a4a08" /><text x={-98} y={-15} fill="#ffe6b8" style={{ font: `700 15px ${FONT.mono}` }}>TO: HER · LONDON</text><text y={34} textAnchor="middle" fill="#07102c" style={{ font: `800 46px ${FONT.ui}` }}>#0004</text></g></g>
         <g opacity={busyO}><line x1={bx} y1={by + 14} x2={bx - 50} y2={by + 100} stroke="#ff5a4a" strokeWidth={2.5} /><Box x={bx - 70} y={by + 132} o={1} text="BUSY" sub="so the router sends it another way" col="#ff5a4a" /></g>
-        <g opacity={seg(t, 5.6, 6.1) * (1 - seg(t, 11.3, 11.8))} transform="translate(120 150)"><text fill="#eef1ff" style={{ font: `800 50px ${FONT.ui}` }}>Router to router</text><text y={44} fill="#5fe3ff" style={{ font: `500 28px ${FONT.mono}` }}>each one only knows the next step</text></g>
+        <g opacity={seg(t, 5.6, 6.1) * (1 - seg(t, 11.3, 11.8))} transform={tr(120, 150)}><text fill="#eef1ff" style={{ font: `800 50px ${FONT.ui}` }}>Router to router</text><text y={44} fill="#5fe3ff" style={{ font: `500 28px ${FONT.mono}` }}>each one only knows the next step</text></g>
       </svg></AbsoluteFill>
     </AbsoluteFill>
   );

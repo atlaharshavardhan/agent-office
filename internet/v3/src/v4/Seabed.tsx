@@ -5,12 +5,13 @@ import { useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
+import { F, vfov, tr, clampX } from './frame';
 import { FONT } from '../lib/palette';
 import { glassMat, pulseMat, stripeTex } from './Fiber';
 
 /* V4, 16:9: the submarine cable on the seabed. Low tracking shot, light racing to the horizon,
    then a see-through section showing the glass fibres and the light inside. Real 3D, frame-driven. */
-const W = 1920, H = 1080;
+
 export const SEABED_FRAMES = 294;
 export const SEA_NAME = 'Arabian Sea', SEA_DEPTH = 'about 3,000 m down';
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
@@ -53,7 +54,7 @@ const camAt = (t: number) => {
 };
 const camX = (t: number) => { let i = 0; while (i < KEYS.length - 2 && t > KEYS[i + 1].t) i++; const a = KEYS[i], b = KEYS[i + 1]; return lerp(a.x, b.x, smooth((t - a.t) / (b.t - a.t))); };
 const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree();
-  useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = c.fov; cam.near = 0.05; cam.far = 600; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
+  useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = vfov(c.fov); cam.near = 0.05; cam.far = 600; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
 
 /* ---------- set ---------- */
 const Terrain: React.FC = () => {
@@ -154,9 +155,9 @@ const Repeater: React.FC<{ t: number; idle?: boolean }> = ({ t, idle }) => {
 };
 
 /* ---------- words over the picture ---------- */
-const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(c.fov, W / H, 0.05, 600); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * W, (-q.y * 0.5 + 0.5) * H]; };
+const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.05, 600); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
 const Tag: React.FC<{ t: number; at: THREE.Vector3; text: string; sub?: string; a: number; b: number; dx: number; dy: number; col?: string }> = ({ t, at, text, sub, a, b, dx, dy, col = '#5fe3ff' }) => {
-  const o = seg(t, a, a + 0.4) * (1 - seg(t, b - 0.4, b)); if (o <= 0.001) return null; const [x, y] = project(t, at), w = Math.max(text.length * 19 + 44, (sub?.length ?? 0) * 11.5 + 44), lx = x + dx, ly = y + dy;
+  const o = seg(t, a, a + 0.4) * (1 - seg(t, b - 0.4, b)); if (o <= 0.001) return null; const [x, y] = project(t, at), w = Math.max(text.length * 19 + 44, (sub?.length ?? 0) * 11.5 + 44), lx = clampX(x + dx, w), ly = y + dy;
   return <g opacity={o}><line x1={x} y1={y} x2={lx} y2={ly + (dy < 0 ? 30 : -30)} stroke={col} strokeWidth={2.5} /><circle cx={x} cy={y} r={6} fill={col} stroke="#070a22" strokeWidth={2.5} />
     <g transform={`translate(${lx} ${ly})`}><rect x={-w / 2} y={-30} width={w} height={sub ? 76 : 56} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} />
       <text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>{text}</text>
@@ -170,7 +171,7 @@ export const Seabed: React.FC = () => {
   const mid = (x: number, dy = 0) => { const p = cablePt(x); p.y += dy; return p; };
   return (
     <AbsoluteFill style={{ background: '#050720' }}>
-      <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 40, near: 0.05, far: 600 }}>
+      <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 40, near: 0.05, far: 600 }}>
         <Cam t={t} />
         <color attach="background" args={['#0a1040']} />
         <fog attach="fog" args={['#0d1650', 10, 135]} />
@@ -180,9 +181,9 @@ export const Seabed: React.FC = () => {
         <Terrain /><Rocks /><Life t={t} /><Shafts t={t} /><Snow t={t} /><Cable t={t} /><Repeater t={t} idle />
         <EffectComposer><Bloom intensity={0.45} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.2} darkness={0.8} /></EffectComposer>
       </ThreeCanvas>
-      <AbsoluteFill><svg width={W} height={H}>
-        <g opacity={place} transform="translate(120 820)"><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>{SEA_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>{SEA_DEPTH}</text></g>
-        <g opacity={num} transform="translate(960 250)"><text textAnchor="middle" fill="#ffc94a" style={{ font: `800 170px ${FONT.ui}`, letterSpacing: '0.01em', filter: 'drop-shadow(0 0 26px rgba(255,180,60,.55))' }}>{count.toLocaleString('en-US')}<tspan dx={18} style={{ font: `800 62px ${FONT.ui}` }}>km/s</tspan></text>
+      <AbsoluteFill><svg width={F.W} height={F.H}>
+        <g opacity={place} transform={tr(120, 820)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>{SEA_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>{SEA_DEPTH}</text></g>
+        <g opacity={num} transform={tr(960, 250)}><text textAnchor="middle" fill="#ffc94a" style={{ font: `800 170px ${FONT.ui}`, letterSpacing: '0.01em', filter: 'drop-shadow(0 0 26px rgba(255,180,60,.55))' }}>{count.toLocaleString('en-US')}<tspan dx={18} style={{ font: `800 62px ${FONT.ui}` }}>km/s</tspan></text>
           <text y={70} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 30px ${FONT.mono}` }}>light in glass: about two thirds of its speed in space</text></g>
       </svg></AbsoluteFill>
     </AbsoluteFill>
@@ -196,7 +197,7 @@ export const SeabedRepeater: React.FC = () => {
   const top = cablePt(RX); top.y += 1.0;
   return (
     <AbsoluteFill style={{ background: '#050720' }}>
-      <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 40, near: 0.05, far: 600 }}>
+      <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 40, near: 0.05, far: 600 }}>
         <Cam t={t} />
         <color attach="background" args={['#0a1040']} />
         <fog attach="fog" args={['#0d1650', 10, 135]} />
@@ -206,7 +207,7 @@ export const SeabedRepeater: React.FC = () => {
         <Terrain /><Rocks /><Shafts t={t} /><Snow t={t} /><Cable t={t} rep /><Repeater t={t} />
         <EffectComposer><Bloom intensity={0.45} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.2} darkness={0.8} /></EffectComposer>
       </ThreeCanvas>
-      <AbsoluteFill><svg width={W} height={H}>
+      <AbsoluteFill><svg width={F.W} height={F.H}>
         <Tag t={t} at={top} text="REPEATER" sub="one every 60 to 100 km" a={1.2} b={7.4} dx={-40} dy={-170} />
       </svg></AbsoluteFill>
     </AbsoluteFill>

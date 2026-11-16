@@ -9,12 +9,13 @@ import { feature } from 'topojson-client';
 // @ts-ignore
 import land110 from 'world-atlas/land-110m.json';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
+import { F, vfov, tr, clampX } from './frame';
 import { FONT } from '../lib/palette';
 import { WEB, MAIN, MUMBAI, LONDON, routePts, LL } from '../tail/Globe';
 
 /* V4, 16:9: the planet and its cables. From low over the Arabian Sea the camera pulls back until the whole Earth is in view,
    the web of undersea cables lighting up as it goes, our own route in amber. A real 3D globe with real coastlines. */
-const W = 1920, H = 1080; export const R = 10;
+export const R = 10;
 export const PLANET_FRAMES = 360;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
@@ -42,10 +43,10 @@ const CAM: CK[] = [
   { t: 12, lon: 14, lat: 26, d: 31, tl: null, fov: 40 },             // slow drift round towards Europe
 ];
 const camAt = (t: number) => { let i = 0; while (i < CAM.length - 2 && t > CAM[i + 1].t) i++; const a = CAM[i], b = CAM[i + 1], u = smooth((t - a.t) / (b.t - a.t));
-  const p = ll([lerp(a.lon, b.lon, u), lerp(a.lat, b.lat, u)], lerp(a.d, b.d, u)), ta = a.tl ? ll(a.tl) : V(0, 0, 0), tb = b.tl ? ll(b.tl) : V(0, 0, 0); return { p, l: ta.lerp(tb, u), fov: lerp(a.fov, b.fov, u) }; };
+  const far = F.v ? 0.86 : 1, p = ll([lerp(a.lon, b.lon, u), lerp(a.lat, b.lat, u)], lerp(a.d * (a.tl ? 1 : far), b.d * (b.tl ? 1 : far), u)), ta = a.tl ? ll(a.tl) : V(0, 0, 0), tb = b.tl ? ll(b.tl) : V(0, 0, 0); return { p, l: ta.lerp(tb, u), fov: lerp(a.fov, b.fov, u) }; };
 /* once the whole Earth is in view it sits left of centre, leaving the right side for the words */
-const shift = (t: number) => 330 * seg(t, 3.6, 6.6);
-const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = c.fov; cam.near = 0.1; cam.far = 600; cam.up.set(0, 1, 0); cam.lookAt(c.l); cam.setViewOffset(W, H, shift(t), 0, W, H); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
+const shift = (t: number) => (F.v ? 0 : 330 * seg(t, 3.6, 6.6));
+const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = vfov(c.fov); cam.near = 0.1; cam.far = 600; cam.up.set(0, 1, 0); cam.lookAt(c.l); cam.setViewOffset(F.W, F.H, shift(t), 0, F.W, F.H); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
 
 const curveOf = (r: LL[], lift = 1.006) => new THREE.CatmullRomCurve3(routePts(r, 1, 0.02).map((p) => ll(p as LL, R * lift)));
 const MAIN_C = curveOf(MAIN, 1.008);
@@ -73,7 +74,7 @@ const Earth: React.FC<{ t: number }> = ({ t }) => {
 };
 const Stars: React.FC = () => <>{Array.from({ length: 260 }).map((_, i) => { const a = hash(i) * 6.283, b = Math.acos(2 * hash(i + 7) - 1), r = 260; return <mesh key={i} position={[r * Math.sin(b) * Math.cos(a), r * Math.cos(b), r * Math.sin(b) * Math.sin(a)]}><sphereGeometry args={[0.25 + hash(i + 3) * 0.5, 6, 6]} /><meshBasicMaterial color="#cfd6ff" fog={false} /></mesh>; })}</>;
 
-const project = (t: number, p: THREE.Vector3): [number, number, boolean] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(c.fov, W / H, 0.1, 600); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); q.x -= (shift(t) / W) * 2; const front = p.clone().normalize().dot(c.p.clone().normalize()) > 0.18; return [(q.x * 0.5 + 0.5) * W, (-q.y * 0.5 + 0.5) * H, front]; };
+const project = (t: number, p: THREE.Vector3): [number, number, boolean] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.1, 600); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); q.x -= (shift(t) / F.W) * 2; const front = p.clone().normalize().dot(c.p.clone().normalize()) > 0.18; return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H, front]; };
 const Pin: React.FC<{ t: number; at: LL; name: string; col: string; a: number; dx: number; dy: number }> = ({ t, at, name, col, a, dx, dy }) => { const [x, y, front] = project(t, ll(at, R * 1.01)), o = seg(t, a, a + 0.4) * (front ? 1 : 0); if (o < 0.01) return null; const w = name.length * 20 + 40;
   return <g opacity={o}><line x1={x} y1={y} x2={x + dx} y2={y + dy + (dy < 0 ? 26 : -26)} stroke={col} strokeWidth={2.5} /><g transform={`translate(${x + dx} ${y + dy})`}><rect x={-w / 2} y={-26} width={w} height={52} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} /><text y={10} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.08em' }}>{name}</text></g></g>; };
 
@@ -82,7 +83,7 @@ export const Planet: React.FC = () => {
   const big = seg(t, 6.4, 7.0) * (1 - seg(t, 11.4, 11.9));
   return (
     <AbsoluteFill style={{ background: '#03041a' }}>
-      <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 44, near: 0.1, far: 600 }}>
+      <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 44, near: 0.1, far: 600 }}>
         <Cam t={t} />
         <color attach="background" args={['#03041a']} />
         <ambientLight intensity={0.5} color="#8f9cff" />
@@ -90,11 +91,11 @@ export const Planet: React.FC = () => {
         <Stars /><Earth t={t} />
         <EffectComposer><Bloom intensity={0.6} luminanceThreshold={0.8} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.25} darkness={0.7} /></EffectComposer>
       </ThreeCanvas>
-      <AbsoluteFill><svg width={W} height={H}>
+      <AbsoluteFill><svg width={F.W} height={F.H}>
         <Pin t={t} at={MUMBAI} name="MUMBAI" col="#ffe08a" a={0.4} dx={90} dy={-90} />
         <Pin t={t} at={LONDON} name="LONDON" col="#ff9c8a" a={5.6} dx={-110} dy={-80} />
-        <g opacity={seg(t, 0.5, 0.9) * (1 - seg(t, 3.6, 4.1))} transform="translate(120 890)"><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Arabian Sea</text><text y={46} fill="#ffc24a" style={{ font: `500 30px ${FONT.mono}` }}>our packet, on its way to the Red Sea</text></g>
-        <g opacity={big} transform="translate(1470 420)"><text textAnchor="middle" fill="#eef1ff" style={{ font: `800 150px ${FONT.ui}`, filter: 'drop-shadow(0 0 24px rgba(95,227,255,.45))' }}>95%+</text>
+        <g opacity={seg(t, 0.5, 0.9) * (1 - seg(t, 3.6, 4.1))} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Arabian Sea</text><text y={46} fill="#ffc24a" style={{ font: `500 30px ${FONT.mono}` }}>our packet, on its way to the Red Sea</text></g>
+        <g opacity={big} transform={tr(1470, 420)}><text textAnchor="middle" fill="#eef1ff" style={{ font: `800 150px ${FONT.ui}`, filter: 'drop-shadow(0 0 24px rgba(95,227,255,.45))' }}>95%+</text>
           <text y={62} textAnchor="middle" fill="#eef1ff" style={{ font: `800 38px ${FONT.ui}` }}>of data between continents</text><text y={108} textAnchor="middle" fill="#5fe3ff" style={{ font: `500 28px ${FONT.mono}` }}>travels in cables under the sea</text>
           <text y={170} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 24px ${FONT.mono}` }}>570+ cables · routes shown are simplified</text></g>
       </svg></AbsoluteFill>

@@ -6,11 +6,12 @@ import { RoundedBox } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
+import { F, vfov, tr, clampX } from './frame';
 import { FONT } from '../lib/palette';
 
 /* V4, 16:9: his video becomes packets. He presses Send, the video tile breaks into numbered packets that lift out of the phone,
    gather above it, then leave as radio waves towards the cell tower. Packet #0004 is amber: it is the one the film follows. */
-const W = 1920, H = 1080;
+
 export const PACKETS_FRAMES = 300;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
@@ -55,7 +56,7 @@ const CAM: CK[] = [
   { t: 10, p: [-5, 6, 9], l: [12, 10.5, -22], fov: 40 },
 ];
 const camAt = (t: number) => { let i = 0; while (i < CAM.length - 2 && t > CAM[i + 1].t) i++; const a = CAM[i], b = CAM[i + 1], u = smooth((t - a.t) / (b.t - a.t)); const L = (x: number[], y: number[]) => V(lerp(x[0], y[0], u), lerp(x[1], y[1], u), lerp(x[2], y[2], u)); return { p: L(a.p, b.p), l: L(a.l, b.l), fov: lerp(a.fov, b.fov, u) }; };
-const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = c.fov; cam.near = 0.05; cam.far = 400; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
+const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = vfov(c.fov); cam.near = 0.05; cam.far = 400; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
 
 /* ---------- set: his balcony ledge, the night city, the tower ---------- */
 const City: React.FC = () => {
@@ -113,7 +114,7 @@ const Tags: React.FC<{ t: number }> = ({ t }) => {
 const Waves: React.FC<{ t: number }> = ({ t }) => { const dir = TOWER.clone().sub(V(0, 3.2, 0)).normalize(), q = new THREE.Quaternion().setFromUnitVectors(V(0, 0, 1), dir);
   return <group position={[0.3, 3.4, 0]} quaternion={q}>{Array.from({ length: 5 }).map((_, k) => { const u = (((t - GO + 0.3) * 0.55 + k / 5) % 1 + 1) % 1, on = seg(t, GO - 0.3, GO + 0.3) * (1 - seg(t, 9.0, 9.8)); return <mesh key={k} position={[0, 0, 2 + u * 22]}><torusGeometry args={[1 + u * 7, 0.04 + u * 0.05, 8, 60, Math.PI * 0.9]} /><meshBasicMaterial color="#5fe3ff" transparent opacity={0.55 * on * (1 - u)} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh>; })}</group>; };
 
-const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(c.fov, W / H, 0.05, 400); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * W, (-q.y * 0.5 + 0.5) * H]; };
+const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.05, 400); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
 
 export const PacketBurst: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS;
@@ -122,7 +123,7 @@ export const PacketBurst: React.FC = () => {
   const [tx, ty] = project(t, TOWER), towerTag = seg(t, 6.8, 7.3) * (1 - seg(t, 9.4, 9.9));
   return (
     <AbsoluteFill style={{ background: '#070a22' }}>
-      <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 36, near: 0.05, far: 400 }}>
+      <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 36, near: 0.05, far: 400 }}>
         <Cam t={t} />
         <color attach="background" args={['#0a0d34']} />
         <fog attach="fog" args={['#0c1040', 30, 150]} />
@@ -131,8 +132,8 @@ export const PacketBurst: React.FC = () => {
         <City /><Tower t={t} /><Phone t={t} /><Waves t={t} /><Tags t={t} />
         <EffectComposer><Bloom intensity={0.5} luminanceThreshold={0.86} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.75} /></EffectComposer>
       </ThreeCanvas>
-      <AbsoluteFill><svg width={W} height={H}>
-        <g opacity={title} transform="translate(1560 150)"><text textAnchor="middle" fill="#eef1ff" style={{ font: `800 46px ${FONT.ui}` }}>1 video</text>
+      <AbsoluteFill><svg width={F.W} height={F.H}>
+        <g opacity={title} transform={tr(1560, 150)}><text textAnchor="middle" fill="#eef1ff" style={{ font: `800 46px ${FONT.ui}` }}>1 video</text>
           <text y={98} textAnchor="middle" fill="#5fe3ff" style={{ font: `800 104px ${FONT.ui}` }}>{count.toLocaleString('en-US')}</text><text y={150} textAnchor="middle" fill="#eef1ff" style={{ font: `800 46px ${FONT.ui}` }}>packets</text>
           <text y={196} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 24px ${FONT.mono}` }}>2 MB, about 1,400 bytes each</text></g>
         <g opacity={heroTag}><line x1={hx} y1={hy + 40} x2={hx + 150} y2={hy + 150} stroke="#ffb454" strokeWidth={2.5} /><g transform={`translate(${hx + 250} ${hy + 176})`}><rect x={-190} y={-30} width={380} height={76} rx={12} fill="#0e1430" fillOpacity={0.92} stroke="#ffb454" strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>FOLLOW THIS ONE</text><text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>each packet carries her address</text></g></g>
