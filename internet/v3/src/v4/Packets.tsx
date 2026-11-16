@@ -15,7 +15,7 @@ export const PACKETS_FRAMES = 300;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
 const N = 180, HERO = 4;
-const TOWER = V(17, 15, -30);
+export const TOWER = V(17, 15, -30);
 
 /* ---------- textures drawn in code ---------- */
 const canvas = (w: number, h: number, draw: (g: CanvasRenderingContext2D) => void) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d')!); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
@@ -43,7 +43,7 @@ const tagTex = (n: number, hero: boolean) => canvas(256, 112, (g) => {
   g.fillStyle = hero ? '#ffb454' : '#bfeaff'; rr(g, 4, 4, 248, 104, 18); g.fill(); g.fillStyle = hero ? '#7a4a08' : '#12436a'; g.fillRect(4, 4, 248, 26); g.fillStyle = hero ? '#ffe6b8' : '#e9f8ff'; g.font = '700 16px "IBM Plex Mono", monospace'; g.fillText('TO: HER · LONDON', 16, 23);
   g.fillStyle = '#07102c'; g.font = '800 54px Manrope, sans-serif'; g.textAlign = 'center'; g.fillText('#' + String(n).padStart(4, '0'), 128, 88);
 });
-const winTex = (seed: number) => canvas(128, 256, (g) => { g.fillStyle = '#141a4a'; g.fillRect(0, 0, 128, 256); for (let r = 0; r < 12; r++) for (let c = 0; c < 5; c++) { const h = hash(seed * 31 + r * 7 + c); g.fillStyle = h > 0.74 ? (h > 0.93 ? '#9fe6ff' : '#ffd08a') : '#1d2460'; g.fillRect(10 + c * 23, 10 + r * 20, 14, 11); } });
+export const winTex = (seed: number) => canvas(128, 256, (g) => { g.fillStyle = '#141a4a'; g.fillRect(0, 0, 128, 256); for (let r = 0; r < 12; r++) for (let c = 0; c < 5; c++) { const h = hash(seed * 31 + r * 7 + c); g.fillStyle = h > 0.74 ? (h > 0.93 ? '#9fe6ff' : '#ffd08a') : '#1d2460'; g.fillRect(10 + c * 23, 10 + r * 20, 14, 11); } });
 
 /* ---------- camera ---------- */
 type CK = { t: number; p: [number, number, number]; l: [number, number, number]; fov: number };
@@ -68,7 +68,7 @@ const City: React.FC = () => {
     <mesh rotation-x={-Math.PI / 2} position={[0, -6, -50]}><planeGeometry args={[300, 160]} /><meshStandardMaterial color="#0d1140" roughness={1} /></mesh>
   </group>;
 };
-const Tower: React.FC<{ t: number }> = ({ t }) => { const legs = [[-1, -1], [1, -1], [1, 1], [-1, 1]], Hh = 22, top = 0.4, bot = 2.0, base = TOWER.y - Hh + 2.5;
+export const Tower: React.FC<{ t: number }> = ({ t }) => { const legs = [[-1, -1], [1, -1], [1, 1], [-1, 1]], Hh = 22, top = 0.4, bot = 2.0, base = TOWER.y - Hh + 2.5;
   const at = (k: number, y: number) => { const s = lerp(bot, top, y / Hh); return V(legs[k][0] * s, y, legs[k][1] * s); };
   const bar = (a: THREE.Vector3, b: THREE.Vector3, key: string, r = 0.07) => { const d = b.clone().sub(a), q = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), d.clone().normalize()); return <mesh key={key} position={a.clone().add(b).multiplyScalar(0.5)} quaternion={q}><cylinderGeometry args={[r, r, d.length(), 6]} /><meshStandardMaterial color="#8c96f0" roughness={0.5} emissive="#2a3190" emissiveIntensity={0.6} /></mesh>; };
   const recv = seg(t, 6.0, 6.6);
