@@ -27,13 +27,19 @@ const uOf = (x: number) => clamp01((x - X0) / (X1 - X0));      // close enough t
 
 /* ---------- camera ---------- */
 type K = { t: number; x: number; side: number; up: number; ahead: number; lx?: number; fov: number };
-const KEYS: K[] = [
+const KEYS_RUN: K[] = [
   { t: 0, x: -30, side: 16, up: 14, ahead: 50, fov: 40 },          // wide: the seabed and the cable crossing it
   { t: 2.4, x: 6, side: 0.9, up: 1.5, ahead: 60, fov: 50 },         // one move down to the cable, no pause
   { t: 3.0, x: 14, side: 0.9, up: 1.5, ahead: 70, fov: 54 },        // the light passes under us
   { t: 6.6, x: 250, side: 1.6, up: 2.0, ahead: 60, fov: 58 },       // about three and a half seconds along the outside of the cable
   { t: 9.4, x: 300, side: 15, up: 14, ahead: 70, fov: 42 },         // rise: the light runs on across the ocean floor
 ];
+const RX = 62;      // where the repeater sits
+const KEYS_REP: K[] = [
+  { t: 0, x: RX + 15, side: 10, up: 5.2, ahead: -19, fov: 40 },      // in front of the repeater, looking back up the cable
+  { t: 7.5, x: RX + 12, side: 8, up: 4.2, ahead: -15, fov: 38 },    // one slow push in, no pause
+];
+let KEYS: K[] = KEYS_RUN;
 const camAt = (t: number) => {
   let i = 0; while (i < KEYS.length - 2 && t > KEYS[i + 1].t) i++;
   const a = KEYS[i], b = KEYS[i + 1], u = smooth((t - a.t) / (b.t - a.t)), L = (k: keyof K) => lerp(a[k] as number, b[k] as number, u);
@@ -71,7 +77,7 @@ const Snow: React.FC<{ t: number }> = ({ t }) => <>{Array.from({ length: 90 }).m
 
 /* ---------- the cable ---------- */
 const CUT0 = 99, CUT1 = 108;      // the see-through section (x along the seabed)
-const Cable: React.FC<{ t: number }> = ({ t }) => {
+const Cable: React.FC<{ t: number; rep?: boolean }> = ({ t, rep }) => {
   const N = 1500;
   const armour = useMemo(() => new THREE.TubeGeometry(PATH, N, CR, 24, false), []);
   const armourB = useMemo(() => armour.clone(), [armour]);
@@ -92,7 +98,9 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
   /* the light we follow, racing along the outside view of the cable towards the horizon */
   /* starts behind the camera, passes under it, then stays ahead of it all the way while we chase */
   const lightX = (tt: number) => camX(tt) + lerp(-34, 32, seg(tt, 2.3, 3.1)) + lerp(0, 14, seg(tt, 3.1, 6.6)) + lerp(0, 75, seg(tt, 6.6, 9.4));
-  const px = lightX(t), pp = cablePt(px), glowOn = seg(t, 2.2, 2.6);
+  /* repeater shot: the light arrives weak, goes through the repeater, and leaves strong */
+  const repX = RX - 46 + 46 * clamp01((t - 1.0) / 2.6) + 110 * clamp01((t - 3.9) / 2.6), inRep = t >= 3.6 && t < 3.9;
+  const px = rep ? repX : lightX(t), pp = cablePt(px), glowOn = rep ? (inRep ? 0 : t < 3.6 ? 0.28 * seg(t, 0.8, 1.2) : 1) : seg(t, 2.2, 2.6);
   const tan = cablePt(px + 1).sub(cablePt(px - 1)).normalize(), trailQ = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), tan);
   return (
     <group>
@@ -111,9 +119,33 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
         <mesh><sphereGeometry args={[CR * 1.2, 16, 12]} /><meshBasicMaterial color="#fff0c8" transparent opacity={glowOn} /></mesh>
         {/* the glowing stretch of cable just behind the light */}
         <group quaternion={trailQ}><mesh position={[0, -9, 0]}><cylinderGeometry args={[CR * 1.06, CR * 1.02, 18, 20, 1, true]} /><meshBasicMaterial color="#ffb347" transparent opacity={0.22 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh></group>
-        <pointLight color="#ffb454" intensity={620 * glowOn * (0.3 + 0.7 * seg(t, 2.8, 3.5))} distance={170} decay={1.25} position={[0, 2.4, 0]} />
+        <pointLight color="#ffb454" intensity={(rep ? 300 * glowOn : 620 * glowOn * (0.3 + 0.7 * seg(t, 2.8, 3.5)))} distance={170} decay={1.25} position={[0, 2.4, 0]} />
         <pointLight color="#ffd9a0" intensity={160 * glowOn} distance={40} decay={1.3} position={[-4, 1.2, 0]} />
       </group>}
+    </group>
+  );
+};
+
+
+/* the repeater: a pressure housing spliced into the cable that amplifies the light. Steel body, bolted flanges, tapered ends, ribbed bend limiters. */
+const Repeater: React.FC<{ t: number }> = ({ t }) => {
+  const p = cablePt(RX), tan = cablePt(RX + 1).sub(cablePt(RX - 1)).normalize(), q = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), tan);
+  const work = seg(t, 3.45, 3.75) * (1 - seg(t, 3.9, 5.2));      // glows while it boosts the light
+  const steel = <meshStandardMaterial color="#c9cef5" roughness={0.38} metalness={0.3} emissive="#ffb454" emissiveIntensity={work * 0.5} />;
+  const dark = <meshStandardMaterial color="#8088d0" roughness={0.45} metalness={0.3} />;
+  return (
+    <group position={[p.x, p.y + 0.55, p.z]} quaternion={q}>
+      <mesh><cylinderGeometry args={[1.05, 1.05, 4.6, 40]} />{steel}</mesh>
+      {[-1.5, 0, 1.5].map((y) => <mesh key={y} position={[0, y, 0]}><cylinderGeometry args={[1.1, 1.1, 0.16, 40]} />{dark}</mesh>)}
+      {[-1, 1].map((sd) => <group key={sd} scale={[1, sd, 1]}>
+        <mesh position={[0, 2.42, 0]}><cylinderGeometry args={[1.42, 1.42, 0.24, 40]} />{dark}</mesh>
+        {Array.from({ length: 14 }).map((_, k) => <mesh key={k} position={[Math.cos((k / 14) * 6.283) * 1.24, 2.6, Math.sin((k / 14) * 6.283) * 1.24]}><cylinderGeometry args={[0.1, 0.1, 0.16, 6]} /><meshStandardMaterial color="#d9defa" roughness={0.3} metalness={0.7} /></mesh>)}
+        <mesh position={[0, 3.3, 0]}><cylinderGeometry args={[0.62, 1.05, 1.5, 40]} />{steel}</mesh>
+        <mesh position={[0, 4.3, 0]}><cylinderGeometry args={[0.62, 0.62, 0.5, 32]} />{dark}</mesh>
+        {Array.from({ length: 9 }).map((_, k) => <mesh key={k} position={[0, 4.75 + k * 0.4, 0]}><cylinderGeometry args={[0.6 - k * 0.017, 0.64 - k * 0.017, 0.3, 28]} /><meshStandardMaterial color="#3a4196" roughness={0.6} /></mesh>)}
+      </group>)}
+      {[-0.9, 0.9].map((y) => <mesh key={y} position={[0, y, -1.08]} rotation-y={Math.PI / 2}><torusGeometry args={[0.2, 0.05, 10, 20]} /><meshStandardMaterial color="#d9defa" roughness={0.3} metalness={0.7} /></mesh>)}
+      <pointLight color="#ffb454" intensity={260 * work} distance={30} decay={1.3} position={[0, 0, -2.5]} />
     </group>
   );
 };
@@ -128,6 +160,7 @@ const Tag: React.FC<{ t: number; at: THREE.Vector3; text: string; sub?: string; 
       {sub && <text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>{sub}</text>}</g></g>; };
 
 export const Seabed: React.FC = () => {
+  KEYS = KEYS_RUN;
   const f = useCurrentFrame(), t = f / FPS;
   const place = seg(t, 0.4, 0.8) * (1 - seg(t, 2.5, 2.9));
   const num = seg(t, 3.0, 3.3) * (1 - seg(t, 8.6, 9.1)), count = Math.round(lerp(0, 200000, seg(t, 3.0, 4.4)) / 1000) * 1000;
@@ -148,6 +181,30 @@ export const Seabed: React.FC = () => {
         <g opacity={place} transform="translate(120 820)"><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>{SEA_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>{SEA_DEPTH}</text></g>
         <g opacity={num} transform="translate(960 250)"><text textAnchor="middle" fill="#ffc94a" style={{ font: `800 170px ${FONT.ui}`, letterSpacing: '0.01em', filter: 'drop-shadow(0 0 26px rgba(255,180,60,.55))' }}>{count.toLocaleString('en-US')}<tspan dx={18} style={{ font: `800 62px ${FONT.ui}` }}>km/s</tspan></text>
           <text y={70} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 30px ${FONT.mono}` }}>light in glass: about two thirds of its speed in space</text></g>
+      </svg></AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+export const REPEATER_FRAMES = 225;
+export const SeabedRepeater: React.FC = () => {
+  KEYS = KEYS_REP;
+  const f = useCurrentFrame(), t = f / FPS;
+  const top = cablePt(RX); top.y += 1.9;
+  return (
+    <AbsoluteFill style={{ background: '#050720' }}>
+      <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 40, near: 0.05, far: 600 }}>
+        <Cam t={t} />
+        <color attach="background" args={['#0a1040']} />
+        <fog attach="fog" args={['#0d1650', 10, 135]} />
+        <hemisphereLight args={['#4a63ff', '#140c48', 0.95]} />
+        <directionalLight position={[60, 40, -30]} intensity={0.9} color="#7f96ff" />
+        <directionalLight position={[RX + 30, 14, 30]} intensity={1.5} color="#c9d2ff" />
+        <Terrain /><Rocks /><Shafts t={t} /><Snow t={t} /><Cable t={t} rep /><Repeater t={t} />
+        <EffectComposer><Bloom intensity={0.45} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.2} darkness={0.8} /></EffectComposer>
+      </ThreeCanvas>
+      <AbsoluteFill><svg width={W} height={H}>
+        <Tag t={t} at={top} text="REPEATER" sub="one every 60 to 100 km" a={1.2} b={7.4} dx={-40} dy={-170} />
       </svg></AbsoluteFill>
     </AbsoluteFill>
   );
