@@ -503,7 +503,7 @@ const SHOTS = [
     VO = 0.0; orbit(lidPoint(new THREE.Vector3(0, 0, 100)).add(new THREE.Vector3(0, -10, 0)), lerp(-8, 112, k), lerp(12, 16, k), lerp(1350, 1250, k));
     LAYERS.visible = false;   // V4 (Harsh): the stacked inner layers (not opened yet) reflected a stepped studio-light edge over the screen; they appear in scene 3
     if (u > 3.4) title(['OLED: every pixel', 'makes its <em>own light</em>'], [3.5, 3.8], u);
-    sideTags([['scr', 'Pixels light themselves', lidPoint(new THREE.Vector3(0, -40, 150)), 1, ease(ramp(u, 4.6, 5.0)) * (1 - ramp(u, 7.6, 8)), 'acc'],
+    sideTags([['scr', 'Pixels light themselves', lidPoint(new THREE.Vector3(0, -40, 150)), 1, ease(ramp(u, 4.6, 5.0)) * (1 - ramp(u, 7.6, 8)), 'acc', -250],
               ['back', '✕  No backlight', lidPoint(new THREE.Vector3(-100, 26, 150)), -1, ease(ramp(u, 6.0, 6.4)) * (1 - ramp(u, 7.6, 8)), 'red']]);
   }],
   [B[2], B[3], (u, d) => { // 3. the lid opens up into its layers (after iFixit's teardown)
@@ -535,8 +535,8 @@ const SHOTS = [
     camera.position.copy(lidPoint(STRIP_C.clone().add(new THREE.Vector3(lerp(-125, -70, k), LAYER_Y.refl + lerp(245, 200, k), lerp(150, 120, k))))); camera.position.add(new THREE.Vector3(2.5 * Math.sin(TNOW * 0.6), 1.5 * Math.sin(TNOW * 0.8 + 1), 0)); camera.lookAt(tg); camera.updateMatrixWorld();
     $('title').classList.add('hook'); title(['4 HIDDEN', 'LEDs'], [0.05, 0.25], u);
     const sp = (dx) => lidPoint(STRIP_C.clone().add(new THREE.Vector3(dx, LAYER_Y.refl + 0.5, 0)));
-    sideTags([['led', 'One strip, along one edge', sp(-27), -1, ease(ramp(u, 2.9, 3.3)), 'acc', 85],
-              ['own', 'Made just for the logo', sp(27), 1, ease(ramp(u, 3.6, 4.0)), '', -95]]);
+    sideTags([['led', 'One strip, along one edge', sp(-27), -1, ease(ramp(u, 2.9, 3.3)), 'acc', -300],
+              ['own', 'Made just for the logo', sp(27), 1, ease(ramp(u, 3.6, 4.0)), '', -470]]);
   }],
   [B[4], B[5], (u, d) => { // 5. bounce → spread → shine: concentrated LED light becomes one even glow
     rim.intensity = 1.3; rim.color.setHex(0xdfe6f0); lidOpen(OPEN); room(0); setXray(1 - ease(ramp(u, 5.9, 7.0))); screenOn(0.35, 0);
@@ -664,9 +664,16 @@ const ICONS = [['Like', '#4aa8ff', ['M2 10h4v11H2zM8 21h9.5a2 2 0 0 0 2-1.6l1.4-
 function drawScreen() {
   const x = SCV.getContext('2d'), w = SCV.width, h = SCV.height;
   x.globalAlpha = 1; x.fillStyle = '#000'; x.fillRect(0, 0, w, h);
-  if (SNAP && END.brand < 1) { // V4 (Harsh): the Short plays on the MacBook like a channel video: plain dark page, no wallpaper, no logos or buttons
-    x.fillStyle = '#0f0f0f'; x.fillRect(0, 0, w, h);
-    const vh = h, vw2 = vh * SNAP.width / SNAP.height, r = 30 * (END.z || 0); x.save(); rr(x, (w - vw2) / 2, 0, vw2, vh, Math.max(0.01, r)); x.clip(); x.drawImage(SNAP, (w - vw2) / 2, 0, vw2, vh); x.restore();   // corners round off as we zoom out (none in the first frame)
+  if (SNAP && END.brand < 1) { // V4 (Harsh): the Short plays on the MacBook: dark page, ambient glow of the video's own colours around it, thin progress bar
+    const vh = h, vw2 = vh * SNAP.width / SNAP.height, vx = (w - vw2) / 2, r = 30 * (END.z || 0), za = END.z || 0;
+    x.fillStyle = '#0b0c10'; x.fillRect(0, 0, w, h);
+    x.save(); x.globalAlpha = 0.9 * za; x.filter = 'blur(70px) brightness(3.2) saturate(2)'; x.drawImage(SNAP, vx - vw2 * 0.55, -h * 0.25, vw2 * 2.1, h * 1.5); x.restore();   // ambient glow
+    x.save(); x.globalAlpha = za; const ag = x.createRadialGradient(w / 2, h * 0.45, vw2 * 0.3, w / 2, h * 0.5, w * 0.55); ag.addColorStop(0, 'rgba(70,120,220,.45)'); ag.addColorStop(1, 'rgba(70,120,220,0)'); x.fillStyle = ag; x.fillRect(0, 0, w, h); x.restore();
+    const vg = x.createRadialGradient(w / 2, h / 2, vw2 * 0.6, w / 2, h / 2, w * 0.62); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.75)'); x.fillStyle = vg; x.fillRect(0, 0, w, h);
+    x.save(); x.shadowColor = 'rgba(0,0,0,.6)'; x.shadowBlur = 40 * za; rr(x, vx, 0, vw2, vh, Math.max(0.01, r)); x.fillStyle = '#000'; x.fill(); x.restore();
+    x.save(); rr(x, vx, 0, vw2, vh, Math.max(0.01, r)); x.clip(); x.drawImage(SNAP, vx, 0, vw2, vh);
+    if (za > 0.05) { x.globalAlpha = Math.min(1, za * 2); x.fillStyle = 'rgba(255,255,255,.28)'; x.fillRect(vx + 22, vh - 26, vw2 - 44, 7); x.fillStyle = '#ffffff'; x.fillRect(vx + 22, vh - 26, (vw2 - 44) * 0.88, 7); x.beginPath(); x.arc(vx + 22 + (vw2 - 44) * 0.88, vh - 22.5, 11, 0, 7); x.fill(); }   // progress bar
+    x.restore();
   }
   if (END.brand > 0) {   // clean branding: dark background, logo, InvisiTech, tagline
     x.globalAlpha = END.brand; const g = x.createRadialGradient(w / 2, h * 0.42, 30, w / 2, h * 0.5, w * 0.62); g.addColorStop(0, '#141a2c'); g.addColorStop(0.6, '#080a12'); g.addColorStop(1, '#030406');
