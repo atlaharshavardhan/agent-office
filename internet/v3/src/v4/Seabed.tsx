@@ -11,7 +11,7 @@ import { glassMat, pulseMat, stripeTex } from './Fiber';
 /* V4, 16:9: the submarine cable on the seabed. Low tracking shot, light racing to the horizon,
    then a see-through section showing the glass fibres and the light inside. Real 3D, frame-driven. */
 const W = 1920, H = 1080;
-export const SEABED_FRAMES = 240;
+export const SEABED_FRAMES = 294;
 export const SEA_NAME = 'Arabian Sea', SEA_DEPTH = 'about 3,000 m down';
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
@@ -31,8 +31,8 @@ const KEYS: K[] = [
   { t: 0, x: -30, side: 16, up: 14, ahead: 50, fov: 40 },          // wide: the seabed and the cable crossing it
   { t: 2.4, x: 6, side: 0.9, up: 1.5, ahead: 60, fov: 50 },         // one move down to the cable, no pause
   { t: 3.0, x: 14, side: 0.9, up: 1.5, ahead: 70, fov: 54 },        // the light passes under us
-  { t: 5.0, x: 250, side: 1.6, up: 2.0, ahead: 60, fov: 62 },       // two seconds flat out along the outside of the cable
-  { t: 7.6, x: 300, side: 15, up: 14, ahead: 70, fov: 42 },         // rise: the light runs on across the ocean floor
+  { t: 6.6, x: 250, side: 1.6, up: 2.0, ahead: 60, fov: 58 },       // about three and a half seconds along the outside of the cable
+  { t: 9.4, x: 300, side: 15, up: 14, ahead: 70, fov: 42 },         // rise: the light runs on across the ocean floor
 ];
 const camAt = (t: number) => {
   let i = 0; while (i < KEYS.length - 2 && t > KEYS[i + 1].t) i++;
@@ -90,7 +90,7 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
   const copper = useMemo(() => { const x = stripeTex('#c98a4a', '#e2a868', 4, 0); return x; }, []);
   /* the light we follow, racing along the outside view of the cable towards the horizon */
   /* starts behind the camera, passes under it, then stays ahead of it all the way while we chase */
-  const lightX = (tt: number) => camX(tt) + lerp(-34, 32, seg(tt, 2.3, 3.1)) + lerp(0, 14, seg(tt, 3.1, 5)) + lerp(0, 75, seg(tt, 5, 7.6));
+  const lightX = (tt: number) => camX(tt) + lerp(-34, 32, seg(tt, 2.3, 3.1)) + lerp(0, 14, seg(tt, 3.1, 6.6)) + lerp(0, 75, seg(tt, 6.6, 9.4));
   const px = lightX(t), pp = cablePt(px), glowOn = seg(t, 2.2, 2.6);
   const tan = cablePt(px + 1).sub(cablePt(px - 1)).normalize(), trailQ = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), tan);
   return (
@@ -128,7 +128,7 @@ const Tag: React.FC<{ t: number; at: THREE.Vector3; text: string; sub?: string; 
 export const Seabed: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS;
   const place = seg(t, 0.4, 0.8) * (1 - seg(t, 2.5, 2.9));
-  const num = seg(t, 3.0, 3.3) * (1 - seg(t, 6.9, 7.4)), count = Math.round(lerp(0, 200000, seg(t, 3.0, 4.0)) / 1000) * 1000;
+  const num = seg(t, 3.0, 3.3) * (1 - seg(t, 8.6, 9.1)), count = Math.round(lerp(0, 200000, seg(t, 3.0, 4.4)) / 1000) * 1000;
   const mid = (x: number, dy = 0) => { const p = cablePt(x); p.y += dy; return p; };
   return (
     <AbsoluteFill style={{ background: '#050720' }}>
