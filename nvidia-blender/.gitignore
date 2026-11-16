@@ -1,0 +1,7 @@
+.venv/
+assets/external/
+renders/preview_frames/
+renders/test/
+*.blend1
+__pycache__/
+renders/render.log

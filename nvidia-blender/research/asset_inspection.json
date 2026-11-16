@@ -1,0 +1,37 @@
+{
+  "gpu-viz": {
+    "licence_files": [],
+    "package_json_license": null,
+    "verdict": "NO LICENCE - reference only, do not copy code or geometry",
+    "three_js_builders": [
+      "src/builders/amd/mi300x.js",
+      "src/builders/amd/navi31.js",
+      "src/builders/apple/m3max.js",
+      "src/builders/board.js",
+      "src/builders/common/fan.js",
+      "src/builders/cooling.js",
+      "src/builders/cuda/diagram2d.js",
+      "src/builders/floorplan/dieFloorplan.js",
+      "src/builders/floorplan/package.js",
+      "src/builders/microarchitecture.js",
+      "src/builders/tpu/board.js",
+      "src/builders/tpu/cooling.js",
+      "src/builders/tpu/die.js",
+      "src/builders/volta/board.js",
+      "src/builders/volta/fullDie.js"
+    ]
+  },
+  "vera-rubin": {
+    "licence_files": [],
+    "package_json_license": null,
+    "verdict": "NO LICENCE - reference only, do not copy code or geometry",
+    "three_js_builders": [
+      "src/assemblies/nvl8.js",
+      "src/assemblies/superchip.js",
+      "src/assemblies/tray.js",
+      "src/parts/boardParts.js",
+      "src/parts/chips.js",
+      "src/parts/materials.js"
+    ]
+  }
+}
