@@ -5196,7 +5196,7 @@ function buildLayers() {
 const PIX = { cv: document.createElement('canvas'), cols: 36, rows: 22, order: [] };
 const RING = radial([[0, 'rgba(255,255,255,0)'], [0.62, 'rgba(255,240,215,0)'], [0.74, 'rgba(255,240,215,0.85)'], [0.86, 'rgba(255,240,215,0)'], [1, 'rgba(255,240,215,0)']], 256);
 const POOL = radial([[0, 'rgba(255,238,205,0.9)'], [0.35, 'rgba(255,225,180,0.35)'], [1, 'rgba(255,220,170,0)']]);
-const RINGS = [], POOLS = [], HOTS = [], RIPPLES = [], LED_STREAKS = []; let LOGO_STREAK = null;
+const RINGS = [], POOLS = [], HOTS = [], RIPPLES = [], LED_STREAKS = [], BEAMS = {}; let LOGO_STREAK = null;
 let PIXM, NOBL, FLOW;
 function softShadowTex() { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'); x.filter = 'blur(16px)'; x.fillStyle = '#000'; x.fillRect(34, 34, 188, 188); const t = new THREE.CanvasTexture(c); return t; }
 function buildV3() {
@@ -5232,6 +5232,16 @@ function buildV3() {
   const STRK = new THREE.CanvasTexture(sc), streak = (w, h) => { const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: STRK, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false })); m.scale.set(w, h, 1); m.visible = false; m.renderOrder = 12; return m; };
   LEDS.forEach(L => { const m = streak(90, 3.2); m.position.copy(L.p).add(new THREE.Vector3(0, 0.9, 2.2)); REFL.add(m); LED_STREAKS.push(m); });
   LOGO_STREAK = streak(240, 7); LOGO_STREAK.position.copy(LOGO_C).add(new THREE.Vector3(0, 1.5, 0)); SHELL.add(LOGO_STREAK);
+  // V4 (Harsh: "more wow on the light beams"): light fans with travelling pulses, rising curtains, light shafts out of the logo
+  const fan = (w0, w1, L) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute([-w0 / 2, 0, 0, w0 / 2, 0, 0, w1 / 2, 0, L, -w1 / 2, 0, L], 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 1, 0, 1, 1, 0, 1], 2)); g.setIndex([0, 1, 2, 0, 2, 3]); return g; };
+  const beamMat = (col, speed, bands) => new THREE.ShaderMaterial({ uniforms: { t: { value: 0 }, a: { value: 0 }, c: { value: new THREE.Color(col) } }, transparent: true, depthWrite: false, depthTest: true, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+    vertexShader: 'varying vec2 vU; void main(){ vU = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: `uniform float t; uniform float a; uniform vec3 c; varying vec2 vU; void main(){ float v = vU.y; float e = 1.0 - smoothstep(0.35, 1.0, abs(vU.x - 0.5) * 2.0); float f = pow(1.0 - v, 1.4) * smoothstep(0.0, 0.05, v); float p = 0.5 + 0.5 * smoothstep(0.2, 1.0, sin(v * ${bands.toFixed(1)} - t * ${speed.toFixed(1)})); gl_FragColor = vec4(c, e * f * p * a); }` });
+  BEAMS.fans = LEDS.map(L => { const g = new THREE.Group(); for (const r of [0, Math.PI / 2]) { const m = new THREE.Mesh(fan(3, 20, 62), beamMat(0xfff1d8, 9, 16)); m.rotation.z = r; g.add(m); } g.position.copy(L.p).add(new THREE.Vector3(0, -0.2, 1.8)); g.visible = false; g.renderOrder = 11; REFL.add(g); return g; });
+  BEAMS.curtains = LEDS.map(L => { const g = new THREE.Group(); for (const r of [0, Math.PI / 2]) { const m = new THREE.Mesh(fan(14, 22, 1), beamMat(0xfff6ea, 7, 10)); m.rotation.set(-Math.PI / 2, 0, 0); m.rotateY(r); g.add(m); } g.position.set(L.p.x, 5.15, L.p.z + 30); g.visible = false; g.renderOrder = 11; LID.add(g); return g; });
+  BEAMS.shafts = new THREE.Group(); BEAMS.shafts.position.copy(LOGO_C).add(new THREE.Vector3(0, 0.8, 0)); BEAMS.shafts.visible = false; SHELL.add(BEAMS.shafts);
+  for (let n = 0; n < 12; n++) { const piv = new THREE.Group(), a0 = n / 12 * Math.PI * 2; piv.rotation.set(0.32 * Math.cos(a0), 0, 0.32 * Math.sin(a0)); for (const r of [0, Math.PI / 2]) { const m = new THREE.Mesh(fan(4, 22 + 10 * ((n * 5) % 3), 95), beamMat(0xeaf5ff, 5, 7)); m.rotation.set(-Math.PI / 2, 0, 0); m.rotateY(r); piv.add(m); } BEAMS.shafts.add(piv); }
+  BEAMS.all = [...BEAMS.fans, ...BEAMS.curtains, BEAMS.shafts]; BEAMS.mats = []; BEAMS.all.forEach(g => g.traverse(o => o.material && BEAMS.mats.push(o.material)));
   // light particles: LED → mirror → diffuser, then diffuser → logo (exploded layout)
   FLOW = { g: new THREE.Group(), a: [], b: [] }; LID.add(FLOW.g);
   const Y = LAYER_Y;
@@ -5422,7 +5432,13 @@ const SHOTS = [
     rim.intensity = 1.3; rim.color.setHex(0xdfe6f0); lidOpen(OPEN); room(0); setXray(1 - ease(ramp(u, 5.9, 7.0))); screenOn(0.35, 0);
     const close = ease(ramp(u, 5.4, 6.6)); explode(1 - close); tapeOff(1 - close); ledOn([1, 1, 1, 1].map(v => v * (1 - close)));
     const fadeR = 1 - ramp(u, 5.0, 5.4);
-    RAYS.led.forEach(R => setTube(R.t, ramp(u, 0.1, 0.7), 0.22 * fadeR)); RAYS.bounce.forEach(R => setTube(R.t, ramp(u, 0.6, 1.2), 0.22 * fadeR));   // faint guides
+    BEAMS.mats.forEach(m => m.uniforms.t.value = u);   // V4 wow: light fans → rising curtains → shafts out of the logo
+    const fa = ease(ramp(u, 0.1, 0.6)) * (1 - ease(ramp(u, 2.6, 3.2))) * fadeR, ca = ease(ramp(u, 0.6, 1.1)) * (1 - ease(ramp(u, 3.0, 3.6))) * fadeR;
+    const sa = (ease(ramp(u, 4.1, 4.6)) * (1 - ease(ramp(u, 5.6, 6.2)))) * (1 - close);
+    BEAMS.fans.forEach(g => { g.visible = fa > 0.01; g.children.forEach(m => m.material.uniforms.a.value = 1.0 * fa); });
+    const ky = ease(EXPL), y0 = 5.15 + LAYER_Y.refl * ky, y1 = 6.3 + LAYER_Y.diff * ky - 0.6;
+    BEAMS.curtains.forEach(g => { g.visible = ca > 0.01; g.position.y = y0; g.scale.set(1, Math.max(0.01, y1 - y0), 1); g.children.forEach(m => m.material.uniforms.a.value = 0.85 * ca); });
+    BEAMS.shafts.visible = sa > 0.01; BEAMS.shafts.rotation.y = u * 0.35; BEAMS.shafts.children.forEach(piv => piv.children.forEach(m => m.material.uniforms.a.value = 0.42 * sa));   // faint guides
     flow(FLOW.a, u, 0.55, ease(ramp(u, 0.1, 0.6)) * fadeR);
     const hot = ease(ramp(u, 1.0, 1.5)) * (1 - ease(ramp(u, 2.2, 3.0)));   // concentrated: four hot spots under the diffuser
     HOTS.forEach(h => { h.visible = hot > 0.01; h.material.opacity = hot; });
@@ -5481,7 +5497,7 @@ const CUTS = B.slice(1, -3);   // V4: no dip before the end either: scene 6 cont
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t)); TNOW = t; DRIFT = 0;
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
-  camera.zoom = 1; RIPPLES.forEach(m => m.visible = false); LED_STREAKS.forEach(m => m.visible = false); if (LOGO_STREAK) LOGO_STREAK.visible = false; if (DIFF.userData.mesh) { DIFF.userData.mesh.material.emissive.setHex(0xffffff); DIFF.userData.mesh.material.color.setHex(0xf2f6fc); DIFF.userData.halo.material.color.setHex(0xffffff); } hideTags(); if (SCREEN_IMG) SCREEN_IMG.visible = false; $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
+  camera.zoom = 1; RIPPLES.forEach(m => m.visible = false); if (BEAMS.all) BEAMS.all.forEach(g => g.visible = false); LED_STREAKS.forEach(m => m.visible = false); if (LOGO_STREAK) LOGO_STREAK.visible = false; if (DIFF.userData.mesh) { DIFF.userData.mesh.material.emissive.setHex(0xffffff); DIFF.userData.mesh.material.color.setHex(0xf2f6fc); DIFF.userData.halo.material.color.setHex(0xffffff); } hideTags(); if (SCREEN_IMG) SCREEN_IMG.visible = false; $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); END.outro = -1; renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0);
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
   const k = ORIG[i] ? ORIG[i] / (b - a) : 1; fn((t - a) * k, ORIG[i] || b - a);   // scenes 2–6 were timed on v1's voice: stretch them to this voice's lines
   if (i >= 6) title([], [], 0);
