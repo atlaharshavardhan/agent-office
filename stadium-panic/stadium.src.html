@@ -21,6 +21,7 @@
 <div class="concept" id="cA" style="top:14%">Uncertainty<small>No one knows what is happening</small></div>
 <div class="concept" id="cB" style="top:14%">Social influence<small>People copy those around them</small></div>
 <div class="concept" id="cC" style="top:14%">Stress<small>Narrows attention, speeds up decisions</small></div>
+<div id="fade" style="position:fixed;inset:0;z-index:5;background:#000;opacity:0;pointer-events:none"></div>
 <div id="outro"><img id="oLogo" src="__LOGO__" alt=""><div id="oName"><span>Invisi</span><b>Tech</b></div><div id="oTag">The tech behind everyday life.</div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="assets/post/CopyShader.js"></script>
@@ -118,32 +119,37 @@ function geo(parts) {   // merge [geometry, matrix] parts into one non-indexed g
 const M = (x, y, z, rx = 0, ry = 0, rz = 0, s = 1) => new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)), new THREE.Vector3(s, s, s));
 const rbox = (w, h, d) => { const g = new THREE.BoxGeometry(w, h, d, 2, 2, 2), p = g.attributes.position, v = new THREE.Vector3();   // softly rounded box
   for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); const k = 0.22, n = new THREE.Vector3(Math.sign(v.x) * w / 2, Math.sign(v.y) * h / 2, Math.sign(v.z) * d / 2); v.lerp(n.multiplyScalar(0.86), k); p.setXYZ(i, v.x, v.y, v.z); } g.computeVertexNormals(); return g; };
-const limb = (r0, r1, len) => new THREE.CylinderGeometry(r1, r0, len, 7, 1);
-const lathe = (pts, seg = 12) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), seg);
+let LO = false;   // light geometry for the far crowd
+const limb = (r0, r1, len) => new THREE.CylinderGeometry(r1, r0, len, LO ? 4 : 7, 1);
+const lathe = (pts, seg = 12) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), LO ? 6 : seg);
+const sph = (r, a, b, ...rest) => new THREE.SphereGeometry(r, LO ? 6 : a, LO ? 4 : b, ...rest);
 // slim miniature people (reference style): small head with dark hair, plain top, dark trousers, arms close to the body
+function makeG() {
 const torsoG = (() => { const g = lathe([[0.001, 1.0], [0.125, 1.0], [0.13, 1.12], [0.135, 1.28], [0.15, 1.4], [0.15, 1.45], [0.11, 1.49], [0.05, 1.51], [0.001, 1.515]], 12); g.scale(1, 1, 0.66); return g; })();
 function arm(side, sh, el) {   // side ±1; sh, el: [rx, rz] for shoulder and elbow
   const S = new THREE.Matrix4().makeTranslation(side * 0.165, 1.43, 0).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(sh[0], 0, side * sh[1])));
   const E = S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.29, 0)).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(el[0], 0, side * el[1])));
   return [[limb(0.034, 0.042, 0.3), S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.15, 0))], [limb(0.03, 0.035, 0.27), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.135, 0))],
-          [new THREE.SphereGeometry(0.034, 7, 5), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.285, 0))]]; }
-const G = {
+          [sph(0.034, 7, 5), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.285, 0))]]; }
+return {
   torso: geo([[torsoG, M(0, 0, 0)]]),
   legs: geo([[lathe([[0.001, 0.88], [0.135, 0.92], [0.135, 1.01], [0.001, 1.01]], 10), M(0, 0, 0)], [limb(0.052, 0.064, 0.47), M(-0.07, 0.69, 0)], [limb(0.052, 0.064, 0.47), M(0.07, 0.69, 0)],
                [limb(0.04, 0.052, 0.45), M(-0.07, 0.24, 0)], [limb(0.04, 0.052, 0.45), M(0.07, 0.24, 0)], [rbox(0.085, 0.06, 0.21), M(-0.07, 0.03, 0.04)], [rbox(0.085, 0.06, 0.21), M(0.07, 0.03, 0.04)]]),
-  head: geo([[new THREE.SphereGeometry(0.092, 14, 10), M(0, 1.64, 0)], [limb(0.034, 0.04, 0.09), M(0, 1.53, 0)]]),
-  eyes: geo([[new THREE.SphereGeometry(0.0095, 5, 4), M(-0.03, 1.652, 0.085)], [new THREE.SphereGeometry(0.0095, 5, 4), M(0.03, 1.652, 0.085)]]),
-  hair: geo([[new THREE.SphereGeometry(0.098, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.46), M(0, 1.648, -0.006, -0.42)]]),   // dark hair over the top and back of the head
+  head: geo([[sph(0.092, 14, 10), M(0, 1.64, 0)], [limb(0.034, 0.04, 0.09), M(0, 1.53, 0)]]),
+  eyes: geo([[sph(0.0095, 5, 4), M(-0.03, 1.652, 0.085)], [sph(0.0095, 5, 4), M(0.03, 1.652, 0.085)]]),
+  hair: geo([[sph(0.098, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.46), M(0, 1.648, -0.006, -0.42)]]),   // dark hair over the top and back of the head
   armsDown: geo([...arm(-1, [0, 0.06], [-0.12, 0]), ...arm(1, [0, 0.06], [-0.12, 0])]),
   armsUp: geo([...arm(-1, [0.1, 2.8], [0, -0.2]), ...arm(1, [0.1, 2.8], [0, -0.2])]),
   armPoint: geo([...arm(-1, [0, 0.06], [-0.12, 0]), ...arm(1, [-1.45, 0.2], [-0.1, 0])]),
   armsHead: geo([...arm(-1, [-1.3, -0.12], [-1.9, 0]), ...arm(1, [-1.3, -0.12], [-1.9, 0])]),   // hands up in front of the face (worry)
 };
+}
+const G = makeG(); LO = true; const GL = makeG(); LO = false;
 const SKIN = [0x8d5524, 0xc68642, 0xe0ac69, 0xf1c27d, 0x6b3e26, 0xa0663c, 0xd29b6c], HAIRC = [0x111111, 0x161210, 0x1b1410, 0x0e0e10, 0x2c1b10, 0x111111, 0x3a2a1c], PANTS = [0x1c1e24, 0x22252c, 0x1c2a44, 0x2a2622, 0x1d2333];
 const SHIRT = [0x1d4fa8, 0x1d4fa8, 0x2f6fe0, 0xe8edf4, 0xd8342c, 0xffffff, 0x1d4fa8, 0xf2c230, 0x3aa760, 0xe86a2c, 0x7b4fd6];
 class Crowd {   // one group of people drawn with instanced parts; per person: pose + colours
-  constructor(list, detail = 1) { this.list = list; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
-    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) { const m = new THREE.InstancedMesh(G[k], mat(k === 'head' ? 0.7 : k === 'eyes' ? 0.4 : 0.92), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scene.add(m); }
+  constructor(list, detail = 1, GS = G) { this.list = list; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
+    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) { const m = new THREE.InstancedMesh(GS[k], mat(k === 'head' ? 0.7 : k === 'eyes' ? 0.4 : 0.92), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scene.add(m); }
     const c = new THREE.Color(); list.forEach((p, i) => { p.skin = p.skin ?? SKIN[(rnd() * SKIN.length) | 0]; p.shirt = p.shirt ?? SHIRT[(rnd() * SHIRT.length) | 0]; p.pants = PANTS[(rnd() * PANTS.length) | 0]; p.hairc = HAIRC[(rnd() * HAIRC.length) | 0]; p.h = 0.92 + rnd() * 0.16;
       this.parts.torso.setColorAt(i, c.copy(LIN(p.shirt))); this.parts.legs.setColorAt(i, c.copy(LIN(p.pants))); this.parts.head.setColorAt(i, c.copy(LIN(p.skin))); this.parts.hair.setColorAt(i, c.copy(LIN(p.hairc))); this.parts.eyes.setColorAt(i, c.copy(LIN(0x14100e)));
       for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead']) this.parts[k].setColorAt(i, c.copy(LIN(p.shirt))); });
@@ -161,7 +167,10 @@ class Crowd {   // one group of people drawn with instanced parts; per person: p
 }
 // fans in the seats (stand in front of their seat, facing the pitch)
 const fans = seatSpots.filter(() => rnd() < 0.93).map(s => ({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, yaw: Math.atan2(-s.nx, -s.nz), r: s.r, t: s.t, ph: rnd() * 6.28, seed: rnd() }));
-const CROWD = new Crowd(fans);
+const N3 = 3 * Math.PI / 2, inHero = p => p.t > N3 + 0.1 && p.t < N3 + 0.6 && p.r <= 12;
+const heroFans = fans.filter(inHero), massFans = fans.filter(p => !inHero(p));
+const CROWD = new Crowd(massFans, 0, GL), HERO = new Crowd(heroFans, 1, G);
+const CROWDS = [CROWD, HERO], crowdUpdate = fn => CROWDS.forEach(C => C.update(fn)), crowdTint = fn => CROWDS.forEach(C => C.tint(fn));
 // stewards in hi-vis around the pitch (scene 5)
 const stewards = []; for (let i = 0; i < 26; i++) { const t = i / 26 * Math.PI * 2 + 0.1, [x, z] = SE(t, A0 - 4.5, B0 - 4.5); stewards.push({ x, y: 0, z, yaw: Math.atan2(x, z), shirt: 0xd6ff2a, t }); }   // stewards face the crowd
 const STEW = new Crowd(stewards);
@@ -208,43 +217,95 @@ const pick = (t, r) => fans.reduce((b, p) => Math.abs(p.t - t) + Math.abs(p.r - 
 
 /* ---------- lighting moods ---------- */
 function mood(red, calm) { flood.intensity = lerp(1.25, 0.45, red) * lerp(1, 1.1, calm); flood2.intensity = lerp(0.45, 0.15, red); hemi.intensity = lerp(0.22, 0.14, red); hemi.color.copy(red > 0.5 ? HEMI_R : HEMI_N);
-  redL.intensity = 3.2 * red * (0.85 + 0.15 * Math.sin(performance.now() * 0.01)); renderer.toneMappingExposure = lerp(0.95, 0.85, red); }
+  redL.intensity = 3.2 * red; renderer.toneMappingExposure = lerp(0.95, 0.85, red); }
 
-/* ---------- stills (the Remotion build animates between these) ---------- */
-let LK = null;
-const STILLS = {
-  1: () => { mood(0.15, 0); drawBoard('glitch'); smoke(0.8, 3.2); CROWD.update(p => ({ pose: p.seed < 0.55 ? 'armsDown' : 'armsUp', headPitch: -0.1 }));
-    shot(V(95, 120, 150), V(0, 6, -10), 36); tTitle(['What happens', 'when a stadium <em>panics?</em>'], 1); $('sub').textContent = 'What happens when thousands of people panic'; },
-  2: () => { mood(0.35, 0); drawBoard('glitch'); smoke(1, 5); const c = pick((3 * Math.PI / 2) + 0.32, 1);
-    const P = V(c.x, c.y, c.z), n = V(-c.x, 0, -c.z).normalize(), tg = V(-n.z, 0, n.x); shot(P.clone().addScaledVector(n, 4.4).addScaledVector(tg, 3.6).add(V(0, 1.55, 0)), P.clone().add(V(0, 1.75, 0)).addScaledVector(tg, -1.5), 30, 5.6, 0.0004);
-    CROWD.update(p => { const near = Math.hypot(p.x - c.x, p.z - c.z) < 14; const s = p.seed; return { pose: !near ? (s < 0.975 ? 'armsDown' : 'armPoint') : (s < 0.22 ? 'armsHead' : s < 0.32 ? 'armPoint' : 'armsDown'), headYaw: near ? (s - 0.5) * 2.2 : (s - 0.5) * 0.8, headPitch: near ? (s < 0.5 ? 0.15 : -0.2) : -0.15 }; });
-    tTitle([], 0); $('sub').textContent = 'Others wait, watching everyone around them'; },
-  3: () => { mood(0.25, 0); drawBoard('glitch'); smoke(0.7, 7); const c = pick((3 * Math.PI / 2) + 0.28, 8);
-    if (!LK) LK = [buildLinks(c, 16, 0xffb547), buildLinks(pick((3 * Math.PI / 2) + 0.4, 4), 12, 0x4fc3f7)];
-    LK.forEach(L => L.g.children.forEach(m => m.material.opacity = 0.9));
-    const hot = new Set(LK[0].near), cool = new Set(LK[1].near);
-    CROWD.tint(p => hot.has(p) ? [0xffb547, 0.9] : cool.has(p) ? [0x4fc3f7, 0.9] : [0x14171e, 0.8]);   // groups glow, everyone else steps back
-    CROWD.update(p => ({ pose: hot.has(p) ? (p.seed < 0.5 ? 'armPoint' : 'armsDown') : 'armsDown', headYaw: hot.has(p) ? -0.6 : 0, headPitch: -0.1 }));
-    { const n = V(-c.x, 0, -c.z).normalize(), tg = V(-n.z, 0, n.x); shot(V(c.x, c.y, c.z).addScaledVector(n, 26).addScaledVector(tg, -12).add(V(0, 16, 0)), V(c.x, c.y + 1.5, c.z).addScaledVector(tg, 3), 30); } tTitle(['One reaction', '<em>spreads</em>'], 1); $('sub').textContent = 'One person’s reaction can influence the people nearby'; },
-  4: () => { mood(0.4, 0); drawBoard('glitch'); smoke(0.9, 9); CROWD.tint(() => null); LINKS.visible = false; const c = pick((3 * Math.PI / 2) + 0.36, 0);
-    const P = V(c.x, c.y, c.z), n = V(-c.x, 0, -c.z).normalize(), tg = V(-n.z, 0, n.x); shot(P.clone().addScaledVector(n, 3.4).addScaledVector(tg, -1.6).add(V(0, 1.75, 0)), P.clone().add(V(0, 1.6, 0)), 30, 3.7, 0.0006);
-    CROWD.update(p => ({ pose: p.seed < 0.35 ? 'armsHead' : 'armsDown', headYaw: (p.seed - 0.5) * 1.6, headPitch: 0.1 }));
-    tTitle([], 0); $('cA').style.opacity = 1; $('sub').textContent = 'Uncertainty, stress and social influence'; },
-  5: () => { mood(0, 1); drawBoard('msg'); smoke(0.25, 12); LINKS.visible = false; CROWD.tint(() => null);
-    CROWD.update(p => ({ pose: 'armsDown', headYaw: (p.seed - 0.5) * 0.4, headPitch: -0.05 }));
-    STEW.update(p => ({ pose: 'armPoint', yaw: 0 })); const s = stewards.reduce((b, q) => q.z < b.z ? q : b, stewards[0]);
-    shot(V(s.x + 1.6, 2.2, s.z + 6.5), V(s.x - 0.8, 2.6, s.z - 6), 34, 6.6, 0.0003); tTitle(['Clear information', '<em>calms</em> a crowd'], 1); $('sub').textContent = 'That’s why clear communication matters'; },
-  6: () => { mood(0, 1); drawBoard('msg'); smoke(0, 0); CROWD.update(p => ({ pose: 'armsDown', headPitch: -0.1 })); STEW.update(() => ({ pose: 'armPoint' }));
-    shot(V(-150, 95, 170), V(0, 0, -5), 36); tTitle([], 0); $('sub').textContent = ''; },
-  7: () => { $('outro').style.opacity = 1; $('note').style.opacity = 0; $('sub').textContent = ''; },
-};
-function renderAt(t) { const k = Math.min(7, Math.max(1, Math.round(t)));
-  ['cA', 'cB', 'cC'].forEach(id => $(id).style.opacity = 0); $('outro').style.opacity = 0; $('note').style.opacity = 1; LINKS.visible = true; STEW.update(() => ({ pose: 'armsDown' }));
-  if (k < 5) STEW.list.forEach(() => {}), Object.values(STEW.parts).forEach(m => m.visible = k >= 5); else Object.values(STEW.parts).forEach(m => m.visible = true);
-  STILLS[k](); composer.render(); }
+/* ---------- 45-second timeline ---------- */
+const TOTAL = 45, CAPS = __CAPS__;
+const easeIO = ease, sm = (u, a, b) => ease(ramp(u, a, b));
+const C2 = pick(N3 + 0.32, 1), C4A = pick(N3 + 0.36, 0), C4B = pick(N3 + 0.26, 3), C4C = pick(N3 + 0.44, 1), CL = pick(N3 + 0.28, 8), CL2 = pick(N3 + 0.4, 4);
+const LK = [buildLinks(CL, 16, 0xffb547), buildLinks(CL2, 12, 0x4fc3f7)], HOT = new Set(LK[0].near), COOL = new Set(LK[1].near);
+const STEW_S = stewards.reduce((b, q) => q.z < b.z ? q : b, stewards[0]);
+const front = c => { const n = V(-c.x, 0, -c.z).normalize(); return { P: V(c.x, c.y, c.z), n, tg: V(-n.z, 0, n.x) }; };
+const camLerp = (a, b, k) => [a[0].clone().lerp(b[0], k), a[1].clone().lerp(b[1], k)];
+const smokeO = SMOKE_O;
+function setTitle(lines, a) { const k = lines.join('|'); if ($('title').dataset.k !== k) { $('title').dataset.k = k; $('title').innerHTML = lines.map(l => `<span class="ln">${l}</span>`).join(''); }
+  $('title').style.opacity = a; $('title').style.transform = `translateY(${(1 - a) * 2}vh)`; }
+function concept(id, a) { const e = $(id); e.style.opacity = a; e.style.transform = `translateY(${(1 - a) * 2}vh)`; }
+let lastTint = '';
+function tintMode(m, k = 1) { const key = m + Math.round(k * 10); if (key === lastTint) return; lastTint = key;
+  if (m === 'none') crowdTint(() => null); else crowdTint(p => HOT.has(p) ? [0xffb547, 0.9 * k] : (m === 'both' && COOL.has(p)) ? [0x4fc3f7, 0.9 * k] : [0x14171e, 0.75 * k]); }
+// cheering: arms up/down in waves, little jumps
+const cheer = (p, t, k) => { const w = Math.sin(t * 6 + p.ph * 3 + p.x * 0.05); return { pose: k > 0.5 && w > 0.1 && p.seed < 0.75 ? 'armsUp' : 'armsDown', bob: k * Math.max(0, w) * 0.08 * (p.seed < 0.6 ? 1 : 0), headPitch: -0.12 }; };
+const SC = [
+  [0, 3, (u, t) => {   // 1. hook: packed stadium cheering, smoke and a glitch at the scoreboard, cheering stops; dramatic push-in
+    const fault = sm(u, 0.9, 1.4), red = sm(u, 1.3, 2.2); mood(0.6 * red, 0); drawBoard(u < 1.1 ? 'score' : 'glitch'); smoke(fault, t);
+    const ck = 1 - sm(u, 1.6, 2.6); crowdUpdate(p => { const c = cheer(p, t, ck); if (ck < 0.5) { c.pose = 'armsDown'; c.headYaw = (p.seed - 0.5) * 0.6 * (1 - ck); c.headPitch = -0.2; } return c; });
+    const k = easeIO(u / 3); shot(V(lerp(110, 60, k), lerp(135, 70, k), lerp(170, 95, k)), V(lerp(0, 4, k), lerp(4, 14, k), lerp(-8, -40, k)), lerp(36, 30, k));
+    setTitle(['What happens', 'when a stadium <em>panics?</em>'], sm(u, 0.2, 0.6));
+  }],
+  [3, 10, (u, t) => {   // 2. into the stands: individual reactions
+    mood(0.6, 0); drawBoard('glitch'); smoke(1, t);
+    const F = front(C2); const k = easeIO(u / 7);
+    shot(F.P.clone().addScaledVector(F.n, 4.4).addScaledVector(F.tg, lerp(4.6, 2.6, k)).add(V(0, 1.55 + 0.1 * k, 0)), F.P.clone().add(V(0, 1.75, 0)).addScaledVector(F.tg, lerp(-1, -2, k)), 30, 5.4, 0.0004);
+    crowdUpdate(p => { const near = Math.hypot(p.x - C2.x, p.z - C2.z) < 16, s = p.seed;
+      const quick = s < 0.3, react = quick ? sm(u, 0.6, 1.0) : sm(u, 3.2 + s * 2, 3.8 + s * 2);   // some react at once, others only after watching
+      const look = Math.sin(t * (0.6 + s) + p.ph) * (near ? 0.9 : 0.4);
+      return { pose: !near ? (s < 0.975 ? 'armsDown' : 'armPoint') : (react > 0.5 ? (s < 0.18 ? 'armsHead' : s < 0.3 ? 'armPoint' : 'armsDown') : 'armsDown'), headYaw: near ? look : look * 0.5, headPitch: near ? (s < 0.4 ? 0.12 : -0.15) : -0.12, bob: 0 }; });
+    setTitle([], 0);
+  }],
+  [10, 20, (u, t) => {   // 3. lift into a cutaway view: one reaction spreads, links grow outwards
+    mood(0.45, 0); drawBoard('glitch'); smoke(0.8, t); LINKS.visible = true;
+    const F2 = front(C2), F = front(CL), k = easeIO(ramp(u, 0, 3.5));
+    const a = [F2.P.clone().addScaledVector(F2.n, 4.4).addScaledVector(F2.tg, 2.6).add(V(0, 1.65, 0)), F2.P.clone().add(V(0, 1.75, 0)).addScaledVector(F2.tg, -2)];
+    const b = [F.P.clone().addScaledVector(F.n, 26).addScaledVector(F.tg, lerp(-12, -6, ramp(u, 3.5, 10))).add(V(0, 16, 0)), F.P.clone().add(V(0, 1.5, 0)).addScaledVector(F.tg, 3)];
+    const [cp, ct] = camLerp(a, b, k); shot(cp, ct, 30, 5.4, k < 0.5 ? 0.0004 * (1 - 2 * k) : 0);
+    LK[0].g.children.forEach(m => m.material.opacity = 0.95 * ramp(u, 3.2 + m.userData.d * 0.12, 3.6 + m.userData.d * 0.12));
+    LK[1].g.children.forEach(m => m.material.opacity = 0.95 * ramp(u, 6.4 + m.userData.d * 0.12, 6.8 + m.userData.d * 0.12));
+    tintMode(u < 6.2 ? 'hot' : 'both', sm(u, 3, 4));
+    crowdUpdate(p => { const hot = HOT.has(p) && u > 3.2, cool = COOL.has(p) && u > 6.4; return { pose: hot ? (p.seed < 0.5 ? 'armPoint' : 'armsDown') : cool && p.seed < 0.3 ? 'armPoint' : 'armsDown', headYaw: hot || cool ? Math.sin(t * 1.2 + p.ph) * 0.7 : Math.sin(t * 0.7 + p.ph) * 0.3, headPitch: -0.1 }; });
+    setTitle(['One reaction', '<em>spreads</em>'], sm(u, 3.3, 3.8) * (1 - sm(u, 9.3, 9.8)));
+  }],
+  [20, 30, (u, t) => {   // 4. freeze: the camera moves between three people; Uncertainty, Social influence, Stress
+    mood(0.55, 0); drawBoard('glitch'); smoke(0.9, 22); tintMode('none');
+    const seg = u < 3.3 ? 0 : u < 6.6 ? 1 : 2, uu = u - seg * 3.3, C = [C4A, C4B, C4C][seg], F = front(C);
+    const sideA = [-1.6, 1.4, -1.2][seg], dz = [3.4, 3.6, 3.0][seg], drift = uu * 0.12;
+    shot(F.P.clone().addScaledVector(F.n, dz - drift).addScaledVector(F.tg, sideA + drift * 0.5).add(V(0, 1.72, 0)), F.P.clone().add(V(0, 1.6, 0)), 30, dz - drift - 0.2, 0.00055);
+    const look = q => { let d = Math.atan2(C4B.x - q.x, C4B.z - q.z) - q.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); return Math.max(-1.2, Math.min(1.2, d)); };   // social influence: neighbours turn to look at one person
+    crowdUpdate(p => { const nearB = seg === 1 && p !== C4B && Math.hypot(p.x - C4B.x, p.z - C4B.z) < 4.5 && uu > 0.6;
+      return { pose: p === C4B && seg === 1 ? 'armPoint' : p.seed < 0.3 ? 'armsHead' : p.seed > 0.92 ? 'armPoint' : 'armsDown', headYaw: nearB ? look(p) * sm(uu, 0.6 + p.seed, 1.0 + p.seed) + (p.seed - 0.5) * 1.5 * (1 - sm(uu, 0.6 + p.seed, 1.0 + p.seed)) : (p.seed - 0.5) * 1.5, headPitch: p.seed < 0.3 ? 0.18 : 0.05 }; });
+    if (seg === 2) redL.intensity = 4.5 * (0.7 + 0.3 * Math.sin(u * 7));   // stress: a red pulse
+    concept('cA', seg === 0 ? sm(uu, 0.25, 0.6) * (1 - sm(uu, 2.9, 3.25)) : 0); concept('cB', seg === 1 ? sm(uu, 0.25, 0.6) * (1 - sm(uu, 2.9, 3.25)) : 0); concept('cC', seg === 2 ? sm(uu, 0.25, 0.6) * (1 - sm(uu, 3.0, 3.35)) : 0);
+    setTitle([], 0); $('fade').style.opacity = Math.max(0, 0.7 - Math.min(Math.abs(u - 3.3), Math.abs(u - 6.6)) / 0.18);   // soft cuts between the three
+  }],
+  [30, 43, (u, t) => {   // 5. stewards communicate, announcement, red → neutral light, calmer crowd, spectacular wide
+    const calm = sm(u, 0.4, 3.5); mood(0.55 * (1 - calm), calm); drawBoard(u > 1.2 ? 'msg' : 'glitch'); smoke(0.7 * (1 - sm(u, 1, 6)), t); LINKS.visible = false; tintMode('none');
+    Object.values(STEW.parts).forEach(m => m.visible = true);
+    STEW.update(p => ({ pose: Math.sin(t * 2.2 + p.t * 5) > 0 ? 'armPoint' : 'armsDown', headYaw: Math.sin(t * 0.8 + p.t * 3) * 0.4 }));
+    crowdUpdate(p => { const settle = sm(u, 1 + p.seed * 3, 2 + p.seed * 3); return { pose: settle > 0.5 ? 'armsDown' : (p.seed < 0.3 ? 'armsHead' : 'armsDown'), headYaw: lerp((p.seed - 0.5) * 1.4, (p.seed - 0.5) * 0.3, settle), headPitch: lerp(0.1, -0.05, settle) }; });
+    const s = STEW_S, k = easeIO(ramp(u, 0, 6)), w = easeIO(ramp(u, 6.2, 13));
+    const a = [V(s.x + 1.6, 2.2, s.z + 6.5), V(s.x - 0.8, 2.6, s.z - 6)], b = [V(s.x + 0.9, 1.9, s.z + 4.2), V(s.x - 0.5, 2.3, s.z - 6)], c = [V(-150, 95, 170), V(0, 0, -5)];
+    let [cp, ct] = camLerp(a, b, k); if (w > 0) [cp, ct] = camLerp([cp, ct], c, w);
+    shot(cp, ct, lerp(34, 36, w), cp.distanceTo(V(s.x, 1.6, s.z)), w < 0.2 ? 0.0003 * (1 - 5 * w) : 0);
+    setTitle(['Clear information', '<em>calms</em> a crowd'], sm(u, 1.0, 1.5) * (1 - sm(u, 5.6, 6.1)));
+  }],
+  [43, 45, () => { mood(0, 1); }],
+];
+function renderAt(t) {
+  t = Math.max(0, Math.min(TOTAL - 1e-3, t));
+  const i = SC.findIndex(s => t >= s[0] && t < s[1]), [a, , fn] = SC[i];
+  ['cA', 'cB', 'cC'].forEach(id => concept(id, 0)); $('fade').style.opacity = 0; LINKS.visible = false;
+  Object.values(STEW.parts).forEach(m => m.visible = i >= 4);
+  fn(t - a, t);
+  const o = $('outro'), ou = t - 43; o.style.opacity = ou < 0 ? 0 : ease(ramp(ou, 0, 0.3));
+  if (ou >= 0) { const pop = (el, a0, a1, s0) => { const v = ease(ramp(ou, a0, a1)); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 1.2}vh) scale(${s0 + (1 - s0) * v})`; }; pop($('oLogo'), 0.15, 0.65, 0.92); pop($('oName'), 0.4, 0.9, 0.96); pop($('oTag'), 0.65, 1.15, 1); }
+  $('note').style.opacity = t < 43 ? 1 : 0;
+  const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
+  for (const c of [3, 10, 20, 30]) $('fade').style.opacity = Math.max(+$('fade').style.opacity, 0.5 - Math.abs(t - c) / 0.25);
+  if (t < 43) composer.render();
+}
 { const seen = new Set(); scene.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (seen.has(m)) return; seen.add(m); if (m.color && !m.map) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); });
   if (o.isLight) { o.color.convertSRGBToLinear(); if (o.groundColor) o.groundColor.convertSRGBToLinear(); } }); scene.fog.color.convertSRGBToLinear(); }
 const HEMI_N = hemi.color.clone(), HEMI_R = LIN(0x8a4a52);
-window.__tour = { total: 8, renderAt }; window.__tourReady = () => true;
+window.__tour = { total: TOTAL, renderAt }; window.__tourReady = () => true;
 })();
 </script>
