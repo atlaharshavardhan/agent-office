@@ -1,68 +1,68 @@
 1
-00:00:00,450 --> 00:00:02,430
+00:00:00,600 --> 00:00:02,200
 This logo shouldn't be able to glow.
 
 2
-00:00:02,690 --> 00:00:06,120
+00:00:02,700 --> 00:00:06,080
 After ten years, Apple brought it back on the new MacBook Pro.
 
 3
-00:00:06,200 --> 00:00:09,060
+00:00:06,320 --> 00:00:08,520
 But its OLED screen only makes light from the front.
 
 4
-00:00:09,140 --> 00:00:10,660
+00:00:08,760 --> 00:00:09,890
 There's no light behind it.
 
 5
-00:00:10,920 --> 00:00:12,570
+00:00:10,390 --> 00:00:11,690
 So where's the glow coming from?
 
 6
-00:00:12,650 --> 00:00:13,870
+00:00:11,930 --> 00:00:12,960
 Let's open the lid.
 
 7
-00:00:14,130 --> 00:00:17,000
+00:00:13,460 --> 00:00:16,030
 Hidden behind the screen are four tiny LEDs.
 
 8
-00:00:17,080 --> 00:00:20,090
+00:00:16,270 --> 00:00:18,920
 Apple says it built this light source just for the logo.
 
 9
-00:00:20,350 --> 00:00:22,490
+00:00:19,420 --> 00:00:21,630
 A mirror-like layer bounces their light,
 
 10
-00:00:22,570 --> 00:00:24,760
+00:00:21,870 --> 00:00:23,770
 a frosted sheet spreads it out evenly,
 
 11
-00:00:24,840 --> 00:00:26,620
+00:00:24,010 --> 00:00:25,950
 and it shines through the logo.
 
 12
-00:00:26,700 --> 00:00:27,800
+00:00:26,190 --> 00:00:27,290
 No bright spots.
 
 13
-00:00:28,060 --> 00:00:30,320
+00:00:27,790 --> 00:00:29,510
 It glows whenever your Mac is awake.
 
 14
-00:00:30,400 --> 00:00:32,820
+00:00:29,750 --> 00:00:32,150
 Brighter in a bright room, dimmer in a dark one.
 
 15
-00:00:32,900 --> 00:00:33,730
+00:00:32,390 --> 00:00:32,980
 Don't like it?
 
 16
-00:00:33,810 --> 00:00:35,210
+00:00:33,220 --> 00:00:34,230
 Apple lets you switch it off.
 
 17
-00:00:35,470 --> 00:00:37,270
+00:00:34,730 --> 00:00:35,800
 Follow InvisiTech for more.
 

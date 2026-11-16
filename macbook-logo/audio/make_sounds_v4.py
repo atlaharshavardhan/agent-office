@@ -75,5 +75,5 @@ place(sfx, impact(55, 1.0), B[7] - 0.4, 0.28); place(sfx, chime(), B[7] + 0.05, 
 for k in range(3): place(sfx, click(0.8), B[7] - 0.45 + 0.9 + k * 0.12, 0.28, (k - 1) * 0.4)   # V4: Like / Comment / Follow pop in
 place(sfx, click(1.1), B[7] - 0.45 + 1.3, 0.35); place(sfx, activate(988, 0.3), B[7] - 0.45 + 1.32, 0.12)   # Subscribe
 sfx /= max(1, np.max(np.abs(sfx)) / 0.9)
-sf.write('sfx_v4.wav', sfx.astype(np.float32), SR)
+sf.write('sfx_v4.wav' if VOICE == 'george40' else f'sfx_{VOICE}.wav', sfx.astype(np.float32), SR)
 print('ok', DUR, 'peak', np.max(np.abs(sfx)))

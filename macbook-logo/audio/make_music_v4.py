@@ -49,4 +49,4 @@ fo = int(2.0 * SR); music[-fo:] *= np.linspace(1, 0, fo)[:, None] ** 1.4
 music /= np.max(np.abs(music)) / 0.7
 
 
-sf.write('music_v4.wav', music.astype(np.float32), SR); print('ok', DUR)
+sf.write('music_v4.wav' if VOICE == 'george40' else f'music_{VOICE}.wav', music.astype(np.float32), SR); print('ok', DUR)

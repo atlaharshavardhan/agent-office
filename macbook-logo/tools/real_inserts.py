@@ -10,7 +10,9 @@ from fontTools.ttLib import TTFont
 
 here = os.path.dirname(os.path.abspath(__file__)); root = os.path.dirname(here)
 src, dst = sys.argv[1], sys.argv[2]; vdir = sys.argv[3] if len(sys.argv) > 3 else os.path.join(root, 'voice', 'george40')
-W, H, FPS = 1080, 1920, 30
+FPS = 30
+_w, _h = map(int, subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', src], capture_output=True, text=True).stdout.strip().split(','))
+W, H = _w, _h; K = W / 1080   # 1 = 1080x1920, 2 = 4K; every size below is in 1080 px times K
 caps = json.load(open(os.path.join(vdir, 'captions.json')))
 def cap_at(t):
     for a, b, txt in caps:
@@ -30,7 +32,7 @@ def plex(size):
     if not os.path.exists(p):
         f = TTFont(os.path.join(root, '..', 'phone-teardown', 'fonts', 'fontsource-ibm-plex-sans-5.0.20', 'package', 'files', 'ibm-plex-sans-latin-500-normal.woff2')); f.flavor = None; f.save(p)
     return ImageFont.truetype(p, size)
-F_SUB, F_HOOK, F_NOTE = font(700, 63), font(700, 89), plex(24)
+F_SUB, F_HOOK, F_NOTE = font(700, round(63 * K)), font(700, round(89 * K)), plex(round(24 * K))
 
 def photo(name):
     im = Image.open(os.path.join(root, 'higgsfield', name)).convert('RGB')
@@ -40,7 +42,7 @@ P_HOOK, P_CAFE, P_BED = photo('still1_hook.png'), photo('still2_cafe.png'), phot
 # the opening photo with the logo switched off: darken the bright logo and its halo
 a = np.asarray(P_HOOK).astype(np.float32); lum = a.mean(2)
 m = (lum > 150).astype(np.uint8) * 255; m[:int(H * 0.3)] = 0; m[int(H * 0.75):] = 0   # the logo only (not the blue rim or desk reflection)
-mask = Image.fromarray(m).filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(28))
+mask = Image.fromarray(m).filter(ImageFilter.MaxFilter(9 if K == 1 else 17)).filter(ImageFilter.GaussianBlur(28 * K))
 k = np.asarray(mask).astype(np.float32)[..., None] / 255
 P_HOOK_OFF = Image.fromarray((a * (1 - 0.85 * np.clip(k * 1.6, 0, 1))).astype(np.uint8))
 
@@ -54,11 +56,11 @@ def text_c(d, xy, txt, f, fill, stroke=0, sc=None):
 def subtitle(im, txt):
     if not txt: return
     sh = Image.new('RGBA', im.size, (0, 0, 0, 0)); ds = ImageDraw.Draw(sh)
-    lines = wrap(txt, F_SUB, 780); y = 1350 - (len(lines) - 1) * 36
-    for i, l in enumerate(lines): text_c(ds, (510, y + i * 72 + 4), l, F_SUB, (0, 0, 0, 170))
-    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(9)))
+    lines = wrap(txt, F_SUB, 780 * K); y = (1350 - (len(lines) - 1) * 36) * K
+    for i, l in enumerate(lines): text_c(ds, (510 * K, y + (i * 72 + 4) * K), l, F_SUB, (0, 0, 0, 170))
+    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(9 * K)))
     d = ImageDraw.Draw(im)
-    for i, l in enumerate(lines): text_c(d, (510, y + i * 72), l, F_SUB, (255, 255, 255, 255), 5, (0, 0, 0, 140))
+    for i, l in enumerate(lines): text_c(d, (510 * K, y + i * 72 * K), l, F_SUB, (255, 255, 255, 255), round(5 * K), (0, 0, 0, 140))
 def wrap(txt, f, maxw):
     words, lines, cur = txt.split(), [], ''
     for w_ in words:
@@ -67,23 +69,23 @@ def wrap(txt, f, maxw):
         else: lines.append(cur); cur = w_
     return lines + [cur]
 def note(im, txt='AI-generated image · not affiliated with Apple'):
-    d = ImageDraw.Draw(im); text_c(d, (510, 1477), txt, F_NOTE, (255, 255, 255, 150))
+    d = ImageDraw.Draw(im); text_c(d, (510 * K, 1477 * K), txt, F_NOTE, (255, 255, 255, 150))
 def hook_title(im, t):
     for i, (line, t0) in enumerate([('THE GLOW', 0.35), ('IS BACK.', 0.55)]):
         v = min(1, max(0, (t - t0) / 0.35)); v = 1 - (1 - v) ** 3
         if v <= 0: continue
-        lay = Image.new('RGBA', im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); y = 300 + i * 92 + (1 - v) * 42
-        text_c(d, (510, y + 6), line, F_HOOK, (0, 0, 0, int(160 * v))); lay = lay.filter(ImageFilter.GaussianBlur(12)); d = ImageDraw.Draw(lay)
-        text_c(d, (510, y), line, F_HOOK, (255, 255, 255, int(255 * v))); im.alpha_composite(lay)
+        lay = Image.new('RGBA', im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); y = (300 + i * 92 + (1 - v) * 42) * K
+        text_c(d, (510 * K, y + 6 * K), line, F_HOOK, (0, 0, 0, int(160 * v))); lay = lay.filter(ImageFilter.GaussianBlur(12 * K)); d = ImageDraw.Draw(lay)
+        text_c(d, (510 * K, y), line, F_HOOK, (255, 255, 255, int(255 * v))); im.alpha_composite(lay)
 
-CARD = (124, 237, 896, 434)
-card_mask = Image.new('L', (W, H), 0); ImageDraw.Draw(card_mask).rounded_rectangle(CARD, 48, fill=255)
-card_shadow = Image.new('L', (W, H), 0); ImageDraw.Draw(card_shadow).rounded_rectangle((CARD[0], CARD[1] + 24, CARD[2], CARD[3] + 24), 48, fill=150); card_shadow = card_shadow.filter(ImageFilter.GaussianBlur(30))
+CARD = tuple(round(c * K) for c in (124, 237, 896, 434)); RAD, SH = round(48 * K), round(24 * K)
+card_mask = Image.new('L', (W, H), 0); ImageDraw.Draw(card_mask).rounded_rectangle(CARD, RAD, fill=255)
+card_shadow = Image.new('L', (W, H), 0); ImageDraw.Draw(card_shadow).rounded_rectangle((CARD[0], CARD[1] + SH, CARD[2], CARD[3] + SH), RAD, fill=150); card_shadow = card_shadow.filter(ImageFilter.GaussianBlur(30 * K))
 def card_from(im, frame3d):
     im.paste(Image.new('RGBA', (W, H), (0, 0, 0, 255)), (0, 0), card_shadow)
     im.paste(frame3d.convert('RGBA'), (0, 0), card_mask)
 
-HOOK_END, BLEND = 0.96, 0.0   # clean cut between "This logo" and "shouldn't be able to glow" (a blend showed two logos)
+HOOK_END, BLEND = caps[0][1], 0.0   # clean cut between "This logo" and "shouldn't be able to glow" (a blend showed two logos)
 CAFE, BED = span('Brighter in a bright room'), span('dimmer in a dark one')
 def shot(t, frame3d):
     """Return the replacement frame (RGBA) for time t, or None to keep the 3D frame."""
