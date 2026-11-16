@@ -5,7 +5,7 @@ import { useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
-import { F, vfov, tr, clampX } from './frame';
+import { F, vfov, tr, clampX, EDGE } from './frame';
 import { FONT } from '../lib/palette';
 import { glassMat, pulseMat, stripeTex } from './Fiber';
 
@@ -182,8 +182,8 @@ export const Seabed: React.FC = () => {
         <EffectComposer><Bloom intensity={0.45} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.2} darkness={0.8} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill><svg width={F.W} height={F.H}>
-        <g opacity={place} transform={tr(120, 820)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>{SEA_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>{SEA_DEPTH}</text></g>
-        <g opacity={num} transform={tr(960, 250)}><text textAnchor="middle" fill="#ffc94a" style={{ font: `800 170px ${FONT.ui}`, letterSpacing: '0.01em', filter: 'drop-shadow(0 0 26px rgba(255,180,60,.55))' }}>{count.toLocaleString('en-US')}<tspan dx={18} style={{ font: `800 62px ${FONT.ui}` }}>km/s</tspan></text>
+        <g opacity={place} {...EDGE} transform={tr(120, 820)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>{SEA_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>{SEA_DEPTH}</text></g>
+        <g opacity={num} {...EDGE} transform={tr(960, 250)}><text textAnchor="middle" fill="#ffc94a" style={{ font: `800 170px ${FONT.ui}`, letterSpacing: '0.01em', filter: 'drop-shadow(0 0 26px rgba(255,180,60,.55))' }}>{count.toLocaleString('en-US')}<tspan dx={18} style={{ font: `800 62px ${FONT.ui}` }}>km/s</tspan></text>
           <text y={70} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 30px ${FONT.mono}` }}>light in glass: about two thirds of its speed in space</text></g>
       </svg></AbsoluteFill>
     </AbsoluteFill>

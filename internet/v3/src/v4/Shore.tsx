@@ -5,7 +5,7 @@ import { useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
-import { F, vfov, tr, clampX } from './frame';
+import { F, vfov, tr, clampX, EDGE } from './frame';
 import { FONT } from '../lib/palette';
 import { stripeTex } from './Fiber';
 import { winTex } from './Packets';
@@ -109,7 +109,7 @@ export const Shore: React.FC = () => {
       <AbsoluteFill style={{ background: '#0a1e6a', opacity: under * 0.22 }} />
       <AbsoluteFill><svg width={F.W} height={F.H}>
         <g opacity={stO}><line x1={sx} y1={sy} x2={sx - 40} y2={sy - 90} stroke="#5fe3ff" strokeWidth={2.5} /><Box x={sx - 60} y={sy - 122} o={1} text="CABLE LANDING STATION" sub="where land cables meet the sea cable" /></g>
-        <g opacity={seg(t, 0.4, 0.8) * (1 - seg(t, 5.6, 6.1))} transform={tr(120, 880)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>{COAST_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>the cable goes into the sea</text></g>
+        <g opacity={seg(t, 0.4, 0.8) * (1 - seg(t, 5.6, 6.1))} {...EDGE} transform={tr(120, 880)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>{COAST_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>the cable goes into the sea</text></g>
       </svg></AbsoluteFill>
     </AbsoluteFill>
   );

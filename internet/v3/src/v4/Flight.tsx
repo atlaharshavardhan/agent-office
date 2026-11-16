@@ -6,7 +6,7 @@ import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { geoInterpolate } from 'd3-geo';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
-import { F, vfov, tr, clampX } from './frame';
+import { F, vfov, tr, clampX, EDGE } from './frame';
 import { FONT } from '../lib/palette';
 import { winTex } from './Packets';
 import { earthTex, atmoMat, ll, R } from './Planet';
@@ -136,9 +136,9 @@ export const Flight: React.FC = () => {
       </ThreeCanvas>
       <AbsoluteFill style={{ background: '#03041a', opacity: clamp01(cut) }} />
       <AbsoluteFill><svg width={F.W} height={F.H}>
-        <g opacity={seg(t, 0.4, 0.8) * (1 - seg(t, T1 - 0.6, T1 - 0.2))} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Mumbai airport</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>she is moving to London</text></g>
+        <g opacity={seg(t, 0.4, 0.8) * (1 - seg(t, T1 - 0.6, T1 - 0.2))} {...EDGE} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Mumbai airport</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>she is moving to London</text></g>
         {globe && <><Label x={mx + 90} y={my + 70} o={seg(t, T3 + 0.3, T3 + 0.7)} text="MUMBAI" col="#ffe08a" /><Label x={lx - 110} y={ly - 70} o={seg(t, T3 + 2.4, T3 + 2.8)} text="LONDON" col="#ff9c8a" />
-          <g opacity={seg(t, T3 + 1.0, T3 + 1.5)} transform={tr(120, 870)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Her flight: about 9 hours</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>7,200 km through the air</text></g></>}
+          <g opacity={seg(t, T3 + 1.0, T3 + 1.5)} {...EDGE} transform={tr(120, 870)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Her flight: about 9 hours</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>7,200 km through the air</text></g></>}
       </svg></AbsoluteFill>
     </AbsoluteFill>
   );

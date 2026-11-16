@@ -5,7 +5,7 @@ import { useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
-import { F, vfov, tr, clampX } from './frame';
+import { F, vfov, tr, clampX, EDGE } from './frame';
 import { FONT } from '../lib/palette';
 import { winTex } from './Packets';
 import { Her } from './Flight';
@@ -143,8 +143,8 @@ export const London: React.FC = () => {
       </ThreeCanvas>
       <AbsoluteFill style={{ background: '#03041a', opacity: cut }} />
       <AbsoluteFill><svg width={F.W} height={F.H}>
-        <g opacity={seg(t, 0.5, 0.9) * (1 - seg(t, T1 - 0.7, T1 - 0.3))} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 60px ${FONT.ui}` }}>London</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>7,200 km from his balcony</text></g>
-        <g opacity={seg(t, 11.2, 11.7)} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Her new flat</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>waiting for his video</text></g>
+        <g opacity={seg(t, 0.5, 0.9) * (1 - seg(t, T1 - 0.7, T1 - 0.3))} {...EDGE} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 60px ${FONT.ui}` }}>London</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>7,200 km from his balcony</text></g>
+        <g opacity={seg(t, 11.2, 11.7)} {...EDGE} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Her new flat</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>waiting for his video</text></g>
       </svg></AbsoluteFill>
     </AbsoluteFill>
   );

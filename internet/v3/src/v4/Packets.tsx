@@ -6,7 +6,7 @@ import { RoundedBox } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
-import { F, vfov, tr, clampX } from './frame';
+import { F, vfov, tr, clampX, EDGE } from './frame';
 import { FONT } from '../lib/palette';
 
 /* V4, 16:9: his video becomes packets. He presses Send, the video tile breaks into numbered packets that lift out of the phone,
@@ -133,7 +133,7 @@ export const PacketBurst: React.FC = () => {
         <EffectComposer><Bloom intensity={0.5} luminanceThreshold={0.86} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.75} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill><svg width={F.W} height={F.H}>
-        <g opacity={title} transform={tr(1560, 150)}><text textAnchor="middle" fill="#eef1ff" style={{ font: `800 46px ${FONT.ui}` }}>1 video</text>
+        <g opacity={title} {...EDGE} transform={tr(1560, 150)}><text textAnchor="middle" fill="#eef1ff" style={{ font: `800 46px ${FONT.ui}` }}>1 video</text>
           <text y={98} textAnchor="middle" fill="#5fe3ff" style={{ font: `800 104px ${FONT.ui}` }}>{count.toLocaleString('en-US')}</text><text y={150} textAnchor="middle" fill="#eef1ff" style={{ font: `800 46px ${FONT.ui}` }}>packets</text>
           <text y={196} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 24px ${FONT.mono}` }}>2 MB, about 1,400 bytes each</text></g>
         <g opacity={heroTag}><line x1={hx} y1={hy + 40} x2={hx + 150} y2={hy + 150} stroke="#ffb454" strokeWidth={2.5} /><g transform={`translate(${hx + 250} ${hy + 176})`}><rect x={-190} y={-30} width={380} height={76} rx={12} fill="#0e1430" fillOpacity={0.92} stroke="#ffb454" strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>FOLLOW THIS ONE</text><text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>each packet carries her address</text></g></g>
