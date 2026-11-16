@@ -11,7 +11,7 @@ import { glassMat, pulseMat, stripeTex } from './Fiber';
 /* V4, 16:9: the submarine cable on the seabed. Low tracking shot, light racing to the horizon,
    then a see-through section showing the glass fibres and the light inside. Real 3D, frame-driven. */
 const W = 1920, H = 1080;
-export const SEABED_FRAMES = 630;
+export const SEABED_FRAMES = 240;
 export const SEA_NAME = 'Arabian Sea', SEA_DEPTH = 'about 3,000 m down';
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
@@ -28,13 +28,11 @@ const uOf = (x: number) => clamp01((x - X0) / (X1 - X0));      // close enough t
 /* ---------- camera ---------- */
 type K = { t: number; x: number; side: number; up: number; ahead: number; lx?: number; fov: number };
 const KEYS: K[] = [
-  { t: 0, x: -34, side: 18, up: 16, ahead: 50, fov: 40 },         // wide: the seabed and the cable crossing it
-  { t: 4.2, x: -4, side: 3.5, up: 3.2, ahead: 40, fov: 42 },
-  { t: 6.4, x: 8, side: 0.9, up: 1.5, ahead: 60, fov: 50 },        // low, over the cable, looking along it to the horizon
-  { t: 8.6, x: 16, side: 0.9, up: 1.5, ahead: 70, fov: 52 },       // the light passes under us and races away
-  { t: 12.5, x: 120, side: 1.3, up: 1.9, ahead: 60, fov: 58 },     // chase it along the outside of the cable
-  { t: 16.5, x: 250, side: 2.0, up: 2.3, ahead: 50, fov: 56 },
-  { t: 20.5, x: 285, side: 15, up: 14, ahead: 60, fov: 42 },       // rise: the cable and its light run on across the ocean floor
+  { t: 0, x: -30, side: 16, up: 14, ahead: 50, fov: 40 },          // wide: the seabed and the cable crossing it
+  { t: 2.4, x: 6, side: 0.9, up: 1.5, ahead: 60, fov: 50 },         // one move down to the cable, no pause
+  { t: 3.0, x: 14, side: 0.9, up: 1.5, ahead: 70, fov: 54 },        // the light passes under us
+  { t: 5.0, x: 250, side: 1.6, up: 2.0, ahead: 60, fov: 62 },       // two seconds flat out along the outside of the cable
+  { t: 7.6, x: 300, side: 15, up: 14, ahead: 70, fov: 42 },         // rise: the light runs on across the ocean floor
 ];
 const camAt = (t: number) => {
   let i = 0; while (i < KEYS.length - 2 && t > KEYS[i + 1].t) i++;
@@ -53,7 +51,7 @@ const Terrain: React.FC = () => {
   const geo = useMemo(() => { const g = new THREE.PlaneGeometry(560, 150, 280, 90); g.rotateX(-Math.PI / 2); g.translate(170, 0, 0); const p = g.attributes.position; for (let i = 0; i < p.count; i++) p.setY(i, ground(p.getX(i), p.getZ(i))); g.computeVertexNormals(); return g; }, []);
   const rip = useMemo(() => { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d')!; for (let y = 0; y < 256; y++) for (let x = 0; x < 256; x += 2) { const v = 0.5 + 0.5 * Math.sin((y / 256) * Math.PI * 2 * 9 + Math.sin((x / 256) * Math.PI * 2 * 2) * 1.6); const s = Math.round(v * 255); g.fillStyle = `rgb(${s},${s},${s})`; g.fillRect(x, y, 2, 1); }
     const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(26, 30); return t; }, []);
-  return <mesh geometry={geo}><meshStandardMaterial color="#4a4696" roughness={0.9} bumpMap={rip} bumpScale={2.2} /></mesh>;
+  return <mesh geometry={geo}><meshStandardMaterial color="#4a4696" roughness={0.9} bumpMap={rip} bumpScale={1.1} /></mesh>;
 };
 const Rocks: React.FC = () => { const geo = useMemo(() => new THREE.IcosahedronGeometry(1, 1), []);
   return <>{Array.from({ length: 150 }).map((_, i) => { const x = X0 + hash(i) * (X1 - X0) * 0.75, off = (hash(i + 31) - 0.5) * 60, z = cableZ(x) + off + Math.sign(off) * 1.6, s = 0.18 + hash(i + 7) ** 3 * 2.2;
@@ -92,8 +90,8 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
   const copper = useMemo(() => { const x = stripeTex('#c98a4a', '#e2a868', 4, 0); return x; }, []);
   /* the light we follow, racing along the outside view of the cable towards the horizon */
   /* starts behind the camera, passes under it, then stays ahead of it all the way while we chase */
-  const lightX = (tt: number) => camX(tt) + lerp(-34, 30, seg(tt, 6.6, 8.6)) + lerp(0, 16, seg(tt, 8.6, 12)) + lerp(0, 70, seg(tt, 16.5, 20.5));
-  const px = lightX(t), pp = cablePt(px), glowOn = seg(t, 6.4, 6.9);
+  const lightX = (tt: number) => camX(tt) + lerp(-34, 32, seg(tt, 2.3, 3.1)) + lerp(0, 14, seg(tt, 3.1, 5)) + lerp(0, 75, seg(tt, 5, 7.6));
+  const px = lightX(t), pp = cablePt(px), glowOn = seg(t, 2.2, 2.6);
   const tan = cablePt(px + 1).sub(cablePt(px - 1)).normalize(), trailQ = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), tan);
   return (
     <group>
@@ -106,13 +104,13 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
         {fibres.map((g, k) => <mesh key={k} geometry={g} material={mats[k]} renderOrder={2} />)}
       </>}
       {glowOn > 0.01 && <group position={pp}>
-        <sprite scale={[CR * 44, CR * 44, 1]}><spriteMaterial map={glowTex} transparent opacity={glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
-        <sprite scale={[CR * 260, CR * 4, 1]}><spriteMaterial map={glowTex} transparent opacity={0.75 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
+        <sprite scale={[CR * 20, CR * 20, 1]}><spriteMaterial map={glowTex} transparent opacity={0.8 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
+        <sprite scale={[CR * 120, CR * 2.2, 1]}><spriteMaterial map={glowTex} transparent opacity={0.5 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
         <mesh><sphereGeometry args={[CR * 1.2, 16, 12]} /><meshBasicMaterial color="#fff0c8" transparent opacity={glowOn} /></mesh>
         {/* the glowing stretch of cable just behind the light */}
-        <group quaternion={trailQ}><mesh position={[0, -9, 0]}><cylinderGeometry args={[CR * 1.06, CR * 1.02, 18, 20, 1, true]} /><meshBasicMaterial color="#ffb347" transparent opacity={0.34 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh></group>
-        <pointLight color="#ffb454" intensity={1700 * glowOn} distance={140} decay={1.35} position={[0, 2.4, 0]} />
-        <pointLight color="#ffd9a0" intensity={500 * glowOn} distance={40} decay={1.3} position={[-4, 1.2, 0]} />
+        <group quaternion={trailQ}><mesh position={[0, -9, 0]}><cylinderGeometry args={[CR * 1.06, CR * 1.02, 18, 20, 1, true]} /><meshBasicMaterial color="#ffb347" transparent opacity={0.22 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh></group>
+        <pointLight color="#ffb454" intensity={700 * glowOn * (0.3 + 0.7 * seg(t, 2.8, 3.5))} distance={140} decay={1.35} position={[0, 2.4, 0]} />
+        <pointLight color="#ffd9a0" intensity={160 * glowOn} distance={40} decay={1.3} position={[-4, 1.2, 0]} />
       </group>}
     </group>
   );
@@ -129,8 +127,8 @@ const Tag: React.FC<{ t: number; at: THREE.Vector3; text: string; sub?: string; 
 
 export const Seabed: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS;
-  const place = seg(t, 1.0, 1.6) * (1 - seg(t, 8.6, 9.2));
-  const num = seg(t, 9.6, 10.1) * (1 - seg(t, 16.4, 17.0)), count = Math.round(lerp(0, 200000, seg(t, 9.6, 11.2)) / 1000) * 1000;
+  const place = seg(t, 0.4, 0.8) * (1 - seg(t, 2.5, 2.9));
+  const num = seg(t, 3.0, 3.3) * (1 - seg(t, 6.9, 7.4)), count = Math.round(lerp(0, 200000, seg(t, 3.0, 4.0)) / 1000) * 1000;
   const mid = (x: number, dy = 0) => { const p = cablePt(x); p.y += dy; return p; };
   return (
     <AbsoluteFill style={{ background: '#050720' }}>
@@ -142,7 +140,7 @@ export const Seabed: React.FC = () => {
         <directionalLight position={[60, 40, -30]} intensity={2.2} color="#a9bcff" />
         <directionalLight position={[-20, 8, -30]} intensity={0.5} color="#5fe3ff" />
         <Terrain /><Rocks /><Life t={t} /><Shafts t={t} /><Snow t={t} /><Cable t={t} />
-        <EffectComposer><Bloom intensity={0.8} luminanceThreshold={0.72} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.2} darkness={0.8} /></EffectComposer>
+        <EffectComposer><Bloom intensity={0.45} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.2} darkness={0.8} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill><svg width={W} height={H}>
         <g opacity={place} transform="translate(120 820)"><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>{SEA_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>{SEA_DEPTH}</text></g>
