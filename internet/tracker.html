@@ -49,22 +49,29 @@ code { font: 500 13px var(--mono); color: var(--cyan); overflow-wrap: anywhere; 
   <div class="head">
     <div class="eyebrow">InvisiTech · YouTube Short</div>
     <h1>How the internet works, from one torch to the whole world</h1>
-    <p>Where each part of the film stands. Finished clips play on this page and are also sent in the chat; when every part is rendered they are joined into one 1080 × 1920 preview.</p>
-    <div class="updated">Last updated 15 Nov 2026, 23:40 UTC</div>
+    <p>All ten parts are rendered and joined into one 1080 × 1920 preview, waiting for your approval. The full film and each part play on this page.</p>
+    <div class="updated">Last updated 16 Nov 2026, 00:45 UTC</div>
   </div>
 
   <section>
     <h2>The film, to scale (about 89 seconds)</h2>
     <div class="strip" role="img" aria-label="Film timeline: opening ready, rest of street rendering, cities waiting, second half rendering">
-      <div class="s-ready" style="flex:77.9" title="Parts 1 to 9, 0 to 77.9 s">1 – 9</div>
-      <div class="s-run" style="flex:10.8" title="Ending, 77.9 to 88.7 s">10</div>
+      <div class="s-ready" style="flex:88.7" title="All parts, 0 to 88.7 s">all 10 parts rendered and joined</div>
     </div>
     <div class="scale"><span>0 s</span><span>41.5 s</span><span>54.5 s</span><span>88.7 s</span></div>
     <div class="legend"><span><span class="dot s-ready"></span>Sent to you</span><span><span class="dot s-run"></span>Rendering now</span><span><span class="dot s-wait"></span>Waiting its turn</span></div>
   </section>
 
   <section>
-    <h2>Watch the finished parts</h2>
+    <h2>The full film</h2>
+    <div class="clips">
+      <div class="clip"><video id="v-full" src="full-film.mp4" controls playsinline preload="metadata"></video><b>Full preview</b><span>1:29 · all 10 parts joined · with sound</span></div>
+    </div>
+    <p class="note" style="margin-top:10px">Smaller copy for quick viewing. The 1080 × 1920 file is <code>internet/video/internet-full-film-v3.mp4</code>, also sent in the chat.</p>
+  </section>
+
+  <section>
+    <h2>Watch the parts</h2>
     <div class="clips">
       <div class="clip"><video id="v-part-01" src="part-01.mp4" controls playsinline preload="metadata"></video><b>1 · Opening</b><span>0:00 – 0:04 · with sound</span></div>
       <div class="clip"><video id="v-part-02" src="part-02.mp4" controls playsinline preload="metadata"></video><b>2 · Torch and “Hi”</b><span>0:04 – 0:16 · with sound</span></div>
@@ -75,6 +82,7 @@ code { font: 500 13px var(--mono); color: var(--cyan); overflow-wrap: anywhere; 
       <div class="clip"><video id="v-part-07" src="part-07.mp4" controls playsinline preload="metadata"></video><b>7 · Flight and cable</b><span>1:00 – 1:07 · with sound</span></div>
       <div class="clip"><video id="v-part-08" src="part-08.mp4" controls playsinline preload="metadata"></video><b>8 · Under the sea</b><span>1:07 – 1:13 · with sound</span></div>
       <div class="clip"><video id="v-part-09" src="part-09.mp4" controls playsinline preload="metadata"></video><b>9 · Cable cut</b><span>1:13 – 1:18 · with sound</span></div>
+      <div class="clip"><video id="v-part-10" src="part-10.mp4" controls playsinline preload="metadata"></video><b>10 · Ending</b><span>1:18 – 1:29 · with sound</span></div>
     </div>
     <p class="note" style="margin-top:10px">These are smaller copies for quick viewing (720 × 1280). The full-quality files are the ones sent in the chat. New parts appear here as they finish.</p>
   </section>
@@ -93,10 +101,9 @@ code { font: 500 13px var(--mono); color: var(--cyan); overflow-wrap: anywhere; 
         <tr><td>7 · Flight and cable</td><td>She flies to London. A cable is drawn from Mumbai to the UK along the real sea route.</td><td class="num">1:00 – 1:07</td><td><span class="pill ready">SENT</span></td></tr>
         <tr><td>8 · Under the sea</td><td>The seabed cable, a lens showing steel armour, copper and glass fibres, then the planet's cables.</td><td class="num">1:07 – 1:13</td><td><span class="pill ready">SENT</span></td></tr>
         <tr><td>9 · Cable cut</td><td>A ship's anchor snaps the cable. 570+ cables exist, so the packets go the long way round Africa.</td><td class="num">1:13 – 1:18</td><td><span class="pill ready">SENT</span></td></tr>
-        <tr><td>10 · Ending</td><td>Her reply from a London balcony, his reaction on his own balcony with the torch on the railing, end card.</td><td class="num">1:18 – 1:29</td><td><span class="pill run">RENDERING</span></td></tr>
+        <tr><td>10 · Ending</td><td>Her reply from a London balcony, his reaction on his own balcony with the torch on the railing, end card.</td><td class="num">1:18 – 1:29</td><td><span class="pill ready">SENT</span></td></tr>
       </tbody>
     </table></div>
-    <p class="note" style="margin-top:10px">Parts 2 to 5 and parts 6 to 10 render side by side on one machine, The remaining globe shots are the slowest in the film. They are rendered in short saved stretches so a stopped run loses little.</p>
   </section>
 
   <section>
@@ -113,7 +120,6 @@ code { font: 500 13px var(--mono); color: var(--cyan); overflow-wrap: anywhere; 
   <section>
     <h2>After your approval</h2>
     <ul>
-      <li>Join all parts into one file: <code>internet/video/internet-full-film-v3.mp4</code></li>
       <li>Export the 4K master.</li>
       <li>Title, description and thumbnail.</li>
     </ul>
