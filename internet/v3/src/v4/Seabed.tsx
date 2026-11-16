@@ -21,8 +21,10 @@ const ground = (x: number, z: number) => 1.5 * Math.sin(x * 0.045 + 1) * Math.co
 const cableZ = (x: number) => 7 * Math.sin(x * 0.03) + 2.5 * Math.sin(x * 0.075 + 1.3);
 const CR = 0.42;      // cable radius
 const RX = 62;      // where the repeater sits
-/* the cable lifts gently off the sand where it runs into the repeater, so the housing sits in line with it */
-const cablePt = (x: number) => V(x, ground(x, cableZ(x)) + CR * 0.8 + 0.8 * Math.exp(-(((x - RX) / 8) ** 2)), cableZ(x));
+/* near the repeater the cable runs dead straight along one line, so the housing and its sleeves sit exactly on it; further out it eases back onto the sand */
+const basePt = (x: number) => V(x, ground(x, cableZ(x)) + CR * 0.8, cableZ(x));
+const REP_A = basePt(RX - 17), REP_B = basePt(RX + 17);
+const cablePt = (x: number) => { const b = basePt(x), d = Math.abs(x - RX); if (d > 17) return b; const u = (x - (RX - 17)) / 34, line = REP_A.clone().lerp(REP_B, u); line.y += 0.95; const w = smooth((17 - d) / 8); return b.lerp(line, Math.min(1, w)); };
 const X0 = -80, X1 = 420;
 const PATH = new THREE.CatmullRomCurve3(Array.from({ length: 126 }).map((_, i) => cablePt(X0 + ((X1 - X0) * i) / 125)));
 const uOf = (x: number) => clamp01((x - X0) / (X1 - X0));      // close enough to arc length for placing things
@@ -143,7 +145,7 @@ const Repeater: React.FC<{ t: number; idle?: boolean }> = ({ t, idle }) => {
         {Array.from({ length: 14 }).map((_, k) => <mesh key={k} position={[Math.cos((k / 14) * 6.283) * 1.24, 2.6, Math.sin((k / 14) * 6.283) * 1.24]}><cylinderGeometry args={[0.1, 0.1, 0.16, 6]} /><meshStandardMaterial color="#d9defa" roughness={0.3} metalness={0.7} /></mesh>)}
         <mesh position={[0, 3.3, 0]}><cylinderGeometry args={[0.62, 1.05, 1.5, 40]} />{steel}</mesh>
         <mesh position={[0, 4.3, 0]}><cylinderGeometry args={[0.62, 0.62, 0.5, 32]} />{dark}</mesh>
-        {Array.from({ length: 9 }).map((_, k) => <mesh key={k} position={[0, 4.75 + k * 0.4, 0]}><cylinderGeometry args={[0.6 - k * 0.017, 0.64 - k * 0.017, 0.3, 28]} /><meshStandardMaterial color="#3a4196" roughness={0.6} /></mesh>)}
+        {Array.from({ length: 9 }).map((_, k) => <mesh key={k} position={[0, 4.75 + k * 0.4, 0]}><cylinderGeometry args={[0.66 - k * 0.014, 0.7 - k * 0.014, 0.3, 28]} /><meshStandardMaterial color="#3a4196" roughness={0.6} /></mesh>)}
       </group>)}
       {[-0.9, 0.9].map((y) => <mesh key={y} position={[0, y, -1.08]} rotation-y={Math.PI / 2}><torusGeometry args={[0.2, 0.05, 10, 20]} /><meshStandardMaterial color="#d9defa" roughness={0.3} metalness={0.7} /></mesh>)}
       <pointLight color="#ffb454" intensity={260 * work} distance={30} decay={1.3} position={[0, 0, -2.5]} />
