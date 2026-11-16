@@ -1556,7 +1556,7 @@ const STILLS = {
   5: () => { mood(0, 1); drawBoard('msg'); smoke(0.25, 12); LINKS.visible = false; CROWD.tint(() => null);
     CROWD.update(p => ({ pose: 'armsDown', headYaw: (p.seed - 0.5) * 0.4, headPitch: -0.05 }));
     STEW.update(p => ({ pose: 'armPoint', yaw: 0 })); const s = stewards.reduce((b, q) => q.z < b.z ? q : b, stewards[0]);
-    shot(V(s.x + 3.4, 2.1, s.z - 3.2), V(s.x - 0.6, 2.4, s.z - 10), 34, 4.6, 0.0004); tTitle(['Clear information', '<em>calms</em> a crowd'], 1); $('sub').textContent = 'That’s why clear communication matters'; },
+    shot(V(s.x + 1.6, 2.2, s.z + 6.5), V(s.x - 0.8, 2.6, s.z - 6), 34, 6.6, 0.0003); tTitle(['Clear information', '<em>calms</em> a crowd'], 1); $('sub').textContent = 'That’s why clear communication matters'; },
   6: () => { mood(0, 1); drawBoard('msg'); smoke(0, 0); CROWD.update(p => ({ pose: 'armsDown', headPitch: -0.1 })); STEW.update(() => ({ pose: 'armPoint' }));
     shot(V(-150, 95, 170), V(0, 0, -5), 36); tTitle([], 0); $('sub').textContent = ''; },
   7: () => { $('outro').style.opacity = 1; $('note').style.opacity = 0; $('sub').textContent = ''; },
