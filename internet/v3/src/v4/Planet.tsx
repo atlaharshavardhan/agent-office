@@ -14,15 +14,15 @@ import { WEB, MAIN, MUMBAI, LONDON, routePts, LL } from '../tail/Globe';
 
 /* V4, 16:9: the planet and its cables. From low over the Arabian Sea the camera pulls back until the whole Earth is in view,
    the web of undersea cables lighting up as it goes, our own route in amber. A real 3D globe with real coastlines. */
-const W = 1920, H = 1080, R = 10;
+const W = 1920, H = 1080; export const R = 10;
 export const PLANET_FRAMES = 360;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
-const ll = (p: LL, r = R) => { const la = (p[1] * Math.PI) / 180, lo = (p[0] * Math.PI) / 180; return V(r * Math.cos(la) * Math.cos(lo), r * Math.sin(la), -r * Math.cos(la) * Math.sin(lo)); };
+export const ll = (p: LL, r = R) => { const la = (p[1] * Math.PI) / 180, lo = (p[0] * Math.PI) / 180; return V(r * Math.cos(la) * Math.cos(lo), r * Math.sin(la), -r * Math.cos(la) * Math.sin(lo)); };
 const CITIES: LL[] = [MUMBAI, LONDON, [78.5, 17.4], [77.2, 28.6], [77.6, 13], [80.3, 13.1], [88.4, 22.6], [67, 24.9], [55.3, 25.3], [46.7, 24.7], [51.4, 35.7], [31.2, 30], [29, 41], [37.6, 55.8], [2.35, 48.9], [13.4, 52.5], [-3.7, 40.4], [12.5, 41.9], [103.8, 1.3], [114.2, 22.3], [121.5, 31.2], [139.8, 35.7], [126.9, 37.5], [116.4, 39.9], [100.5, 13.8], [106.8, -6.2], [151.2, -33.9], [144.9, -37.8], [18.4, -33.9], [28, -26.2], [3.4, 6.4], [36.8, -1.3], [-74, 40.7], [-118.2, 34], [-87.6, 41.9], [-99.1, 19.4], [-46.6, -23.5], [-58.4, -34.6], [-43.2, -22.9], [-79.4, 43.7], [-122.4, 37.8], [-80.2, 25.8]];
 
 /* the Earth's surface, drawn once: night-blue sea, our purple land, warm city lights */
-const earthTex = () => { const c = document.createElement('canvas'); c.width = 4096; c.height = 2048; const g = c.getContext('2d')!; const proj = geoEquirectangular().fitSize([4096, 2048], { type: 'Sphere' } as any), path = geoPath(proj, g);
+export const earthTex = () => { const c = document.createElement('canvas'); c.width = 4096; c.height = 2048; const g = c.getContext('2d')!; const proj = geoEquirectangular().fitSize([4096, 2048], { type: 'Sphere' } as any), path = geoPath(proj, g);
   const sea = g.createLinearGradient(0, 0, 0, 2048); sea.addColorStop(0, '#0d1660'); sea.addColorStop(0.5, '#101c72'); sea.addColorStop(1, '#0d1660'); g.fillStyle = sea; g.fillRect(0, 0, 4096, 2048);
   g.beginPath(); path(geoGraticule10() as any); g.strokeStyle = 'rgba(160,176,255,.10)'; g.lineWidth = 2; g.stroke();
   const land = feature(land110 as any, (land110 as any).objects.land) as any;
@@ -30,7 +30,7 @@ const earthTex = () => { const c = document.createElement('canvas'); c.width = 4
   CITIES.forEach((p, i) => { const [x, y] = proj(p)!; const gr = g.createRadialGradient(x, y, 0, x, y, 26); gr.addColorStop(0, 'rgba(255,240,200,.95)'); gr.addColorStop(0.3, 'rgba(255,205,120,.45)'); gr.addColorStop(1, 'rgba(255,190,90,0)'); g.fillStyle = gr; g.fillRect(x - 26, y - 26, 52, 52);
     for (let k = 0; k < 9; k++) { g.fillStyle = 'rgba(255,220,150,.8)'; g.fillRect(x + (hash(i * 9 + k) - 0.5) * 60, y + (hash(i * 5 + k + 3) - 0.5) * 44, 3, 3); } });
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
-const atmoMat = () => new THREE.ShaderMaterial({ transparent: true, side: THREE.BackSide, depthWrite: false, blending: THREE.AdditiveBlending,
+export const atmoMat = () => new THREE.ShaderMaterial({ transparent: true, side: THREE.BackSide, depthWrite: false, blending: THREE.AdditiveBlending,
   vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix*vec4(position,1.); vN = normalize(normalMatrix*normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }',
   fragmentShader: 'varying vec3 vN; varying vec3 vV; void main(){ float f = pow(clamp(1. - abs(dot(normalize(vN), normalize(vV))), 0., 1.), 2.6); gl_FragColor = vec4(vec3(.25, .6, 1.) * f * 0.9, f * 0.7); }' });
 
