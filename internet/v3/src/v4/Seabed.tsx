@@ -51,11 +51,11 @@ const Terrain: React.FC = () => {
   const geo = useMemo(() => { const g = new THREE.PlaneGeometry(560, 150, 280, 90); g.rotateX(-Math.PI / 2); g.translate(170, 0, 0); const p = g.attributes.position; for (let i = 0; i < p.count; i++) p.setY(i, ground(p.getX(i), p.getZ(i))); g.computeVertexNormals(); return g; }, []);
   const rip = useMemo(() => { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d')!; for (let y = 0; y < 256; y++) for (let x = 0; x < 256; x += 2) { const v = 0.5 + 0.5 * Math.sin((y / 256) * Math.PI * 2 * 9 + Math.sin((x / 256) * Math.PI * 2 * 2) * 1.6); const s = Math.round(v * 255); g.fillStyle = `rgb(${s},${s},${s})`; g.fillRect(x, y, 2, 1); }
     const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(26, 30); return t; }, []);
-  return <mesh geometry={geo}><meshStandardMaterial color="#4a4696" roughness={0.9} bumpMap={rip} bumpScale={1.1} /></mesh>;
+  return <mesh geometry={geo}><meshStandardMaterial color="#8d86a8" roughness={0.95} bumpMap={rip} bumpScale={0.8} /></mesh>;
 };
 const Rocks: React.FC = () => { const geo = useMemo(() => new THREE.IcosahedronGeometry(1, 1), []);
-  return <>{Array.from({ length: 150 }).map((_, i) => { const x = X0 + hash(i) * (X1 - X0) * 0.75, off = (hash(i + 31) - 0.5) * 60, z = cableZ(x) + off + Math.sign(off) * 1.6, s = 0.18 + hash(i + 7) ** 3 * 2.2;
-    return <mesh key={i} geometry={geo} position={[x, ground(x, z) + s * 0.25, z]} scale={[s * (0.8 + hash(i + 3) * 0.7), s * (0.5 + hash(i + 5) * 0.4), s]} rotation={[hash(i + 9) * 3, hash(i + 11) * 6, 0]}><meshStandardMaterial color={i % 5 === 0 ? '#3a2f8a' : '#161a52'} roughness={0.9} flatShading /></mesh>; })}</>; };
+  return <>{Array.from({ length: 420 }).map((_, i) => { const x = X0 + hash(i) * (X1 - X0) * 0.8, off = (hash(i + 31) - 0.5) * 60, z = cableZ(x) + off + Math.sign(off) * 1.6, s = i < 120 ? 0.18 + hash(i + 7) ** 3 * 2.0 : 0.07 + hash(i + 7) * 0.2;
+    return <mesh key={i} geometry={geo} position={[x, ground(x, z) + s * 0.25, z]} scale={[s * (0.8 + hash(i + 3) * 0.7), s * (0.5 + hash(i + 5) * 0.4), s]} rotation={[hash(i + 9) * 3, hash(i + 11) * 6, 0]}><meshStandardMaterial color={i % 5 === 0 ? '#6a6488' : '#4a4868'} roughness={0.9} flatShading /></mesh>; })}</>; };
 /* soft cartoon sea plants and a few slow fish, kept away from the cable so they never hide it */
 const Life: React.FC<{ t: number }> = ({ t }) => <>
   {Array.from({ length: 34 }).map((_, i) => { const x = -20 + hash(i + 50) * 170, off = 5 + hash(i + 60) * 22, z = cableZ(x) + (i % 2 ? off : -off), h = 0.9 + hash(i + 70) * 1.9, sway = Math.sin(t * 0.9 + i) * 0.12;
@@ -75,7 +75,8 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
   const N = 1500;
   const armour = useMemo(() => new THREE.TubeGeometry(PATH, N, CR, 24, false), []);
   const armourB = useMemo(() => armour.clone(), [armour]);
-  const tex = useMemo(() => { const x = stripeTex('#232a70', '#6f7ce0', 10, 0.5); x.repeat.set(900, 1); return x; }, []);
+  const tex = useMemo(() => { const x = stripeTex('#3b4078', '#c9cdf2', 22, 1); x.repeat.set(36, 1); return x; }, []);
+  const texB = useMemo(() => { const x = stripeTex('#000000', '#ffffff', 22, 1); x.repeat.set(36, 1); x.colorSpace = THREE.NoColorSpace; return x; }, []);
   const open = 0;
   const idx = (x: number) => Math.floor(uOf(x) * N) * 24 * 6, mid = (CUT0 + CUT1) / 2, a = lerp(mid, CUT0, open), b = lerp(mid, CUT1, open);
   armour.setDrawRange(0, idx(a)); armourB.setDrawRange(idx(b), 1e9);
@@ -95,8 +96,8 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
   const tan = cablePt(px + 1).sub(cablePt(px - 1)).normalize(), trailQ = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), tan);
   return (
     <group>
-      <mesh geometry={armour}><meshStandardMaterial map={tex} roughness={0.5} metalness={0.25} /></mesh>
-      <mesh geometry={armourB}><meshStandardMaterial map={tex} roughness={0.5} metalness={0.25} /></mesh>
+      <mesh geometry={armour}><meshStandardMaterial map={tex} bumpMap={texB} bumpScale={2.5} roughness={0.34} metalness={0.55} /></mesh>
+      <mesh geometry={armourB}><meshStandardMaterial map={tex} bumpMap={texB} bumpScale={2.5} roughness={0.34} metalness={0.55} /></mesh>
       {open > 0.01 && <>
         {[a, b].map((x, i) => { const p = cablePt(x), q = new THREE.Quaternion().setFromUnitVectors(V(0, 0, 1), cablePt(x + 0.5).sub(cablePt(x - 0.5)).normalize()); return <mesh key={i} position={p} quaternion={q}><ringGeometry args={[CR * 0.5, CR * 1.04, 28]} /><meshStandardMaterial color="#2a3488" roughness={0.5} side={THREE.DoubleSide} />{Array.from({ length: 18 }).map((_, k) => <mesh key={k} position={[Math.cos((k / 18) * 6.283) * CR * 0.8, Math.sin((k / 18) * 6.283) * CR * 0.8, 0]}><sphereGeometry args={[CR * 0.11, 10, 8]} /><meshStandardMaterial color="#c9d2f5" roughness={0.3} metalness={0.6} /></mesh>)}</mesh>; })}
         <mesh geometry={layers[0]} material={glass} renderOrder={3} />
@@ -104,12 +105,13 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
         {fibres.map((g, k) => <mesh key={k} geometry={g} material={mats[k]} renderOrder={2} />)}
       </>}
       {glowOn > 0.01 && <group position={pp}>
-        <sprite scale={[CR * 20, CR * 20, 1]}><spriteMaterial map={glowTex} transparent opacity={0.8 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
-        <sprite scale={[CR * 120, CR * 2.2, 1]}><spriteMaterial map={glowTex} transparent opacity={0.5 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
+        <sprite scale={[CR * 13, CR * 13, 1]}><spriteMaterial map={glowTex} transparent opacity={0.9 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
+        <sprite scale={[CR * 300, CR * 1.5, 1]}><spriteMaterial map={glowTex} transparent opacity={0.8 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
+        <sprite scale={[CR * 1.3, CR * 30, 1]}><spriteMaterial map={glowTex} transparent opacity={0.55 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
         <mesh><sphereGeometry args={[CR * 1.2, 16, 12]} /><meshBasicMaterial color="#fff0c8" transparent opacity={glowOn} /></mesh>
         {/* the glowing stretch of cable just behind the light */}
         <group quaternion={trailQ}><mesh position={[0, -9, 0]}><cylinderGeometry args={[CR * 1.06, CR * 1.02, 18, 20, 1, true]} /><meshBasicMaterial color="#ffb347" transparent opacity={0.22 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh></group>
-        <pointLight color="#ffb454" intensity={700 * glowOn * (0.3 + 0.7 * seg(t, 2.8, 3.5))} distance={140} decay={1.35} position={[0, 2.4, 0]} />
+        <pointLight color="#ffb454" intensity={620 * glowOn * (0.3 + 0.7 * seg(t, 2.8, 3.5))} distance={170} decay={1.25} position={[0, 2.4, 0]} />
         <pointLight color="#ffd9a0" intensity={160 * glowOn} distance={40} decay={1.3} position={[-4, 1.2, 0]} />
       </group>}
     </group>
@@ -136,8 +138,8 @@ export const Seabed: React.FC = () => {
         <Cam t={t} />
         <color attach="background" args={['#0a1040']} />
         <fog attach="fog" args={['#0d1650', 10, 135]} />
-        <hemisphereLight args={['#7f96ff', '#1a1050', 1.25]} />
-        <directionalLight position={[60, 40, -30]} intensity={2.2} color="#a9bcff" />
+        <hemisphereLight args={['#4a63ff', '#140c48', 0.95]} />
+        <directionalLight position={[60, 40, -30]} intensity={0.9} color="#7f96ff" />
         <directionalLight position={[-20, 8, -30]} intensity={0.5} color="#5fe3ff" />
         <Terrain /><Rocks /><Life t={t} /><Shafts t={t} /><Snow t={t} /><Cable t={t} />
         <EffectComposer><Bloom intensity={0.45} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.2} darkness={0.8} /></EffectComposer>
