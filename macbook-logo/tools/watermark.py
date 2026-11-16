@@ -10,8 +10,11 @@ ap = argparse.ArgumentParser(); ap.add_argument('src'); ap.add_argument('dst'); 
 ap.add_argument('--bitrate', default='')   # e.g. 18M (1080) or 50M (4K); empty = CRF
 ap.add_argument('--pos', default='right-middle', choices=['right-middle', 'safe-bottom-right'])   # safe-bottom-right: inside the 100/180/220/350 safe area, below the subtitles (V4)
 ap.add_argument('--drift', action='store_true')
-ap.add_argument('--cbr', action='store_true')   # with --bitrate: constant bitrate (x264 nal-hrd=cbr), for a platform spec that asks for a minimum   # faint moving copy through the middle: off by default (Harsh, 15 Nov 2026)
-a = ap.parse_args(); k = a.scale
+ap.add_argument('--cbr', action='store_true')
+ap.add_argument('--opacity', type=float, default=0.92)   # 0.55 = blended (Harsh, 16 Nov 2026)
+ap.add_argument('--margin', type=float, default=180)   # px from the right edge at 1080 wide (right-middle / safe-bottom-right)
+ap.add_argument('--size', type=float, default=1.0)   # scale of the mark   # with --bitrate: constant bitrate (x264 nal-hrd=cbr), for a platform spec that asks for a minimum   # faint moving copy through the middle: off by default (Harsh, 15 Nov 2026)
+a = ap.parse_args(); k = a.scale * a.size
 tmp = tempfile.mkdtemp()
 woff = os.path.join(here, '..', '..', 'phone-teardown', 'fonts', 'fontsource-sora-5.0.18', 'package', 'files', 'sora-latin-600-normal.woff2')
 f = TTFont(woff); f.flavor = None; ttf = os.path.join(tmp, 'sora600.ttf'); f.save(ttf)
@@ -25,8 +28,8 @@ d.text((L + pad, H / 2), text, font=font, fill=(255, 255, 255, 235), anchor='lm'
 png = os.path.join(tmp, 'wm.png'); img.save(png)
 dur = float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', a.src]).decode())
 end = dur - a.hide_last
-fc = (f"[1:v]format=rgba,colorchannelmixer=aa=0.92[w1];"
-      f"[0:v][w1]overlay=x=W-w-{int(180 * k)}:y={'(H-h)/2' if a.pos == 'right-middle' else f'H-h-{int(356 * k)}'}:enable='lt(t,{end:.3f})'")
+fc = (f"[1:v]format=rgba,colorchannelmixer=aa={a.opacity}[w1];"
+      f"[0:v][w1]overlay=x=W-w-{int(a.margin * k)}:y={'(H-h)/2' if a.pos == 'right-middle' else f'H-h-{int(356 * k)}'}:enable='lt(t,{end:.3f})'")
 if a.drift: fc = fc.replace('[w1];', '[w1];[1:v]format=rgba,colorchannelmixer=aa=0.13,scale=iw*0.8:-1[w2];', 1) + f"[a];[a][w2]overlay=x='W*0.1+W*0.48*(0.5+0.5*sin(t*0.21))':y='H*0.27+H*0.33*(0.5+0.5*sin(t*0.13+1.3))':enable='lt(t,{end:.3f})'"
 enc = ['-c:v', 'libx264', '-preset', 'slow', '-profile:v', 'high', '-r', '30', '-pix_fmt', 'yuv420p']
 base = ['ffmpeg', '-loglevel', 'error', '-y', '-i', a.src, '-i', png, '-filter_complex', fc]
