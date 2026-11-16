@@ -10,7 +10,7 @@ HERE = ROOT / WHO if WHO != "michael" else ROOT   # sentence WAVs + outputs for 
 S = json.load(open(HERE / "sentences.json"))
 SR = 24000
 START, IN_LINE, BETWEEN, TAIL, OUTRO = 0.6, 0.12, 0.38, 1.5, 2.0
-if WHO == 'george40': START, IN_LINE, BETWEEN, TAIL = 0.45, 0.08, 0.26, 0.8   # V4 (Harsh): ~40 s; lines 2% faster (atempo, same pitch), tighter breaths, shorter zoom-out   # TAIL: hold after the last line; OUTRO: the 2-second branding card   # voice starts over the music; breath inside a line; gap at a scene cut; end-card hold
+if WHO == 'george40': START, IN_LINE, BETWEEN, TAIL = 0.45, 0.08, 0.26, 0.73   # V4 (Harsh): ~40 s; lines 2% faster (atempo, same pitch), tighter breaths, shorter zoom-out   # TAIL: hold after the last line; OUTRO: the 2-second branding card   # voice starts over the music; breath inside a line; gap at a scene cut; end-card hold
 def trim(a, thr=0.012):
     idx = np.where(np.abs(a) > thr)[0]; s, e = max(0, idx[0] - 240), min(len(a), idx[-1] + 480); return a[s:e]
 t, parts, caps, sents, starts, B = START, [np.zeros(int(START * SR))], [], [], [], [0.0]
