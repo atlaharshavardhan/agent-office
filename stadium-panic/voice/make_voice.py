@@ -11,13 +11,13 @@ LINES = [  # (earliest start s, sentence with caption chunks split by |). Lines 
     (5.97, "Others wait, | watching everyone around them."),
     (8.9, "When information is unclear, | people often look to others for clues."),
     (12.9, "One person's reaction | can influence the people nearby."),
-    (16.3, "And that reaction | can ripple across the stand."),            # *
+    (16.3, "And that reaction | can ripple through the crowd."),          # *
     (20.3, "Uncertainty. | No one knows what is happening."),          # * (concept 1)
     (23.6, "Social influence. | We copy the people around us."),        # * (concept 2)
-    (26.7, "And stress. | Together, they change | how a whole crowd behaves."),   # brief's sentence, split across the three concepts
+    (26.7, "And stress. | So almost everyone | heads for the one exit they know."),   # * changed for the simulation (familiar-exit effect)
     (30.4, "That's why | clear communication matters."),
     (33.0, "During an emergency, | reliable information | helps people stay calm | and move safely."),   # brief was cut off here: completed by Claude
-    (38.6, "Clear voices, | calmer crowds."),                            # *
+    (38.6, "People spread across the exits, | and the crowd flows."),          # * changed for the simulation
     (43.15, "Follow InvisiTech | for more."),
 ]
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
@@ -32,5 +32,6 @@ for t0, text in LINES:
     for c in chunks: c1 = c0 + d * len(c) / n; caps.append([round(c0, 2), round(c1, 2), c.rstrip(".,")]); c0 = c1
     srt.append((t0, t0 + d, text.replace(" | ", " "))); print(f"{t0:5.2f}-{t0 + d:5.2f}  {text}")
 sf.write(HERE / "voice.wav", v, SR); json.dump(caps, open(HERE / "captions.json", "w"))
+json.dump([[round(a, 2), round(b, 2), t] for a, b, t in srt], open(HERE / "lines.json", "w"))
 ts = lambda x: f"00:00:{int(x):02d},{int(round((x - int(x)) * 1000)):03d}"
 open(HERE.parent / "stadium-crowd.en.srt", "w").write("".join(f"{i}\n{ts(a)} --> {ts(b)}\n{t}\n\n" for i, (a, b, t) in enumerate(srt, 1)))

@@ -14,6 +14,23 @@
   #oLogo { width: 21vw; height: 21vw; border-radius: 50%; box-shadow: 0 0 60px rgba(74,168,255,.45); }
   #oName { margin-top: 3.4vw; font: 800 10vw/1 Sora, Arial, sans-serif; letter-spacing: -0.02em; } #oName b { color: #4fc3f7; }
   #oTag { margin-top: 2.4vw; font: 500 3.7vw 'IBM Plex Sans', Arial, sans-serif; color: rgba(255,255,255,.72); }
+  #simui { position: fixed; inset: 0; z-index: 4; opacity: 0; pointer-events: none; color: #fff; }
+  #card { position: absolute; top: 11.9%; left: 8%; right: 14%; background: rgba(12,19,36,.94); border: .18vw solid rgba(127,184,255,.35); border-radius: 2vw; padding: 1.7vw 3vw 2vw; box-shadow: 0 1.5vw 4vw rgba(0,0,0,.45); }
+  #cardL { display: block; font: 700 2.2vw Sora, Arial; color: #7fb8ff; letter-spacing: .16em; }
+  #cardT { display: block; margin-top: .6vw; font: 700 3.7vw/1.2 Sora, Arial; }
+  #params { position: absolute; top: 20.3%; left: 8%; right: 14%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4vw; }
+  .pr { background: rgba(12,19,36,.9); border: .18vw solid rgba(255,255,255,.1); border-radius: 1.4vw; padding: 1.2vw 1.6vw; font: 600 2.3vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.62); transition: none; }
+  .pr span { display: block; white-space: nowrap; } .pr i { display: block; height: 1vw; margin: 1vw 0 .7vw; background: rgba(255,255,255,.14); border-radius: 1vw; overflow: hidden; }
+  .pr u { display: block; height: 100%; background: #4fa3ff; border-radius: 1vw; } .pr u.hot { background: #ff5a4a; }
+  .pr em { font: 700 2.2vw Sora, Arial; font-style: normal; letter-spacing: .1em; }
+  .pr.on { color: #fff; border-color: #ffb547; box-shadow: 0 0 2.4vw rgba(255,181,71,.35); }
+  #cap { position: absolute; top: 65.6%; left: 8%; right: 14%; background: rgba(255,255,255,.97); color: #0b1322; border-radius: 1.6vw; padding: 1.5vw 2.6vw; text-align: center; font: 700 3.3vw/1.22 Sora, Arial; box-shadow: 0 1.4vw 4vw rgba(0,0,0,.4); }
+  #cap:empty { display: none; }
+  #stats { position: absolute; top: 72.4%; left: 8%; right: 14%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4vw; }
+  #stats div { background: rgba(12,19,36,.92); border: .18vw solid rgba(255,255,255,.12); border-radius: 1.4vw; padding: .9vw 1vw; text-align: center; }
+  #stats b { display: block; font: 700 4.4vw Sora, Arial; font-variant-numeric: tabular-nums; } #stats span { font: 600 2vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.65); letter-spacing: .08em; text-transform: uppercase; }
+  #stats div.hot b { color: #ff5a4a; }
+  #snote { position: absolute; top: 77.1%; left: 8%; right: 14%; text-align: center; font: 500 1.9vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.5); }
 </style>
 <div class="ov" id="title"></div>
 <div class="ov" id="sub"></div>
@@ -22,6 +39,9 @@
 <div class="concept" id="cB" style="top:14%">Social influence<small>People copy those around them</small></div>
 <div class="concept" id="cC" style="top:14%">Stress<small>Narrows attention, speeds up decisions</small></div>
 <div id="fade" style="position:fixed;inset:0;z-index:5;background:#000;opacity:0;pointer-events:none"></div>
+<div id="simui"><div id="card"><b id="cardL"></b><span id="cardT"></span></div><div id="params"></div><div id="cap"></div>
+  <div id="stats"><div><b id="s0">0</b><span>Waiting</span></div><div><b id="s1">0</b><span>Jammed</span></div><div><b id="s2">0</b><span>Leaving / min</span></div></div>
+</div>
 <div id="outro"><img id="oLogo" src="__LOGO__" alt=""><div id="oName"><span>Invisi</span><b>Tech</b></div><div id="oTag">The tech behind everyday life.</div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="assets/post/CopyShader.js"></script>
@@ -34,6 +54,7 @@
 <script src="assets/post/ShaderPass.js"></script>
 <script src="assets/post/UnrealBloomPass.js"></script>
 <script src="assets/post/BokehPass.js"></script>
+<script src="assets/sim.js"></script>
 <script>
 (() => {
 const W = innerWidth, H = innerHeight, $ = id => document.getElementById(id);
@@ -62,7 +83,7 @@ const redL = new THREE.PointLight(0xff3b2e, 0, 260, 1.6); redL.position.set(0, 4
 
 /* ---------- composer: bloom + depth of field ---------- */
 const RT = new THREE.WebGLMultisampleRenderTarget(Math.round(W * renderer.getPixelRatio()), Math.round(H * renderer.getPixelRatio()), { format: THREE.RGBAFormat, type: THREE.HalfFloatType, stencilBuffer: true }); RT.samples = 4;
-const composer = new THREE.EffectComposer(renderer, RT); composer.setSize(W, H); composer.addPass(new THREE.RenderPass(scene, camera));
+const composer = new THREE.EffectComposer(renderer, RT); composer.setSize(W, H); const RPASS = new THREE.RenderPass(scene, camera); composer.addPass(RPASS);
 const BOKEH = new THREE.BokehPass(scene, camera, { focus: 30, aperture: 0.00012, maxblur: 0.006, width: W, height: H }); composer.addPass(BOKEH);
 const BLOOM = new THREE.UnrealBloomPass(new THREE.Vector2(W, H), 0.5, 0.4, 0.85); [...BLOOM.renderTargetsHorizontal, ...BLOOM.renderTargetsVertical, BLOOM.renderTargetBright].forEach(t => t.texture.type = THREE.HalfFloatType); composer.addPass(BLOOM);
 composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));
@@ -148,8 +169,8 @@ const G = makeG(); LO = true; const GL = makeG(); LO = false;
 const SKIN = [0x8d5524, 0xc68642, 0xe0ac69, 0xf1c27d, 0x6b3e26, 0xa0663c, 0xd29b6c], HAIRC = [0x111111, 0x161210, 0x1b1410, 0x0e0e10, 0x2c1b10, 0x111111, 0x3a2a1c], PANTS = [0x1c1e24, 0x22252c, 0x1c2a44, 0x2a2622, 0x1d2333];
 const SHIRT = [0x1d4fa8, 0x1d4fa8, 0x2f6fe0, 0xe8edf4, 0xd8342c, 0xffffff, 0x1d4fa8, 0xf2c230, 0x3aa760, 0xe86a2c, 0x7b4fd6];
 class Crowd {   // one group of people drawn with instanced parts; per person: pose + colours
-  constructor(list, detail = 1, GS = G) { this.list = list; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
-    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) { const m = new THREE.InstancedMesh(GS[k], mat(k === 'head' ? 0.7 : k === 'eyes' ? 0.4 : 0.92), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scene.add(m); }
+  constructor(list, detail = 1, GS = G, scn = scene) { this.list = list; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
+    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) { const m = new THREE.InstancedMesh(GS[k], mat(k === 'head' ? 0.7 : k === 'eyes' ? 0.4 : 0.92), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scn.add(m); }
     const c = new THREE.Color(); list.forEach((p, i) => { p.skin = p.skin ?? SKIN[(rnd() * SKIN.length) | 0]; p.shirt = p.shirt ?? SHIRT[(rnd() * SHIRT.length) | 0]; p.pants = PANTS[(rnd() * PANTS.length) | 0]; p.hairc = HAIRC[(rnd() * HAIRC.length) | 0]; p.h = 0.92 + rnd() * 0.16;
       this.parts.torso.setColorAt(i, c.copy(LIN(p.shirt))); this.parts.legs.setColorAt(i, c.copy(LIN(p.pants))); this.parts.head.setColorAt(i, c.copy(LIN(p.skin))); this.parts.hair.setColorAt(i, c.copy(LIN(p.hairc))); this.parts.eyes.setColorAt(i, c.copy(LIN(0x14100e)));
       for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead']) this.parts[k].setColorAt(i, c.copy(LIN(p.shirt))); });
@@ -219,8 +240,80 @@ const pick = (t, r) => fans.reduce((b, p) => Math.abs(p.t - t) + Math.abs(p.r - 
 function mood(red, calm) { flood.intensity = lerp(1.25, 0.45, red) * lerp(1, 1.1, calm); flood2.intensity = lerp(0.45, 0.15, red); hemi.intensity = lerp(0.22, 0.14, red); hemi.color.copy(red > 0.5 ? HEMI_R : HEMI_N);
   redL.intensity = 3.2 * red; renderer.toneMappingExposure = lerp(0.95, 0.85, red); }
 
+/* ================= 3–43 s: the explanation as a crowd simulation board (reference reel style) ================= */
+const SIM = runSim(), SN = SIM.N, SF = SIM.F;
+const SS = new THREE.Scene(); SS.background = new THREE.Color(0x0b1322); SS.environment = scene.environment;
+SS.fog = new THREE.Fog(0x0b1322, 90, 160);
+const sHemi = new THREE.HemisphereLight(0xe8eeff, 0x3a3e48, 0.6); SS.add(sHemi);
+const sKey = new THREE.DirectionalLight(0xfff3e4, 1.55); sKey.position.set(-22, 46, 26); sKey.castShadow = true; sKey.shadow.mapSize.set(2048, 2048);
+Object.assign(sKey.shadow.camera, { left: -32, right: 32, top: 32, bottom: -32, near: 5, far: 140 }); sKey.shadow.bias = -0.0005; sKey.shadow.radius = 4; SS.add(sKey);
+const sFill = new THREE.DirectionalLight(0xcfe0ff, 0.35); sFill.position.set(28, 30, -12); SS.add(sFill);
+{ // floor: light tiles with painted exit markings
+  const PX = 40, w = (SIM.X1 - SIM.X0) * PX, h = (SIM.Z1 - SIM.Z0) * PX, c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+  const toC = (X, Z) => [(X - SIM.X0) * PX, (Z - SIM.Z0) * PX];
+  x.fillStyle = '#e9ebee'; x.fillRect(0, 0, w, h);
+  for (let i = 0; i <= SIM.X1 - SIM.X0; i++) { x.fillStyle = i % 4 ? 'rgba(120,130,150,.10)' : 'rgba(120,130,150,.2)'; x.fillRect(i * PX - 1, 0, 2, h); }
+  for (let j = 0; j <= SIM.Z1 - SIM.Z0; j++) { x.fillStyle = j % 4 ? 'rgba(120,130,150,.10)' : 'rgba(120,130,150,.2)'; x.fillRect(0, j * PX - 1, w, 2); }
+  SIM.EX.forEach(e => { const [cx, cz] = toC(e.x - e.nx * 2.2, e.z - e.nz * 2.2), fam = e.id === 'B';
+    x.save(); x.translate(cx, cz); x.rotate(Math.atan2(e.nx, -e.nz)); x.fillStyle = fam ? 'rgba(31,111,214,.22)' : 'rgba(30,160,100,.18)'; x.fillRect(-48, -60, 96, 120);
+    x.fillStyle = fam ? '#1f6fd6' : '#169a5f'; x.font = '700 64px Sora, Arial'; x.textAlign = 'center'; x.fillText(e.id, 0, 34); x.restore(); });
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 8;
+  const f = new THREE.Mesh(new THREE.PlaneGeometry(SIM.X1 - SIM.X0, SIM.Z1 - SIM.Z0), new THREE.MeshStandardMaterial({ map: t, roughness: 0.85, envMapIntensity: 0.3 }));
+  f.rotation.x = -Math.PI / 2; f.position.set((SIM.X0 + SIM.X1) / 2, 0, (SIM.Z0 + SIM.Z1) / 2); f.receiveShadow = true; SS.add(f);
+  const og = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshStandardMaterial({ color: 0x18213a, roughness: 0.95, envMapIntensity: 0.2 })); og.rotation.x = -Math.PI / 2; og.position.y = -0.03; og.receiveShadow = true; SS.add(og);
+  // walls: dark navy with a light top edge (like the reference)
+  const wm = new THREE.MeshStandardMaterial({ color: 0x1c2740, roughness: 0.55, metalness: 0.2 }), cm = new THREE.MeshStandardMaterial({ color: 0x5d7398, roughness: 0.4, metalness: 0.3 });
+  SIM.seg.forEach(([ax, az, bx, bz]) => { const L = Math.hypot(bx - ax, bz - az); if (L < 0.05) return; const g = new THREE.Group();
+    const b = new THREE.Mesh(new THREE.BoxGeometry(L + 0.5, 1.5, 0.5), wm); b.position.y = 0.75; b.castShadow = b.receiveShadow = true; g.add(b);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(L + 0.52, 0.07, 0.52), cm); cap.position.y = 1.52; g.add(cap);
+    g.position.set((ax + bx) / 2, 0, (az + bz) / 2); g.rotation.y = -Math.atan2(bz - az, bx - ax); SS.add(g); });
+  SIM.PIL.forEach(([px, pz]) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(SIM.PR, SIM.PR, 1.5, 24), wm); m.position.set(px, 0.75, pz); m.castShadow = true; SS.add(m);
+    const cp = new THREE.Mesh(new THREE.CylinderGeometry(SIM.PR + 0.02, SIM.PR + 0.02, 0.07, 24), cm); cp.position.set(px, 1.52, pz); SS.add(cp); });
+  // exit frames + glowing signs
+  SIM.EX.forEach(e => { const g = new THREE.Group(), tx = -e.nz, tz = e.nx, hw = SIM.GW / 2 + 0.25;
+    for (const s of [-1, 1]) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2.6, 0.5), wm); post.position.set(e.x + tx * s * hw, 1.3, e.z + tz * s * hw); post.castShadow = true; SS.add(post); }
+    const lin = new THREE.Mesh(new THREE.BoxGeometry(SIM.GW + 1, 0.45, 0.5), wm); lin.position.set(e.x, 2.6, e.z); lin.rotation.y = -Math.atan2(tz, tx); lin.castShadow = true; SS.add(lin);
+    const sc = document.createElement('canvas'); sc.width = 256; sc.height = 96; const sx = sc.getContext('2d'); sx.fillStyle = e.id === 'B' ? '#1f6fd6' : '#13a463'; sx.fillRect(0, 0, 256, 96);
+    sx.fillStyle = '#fff'; sx.font = '700 54px Sora, Arial'; sx.textAlign = 'center'; sx.fillText('EXIT ' + e.id, 128, 68); const st = new THREE.CanvasTexture(sc); st.encoding = THREE.sRGBEncoding;
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.72), new THREE.MeshBasicMaterial({ map: st, toneMapped: false })); sign.position.set(e.x - e.nx * 0.27, 2.6, e.z - e.nz * 0.27); sign.lookAt(e.x - e.nx * 5, 2.6, e.z - e.nz * 5); SS.add(sign); });
+}
+// the simulated people (same slim miniature figures) + stewards in hi-vis who appear with the announcement
+const simPpl = []; for (let i = 0; i < SN; i++) simPpl.push({ x: 0, y: 0, z: 0, yaw: 0, shirt: 0x2f8fe0, ph: rnd() * 6.28, seed: rnd() });
+const SIMC = new Crowd(simPpl, 1, G, SS);
+const simStew = []; SIM.EX.forEach(e => { const tx = -e.nz, tz = e.nx; for (const s of e.id === 'B' ? [-1, 1] : [1]) simStew.push({ x: e.x - e.nx * 0.85 + tx * s * 2.0, y: 0, z: e.z - e.nz * 0.85 + tz * s * 2.0, yaw: Math.atan2(-e.nx, -e.nz) - s * 0.5, shirt: 0xd6ff2a, ph: rnd() * 6, seed: rnd() }); });
+const SIMS = new Crowd(simStew, 1, G, SS); SIMS.parts.torso.material = SIMS.parts.torso.material.clone(); SIMS.parts.torso.material.emissive = new THREE.Color(0x3a4a00);
+const C_WAIT = LIN(0x97a3b5), C_MOVE = LIN(0x2f8fe0), C_JAM = LIN(0xe2403a);
+function simFrame(t) {   // t = video time 3–43
+  const f = Math.max(0, Math.min(SF - 1, Math.round((t - 3) * SIM.fps))), c = new THREE.Color();
+  SIMC.list.forEach((p, i) => { const b = i * SF + f, st = SIM.st[b], red = SIM.red[b] / 255;
+    c.copy(st === 0 ? C_WAIT : C_MOVE); if (red > 0) c.lerp(C_JAM, Math.min(1, red * 1.3));
+    for (const k of ['torso', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) SIMC.parts[k].setColorAt(i, c); });
+  SIMC.update((p, i) => { const b = i * SF + f, st = SIM.st[b]; p.x = SIM.x[b]; p.z = SIM.z[b]; p.yaw = SIM.yaw[b];
+    if (st === 3) return { pose: 'hide' };
+    const red = SIM.red[b] / 255, walk = st >= 1 && red < 0.5;
+    return { pose: red > 0.6 && p.seed < 0.12 ? 'armsHead' : st === 0 && p.seed > 0.97 ? 'armPoint' : 'armsDown', bob: walk ? Math.abs(Math.sin(t * 9 + p.ph)) * 0.035 : 0,
+      yaw: walk ? Math.sin(t * 9 + p.ph) * 0.06 : 0, headYaw: st === 0 ? Math.sin(t * 0.9 + p.ph) * 0.5 : 0, headPitch: -0.05 }; });
+  const sk = ease(ramp(t, 30.4, 31.0));
+  SIMS.update(p => sk < 0.02 ? { pose: 'hide' } : { pose: Math.sin(t * 2.4 + p.ph) > -0.3 ? 'armPoint' : 'armsDown', bob: (1 - sk) * 0.8, headYaw: Math.sin(t * 0.8 + p.ph) * 0.4 });
+  return SIM.stats[f]; }
+// overlay UI (cards, sliders, counters)
+const PRM = [['Uncertainty', 'u'], ['Social influence', 's'], ['Stress', 'x']];
+$('params').innerHTML = PRM.map(([n], i) => `<div class="pr" id="pr${i}"><span>${n}</span><i><u id="pb${i}"></u></i><em id="pv${i}"></em></div>`).join('');
+const lvl = v => v < 0.34 ? 'LOW' : v < 0.67 ? 'MID' : 'HIGH';
+function simUI(t, st) {
+  const L = t < 10 ? ['QUESTION', 'Why do some people move at once, while others wait?'] : t < 20 ? ['RULE 1', 'If people near me move, I move too.'] : t < 30 ? ['RULE 2', 'Unsure + copying + stressed = everyone picks the exit they know.'] : ['THE FIX', 'Clear announcements + stewards = people use the nearest exit.'];
+  if ($('card').dataset.k !== L[1]) { $('card').dataset.k = L[1]; $('cardL').textContent = 'SIMULATION · ' + L[0]; $('cardT').textContent = L[1]; }
+  const ck = Math.min(...[3, 10, 20, 30].map(a => Math.abs(t - a))); $('card').style.opacity = Math.min(1, ck / 0.25 + (t < 3.3 ? 0 : 0));
+  const unc = t < 30 ? 0.9 : lerp(0.9, 0.12, ease(ramp(t, 30.4, 33))), soc = t < 10 ? 0.25 : t < 30 ? lerp(0.25, 0.85, ease(ramp(t, 12.9, 17))) : lerp(0.85, 0.3, ease(ramp(t, 31, 34))),
+        str = t < 20 ? lerp(0.35, 0.5, ramp(t, 3, 20)) : t < 30 ? lerp(0.5, 0.95, ease(ramp(t, 26.7, 28.5))) : lerp(0.95, 0.25, ease(ramp(t, 31, 35)));
+  const act = t >= 20.3 && t < 23.6 ? 0 : t >= 23.6 && t < 26.7 ? 1 : t >= 26.7 && t < 30 ? 2 : t >= 12.9 && t < 20 ? 1 : t >= 30.4 && t < 34 ? 0 : -1;
+  [unc, soc, str].forEach((v, i) => { $('pb' + i).style.width = (v * 100).toFixed(1) + '%'; $('pv' + i).textContent = lvl(v); $('pr' + i).classList.toggle('on', i === act); $('pb' + i).classList.toggle('hot', v > 0.67); });
+  const [w, mv, jam, gone, rate] = st; $('s0').textContent = w; $('s1').textContent = jam; $('s2').textContent = rate;
+  $('stats').children[1].classList.toggle('hot', jam > 40);
+}
+
 /* ---------- 45-second timeline ---------- */
-const TOTAL = 45, CAPS = __CAPS__;
+const TOTAL = 45, CAPS = __CAPS__, CAPL = __LINES__;
 const easeIO = ease, sm = (u, a, b) => ease(ramp(u, a, b));
 const C2 = pick(N3 + 0.32, 1), C4A = pick(N3 + 0.36, 0), C4B = pick(N3 + 0.26, 3), C4C = pick(N3 + 0.44, 1), CL = pick(N3 + 0.28, 8), CL2 = pick(N3 + 0.4, 4);
 const LK = [buildLinks(CL, 16, 0xffb547), buildLinks(CL2, 12, 0x4fc3f7)], HOT = new Set(LK[0].near), COOL = new Set(LK[1].near);
@@ -243,50 +336,11 @@ const SC = [
     const k = easeIO(u / 3); shot(V(lerp(110, 60, k), lerp(135, 70, k), lerp(170, 95, k)), V(lerp(0, 4, k), lerp(4, 14, k), lerp(-8, -40, k)), lerp(36, 30, k));
     setTitle(['What happens', 'when a stadium <em>panics?</em>'], sm(u, 0.2, 0.6));
   }],
-  [3, 10, (u, t) => {   // 2. into the stands: individual reactions
-    mood(0.6, 0); drawBoard('glitch'); smoke(1, t);
-    const F = front(C2); const k = easeIO(u / 7);
-    shot(F.P.clone().addScaledVector(F.n, 4.4).addScaledVector(F.tg, lerp(4.6, 2.6, k)).add(V(0, 1.55 + 0.1 * k, 0)), F.P.clone().add(V(0, 1.75, 0)).addScaledVector(F.tg, lerp(-1, -2, k)), 30, 5.4, 0.0004);
-    crowdUpdate(p => { const near = Math.hypot(p.x - C2.x, p.z - C2.z) < 16, s = p.seed;
-      const quick = s < 0.3, react = quick ? sm(u, 0.6, 1.0) : sm(u, 3.2 + s * 2, 3.8 + s * 2);   // some react at once, others only after watching
-      const look = Math.sin(t * (0.6 + s) + p.ph) * (near ? 0.9 : 0.4);
-      return { pose: !near ? (s < 0.975 ? 'armsDown' : 'armPoint') : (react > 0.5 ? (s < 0.18 ? 'armsHead' : s < 0.3 ? 'armPoint' : 'armsDown') : 'armsDown'), headYaw: near ? look : look * 0.5, headPitch: near ? (s < 0.4 ? 0.12 : -0.15) : -0.12, bob: 0 }; });
-    setTitle([], 0);
-  }],
-  [10, 20, (u, t) => {   // 3. lift into a cutaway view: one reaction spreads, links grow outwards
-    mood(0.45, 0); drawBoard('glitch'); smoke(0.8, t); LINKS.visible = true;
-    const F2 = front(C2), F = front(CL), k = easeIO(ramp(u, 0, 3.5));
-    const a = [F2.P.clone().addScaledVector(F2.n, 4.4).addScaledVector(F2.tg, 2.6).add(V(0, 1.65, 0)), F2.P.clone().add(V(0, 1.75, 0)).addScaledVector(F2.tg, -2)];
-    const b = [F.P.clone().addScaledVector(F.n, 26).addScaledVector(F.tg, lerp(-12, -6, ramp(u, 3.5, 10))).add(V(0, 16, 0)), F.P.clone().add(V(0, 1.5, 0)).addScaledVector(F.tg, 3)];
-    const [cp, ct] = camLerp(a, b, k); shot(cp, ct, 30, 5.4, k < 0.5 ? 0.0004 * (1 - 2 * k) : 0);
-    LK[0].g.children.forEach(m => m.material.opacity = 0.95 * ramp(u, 3.2 + m.userData.d * 0.12, 3.6 + m.userData.d * 0.12));
-    LK[1].g.children.forEach(m => m.material.opacity = 0.95 * ramp(u, 6.4 + m.userData.d * 0.12, 6.8 + m.userData.d * 0.12));
-    tintMode(u < 6.2 ? 'hot' : 'both', sm(u, 3, 4));
-    crowdUpdate(p => { const hot = HOT.has(p) && u > 3.2, cool = COOL.has(p) && u > 6.4; return { pose: hot ? (p.seed < 0.5 ? 'armPoint' : 'armsDown') : cool && p.seed < 0.3 ? 'armPoint' : 'armsDown', headYaw: hot || cool ? Math.sin(t * 1.2 + p.ph) * 0.7 : Math.sin(t * 0.7 + p.ph) * 0.3, headPitch: -0.1 }; });
-    setTitle(['One reaction', '<em>spreads</em>'], sm(u, 3.3, 3.8) * (1 - sm(u, 9.3, 9.8)));
-  }],
-  [20, 30, (u, t) => {   // 4. freeze: the camera moves between three people; Uncertainty, Social influence, Stress
-    mood(0.55, 0); drawBoard('glitch'); smoke(0.9, 22); tintMode('none');
-    const seg = u < 3.3 ? 0 : u < 6.6 ? 1 : 2, uu = u - seg * 3.3, C = [C4A, C4B, C4C][seg], F = front(C);
-    const sideA = [-1.6, 1.4, -1.2][seg], dz = [3.4, 3.6, 3.0][seg], drift = uu * 0.12;
-    shot(F.P.clone().addScaledVector(F.n, dz - drift).addScaledVector(F.tg, sideA + drift * 0.5).add(V(0, 1.72, 0)), F.P.clone().add(V(0, 1.6, 0)), 30, dz - drift - 0.2, 0.00055);
-    const look = q => { let d = Math.atan2(C4B.x - q.x, C4B.z - q.z) - q.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); return Math.max(-1.2, Math.min(1.2, d)); };   // social influence: neighbours turn to look at one person
-    crowdUpdate(p => { const nearB = seg === 1 && p !== C4B && Math.hypot(p.x - C4B.x, p.z - C4B.z) < 4.5 && uu > 0.6;
-      return { pose: p === C4B && seg === 1 ? 'armPoint' : p.seed < 0.3 ? 'armsHead' : p.seed > 0.92 ? 'armPoint' : 'armsDown', headYaw: nearB ? look(p) * sm(uu, 0.6 + p.seed, 1.0 + p.seed) + (p.seed - 0.5) * 1.5 * (1 - sm(uu, 0.6 + p.seed, 1.0 + p.seed)) : (p.seed - 0.5) * 1.5, headPitch: p.seed < 0.3 ? 0.18 : 0.05 }; });
-    if (seg === 2) redL.intensity = 4.5 * (0.7 + 0.3 * Math.sin(u * 7));   // stress: a red pulse
-    concept('cA', seg === 0 ? sm(uu, 0.25, 0.6) * (1 - sm(uu, 2.9, 3.25)) : 0); concept('cB', seg === 1 ? sm(uu, 0.25, 0.6) * (1 - sm(uu, 2.9, 3.25)) : 0); concept('cC', seg === 2 ? sm(uu, 0.25, 0.6) * (1 - sm(uu, 3.0, 3.35)) : 0);
-    setTitle([], 0); $('fade').style.opacity = Math.max(0, 0.7 - Math.min(Math.abs(u - 3.3), Math.abs(u - 6.6)) / 0.18);   // soft cuts between the three
-  }],
-  [30, 43, (u, t) => {   // 5. stewards communicate, announcement, red → neutral light, calmer crowd, spectacular wide
-    const calm = sm(u, 0.4, 3.5); mood(0.55 * (1 - calm), calm); drawBoard(u > 1.2 ? 'msg' : 'glitch'); smoke(0.7 * (1 - sm(u, 1, 6)), t); LINKS.visible = false; tintMode('none');
-    Object.values(STEW.parts).forEach(m => m.visible = true);
-    STEW.update(p => ({ pose: Math.sin(t * 2.2 + p.t * 5) > 0 ? 'armPoint' : 'armsDown', headYaw: Math.sin(t * 0.8 + p.t * 3) * 0.4 }));
-    crowdUpdate(p => { const settle = sm(u, 1 + p.seed * 3, 2 + p.seed * 3); return { pose: settle > 0.5 ? 'armsDown' : (p.seed < 0.3 ? 'armsHead' : 'armsDown'), headYaw: lerp((p.seed - 0.5) * 1.4, (p.seed - 0.5) * 0.3, settle), headPitch: lerp(0.1, -0.05, settle) }; });
-    const s = STEW_S, k = easeIO(ramp(u, 0, 6)), w = easeIO(ramp(u, 6.2, 13));
-    const a = [V(s.x + 1.6, 2.2, s.z + 6.5), V(s.x - 0.8, 2.6, s.z - 6)], b = [V(s.x + 0.9, 1.9, s.z + 4.2), V(s.x - 0.5, 2.3, s.z - 6)], c = [V(-150, 95, 170), V(0, 0, -5)];
-    let [cp, ct] = camLerp(a, b, k); if (w > 0) [cp, ct] = camLerp([cp, ct], c, w);
-    shot(cp, ct, lerp(34, 36, w), cp.distanceTo(V(s.x, 1.6, s.z)), w < 0.2 ? 0.0003 * (1 - 5 * w) : 0);
-    setTitle(['Clear information', '<em>calms</em> a crowd'], sm(u, 1.0, 1.5) * (1 - sm(u, 5.6, 6.1)));
+  [3, 43, (u, t) => {   // 2–5. the explanation as a live crowd simulation: alarm → some move, others watch → copying ripples → one familiar exit jams → announcement + stewards → every exit used
+    const K = [[3, V(0, 58, 36), V(0, 0, 3)], [9.5, V(0, 72, 44), V(0, 0, 3.5)], [20, V(0, 72, 44), V(0, 0, 3.5)], [24, V(3, 62, 37), V(3, 0, 2)], [30.2, V(3, 62, 37), V(3, 0, 2)], [34.5, V(0, 72, 44), V(0, 0, 3.5)], [43, V(0, 75, 46), V(0, 0, 3.5)]];
+    let j = 0; while (j < K.length - 2 && t >= K[j + 1][0]) j++; const k = easeIO(ramp(t, K[j][0], K[j + 1][0]));
+    shot(K[j][1].clone().lerp(K[j + 1][1], k), K[j][2].clone().lerp(K[j + 1][2], k), 40, 50, 0);
+    simUI(t, simFrame(t));
   }],
   [43, 45, () => { mood(0, 1); }],
 ];
@@ -294,17 +348,20 @@ function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   const i = SC.findIndex(s => t >= s[0] && t < s[1]), [a, , fn] = SC[i];
   ['cA', 'cB', 'cC'].forEach(id => concept(id, 0)); $('fade').style.opacity = 0; LINKS.visible = false;
-  Object.values(STEW.parts).forEach(m => m.visible = i >= 4);
+  Object.values(STEW.parts).forEach(m => m.visible = false);
+  const simOn = t >= 3 && t < 43; RPASS.scene = simOn ? SS : scene; BLOOM.strength = simOn ? 0.28 : 0.5; BLOOM.threshold = simOn ? 0.9 : 0.85; renderer.toneMappingExposure = simOn ? 1.0 : renderer.toneMappingExposure;
+  $('simui').style.opacity = simOn ? Math.min(1, (t - 3) / 0.35) : 0; ['title', 'sub'].forEach(id => $(id).style.display = simOn ? 'none' : '');
   fn(t - a, t);
   const o = $('outro'), ou = t - 43; o.style.opacity = ou < 0 ? 0 : ease(ramp(ou, 0, 0.3));
   if (ou >= 0) { const pop = (el, a0, a1, s0) => { const v = ease(ramp(ou, a0, a1)); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 1.2}vh) scale(${s0 + (1 - s0) * v})`; }; pop($('oLogo'), 0.15, 0.65, 0.92); pop($('oName'), 0.4, 0.9, 0.96); pop($('oTag'), 0.65, 1.15, 1); }
-  $('note').style.opacity = t < 43 ? 1 : 0;
+  $('note').style.opacity = t < 3 ? 1 : 0;
   const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
-  for (const c of [3, 10, 20, 30]) $('fade').style.opacity = Math.max(+$('fade').style.opacity, 0.5 - Math.abs(t - c) / 0.25);
+  const ln = [...CAPL].reverse().find(c => t >= c[0] - 0.1); $('cap').textContent = ln && t < 43 ? ln[2] : '';
+  for (const c of [3]) $('fade').style.opacity = Math.max(+$('fade').style.opacity, 0.5 - Math.abs(t - c) / 0.25);
   if (t < 43) composer.render();
 }
-{ const seen = new Set(); scene.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (seen.has(m)) return; seen.add(m); if (m.color && !m.map) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); });
-  if (o.isLight) { o.color.convertSRGBToLinear(); if (o.groundColor) o.groundColor.convertSRGBToLinear(); } }); scene.fog.color.convertSRGBToLinear(); }
+{ const seen = new Set(); [scene, SS].forEach(S => S.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (seen.has(m)) return; seen.add(m); if (m.color && !m.map) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); });
+  if (o.isLight) { o.color.convertSRGBToLinear(); if (o.groundColor) o.groundColor.convertSRGBToLinear(); } })); scene.fog.color.convertSRGBToLinear(); SS.fog.color.convertSRGBToLinear(); SS.background.convertSRGBToLinear(); }
 const HEMI_N = hemi.color.clone(), HEMI_R = LIN(0x8a4a52);
 window.__tour = { total: TOTAL, renderAt }; window.__tourReady = () => true;
 })();
