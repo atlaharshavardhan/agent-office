@@ -535,8 +535,8 @@ const SHOTS = [
     camera.position.copy(lidPoint(STRIP_C.clone().add(new THREE.Vector3(lerp(-125, -70, k), LAYER_Y.refl + lerp(245, 200, k), lerp(150, 120, k))))); camera.position.add(new THREE.Vector3(2.5 * Math.sin(TNOW * 0.6), 1.5 * Math.sin(TNOW * 0.8 + 1), 0)); camera.lookAt(tg); camera.updateMatrixWorld();
     $('title').classList.add('hook'); title(['4 HIDDEN', 'LEDs'], [0.05, 0.25], u);
     const sp = (dx) => lidPoint(STRIP_C.clone().add(new THREE.Vector3(dx, LAYER_Y.refl + 0.5, 0)));
-    sideTags([['led', 'One strip, along one edge', sp(-27), -1, ease(ramp(u, 2.9, 3.3)), 'acc', -300],
-              ['own', 'Made just for the logo', sp(27), 1, ease(ramp(u, 3.6, 4.0)), '', -470]]);
+    sideTags([['led', 'One strip, along one edge', sp(27), -1, ease(ramp(u, 2.9, 3.3)), 'acc', -300],
+              ['own', 'Made just for the logo', sp(-27), 1, ease(ramp(u, 3.6, 4.0)), '', -470]]);
   }],
   [B[4], B[5], (u, d) => { // 5. bounce → spread → shine: concentrated LED light becomes one even glow
     rim.intensity = 1.3; rim.color.setHex(0xdfe6f0); lidOpen(OPEN); room(0); setXray(1 - ease(ramp(u, 5.9, 7.0))); screenOn(0.35, 0);
