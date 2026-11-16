@@ -120,31 +120,30 @@ const rbox = (w, h, d) => { const g = new THREE.BoxGeometry(w, h, d, 2, 2, 2), p
   for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); const k = 0.22, n = new THREE.Vector3(Math.sign(v.x) * w / 2, Math.sign(v.y) * h / 2, Math.sign(v.z) * d / 2); v.lerp(n.multiplyScalar(0.86), k); p.setXYZ(i, v.x, v.y, v.z); } g.computeVertexNormals(); return g; };
 const limb = (r0, r1, len) => new THREE.CylinderGeometry(r1, r0, len, 7, 1);
 const lathe = (pts, seg = 12) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), seg);
-const torsoG = (() => { const g = lathe([[0.001, 0.98], [0.16, 0.99], [0.175, 1.1], [0.17, 1.25], [0.19, 1.38], [0.205, 1.44], [0.17, 1.5], [0.07, 1.53], [0.001, 1.535]], 14); g.scale(1, 1, 0.62); return g; })();   // waist → chest → rounded shoulders
-const armG = (rot, side) => { const up = limb(0.048, 0.056, 0.3), lo = limb(0.04, 0.047, 0.28), hand = new THREE.SphereGeometry(0.045, 8, 6); return [up, lo, hand]; };
+// slim miniature people (reference style): small head with dark hair, plain top, dark trousers, arms close to the body
+const torsoG = (() => { const g = lathe([[0.001, 1.0], [0.125, 1.0], [0.13, 1.12], [0.135, 1.28], [0.15, 1.4], [0.15, 1.45], [0.11, 1.49], [0.05, 1.51], [0.001, 1.515]], 12); g.scale(1, 1, 0.66); return g; })();
 function arm(side, sh, el) {   // side ±1; sh, el: [rx, rz] for shoulder and elbow
-  const S = new THREE.Matrix4().makeTranslation(side * 0.215, 1.43, 0).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(sh[0], 0, side * sh[1])));
+  const S = new THREE.Matrix4().makeTranslation(side * 0.165, 1.43, 0).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(sh[0], 0, side * sh[1])));
   const E = S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.29, 0)).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(el[0], 0, side * el[1])));
-  return [[limb(0.048, 0.056, 0.3), S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.15, 0))], [limb(0.04, 0.047, 0.27), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.135, 0))],
-          [new THREE.SphereGeometry(0.047, 8, 6), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.29, 0))]]; }
+  return [[limb(0.034, 0.042, 0.3), S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.15, 0))], [limb(0.03, 0.035, 0.27), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.135, 0))],
+          [new THREE.SphereGeometry(0.034, 7, 5), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.285, 0))]]; }
 const G = {
   torso: geo([[torsoG, M(0, 0, 0)]]),
-  legs: geo([[lathe([[0.001, 0.86], [0.17, 0.92], [0.175, 1.0], [0.001, 1.0]], 12), M(0, 0, 0, 0, 0, 0)], [limb(0.07, 0.085, 0.47), M(-0.095, 0.69, 0)], [limb(0.07, 0.085, 0.47), M(0.095, 0.69, 0)],
-               [limb(0.055, 0.068, 0.44), M(-0.095, 0.24, 0)], [limb(0.055, 0.068, 0.44), M(0.095, 0.24, 0)], [rbox(0.11, 0.07, 0.25), M(-0.095, 0.035, 0.05)], [rbox(0.11, 0.07, 0.25), M(0.095, 0.035, 0.05)]]),
-  head: geo([[new THREE.SphereGeometry(0.105, 16, 12), M(0, 1.665, 0, 0, 0, 0)], [limb(0.042, 0.048, 0.1), M(0, 1.55, 0)], [new THREE.SphereGeometry(0.02, 6, 4), M(0, 1.655, 0.103)],   // head, neck, nose
-             [new THREE.SphereGeometry(0.022, 6, 4), M(-0.1, 1.665, 0)], [new THREE.SphereGeometry(0.022, 6, 4), M(0.1, 1.665, 0)]]),   // ears
-  eyes: geo([[new THREE.SphereGeometry(0.014, 6, 4), M(-0.036, 1.685, 0.094)], [new THREE.SphereGeometry(0.014, 6, 4), M(0.036, 1.685, 0.094)]]),
-  hair: geo([[new THREE.SphereGeometry(0.112, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), M(0, 1.675, -0.008, -0.32)], [new THREE.SphereGeometry(0.108, 12, 8, Math.PI * 0.15, Math.PI * 0.7, Math.PI * 0.35, Math.PI * 0.35), M(0, 1.665, -0.01, 0, Math.PI, 0)]]),
-  armsDown: geo([...arm(-1, [0, 0.1], [-0.15, 0]), ...arm(1, [0, 0.1], [-0.15, 0])]),
-  armsUp: geo([...arm(-1, [0.1, 2.75], [0, -0.25]), ...arm(1, [0.1, 2.75], [0, -0.25])]),
-  armPoint: geo([...arm(-1, [0, 0.1], [-0.15, 0]), ...arm(1, [-1.45, 0.25], [-0.1, 0])]),
-  armsHead: geo([...arm(-1, [-0.6, 0.55], [-2.2, 0]), ...arm(1, [-0.6, 0.55], [-2.2, 0])]),   // hands to the head (worry)
+  legs: geo([[lathe([[0.001, 0.88], [0.135, 0.92], [0.135, 1.01], [0.001, 1.01]], 10), M(0, 0, 0)], [limb(0.052, 0.064, 0.47), M(-0.07, 0.69, 0)], [limb(0.052, 0.064, 0.47), M(0.07, 0.69, 0)],
+               [limb(0.04, 0.052, 0.45), M(-0.07, 0.24, 0)], [limb(0.04, 0.052, 0.45), M(0.07, 0.24, 0)], [rbox(0.085, 0.06, 0.21), M(-0.07, 0.03, 0.04)], [rbox(0.085, 0.06, 0.21), M(0.07, 0.03, 0.04)]]),
+  head: geo([[new THREE.SphereGeometry(0.092, 14, 10), M(0, 1.64, 0)], [limb(0.034, 0.04, 0.09), M(0, 1.53, 0)]]),
+  eyes: geo([[new THREE.SphereGeometry(0.0095, 5, 4), M(-0.03, 1.652, 0.085)], [new THREE.SphereGeometry(0.0095, 5, 4), M(0.03, 1.652, 0.085)]]),
+  hair: geo([[new THREE.SphereGeometry(0.098, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.46), M(0, 1.648, -0.006, -0.42)]]),   // dark hair over the top and back of the head
+  armsDown: geo([...arm(-1, [0, 0.06], [-0.12, 0]), ...arm(1, [0, 0.06], [-0.12, 0])]),
+  armsUp: geo([...arm(-1, [0.1, 2.8], [0, -0.2]), ...arm(1, [0.1, 2.8], [0, -0.2])]),
+  armPoint: geo([...arm(-1, [0, 0.06], [-0.12, 0]), ...arm(1, [-1.45, 0.2], [-0.1, 0])]),
+  armsHead: geo([...arm(-1, [-1.3, -0.12], [-1.9, 0]), ...arm(1, [-1.3, -0.12], [-1.9, 0])]),   // hands up in front of the face (worry)
 };
-const SKIN = [0x8d5524, 0xc68642, 0xe0ac69, 0xf1c27d, 0x6b3e26, 0xa0663c, 0xd29b6c], HAIRC = [0x1b1410, 0x2c1b10, 0x4a2c18, 0x0e0e10, 0x7a5232, 0x3a3a3a], PANTS = [0x22252c, 0x2f3a52, 0x3a2f2a, 0x1c2a3a, 0x4a4f5a];
+const SKIN = [0x8d5524, 0xc68642, 0xe0ac69, 0xf1c27d, 0x6b3e26, 0xa0663c, 0xd29b6c], HAIRC = [0x111111, 0x161210, 0x1b1410, 0x0e0e10, 0x2c1b10, 0x111111, 0x3a2a1c], PANTS = [0x1c1e24, 0x22252c, 0x1c2a44, 0x2a2622, 0x1d2333];
 const SHIRT = [0x1d4fa8, 0x1d4fa8, 0x2f6fe0, 0xe8edf4, 0xd8342c, 0xffffff, 0x1d4fa8, 0xf2c230, 0x3aa760, 0xe86a2c, 0x7b4fd6];
 class Crowd {   // one group of people drawn with instanced parts; per person: pose + colours
   constructor(list, detail = 1) { this.list = list; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
-    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) { const m = new THREE.InstancedMesh(G[k], mat(k === 'head' ? 0.55 : k === 'eyes' ? 0.2 : 0.8), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scene.add(m); }
+    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) { const m = new THREE.InstancedMesh(G[k], mat(k === 'head' ? 0.7 : k === 'eyes' ? 0.4 : 0.92), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scene.add(m); }
     const c = new THREE.Color(); list.forEach((p, i) => { p.skin = p.skin ?? SKIN[(rnd() * SKIN.length) | 0]; p.shirt = p.shirt ?? SHIRT[(rnd() * SHIRT.length) | 0]; p.pants = PANTS[(rnd() * PANTS.length) | 0]; p.hairc = HAIRC[(rnd() * HAIRC.length) | 0]; p.h = 0.92 + rnd() * 0.16;
       this.parts.torso.setColorAt(i, c.copy(LIN(p.shirt))); this.parts.legs.setColorAt(i, c.copy(LIN(p.pants))); this.parts.head.setColorAt(i, c.copy(LIN(p.skin))); this.parts.hair.setColorAt(i, c.copy(LIN(p.hairc))); this.parts.eyes.setColorAt(i, c.copy(LIN(0x14100e)));
       for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead']) this.parts[k].setColorAt(i, c.copy(LIN(p.shirt))); });
@@ -164,7 +163,7 @@ class Crowd {   // one group of people drawn with instanced parts; per person: p
 const fans = seatSpots.filter(() => rnd() < 0.93).map(s => ({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, yaw: Math.atan2(-s.nx, -s.nz), r: s.r, t: s.t, ph: rnd() * 6.28, seed: rnd() }));
 const CROWD = new Crowd(fans);
 // stewards in hi-vis around the pitch (scene 5)
-const stewards = []; for (let i = 0; i < 26; i++) { const t = i / 26 * Math.PI * 2 + 0.1, [x, z] = SE(t, A0 - 4.5, B0 - 4.5); stewards.push({ x, y: 0, z, yaw: Math.atan2(x, z), shirt: 0xd6ff2a, t });   // stewards face the crowd }
+const stewards = []; for (let i = 0; i < 26; i++) { const t = i / 26 * Math.PI * 2 + 0.1, [x, z] = SE(t, A0 - 4.5, B0 - 4.5); stewards.push({ x, y: 0, z, yaw: Math.atan2(x, z), shirt: 0xd6ff2a, t }); }   // stewards face the crowd
 const STEW = new Crowd(stewards);
 STEW.parts.torso.material = STEW.parts.torso.material.clone(); STEW.parts.torso.material.emissive = new THREE.Color(0x3a4a00);   // (converted with the rest below)
 
@@ -218,7 +217,7 @@ const STILLS = {
     shot(V(95, 120, 150), V(0, 6, -10), 36); tTitle(['What happens', 'when a stadium <em>panics?</em>'], 1); $('sub').textContent = 'What happens when thousands of people panic'; },
   2: () => { mood(0.35, 0); drawBoard('glitch'); smoke(1, 5); const c = pick((3 * Math.PI / 2) + 0.32, 1);
     const P = V(c.x, c.y, c.z), n = V(-c.x, 0, -c.z).normalize(), tg = V(-n.z, 0, n.x); shot(P.clone().addScaledVector(n, 4.4).addScaledVector(tg, 3.6).add(V(0, 1.55, 0)), P.clone().add(V(0, 1.75, 0)).addScaledVector(tg, -1.5), 30, 5.6, 0.0004);
-    CROWD.update(p => { const near = Math.hypot(p.x - c.x, p.z - c.z) < 14; const s = p.seed; return { pose: !near ? (s < 0.93 ? 'armsDown' : 'armPoint') : (s < 0.22 ? 'armsHead' : s < 0.32 ? 'armPoint' : 'armsDown'), headYaw: near ? (s - 0.5) * 2.2 : (s - 0.5) * 0.8, headPitch: near ? (s < 0.5 ? 0.15 : -0.2) : -0.15 }; });
+    CROWD.update(p => { const near = Math.hypot(p.x - c.x, p.z - c.z) < 14; const s = p.seed; return { pose: !near ? (s < 0.975 ? 'armsDown' : 'armPoint') : (s < 0.22 ? 'armsHead' : s < 0.32 ? 'armPoint' : 'armsDown'), headYaw: near ? (s - 0.5) * 2.2 : (s - 0.5) * 0.8, headPitch: near ? (s < 0.5 ? 0.15 : -0.2) : -0.15 }; });
     tTitle([], 0); $('sub').textContent = 'Others wait, watching everyone around them'; },
   3: () => { mood(0.25, 0); drawBoard('glitch'); smoke(0.7, 7); const c = pick((3 * Math.PI / 2) + 0.28, 8);
     if (!LK) LK = [buildLinks(c, 16, 0xffb547), buildLinks(pick((3 * Math.PI / 2) + 0.4, 4), 12, 0x4fc3f7)];
