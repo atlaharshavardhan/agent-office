@@ -66,14 +66,14 @@ const Cam: React.FC<{ t: number }> = ({ t }) => {
 };
 
 /* ---------- materials ---------- */
-const stripeTex = (a: string, b: string, n = 48, tilt = 0.35) => { const c = document.createElement('canvas'); c.width = 256; c.height = 256; const g = c.getContext('2d')!; g.fillStyle = a; g.fillRect(0, 0, 256, 256); g.strokeStyle = b; g.lineWidth = 256 / n / 2.2;
+export const stripeTex = (a: string, b: string, n = 48, tilt = 0.35) => { const c = document.createElement('canvas'); c.width = 256; c.height = 256; const g = c.getContext('2d')!; g.fillStyle = a; g.fillRect(0, 0, 256, 256); g.strokeStyle = b; g.lineWidth = 256 / n / 2.2;
   for (let i = -n; i < n * 2; i++) { g.beginPath(); g.moveTo(-10, (i * 256) / n); g.lineTo(266, (i * 256) / n + 256 * tilt); g.stroke(); } const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; return t; };
 /* soft cartoon glass: see-through in the middle, bright on the rim */
-const glassMat = (col: string, base = 0.1, rim = 0.75) => new THREE.ShaderMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide, uniforms: { uC: { value: new THREE.Color(col) }, uB: { value: base }, uR: { value: rim }, uO: { value: 1 } },
+export const glassMat = (col: string, base = 0.1, rim = 0.75) => new THREE.ShaderMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide, uniforms: { uC: { value: new THREE.Color(col) }, uB: { value: base }, uR: { value: rim }, uO: { value: 1 } },
   vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix*vec4(position,1.); vN = normalize(normalMatrix*normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }',
   fragmentShader: 'varying vec3 vN; varying vec3 vV; uniform vec3 uC; uniform float uB; uniform float uR; uniform float uO; void main(){ float f = pow(1. - abs(dot(normalize(vN), normalize(vV))), 2.2); gl_FragColor = vec4(uC * (0.55 + f), (uB + f * uR) * uO); }' });
 /* light pulses that move along a tube: cyan data with one amber group being followed */
-const pulseMat = () => new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, uniforms: { uT: { value: 0 }, uOn: { value: 1 }, uLen: { value: 1 }, uAmber: { value: -99 } },
+export const pulseMat = () => new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, uniforms: { uT: { value: 0 }, uOn: { value: 1 }, uLen: { value: 1 }, uAmber: { value: -99 } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }',
   fragmentShader: `varying vec2 vUv; uniform float uT; uniform float uOn; uniform float uLen; uniform float uAmber;
     float h(float n){ return fract(sin(n * 127.1) * 43758.5453); }
