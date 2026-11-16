@@ -115,8 +115,8 @@ const Q = new URLSearchParams(location.search);
 if (Q.get('zones')) document.getElementById('zones').style.display = 'block';
 const W = innerWidth, H = innerHeight;
 /* scene boundaries (seconds); replaced by the voice timeline once the narration is recorded */
-const B = window.__B || [0, 4.95, 7.82, 13.08, 18.45, 23.85, 31.0, 37.06, 43.0, 45.0];
-const TOTAL = B[B.length - 1];
+const B = [0, 4.95, 7.82, 13.08, 18.45, 23.85, 31.0, 37.06, 43.0, 45.0];   /* the picture is animated on this 45 s timeline */
+const NB = window.__B || B, TOTAL = NB[NB.length - 1];   /* playback timeline from the narration: each scene is played at the speed that fits its line */
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
 const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3), lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
 const bump = (u, a, b) => Math.sin(Math.PI * ramp(u, a, b));
@@ -811,9 +811,10 @@ const SHOTS = [
 const KEYS = ['someone else’s case', "someone else's case", 'may notice', 'not every case', 'a catch', 'secret', 'Magnets', 'charging contacts', 'metal contacts', 'deliver power', 'battery', 'charging circuit', 'each AirPod', 'part of the story', 'iPhone', 'belong together', 'compatible case', 'interchangeable', 'So yes', 'every AirPods case', 'AirPods'];
 const hi = txt => { for (const k of KEYS) { const i = txt.indexOf(k); if (i >= 0) return txt.slice(0, i) + '<em>' + k + '</em>' + txt.slice(i + k.length); } return txt; };
 function renderAt(t) {
+  t = Math.max(0, Math.min(TOTAL - 1e-3, t)); const tn = t;
+  let i = 0; while (i < NB.length - 2 && t >= NB[i + 1]) i++;
+  t = B[i] + (t - NB[i]) * (B[i + 1] - B[i]) / (NB[i + 1] - NB[i]);   /* playback time → picture time */
   VO = voAt(t);
-  t = Math.max(0, Math.min(TOTAL - 1e-3, t));
-  let i = 0; while (i < B.length - 2 && t >= B[i + 1]) i++;
   hideTags(); $('endcard').style.opacity = 0; $('brand').style.opacity = 0; $('brandbg').style.opacity = 0; $('pulse').style.opacity = 0; $('back').style.opacity = 0; $('chg').style.opacity = 0; for (const id of ['big', 'q']) $(id).style.opacity = 0; note('', 0); $('wash').style.opacity = 0; focus(0);
   if (!lastTitle.startsWith('H|')) $('title').innerHTML = ''; if ($('title').firstChild) $('title').firstChild.style.opacity = 0;
   CA.root.visible = true; CB.root.visible = true; PHONE.visible = false; LINK.visible = false; P.battGlow.visible = false; P.gold.visible = false; P.magGlow.visible = false; P.field.visible = false; P.spark.visible = false; explode(0);
@@ -823,7 +824,7 @@ function renderAt(t) {
   const d = B[i + 1] - B[i], u = t - B[i]; SHOTS[i](u / d, u, t, d);
   for (const [C, sh] of [[CA, SHAD[0]], [CB, SHAD[1]]]) { sh.visible = C.root.visible; sh.position.set(C.root.position.x, FLOOR_Y + 0.15, C.root.position.z); sh.material.opacity = Math.max(0, 0.5 - 0.03 * Math.abs(C.root.position.y)); sh.scale.set(0.9, 0.95, 1); }
   BOKEH.children.forEach(m => { m.position.x = m.userData.x + 14 * Math.sin(t * 0.25 + m.userData.ph); });
-  const cp = CAPS.find(c => t >= c[0] - 0.03 && t < c[1] + 0.08); $('sub').innerHTML = cp && !Q.get('nosub') ? '<span>' + hi(cp[2]) + '</span>' : '';
+  const cp = CAPS.find(c => tn >= c[0] - 0.03 && tn < c[1] + 0.08); $('sub').innerHTML = cp && !Q.get('nosub') ? '<span>' + hi(cp[2]) + '</span>' : '';
   $('wm').style.opacity = Q.get('nowm') ? 0 : 0.75 * (1 - ($('brandbg').style.opacity || 0));   // side watermark, hidden under the end card
   draw();
   $('bloom').style.opacity = 0.12 * (1 - 0.6 * Math.max(CA.x || 0, CB.x || 0)) * (1 - ($('brandbg').style.opacity || 0));

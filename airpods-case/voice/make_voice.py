@@ -3,7 +3,7 @@ Then the scene timeline (timeline.json: B = scene boundaries, starts = when each
 usage: python3 make_voice.py <dir with kokoro-v1.0.onnx and voices-v1.0.bin>"""
 import sys, json, re, os, numpy as np, soundfile as sf
 from kokoro_onnx import Kokoro
-here = os.path.dirname(os.path.abspath(__file__)); M = sys.argv[1]; SPEED = float(sys.argv[2]) if len(sys.argv) > 2 else 1.12; FILM, TITLE = 43.0, 2.0
+here = os.path.dirname(os.path.abspath(__file__)); M = sys.argv[1]; SPEED = float(sys.argv[2]) if len(sys.argv) > 2 else 1.12; FILM, TITLE = (float(sys.argv[3]) if len(sys.argv) > 3 else 43.0), 2.0
 k = Kokoro(os.path.join(M, 'kokoro-v1.0.onnx'), os.path.join(M, 'voices-v1.0.bin'))
 lines = [l.strip() for l in open(os.path.join(here, 'lines.txt'), encoding='utf-8') if l.strip()]
 LEAD, TAIL, END_TAIL = 0.1, 0.2, 0.3     # V2: 43.0 s of film, then a 2.0 s title card = 45.0 s
