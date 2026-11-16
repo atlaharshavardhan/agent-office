@@ -44,7 +44,7 @@ const Plane: React.FC<{ gear?: number; scale?: number }> = ({ gear = 1, scale = 
   </group>;
 };
 /* her, small and simple in 3D: coral top, jeans, long dark hair, pulling a suitcase */
-const Her: React.FC<{ t: number }> = ({ t }) => { const sw = Math.sin(t * 9) * 0.45, bob = Math.abs(Math.sin(t * 9)) * 0.04;
+export const Her: React.FC<{ t: number; still?: boolean }> = ({ t, still }) => { const sw = still ? 0 : Math.sin(t * 9) * 0.45, bob = still ? 0 : Math.abs(Math.sin(t * 9)) * 0.04;
   return <group position={[0, bob, 0]}>
     {[-1, 1].map((s) => <group key={s} position={[0, 0.9, s * 0.11]} rotation-z={s * sw}><mesh position={[0, -0.42, 0]}><capsuleGeometry args={[0.09, 0.62, 4, 10]} /><meshStandardMaterial color="#3d5fa8" roughness={0.7} /></mesh><mesh position={[0.05, -0.86, 0]}><boxGeometry args={[0.24, 0.1, 0.14]} /><meshStandardMaterial color="#f2f4ff" /></mesh></group>)}
     <mesh position={[0, 1.24, 0]}><capsuleGeometry args={[0.2, 0.42, 6, 14]} /><meshStandardMaterial color="#ff8f7a" roughness={0.6} /></mesh>
@@ -55,8 +55,9 @@ const Her: React.FC<{ t: number }> = ({ t }) => { const sw = Math.sin(t * 9) * 0
     <mesh position={[-0.16, 1.45, 0]}><capsuleGeometry args={[0.15, 0.42, 4, 10]} /><meshStandardMaterial color="#1f1a24" roughness={0.6} /></mesh>
     <group position={[0.02, 1.36, 0.24]} rotation-z={-sw * 0.6}><mesh position={[0, -0.24, 0]}><capsuleGeometry args={[0.06, 0.42, 4, 8]} /><meshStandardMaterial color="#ff8f7a" /></mesh></group>
     {/* the arm that pulls the suitcase, and the suitcase rolling behind */}
-    <mesh position={[-0.2, 1.1, -0.24]} rotation-z={-0.7}><capsuleGeometry args={[0.06, 0.46, 4, 8]} /><meshStandardMaterial color="#ff8f7a" /></mesh>
-    <group position={[-0.72, 0, -0.26]}><mesh position={[0, 0.5, 0]} rotation-z={-0.12}><boxGeometry args={[0.42, 0.72, 0.28]} /><meshStandardMaterial color="#2f9c95" roughness={0.5} /></mesh><mesh position={[0.2, 0.95, 0]} rotation-z={-0.75}><cylinderGeometry args={[0.02, 0.02, 0.6, 6]} /><meshStandardMaterial color="#cfd6ff" /></mesh>
+    {still && <><mesh position={[0.16, 1.3, -0.2]} rotation-z={0.9}><capsuleGeometry args={[0.06, 0.4, 4, 8]} /><meshStandardMaterial color="#ff8f7a" /></mesh><mesh position={[0.36, 1.5, -0.2]} rotation-z={0.2}><boxGeometry args={[0.03, 0.26, 0.14]} /><meshBasicMaterial color="#9fe6ff" /></mesh></>}
+    {!still && <mesh position={[-0.2, 1.1, -0.24]} rotation-z={-0.7}><capsuleGeometry args={[0.06, 0.46, 4, 8]} /><meshStandardMaterial color="#ff8f7a" /></mesh>}
+    <group position={[-0.72, 0, -0.26]} visible={!still}><mesh position={[0, 0.5, 0]} rotation-z={-0.12}><boxGeometry args={[0.42, 0.72, 0.28]} /><meshStandardMaterial color="#2f9c95" roughness={0.5} /></mesh><mesh position={[0.2, 0.95, 0]} rotation-z={-0.75}><cylinderGeometry args={[0.02, 0.02, 0.6, 6]} /><meshStandardMaterial color="#cfd6ff" /></mesh>
       {[-0.1, 0.1].map((z) => <mesh key={z} position={[-0.1, 0.07, z]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.07, 0.07, 0.05, 10]} /><meshStandardMaterial color="#12163f" /></mesh>)}</group>
   </group>; };
 
