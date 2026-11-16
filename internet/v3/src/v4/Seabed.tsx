@@ -20,7 +20,9 @@ const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
 const ground = (x: number, z: number) => 1.5 * Math.sin(x * 0.045 + 1) * Math.cos(z * 0.06) + 0.6 * Math.sin(x * 0.12 + z * 0.085) + 0.25 * Math.sin(z * 0.3 + x * 0.05) + (Math.abs(z) > 30 ? (Math.abs(z) - 30) * 0.22 : 0);
 const cableZ = (x: number) => 7 * Math.sin(x * 0.03) + 2.5 * Math.sin(x * 0.075 + 1.3);
 const CR = 0.42;      // cable radius
-const cablePt = (x: number) => V(x, ground(x, cableZ(x)) + CR * 0.8, cableZ(x));
+const RX = 62;      // where the repeater sits
+/* the cable lifts gently off the sand where it runs into the repeater, so the housing sits in line with it */
+const cablePt = (x: number) => V(x, ground(x, cableZ(x)) + CR * 0.8 + 0.8 * Math.exp(-(((x - RX) / 8) ** 2)), cableZ(x));
 const X0 = -80, X1 = 420;
 const PATH = new THREE.CatmullRomCurve3(Array.from({ length: 126 }).map((_, i) => cablePt(X0 + ((X1 - X0) * i) / 125)));
 const uOf = (x: number) => clamp01((x - X0) / (X1 - X0));      // close enough to arc length for placing things
@@ -34,7 +36,6 @@ const KEYS_RUN: K[] = [
   { t: 6.6, x: 250, side: 1.6, up: 2.0, ahead: 60, fov: 58 },       // about three and a half seconds along the outside of the cable
   { t: 9.4, x: 300, side: 15, up: 14, ahead: 70, fov: 42 },         // rise: the light runs on across the ocean floor
 ];
-const RX = 62;      // where the repeater sits
 const KEYS_REP: K[] = [
   { t: 0, x: RX + 15, side: 10, up: 5.2, ahead: -19, fov: 40 },      // in front of the repeater, looking back up the cable
   { t: 7.5, x: RX + 12, side: 8, up: 4.2, ahead: -15, fov: 38 },    // one slow push in, no pause
@@ -128,13 +129,13 @@ const Cable: React.FC<{ t: number; rep?: boolean }> = ({ t, rep }) => {
 
 
 /* the repeater: a pressure housing spliced into the cable that amplifies the light. Steel body, bolted flanges, tapered ends, ribbed bend limiters. */
-const Repeater: React.FC<{ t: number }> = ({ t }) => {
+const Repeater: React.FC<{ t: number; idle?: boolean }> = ({ t, idle }) => {
   const p = cablePt(RX), tan = cablePt(RX + 1).sub(cablePt(RX - 1)).normalize(), q = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), tan);
-  const work = seg(t, 3.45, 3.75) * (1 - seg(t, 3.9, 5.2));      // glows while it boosts the light
+  const work = idle ? 0 : seg(t, 3.45, 3.75) * (1 - seg(t, 3.9, 5.2));      // glows while it boosts the light
   const steel = <meshStandardMaterial color="#c9cef5" roughness={0.38} metalness={0.3} emissive="#ffb454" emissiveIntensity={work * 0.5} />;
   const dark = <meshStandardMaterial color="#8088d0" roughness={0.45} metalness={0.3} />;
   return (
-    <group position={[p.x, p.y + 0.55, p.z]} quaternion={q}>
+    <group position={[p.x, p.y, p.z]} quaternion={q} scale={0.8}>
       <mesh><cylinderGeometry args={[1.05, 1.05, 4.6, 40]} />{steel}</mesh>
       {[-1.5, 0, 1.5].map((y) => <mesh key={y} position={[0, y, 0]}><cylinderGeometry args={[1.1, 1.1, 0.16, 40]} />{dark}</mesh>)}
       {[-1, 1].map((sd) => <group key={sd} scale={[1, sd, 1]}>
@@ -174,7 +175,7 @@ export const Seabed: React.FC = () => {
         <hemisphereLight args={['#4a63ff', '#140c48', 0.95]} />
         <directionalLight position={[60, 40, -30]} intensity={0.9} color="#7f96ff" />
         <directionalLight position={[-20, 8, -30]} intensity={0.5} color="#5fe3ff" />
-        <Terrain /><Rocks /><Life t={t} /><Shafts t={t} /><Snow t={t} /><Cable t={t} />
+        <Terrain /><Rocks /><Life t={t} /><Shafts t={t} /><Snow t={t} /><Cable t={t} /><Repeater t={t} idle />
         <EffectComposer><Bloom intensity={0.45} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.2} darkness={0.8} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill><svg width={W} height={H}>
@@ -190,7 +191,7 @@ export const REPEATER_FRAMES = 225;
 export const SeabedRepeater: React.FC = () => {
   KEYS = KEYS_REP;
   const f = useCurrentFrame(), t = f / FPS;
-  const top = cablePt(RX); top.y += 1.9;
+  const top = cablePt(RX); top.y += 1.0;
   return (
     <AbsoluteFill style={{ background: '#050720' }}>
       <ThreeCanvas width={W} height={H} gl={{ antialias: true }} camera={{ fov: 40, near: 0.05, far: 600 }}>
