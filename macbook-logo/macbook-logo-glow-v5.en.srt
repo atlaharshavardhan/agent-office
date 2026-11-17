@@ -11,42 +11,42 @@ But OLED screens have no backlight.
 So how does it glow?
 
 4
-00:00:05,200 --> 00:00:06,790
+00:00:05,100 --> 00:00:06,690
 The secret is hidden inside the lid.
 
 5
-00:00:07,900 --> 00:00:11,780
+00:00:06,950 --> 00:00:10,830
 Behind the display sits a light source built just for the logo.
 
 6
-00:00:12,300 --> 00:00:15,370
+00:00:11,200 --> 00:00:14,270
 Four tiny LEDs create the entire glow.
 
 7
-00:00:15,500 --> 00:00:17,120
+00:00:14,500 --> 00:00:16,120
 iFixit found them along one edge.
 
 8
-00:00:17,600 --> 00:00:19,610
+00:00:16,500 --> 00:00:18,510
 A reflective layer bounces their light,
 
 9
-00:00:20,100 --> 00:00:21,800
+00:00:18,800 --> 00:00:20,500
 a diffuser spreads it evenly,
 
 10
-00:00:22,300 --> 00:00:23,880
+00:00:20,800 --> 00:00:22,380
 and it shines through the whole logo.
 
 11
-00:00:25,600 --> 00:00:29,470
+00:00:23,200 --> 00:00:27,070
 The result? One evenly lit logo, with no screen backlight needed.
 
 12
-00:00:31,300 --> 00:00:33,280
+00:00:28,050 --> 00:00:30,030
 It even dims and brightens with the light in your room.
 
 13
-00:00:35,200 --> 00:00:36,870
+00:00:31,050 --> 00:00:32,720
 And one Terminal command switches it off.
 

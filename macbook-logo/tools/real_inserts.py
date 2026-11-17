@@ -93,7 +93,8 @@ def heading_from(im, frame3d):   # V5: lift the bright heading letters off the 3
     lum = np.asarray(cut.convert('L')).astype(np.float32); al = Image.fromarray(np.clip((lum - 25) / 110 * 255, 0, 255).astype(np.uint8))
     sh = Image.new('RGBA', im.size, (0, 0, 0, 0)); sh.paste(Image.new('RGBA', cut.size, (0, 0, 0, 170)), (box[0], box[1] + round(4 * K)), al); im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(10 * K)))
     im.paste(cut.convert('RGBA'), box[:2], al)
-V5_BED, V5_CAFE = (31.0, 32.45), (32.45, 34.92)
+_B = json.load(open(os.path.join(vdir, 'timeline.json')))['B'] if V5 else None
+V5_BED, V5_CAFE = ((_B[7], _B[7] + 1.3), (_B[7] + 1.3, _B[8])) if V5 else (None, None)   # V5.1: bedroom on "dims", café on "brightens"; hard cuts both ends
 def hook_title_v5(im):   # V5: on from frame 1, "THE GLOW" white, "IS BACK" gold, subtle shadow
     for i, (line, col) in enumerate([('THE GLOW', (255, 255, 255, 255)), ('IS BACK', (255, 197, 61, 255))]):
         lay = Image.new('RGBA', im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); y = (300 + i * 92) * K
@@ -105,8 +106,7 @@ def shot_v5(t, frame3d):
     for (s0, s1), P in ((V5_BED, P_BED), (V5_CAFE, P_CAFE)):
         if s0 <= t < s1:
             im = ken(P, t, s0, s1, 1.0, 1.06, 0.42).convert('RGBA'); card_from(im, frame3d); heading_from(im, frame3d); subtitle(im, cap_at(t)); note(im)
-            e = min(1, (t - s0) / 0.15) if P is P_BED else min(1, (s1 - t) / 0.15)   # soft in on the bedroom, soft out after the café, hard cut between
-            return Image.blend(frame3d.convert('RGBA'), im, max(0, min(1, e)))
+            return im   # V5.1 (Harsh): clean cuts (the fade showed the 3D card and both notes on top of each other)
     return None
 def shot(t, frame3d):
     if V5: return shot_v5(t, frame3d)
