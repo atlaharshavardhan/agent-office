@@ -4,11 +4,11 @@
    (`git log --oneline -1` must show the "scene 7" commit or newer)
 2. Scene 2 (case folder, 135 frames; scene file is final):
    .venv/bin/python scripts/render_shot.py blender/alice_s2_desk.blend renders/alice_s2 --pct 100 --samples 96
-3. Scene 7 (Jensen from behind, stage lights switch off; 90 frames; NEW file):
+3. Scene 7 (EMPTY executive chair under one spotlight, stage lights switch off; 90 frames; UPDATED file, no character):
    .venv/bin/python scripts/render_shot.py blender/alice_s7_stage.blend renders/alice_s7 --pct 100 --samples 96
-   Check frames 1, 30, 60, 90 first: frame 1 shows him from behind (silver hair, glossy croc-texture
-   leather jacket) facing the green NVIDIA wall; lights go out one by one; frame 90 is almost dark with only
-   a thin rim on his hair/shoulders. If frame 1 is too dark or too bright, adjust the light energies in
+   Check frames 1, 30, 60, 90 first: frame 1 = lit NVIDIA stage with the empty chair in a soft beam;
+   lights go out one by one; frame 90 = only the beam on the chair,
+   NVIDIA word barely visible. If too dark or too bright, adjust the light energies in
    scripts/alice_s7_stage.py, rebuild (`.venv/bin/python scripts/alice_s7_stage.py`) and say what you changed.
 4. Use the GPU (OPTIX/CUDA). Expect 135 + 90 PNGs.
 5. Deliver (frames are big, so NOT in git):
