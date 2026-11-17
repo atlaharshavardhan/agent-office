@@ -39,17 +39,14 @@ def card_image(w=1400, h=1800):
     d.polygon([(cx - 150, y0 + 330), (cx + 150, y0 + 330), (cx + 175, y0 + 470), (cx - 175, y0 + 470)], fill=(8, 8, 9))
     d.pieslice((cx - 260, y0 + 420, cx + 260, y1 + 260), 180, 360, fill=(8, 8, 9))
     d.text((cx, y0 + 270), "?", font=big, fill=(229, 72, 77), anchor="mm")
-    d.text((672, 270), "ALICE HUANG", font=name, fill=(16, 18, 20))
-    lines = ["Former CEO, Megaspeed", "Singapore-based", "NVIDIA customer", "No relation to", "Jensen Huang"]
-    for k, t in enumerate(lines):
-        d.text((684, 420 + k * 82), t, font=mid, fill=(50, 54, 60))
-    d.line((90, 980, w - 90, 980), fill=(160, 155, 145), width=4)
-    d.text((90, 1020), "STATUS", font=small, fill=(120, 116, 108))
-    d.text((90, 1080), "U.S. probes ongoing · No charges filed", font=mid, fill=(16, 18, 20))
-    d.text((90, 1200), "Allegations reported by media", font=mid, fill=(16, 18, 20))
-    d.text((90, 1280), "Denied by Megaspeed and China", font=mid, fill=(16, 18, 20))
-    d.rectangle((90, 1420, 700, 1520), outline=(229, 72, 77), width=8)
-    d.text((395, 1470), "NOT PROVEN", font=mid, fill=(229, 72, 77), anchor="mm")
+    d.text((672, 300), "ALICE HUANG", font=name, fill=(16, 18, 20))
+    big2 = ImageFont.truetype(FONT, 70)
+    d.text((676, 470), "Former CEO,", font=big2, fill=(50, 54, 60))
+    d.text((676, 560), "Megaspeed", font=big2, fill=(50, 54, 60))
+    d.line((90, 1000, w - 90, 1000), fill=(160, 155, 145), width=4)
+    d.text((90, 1060), "No relation to Jensen Huang", font=big2, fill=(16, 18, 20))
+    d.rectangle((90, 1260, 860, 1420), outline=(229, 72, 77), width=10)
+    d.text((475, 1340), "NOT PROVEN", font=ImageFont.truetype(FONT, 96), fill=(229, 72, 77), anchor="mm")
     return np.asarray(im).astype(np.float32) / 255.0
 
 
@@ -73,14 +70,14 @@ def build():
     S.render_settings(samples=64)
     sc.frame_start, sc.frame_end = 1, F_END
     # desk: dark walnut with micro variation + a leather blotter
-    wood, pw = C.principled("DeskWalnut", "#2A1B12", rough=0.32, coat=0.5)
+    wood, pw = C.principled("DeskWalnut", "#4A2E1A", rough=0.32, coat=0.5)
     C.micro_roughness(wood, pw, 0.32, 0.08, 4.0, 0.15, stretch=(1, 12, 1))
     C.box("Desk", (260, 160, 6), (0, 0, -3), wood, 1.0)
     blot, _ = C.principled("Blotter", "#151618", rough=0.6)
     C.box("Blotter", (90, 62, 0.4), (-6, 4, 0.2), blot, 0.3)
     # GPU model resting on the desk (top-right), slight angle
     coll = gpu_asset()
-    gpu_instance(coll, (52, 26, 0.6), (0, 0, math.radians(-18)), 0.5, "DeskGPU")
+    gpu_instance(coll, (38, 22, 0.6), (0, 0, math.radians(-18)), 0.5, "DeskGPU")
     # folder: back half (fixed) + cover (hinged at the spine, x = -W/2), slides in from +y
     kraft, _ = C.principled("Folder", "#B8935C", rough=0.7)
     tab_m, _ = C.principled("FolderTab", "#E5484D", rough=0.6)
@@ -93,7 +90,8 @@ def build():
     C.box("Clip", (6, 1.2, 0.5), (-6, D / 2 - 3.5, 0.6), clip_m, 0.2).parent = fold
     hinge = bpy.data.objects.new("CoverHinge", None); hinge.parent = fold; hinge.location = (-W / 2, 0, 0.5); C.link(hinge)
     cover = C.box("FolderCover", (W, D, 0.3), (W / 2, 0, 0), kraft, 0.2); cover.parent = hinge
-    stamp = C.box("CoverStamp", (24, 6, 0.05), (W / 2 + 4, 8, 0.17), C.principled("Stamp", "#E5484D", rough=0.7)[0]); stamp.parent = hinge
+    lab = Image.new("RGB", (800, 200), (229, 72, 77)); ImageDraw.Draw(lab).text((400, 100), "CASE FILE", font=ImageFont.truetype(FONT, 120), fill=(255, 255, 255), anchor="mm")
+    stamp = C.box("CoverStamp", (24, 6, 0.05), (W / 2 + 4, 8, 0.17), paper_mat("Stamp", np.asarray(lab).astype(np.float32) / 255.0)); stamp.parent = hinge
     for f, y, rz in ((1, 70, math.radians(14)), (24, 0, math.radians(-4)), (F_END, -1, math.radians(-4))):
         fold.location = (-8, y, 0.3); fold.rotation_euler = (0, 0, rz)
         fold.keyframe_insert("location", frame=f); fold.keyframe_insert("rotation_euler", frame=f)
@@ -108,10 +106,11 @@ def build():
     bpy.context.active_object.data.materials.append(brass)
     bpy.ops.mesh.primitive_cylinder_add(vertices=48, radius=10, depth=2, location=(-70, 56, 1))
     bpy.context.active_object.data.materials.append(brass)
-    sp = bpy.data.lights.new("LampSpot", "SPOT"); sp.energy = 9.0e4; sp.spot_size = math.radians(70); sp.spot_blend = 0.6
+    sp = bpy.data.lights.new("LampSpot", "SPOT"); sp.energy = 1.6e5; sp.spot_size = math.radians(85); sp.spot_blend = 0.6
     sp.color = (1.0, 0.82, 0.6); sp.shadow_soft_size = 4
     so = bpy.data.objects.new("LampSpot", sp); so.location = (-56, 40, 40); C.link(so)
-    tc = so.constraints.new("TRACK_TO"); tgt = bpy.data.objects.new("LampTarget", None); tgt.location = (-4, 0, 0); C.link(tgt); tc.target = tgt
+    tc = so.constraints.new("TRACK_TO"); tgt = bpy.data.objects.new("LampTarget", None); tgt.location = (-4, -14, 0); C.link(tgt); tc.target = tgt
+    S.area_light("WarmBounce", (-20, -110, 60), (-4, -20, 0), 80, 6.0e3, "#FFC89A", size_y=80)
     S.area_light("CoolFill", (90, -120, 120), (0, 0, 0), 120, 2.5e3, "#9FB4FF", size_y=120)
     S.area_light("RedRim", (120, 80, 30), (0, 0, 0), 40, 3.0e3, "#E5484D", size_y=40)
     w = S.build_world(); w.inputs["Color"].default_value = (0.01, 0.011, 0.013, 1); w.inputs["Strength"].default_value = 1.0
