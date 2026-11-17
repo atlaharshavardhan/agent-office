@@ -163,22 +163,32 @@ return {
   armsUp: geo([...arm(-1, [0.1, 2.8], [0, -0.2]), ...arm(1, [0.1, 2.8], [0, -0.2])]),
   armPoint: geo([...arm(-1, [0, 0.06], [-0.12, 0]), ...arm(1, [-1.45, 0.2], [-0.1, 0])]),
   armsHead: geo([...arm(-1, [-1.3, -0.12], [-1.9, 0]), ...arm(1, [-1.3, -0.12], [-1.9, 0])]),   // hands up in front of the face (worry)
+  ...(() => {   // running cycle in 8 steps: legs stride from the hip with a bent knee, arms pump opposite to the legs
+    const o = {}, R = a => new THREE.Matrix4().makeRotationX(a), T = (x, y, z) => new THREE.Matrix4().makeTranslation(x, y, z);
+    const leg = (side, th, bend) => { const H = T(side * 0.07, 0.92, 0).multiply(R(th)), K = H.clone().multiply(T(0, -0.465, 0)).multiply(R(bend));
+      return [[limb(0.052, 0.064, 0.47), H.clone().multiply(T(0, -0.235, 0))], [limb(0.04, 0.052, 0.45), K.clone().multiply(T(0, -0.225, 0))], [rbox(0.085, 0.06, 0.21), K.clone().multiply(T(0, -0.44, 0.04))]]; };
+    for (let k = 0; k < 8; k++) { const ph = k / 8 * Math.PI * 2, tL = -0.62 * Math.sin(ph), tR = 0.62 * Math.sin(ph), bL = 0.2 + 1.1 * Math.max(0, Math.sin(ph + 1.2)), bR = 0.2 + 1.1 * Math.max(0, Math.sin(ph + 1.2 + Math.PI));
+      o['legsR' + k] = geo([[lathe([[0.001, 0.88], [0.135, 0.92], [0.135, 1.01], [0.001, 1.01]], 10), M(0, 0, 0)], ...leg(-1, tL, bL), ...leg(1, tR, bR)]);
+      o['armsR' + k] = geo([...arm(-1, [-tL * 1.1, 0.1], [-1.15, 0]), ...arm(1, [-tR * 1.1, 0.1], [-1.15, 0])]); }
+    return Object.entries(o); })().reduce((a, [k, v]) => (a[k] = v, a), {}),
 };
 }
 const G = makeG(); LO = true; const GL = makeG(); LO = false;
 const SKIN = [0x8d5524, 0xc68642, 0xe0ac69, 0xf1c27d, 0x6b3e26, 0xa0663c, 0xd29b6c], HAIRC = [0x111111, 0x161210, 0x1b1410, 0x0e0e10, 0x2c1b10, 0x111111, 0x3a2a1c], PANTS = [0x1c1e24, 0x22252c, 0x1c2a44, 0x2a2622, 0x1d2333];
 const SHIRT = [0x1d4fa8, 0x1d4fa8, 0x2f6fe0, 0xe8edf4, 0xd8342c, 0xffffff, 0x1d4fa8, 0xf2c230, 0x3aa760, 0xe86a2c, 0x7b4fd6];
 class Crowd {   // one group of people drawn with instanced parts; per person: pose + colours
-  constructor(list, detail = 1, GS = G, scn = scene) { this.list = list; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
-    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) { const m = new THREE.InstancedMesh(GS[k], mat(k === 'head' ? 0.7 : k === 'eyes' ? 0.4 : 0.92), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scn.add(m); }
+  constructor(list, detail = 1, GS = G, scn = scene, run = false) { this.list = list; this.run = run; const RK = run ? [...Array(8).keys()].flatMap(k => ['legsR' + k, 'armsR' + k]) : []; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
+    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead', ...RK]) { const m = new THREE.InstancedMesh(GS[k], mat(k === 'head' ? 0.7 : k === 'eyes' ? 0.4 : 0.92), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scn.add(m); }
     const c = new THREE.Color(); list.forEach((p, i) => { p.skin = p.skin ?? SKIN[(rnd() * SKIN.length) | 0]; p.shirt = p.shirt ?? SHIRT[(rnd() * SHIRT.length) | 0]; p.pants = PANTS[(rnd() * PANTS.length) | 0]; p.hairc = HAIRC[(rnd() * HAIRC.length) | 0]; p.h = 0.92 + rnd() * 0.16;
       this.parts.torso.setColorAt(i, c.copy(LIN(p.shirt))); this.parts.legs.setColorAt(i, c.copy(LIN(p.pants))); this.parts.head.setColorAt(i, c.copy(LIN(p.skin))); this.parts.hair.setColorAt(i, c.copy(LIN(p.hairc))); this.parts.eyes.setColorAt(i, c.copy(LIN(0x14100e)));
-      for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead']) this.parts[k].setColorAt(i, c.copy(LIN(p.shirt))); });
-    this.d = new THREE.Object3D(); this.hd = new THREE.Object3D(); this.zero = new THREE.Matrix4().makeScale(0, 0, 0); }
+      for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead', ...RK.filter(k => k[0] === 'a')]) this.parts[k].setColorAt(i, c.copy(LIN(p.shirt)));
+      for (const k of RK.filter(k => k[0] === 'l')) this.parts[k].setColorAt(i, c.copy(LIN(p.pants))); });
+    this.d = new THREE.Object3D(); this.d.rotation.order = 'YXZ'; this.hd = new THREE.Object3D(); this.zero = new THREE.Matrix4().makeScale(0, 0, 0); }
   update(fn) {   // fn(p, i) → { pose, yaw, headYaw, headPitch, bob, tint }
     const d = this.d, P = this.parts, hd = this.hd;
-    const cp = camera.position; this.list.forEach((p, i) => { const s = fn(p, i); if (Math.hypot(p.x - cp.x, p.z - cp.z) < 1.3 && Math.abs(p.y + 1 - cp.y) < 2.2) s.pose = 'hide'; d.position.set(p.x, p.y + (s.bob || 0), p.z); d.rotation.set(0, p.yaw + (s.yaw || 0), 0); d.scale.setScalar(p.h); d.updateMatrix();
-      for (const k of ['torso', 'legs']) P[k].setMatrixAt(i, s.pose === 'hide' ? this.zero : d.matrix);
+    const cp = camera.position; this.list.forEach((p, i) => { const s = fn(p, i); if (Math.hypot(p.x - cp.x, p.z - cp.z) < 1.3 && Math.abs(p.y + 1 - cp.y) < 2.2) s.pose = 'hide'; d.position.set(p.x, p.y + (s.bob || 0), p.z); d.rotation.set(s.lean || 0, p.yaw + (s.yaw || 0), 0); d.scale.setScalar(p.h); d.updateMatrix();
+      const run = s.pose === 'run'; P.torso.setMatrixAt(i, s.pose === 'hide' ? this.zero : d.matrix); P.legs.setMatrixAt(i, s.pose === 'hide' || run ? this.zero : d.matrix);
+      if (this.run) for (let k = 0; k < 8; k++) { const m = run && k === s.k ? d.matrix : this.zero; P['legsR' + k].setMatrixAt(i, m); P['armsR' + k].setMatrixAt(i, m); }
       for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead']) P[k].setMatrixAt(i, k === s.pose ? d.matrix : this.zero);
       hd.position.set(0, 1.56, 0); hd.rotation.set(s.headPitch || 0, s.headYaw || 0, s.headRoll || 0); hd.updateMatrix();   // the head turns around the neck
       const hm = d.matrix.clone().multiply(new THREE.Matrix4().makeTranslation(0, 1.56, 0)).multiply(new THREE.Matrix4().makeRotationFromEuler(hd.rotation)).multiply(new THREE.Matrix4().makeTranslation(0, -1.56, 0));
@@ -314,7 +324,7 @@ const BARM = new THREE.Group(); { const [ax, az, bx, bz] = SIM.BAR, L = Math.hyp
 // the simulated people (same slim miniature figures) + stewards in hi-vis who appear with the announcement
 const simPpl = []; for (let i = 0; i < SN; i++) simPpl.push({ x: 0, y: 0, z: 0, yaw: 0, shirt: 0x2f8fe0, ph: rnd() * 6.28, seed: rnd() });
 const SIM_SCALE = 1.25;   // people drawn a bit bigger so they read clearly from above
-const SIMC = new Crowd(simPpl, 1, G, SS); simPpl.forEach(p => p.h *= SIM_SCALE);
+const SIMC = new Crowd(simPpl, 1, G, SS, true); simPpl.forEach(p => p.h *= SIM_SCALE);
 const simStew = []; SIM.EX.forEach(e => { const tx = -e.nz, tz = e.nx; for (const s of e.id === 'B' ? [-1, 1] : [1]) simStew.push({ x: e.x - e.nx * 0.85 + tx * s * 2.0, y: 0, z: e.z - e.nz * 0.85 + tz * s * 2.0, yaw: Math.atan2(-e.nx, -e.nz) - s * 0.5, shirt: 0xd6ff2a, ph: rnd() * 6, seed: rnd() }); });
 const SIMS = new Crowd(simStew, 1, G, SS); simStew.forEach(p => p.h *= SIM_SCALE); SIMS.parts.torso.material = SIMS.parts.torso.material.clone(); SIMS.parts.torso.material.emissive = new THREE.Color(0x3a4a00);
 const C_WAIT = LIN(0xe9ecf2), C_MOVE = LIN(0x58b4ff), C_JAM = LIN(0xff4d40);
@@ -322,12 +332,14 @@ function simFrame(t) {   // t = video time 3–43
   const f = Math.max(0, Math.min(SF - 1, Math.round((t - 3) * SIM.fps))), c = new THREE.Color();
   SIMC.list.forEach((p, i) => { const b = i * SF + f, st = SIM.st[b], red = SIM.red[b] / 255;
     c.copy(st === 0 ? C_WAIT : C_MOVE); if (red > 0) c.lerp(C_JAM, Math.min(1, red * 1.3));
-    for (const k of ['torso', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) SIMC.parts[k].setColorAt(i, c); });
+    for (const k of ['torso', 'armsDown', 'armsUp', 'armPoint', 'armsHead', 'armsR0', 'armsR1', 'armsR2', 'armsR3', 'armsR4', 'armsR5', 'armsR6', 'armsR7']) SIMC.parts[k].setColorAt(i, c); });
   SIMC.update((p, i) => { const b = i * SF + f, st = SIM.st[b]; p.x = SIM.x[b]; p.z = SIM.z[b]; p.yaw = SIM.yaw[b];
     if (st === 3) return { pose: 'hide' };
-    const red = SIM.red[b] / 255, walk = st >= 1 && red < 0.5;
-    return { pose: red > 0.6 && p.seed < 0.12 ? 'armsHead' : st === 0 && p.seed > 0.97 ? 'armPoint' : 'armsDown', bob: walk ? Math.abs(Math.sin(t * 15 + p.ph)) * 0.06 : 0,
-      yaw: walk ? Math.sin(t * 15 + p.ph) * 0.08 : 0, headYaw: st === 0 ? Math.sin(t * 0.9 + p.ph) * 0.5 : 0, headPitch: -0.05 }; });
+    const red = SIM.red[b] / 255, fb = i * SF + Math.max(0, f - 4), spd = (SIM.dist[b] - SIM.dist[fb]) / (Math.max(1, f - Math.max(0, f - 4)) / SIM.fps);
+    if (st >= 1 && spd > 0.35) { const cyc = SIM.dist[b] / 1.7 + p.seed, k = Math.floor(cyc * 8) % 8, fast = Math.min(1, spd / 2.2);   // stride ≈ 1.7 m per full cycle
+      return { pose: 'run', k, lean: 0.06 + 0.16 * fast, bob: Math.abs(Math.sin(cyc * Math.PI * 2)) * 0.07 * fast, headPitch: -0.12 }; }
+    return { pose: red > 0.6 && p.seed < 0.12 ? 'armsHead' : st === 0 && p.seed > 0.97 ? 'armPoint' : 'armsDown', bob: 0, yaw: st >= 1 ? Math.sin(t * 7 + p.ph) * 0.05 : 0,
+      headYaw: st === 0 ? Math.sin(t * 0.9 + p.ph) * 0.5 : Math.sin(t * 1.3 + p.ph) * 0.25, headPitch: -0.05 }; });
   const bk = ease(ramp(t, 30.4, 31.0)); BARM.visible = bk > 0.01; BARM.position.y = (bk - 1) * 2.1; BARM.userData.glow.position.y = 0.03 - (bk - 1) * 2.1;
   const sk = ease(ramp(t, 36.6, 37.2));
   SIMS.update(p => sk < 0.02 ? { pose: 'hide' } : { pose: Math.sin(t * 2.4 + p.ph) > -0.3 ? 'armPoint' : 'armsDown', bob: (1 - sk) * 0.8, headYaw: Math.sin(t * 0.8 + p.ph) * 0.4 });

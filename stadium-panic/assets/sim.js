@@ -29,7 +29,7 @@ function runSim(opt) {
   P.forEach(p => { p.ex = p.fam ? 1 : near(p); p.quickT = 0.2 + R() * 1.6; });
   const BAR = [7.6, -11.9, 10.4, -12.8], barAt = o.barAt;   // slanted barrier in front of exit B (the obstacle effect), placed at barAt
   const out = { N, F, fps: o.fps, EX, PIL, PR, seg, X0, X1, Z0, Z1, GW, BAR, barAt,
-    x: new Float32Array(N * F), z: new Float32Array(N * F), yaw: new Float32Array(N * F), st: new Uint8Array(N * F), red: new Uint8Array(N * F), look: new Float32Array(N * F),
+    x: new Float32Array(N * F), z: new Float32Array(N * F), dist: new Float32Array(N * F), yaw: new Float32Array(N * F), st: new Uint8Array(N * F), red: new Uint8Array(N * F), look: new Float32Array(N * F),
     stats: [] };   // st: 0 waiting, 1 moving, 2 outside/leaving, 3 gone
   const CS = 1.0, grid = new Map(), key = (i, j) => i * 1000 + j;
   const build = () => { grid.clear(); P.forEach((p, i) => { if (p.done >= 0) return; const k = key(Math.floor(p.x / CS), Math.floor(p.z / CS)); let c = grid.get(k); if (!c) grid.set(k, c = []); c.push(i); }); };
@@ -82,12 +82,12 @@ function runSim(opt) {
     // jammed = moving, packed and nearly stopped
     build(); let w = 0, jam = 0, gone = 0, mov = 0;
     P.forEach((p, i) => { const b = i * F + f; if (p.done >= 0) { out.st[b] = 3; out.x[b] = p.x; out.z[b] = p.z; gone++; return; }
-      const sp = Math.hypot(p.x - p.px, p.z - p.pz) / dt; p.spd += (sp - p.spd) * 0.12;
+      const sp = Math.hypot(p.x - p.px, p.z - p.pz) / dt; p.spd += (sp - p.spd) * 0.12; p.dist = (p.dist || 0) + sp * dt;
       let dens = 0; each(p, 0.75, k => { if (k !== i && P[k].done < 0 && Math.hypot(P[k].x - p.x, P[k].z - p.z) < 0.75) dens++; });
       const jm = p.st === 1 && dens >= 3 && p.spd < 0.3 ? 1 : 0; p.red += (jm - p.red) * 0.08;
       if (sp > 0.15) { const ty = Math.atan2(p.x - p.px, p.z - p.pz); let d = ty - p.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); p.yaw += d * 0.18; }
       else if (p.st === 0 && p.look) { let d = p.look - p.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); p.yaw += d * 0.03; }
-      out.x[b] = p.x; out.z[b] = p.z; out.yaw[b] = p.yaw; out.st[b] = p.st; out.red[b] = Math.round(p.red * 255);
+      out.x[b] = p.x; out.z[b] = p.z; out.dist[b] = p.dist; out.yaw[b] = p.yaw; out.st[b] = p.st; out.red[b] = Math.round(p.red * 255);
       if (p.st === 0) w++; else mov++; if (p.red > 0.5) jam++; });
     let rc = 0; for (let k = XF.length - 1; k >= 0 && XF[k] > f - 90; k--) rc++;
     out.stats.push([w, mov, jam, gone, rc * 20]); }   // last value: people leaving per minute (last 3 s)
