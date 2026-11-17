@@ -1,0 +1,30 @@
+{
+ "lengths": {
+  "a1": 2.773,
+  "b1": 3.264,
+  "b2": 1.792,
+  "b3": 2.368,
+  "c1": 2.176,
+  "d1": 3.243,
+  "d2": 1.984,
+  "d3": 2.133,
+  "d4": 1.92,
+  "d5": 2.475,
+  "d6": 1.941,
+  "z1": 3.221
+ },
+ "text": {
+  "a1": "A text is tiny. But what about a photo?",
+  "b1": "Send it as one big block, and it holds the whole line.",
+  "b2": "Everyone else has to wait.",
+  "b3": "One glitch, and it starts all over again.",
+  "c1": "So the internet never sends it whole.",
+  "d1": "It cuts the photo into about two thousand small packets,",
+  "d2": "each with her address and a number.",
+  "d3": "They share the lines with everyone else.",
+  "d4": "Busy road? Some go another way.",
+  "d5": "One lost? Only that one is sent again.",
+  "d6": "And her phone puts them back in order.",
+  "z1": "So how does a photo cross an ocean? That's part two."
+ }
+}

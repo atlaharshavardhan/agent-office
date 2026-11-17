@@ -12,7 +12,7 @@ import { Shore, SHORE_FRAMES } from './v4/Shore';
 import { Routers, ROUTERS_FRAMES } from './v4/Routers';
 import { Underground, UNDER_FRAMES } from './v4/Underground';
 import { Seabed, SEABED_FRAMES, SeabedRepeater, REPEATER_FRAMES } from './v4/Seabed';
-import { ShortFly, FLY_FRAMES, ShortEndA, END_A_FRAMES, ShortEndB, END_B_FRAMES, ShortOverlay, OVERLAY_FRAMES } from './v4/Short';
+import { Part1Fly, PART1_FLY_FRAMES, ShortFly, FLY_FRAMES, ShortEndA, END_A_FRAMES, ShortEndB, END_B_FRAMES, ShortOverlay, OVERLAY_FRAMES } from './v4/Short';
 import { DuskTorch } from './dusk/Dusk';
 import { DuskHouses } from './dusk/Houses';
 import { NightHook } from './dusk/NightHook';
@@ -97,6 +97,8 @@ export const Root: React.FC = () => (
     <Composition id="IsoFullHi" component={IsoFullHi} durationInFrames={1245} fps={30} width={1080} height={1920} />
     <Composition id="Pov" component={Pov} durationInFrames={90} fps={30} width={1080} height={1920} />
     <Composition id="IsoCity2" component={IsoCity2} durationInFrames={390} fps={30} width={1080} height={1920} />
+    <Composition id="Part1Fly" component={Part1Fly} durationInFrames={PART1_FLY_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="IsoCityPhoto" component={() => <IsoCity2 ext />} durationInFrames={840} fps={30} width={1080} height={1920} />
     <Composition id="IsoDetail" component={IsoDetail} durationInFrames={468} fps={30} width={1080} height={1920} />
     <Composition id="IsoMoveDetail" component={IsoMoveDetail} durationInFrames={504} fps={30} width={1080} height={1920} />
   </>

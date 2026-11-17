@@ -6,6 +6,7 @@ import { World, WorldWeb } from '../tail/World';
 import { SeaCut } from '../tail/Sea';
 import { EndCard } from '../tail/Ends';
 import plan from './short-plan.json';
+import plan1 from '../dusk/part1-plan.json';
 
 /* The pieces that go round the clean 3D scene renders to make the Short: two short runs of the approved V3 ending, and a see-through
    layer with the spoken captions and the watermark. The cut list and caption times come from audio/make_short_mix.py. */
@@ -27,3 +28,8 @@ export const OVERLAY_FRAMES = S(plan.dur);
 export const ShortOverlay: React.FC = () => {
   const t = useCurrentFrame() / FPS; let line: string | null = null; for (const [a, b, x] of plan.subs as [number, number, string][]) if (t >= a && t < b) line = x;
   return <AbsoluteFill>{line && <Sub>{em(line)}</Sub>}{t < plan.endcard && <Mark />}</AbsoluteFill>; };
+/* Part 1's closing shot: she flies to London (the approved V3 plane and globe, with the cable starting to draw as a teaser), then the end card */
+export const PART1_FLY_FRAMES = S(plan1.fly + plan1.end);
+export const Part1Fly: React.FC = () => {
+  const t = useCurrentFrame() / FPS; let line: string | null = null; for (const [a, b, x] of plan1.flysubs as [number, number, string][]) if (t >= a && t < b) line = x;
+  return <AbsoluteFill style={{ backgroundColor: '#070a22' }}><Shot from={plan1.fly} to={plan1.fly + plan1.end} fade={0}><EndCard /></Shot><Shot from={0} to={plan1.fly}><World /></Shot>{line && <Sub>{em(line)}</Sub>}{t < plan1.fly && <Mark />}</AbsoluteFill>; };
