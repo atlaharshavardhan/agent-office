@@ -50,4 +50,21 @@ x = tt(0.35); place(sfx, np.sin(2 * np.pi * 2900 * x * (1 + 0.02 * np.sin(2 * np
 x = tt(1.8); so = np.sin(2 * np.pi * midi(74) * x) * env(len(x), 0.01, 1.4, 2.2) + 0.8 * np.sin(2 * np.pi * midi(81) * np.maximum(0, x - 0.18)) * env(len(x), 0.01, 1.5, 2.0) * (x > 0.18)
 place(sfx, so, 43.05, 0.35)   # sonic logo
 for b in (music, sfx): b /= max(1, np.max(np.abs(b)) / 0.9)
+# ---- sounds driven by the simulation (audio/simstats.json, written from assets/sim.js): running feet and jam pressure
+import json
+S = json.load(open('simstats.json')); ts = 3 + np.arange(len(S['run'])) / S['fps']
+runk = np.interp(np.arange(N) / SR, ts, np.array(S['run']) / S['N'], left=0, right=0)
+jamk = np.interp(np.arange(N) / SR, ts, np.array(S['jam']) / S['N'], left=0, right=0)
+steps = np.zeros(N); r2 = np.random.default_rng(11)
+for t0 in np.arange(3.0, 43.0, 1 / 90):   # many people's footsteps: random soft taps, denser when more people run
+    if r2.random() < runk[int(t0 * SR)] * 1.6:
+        L = int(0.05 * SR); i = int((t0 + r2.random() / 90) * SR); steps[i:i + L] += hp(r2.standard_normal(L), 0.25) * env(L, 0.001, 0.03, 6) * (0.5 + r2.random())
+steps = lp(steps, 0.35) * 0.55
+press = lp(noise(N), 0.02) * 3.0 + lp(noise(N), 0.006) * 6.0   # jam: a low crowd rumble and murmur that grows with the jam
+press *= jamk * 1.8 * (0.8 + 0.2 * np.sin(2 * np.pi * 0.7 * np.arange(N) / SR))
+for k in range(16):   # a few raised voices inside the jam (formant-like noise bursts)
+    t0 = 18 + k * 0.75 + rng.random() * 0.4; L = int(0.35 * SR); f = 500 + rng.random() * 400
+    v = lp(noise(L), 0.2) * np.sin(2 * np.pi * f * np.arange(L) / SR) * env(L, 0.04, 0.25, 3); place(sfx, v, t0, 0.18 * float(jamk[int(t0 * SR)] > 0.2), rng.random() * 1.2 - 0.6)
+sfx[:, 0] += steps * 0.9 + press * 0.17; sfx[:, 1] += steps * 0.9 + press * 0.17
+x = tt(0.5); place(sfx, hp(noise(len(x)), 0.4) * env(len(x), 0.02, 0.3, 5) * 0.5, 30.35, 0.4)   # whoosh as the barrier rises
 sf.write('music.wav', music.astype(np.float32), SR); sf.write('sfx.wav', sfx.astype(np.float32), SR); print('ok')
