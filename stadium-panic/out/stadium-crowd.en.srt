@@ -35,18 +35,22 @@ Social influence. We copy the people around us.
 And stress. So almost everyone heads for the one exit they know.
 
 10
-00:00:30,530 --> 00:00:32,787
-That's why clear communication matters.
+00:00:30,530 --> 00:00:33,183
+Fix one: a slanted barrier in front of the door.
 
 11
-00:00:33,000 --> 00:00:38,152
-During an emergency, reliable information helps people stay calm and move safely.
+00:00:33,500 --> 00:00:37,130
+In simulations, it splits the push, and the door stops clogging.
 
 12
-00:00:38,600 --> 00:00:41,509
-People spread across the exits, and the crowd flows.
+00:00:37,280 --> 00:00:40,288
+Fix two: clear announcements send people to every exit.
 
 13
+00:00:40,438 --> 00:00:42,332
+Smarter exits, calmer crowds.
+
+14
 00:00:43,150 --> 00:00:44,981
 Follow InvisiTech for more.
 
