@@ -10,7 +10,7 @@ import { FontFace } from '../ui';
 import { CamRig, projector, StudioEnv, GpuModel } from '../three/kit';
 import ASIA from './asia.json';
 import { Chunks } from './Chunks';
-import { FlagCN, FlagUS, TextBadge } from './Logos';
+import { FlagCN, FlagUS, TextBadge, MegaspeedLogo } from './Logos';
 
 const K = 0.13;
 const ll = (lon, lat) => [(lon - 110) * K, 0, -(lat - 16) * K];
@@ -94,7 +94,7 @@ export const AliceS4 = ({ d = 7 }) => {
           <mesh position={[0, 0.75, 0]}><boxGeometry args={[1.4, 0.02, 0.02]} /><meshBasicMaterial color={C.red} /></mesh>
         </group>
       </ThreeCanvas>
-      {lbl([SG[0] - 0.75, 0, SG[2] - 0.05], <><span style={{ background: 'rgba(10,11,13,.85)', border: '2px solid #76B90088', borderRadius: 12, padding: '6px 14px' }}><TextBadge text="MEGASPEED" sub="Singapore" h={38} color="#9BE22E" /></span></>, C.green, route, 36)}
+      {lbl([SG[0] - 0.75, 0, SG[2] - 0.05], <><span style={{ background: 'rgba(10,11,13,.85)', border: '2px solid #76B90088', borderRadius: 12, padding: '6px 14px' }}><MegaspeedLogo h={38} /></span></>, C.green, route, 36)}
       {lbl([CN[0] + 1.0, 0.1, CN[2] - 0.8], <><FlagCN h={42} /><span>CHINA</span></>, C.red, route, 44)}
       {lbl([bp.x, 0.95 * barrier, bp.z], <><FlagUS h={30} /><span>U.S. RULE</span></>, C.red, barrier, 28)}
       {lbl([gp.x + 0.35, gp.y + 0.35, gp.z], '?', C.red, q * phaseB, 110)}

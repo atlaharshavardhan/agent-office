@@ -5,7 +5,7 @@ import { C, FONT, BODY, SAFE, ramp } from '../theme';
 import { FontFace } from '../ui';
 import { BlendSeq, Shade } from '../v2/kit';
 import { Chunks } from './Chunks';
-import { FlagCN, NvLogo, TextBadge } from './Logos';
+import { FlagCN, NvLogo, TextBadge, MegaspeedLogo } from './Logos';
 
 const Tag = () => <div style={{ position: 'absolute', left: SAFE.l, top: 1528, font: `600 22px ${BODY}`, color: 'rgba(245,245,245,.62)', textShadow: '0 1px 6px #000' }}>Illustration · not affiliated with NVIDIA</div>;
 
@@ -32,7 +32,7 @@ export const AliceS8 = () => {
       <Statement a={ramp(f, 0.15, 0.3)} top={400} color={C.red} big="“GROUNDLESS”" src="China’s foreign ministry"
         head={<><FlagCN h={46} /><span style={{ font: `800 40px ${FONT}`, color: '#fff', letterSpacing: 2 }}>CHINA</span></>} />
       <Statement a={ramp(f, 1.6, 0.3)} top={760} color={'#F5F5F5'} big="DENIES WRONGDOING" src="Company statement"
-        head={<TextBadge text="MEGASPEED" h={46} />} />
+        head={<MegaspeedLogo h={50} />} />
       <Tag />
     </AbsoluteFill>
   );

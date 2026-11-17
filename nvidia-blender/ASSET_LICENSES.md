@@ -65,3 +65,4 @@ Executives and investors are fictional.
 
 | Country outlines (Alice Short, scene 4) | Natural Earth 1:50m admin-0 (github.com/nvkelso/natural-earth-vector) | Public domain |
 | Simple Icons SVGs: NVIDIA eye, NYT "T" (Alice Short) | github.com/simple-icons/simple-icons | CC0 SVG data; trademarks belong to their owners, editorial identification only |
+| Megaspeed International logo (Alice Short) | Redrawn as vector by us from the company's public signage design; no photo used | Trademark of its owner; editorial identification only |

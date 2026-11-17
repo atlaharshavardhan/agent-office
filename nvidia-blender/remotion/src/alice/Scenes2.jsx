@@ -4,7 +4,7 @@ import { AbsoluteFill, Audio, Img, Sequence, staticFile, useCurrentFrame } from 
 import { C, FONT, BODY, SAFE, ramp, clamp, lerp } from '../theme';
 import { FontFace } from '../ui';
 import { BlendSeq, Shade } from '../v2/kit';
-import { NvLogo, NytLogo, TextBadge, FlagUS, StoryChain } from './Logos';
+import { NvLogo, NytLogo, TextBadge, FlagUS, StoryChain, MegaspeedLogo } from './Logos';
 import { AliceS1 } from './S1Hook';
 import { AliceS4 } from './S4Map';
 import { AliceS8, AliceS9 } from './S8S9';
@@ -88,7 +88,7 @@ export const AliceS5 = ({ d }) => {
           <div style={{ width: 200, height: 260, background: '#111', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', font: `800 110px ${FONT}`, color: C.red, marginTop: 20 }}>?</div>
           <div style={{ font: `800 30px ${FONT}`, color: '#101214', marginTop: 16 }}>ALICE HUANG</div>
         </Card>
-        <Card x={550} y={1000} w={300} h={170} a={ac(2)} rot={-2}><TextBadge text="MEGASPEED" sub="Singapore" color="#101214" h={42} /></Card>
+        <Card x={550} y={1000} w={300} h={170} a={ac(2)} rot={-2}><MegaspeedLogo h={44} light={false} /></Card>
         <Card x={150} y={1000} w={300} h={170} a={ac(3)} rot={2}>
           <FlagUS h={44} /><div style={{ font: `800 26px ${FONT}`, color: '#101214', marginTop: 10 }}>U.S. OFFICIALS</div>
         </Card>

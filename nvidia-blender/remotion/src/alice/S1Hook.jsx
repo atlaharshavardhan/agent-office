@@ -6,7 +6,7 @@ import { C, FONT, BODY, SAFE, ramp, clamp, lerp } from '../theme';
 import { FontFace } from '../ui';
 import { BlendSeq, Shade } from '../v2/kit';
 import { Chunks } from './Chunks';
-import { NvLogo, TextBadge } from './Logos';
+import { NvLogo, TextBadge, MegaspeedLogo } from './Logos';
 
 
 const ScanLine = ({ t0, dur }) => {
@@ -81,7 +81,7 @@ export const AliceS1 = ({ d = 3.5 }) => {
       <Panel x={90} side="L" a={ramp(f, 1.0, 0.35)} bg="alice/stage_bg.png" figure={<JensenFigure />} rim={C.green}
         name="JENSEN HUANG" role="" logo={<NvLogo h={40} />} />
       <Panel x={540} side="R" a={ramp(f, 1.15, 0.35)} bg="alice/skyline.png" figure={<AliceFigure />} rim={C.red}
-        name="ALICE HUANG" role="" logo={<TextBadge text="MEGASPEED" h={40} />} />
+        name="ALICE HUANG" role="" logo={<MegaspeedLogo h={40} sub={false} />} />
       <div style={{ position: 'absolute', left: 450, width: 90, top: 854, borderTop: '4px dashed #E5484D', opacity: ramp(f, 1.5, 0.3),
         filter: `drop-shadow(0 0 ${6 + 10 * Math.max(0, Math.sin((t - 1.5) * 6))}px #E5484D)` }} />
       <div style={{ position: 'absolute', left: SAFE.l, top: 1528, font: `600 22px ${BODY}`, color: 'rgba(245,245,245,.62)', textShadow: '0 1px 6px #000' }}>Illustration · not affiliated with NVIDIA</div>

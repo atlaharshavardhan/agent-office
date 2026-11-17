@@ -57,12 +57,32 @@ export const StoryChain = ({ a1 = 1, a2 = 1, a3 = 1, block = 1, top = 210 }) => 
     <div style={{ position: 'absolute', left: 90, right: 180, top, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       {node(a1, <NvLogo h={34} />)}
       {arrow(a2, 'CHIPS', C.green)}
-      {node(a2, <TextBadge text="MEGASPEED" sub="Singapore" h={34} />)}
+      {node(a2, <MegaspeedLogo h={34} />)}
       <div style={{ position: 'relative' }}>
         {arrow(a3, '?', C.red)}
         <div style={{ position: 'absolute', left: 8, right: 8, top: 18, height: 6, background: C.red, transform: 'rotate(-35deg)', opacity: block, boxShadow: '0 0 12px #E5484D' }} />
       </div>
       {node(a3, <FlagCN h={40} />)}
+    </div>
+  );
+};
+
+// Megaspeed International: redrawn for editorial identification only (round emblem with an "M" of columns,
+// wide wordmark). Not taken from any photo.
+export const MegaspeedLogo = ({ h = 60, light = true, sub = true }) => {
+  const navy = '#3C5E99', ink = light ? '#E9EDF3' : '#2A2F38';
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: h * 0.22 }}>
+      <svg width={h} height={h} viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="44" fill="none" stroke={navy} strokeWidth="9" />
+        <path d="M27 76 V36 Q27 24 39 24 H61 Q73 24 73 36 V76" fill="none" stroke={navy} strokeWidth="8" strokeLinejoin="round" />
+        <path d="M40 76 V40 M50 30 V62 M60 76 V40" fill="none" stroke={navy} strokeWidth="7" strokeLinecap="square" />
+        <path d="M40 76 H34 M60 76 H66" stroke={navy} strokeWidth="6" />
+      </svg>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', lineHeight: 1 }}>
+        <span style={{ font: `900 ${h * 0.62}px ${FONT}`, color: ink, letterSpacing: h * 0.02, transform: 'scaleX(1.18)', transformOrigin: 'left center', display: 'inline-block', marginRight: h * 0.5 }}>MEGASPEED</span>
+        {sub && <span style={{ font: `700 ${h * 0.2}px ${BODY}`, color: ink, opacity: 0.8, letterSpacing: h * 0.165, marginTop: h * 0.06, background: light ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.06)', padding: `${h * 0.02}px ${h * 0.04}px` }}>INTERNATIONAL</span>}
+      </div>
     </div>
   );
 };
