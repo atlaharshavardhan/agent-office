@@ -1,0 +1,55 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+  @font-face { font-family: InterD; src: url(../assets/fonts/InterDisplay-Bold.otf); font-weight: 800; }
+  :root { --g: #76B900; --r: #E5484D; --s: #BFC5CC; --gold: #C49A52; --bg: #07090B; }
+  * { margin: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); font-family: Inter, sans-serif; color: #fff; position: relative; }
+  .bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+  .bg.blur { filter: blur(26px) brightness(.32) saturate(1.2); transform: scale(1.1); }
+  .vign { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 55%, transparent 40%, rgba(0,0,0,.6)); }
+  /* Reel safe zones: title 220-450, subject 450-1500, subtitles 1250-1450 */
+  .title { position: absolute; left: 60px; right: 60px; top: 236px; text-align: center; }
+  .title h1 { font: 800 92px/1 InterD, Inter; letter-spacing: -2px; text-shadow: 0 6px 30px rgba(0,0,0,.7); }
+  .title h1 .r { color: var(--r); } .title h1 .g { color: var(--g); }
+  .title p { margin-top: 18px; font: 600 38px Inter; color: rgba(255,255,255,.82); text-shadow: 0 3px 14px #000; }
+  .sub { position: absolute; left: 80px; right: 150px; top: 1270px; height: 170px; display: flex; align-items: center; justify-content: center; text-align: center;
+         font: 700 50px/1.18 Inter; text-shadow: 0 0 6px #000, 0 3px 12px #000, 0 0 2px #000; }
+  .sub b { color: #FFD54A; }
+  .disc { position: absolute; left: 60px; top: 1458px; font: 500 22px Inter; color: rgba(255,255,255,.55); }
+  .src { position: absolute; left: 70px; top: 1190px; font: 600 24px Inter; color: rgba(255,255,255,.7); background: rgba(0,0,0,.5); padding: 8px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); }
+  .wm { position: absolute; right: 22px; top: 960px; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; opacity: .8; }
+  .wm img { width: 54px; height: 54px; border-radius: 50%; }
+  .wm span { writing-mode: vertical-rl; font: 700 22px Inter; letter-spacing: 1px; color: rgba(255,255,255,.85); text-shadow: 0 1px 6px #000; }
+  .panel { position: absolute; left: 70px; right: 140px; top: 480px; height: 690px; border-radius: 40px; background: linear-gradient(160deg, rgba(28,32,38,.88), rgba(10,12,15,.92));
+           border: 1px solid rgba(255,255,255,.14); box-shadow: 0 30px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08); padding: 46px; }
+  .label { font: 600 28px 'Inter'; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+  svg text { font-family: Inter; }
+  .scn { display:none;  position: absolute; left: 24px; top: 24px; font: 700 24px Inter; color: rgba(255,255,255,.35); }
+  .zones .z { position: absolute; left: 0; right: 0; border-top: 2px dashed rgba(0,255,255,.6); font: 600 20px Inter; color: cyan; }
+</style></head><body><div id="root"></div>
+<script>// market cap ($T): verified anchors from research/FACT-SHEET.md
+const CAP = [['Jun 24', 3.34], ['Sep 24', 2.7], ['Jan 25', 3.66], ['Apr 25', 2.3], ['Jul 25', 4.0], ['Oct 25', 5.03],
+             ['Feb 26', 4.6], ['Jun 26', 5.2], ['Oct 6', 5.77]];
+const DROP = [['Oct 6', 5.77], ['Nov 4', 4.82], ['Nov 5', 4.38], ['Nov 6', 4.5], ['Nov 9', 4.31], ['Nov 10', 4.07], ['Nov 12', 3.95], ['Nov 13', 3.92]];
+
+function graph(pts, { w = 800, h = 560, min = 0, max = 6.5, color = 'var(--g)', redFrom = 99, marks = [], line4 = false, label = '', few = false, draw = 1, show = 1 } = {}) {
+  const X = (i) => 60 + i * (w - 120) / (pts.length - 1), Y = (v) => h - 60 - (v - min) / (max - min) * (h - 110);
+  let d = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i)},${Y(p[1])}`).join(' ');
+  let g = '', red = '';
+  if (redFrom < pts.length) red = pts.slice(redFrom).map((p, i) => `${i ? 'L' : 'M'}${X(i + redFrom)},${Y(p[1])}`).join(' ');
+  for (let v = Math.ceil(min); v <= max; v++) g += `<line x1="50" x2="${w - 20}" y1="${Y(v)}" y2="${Y(v)}" stroke="rgba(255,255,255,.08)"/><text x="0" y="${Y(v) + 8}" fill="rgba(255,255,255,.45)" font-size="24">$${v}T</text>`;
+  const last = pts.length - 1;
+  const area = `${d} L${X(last)},${h - 60} L${X(0)},${h - 60} Z`;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#76B900" stop-opacity=".35"/><stop offset="1" stop-color="#76B900" stop-opacity="0"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    ${g}${line4 ? `<line x1="50" x2="${w - 20}" y1="${Y(4)}" y2="${Y(4)}" stroke="var(--r)" stroke-dasharray="10 8" stroke-width="3"/><text x="${w - 150}" y="${Y(4) - 12}" fill="var(--r)" font-size="26" font-weight="700">$4T line</text>` : ''}
+    <path d="${area}" fill="url(#ga)" opacity="${draw}"/>
+    <path d="${d}" pathLength="1" stroke-dasharray="1" stroke-dashoffset="${1 - draw}" fill="none" stroke="${color}" stroke-width="7" stroke-linejoin="round" filter="url(#glow)"/>
+    ${red ? `<path d="${red}" pathLength="1" stroke-dasharray="1" stroke-dashoffset="${1 - draw}" fill="none" stroke="var(--r)" stroke-width="8" stroke-linejoin="round" filter="url(#glow)"/>` : ''}
+    ${pts.map((p, i) => (i === 0 || i === last || (!few && i % 2 === 0)) ? `<text x="${X(i)}" y="${h - 18}" fill="rgba(255,255,255,.5)" font-size="22" text-anchor="middle">${p[0]}</text>` : '').join('')}
+    ${marks.map(([i, t, a = 1]) => `<g opacity="${a}" transform-origin="${X(i)} ${Y(pts[i][1])}" transform="scale(${0.4 + 0.6 * a})"><circle cx="${X(i)}" cy="${Y(pts[i][1])}" r="16" fill="var(--r)" filter="url(#glow)"/><text x="${X(i)}" y="${Y(pts[i][1]) + 8}" text-anchor="middle" font-size="22" font-weight="800" fill="#fff">${t}</text></g>`).join('')}
+    <g opacity="${show}">${label}</g>
+  </svg>`;
+}
+
+</script><script src="scenes.js"></script></body></html>

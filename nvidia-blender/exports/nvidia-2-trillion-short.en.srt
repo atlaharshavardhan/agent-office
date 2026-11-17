@@ -1,0 +1,68 @@
+1
+00:00:00,550 --> 00:00:04,459
+In five weeks, NVIDIA’s value fell by $1.8 trillion.
+
+2
+00:00:04,619 --> 00:00:08,381
+That’s almost half of India’s yearly economy, wiped off its share price.
+
+3
+00:00:08,381 --> 00:00:08,863
+How?
+
+4
+00:00:09,023 --> 00:00:11,634
+NVIDIA makes the chips AI runs on.
+
+5
+00:00:11,634 --> 00:00:14,115
+ChatGPT needs thousands of them.
+
+6
+00:00:14,275 --> 00:00:19,592
+Every tech giant wanted them, so in October NVIDIA hit a record $5.8 trillion.
+
+7
+00:00:19,752 --> 00:00:21,349
+Then, within weeks, three shocks.
+
+8
+00:00:21,509 --> 00:00:26,310
+One: US voters passed local rules that could slow new AI data centres.
+
+9
+00:00:26,470 --> 00:00:30,325
+Two: NVIDIA invests in AI start-ups, who then buy its chips.
+
+10
+00:00:30,325 --> 00:00:31,843
+Is that real demand?
+
+11
+00:00:32,003 --> 00:00:36,286
+Three: its CEO, Jensen Huang, stepped down amid a board investigation.
+
+12
+00:00:36,446 --> 00:00:37,034
+Bubble?
+
+13
+00:00:37,034 --> 00:00:38,661
+Sales still doubled in a year.
+
+14
+00:00:38,661 --> 00:00:40,469
+Investors just fear it won’t last.
+
+15
+00:00:40,629 --> 00:00:42,513
+A share price is a bet on the future.
+
+16
+00:00:42,513 --> 00:00:44,266
+The bet flipped, not the business.
+
+17
+00:00:44,426 --> 00:00:45,942
+Follow InvisiTech for more.
+

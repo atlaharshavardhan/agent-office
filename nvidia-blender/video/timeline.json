@@ -1,0 +1,129 @@
+{
+ "voice": [
+  0.55,
+  4.619,
+  9.023,
+  14.275,
+  19.752,
+  21.509,
+  26.47,
+  32.003,
+  36.446,
+  40.629,
+  44.426
+ ],
+ "len": [
+  3.909,
+  4.244,
+  5.092,
+  5.317,
+  1.597,
+  4.801,
+  5.373,
+  4.283,
+  4.023,
+  3.637,
+  1.516
+ ],
+ "scenes": [
+  0.0,
+  4.499,
+  8.903,
+  14.155,
+  19.632,
+  21.389,
+  26.35,
+  31.883,
+  36.326,
+  40.509,
+  44.076
+ ],
+ "end": 46.892,
+ "captions": [
+  {
+   "t0": 0.55,
+   "t1": 4.459,
+   "text": "In five weeks, NVIDIA\u2019s value fell by **$1.8 trillion.**"
+  },
+  {
+   "t0": 4.619,
+   "t1": 8.381,
+   "text": "That\u2019s almost half of India\u2019s yearly economy, **wiped off its share price.**"
+  },
+  {
+   "t0": 8.381,
+   "t1": 8.863,
+   "text": "How?"
+  },
+  {
+   "t0": 9.023,
+   "t1": 11.634,
+   "text": "NVIDIA makes the chips **AI runs on.**"
+  },
+  {
+   "t0": 11.634,
+   "t1": 14.115,
+   "text": "ChatGPT needs **thousands** of them."
+  },
+  {
+   "t0": 14.275,
+   "t1": 19.592,
+   "text": "Every tech giant wanted them, so in October NVIDIA hit a record **$5.8 trillion.**"
+  },
+  {
+   "t0": 19.752,
+   "t1": 21.349,
+   "text": "Then, within weeks, **three shocks.**"
+  },
+  {
+   "t0": 21.509,
+   "t1": 26.31,
+   "text": "One: US voters passed local rules that could **slow new AI data centres.**"
+  },
+  {
+   "t0": 26.47,
+   "t1": 30.325,
+   "text": "Two: NVIDIA invests in AI start-ups, who then buy its chips."
+  },
+  {
+   "t0": 30.325,
+   "t1": 31.843,
+   "text": "**Is that real demand?**"
+  },
+  {
+   "t0": 32.003,
+   "t1": 36.286,
+   "text": "Three: its CEO, Jensen Huang, **stepped down** amid a board investigation."
+  },
+  {
+   "t0": 36.446,
+   "t1": 37.034,
+   "text": "Bubble?"
+  },
+  {
+   "t0": 37.034,
+   "t1": 38.661,
+   "text": "Sales still **doubled** in a year."
+  },
+  {
+   "t0": 38.661,
+   "t1": 40.469,
+   "text": "Investors just fear it won\u2019t last."
+  },
+  {
+   "t0": 40.629,
+   "t1": 42.513,
+   "text": "A share price is a bet on the future."
+  },
+  {
+   "t0": 42.513,
+   "t1": 44.266,
+   "text": "**The bet flipped, not the business.**"
+  },
+  {
+   "t0": 44.426,
+   "t1": 45.942,
+   "text": "Follow InvisiTech for more."
+  }
+ ]
+}

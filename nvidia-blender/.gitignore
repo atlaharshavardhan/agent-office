@@ -5,3 +5,9 @@ renders/test/
 *.blend1
 __pycache__/
 renders/render.log
+voice/models/
+video/frames/
+video/frames4k/
+video/checks/
+audio/_*.wav
+audio/*.wav

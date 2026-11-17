@@ -1,0 +1,42 @@
+{
+ "sr": 24000,
+ "lengths": [
+  3.947,
+  4.373,
+  5.205,
+  5.525,
+  1.792,
+  4.843,
+  5.589,
+  4.437,
+  4.096,
+  3.691,
+  1.749
+ ],
+ "lines": [
+  "In five weeks, Nvidia's value fell by one point eight trillion dollars.",
+  "That's almost half of India's yearly economy, wiped off its share price. How?",
+  "Nvidia makes the chips A.I. runs on. Chat G P T needs thousands of them.",
+  "Every tech giant wanted them, so in October, Nvidia hit a record five point eight trillion.",
+  "Then, within weeks, three shocks.",
+  "One: US voters passed local rules that could slow new A.I. data centres.",
+  "Two: Nvidia invests in A.I. start-ups, who then buy its chips. Is that real demand?",
+  "Three: its CEO, Jensen Huang, stepped down amid a board investigation.",
+  "Bubble? Sales still doubled in a year. Investors just fear it won't last.",
+  "A share price is a bet on the future. The bet flipped, not the business.",
+  "Follow Invisi Tech for more."
+ ],
+ "trimmed": [
+  3.909,
+  4.244,
+  5.092,
+  5.317,
+  1.597,
+  4.801,
+  5.373,
+  4.283,
+  4.023,
+  3.637,
+  1.516
+ ]
+}
