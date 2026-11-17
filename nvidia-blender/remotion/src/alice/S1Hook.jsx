@@ -6,6 +6,7 @@ import { C, FONT, BODY, SAFE, ramp, clamp, lerp } from '../theme';
 import { FontFace } from '../ui';
 import { BlendSeq, Shade } from '../v2/kit';
 import { Chunks } from './Chunks';
+import { NvLogo, TextBadge } from './Logos';
 
 const DUR = 3.5;
 
@@ -23,8 +24,9 @@ const ScanLine = ({ t0, dur }) => {
 };
 
 // Dark portrait panel: background clue (blurred), dark figure with a rim glow, big name label.
-const Panel = ({ x, side, a, bg, figure, name, role, rim }) => (
+const Panel = ({ x, side, a, bg, figure, name, role, rim, logo }) => (
   <div style={{ position: 'absolute', left: x, top: 560, width: 360, opacity: a, transform: `translateX(${(1 - a) * (side === 'L' ? -80 : 80)}px)` }}>
+    <div style={{ height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>{logo}</div>
     <div style={{ position: 'relative', width: 360, height: 470, borderRadius: 18, overflow: 'hidden', border: '2px solid rgba(255,255,255,.14)', boxShadow: '0 20px 60px rgba(0,0,0,.7)', background: '#07080a' }}>
       <Img src={staticFile(bg)} style={{ position: 'absolute', inset: -30, width: 420, height: 530, objectFit: 'cover', filter: 'blur(10px) brightness(.45) saturate(1.2)' }} />
       <AbsoluteFill style={{ background: 'radial-gradient(ellipse at 50% 35%, transparent 30%, rgba(0,0,0,.65) 100%)' }} />
@@ -77,10 +79,10 @@ export const AliceS1 = () => {
       </div>
       {/* the two people, dark, from 1.0 s; chip darkens behind them */}
       <Panel x={90} side="L" a={ramp(f, 1.0, 0.35)} bg="alice/stage_bg.png" figure={<JensenFigure />} rim={C.green}
-        name="JENSEN HUANG" role="NVIDIA CEO · resigned Nov 12" />
+        name="JENSEN HUANG" role="" logo={<NvLogo h={40} />} />
       <Panel x={540} side="R" a={ramp(f, 1.15, 0.35)} bg="alice/skyline.png" figure={<AliceFigure />} rim={C.red}
-        name="ALICE HUANG" role="ex-CEO, Megaspeed · no relation" />
-      <div style={{ position: 'absolute', left: 450, width: 90, top: 790, borderTop: '4px dashed #E5484D', opacity: ramp(f, 1.5, 0.3),
+        name="ALICE HUANG" role="" logo={<TextBadge text="MEGASPEED" h={40} />} />
+      <div style={{ position: 'absolute', left: 450, width: 90, top: 854, borderTop: '4px dashed #E5484D', opacity: ramp(f, 1.5, 0.3),
         filter: `drop-shadow(0 0 ${6 + 10 * Math.max(0, Math.sin((t - 1.5) * 6))}px #E5484D)` }} />
       <Chunks t0={0.15} t1={3.45} chunks={[['Did a woman'], ['U.S. officials suspect'], ['of spying for China', C.red], ['get close to'], ['the most powerful man in AI?', C.green]]} />
       <div style={{ position: 'absolute', left: SAFE.l, top: 1528, font: `600 22px ${BODY}`, color: 'rgba(245,245,245,.62)', textShadow: '0 1px 6px #000' }}>Illustration · not affiliated with NVIDIA</div>

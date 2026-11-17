@@ -10,6 +10,7 @@ import { FontFace } from '../ui';
 import { CamRig, projector, StudioEnv, GpuModel } from '../three/kit';
 import ASIA from './asia.json';
 import { Chunks } from './Chunks';
+import { FlagCN, FlagUS, TextBadge } from './Logos';
 
 const K = 0.13;
 const ll = (lon, lat) => [(lon - 110) * K, 0, -(lat - 16) * K];
@@ -53,7 +54,7 @@ export const AliceS4 = () => {
   const bp = curve.getPoint(stopU);
   const lbl = (p, txt, col, a, size = 34) => {
     const [x, y] = P(p);
-    return <div style={{ position: 'absolute', left: x, top: y, transform: 'translate(-50%,-50%)', opacity: a, font: `800 ${size}px ${BODY}`, color: col, textShadow: '0 2px 12px #000, 0 0 2px #000', whiteSpace: 'nowrap', letterSpacing: 2 }}>{txt}</div>;
+    return <div style={{ position: 'absolute', left: x, top: y, transform: 'translate(-50%,-50%)', opacity: a, font: `800 ${size}px ${BODY}`, color: col, textShadow: '0 2px 12px #000, 0 0 2px #000', whiteSpace: 'nowrap', letterSpacing: 2, display: 'flex', alignItems: 'center', gap: 12 }}>{txt}</div>;
   };
   const pulse = 0.5 + 0.5 * Math.sin(t * 6);
   const noCharge = ramp(f, 3.4, 0.3);
@@ -86,9 +87,9 @@ export const AliceS4 = () => {
           <mesh position={[0, 0.75, 0]}><boxGeometry args={[1.4, 0.02, 0.02]} /><meshBasicMaterial color={C.red} /></mesh>
         </group>
       </ThreeCanvas>
-      {lbl([SG[0] - 0.75, 0, SG[2] - 0.05], 'SINGAPORE', C.green, route, 36)}
-      {lbl([CN[0] + 1.0, 0.1, CN[2] - 0.8], 'CHINA', C.red, route, 44)}
-      {lbl([bp.x, 0.95 * barrier, bp.z], 'EXPORT CONTROLS', C.red, barrier, 32)}
+      {lbl([SG[0] - 0.75, 0, SG[2] - 0.05], <><span style={{ background: 'rgba(10,11,13,.85)', border: '2px solid #76B90088', borderRadius: 12, padding: '6px 14px' }}><TextBadge text="MEGASPEED" sub="Singapore" h={38} color="#9BE22E" /></span></>, C.green, route, 36)}
+      {lbl([CN[0] + 1.0, 0.1, CN[2] - 0.8], <><FlagCN h={42} /><span>CHINA</span></>, C.red, route, 44)}
+      {lbl([bp.x, 0.95 * barrier, bp.z], <><FlagUS h={30} /><span>EXPORT CONTROLS</span></>, C.red, barrier, 30)}
       {lbl([gp.x + 0.35, gp.y + 0.35, gp.z], '?', C.red, q, 110)}
       {/* one idea at a time: question, then the answer replaces it */}
       <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 220, textAlign: 'center', opacity: 1 - noCharge }}>
