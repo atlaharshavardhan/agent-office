@@ -1,4 +1,4 @@
-"""Pillar paradox Short narration: George (free Kokoro bm_george, en-gb). Every number is read from the simulation
+"""Exit paradox Short narration: George (free Kokoro bm_george, en-gb). Every number is read from the simulation
 results (assets/runs-summary.json), so the voice always matches the counters on screen.
 Writes voice.wav (45 s), captions.json, lines.json and ../pillar.en.srt.   python make_voice.py <kokoro models dir>"""
 import json, sys, numpy as np, soundfile as sf
@@ -13,14 +13,14 @@ def spoken(sec):   # 158.5 -> "two minutes thirty-eight"
     ss = W[s] if s < 20 else T[s // 10] + ("" if s % 10 == 0 else "-" + W[s % 10])
     return f"{W[m]} minute{'s' if m != 1 else ''} {ss}"
 LINES = [  # (earliest start s, sentence with caption chunks split by |, optional speed) — each line says what changed and why the crowd reacts
-    (0.3, "Can a pillar in front of an exit | get more people out?", 1.25),
-    (3.7, f"In a panic, | the crowd squeezes into | a locked arch at the door. | In one minute, | only {n60['none']} get out."),
-    (9.7, f"Add one pillar, just off-centre. | It takes the push from behind, | and {n60['best']} get out."),
-    (16.2, f"Too close, | and the gap gets too narrow. | The pillar becomes the bottleneck. | Just {n60['close']}."),
-    (22.2, f"Too far back, | and the crowd closes in again. | The arch locks. | {n60['centre']}."),
-    (28.3, f"Back in the right spot, | everyone is out | in {spoken(R['best']['total'])}, | instead of {spoken(R['none']['total'])}."),
-    (34.6, "Same people. | Same door. | Just one pillar."),
-    (38.3, "This is the pillar paradox. | The right obstacle | speeds up the exit."),
+    (0.3, "Can blocking an exit | get more people out?", 1.25),
+    (3.7, f"In a panic, | the crowd locks into an arch | at the door. | Only {n60['none']} get out."),
+    (8.8, f"Add a V-shaped splitter. | It cuts the crowd into two streams, | and {n60['best']} get out. | Nearly double."),
+    (14.8, f"Too close, | and the gap pinches shut. | The splitter becomes the bottleneck. | Just {n60['close']}."),
+    (20.3, "Too far back, | and the streams merge again | before the door. | It barely helps."),
+    (25.8, "Make it flat, | and the crowd hits it head-on. | No better than nothing."),
+    (31.3, f"Angle it at forty-five degrees, | one metre from the door, | and everyone is out in {spoken(R['best']['total'])}, | instead of {spoken(R['none']['total'])}."),
+    (38.3, "This is the exit paradox. | The right obstacle | speeds up the exit."),
     (43.15, "Follow InvisiTech | for more."),
 ]
 SPEED = 1.22

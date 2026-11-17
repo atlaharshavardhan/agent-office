@@ -1,4 +1,4 @@
-<title>The pillar paradox</title>
+<title>The exit paradox</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@500;600&display=swap" rel="stylesheet">
 <style>
   html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0e14; font-family: 'IBM Plex Sans', Arial, sans-serif; }
@@ -198,19 +198,19 @@ const wm = new THREE.MeshStandardMaterial({ color: LOOK ? LOOK.wall : 0xeef0f2, 
     const white = (Math.floor(i / 3) * 7 + k * 3) % 41 === 0; sm.setColorAt(i, c.copy(LIN(white ? 0xdfe6f0 : (k % 2 ? 0x2c5bb0 : 0x3567c4)))); });
   sm.receiveShadow = true; scene.add(sm);
   const rim = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.25, 60), new THREE.MeshBasicMaterial({ color: 0xf3e6c8, toneMapped: false })); rim.position.set(4.5 + 1.6 + ROWS * ST + 0.2, -0.3 + 0.3 + ROWS * RI, 0); scene.add(rim); }
-// the pillar: a round concrete column, 0.6 m across (exactly the obstacle in the physics)
-const PILLAR = new THREE.Group(); scene.add(PILLAR);
-{ const PH = 2.5, conc = new THREE.MeshStandardMaterial({ color: 0x2b303a, roughness: 0.45 }); const c = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, PH, 40), conc); c.position.y = PH / 2; c.castShadow = c.receiveShadow = true; PILLAR.add(c);
-  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.302, 0.302, 0.05, 40), new THREE.MeshBasicMaterial({ color: 0xffc23d, toneMapped: false })); cap.position.y = PH + 0.025; PILLAR.add(cap);
-  for (const y of [1.0, 1.9]) { const band = new THREE.Mesh(new THREE.CylinderGeometry(0.305, 0.305, 0.18, 40), new THREE.MeshStandardMaterial({ color: 0xf2c230, roughness: 0.5 })); band.position.y = y; PILLAR.add(band); }
-  const ring = new THREE.Mesh(new THREE.RingGeometry(0.34, 0.42, 48), new THREE.MeshBasicMaterial({ color: 0xffb547, transparent: true, opacity: 0, depthWrite: false })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.015; PILLAR.add(ring); PILLAR.userData.ring = ring; }
+// the V-splitter: two short guide walls in front of the exit (exactly the walls in the physics), dark with a yellow top edge
+const wallM = new THREE.MeshStandardMaterial({ color: 0x2b303a, roughness: 0.45 }), topM = new THREE.MeshBasicMaterial({ color: 0xffc23d, toneMapped: false });
+function makeSplit(segs) { const g = new THREE.Group(), WH = 1.45, T = 0.14;
+  for (const [x0, z0, x1, z1] of segs) { const L = Math.hypot(x1 - x0, z1 - z0), w = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(L + T, WH, T), wallM); b.position.y = WH / 2; b.castShadow = b.receiveShadow = true; w.add(b);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(L + T + 0.004, 0.05, T + 0.004), topM); cap.position.y = WH + 0.025; w.add(cap); w.position.set((x0 + x1) / 2, 0, (z0 + z1) / 2); w.rotation.y = -Math.atan2(z1 - z0, x1 - x0); g.add(w); }
+  g.visible = false; scene.add(g); return g; }
 
 /* ---------- the four simulated runs (precomputed by tools/precompute.cjs from assets/fis.js; same 200 people, same start, same door) ---------- */
 const b64 = (s, T) => { const bin = atob(s), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new T(u.buffer); };
 const RUN = {};
 for (const [k, r] of Object.entries(RUNS.runs)) {   // decode (15 fps, mm) → 30 fps metres, then derive facing / stride / speed / pressure per person
   const X15 = b64(r.X, Int16Array), Z15 = b64(r.Z, Int16Array), P15 = b64(r.P, Uint8Array), N = r.N, n15 = r.nF, nF = (n15 - 1) * 2 + 1;
-  const S = { k, N, nF, fps: FPS, pil: r.pil, dl: r.dl, r: r.r, exitT: r.exitT, total: r.total, X: new Float32Array(N * nF), Z: new Float32Array(N * nF), PR: new Float32Array(N * nF), out: new Int32Array(N).fill(-1) };
+  const S = { k, N, nF, fps: FPS, segs: r.segs, dl: r.dl, r: r.r, exitT: r.exitT, total: r.total, X: new Float32Array(N * nF), Z: new Float32Array(N * nF), PR: new Float32Array(N * nF), out: new Int32Array(N).fill(-1) };
   for (let i = 0; i < N; i++) for (let f = 0; f < nF; f++) { const a = i * n15 + (f >> 1), b = i * n15 + Math.min(n15 - 1, (f + 1) >> 1), o = i * nF + f;
     S.X[o] = (X15[a] + X15[b]) / 2000; S.Z[o] = (Z15[a] + Z15[b]) / 2000; S.PR[o] = (P15[a] + P15[b]) / 2; if (S.out[i] < 0 && S.Z[o] < RM.Z0 - 0.9) S.out[i] = f; }
   const yaw = new Float32Array(N * nF), dist = new Float32Array(N * nF), spd = new Float32Array(N * nF), heat = new Float32Array(N * nF); let sd2 = 99; const R2 = () => (sd2 = (sd2 * 16807) % 2147483647) / 2147483647;
@@ -223,7 +223,7 @@ for (const [k, r] of Object.entries(RUNS.runs)) {   // decode (15 fps, mm) → 3
       if (ty !== null) { let dy = ty - y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); const mx = 8 / FPS; y += Math.max(-mx, Math.min(mx, dy)); }
       if (f > 0) d += Math.hypot(S.X[b] - S.X[b - 1], S.Z[b] - S.Z[b - 1]); h += (S.PR[b] - h) * 0.1;
       yaw[b] = y; dist[b] = d; spd[b] = v; heat[b] = h; } }
-  Object.assign(S, { yaw, dist, spd, heat }); RUN[k] = S; }
+  Object.assign(S, { yaw, dist, spd, heat }); S.mesh = S.segs ? makeSplit(S.segs) : null; RUN[k] = S; }
 const fIdx = (S, s) => Math.max(0, Math.min(S.nF - 1, Math.round(s * FPS)));
 const exitedBy = (k, s) => { const e = RUN[k].exitT; let n = 0; while (n < e.length && e[n] <= s) n++; return n; };
 const PIN_P = 200, PIN_V = 0.35, PIN_R = 3.5;   // "pinned at the door": within 3.5 m of the doorway, squeezed by > 8000 N of contact force (smoothed), moving slower than 0.35 m/s
@@ -257,13 +257,14 @@ const TOTAL = 45, CAPL = __LINES__, AVG = RUNS.avg;
 const PW = (pts, t) => { if (t <= pts[0][0]) return pts[0][1]; for (let i = 1; i < pts.length; i++) if (t <= pts[i][0]) { const [a, va] = pts[i - 1], [b, vb] = pts[i]; return va + (vb - va) * (t - a) / (b - a); } return pts[pts.length - 1][1]; };
 const TB = RUN.best.total, TN = RUN.none.total;
 // [start, end, run, screen→simulated-time map, experiment no., headline, distance from door (m), off-centre (m), highlighted meter]
-const SEG = [
-  [0, 9.5, 'none', [[0, 0], [3.6, 9], [9.3, 60], [9.5, 61]], 1, '<em>No pillar.</em> The crowd locks into an arch.', null, null, 3],
-  [9.5, 16, 'best', [[9.5, 0], [10.5, 4], [14.4, 60], [16, 68]], 2, 'Add a pillar <em>off-centre</em>. Flow goes up.', 1.05, 0.15, 2],
-  [16, 22, 'close', [[16, 0], [17, 4], [20.8, 60], [22, 66]], 3, '<em>Too close:</em> the pillar is the bottleneck.', 0.7, 0, 1],
-  [22, 28, 'centre', [[22, 0], [23, 4], [26.1, 60], [28, 66]], 4, '<em>Too far back:</em> the arch locks again.', 1.3, 0, 1],
-  [28, 38, 'best', [[28, 0], [29, 5], [33, 50], [37.2, TB + 0.5], [38, TB + 3]], 5, '<em>Right spot:</em> it takes the push.', 1.05, 0.15, 2],
-  [38, 43, 'best', [[38, 22], [43, 34]], 5, '', 1.05, 0.15, 0],
+const SEG = [   // [start, end, run, screen→sim map, experiment no., headline, gap to door (m), angle (°), highlighted meter]
+  [0, 8.5, 'none', [[0, 0], [3.6, 9], [8.3, 60], [8.5, 61]], 1, '<em>No obstacle.</em> The crowd locks into an arch.', null, null, 3],
+  [8.5, 14.5, 'best', [[8.5, 0], [9.5, 4], [13.9, 60], [14.5, 63]], 2, 'Add a <em>V-splitter</em>. Flow nearly doubles.', 1.0, 45, 1],
+  [14.5, 20, 'close', [[14.5, 0], [15.5, 4], [19.4, 60], [20, 63]], 3, '<em>Too close:</em> the gap pinches shut.', 0.6, 45, 1],
+  [20, 25.5, 'far', [[20, 0], [21, 4], [24.9, 60], [25.5, 63]], 4, '<em>Too far back:</em> the streams merge again.', 1.6, 45, 1],
+  [25.5, 31, 'flat', [[25.5, 0], [26.5, 4], [30.4, 60], [31, 63]], 5, '<em>Flat wall:</em> the crowd hits it head-on.', 1.0, 0, 2],
+  [31, 38, 'best', [[31, 0], [32, 5], [35, 50], [37.2, TB + 0.5], [38, TB + 3]], 6, '<em>45°, 1 m back:</em> two smooth streams.', 1.0, 45, 2],
+  [38, 43, 'best', [[38, 20], [43, 32]], 6, '', 1.0, 45, 0],
 ];
 const segAt = t => SEG.find(s => t >= s[0] && t < s[1]) || SEG[SEG.length - 1];
 const simAt = t => { const s = segAt(t), v = PW(s[3], t), v2 = PW(s[3], Math.min(s[1] - 1e-3, t + 0.1)); return { seg: s, k: s[2], s: v, rate: Math.round((v2 - v) / 0.1) }; };
@@ -280,25 +281,25 @@ function doorPush(k, s) {   // how hard people near the doorway are being presse
   const S = RUN[k], f = fIdx(S, s); let n = 0, h = 0; for (let i = 0; i < S.N; i++) { const b = i * S.nF + f; if (S.Z[b] >= RM.Z0 && Math.hypot(S.X[b], S.Z[b] - RM.Z0) < 1.5) { n++; h += S.heat[b]; } } return n ? h / n / 255 : 0; }
 const pushWord = v => v > 0.72 ? 'HIGH' : v > 0.45 ? 'MID' : 'LOW';
 const perMin = (k, s) => { const w = Math.min(10, s); return w < 1 ? 0 : Math.round((exitedBy(k, s) - exitedBy(k, s - w)) * 60 / w); };
-$('disc').textContent = 'Illustrative simulation (social force model, Helbing et al., Nature 2000) · 200 people, one 1 m exit · not evacuation guidance';
+$('disc').textContent = 'Illustrative simulation (social force model, Helbing et al., Nature 2000) · 200 people, one 1 m exit · not safety advice: never block a real exit';
 function ui(t, st) {
   const sg = st.seg, prev = SEG[SEG.indexOf(sg) - 1], cut = t - sg[0];
   let N = '', T = '';
-  if (t < 3.6) { N = 'SIMULATION · THE PILLAR PARADOX'; T = 'Can a pillar get <em>more</em> people out?'; }
-  else if (t < 33) { N = `SIMULATION · EXPERIMENT ${sg[4]} OF 5`; T = sg[5]; }
+  if (t < 3.6) { N = 'SIMULATION · THE EXIT PARADOX'; T = 'Can blocking an exit get <em>more</em> people out?'; }
+  else if (t < 34.5) { N = `SIMULATION · EXPERIMENT ${sg[4]} OF 6`; T = sg[5]; }
   else if (t < 38) { N = 'RESULT · SAME 200 PEOPLE, SAME DOOR'; T = `All out in <em>${mmss(TB)}</em> instead of ${mmss(TN)}.`; }
-  else { N = 'THE PILLAR PARADOX'; T = 'The right obstacle <em>speeds up</em> the exit.'; }
+  else { N = 'THE EXIT PARADOX'; T = 'The right obstacle <em>speeds up</em> the exit.'; }
   if ($('card').dataset.k !== N + T) { $('card').dataset.k = N + T; $('cN').textContent = N; $('cT').innerHTML = T; }
   show('card', t < 0.15 ? 0 : 1);
   show('meters', t >= 3.6 ? ramp(t, 3.6, 3.9) : 0);
-  if (t >= 3.6 && t < 33) {
+  if (t >= 3.6 && t < 34.5) {
     const a = prev && prev[6] !== null ? ease(ramp(cut, 0, 0.45)) : 1, dv = sg[6] === null ? null : prev && prev[6] !== null ? lerp(prev[6], sg[6], a) : sg[6], ov = sg[7] === null ? null : prev && prev[7] !== null ? lerp(prev[7], sg[7], a) : sg[7];
     const pu = doorPush(st.k, st.s);
-    meter(1, 'Pillar distance', dv === null ? 0 : dv / 2, dv === null ? 'NONE' : dv.toFixed(2).replace(/0$/, '') + ' M', sg[8] === 1);
-    meter(2, 'Off-centre', ov === null ? 0 : ov / 0.5, ov === null ? '—' : ov.toFixed(2).replace(/\.?0+$/, '') + ' M', sg[8] === 2);
+    meter(1, 'Gap to the door', dv === null ? 0 : dv / 2, dv === null ? 'NO OBSTACLE' : dv.toFixed(1) + ' M', sg[8] === 1);
+    meter(2, 'Wall angle', ov === null ? 0 : ov / 90, ov === null ? '—' : ov < 1 ? '0° · FLAT' : Math.round(ov) + '°', sg[8] === 2);
     meter(3, 'Push at the door', pu, pushWord(pu), sg[8] === 3); }
-  else if (t < 38) { meter(1, 'No pillar', TN / 200, mmss(TN), false); meter(2, 'Pillar, best spot', Math.min(st.s, TB) / 200, mmss(Math.min(st.s, TB)), true); meter(3, 'Time saved', (TN - TB) / 60, Math.round(TN - TB) + ' S', false); }
-  else { meter(1, 'Avg. with pillar', AVG.best.meanTotal / 240, mmss(AVG.best.meanTotal), true); meter(2, 'Avg. without', AVG.none.meanTotal / 240, mmss(AVG.none.meanTotal), false); meter(3, 'Faster in', AVG.faster / 8, AVG.faster + ' OF 8 RUNS', false); }
+  else if (t < 38) { meter(1, 'No obstacle', TN / 200, mmss(TN), false); meter(2, 'V-splitter', Math.min(st.s, TB) / 200, mmss(Math.min(st.s, TB)), true); meter(3, 'Time saved', (TN - TB) / 60, Math.round(TN - TB) + ' S', false); }
+  else { meter(1, 'Avg. with splitter', AVG.best.meanTotal / 240, mmss(AVG.best.meanTotal), true); meter(2, 'Avg. without', AVG.none.meanTotal / 240, mmss(AVG.none.meanTotal), false); meter(3, 'Faster in', AVG.faster / 8, AVG.faster + ' OF 8 RUNS', false); }
   show('stats', t >= 3.6 && t < 38 ? ramp(t, 3.6, 3.9) * (1 - ramp(t, 37.7, 38)) : 0);
   $('kO').textContent = exitedBy(st.k, st.s); $('kP').textContent = pinnedAt(st.k, st.s); $('kF').textContent = perMin(st.k, st.s);
   show('disc', ease(ramp(t, 38.4, 38.9)));
@@ -307,9 +308,8 @@ function ui(t, st) {
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
   if (t < 43) { const st = simAt(t), sg = st.seg; crowdAt(st.k, st.s); camAt(t);
-    const pil = RUN[st.k].pil; PILLAR.visible = !!pil;
-    if (pil) { const prev = SEG[SEG.indexOf(sg) - 1], grow = prev && prev[2] !== sg[2] && sg[0] < 38 ? ease(ramp(t - sg[0], 0.05, 0.45)) : 1; PILLAR.position.set(pil[0], 0, pil[1]); PILLAR.scale.set(1, Math.max(0.001, grow), 1);
-      PILLAR.userData.ring.material.opacity = sg[0] < 38 ? 0.9 * (1 - ramp(t - sg[0], 0.4, 1.6)) : 0; }
+    for (const S of Object.values(RUN)) if (S.mesh) S.mesh.visible = false;
+    const M = RUN[st.k].mesh; if (M) { const prev = SEG[SEG.indexOf(sg) - 1], grow = prev && prev[2] !== sg[2] && sg[0] < 38 ? ease(ramp(t - sg[0], 0.05, 0.45)) : 1; M.visible = true; M.scale.set(1, Math.max(0.001, grow), 1); }
     ui(t, st); composer.render(); }
   $('hud').style.display = t < 43 ? '' : 'none';
   const o = $('outro'), ou = t - 43; o.style.opacity = ou < 0 ? 0 : ease(ramp(ou, 0, 0.3));
@@ -319,7 +319,7 @@ function renderAt(t) {
 { const seen = new Set(); scene.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (seen.has(m)) return; seen.add(m); if (m.color && !m.map) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); });
   if (o.isLight) { o.color.convertSRGBToLinear(); if (o.groundColor) o.groundColor.convertSRGBToLinear(); } }); scene.fog.color.convertSRGBToLinear(); }
 window.__tour = { total: TOTAL, renderAt }; window.__tourReady = () => true;
-window.__simStats = () => { const out = { fps: 30, walk: [], run: [], press: [], exits: [], pinned: [], cuts: SEG.slice(1, 5).map(s => s[0]), doneT: null }; let prevK = null, prevE = 0;   // per video frame, for the sound effects
+window.__simStats = () => { const out = { fps: 30, walk: [], run: [], press: [], exits: [], pinned: [], cuts: SEG.slice(1, 6).map(s => s[0]), doneT: null }; let prevK = null, prevE = 0;   // per video frame, for the sound effects
   for (let i = 0; i < TOTAL * 30; i++) { const t = i / 30; if (t >= 43) { ['walk', 'run', 'press', 'exits', 'pinned'].forEach(k => out[k].push(0)); continue; }
     const st = simAt(t), S = RUN[st.k], f = fIdx(S, st.s); let w = 0, r = 0, p = 0, n = 0; for (let j = 0; j < S.N; j++) { const b = j * S.nF + f; if (S.Z[b] < RM.Z0) continue; n++; const v = S.spd[b]; if (v > 2.7) r++; else if (v > 0.28) w++; p += S.heat[b]; }
     const e = exitedBy(st.k, st.s); out.exits.push(st.k === prevK ? Math.max(0, e - prevE) : 0); prevK = st.k; prevE = e;

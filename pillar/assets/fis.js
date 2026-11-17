@@ -3,7 +3,7 @@
    positions, the same reaction delays and the same room; only the desired speed v0 differs.
    Room: x in [X0,X1], z in [Z0,Z1] (metres); one exit of width DW in the wall at z = Z0, centred at x = 0. */
 function runFIS(o) {
-  o = Object.assign({ N: 200, v0: 2, seed: 5, DW: 1.0, X0: -4.5, X1: 4.5, Z0: -7.5, Z1: 7.5, fps: 30, Tmax: 240, dt: 0.002, PIL: null, NOISE: 0 }, o);
+  o = Object.assign({ N: 200, v0: 2, seed: 5, DW: 1.0, X0: -4.5, X1: 4.5, Z0: -7.5, Z1: 7.5, fps: 30, Tmax: 240, dt: 0.002, PIL: null, NOISE: 0, SEGS: null }, o);
   const PIL = o.PIL;   // optional round pillar [x, z, radius] in front of the exit
   const { N, v0, DW, X0, X1, Z0, Z1, fps, Tmax } = o; const spf = Math.round(1 / fps / o.dt), dt = 1 / fps / spf;   // whole number of physics steps per video frame
   let s = o.seed; const R = () => (s = (s * 16807) % 2147483647) / 2147483647;
@@ -11,6 +11,7 @@ function runFIS(o) {
   // walls as segments (the exit is a gap in the z = Z0 wall), plus short door jambs so the doorway has depth
   const hw = DW / 2, J = 0.6;
   const W = [[X0, Z0, -hw, Z0], [hw, Z0, X1, Z0], [X1, Z0, X1, Z1], [X1, Z1, X0, Z1], [X0, Z1, X0, Z0], [-hw, Z0, -hw, Z0 - J], [hw, Z0, hw, Z0 - J]];
+  const SEGS = o.SEGS || []; for (const g of SEGS) W.push(g);   // optional thin guide walls inside the room [x0, z0, x1, z1]
   // people: radius 0.25–0.35 m (as in the paper), random non-overlapping start positions, reaction delay 0.2–2.4 s
   const x = new Float64Array(N), z = new Float64Array(N), vx = new Float64Array(N), vz = new Float64Array(N), r = new Float64Array(N), dl = new Float64Array(N);
   // start positions: a jittered grid over the room (never overlapping), shuffled so radius and delay are random per spot
@@ -36,6 +37,12 @@ function runFIS(o) {
           const ux = tx - x[i], uz = tz - z[i], uL = Math.hypot(ux, uz) || 1, px = PIL[0] - x[i], pz = PIL[1] - z[i], u = (px * ux + pz * uz) / uL;
           const side = (ux * pz - uz * px) / uL, clr = PIL[2] + r[i] + 0.15;
           if (u > 0 && u < uL && Math.abs(side) < clr) { const sg = side > 0 ? -1 : 1, nX = -uz / uL * sg, nZ = ux / uL * sg; tx = PIL[0] + nX * (clr + 0.1); tz = PIL[1] + nZ * (clr + 0.1); } }
+        { const cross = (x0, z0, x1, z1, g) => { const ux = x1 - x0, uz = z1 - z0, ex = g[2] - g[0], ez = g[3] - g[1], den = ux * ez - uz * ex; if (Math.abs(den) < 1e-9) return false;
+            const sx = g[0] - x0, sz = g[1] - z0, ta = (sx * ez - sz * ex) / den, tb = (sx * uz - sz * ux) / den; return ta > 0.001 && ta < 1 && tb > -0.05 && tb < 1.05; };
+          for (const g of SEGS) if (cross(x[i], z[i], tx, tz, g)) {   // guide wall in the way: walk round the end that leads to the door without crossing another wall
+            const L = Math.hypot(g[2] - g[0], g[3] - g[1]), ex = (g[2] - g[0]) / L, ez = (g[3] - g[1]) / L, c = r[i] + 0.25;
+            const cand = [[g[0] - ex * c, g[1] - ez * c], [g[2] + ex * c, g[3] + ez * c]].map(([px, pz]) => ({ px, pz, len: Math.hypot(px - x[i], pz - z[i]) + Math.hypot(tx - px, tz - pz), free: !SEGS.some(h => cross(px, pz, tx, tz, h)) }));
+            cand.sort((u, v) => (v.free - u.free) || (u.len - v.len)); tx = cand[0].px; tz = cand[0].pz; break; } }
         const dx = tx - x[i], dz = tz - z[i], L = Math.hypot(dx, dz) || 1;
         fx[i] += m * (v0 * dx / L - vx[i]) / tau; fz[i] += m * (v0 * dz / L - vz[i]) / tau; }
       else { fx[i] += -m * vx[i] / tau; fz[i] += -m * vz[i] / tau; }
