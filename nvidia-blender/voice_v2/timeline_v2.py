@@ -11,7 +11,7 @@ b["dc"] = round(S[4]["t0"] - 0.1, 3)        # "NVIDIA makes about 8 in 10 AI chi
 b["network"] = round(S[6]["t0"] - 0.1, 3)   # "NVIDIA sits at the center"
 tl = {"fps": 30, "frames": 1350, "end": 45.0, "scenes": v1["scenes"], "beats": b,
       "headline": ["$2 TRILLION", "GONE"],
-      "compare": {"loss": 2.0, "value": 1.59, "name": "Meta"},
+      "compare": {"loss": 2.0, "value": 1.6, "name": "Meta"},
       "capex": {"big": "$700B+", "sub": "Big Tech’s planned AI spending this year (est.)"},
       "reason1": {"sub": "Local voters push back on new AI data centers", "stat": "40 of 41", "label": "local votes backed limits"},
       "reason3": {"sub": "Amid a board investigation", "kicker": "NOV 12 · REPORTED BY MULTIPLE OUTLETS",

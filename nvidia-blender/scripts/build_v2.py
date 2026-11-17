@@ -180,9 +180,23 @@ def v2_meeting():
     # city glass wall behind
     city = emissive("City", "#FFD8A6", 2.5)
     bm = bmesh.new()
-    for _ in range(260):
-        C.add_box(bm, (rnd.uniform(1.5, 5), 1, rnd.uniform(1.5, 5)), (rnd.uniform(-1500, 1500), 900, rnd.uniform(20, 700)))
+    for _ in range(1400):
+        C.add_box(bm, (rnd.uniform(4, 9), 1, rnd.uniform(5, 9)), (rnd.uniform(-1500, 1500), 899, rnd.uniform(-100, 520)))
     C.link(C.mesh_obj("CityLights", bm, city))
+    sky = bpy.data.materials.new("DuskSky"); sky.use_nodes = True
+    sp = sky.node_tree.nodes["Principled BSDF"]; sp.inputs["Base Color"].default_value = (0, 0, 0, 1)
+    sp.inputs["Emission Color"].default_value = C.hex_rgba("#2A3550"); sp.inputs["Emission Strength"].default_value = 1.0
+    C.box("Sky", (4000, 2, 2000), (0, 920, 500), sky)
+    tower, _ = C.principled("Towers", "#07080A", rough=0.6)
+    for _ in range(40):
+        w, h = rnd.uniform(80, 220), rnd.uniform(300, 900)
+        C.box("Tower", (w, 10, h), (rnd.uniform(-1500, 1500), 905, h / 2 - 150), tower)
+    glass, _ = C.principled("WinFrame", "#0B0C0E", metallic=0.8, rough=0.3)
+    for x in range(-900, 901, 300):
+        C.box(f"Mullion{x}", (8, 8, 600), (x, 880, 300), glass)
+    wallw, _ = C.principled("WalnutWall", "#3A2A1E", rough=0.5)
+    for sx in (-1, 1):
+        C.box(f"SideWall{sx}", (10, 1800, 600), (sx * 700, 0, 300), wallw)
     # hologram: miniature GPU racks on a glowing grid + the GPU itself
     holo = emissive("Holo", C.NV_GREEN, 3.0)
     bm = bmesh.new()
@@ -192,7 +206,7 @@ def v2_meeting():
                 continue
             C.add_box(bm, (6, 4, 4 + ((ix * 7 + iy * 3) % 5) * 2.5), (ix * 10, iy * 9, 100))
     hr = C.mesh_obj("HoloRacks", bm, holo); C.link(hr)
-    w = hr.modifiers.new("Wire", "WIREFRAME"); w.thickness = 0.25
+    w = hr.modifiers.new("Wire", "WIREFRAME"); w.thickness = 0.35; w.use_replace = False
     g = gpu_instance(coll, (0, 0, 104), (0, 0, 0), 1.2, "HoloGPU")
     for f, rz in ((1, 0), (105, math.radians(40))):
         g.rotation_euler.z = rz; g.keyframe_insert("rotation_euler", index=2, frame=f)
@@ -212,17 +226,18 @@ def v2_meeting():
         C.box(f"Seat{k}", (52, 50, 9), (x + d.x * 12, y + d.y * 12, 46), chair_m, 3, 3)
         back = C.box(f"Back{k}", (52, 9, 62), (x + d.x * 40, y + d.y * 40, 86), chair_m, 3, 3)
         back.rotation_euler.z = math.radians(rot)
-    S.area_light("Pendant", (0, 0, 300), (0, 0, 74), 240, 4.0e5, "#FFE8CF", size_y=120)
+    S.area_light("Pendant", (0, 0, 300), (0, 0, 74), 240, 1.4e6, "#FFE8CF", size_y=120)
+    S.area_light("FaceKeyM", (-300, -350, 260), (0, 0, 120), 200, 4e5, "#FFF1E2", size_y=200)
     S.area_light("HoloGlow", (0, 0, 150), (0, 0, 74), 60, 6e3, C.NV_GREEN, size_y=60)
     S.area_light("Rim", (0, 700, 260), (0, 0, 120), 400, 6e4, "#BFD6FF", size_y=80)
-    S.area_light("FillFront", (0, -600, 180), (0, 0, 110), 400, 4.0e5, "#FFFFFF", size_y=200)
-    S.build_world().inputs["Strength"].default_value = 0.04
+    S.area_light("FillFront", (0, -600, 180), (0, 0, 110), 400, 9.0e5, "#FFFFFF", size_y=200)
+    wd = S.build_world(); wd.inputs["Color"].default_value = (0.22, 0.24, 0.28, 1); wd.inputs["Strength"].default_value = 0.35
     cam, tgt = camera(30, 2.2)
     for f in range(1, 106):
         t = ease((f - 1) / 104)
-        a = math.radians(-112 + 40 * t)
-        r = 430 - 60 * t
-        key_cam(cam, tgt, f, Vector((math.cos(a) * r, math.sin(a) * r, 175 - 25 * t)), Vector((0, 0, 98 + 6 * t)))
+        a = math.radians(-118 + 36 * t)
+        r = 360 - 50 * t
+        key_cam(cam, tgt, f, Vector((math.cos(a) * r, math.sin(a) * r, 150 - 15 * t)), Vector((0, 0, 104 + 4 * t)))
     sc.frame_end = 105
     bpy.ops.wm.save_as_mainfile(filepath=str(C.ROOT / "blender/v2_meeting.blend"))
 
@@ -287,9 +302,40 @@ def v2_build():
     for i, (x, y) in enumerate(((-2600, -800), (-2450, 1500), (200, 2200))):
         C.box(f"Cab{i}", (240, 220, 260), (x, y, 150), truck, 20, 3)
         C.box(f"Bed{i}", (240, 700, 160), (x, y + 480, 110), trafo, 8, 2)
-    # workers (small, hi-vis)
+    # site detail: fence, gravel piles, generator containers, pipes, light masts, excavator, distant hills
+    fence, _ = C.principled("Fence", "#9AA0A6", metallic=0.8, rough=0.5)
+    for i in range(-30, 31):
+        C.box(f"FencePost{i}", (6, 6, 200), (-2100, i * 200, 100), fence)
+    C.box("FenceTop", (4, 12000, 4), (-2100, 0, 198), fence)
+    gravel, pg = C.principled("Gravel", "#8B8178", rough=1.0)
+    C.micro_roughness(gravel, pg, 1.0, 0.05, 3.0, 0.8)
+    for i, (x, y, r) in enumerate(((-1100, -1900, 260), (-700, -2300, 180), (1900, -1200, 300))):
+        bpy.ops.mesh.primitive_cone_add(vertices=48, radius1=r, depth=r * 0.7, location=(x, y, r * 0.35))
+        bpy.context.active_object.data.materials.append(gravel)
+    cont, _ = C.principled("Container", "#2F5D3A", metallic=0.6, rough=0.45)
+    cont2, _ = C.principled("Container2", "#1F3E5A", metallic=0.6, rough=0.45)
+    for i in range(6):
+        C.box(f"Gen{i}", (600, 240, 260), (-1250, -1400 + i * 330, 130), cont if i % 2 else cont2, 4, 2)
+    pipe, _ = C.principled("Pipe", "#C9CDD2", metallic=0.9, rough=0.3)
+    for i in range(5):
+        bpy.ops.mesh.primitive_cylinder_add(vertices=24, radius=40, depth=1600, location=(400 + i * 95, -1300, 40), rotation=(math.pi / 2, 0, 0))
+        bpy.context.active_object.data.materials.append(pipe)
+    lamp = emissive("LampHead", "#FFE2B0", 30)
+    for i, (x, y) in enumerate(((-1700, -1800), (-1700, 400), (2600, -800), (2600, 2200))):
+        C.box(f"Mast{i}", (20, 20, 1500), (x, y, 750), frame_m)
+        C.box(f"MastHead{i}", (160, 60, 40), (x, y - 30, 1500), lamp)
+    yel, _ = C.principled("Excavator", "#E8A21C", metallic=0.2, rough=0.45)
+    C.box("ExcBody", (330, 260, 200), (200, -1900, 180), yel, 10, 2)
+    C.box("ExcTrack", (420, 300, 90), (200, -1900, 45), trafo, 10, 2)
+    arm1 = C.box("ExcArm", (60, 520, 50), (200, -2180, 330), yel); arm1.rotation_euler.x = math.radians(-35)
+    arm2 = C.box("ExcStick", (50, 320, 45), (200, -2500, 260), yel); arm2.rotation_euler.x = math.radians(50)
+    hill, _ = C.principled("Hills", "#4C5A63", rough=1.0)
+    for i in range(14):
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=rnd.uniform(3000, 6000), location=(rnd.uniform(-14000, 14000), 16000 + rnd.uniform(0, 4000), -1800))
+        o = bpy.context.active_object; o.scale.z = 0.35; o.data.materials.append(hill)
+    # workers (hi-vis), near the foreground
     BC.OUTFITS["hivis"] = dict(jacket=None, shirt="#F26B1D", trousers="#2A3240", shoes="#2A1E14", tie=None)
-    for k, (x, y) in enumerate(((-300, -1000), (-180, -1060), (60, -950))):
+    for k, (x, y) in enumerate(((-560, -2050), (-440, -2110), (-250, -2000))):
         BC.PRESETS[f"worker{k}"] = dict(race=["caucasian", "african", "asian"][k], male=1, age=0.3, wt="averageweight",
                                         skin=["#E3B9A0", "#6E4A35", "#D2A584"][k], outfit="hivis", hair=("buzz", "#2A2018"), glasses=False)
         arm, _ = BC.make_character(f"worker{k}", loc=(x, y, 0))
@@ -297,14 +343,14 @@ def v2_build():
         hat, _ = C.principled("Helmet", "#F3F3F0", rough=0.3, coat=0.8)
         bpy.ops.mesh.primitive_uv_sphere_add(radius=13, location=(x, y + 1, 178))
         h = bpy.context.active_object; h.scale = (1, 1.1, 0.7); h.data.materials.append(hat)
-    sun = bpy.data.lights.new("Sun", "SUN"); sun.energy = 3.2; sun.angle = math.radians(3); sun.color = (1.0, 0.86, 0.7)
-    so = bpy.data.objects.new("Sun", sun); so.rotation_euler = (math.radians(58), 0, math.radians(-35)); C.link(so)
-    w = S.build_world(); w.inputs["Color"].default_value = (0.35, 0.42, 0.55, 1); w.inputs["Strength"].default_value = 0.8
+    sun = bpy.data.lights.new("Sun", "SUN"); sun.energy = 4.0; sun.angle = math.radians(2); sun.color = (1.0, 0.78, 0.55)
+    so = bpy.data.objects.new("Sun", sun); so.rotation_euler = (math.radians(68), 0, math.radians(-40)); C.link(so)
+    w = S.build_world(); w.inputs["Color"].default_value = (0.42, 0.5, 0.66, 1); w.inputs["Strength"].default_value = 0.9
     cam, tgt = camera(28, 11)
     cam.data.clip_end = 100000; cam.data.dof.use_dof = False
     for f in range(1, 76):
         t = ease((f - 1) / 74)
-        key_cam(cam, tgt, f, Vector((-1400 + 500 * t, -4200 + 600 * t, 2300 - 200 * t)), Vector((200, 900, 200)))
+        key_cam(cam, tgt, f, Vector((-1500 + 400 * t, -3900 + 300 * t, 1250 - 100 * t)), Vector((100, 400, 350)))
     sc.frame_end = 75
     bpy.ops.wm.save_as_mainfile(filepath=str(C.ROOT / "blender/v2_build.blend"))
 
@@ -335,14 +381,15 @@ def v2_trading():
         arm.rotation_euler.z = math.radians(180 + (k - 1) * 12)          # facing the screens (+Y)
         BC.set_pose(arm, BC.POSES[pose])
         BC.idle(arm, 1, 110, BC.POSES[pose], amp=0.5, seed=k * 5)
-    S.area_light("Ceiling", (0, 0, 420), (0, 0, 0), 1200, 6e5, "#E6EEFF", size_y=600)
+    S.area_light("Ceiling", (0, 0, 420), (0, 0, 0), 1200, 2.2e6, "#E6EEFF", size_y=600)
+    S.area_light("FaceFillT", (0, 380, 180), (0, 0, 150), 900, 3e5, "#FFE9E9", size_y=150)
     S.area_light("ScreenSpill", (0, 420, 250), (0, 0, 140), 1200, 5e4, "#FF6060", size_y=200)
-    S.area_light("FrontFill", (0, -700, 200), (0, 0, 140), 600, 1.5e5, "#FFFFFF", size_y=300)
-    S.build_world().inputs["Strength"].default_value = 0.05
+    S.area_light("FrontFill", (0, -700, 200), (0, 0, 140), 600, 6e5, "#FFFFFF", size_y=300)
+    wd = S.build_world(); wd.inputs["Color"].default_value = (0.2, 0.21, 0.24, 1); wd.inputs["Strength"].default_value = 0.3
     cam, tgt = camera(28, 4.5)
     for f in range(1, 111):
         t = ease((f - 1) / 109)
-        key_cam(cam, tgt, f, Vector((-320 + 260 * t, -520 + 40 * t, 150)), Vector((0 + 60 * t, 300, 200)))
+        key_cam(cam, tgt, f, Vector((-300 + 220 * t, -380 + 30 * t, 160)), Vector((0 + 60 * t, 320, 215)))
     sc.frame_end = 110
     bpy.ops.wm.save_as_mainfile(filepath=str(C.ROOT / "blender/v2_trading.blend"))
 
@@ -358,7 +405,7 @@ def v2_overlook():
     tc = nt.nodes.new("ShaderNodeTexCoord"); sep = nt.nodes.new("ShaderNodeSeparateXYZ"); ramp = nt.nodes.new("ShaderNodeValToRGB")
     ramp.color_ramp.elements[0].color = C.hex_rgba(C.NV_GREEN); ramp.color_ramp.elements[1].color = C.hex_rgba(C.DEEP_RED)
     nt.links.new(tc.outputs["Generated"], sep.inputs[0]); nt.links.new(sep.outputs[0], ramp.inputs[0])
-    nt.links.new(ramp.outputs[0], pw.inputs["Emission Color"]); pw.inputs["Emission Strength"].default_value = 0.35
+    nt.links.new(ramp.outputs[0], pw.inputs["Emission Color"]); pw.inputs["Emission Strength"].default_value = 0.06
     pw.inputs["Base Color"].default_value = (0, 0, 0, 1)
     C.box("HallWall", (5000, 10, 1400), (0, 3100, 0), wm)
     bm_r, bm_g, bm_red = bmesh.new(), bmesh.new(), bmesh.new()
@@ -374,6 +421,15 @@ def v2_overlook():
     C.link(C.mesh_obj("HallRacks", bm_r, rack_b)); C.link(C.mesh_obj("HallLEDg", bm_g, led_g)); C.link(C.mesh_obj("HallLEDr", bm_red, led_r))
     hfloor, _ = C.principled("HallFloor", "#0A0B0D", rough=0.15, coat=0.7)
     C.box("HallFloor", (6000, 6000, 1), (0, 1800, -400), hfloor)
+    strip = emissive("CeilStrip", "#DDE8FF", 6)
+    bm_s = bmesh.new()
+    for row in range(-7, 8):
+        for i in range(0, 36, 3):
+            C.add_box(bm_s, (8, 150, 3), (row * 260 + 130, 600 + i * 64, 420))
+    C.link(C.mesh_obj("CeilStrips", bm_s, strip))
+    tray, _ = C.principled("CableTray", "#3A3F46", metallic=0.9, rough=0.4)
+    for row in range(-7, 8):
+        C.box(f"Tray{row}", (40, 2400, 6), (row * 260, 1750, -120), tray)
 
     # catwalk + railing where the character stands
     steel, _ = C.principled("Catwalk", "#2B2F35", metallic=0.9, rough=0.35)
@@ -389,6 +445,7 @@ def v2_overlook():
     S.area_light("RedSide", (900, 400, 300), (0, 900, -200), 900, 5.0e6, C.DEEP_RED, size_y=900)
     S.area_light("HallTop", (0, 1500, 600), (0, 1500, -400), 3000, 4e6, "#CFE0FF", size_y=2400)
     S.area_light("CharRim", (0, 900, 300), (60, 250, 120), 200, 5e4, "#E9F2FF", size_y=200)
+    S.area_light("HairKey", (60, 330, 330), (60, 250, 170), 60, 2.5e4, "#FFFFFF", size_y=60)
     S.area_light("CharFill", (-200, -300, 260), (60, 250, 120), 200, 1.5e4, "#FFFFFF", size_y=200)
     S.build_world().inputs["Strength"].default_value = 0.03
     cam, tgt = camera(30, 5.6)

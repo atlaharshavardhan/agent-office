@@ -1,0 +1,3 @@
+00:00.570  blend            | Read blend: "/home/user/agent-office/nvidia-blender/assets/characters/jensen_huang.blend"
+00:00.606  cycles           | WARNING CUEW initialization failed: Error opening the library
+00:00.606  cycles           | WARNING HIPEW initialization failed: Error opening HIP dynamic library
