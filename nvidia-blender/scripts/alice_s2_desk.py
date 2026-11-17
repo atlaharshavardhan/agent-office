@@ -77,7 +77,7 @@ def build():
     C.box("Blotter", (90, 62, 0.4), (-6, 4, 0.2), blot, 0.3)
     # GPU model resting on the desk (top-right), slight angle
     coll = gpu_asset()
-    gpu_instance(coll, (38, 22, 0.6), (0, 0, math.radians(-18)), 0.5, "DeskGPU")
+    gpu_instance(coll, (17, 46, 0.6), (0, 0, math.radians(-18)), 1.25, "DeskGPU")   # in frame, top-right, readable size
     # folder: back half (fixed) + cover (hinged at the spine, x = -W/2), slides in from +y
     kraft, _ = C.principled("Folder", "#B8935C", rough=0.7)
     tab_m, _ = C.principled("FolderTab", "#E5484D", rough=0.6)
@@ -92,8 +92,8 @@ def build():
     cover = C.box("FolderCover", (W, D, 0.3), (W / 2, 0, 0), kraft, 0.2); cover.parent = hinge
     lab = Image.new("RGB", (800, 200), (229, 72, 77)); ImageDraw.Draw(lab).text((400, 100), "CASE FILE", font=ImageFont.truetype(FONT, 120), fill=(255, 255, 255), anchor="mm")
     stamp = C.box("CoverStamp", (24, 6, 0.05), (W / 2 + 4, 8, 0.17), paper_mat("Stamp", np.asarray(lab).astype(np.float32) / 255.0)); stamp.parent = hinge
-    for f, y, rz in ((1, 70, math.radians(14)), (24, 0, math.radians(-4)), (F_END, -1, math.radians(-4))):
-        fold.location = (-8, y, 0.3); fold.rotation_euler = (0, 0, rz)
+    for f, x, y, rz in ((1, -44, 70, math.radians(14)), (24, -8, 0, math.radians(-4)), (F_END, -8, -1, math.radians(-4))):   # enters from the top-left so it clears the GPU
+        fold.location = (x, y, 0.3); fold.rotation_euler = (0, 0, rz)
         fold.keyframe_insert("location", frame=f); fold.keyframe_insert("rotation_euler", frame=f)
     for f, ry in ((1, 0), (30, 0), (58, math.radians(-178)), (F_END, math.radians(-178))):
         hinge.rotation_euler = (0, ry, 0); hinge.keyframe_insert("rotation_euler", frame=f)
@@ -106,19 +106,20 @@ def build():
     bpy.context.active_object.data.materials.append(brass)
     bpy.ops.mesh.primitive_cylinder_add(vertices=48, radius=10, depth=2, location=(-70, 56, 1))
     bpy.context.active_object.data.materials.append(brass)
-    sp = bpy.data.lights.new("LampSpot", "SPOT"); sp.energy = 1.6e5; sp.spot_size = math.radians(85); sp.spot_blend = 0.6
+    sp = bpy.data.lights.new("LampSpot", "SPOT"); sp.energy = 2.0e5; sp.spot_size = math.radians(85); sp.spot_blend = 0.6
     sp.color = (1.0, 0.82, 0.6); sp.shadow_soft_size = 4
     so = bpy.data.objects.new("LampSpot", sp); so.location = (-56, 40, 40); C.link(so)
     tc = so.constraints.new("TRACK_TO"); tgt = bpy.data.objects.new("LampTarget", None); tgt.location = (-4, -14, 0); C.link(tgt); tc.target = tgt
     S.area_light("WarmBounce", (-20, -110, 60), (-4, -20, 0), 80, 6.0e3, "#FFC89A", size_y=80)
-    S.area_light("CoolFill", (90, -120, 120), (0, 0, 0), 120, 2.5e3, "#9FB4FF", size_y=120)
+    S.area_light("CoolFill", (90, -120, 120), (0, 0, 0), 120, 1.2e4, "#9FB4FF", size_y=120)
+    S.area_light("GpuKick", (20, 38, 30), (17, 46, 0), 18, 1.5e4, "#C8D6FF")   # soft cool kick so the GPU (outside the lamp pool) reads
     S.area_light("RedRim", (120, 80, 30), (0, 0, 0), 40, 3.0e3, "#E5484D", size_y=40)
     w = S.build_world(); w.inputs["Color"].default_value = (0.01, 0.011, 0.013, 1); w.inputs["Strength"].default_value = 1.0
     cam, tgt_c = camera(40, 2.8)
     cam.data.clip_start = 1
     for f in range(1, F_END + 1):
         t = ease((f - 1) / (F_END - 1))
-        key_cam(cam, tgt_c, f, Vector((-6 + 6 * t, -78 + 58 * t, 120 - 30 * t)), Vector((-4, 2 + 2 * t, 0)))
+        key_cam(cam, tgt_c, f, Vector((-6 - 1.5 * t, -78 + 44 * t, 120 - 16 * t)), Vector((-4 - 3.5 * t, 2 + 1 * t, 0)))   # ends centred on the card, whole card in frame
     cam.data.dof.focus_object = card
     bpy.ops.wm.save_as_mainfile(filepath=str(C.ROOT / "blender/alice_s2_desk.blend"))
     print("[built] alice_s2_desk")
