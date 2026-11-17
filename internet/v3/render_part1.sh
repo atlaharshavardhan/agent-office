@@ -4,7 +4,7 @@
 cd "$(dirname "$0")"; C=../video/part1; mkdir -p $C; rm -f $C/tmp-*
 if [ "$1" = fresh ] || [ ! -d snap7 ]; then rm -f $C/*.mp4; rm -rf snap7; mkdir snap7; cp -r src/* snap7/; fi
 for pair in IsoCityPhoto:840 Part1Fly:321; do ID=${pair%%:*}; N=${pair##*:}; : > $C/$ID.txt
-  for a in $(seq 0 20 $((N-1))); do b=$((a+19)); [ $b -ge $N ] && b=$((N-1)); g=$C/$ID-$a.mp4; echo "file '$ID-$a.mp4'" >> $C/$ID.txt; [ -f "$g" ] && continue
+  for a in $( [ $ID = Part1Fly ] && { seq 0 20 100; seq 120 5 $((N-1)); } || seq 0 20 $((N-1)) ); do st=20; [ $ID = Part1Fly ] && [ $a -ge 120 ] && st=5; b=$((a+st-1)); [ $b -ge $N ] && b=$((N-1)); g=$C/$ID-$a.mp4; echo "file '$ID-$a.mp4'" >> $C/$ID.txt; [ -f "$g" ] && continue
     npx remotion render snap7/index.ts $ID $C/tmp-$ID-$a.mp4 --frames=$a-$b --muted --codec=h264 --crf=16 --concurrency=3 --gl=swangle --timeout=300000 2>&1 | tail -1 | cut -c1-80
     [ -f $C/tmp-$ID-$a.mp4 ] && mv $C/tmp-$ID-$a.mp4 "$g" || { echo "FAILED $ID $a"; exit 1; }; done
   ffmpeg -v error -y -f concat -safe 0 -i $C/$ID.txt -c copy $C/$ID.mp4 && echo "DONE $ID"; done
