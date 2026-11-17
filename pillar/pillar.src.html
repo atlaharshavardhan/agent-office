@@ -5,32 +5,22 @@
   canvas { display: block; position: fixed; inset: 0; }
   /* layout follows the Shorts safe zones: title 220–450 px, picture 450–1500, caption 1250–1450, nothing below 1500 or right of 940 below 1100 */
   #hud > div { position: fixed; z-index: 4; pointer-events: none; color: #fff; }
-  #chip { top: 12.3%; left: 50%; transform: translateX(-50%); white-space: nowrap; background: rgba(12,16,24,.9); border: .25vw solid rgba(120,170,255,.45); border-radius: 1.4vw; padding: .9vw 3vw 1vw; font: 800 4.3vw Sora, Arial; letter-spacing: .06em; box-shadow: 0 1vw 3vw rgba(0,0,0,.35); }
-  #chip em { font-style: normal; color: #ffb547; }
-  #q { top: 16.9%; left: 5.9vw; right: 5.9vw; text-align: center; font: 800 6.2vw/1.12 Sora, Arial; text-shadow: 0 .5vw 2.4vw rgba(0,0,0,.65); }
-  #q em { font-style: normal; color: #ffb547; }
-  #card { top: 16.6%; left: 5.9vw; right: 5.9vw; height: 11.6vw; display: flex; align-items: center; gap: 2.6vw; background: rgba(12,16,24,.92); border-radius: 1.8vw; padding: 1.5vw 2.6vw; box-sizing: border-box; border-left: 1vw solid #ff7a45; box-shadow: 0 1.2vw 3vw rgba(0,0,0,.35); }
-  #card.good { border-left-color: #3fc27f; } #card.bad { border-left-color: #e8463a; }
-  #card .l { flex: 1.25; min-width: 0; } #card .l b { display: block; font: 700 2.1vw Sora, Arial; letter-spacing: .16em; color: rgba(255,255,255,.6); }
-  #card .l span { display: block; margin-top: .4vw; font: 700 3.9vw/1.12 Sora, Arial; }
-  #card .r { flex: 1; display: grid; gap: 1.1vw; }
-  .sl { font: 600 2.05vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.75); } .sl p { margin: 0; display: flex; justify-content: space-between; } .sl p b { color: #fff; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .sl i { position: relative; display: block; height: .7vw; margin-top: .55vw; border-radius: 1vw; background: rgba(255,255,255,.14); } .sl i u { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 1vw; background: #5fa8ff; }
-  .sl i s { position: absolute; top: 50%; width: 1.9vw; height: 1.9vw; margin: -.95vw 0 0 -.95vw; border-radius: 50%; background: #fff; box-shadow: 0 .2vw .8vw rgba(0,0,0,.5); }
-  #res { top: 16.6%; left: 5.9vw; right: 5.9vw; background: rgba(12,16,24,.92); border-radius: 1.8vw; padding: 1.6vw 2.6vw 1.8vw; box-sizing: border-box; box-shadow: 0 1.2vw 3vw rgba(0,0,0,.35); }
-  #res > b { display: block; font: 700 2.1vw Sora, Arial; letter-spacing: .16em; color: rgba(255,255,255,.6); margin-bottom: .8vw; }
-  .bar { display: grid; grid-template-columns: 21vw 1fr 11vw; align-items: center; gap: 1.6vw; margin-top: .7vw; font: 600 2.5vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.85); }
-  .bar i { display: block; height: 2.6vw; border-radius: .8vw; background: rgba(255,255,255,.1); overflow: hidden; } .bar u { display: block; height: 100%; background: #ff7a45; border-radius: .8vw; } .bar.g u { background: #3fc27f; }
-  .bar b { font: 700 3.3vw Sora, Arial; text-align: right; font-variant-numeric: tabular-nums; }
-  #stats { top: 58.3%; left: 5.9vw; right: 13vw; display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 1.6vw; }
-  #stats > div { background: rgba(250,251,253,.97); color: #10151d; border-radius: 1.5vw; padding: 1vw 1.6vw 1.1vw; text-align: center; box-shadow: 0 1vw 2.6vw rgba(0,0,0,.25); border-top: .55vw solid #5fa8ff; }
-  #stats span { display: block; font: 700 1.85vw Sora, Arial; letter-spacing: .12em; color: #5b6472; } #stats b { display: block; margin-top: .2vw; font: 800 5.4vw/1.05 Sora, Arial; font-variant-numeric: tabular-nums; }
-  #stats small { display: block; font: 600 1.9vw 'IBM Plex Sans', Arial; color: #6b7482; } #stats .red { border-top-color: #e8463a; } #stats .red b { color: #d6362b; }
-  #cap { top: 65.9%; left: 5.9vw; right: 13vw; background: rgba(250,251,253,.97); color: #10151d; border-radius: 1.6vw; padding: 1.5vw 2.4vw; text-align: center; font: 700 3.5vw/1.22 Sora, Arial; box-shadow: 0 1.2vw 3.4vw rgba(0,0,0,.35); }
+  #card { top: 11.9%; left: 5.9vw; right: 5.9vw; background: rgba(16,22,38,.94); border: .2vw solid rgba(120,150,210,.28); border-radius: 2vw; padding: 1.7vw 3vw 1.9vw; box-sizing: border-box; box-shadow: 0 1.2vw 3vw rgba(0,0,0,.4); }
+  #card b { display: block; font: 700 2.3vw Sora, Arial; letter-spacing: .2em; color: #7fb2ff; } #card span { display: block; margin-top: .5vw; font: 800 4.0vw/1.15 Sora, Arial; color: #fff; white-space: nowrap; }
+  #card span em { font-style: normal; color: #ffb547; }
+  #meters { top: 18.3%; left: 5.9vw; right: 5.9vw; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.6vw; }
+  #meters > div { background: rgba(16,22,38,.94); border: .2vw solid rgba(120,150,210,.22); border-radius: 1.6vw; padding: 1.3vw 2vw 1.4vw; box-sizing: border-box; }
+  #meters > div.on { border-color: #e9c26a; box-shadow: 0 0 2vw rgba(233,194,106,.3); }
+  #meters span { display: block; font: 600 2.35vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.82); white-space: nowrap; }
+  #meters i { display: block; height: .75vw; margin: 1vw 0 .9vw; border-radius: 1vw; background: rgba(255,255,255,.12); overflow: hidden; } #meters u { display: block; height: 100%; border-radius: 1vw; background: #4f9bff; }
+  #meters b { display: block; font: 700 2.6vw Sora, Arial; letter-spacing: .12em; color: rgba(255,255,255,.85); font-variant-numeric: tabular-nums; }
+  #cap { top: 65.2%; left: 5.9vw; right: 13vw; background: rgba(246,248,251,.98); color: #10151d; border-radius: 1.6vw; padding: 1.4vw 2.4vw; text-align: center; font: 700 3.6vw/1.2 Sora, Arial; box-shadow: 0 1.2vw 3.4vw rgba(0,0,0,.35); }
   #cap:empty { display: none; } #hud #cap { color: #10151d; }
-  #rev { top: 12.3%; left: 5.9vw; right: 5.9vw; text-align: center; background: rgba(12,16,24,.92); border-radius: 2vw; padding: 2vw 2vw 2.2vw; box-sizing: border-box; box-shadow: 0 1.4vw 4vw rgba(0,0,0,.45); }
-  #rev b { display: block; font: 800 8vw/1.02 Sora, Arial; color: #ffb547; letter-spacing: .01em; } #rev small { display: block; margin-top: 1.4vw; font: 600 2.9vw/1.3 'IBM Plex Sans', Arial; color: rgba(255,255,255,.88); }
-  #disc { top: 59.4%; left: 5.9vw; right: 13vw; text-align: center; background: rgba(12,16,24,.85); border-radius: 1.2vw; padding: .9vw 1.6vw; box-sizing: border-box; font: 500 2vw/1.35 'IBM Plex Sans', Arial; color: rgba(255,255,255,.75); }
+  #stats { top: 70.6%; left: 5.9vw; right: 13vw; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.4vw; }
+  #stats > div { background: rgba(16,22,38,.95); border-radius: 1.5vw; padding: 1vw 1vw 1.2vw; text-align: center; }
+  #stats b { display: block; font: 800 5.6vw/1.05 Sora, Arial; font-variant-numeric: tabular-nums; } #stats span { display: block; margin-top: .4vw; font: 700 2vw Sora, Arial; letter-spacing: .16em; color: rgba(255,255,255,.7); }
+  #stats .red b { color: #ff6a5c; }
+  #disc { top: 70.6%; left: 5.9vw; right: 13vw; text-align: center; background: rgba(16,22,38,.92); border-radius: 1.4vw; padding: 1.2vw 1.8vw; box-sizing: border-box; font: 500 2.1vw/1.35 'IBM Plex Sans', Arial; color: rgba(255,255,255,.8); }
   #flash { position: fixed; inset: 0; z-index: 3; background: #fff; opacity: 0; pointer-events: none; }
   #outro { position: fixed; inset: 0; z-index: 6; opacity: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(60% 40% at 50% 46%, #111522 0%, #07080c 60%, #040506 100%); color: #fff; }
   #oLogo { width: 21vw; height: 21vw; border-radius: 50%; box-shadow: 0 0 60px rgba(74,168,255,.45); }
@@ -39,16 +29,11 @@
 </style>
 <div id="flash"></div>
 <div id="hud">
-  <div id="chip">THE <em>PILLAR</em> PARADOX</div>
-  <div id="q">Can a pillar in front of an exit get <em>more</em> people out?</div>
-  <div id="card"><div class="l"><b id="cN"></b><span id="cT"></span></div>
-    <div class="r"><div class="sl"><p><span>Pillar distance from door</span><b id="sDv"></b></p><i><u id="sDu"></u><s id="sDs"></s></i></div>
-      <div class="sl"><p><span>Off-centre</span><b id="sOv"></b></p><i><u id="sOu"></u><s id="sOs"></s></i></div></div></div>
-  <div id="res"><b>EVERYONE OUT IN</b><div class="bar"><span>No pillar</span><i><u id="rA"></u></i><b id="rAt"></b></div><div class="bar g"><span>Pillar, best spot</span><i><u id="rB"></u></i><b id="rBt"></b></div></div>
-  <div id="stats"><div><span>OUT</span><b id="kO">0</b><small>of 200 people</small></div><div class="red"><span>PINNED</span><b id="kP">0</b><small>stuck at the door</small></div><div><span>SIM TIME</span><b id="kT">0:00</b><small id="kR"></small></div></div>
-  <div id="rev"><b>THE PILLAR<br>PARADOX</b><small id="revS"></small></div>
-  <div id="disc"></div>
+  <div id="card"><b id="cN"></b><span id="cT"></span></div>
+  <div id="meters"><div id="m1"><span id="m1l"></span><i><u id="m1u"></u></i><b id="m1v"></b></div><div id="m2"><span id="m2l"></span><i><u id="m2u"></u></i><b id="m2v"></b></div><div id="m3"><span id="m3l"></span><i><u id="m3u"></u></i><b id="m3v"></b></div></div>
   <div id="cap"></div>
+  <div id="stats"><div><b id="kO">0</b><span>OUT</span></div><div class="red"><b id="kP">0</b><span>STUCK</span></div><div><b id="kF">0</b><span>LEAVING / MIN</span></div></div>
+  <div id="disc"></div>
 </div>
 <div id="outro"><img id="oLogo" src="__LOGO__" alt=""><div id="oName"><span>Invisi</span><b>Tech</b></div><div id="oTag">The tech behind everyday life.</div></div>
 
@@ -77,6 +62,8 @@ const LOOKS = {   // colour themes: floor, walls, surroundings and clothing (the
        shirt: [0xe8edf3, 0xcfd8e3, 0xbfe3f2, 0xf4f1ea, 0xa9d4ee, 0xdfe7ef, 0xc9e8f5], pants: [0x5d6b80, 0x4a576b, 0x6a7891, 0x55637a] },
   C: { floor: '#e6d9c2', grid: 'rgba(120,90,50,.11)', slab: 0xc9bca4, wall: 0xf6f1e7, cap: 0x5a4a38, ground: 0x1d1913, bg: ['#2a241c', '#0f0c08'], fog: 0x17130e, cor: 0xb3a68f,
        shirt: [0x1d3557, 0x274c77, 0x2b3a67, 0x3a5a8c, 0x1b2a4a, 0x33507a, 0x24406b], pants: [0x22262e, 0x2b2b2b, 0x3a3f48, 0x1f232b] },
+  S: { floor: '#2c3446', grid: 'rgba(150,185,255,.13)', slab: 0x2a3140, wall: 0x434e63, cap: 0x222937, ground: 0x0b0e14, bg: ['#141a26', '#07090e'], fog: 0x0b0e15, cor: 0x343c4c,
+       shirt: [0xa9d4ee, 0xbfe3f2, 0x8fc3e6, 0xa9d4ee, 0xbfe3f2, 0xf2f5f8, 0x9ccbea, 0xe6edf3], pants: [0x1d222b, 0x252b36, 0x1a1e26, 0x2c3240] },
   O: null };
 const LOOK = LOOKS[new URLSearchParams(location.search).get('look') || '__LOOK__'] || null;
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
@@ -180,7 +167,8 @@ const wm = new THREE.MeshStandardMaterial({ color: LOOK ? LOOK.wall : 0xeef0f2, 
   for (let j = 1; j < D; j++) { x.fillStyle = LOOK ? LOOK.grid : 'rgba(70,78,90,.10)'; x.fillRect(0, j * PX - 1, c.width, 2); }
   { const e = 26; for (const [x0, y0, x1, y1, w, h] of [[0, 0, e, 0, e, c.height], [c.width, 0, c.width - e, 0, e, c.height], [0, c.height, 0, c.height - e, c.width, e], [0, 0, 0, e, c.width, e]]) {
     const gr = x.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, 'rgba(40,46,56,.22)'); gr.addColorStop(1, 'rgba(40,46,56,0)'); x.fillStyle = gr; x.fillRect(x0 === c.width ? c.width - e : 0, y0 === c.height ? c.height - e : 0, w, h); } }
-  x.strokeStyle = 'rgba(40,160,95,.55)'; x.lineWidth = 7; for (const [X, Y] of [[W / 2, 4.2], [W / 2, 8.2]]) { x.beginPath(); x.moveTo((X - 0.35) * PX, (Y + 0.3) * PX); x.lineTo(X * PX, (Y - 0.1) * PX); x.lineTo((X + 0.35) * PX, (Y + 0.3) * PX); x.stroke(); }
+  for (const Y of [3.6, 7.6, 11.6]) { const X = W / 2; x.fillStyle = 'rgba(40,170,100,.20)'; x.fillRect((X - 0.55) * PX, (Y - 0.55) * PX, 1.1 * PX, 1.1 * PX);   // painted green wayfinding chevrons toward the exit
+    x.strokeStyle = 'rgba(70,215,130,.75)'; x.lineWidth = 9; x.beginPath(); x.moveTo((X - 0.3) * PX, (Y + 0.15) * PX); x.lineTo(X * PX, (Y - 0.18) * PX); x.lineTo((X + 0.3) * PX, (Y + 0.15) * PX); x.stroke(); }
   const ft = new THREE.CanvasTexture(c); ft.encoding = THREE.sRGBEncoding; ft.anisotropy = 8;
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.MeshStandardMaterial({ map: ft, roughness: 0.62, metalness: 0.02, envMapIntensity: 0.45 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; g.add(floor);
   const slab = new THREE.Mesh(new THREE.BoxGeometry(W + 3.2, 0.6, D + 8.4), new THREE.MeshStandardMaterial({ color: LOOK ? LOOK.slab : 0xaeb3ba, roughness: 0.8 })); slab.position.set(0, -0.302, -1.6); slab.receiveShadow = true; g.add(slab);
@@ -198,9 +186,21 @@ const wm = new THREE.MeshStandardMaterial({ color: LOOK ? LOOK.wall : 0xeef0f2, 
   const stt = new THREE.CanvasTexture(sc); stt.encoding = THREE.sRGBEncoding;
   const sign = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.5, 0.06), [wm, wm, wm, wm, new THREE.MeshBasicMaterial({ map: stt, toneMapped: false }), wm]); sign.position.set(0, HW + 0.62, RM.Z0 - 0.15); sign.rotation.x = -0.75; g.add(sign);
   for (const s of [-1, 1]) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.42, 0.05), cutM); post.position.set(s * 0.6, HW + 0.21, RM.Z0 - 0.15); g.add(post); } }
+
+/* ---------- the stadium around the concourse: stepped tiers of blue seats on three sides ---------- */
+{ const seatsP = [], tierM = new THREE.MeshStandardMaterial({ color: 0x1a202b, roughness: 0.85 }), ROWS = 16, ST = 0.85, RI = 0.42;
+  const tier = (cx, cz, len, ang, k) => { const t = new THREE.Mesh(new THREE.BoxGeometry(len, 0.3 + k * RI, ST), tierM); t.position.set(cx, (0.3 + k * RI) / 2 - 0.3, cz); t.rotation.y = ang; t.receiveShadow = true; scene.add(t); };
+  for (let k = 0; k < ROWS; k++) { const o = 1.6 + k * ST;
+    for (const sx of [-1, 1]) { const x = sx * (4.5 + o); tier(x, 0.6, 19.5 + 2 * o, Math.PI / 2, k); for (let z = -9.4 - o * 0; z <= 10.4; z += 0.56) seatsP.push([x, k, z, sx > 0 ? -Math.PI / 2 : Math.PI / 2]); }
+    const z = 7.5 + o; tier(0, z, 9 + 2 * o, 0, k); for (let xx = -4.5 - o + 0.6; xx <= 4.5 + o - 0.6; xx += 0.56) seatsP.push([xx, k, z, Math.PI]); }
+  const sm = new THREE.InstancedMesh(new THREE.BoxGeometry(0.46, 0.4, 0.42), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 }), seatsP.length), d = new THREE.Object3D(), c = new THREE.Color();
+  seatsP.forEach(([x, k, z, a], i) => { d.position.set(x, -0.3 + 0.3 + k * RI + 0.2, z); d.rotation.set(0, a, 0); d.updateMatrix(); sm.setMatrixAt(i, d.matrix);
+    const white = (Math.floor(i / 3) * 7 + k * 3) % 41 === 0; sm.setColorAt(i, c.copy(LIN(white ? 0xdfe6f0 : (k % 2 ? 0x2c5bb0 : 0x3567c4)))); });
+  sm.receiveShadow = true; scene.add(sm);
+  const rim = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.25, 60), new THREE.MeshBasicMaterial({ color: 0xf3e6c8, toneMapped: false })); rim.position.set(4.5 + 1.6 + ROWS * ST + 0.2, -0.3 + 0.3 + ROWS * RI, 0); scene.add(rim); }
 // the pillar: a round concrete column, 0.6 m across (exactly the obstacle in the physics)
 const PILLAR = new THREE.Group(); scene.add(PILLAR);
-{ const PH = 2.5, conc = new THREE.MeshStandardMaterial({ color: 0xa7aeb8, roughness: 0.55 }); const c = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, PH, 40), conc); c.position.y = PH / 2; c.castShadow = c.receiveShadow = true; PILLAR.add(c);
+{ const PH = 2.5, conc = new THREE.MeshStandardMaterial({ color: 0x2b303a, roughness: 0.45 }); const c = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, PH, 40), conc); c.position.y = PH / 2; c.castShadow = c.receiveShadow = true; PILLAR.add(c);
   const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.302, 0.302, 0.05, 40), new THREE.MeshBasicMaterial({ color: 0xffc23d, toneMapped: false })); cap.position.y = PH + 0.025; PILLAR.add(cap);
   for (const y of [1.0, 1.9]) { const band = new THREE.Mesh(new THREE.CylinderGeometry(0.305, 0.305, 0.18, 40), new THREE.MeshStandardMaterial({ color: 0xf2c230, roughness: 0.5 })); band.position.y = y; PILLAR.add(band); }
   const ring = new THREE.Mesh(new THREE.RingGeometry(0.34, 0.42, 48), new THREE.MeshBasicMaterial({ color: 0xffb547, transparent: true, opacity: 0, depthWrite: false })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.015; PILLAR.add(ring); PILLAR.userData.ring = ring; }
@@ -256,43 +256,52 @@ function crowdAt(k, s) {   // pose and colour every person at simulated second s
 const TOTAL = 45, CAPL = __LINES__, AVG = RUNS.avg;
 const PW = (pts, t) => { if (t <= pts[0][0]) return pts[0][1]; for (let i = 1; i < pts.length; i++) if (t <= pts[i][0]) { const [a, va] = pts[i - 1], [b, vb] = pts[i]; return va + (vb - va) * (t - a) / (b - a); } return pts[pts.length - 1][1]; };
 const TB = RUN.best.total, TN = RUN.none.total;
-// [start, end, run, screen→simulated-time map, experiment no., title, distance from door (m), off-centre (m), card style]
+// [start, end, run, screen→simulated-time map, experiment no., headline, distance from door (m), off-centre (m), highlighted meter]
 const SEG = [
-  [0, 11, 'none', [[0, 0], [3.6, 9], [11, 60]], 1, 'No pillar', null, null, 'bad'],
-  [11, 17, 'close', [[11, 0], [12, 4], [17, 60]], 2, 'Pillar right at the door', 0.7, 0, 'bad'],
-  [17, 23, 'centre', [[17, 0], [18, 4], [23, 60]], 3, 'Pillar further back, dead centre', 1.3, 0, 'bad'],
-  [23, 38, 'best', [[23, 0], [24, 4], [33, 60], [37.2, TB + 0.5], [38, TB + 3]], 4, 'Pillar just off-centre', 1.05, 0.15, 'good'],
-  [38, 43, 'best', [[38, 22], [43, 34]], 4, '', 1.05, 0.15, 'good'],
+  [0, 11, 'none', [[0, 0], [3.6, 9], [11, 60]], 1, '<em>No pillar.</em> Everyone rushes one door.', null, null, 3],
+  [11, 17, 'close', [[11, 0], [12, 4], [17, 60]], 2, 'Pillar <em>right at the door</em>.', 0.7, 0, 1],
+  [17, 23, 'centre', [[17, 0], [18, 4], [23, 60]], 3, 'Pillar <em>dead centre</em>, further back.', 1.3, 0, 1],
+  [23, 38, 'best', [[23, 0], [24, 4], [33, 60], [37.2, TB + 0.5], [38, TB + 3]], 4, 'Pillar <em>off-centre</em>, 1 m from the door.', 1.05, 0.15, 2],
+  [38, 43, 'best', [[38, 22], [43, 34]], 4, '', 1.05, 0.15, 0],
 ];
 const segAt = t => SEG.find(s => t >= s[0] && t < s[1]) || SEG[SEG.length - 1];
 const simAt = t => { const s = segAt(t), v = PW(s[3], t), v2 = PW(s[3], Math.min(s[1] - 1e-3, t + 0.1)); return { seg: s, k: s[2], s: v, rate: Math.round((v2 - v) / 0.1) }; };
-const CAM0 = { p: V(20, 42, 4), t: V(0.3, 0, -3.8), fov: 32 };
+// near top-down view of the concourse inside the stadium bowl; the exit is on the left of the frame
+const CAM0 = { p: V(-10, 27, -0.9), t: V(-2.2, 0, -0.9), fov: 56 };
 { const q = new URLSearchParams(location.search).get('cam'); if (q) { const c = JSON.parse(q); CAM0.p = V(...c[0]); CAM0.t = V(...c[1]); CAM0.fov = c[2]; } }
+camera.up.set(1, 0, 0);
 function camAt(t) { const k = ease(t / 43), rv = ease(ramp(t, 38, 43));
-  const p = CAM0.p.clone().add(V(-0.6 * k, -0.8 * k, -0.6 * k)).lerp(V(13, 27, 0.5), rv * 0.6), tg = CAM0.t.clone().lerp(V(0.3, 0, -5.6), rv * 0.6);
-  camera.fov = CAM0.fov; camera.updateProjectionMatrix(); camera.position.copy(p); camera.lookAt(tg); BOKEH.uniforms.focus.value = p.distanceTo(tg); BOKEH.enabled = false; }
+  const p = CAM0.p.clone().add(V(0, -1.2 * k, 0)).add(V(1.2, -6, -2.2).multiplyScalar(rv)), tg = CAM0.t.clone().add(V(0.4, 0, -2.2).multiplyScalar(rv));
+  camera.fov = CAM0.fov; camera.updateProjectionMatrix(); camera.position.copy(p); camera.lookAt(tg); BOKEH.enabled = false; }
 const show = (id, a) => { $(id).style.opacity = a; $(id).style.visibility = a > 0.001 ? 'visible' : 'hidden'; };
-const slider = (id, v, max) => { $(id + 'v').textContent = v === null ? '—' : v.toFixed(2).replace(/0$/, '') + ' m'; const w = v === null ? 0 : Math.min(100, v / max * 100); $(id + 'u').style.width = w + '%'; $(id + 's').style.left = w + '%'; $(id + 's').style.opacity = v === null ? 0 : 1; };
-$('rAt').textContent = mmss(TN); $('rA').style.width = (TN / 200 * 100) + '%';
-$('revS').innerHTML = `Average of 8 simulated runs: everyone out in <b style="font:inherit;color:#46d18a;display:inline">${mmss(AVG.best.meanTotal)}</b> with the pillar, <b style="font:inherit;color:#ff8a5c;display:inline">${mmss(AVG.none.meanTotal)}</b> without (faster in ${AVG.faster} of 8)`;
+const meter = (n, label, frac, val, on) => { $('m' + n + 'l').textContent = label; $('m' + n + 'u').style.width = (clamp01(frac) * 100) + '%'; $('m' + n + 'v').textContent = val; $('m' + n).className = on ? 'on' : ''; };
+function doorPush(k, s) {   // how hard people near the doorway are being pressed (mean contact force within 1.5 m, from the model), 0–1
+  const S = RUN[k], f = fIdx(S, s); let n = 0, h = 0; for (let i = 0; i < S.N; i++) { const b = i * S.nF + f; if (S.Z[b] >= RM.Z0 && Math.hypot(S.X[b], S.Z[b] - RM.Z0) < 1.5) { n++; h += S.heat[b]; } } return n ? h / n / 255 : 0; }
+const pushWord = v => v > 0.72 ? 'HIGH' : v > 0.45 ? 'MID' : 'LOW';
+const perMin = (k, s) => { const w = Math.min(10, s); return w < 1 ? 0 : Math.round((exitedBy(k, s) - exitedBy(k, s - w)) * 60 / w); };
 $('disc').textContent = 'Illustrative simulation (social force model, Helbing et al., Nature 2000) · 200 people, one 1 m exit · not evacuation guidance';
 function ui(t, st) {
   const sg = st.seg, prev = SEG[SEG.indexOf(sg) - 1], cut = t - sg[0];
-  // hook: big question, then the experiment card
-  const qa = 1 - ramp(t, 3.3, 3.6); show('q', t < 3.6 ? Math.min(ramp(t, 0.15, 0.5), qa) : 0);
-  const cardOn = t >= 3.6 && t < 33; show('card', cardOn ? ramp(t, 3.6, 3.9) : 0);
-  if (cardOn) { $('cN').textContent = `EXPERIMENT ${sg[4]} OF 4`; $('cT').textContent = sg[5]; $('card').className = sg[8];
-    const a = prev && prev[4] !== sg[4] && prev[6] !== null ? ease(ramp(cut, 0, 0.45)) : 1, dv = sg[6] === null ? null : prev && prev[6] !== null ? lerp(prev[6], sg[6], a) : sg[6], ov = sg[7] === null ? null : prev && prev[7] !== null ? lerp(prev[7], sg[7], a) : sg[7];
-    slider('sD', dv, 2); slider('sO', ov, 0.5); }
-  show('res', t >= 33 && t < 38 ? ramp(t, 33, 33.3) : 0);
-  if (t >= 33 && t < 38) { const done = st.s >= TB; $('rB').style.width = (Math.min(st.s, TB) / 200 * 100) + '%'; $('rBt').textContent = done ? mmss(TB) : mmss(st.s); }
-  show('chip', t < 38 ? 1 : 1 - ramp(t, 38, 38.3));
+  let N = '', T = '';
+  if (t < 3.6) { N = 'SIMULATION · THE PILLAR PARADOX'; T = 'Can a pillar get <em>more</em> people out?'; }
+  else if (t < 33) { N = `SIMULATION · EXPERIMENT ${sg[4]} OF 4`; T = sg[5]; }
+  else if (t < 38) { N = 'RESULT · SAME 200 PEOPLE, SAME DOOR'; T = `All out in <em>${mmss(TB)}</em> instead of ${mmss(TN)}.`; }
+  else { N = 'THE PILLAR PARADOX'; T = 'The right obstacle <em>speeds up</em> the exit.'; }
+  if ($('card').dataset.k !== N + T) { $('card').dataset.k = N + T; $('cN').textContent = N; $('cT').innerHTML = T; }
+  show('card', t < 0.15 ? 0 : 1);
+  show('meters', t >= 3.6 ? ramp(t, 3.6, 3.9) : 0);
+  if (t >= 3.6 && t < 33) {
+    const a = prev && prev[6] !== null ? ease(ramp(cut, 0, 0.45)) : 1, dv = sg[6] === null ? null : prev && prev[6] !== null ? lerp(prev[6], sg[6], a) : sg[6], ov = sg[7] === null ? null : prev && prev[7] !== null ? lerp(prev[7], sg[7], a) : sg[7];
+    const pu = doorPush(st.k, st.s);
+    meter(1, 'Pillar distance', dv === null ? 0 : dv / 2, dv === null ? 'NONE' : dv.toFixed(2).replace(/0$/, '') + ' M', sg[8] === 1);
+    meter(2, 'Off-centre', ov === null ? 0 : ov / 0.5, ov === null ? '—' : ov.toFixed(2).replace(/\.?0+$/, '') + ' M', sg[8] === 2);
+    meter(3, 'Push at the door', pu, pushWord(pu), sg[8] === 3); }
+  else if (t < 38) { meter(1, 'No pillar', TN / 200, mmss(TN), false); meter(2, 'Pillar, best spot', Math.min(st.s, TB) / 200, mmss(Math.min(st.s, TB)), true); meter(3, 'Time saved', (TN - TB) / 60, Math.round(TN - TB) + ' S', false); }
+  else { meter(1, 'Avg. with pillar', AVG.best.meanTotal / 240, mmss(AVG.best.meanTotal), true); meter(2, 'Avg. without', AVG.none.meanTotal / 240, mmss(AVG.none.meanTotal), false); meter(3, 'Faster in', AVG.faster / 8, AVG.faster + ' OF 8 RUNS', false); }
   show('stats', t >= 3.6 && t < 38 ? ramp(t, 3.6, 3.9) * (1 - ramp(t, 37.7, 38)) : 0);
-  $('kO').textContent = exitedBy(st.k, st.s); $('kP').textContent = pinnedAt(st.k, st.s); $('kT').textContent = mmss(Math.min(st.s, st.k === 'best' && st.s > TB ? TB : st.s));
-  $('kR').textContent = st.rate <= 1 ? 'real time' : `×${st.rate} speed`;
-  const rv = ease(ramp(t, 38.2, 38.8)); show('rev', rv); $('rev').style.transform = `translateY(${(1 - rv) * 2}vh)`; show('disc', ease(ramp(t, 38.6, 39.2)));
-  // cut between experiments: a quick white flash, then the pillar rises into its new spot
-  $('flash').style.opacity = SEG.some(s => s[0] > 0 && s[0] < 38 && t >= s[0] && t < s[0] + 0.2) ? 0.45 * (1 - ramp(cut, 0, 0.2)) : 0;
+  $('kO').textContent = exitedBy(st.k, st.s); $('kP').textContent = pinnedAt(st.k, st.s); $('kF').textContent = perMin(st.k, st.s);
+  show('disc', ease(ramp(t, 38.4, 38.9)));
+  $('flash').style.opacity = SEG.some(s => s[0] > 0 && s[0] < 38 && t >= s[0] && t < s[0] + 0.2) ? 0.35 * (1 - ramp(cut, 0, 0.2)) : 0;
 }
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t));
@@ -304,7 +313,7 @@ function renderAt(t) {
   $('hud').style.display = t < 43 ? '' : 'none';
   const o = $('outro'), ou = t - 43; o.style.opacity = ou < 0 ? 0 : ease(ramp(ou, 0, 0.3));
   if (ou >= 0) { const pop = (el, a0, a1, s0) => { const v = ease(ramp(ou, a0, a1)); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 1.2}vh) scale(${s0 + (1 - s0) * v})`; }; pop($('oLogo'), 0.15, 0.65, 0.92); pop($('oName'), 0.4, 0.9, 0.96); pop($('oTag'), 0.65, 1.15, 1); }
-  const ln = [...CAPL].reverse().find(c => t >= c[0] - 0.1 && t < c[1] + 0.6); $('cap').textContent = ln && t >= 3.6 && t < 43 ? ln[2] : '';
+  const ln = [...CAPL].reverse().find(c => t >= c[0] - 0.1 && t < c[1] + 0.6); $('cap').textContent = ln && t >= 0.3 && t < 43 ? ln[2] : '';
 }
 { const seen = new Set(); scene.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (seen.has(m)) return; seen.add(m); if (m.color && !m.map) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); });
   if (o.isLight) { o.color.convertSRGBToLinear(); if (o.groundColor) o.groundColor.convertSRGBToLinear(); } }); scene.fog.color.convertSRGBToLinear(); }
