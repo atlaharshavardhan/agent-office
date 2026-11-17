@@ -94,7 +94,14 @@ def heading_from(im, frame3d):   # V5: lift the bright heading letters off the 3
     sh = Image.new('RGBA', im.size, (0, 0, 0, 0)); sh.paste(Image.new('RGBA', cut.size, (0, 0, 0, 170)), (box[0], box[1] + round(4 * K)), al); im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(10 * K)))
     im.paste(cut.convert('RGBA'), box[:2], al)
 V5_BED, V5_CAFE = (31.0, 32.45), (32.45, 34.92)
+def hook_title_v5(im):   # V5: on from frame 1, "THE GLOW" white, "IS BACK" gold, subtle shadow
+    for i, (line, col) in enumerate([('THE GLOW', (255, 255, 255, 255)), ('IS BACK', (255, 197, 61, 255))]):
+        lay = Image.new('RGBA', im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); y = (300 + i * 92) * K
+        text_c(d, (510 * K, y + 6 * K), line, F_HOOK, (0, 0, 0, 150)); lay = lay.filter(ImageFilter.GaussianBlur(12 * K)); d = ImageDraw.Draw(lay)
+        text_c(d, (510 * K, y), line, F_HOOK, col); im.alpha_composite(lay)
 def shot_v5(t, frame3d):
+    if t < HOOK_END:   # opening photo (Higgsfield still 1), logo already glowing on frame 1, slow push-in; clean cut into the 3D pull-back
+        im = ken(P_HOOK, t, 0, HOOK_END, 1.0, 1.06, 0.46).convert('RGBA'); hook_title_v5(im); subtitle(im, cap_at(t)); note(im); return im
     for (s0, s1), P in ((V5_BED, P_BED), (V5_CAFE, P_CAFE)):
         if s0 <= t < s1:
             im = ken(P, t, s0, s1, 1.0, 1.06, 0.42).convert('RGBA'); card_from(im, frame3d); heading_from(im, frame3d); subtitle(im, cap_at(t)); note(im)
