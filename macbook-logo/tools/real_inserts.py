@@ -78,7 +78,7 @@ def hook_title(im, t):
         text_c(d, (510 * K, y + 6 * K), line, F_HOOK, (0, 0, 0, int(160 * v))); lay = lay.filter(ImageFilter.GaussianBlur(12 * K)); d = ImageDraw.Draw(lay)
         text_c(d, (510 * K, y), line, F_HOOK, (255, 255, 255, int(255 * v))); im.alpha_composite(lay)
 
-V5 = os.path.basename(os.path.normpath(vdir)) == 'chris_v5'   # V5 (Harsh, 17 Nov 2026): no opening photo; bedroom on "dims", café on "brightens"; card sits lower, under the AUTO BRIGHTNESS heading
+V5 = os.path.basename(os.path.normpath(vdir)) in ('chris_v5', 'chris_v5b')   # V5 (Harsh, 17 Nov 2026): no opening photo; bedroom on "dims", café on "brightens"; card sits lower, under the AUTO BRIGHTNESS heading
 CARD = tuple(round(c * K) for c in ((124, 374, 896, 571) if V5 else (124, 237, 896, 434))); RAD, SH = round(48 * K), round(24 * K)
 card_mask = Image.new('L', (W, H), 0); ImageDraw.Draw(card_mask).rounded_rectangle(CARD, RAD, fill=255)
 card_shadow = Image.new('L', (W, H), 0); ImageDraw.Draw(card_shadow).rounded_rectangle((CARD[0], CARD[1] + SH, CARD[2], CARD[3] + SH), RAD, fill=150); card_shadow = card_shadow.filter(ImageFilter.GaussianBlur(30 * K))
@@ -93,8 +93,9 @@ def heading_from(im, frame3d):   # V5: lift the bright heading letters off the 3
     lum = np.asarray(cut.convert('L')).astype(np.float32); al = Image.fromarray(np.clip((lum - 70) / 90 * 255, 0, 255).astype(np.uint8))
     sh = Image.new('RGBA', im.size, (0, 0, 0, 0)); sh.paste(Image.new('RGBA', cut.size, (0, 0, 0, 170)), (box[0], box[1] + round(4 * K)), al); im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(10 * K)))
     im.paste(cut.convert('RGBA'), box[:2], al)
-_B = json.load(open(os.path.join(vdir, 'timeline.json')))['B'] if V5 else None
-V5_BED, V5_CAFE = ((_B[7], _B[7] + 1.3), (_B[7] + 1.3, _B[8])) if V5 else (None, None)   # V5.1: bedroom on "dims", café on "brightens"; hard cuts both ends
+_TL = json.load(open(os.path.join(vdir, 'timeline.json'))) if V5 else None
+_k = _TL.get('order', list(range(10))).index(7) if V5 else 0; _B = _TL['B'] if V5 else None   # slot of the brightness scene (V5.4-B plays it second)
+V5_BED, V5_CAFE = ((_B[_k], _B[_k] + 1.3), (_B[_k] + 1.3, _B[_k + 1])) if V5 else (None, None)   # V5.1: bedroom on "dims", café on "brightens"; hard cuts both ends
 def hook_title_v5(im):   # V5: on from frame 1, "THE GLOW" white, "IS BACK" gold, subtle shadow
     for i, (line, col) in enumerate([('THE GLOW', (255, 255, 255, 255)), ('IS BACK', (255, 197, 61, 255))]):
         lay = Image.new('RGBA', im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); y = (300 + i * 92) * K

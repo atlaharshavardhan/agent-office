@@ -679,11 +679,13 @@ function optics(u, d) {   // V4 scene 5 (bounce → spread → shine), kept as i
             ['b2', 'Diffuser', lidPoint(new THREE.Vector3(LOGO_C.x + 40, 6 + LAYER_Y.diff, LOGO_C.z)), 1, ease(ramp(u, 2.6, 3.0)) * (1 - ease(ramp(u, 3.7, 4.0))), 'big', -260],
             ['b3', '✓  Even glow', lidPoint(LOGO_C.clone().add(new THREE.Vector3(0, LAYER_Y.shell, 0))), 1, ease(ramp(u, 4.0, 4.4)), 'green big']]);
 }
-const DES = [2, 0, 3, 4, 5, 0, 6, 4, 3, 2];   // V5.1: each scene's animation was designed on these lengths (0 = real seconds); stretched onto the tighter grid
-const CUTS = [B[4]];   // V5: every scene flows into the next; one short dip only into the LED macro
+const DES = [2, 0, 3, 4, 5, 0, 6, 4, 3, 2];
+const ORDER = TL.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];   // V5.4-B: scenes can be played in another order (slot k plays scene ORDER[k])
+const PLAY = ORDER.map((oi, k) => [B[k], B[k + 1], SHOTS[oi][2], oi]);   // V5.1: each scene's animation was designed on these lengths (0 = real seconds); stretched onto the tighter grid
+const CUTS = [B[ORDER.indexOf(4)]];   // V5: every scene flows into the next; one short dip only into the LED macro
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t)); TNOW = t; DRIFT = 0;
-  const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
+  const k = PLAY.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn, i] = PLAY[k];
   camera.zoom = 1; RIPPLES.forEach(m => m.visible = false); if (BEAMS.all) BEAMS.all.forEach(g => g.visible = false); LED_STREAKS.forEach(m => m.visible = false); if (LOGO_STREAK) LOGO_STREAK.visible = false; if (DIFF.userData.mesh) { DIFF.userData.mesh.material.emissive.setHex(0xffffff); DIFF.userData.mesh.material.color.setHex(0xf2f6fc); DIFF.userData.mesh.material.opacity = 0.72; DIFF.userData.mesh.children.forEach(c => c.material && (c.material.opacity = 0.2)); DIFF.userData.halo.material.color.setHex(0xffffff); } hideTags(); if (SCREEN_IMG) SCREEN_IMG.visible = false; $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0); backlight(0); shellCut(0); [TOUCH, FOAM, REFL].forEach(L => L.visible = true); NOBL.position.y = 0; if (CMP.g) CMP.g.visible = false; if (CUT.on) cutLid(false); baseGlint(0); CUT.XC = 30;
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
   fn(DES[i] ? (t - a) * DES[i] / (b - a) : t - a, DES[i] || b - a);
