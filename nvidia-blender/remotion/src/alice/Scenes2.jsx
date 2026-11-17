@@ -7,6 +7,8 @@ import { BlendSeq, Shade } from '../v2/kit';
 import { NvLogo, NytLogo, TextBadge, FlagUS, StoryChain, MegaspeedLogo } from './Logos';
 import { AliceS1 } from './S1Hook';
 import { AliceS4 } from './S4Map';
+import { AliceS3W } from './S3World';
+import { AliceS4F } from './S4Flow';
 import { AliceS8, AliceS9 } from './S8S9';
 import TL from './timeline.json';
 import fs from './frames.json';
@@ -183,7 +185,7 @@ const Captions = () => {
   );
 };
 
-const SCENES = [AliceS1, AliceS2, AliceS3, AliceS4, AliceS5, AliceS6, AliceS7, AliceS8, AliceS9, AliceS10];
+const SCENES = [AliceS1, AliceS2, AliceS3W, AliceS4F, AliceS5, AliceS6, AliceS7, AliceS8, AliceS9, AliceS10];
 export const AliceMain = ({ withAudio = true }) => (
   <AbsoluteFill style={{ background: C.bg }}>
     <FontFace />
