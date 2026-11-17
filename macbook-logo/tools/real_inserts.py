@@ -78,7 +78,8 @@ def hook_title(im, t):
         text_c(d, (510 * K, y + 6 * K), line, F_HOOK, (0, 0, 0, int(160 * v))); lay = lay.filter(ImageFilter.GaussianBlur(12 * K)); d = ImageDraw.Draw(lay)
         text_c(d, (510 * K, y), line, F_HOOK, (255, 255, 255, int(255 * v))); im.alpha_composite(lay)
 
-CARD = tuple(round(c * K) for c in (124, 237, 896, 434)); RAD, SH = round(48 * K), round(24 * K)
+V5 = os.path.basename(os.path.normpath(vdir)) == 'chris_v5'   # V5 (Harsh, 17 Nov 2026): no opening photo; bedroom on "dims", café on "brightens"; card sits lower, under the AUTO BRIGHTNESS heading
+CARD = tuple(round(c * K) for c in ((124, 374, 896, 571) if V5 else (124, 237, 896, 434))); RAD, SH = round(48 * K), round(24 * K)
 card_mask = Image.new('L', (W, H), 0); ImageDraw.Draw(card_mask).rounded_rectangle(CARD, RAD, fill=255)
 card_shadow = Image.new('L', (W, H), 0); ImageDraw.Draw(card_shadow).rounded_rectangle((CARD[0], CARD[1] + SH, CARD[2], CARD[3] + SH), RAD, fill=150); card_shadow = card_shadow.filter(ImageFilter.GaussianBlur(30 * K))
 def card_from(im, frame3d):
@@ -86,8 +87,22 @@ def card_from(im, frame3d):
     im.paste(frame3d.convert('RGBA'), (0, 0), card_mask)
 
 HOOK_END, BLEND = caps[0][1], 0.0   # clean cut between "This logo" and "shouldn't be able to glow" (a blend showed two logos)
-CAFE, BED = span('Brighter in a bright room'), span('dimmer in a dark one')
+CAFE, BED = (span('Brighter in a bright room'), span('dimmer in a dark one')) if not V5 else (None, None)
+def heading_from(im, frame3d):   # V5: lift the bright heading letters off the 3D frame (white + gold), with a soft shadow
+    box = (round(100 * K), round(250 * K), round(920 * K), round(340 * K)); cut = frame3d.crop(box)
+    lum = np.asarray(cut.convert('L')).astype(np.float32); al = Image.fromarray(np.clip((lum - 25) / 110 * 255, 0, 255).astype(np.uint8))
+    sh = Image.new('RGBA', im.size, (0, 0, 0, 0)); sh.paste(Image.new('RGBA', cut.size, (0, 0, 0, 170)), (box[0], box[1] + round(4 * K)), al); im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(10 * K)))
+    im.paste(cut.convert('RGBA'), box[:2], al)
+V5_BED, V5_CAFE = (31.0, 32.45), (32.45, 34.92)
+def shot_v5(t, frame3d):
+    for (s0, s1), P in ((V5_BED, P_BED), (V5_CAFE, P_CAFE)):
+        if s0 <= t < s1:
+            im = ken(P, t, s0, s1, 1.0, 1.06, 0.42).convert('RGBA'); card_from(im, frame3d); heading_from(im, frame3d); subtitle(im, cap_at(t)); note(im)
+            e = min(1, (t - s0) / 0.15) if P is P_BED else min(1, (s1 - t) / 0.15)   # soft in on the bedroom, soft out after the café, hard cut between
+            return Image.blend(frame3d.convert('RGBA'), im, max(0, min(1, e)))
+    return None
 def shot(t, frame3d):
+    if V5: return shot_v5(t, frame3d)
     """Return the replacement frame (RGBA) for time t, or None to keep the 3D frame."""
     if t < HOOK_END + BLEND:
         on = min(1, max(0, (t - 0.08) / 0.47)); on = on * on * (3 - 2 * on)   # same timing as the 3D logo
