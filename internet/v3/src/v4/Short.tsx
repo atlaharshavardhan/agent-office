@@ -2,7 +2,7 @@ import React from 'react';
 import { AbsoluteFill, Sequence, useCurrentFrame } from 'remotion';
 import { FPS, clamp01 } from '../lib/anim';
 import { Sub, Mark, Finale } from '../dusk/Extras';
-import { WorldWeb } from '../tail/World';
+import { World, WorldWeb } from '../tail/World';
 import { SeaCut } from '../tail/Sea';
 import { EndCard } from '../tail/Ends';
 import plan from './short-plan.json';
@@ -13,6 +13,9 @@ const S = (s: number) => Math.round(s * FPS);
 const Shot: React.FC<{ from: number; to: number; fade?: number; children: React.ReactNode }> = ({ from, to, fade = 0.2, children }) => {
   const f = useCurrentFrame(), t = f / FPS; if (t < from - 0.001 || t >= to + fade) return null;
   return <Sequence from={S(from)} durationInFrames={S(to + fade) - S(from)}><AbsoluteFill style={{ opacity: 1 - clamp01((t - to) / fade) }}>{children}</AbsoluteFill></Sequence>; };
+/* she moves to London: the approved V3 plane and globe shot, up to the moment she lands */
+export const FLY_FRAMES = S(4.4);
+export const ShortFly: React.FC = () => (<AbsoluteFill style={{ backgroundColor: '#070a22' }}><World /></AbsoluteFill>);
 /* the anchor cuts a cable, the packets take another one */
 export const END_A_FRAMES = S(4.8);
 export const ShortEndA: React.FC = () => (<AbsoluteFill style={{ backgroundColor: '#070a22' }}><Shot from={1.8} to={4.8} fade={0}><WorldWeb mode="cut" /></Shot><Shot from={0} to={1.8} fade={0.12}><SeaCut /></Shot></AbsoluteFill>);

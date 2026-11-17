@@ -6,7 +6,7 @@ python3 - "$C" "$O" <<'P' || exit 1
 import json, subprocess, sys
 C, O = sys.argv[1], sys.argv[2]; plan = json.load(open('src/v4/short-plan.json')); L = []
 for i, (clip, a, b, s) in enumerate(plan['segs']):
-    src = f"{O if clip.startswith('ShortEnd') else C}/{clip}.mp4"; out = f"{O}/cut-{i:02d}.mp4"
+    src = f"{O if clip.startswith('Short') else C}/{clip}.mp4"; out = f"{O}/cut-{i:02d}.mp4"
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', src, '-vf', f"trim={a}:{b},setpts=PTS-STARTPTS,scale=1080:1920:flags=lanczos,fps=30", '-an', '-c:v', 'libx264', '-crf', '14', '-preset', 'fast', '-pix_fmt', 'yuv420p', out], check=True); L.append(f"file 'cut-{i:02d}.mp4'")
 open(f"{O}/cuts.txt", 'w').write('\n'.join(L) + '\n')
 P

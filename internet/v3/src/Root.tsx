@@ -12,7 +12,7 @@ import { Shore, SHORE_FRAMES } from './v4/Shore';
 import { Routers, ROUTERS_FRAMES } from './v4/Routers';
 import { Underground, UNDER_FRAMES } from './v4/Underground';
 import { Seabed, SEABED_FRAMES, SeabedRepeater, REPEATER_FRAMES } from './v4/Seabed';
-import { ShortEndA, END_A_FRAMES, ShortEndB, END_B_FRAMES, ShortOverlay, OVERLAY_FRAMES } from './v4/Short';
+import { ShortFly, FLY_FRAMES, ShortEndA, END_A_FRAMES, ShortEndB, END_B_FRAMES, ShortOverlay, OVERLAY_FRAMES } from './v4/Short';
 import { DuskTorch } from './dusk/Dusk';
 import { DuskHouses } from './dusk/Houses';
 import { NightHook } from './dusk/NightHook';
@@ -53,6 +53,7 @@ export const Root: React.FC = () => (
     <Composition id="FlightV" component={() => <Vert><Flight /></Vert>} durationInFrames={FLIGHT_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="LondonV4V" component={() => <Vert><LondonV4 /></Vert>} durationInFrames={LONDON_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="FiberJourneyV" component={() => <Vert><FiberJourney /></Vert>} durationInFrames={FIBER_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="ShortFly" component={ShortFly} durationInFrames={FLY_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ShortEndA" component={ShortEndA} durationInFrames={END_A_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ShortEndB" component={ShortEndB} durationInFrames={END_B_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ShortOverlay" component={ShortOverlay} durationInFrames={OVERLAY_FRAMES} fps={30} width={1080} height={1920} />
