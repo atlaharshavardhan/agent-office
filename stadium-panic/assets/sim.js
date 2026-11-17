@@ -6,7 +6,7 @@
      - unsure and stressed, most head for the exit they know (B), so B jams while A, C and D stay almost empty
      - after the announcement (and stewards at every exit) people pick the nearest exit that is not crowded */
 function runSim(opt) {
-  const o = Object.assign({ N: 560, fps: 30, T: 40, infoAt: 27.2, seed: 11 }, opt || {});
+  const o = Object.assign({ N: 650, fps: 30, T: 40, infoAt: 27.2, seed: 11 }, opt || {});
   let sd = o.seed; const R = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
   const X0 = -17, X1 = 17, Z0 = -11, Z1 = 11, rad = 0.23, GW = 2.6;   // room (m); agent radius; exit gap width
   const EX = [   // exits: gap centre, outward normal
@@ -23,7 +23,7 @@ function runSim(opt) {
   const P = []; const free = (x, z) => x > X0 + 0.8 && x < X1 - 0.8 && z > Z0 + 1.2 && z < Z1 - 0.8 && PIL.every(([px, pz]) => Math.hypot(x - px, z - pz) > PR + 0.5) && P.every(q => Math.hypot(q.x - x, q.z - z) > 2 * rad + 0.08);
   const groups = []; for (let g = 0; g < 60; g++) groups.push([X0 + 1.5 + R() * (X1 - X0 - 3), Z0 + 2.5 + R() * (Z1 - Z0 - 4)]);
   let tries = 0; while (P.length < o.N && tries < 200000) { tries++; const g = groups[(R() * groups.length) | 0], a = R() * 6.283, d = Math.sqrt(R()) * (1.5 + R() * 3.2), x = g[0] + Math.cos(a) * d, z = g[1] + Math.sin(a) * d;
-    if (free(x, z)) P.push({ x, z, vx: 0, vz: 0, yaw: R() * 6.283, quick: R() < 0.07, th: 0.3 + R() * 0.45, dl: 1.2 + R() * 3.2, prim: -1, st: -1, ex: -1, red: 0, spd: 0, done: -1, look: 0, hear: o.infoAt + R() * 2.8, fam: R() < 0.88, v0: 1.0 + R() * 0.35 }); }
+    if (free(x, z)) P.push({ x, z, vx: 0, vz: 0, yaw: R() * 6.283, quick: R() < 0.07, th: 0.3 + R() * 0.45, dl: 1.2 + R() * 3.2, prim: -1, st: -1, ex: -1, red: 0, spd: 0, done: -1, look: 0, hear: o.infoAt + R() * 2.8, fam: R() < 0.88, v0: 1.7 + R() * 0.5 }); }
   const N = P.length, F = Math.round(o.T * o.fps) + 1, dt = 1 / o.fps;
   const near = (p) => EX.reduce((b, e, i) => Math.hypot(p.x - e.x, p.z - e.z) < Math.hypot(p.x - EX[b].x, p.z - EX[b].z) ? i : b, 0);
   P.forEach(p => { p.ex = p.fam ? 1 : near(p); p.quickT = 0.2 + R() * 1.6; });
@@ -46,7 +46,7 @@ function runSim(opt) {
         p.ex = best; p.reroute = true; if (p.st === 0) p.st = 1; }); }
     // each door lets about 3 people a second through; a crushed, pushing crowd at the door clogs it ("faster is slower", Helbing et al. 2000)
     EX.forEach(e => { let n = 0, r = 0; each({ x: e.x, z: e.z }, 3, k => { const q = P[k]; if (q.done < 0 && Math.hypot(q.x - e.x, q.z - e.z) < 3) { n++; r += q.red; } });
-      e.tok = Math.min(2, (e.tok || 0) + dt * 3.0 * (1 - 0.7 * (n ? r / n : 0))); });
+      e.tok = Math.min(2, (e.tok || 0) + dt * 4.5 * (1 - 0.7 * (n ? r / n : 0))); });
     // decide who moves
     P.forEach((p, i) => { if (p.done >= 0) return;
       if (p.st < 0) p.st = 0;
