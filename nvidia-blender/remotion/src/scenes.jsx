@@ -44,10 +44,19 @@ export const S1 = ({ start, end }) => {
 export const S3 = ({ start, end }) => {
   const f = useCurrentFrame();
   const t = f / 30, lt = t - start;
-  const through = clamp(1 - lt / 0.45);
+  const through = clamp(1 - lt / 0.22);
   return (
     <AbsoluteFill>
-      <Seq dir="shot03" start={start} frameAt={(x) => Math.min(176, Math.max(1, Math.round(1 + x * 30)))} />
+      {/* existing renders only: 1 s GPU macro pull-out (shot03 f1-30), then the data-centre still with a slow push */}
+      {lt < 1.0 ? (
+        <Seq dir="shot03" start={start} frameAt={(x) => Math.min(30, Math.max(1, Math.round(1 + x * 29)))} />
+      ) : (
+        <AbsoluteFill style={{ overflow: 'hidden' }}>
+          <Img src={staticFile('stills/scene03_datacenter.png')} style={{ width: '100%', height: '100%', objectFit: 'cover',
+            transform: `scale(${1.18 - 0.14 * clamp((lt - 1) / (end - start - 1))}) translateY(${-30 + 30 * clamp((lt - 1) / (end - start - 1))}px)` }} />
+        </AbsoluteFill>
+      )}
+      <Flash at={start + 1.0} color="#000" dur={0.2} max={0.8} />
       {through > 0 && (
         <AbsoluteFill style={{ opacity: through }}>
           <Img src={staticFile('hook/f_0024.png')} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${1 + (1 - through) * 5})`, transformOrigin: '45% 52%' }} />
@@ -152,7 +161,7 @@ export const S5 = ({ start, end }) => {
   );
 };
 
-// 7 · The final question: split-lit orbit (Blender shot07)
+// 7 · The final question: the hook's green/red orbit section (existing frames 25-45)
 export const S7 = ({ start, end }) => {
   const f = useCurrentFrame();
   const t = f / 30;
@@ -160,7 +169,7 @@ export const S7 = ({ start, end }) => {
   const a = ramp(f, q, 0.6);
   return (
     <AbsoluteFill>
-      <Seq dir="shot07" start={start} frameAt={(x) => Math.min(165, Math.max(1, Math.round(1 + x * 30)))} />
+      <Seq dir="hook" start={start} frameAt={(x) => Math.min(45, Math.max(25, Math.round(25 + x * 15)))} scale={1 + 0.04 * clamp((t - start - 1.4) / 4)} dy={120} />
       <Vignette strength={0.35} />
       <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 470, textAlign: 'center', opacity: ramp(f, start + 0.2, 0.4) * (1 - a) }}>
         <div style={{ font: `600 30px ${BODY}`, color: '#ddd', letterSpacing: 3 }}>SALES ARE STILL GROWING</div>
@@ -187,7 +196,7 @@ export const S8 = ({ start }) => {
   const out = 1 - ramp(f, start + 1.75, 0.25);
   return (
     <AbsoluteFill style={{ background: C.bg }}>
-      {blurBg('shot07/f_0165.png')}
+      {blurBg('hook/f_0045.png')}
       <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', opacity: out, paddingRight: SAFE.r - SAFE.l, paddingBottom: 140 }}>
         <Img src={staticFile('logo.png')} style={{ width: 190, height: 190, borderRadius: '50%', opacity: a, transform: `scale(${0.7 + 0.3 * a})`,
           boxShadow: '0 0 0 14px rgba(118,185,0,.12), 0 0 60px rgba(118,185,0,.45)' }} />

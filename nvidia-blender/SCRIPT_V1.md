@@ -36,11 +36,11 @@ Story structure: shocking loss → why NVIDIA was so valuable → what changed �
 |---|---|---|---|---|
 | 1 | 0.00–4.25 | Blender + Remotion | Extreme macro on the existing hero GPU and its board, green pulses in the copper, a fast pull-back, a red transition, cracks and metal chips (the approved 3 s hook). A bass impact hits on frame 1. | Counter **$5.77T → $3.76T** (green turning red), then **$2 TRILLION GONE** with "$5.77T → $3.76T · Oct 6 → Nov 16 close · −35%" |
 | 2 | 4.25–7.44 | Three.js + Remotion | 3D valuation columns. NVIDIA's column rises to $5.77T, its top $2.0T turns red and slides off beside Meta's column (~$1.59T), then dissolves into a wireframe. | **Bigger than all of Meta** · "MARKET VALUE · NOT CASH" |
-| 3 | 7.44–13.32 | Blender | A match cut into the chip, then the data centre. Macro on a GPU in an open server tray, pull out, fast dolly down the rack corridor (GPU trays reuse the hero model, plus cable trays with data pulses, coolant mains and status LEDs), then a macro across a 4-GPU tray with rack focus. | **Why so valuable?** → **8 in 10 AI chips** |
+| 3 | 7.44–13.32 | Blender (existing renders) | A match cut into the chip, then a 1 s GPU macro pull-out (`renders/shot03` frames 1–30), then the existing data-centre still (`renders/stills/scene03_datacenter.png`) with a slow camera push | **Why so valuable?** → **8 in 10 AI chips** |
 | 4 | 13.32–19.69 | Three.js + Remotion | Capital streams of light pulses run from Microsoft, Alphabet, Amazon and Meta into the hero GPU on a pedestal, while a ring network of data-centre blocks expands outward. | **The AI gold rush** · counter to **$700B+** |
 | 5 | 19.69–30.29 | Blender + Remotion | "3 SHOCKS" card, then: (1) the data-centre corridor switched to red standby, (2) the money loop NVIDIA → AI start-ups → chip orders with a "?", (3) an empty boardroom with the head chair in a spotlight and a factual headline card. | **1 · Data-center limits** (40 of 41 votes, −9.3% on Nov 5) · **2 · The money loop** · **3 · CEO steps down** |
 | 6 | 30.29–37.38 | Three.js + Remotion | 3D chart of 18 verified closes (4 derived and labelled as such). The line draws as the camera follows it down, the GPU rides the line, and the scene shifts from green to red, then pulls back to the whole fall. | **The collapse** · $5.77T record · Oct 6 → $3.76T Nov 16 close · **−35%** · −$2.0T in 6 weeks |
-| 7 | 37.38–43.00 | Blender | A slow 56° orbit around the hero chip, green light on one side and red on the other, with the top third left clear for text. | "Sales are still growing: $96.2B" → **AI BUBBLE / OR MARKET / PANIC?** |
+| 7 | 37.38–43.00 | Blender (existing renders) | The opening hook's own orbit section (frames 25–45: green flicker on one side, red creeping in on the other), slowed, then a slow push in on frame 45 | "Sales are still growing: $96.2B" → **AI BUBBLE / OR MARKET / PANIC?** |
 | 8 | 43.00–45.00 | Remotion | InvisiTech logo, Invisi**Tech**, @TheInvisiTech, "Follow for more" (2 s, no long subscribe animation) | |
 
 ## Layout
@@ -54,3 +54,5 @@ Story structure: shocking loss → why NVIDIA was so valuable → what changed �
   - Disclaimer: 1530 px.
 - **Watermark:** right edge, middle (rule 22), hidden on the end card.
 - **Colours:** losses in red #E5484D, technology keywords in green #76B900.
+
+> v1 uses only Blender renders that already existed (the hook frames, the data-centre still and the two reason stills). The new animated shots in `scripts/build_shots.py` (shot03 dolly, shot07 orbit) were stopped at Harsh's request. They can be rendered later on a GPU machine for v2.
