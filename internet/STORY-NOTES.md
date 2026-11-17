@@ -47,3 +47,17 @@ Harsh is collecting corrections first. Do not render a new draft until he asks.
   Open: his picture also showed the cable drawing across the globe ("Now the routers link up under the sea"); left out for now because the sea cable comes later.
   Open: whether the 3D London street and flat stay after the globe.
 - Last rendered draft is internet/video/internet-short-v4-draft1.mp4 (still has the airport and 3D flight).
+
+## New structure from Harsh (17 Nov 2026): two parts. Noted, not rendered yet.
+His words: "in this scene [city routers, Pune to Mumbai, 'pass the message along, hop by hop'] we need to show what if we need to send a pic,
+how packets move. First tell without packets, if you send it, it will down all lines of router; tell me real what happens. After this we will show
+now she moved to London, that's part 1. Part 2: what happens if we need to send an image from there. So first we will see part 1."
+- PART 1 (in the existing city scene, same drawn look): text "Hello" hops router to router -> now he sends a PHOTO ->
+  (a) without packets: the photo goes as one big block, holds every line on its path until it is through, other people's messages queue behind it,
+      one glitch and the whole photo starts again -> (b) with packets: photo cut into about 2,000 small numbered pieces, each with her address,
+      mixed in with everyone else's traffic, some take another road, a lost one is sent again on its own, her phone puts them back in order
+  -> then "she moved to London" (V3 plane-and-globe shot only). End of part 1.
+- PART 2: sending an image from/to London: tower, fibre under the street, routers, shore, sea floor, repeater, cable layers, globe, arrival.
+- Facts to use: packet about 1,500 bytes max (about 1,460 of photo in each); 3 MB photo = about 2,000 packets; a router does not crash from a big file,
+  the real problem is the line being held and the full resend. Real networks do not accept one giant block at all.
+- This replaces the 3D "1,500 packets from a 2 MB video" intro as the first place packets are explained; decide later whether part 2 keeps that shot.
