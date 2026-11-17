@@ -37,3 +37,13 @@
   doormats, plants, paving, lamp reflections, scooter, bench + cat, fireflies, haze, vignette, film grain.
 - Still to do: bring the step 3 region map (IsoCity.tsx) up to the same level; re-render hook, wire and step 2 in this look.
 - Offered but not yet confirmed: dim neighbours behind the router, move the router pole off the FRIEND'S house, dark band behind subtitles.
+
+## Short: corrections noted, not rendered yet (17 Nov 2026)
+Harsh is collecting corrections first. Do not render a new draft until he asks.
+- "She moved to London": use only the V3 plane-and-globe shot (moon, plane, then the globe with her flight line Mumbai to London).
+  Remove the airport, the runway and the 3D flight. His words: "not required airport and going everything, remove all".
+  Already set up in audio/make_short_mix.py (cut list starts with ShortFly) and v3/src/v4/Short.tsx; the shot and the captions layer still need rendering
+  (v3/render_short_extras.sh, then v3/join_short.sh).
+  Open: his picture also showed the cable drawing across the globe ("Now the routers link up under the sea"); left out for now because the sea cable comes later.
+  Open: whether the 3D London street and flat stay after the globe.
+- Last rendered draft is internet/video/internet-short-v4-draft1.mp4 (still has the airport and 3D flight).
