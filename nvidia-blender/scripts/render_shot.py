@@ -11,12 +11,13 @@ args = sys.argv[1:]
 blend, out = args[0], Path(args[1])
 pct = int(args[args.index("--pct") + 1]) if "--pct" in args else 100
 samples = int(args[args.index("--samples") + 1]) if "--samples" in args else None
+step = int(args[args.index("--step") + 1]) if "--step" in args else 1
 pos, skip = [], False
 for i, a in enumerate(args[2:]):
     if skip:
         skip = False
         continue
-    if a in ("--pct", "--samples"):
+    if a in ("--pct", "--samples", "--step"):
         skip = True
         continue
     pos.append(a)
@@ -34,7 +35,7 @@ if "--still" in args:
     sys.exit(0)
 out.mkdir(parents=True, exist_ok=True)
 s, e = (int(nums[0]), int(nums[1])) if len(nums) >= 2 else (sc.frame_start, sc.frame_end)
-for f in range(s, e + 1):
+for f in range(s, e + 1, step):
     p = out / f"f_{f:04d}.png"
     if p.exists():
         continue

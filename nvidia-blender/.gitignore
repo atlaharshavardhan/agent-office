@@ -16,3 +16,5 @@ renders/shot03/
 renders/shot07/
 renders/queue.log
 remotion/out/
+renders/v2_*/
+renders/queue_v2.log
