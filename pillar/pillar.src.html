@@ -70,6 +70,15 @@ const W = innerWidth, H = innerHeight, $ = id => document.getElementById(id);
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); }, lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
 let sd = 7; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
 const LIN = hex => new THREE.Color(hex).convertSRGBToLinear();
+const LOOKS = {   // colour themes: floor, walls, surroundings and clothing (the red "stuck" colour is the same in all)
+  A: { floor: '#e9ecef', grid: 'rgba(60,80,110,.10)', slab: 0xc7ccd3, wall: 0x2b3b55, cap: 0x18212f, ground: 0x111723, bg: ['#141b29', '#070a12'], fog: 0x0d121c, cor: 0x9aa3ae,
+       shirt: [0x1f6f8b, 0x2a7fa3, 0x1b5e7a, 0x3b8db0, 0x235a86, 0x1e7a8c, 0x2f6d9e, 0x17506b], pants: [0x1b2433, 0x22304a, 0x182030, 0x26354f] },
+  B: { floor: '#2b3342', grid: 'rgba(255,255,255,.06)', slab: 0x1c222c, wall: 0x46516a, cap: 0x2a3242, ground: 0x0c0f15, bg: ['#121722', '#05070b'], fog: 0x0a0d13, cor: 0x3a4252,
+       shirt: [0xe8edf3, 0xcfd8e3, 0xbfe3f2, 0xf4f1ea, 0xa9d4ee, 0xdfe7ef, 0xc9e8f5], pants: [0x5d6b80, 0x4a576b, 0x6a7891, 0x55637a] },
+  C: { floor: '#e6d9c2', grid: 'rgba(120,90,50,.11)', slab: 0xc9bca4, wall: 0xf6f1e7, cap: 0x5a4a38, ground: 0x1d1913, bg: ['#2a241c', '#0f0c08'], fog: 0x17130e, cor: 0xb3a68f,
+       shirt: [0x1d3557, 0x274c77, 0x2b3a67, 0x3a5a8c, 0x1b2a4a, 0x33507a, 0x24406b], pants: [0x22262e, 0x2b2b2b, 0x3a3f48, 0x1f232b] },
+  O: null };
+const LOOK = LOOKS[new URLSearchParams(location.search).get('look') || '__LOOK__'] || null;
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(devicePixelRatio); renderer.setSize(W, H); renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -79,8 +88,8 @@ const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, W / H,
   for (const p of [[30, 25, 0], [-30, 25, 0], [0, 25, 30], [0, 25, -30]]) { const q = new THREE.Mesh(new THREE.PlaneGeometry(14, 6), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })); q.position.set(...p); q.lookAt(0, 0, 0); env.add(q); }
   scene.environment = pm.fromScene(env, 0.04).texture; }
 { const c = document.createElement('canvas'); c.width = 16; c.height = 256; const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 0, 256);
-  g.addColorStop(0, '#1d222b'); g.addColorStop(1, '#0d1015'); x.fillStyle = g; x.fillRect(0, 0, 16, 256); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; scene.background = t; }
-scene.fog = new THREE.Fog(0x15181e, 60, 140);
+  g.addColorStop(0, LOOK ? LOOK.bg[0] : '#1d222b'); g.addColorStop(1, LOOK ? LOOK.bg[1] : '#0d1015'); x.fillStyle = g; x.fillRect(0, 0, 16, 256); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; scene.background = t; }
+scene.fog = new THREE.Fog(LOOK ? LOOK.fog : 0x15181e, 60, 140);
 const sHemi = new THREE.HemisphereLight(0xe8eef6, 0x3a3f47, 0.62); scene.add(sHemi);
 const sKey = new THREE.DirectionalLight(0xfff3e4, 1.45); sKey.position.set(-14, 34, 16); sKey.castShadow = true; sKey.shadow.mapSize.set(2048, 2048);
 Object.assign(sKey.shadow.camera, { left: -14, right: 14, top: 14, bottom: -14, near: 5, far: 90 }); sKey.shadow.bias = -0.0004; sKey.shadow.radius = 3; scene.add(sKey); sKey.target.position.set(0, 0, -2); scene.add(sKey.target);
@@ -161,27 +170,27 @@ class Crowd {   // one group of people drawn with instanced parts; per person: p
 
 /* ---------- the room: a stadium concourse with one 1 m exit (same geometry as the physics in assets/fis.js) ---------- */
 const RM = { X0: -4.5, X1: 4.5, Z0: -7.5, Z1: 7.5, DW: 1.0 }, FPS = 30, V = (x, y, z) => new THREE.Vector3(x, y, z);
-{ const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshStandardMaterial({ color: 0x23272e, roughness: 0.95 })); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.62; ground.receiveShadow = true; scene.add(ground); }
-const wm = new THREE.MeshStandardMaterial({ color: 0xeef0f2, roughness: 0.75 }), cutM = new THREE.MeshStandardMaterial({ color: 0x3b414b, roughness: 0.6 }), HW = 1.45;
+{ const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshStandardMaterial({ color: LOOK ? LOOK.ground : 0x23272e, roughness: 0.95 })); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.62; ground.receiveShadow = true; scene.add(ground); }
+const wm = new THREE.MeshStandardMaterial({ color: LOOK ? LOOK.wall : 0xeef0f2, roughness: 0.75 }), cutM = new THREE.MeshStandardMaterial({ color: LOOK ? LOOK.cap : 0x3b414b, roughness: 0.6 }), HW = 1.45;
 { const g = new THREE.Group(); scene.add(g); const W = RM.X1 - RM.X0, D = RM.Z1 - RM.Z0, hw = RM.DW / 2, T = 0.3;
   const PX = 64, c = document.createElement('canvas'); c.width = W * PX; c.height = D * PX; const x = c.getContext('2d');
-  x.fillStyle = '#d4d7db'; x.fillRect(0, 0, c.width, c.height);
+  x.fillStyle = LOOK ? LOOK.floor : '#d4d7db'; x.fillRect(0, 0, c.width, c.height);
   for (let i = 0; i < 9000; i++) { x.fillStyle = `rgba(${rnd() < .5 ? '90,96,104' : '255,255,255'},0.05)`; x.fillRect(rnd() * c.width, rnd() * c.height, 2, 2); }
-  for (let i = 1; i < W; i++) { x.fillStyle = 'rgba(70,78,90,.10)'; x.fillRect(i * PX - 1, 0, 2, c.height); }
-  for (let j = 1; j < D; j++) { x.fillStyle = 'rgba(70,78,90,.10)'; x.fillRect(0, j * PX - 1, c.width, 2); }
+  for (let i = 1; i < W; i++) { x.fillStyle = LOOK ? LOOK.grid : 'rgba(70,78,90,.10)'; x.fillRect(i * PX - 1, 0, 2, c.height); }
+  for (let j = 1; j < D; j++) { x.fillStyle = LOOK ? LOOK.grid : 'rgba(70,78,90,.10)'; x.fillRect(0, j * PX - 1, c.width, 2); }
   { const e = 26; for (const [x0, y0, x1, y1, w, h] of [[0, 0, e, 0, e, c.height], [c.width, 0, c.width - e, 0, e, c.height], [0, c.height, 0, c.height - e, c.width, e], [0, 0, 0, e, c.width, e]]) {
     const gr = x.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, 'rgba(40,46,56,.22)'); gr.addColorStop(1, 'rgba(40,46,56,0)'); x.fillStyle = gr; x.fillRect(x0 === c.width ? c.width - e : 0, y0 === c.height ? c.height - e : 0, w, h); } }
   x.strokeStyle = 'rgba(40,160,95,.55)'; x.lineWidth = 7; for (const [X, Y] of [[W / 2, 4.2], [W / 2, 8.2]]) { x.beginPath(); x.moveTo((X - 0.35) * PX, (Y + 0.3) * PX); x.lineTo(X * PX, (Y - 0.1) * PX); x.lineTo((X + 0.35) * PX, (Y + 0.3) * PX); x.stroke(); }
   const ft = new THREE.CanvasTexture(c); ft.encoding = THREE.sRGBEncoding; ft.anisotropy = 8;
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.MeshStandardMaterial({ map: ft, roughness: 0.62, metalness: 0.02, envMapIntensity: 0.45 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; g.add(floor);
-  const slab = new THREE.Mesh(new THREE.BoxGeometry(W + 3.2, 0.6, D + 8.4), new THREE.MeshStandardMaterial({ color: 0xaeb3ba, roughness: 0.8 })); slab.position.set(0, -0.302, -1.6); slab.receiveShadow = true; g.add(slab);
+  const slab = new THREE.Mesh(new THREE.BoxGeometry(W + 3.2, 0.6, D + 8.4), new THREE.MeshStandardMaterial({ color: LOOK ? LOOK.slab : 0xaeb3ba, roughness: 0.8 })); slab.position.set(0, -0.302, -1.6); slab.receiveShadow = true; g.add(slab);
   const wall = (x0, z0, x1, z1, h = HW, t = T) => { const L = Math.hypot(x1 - x0, z1 - z0), w = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(L, h, t), wm); b.position.y = h / 2; b.castShadow = b.receiveShadow = true; w.add(b);
     const cap = new THREE.Mesh(new THREE.BoxGeometry(L + 0.002, 0.04, t + 0.002), cutM); cap.position.y = h + 0.02; w.add(cap); w.position.set((x0 + x1) / 2, 0, (z0 + z1) / 2); w.rotation.y = -Math.atan2(z1 - z0, x1 - x0); g.add(w); };
   wall(RM.X0 - T / 2, RM.Z0 - T, RM.X0 - T / 2, RM.Z1 + T); wall(RM.X1 + T / 2, RM.Z0 - T, RM.X1 + T / 2, RM.Z1 + T); wall(RM.X0 - T, RM.Z1 + T / 2, RM.X1 + T, RM.Z1 + T / 2);
   wall(RM.X0 - T, RM.Z0 - T / 2, -hw, RM.Z0 - T / 2); wall(hw, RM.Z0 - T / 2, RM.X1 + T, RM.Z0 - T / 2);
   wall(-hw - 0.08, RM.Z0, -hw - 0.08, RM.Z0 - 0.9, HW, 0.16); wall(hw + 0.08, RM.Z0, hw + 0.08, RM.Z0 - 0.9, HW, 0.16);
   wall(-0.95, RM.Z0 - 0.9, -0.95, RM.Z0 - 4.3, HW, 0.2); wall(0.95, RM.Z0 - 0.9, 0.95, RM.Z0 - 4.3, HW, 0.2); wall(-hw - 0.16, RM.Z0 - 0.9, -0.85, RM.Z0 - 0.9, HW, 0.2); wall(hw + 0.16, RM.Z0 - 0.9, 0.85, RM.Z0 - 0.9, HW, 0.2);
-  const cor = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 3.6), new THREE.MeshStandardMaterial({ color: 0x8d939b, roughness: 0.7 })); cor.rotation.x = -Math.PI / 2; cor.position.set(0, 0.004, RM.Z0 - 2.4); cor.receiveShadow = true; g.add(cor);
+  const cor = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 3.6), new THREE.MeshStandardMaterial({ color: LOOK ? LOOK.cor : 0x8d939b, roughness: 0.7 })); cor.rotation.x = -Math.PI / 2; cor.position.set(0, 0.004, RM.Z0 - 2.4); cor.receiveShadow = true; g.add(cor);
   const well = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.6, 1.4), new THREE.MeshBasicMaterial({ color: 0x07080a })); well.position.set(0, -0.29, RM.Z0 - 3.7); g.add(well);
   for (let k = 0; k < 4; k++) { const st = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.03, 0.22), new THREE.MeshStandardMaterial({ color: 0x2a2e35, roughness: 0.8 })); st.position.set(0, 0.006 - k * 0.12, RM.Z0 - 3.1 - k * 0.24); g.add(st); }
   const sc = document.createElement('canvas'); sc.width = 384; sc.height = 128; const sx = sc.getContext('2d'); sx.fillStyle = '#119a55'; sx.fillRect(0, 0, 384, 128);
@@ -225,6 +234,7 @@ const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2
 /* ---------- people (same clothes and builds in every run) ---------- */
 const CSHIRT = [0x2d4f8a, 0xe9e6df, 0x8a8f98, 0x3c6e47, 0xd9a23a, 0x2f7f7a, 0x5f6b3a, 0x6e2d3f, 0x6fa3d8, 0x26282c, 0x1d4fa8, 0xc85a2a, 0xe2b4b0, 0x7b4fd6, 0xf3f1ea, 0x1d4fa8];
 const CPANTS = [0x34496b, 0x1f2126, 0x8c7a5b, 0x5a5e66, 0x23314d, 0x2b2b2b, 0x6b5a46];
+if (LOOK) { CSHIRT.splice(0, CSHIRT.length, ...LOOK.shirt); CPANTS.splice(0, CPANTS.length, ...LOOK.pants); }
 const PEOPLE = RUN.none.r.map(r => ({ r, shirt: CSHIRT[(rnd() * CSHIRT.length) | 0], pants: CPANTS[(rnd() * CPANTS.length) | 0], skin: SKIN[(rnd() * SKIN.length) | 0], hairc: HAIRC[(rnd() * HAIRC.length) | 0], h: 0.96 + rnd() * 0.16, seed: rnd(), ph: rnd() * 6.28, x: 0, y: 0, z: 0, yaw: 0 }));
 PEOPLE.forEach(p => p.w = Math.max(0.95, 4.3 * p.r / p.h));
 const CROWD = new Crowd(PEOPLE, 1, G, scene, true);

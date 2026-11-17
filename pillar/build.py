@@ -5,6 +5,7 @@ s = open(os.path.join(here, 'pillar.src.html'), encoding='utf-8').read()
 s = re.sub(r'<script src="(assets/[^"]+)"></script>', lambda m: '<script>\n' + open(os.path.join(here, m.group(1)), encoding='utf-8').read() + '\n</script>', s)
 s = s.replace('__LINES__', open(os.path.join(here, 'voice', 'captions.json')).read())
 
+s = s.replace('__LOOK__', os.environ.get('LOOK', 'O'))
 s = s.replace('__LOGO__', 'data:image/png;base64,' + base64.b64encode(open(os.path.join(here, 'assets', 'invisitech-logo.png'), 'rb').read()).decode())
 js = re.findall(r'<script>\n(.*?)</script>', open(os.path.join(here, 'pillar.src.html'), encoding='utf-8').read(), re.S)[-1]
 import subprocess, tempfile
