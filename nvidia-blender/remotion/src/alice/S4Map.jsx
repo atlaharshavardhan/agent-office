@@ -9,12 +9,12 @@ import { C, W, H, FONT, BODY, SAFE, ramp, clamp, lerp } from '../theme';
 import { FontFace } from '../ui';
 import { CamRig, projector, StudioEnv, GpuModel } from '../three/kit';
 import ASIA from './asia.json';
+import { Chunks } from './Chunks';
 
 const K = 0.13;
 const ll = (lon, lat) => [(lon - 110) * K, 0, -(lat - 16) * K];
 const SG = ll(103.82, 1.35), CN = ll(113.3, 23.1), BAR = ll(109.6, 17.2);
 const DUR = 5.0;
-const CAP = [['U.S. investigators are probing whether those chips '], ['reached China', C.red], [', despite export restrictions. '], ['No charges have been filed.', '#ffffff']];
 
 const Land = () => {
   const geos = useMemo(() => ASIA.map((c) => {
@@ -56,7 +56,7 @@ export const AliceS4 = () => {
     return <div style={{ position: 'absolute', left: x, top: y, transform: 'translate(-50%,-50%)', opacity: a, font: `800 ${size}px ${BODY}`, color: col, textShadow: '0 2px 12px #000, 0 0 2px #000', whiteSpace: 'nowrap', letterSpacing: 2 }}>{txt}</div>;
   };
   const pulse = 0.5 + 0.5 * Math.sin(t * 6);
-  const card = ramp(f, 0.6, 0.3), noCharge = ramp(f, 3.3, 0.3);
+  const noCharge = ramp(f, 3.4, 0.3);
   return (
     <AbsoluteFill style={{ background: 'radial-gradient(ellipse at 50% 45%, #0d1014, #040506 75%)' }}>
       <FontFace />
@@ -88,25 +88,18 @@ export const AliceS4 = () => {
       </ThreeCanvas>
       {lbl([SG[0] - 0.75, 0, SG[2] - 0.05], 'SINGAPORE', C.green, route, 36)}
       {lbl([CN[0] + 1.0, 0.1, CN[2] - 0.8], 'CHINA', C.red, route, 44)}
-      {lbl([bp.x, 0.95 * barrier, bp.z], 'U.S. EXPORT CONTROLS', C.red, barrier, 30)}
+      {lbl([bp.x, 0.95 * barrier, bp.z], 'EXPORT CONTROLS', C.red, barrier, 32)}
       {lbl([gp.x + 0.35, gp.y + 0.35, gp.z], '?', C.red, q, 110)}
-      {/* headline + cards (dark mode, big type) */}
-      <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 220, textAlign: 'center' }}>
-        <div style={{ font: `800 92px/1 ${FONT}`, letterSpacing: -2.5, color: '#fff', textShadow: '0 6px 30px #000', opacity: ramp(f, 0, 0.25) }}>DID THE CHIPS</div>
-        <div style={{ font: `800 92px/1 ${FONT}`, letterSpacing: -2.5, color: C.red, textShadow: '0 6px 30px #000', opacity: ramp(f, 0.12, 0.25) }}>REACH CHINA?</div>
-        <div style={{ marginTop: 18, opacity: card, transform: `translateY(${(1 - card) * 16}px)` }}>
-          <span style={{ font: `700 34px ${BODY}`, color: '#F5F5F5', background: 'rgba(10,11,13,.82)', border: '2px solid rgba(255,255,255,.18)', padding: '10px 22px', borderRadius: 12 }}>U.S. Commerce + Justice Dept. probes</span>
-        </div>
+      {/* one idea at a time: question, then the answer replaces it */}
+      <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 220, textAlign: 'center', opacity: 1 - noCharge }}>
+        <div style={{ font: `800 96px/1 ${FONT}`, letterSpacing: -2.5, color: '#fff', textShadow: '0 6px 30px #000' }}>DID THE CHIPS</div>
+        <div style={{ font: `800 96px/1 ${FONT}`, letterSpacing: -2.5, color: C.red, textShadow: '0 6px 30px #000' }}>REACH CHINA?</div>
       </div>
-      <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 1110, textAlign: 'center', opacity: noCharge, transform: `scale(${0.9 + 0.1 * noCharge})` }}>
-        <span style={{ font: `800 60px ${FONT}`, color: '#101214', background: '#F5F5F5', padding: '12px 34px', borderRadius: 14 }}>NO CHARGES FILED</span>
+      <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 250, textAlign: 'center', opacity: noCharge, transform: `scale(${0.9 + 0.1 * noCharge})` }}>
+        <span style={{ font: `800 84px ${FONT}`, color: '#101214', background: '#F5F5F5', padding: '10px 34px', borderRadius: 16 }}>NO CHARGES</span>
       </div>
-      <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 1262, height: 186, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-        <div style={{ font: `800 46px/1.16 ${BODY}`, color: C.white, opacity: ramp(f, 0.1, 0.1), textShadow: '0 0 8px #000, 0 3px 14px #000' }}>
-          {CAP.map(([txt, col], k) => <span key={k} style={col ? { color: col } : undefined}>{txt}</span>)}
-        </div>
-      </div>
-      <div style={{ position: 'absolute', left: SAFE.l, top: 1528, font: `600 22px ${BODY}`, color: 'rgba(245,245,245,.62)', textShadow: '0 1px 6px #000' }}>Map: Natural Earth · route is illustrative · not affiliated with NVIDIA</div>
+      <Chunks t0={0.1} t1={4.6} chunks={[['U.S. investigators'], ['are probing'], ['whether the chips'], ['reached China', C.red], ['despite export limits'], ['No charges filed']]} />
+      <div style={{ position: 'absolute', left: SAFE.l, top: 1528, font: `600 22px ${BODY}`, color: 'rgba(245,245,245,.62)', textShadow: '0 1px 6px #000' }}>Illustrative route · not affiliated with NVIDIA</div>
     </AbsoluteFill>
   );
 };

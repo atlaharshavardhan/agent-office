@@ -5,9 +5,9 @@ import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import { C, FONT, BODY, SAFE, ramp, clamp, lerp } from '../theme';
 import { FontFace } from '../ui';
 import { BlendSeq, Shade } from '../v2/kit';
+import { Chunks } from './Chunks';
 
 const DUR = 3.5;
-const CAP = { t0: 0.15, t1: 3.45, parts: [['Did a woman U.S. officials suspect of '], ['spying for China', C.red], [' get close to '], ['the most powerful man in AI?', C.green]] };
 
 const ScanLine = ({ t0, dur }) => {
   const f = useCurrentFrame(), t = f / 30 - t0;
@@ -33,7 +33,6 @@ const Panel = ({ x, side, a, bg, figure, name, role, rim }) => (
     </div>
     <div style={{ marginTop: 14, background: '#F5F5F5', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
       <div style={{ font: `800 38px/1.05 ${FONT}`, color: '#101214', letterSpacing: -0.5 }}>{name}</div>
-      <div style={{ font: `700 22px ${BODY}`, color: '#3a3f46', marginTop: 2 }}>{role}</div>
     </div>
   </div>
 );
@@ -61,7 +60,6 @@ export const AliceS1 = () => {
   const red = ramp(f, 1.8, 0.35);
   const line2 = `rgb(${Math.round(lerp(118, 229, red))},${Math.round(lerp(185, 72, red))},${Math.round(lerp(0, 77, red))})`;
   const settle = 1.04 - 0.04 * ramp(f, 0, 0.3);
-  const capA = ramp(f, CAP.t0 - 0.05, 0.1);
   return (
     <AbsoluteFill style={{ background: C.bg }}>
       <FontFace />
@@ -84,13 +82,8 @@ export const AliceS1 = () => {
         name="ALICE HUANG" role="ex-CEO, Megaspeed · no relation" />
       <div style={{ position: 'absolute', left: 450, width: 90, top: 790, borderTop: '4px dashed #E5484D', opacity: ramp(f, 1.5, 0.3),
         filter: `drop-shadow(0 0 ${6 + 10 * Math.max(0, Math.sin((t - 1.5) * 6))}px #E5484D)` }} />
-      <div style={{ position: 'absolute', left: 430, width: 130, top: 740, textAlign: 'center', font: `800 22px ${BODY}`, color: '#E5484D', opacity: ramp(f, 1.5, 0.3), textShadow: '0 2px 8px #000' }}>reportedly</div>
-      <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 1262, height: 186, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-        <div style={{ font: `800 54px/1.16 ${BODY}`, color: C.white, opacity: capA, textShadow: '0 0 8px #000, 0 3px 14px #000, 0 0 3px #000' }}>
-          {CAP.parts.map(([txt, col], k) => <span key={k} style={col ? { color: col } : undefined}>{txt}</span>)}
-        </div>
-      </div>
-      <div style={{ position: 'absolute', left: SAFE.l, top: 1528, font: `600 22px ${BODY}`, color: 'rgba(245,245,245,.62)', textShadow: '0 1px 6px #000' }}>3D illustration · not affiliated with NVIDIA</div>
+      <Chunks t0={0.15} t1={3.45} chunks={[['Did a woman'], ['U.S. officials suspect'], ['of spying for China', C.red], ['get close to'], ['the most powerful man in AI?', C.green]]} />
+      <div style={{ position: 'absolute', left: SAFE.l, top: 1528, font: `600 22px ${BODY}`, color: 'rgba(245,245,245,.62)', textShadow: '0 1px 6px #000' }}>Illustration · not affiliated with NVIDIA</div>
     </AbsoluteFill>
   );
 };
