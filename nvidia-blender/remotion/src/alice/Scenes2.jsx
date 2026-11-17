@@ -20,7 +20,12 @@ const Head = ({ a = 1, lines, size = 96, top = 220 }) => (
   </div>
 );
 // a rendered sequence if its frames exist (GPU deliveries), else a fallback
-const Seq = ({ dir, n, d, fallback, ...rest }) => (fs[dir] ? <BlendSeq dir={dir} start={0} first={1} last={fs[dir]} step={2} rate={(fs[dir] - 1) / (d * 30)} {...rest} /> : fallback);
+// frames.json: {"dir": last} (rendered every 2nd frame) or {"dir": {"last": N, "step": 1}} (every frame, e.g. GPU renders)
+const Seq = ({ dir, n, d, fallback, ...rest }) => {
+  const e = fs[dir]; if (!e) return fallback;
+  const last = typeof e === 'number' ? e : e.last, step = typeof e === 'number' ? 2 : (e.step || 1);
+  return <BlendSeq dir={dir} start={0} first={1} last={last} step={step} rate={(last - 1) / (d * 30)} {...rest} />;
+};
 
 // 2 · case file on the desk (GPU render) + story chain builds
 export const AliceS2 = ({ d }) => {
