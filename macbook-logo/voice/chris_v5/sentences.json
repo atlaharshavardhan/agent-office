@@ -1,0 +1,80 @@
+[
+ {
+  "line": 1,
+  "file": "l1_1.wav",
+  "text": "Apple's glowing logo | is back.",
+  "dur": 1.765
+ },
+ {
+  "line": 2,
+  "file": "l2_1.wav",
+  "text": "But OLED screens | have no backlight.",
+  "dur": 1.672
+ },
+ {
+  "line": 2,
+  "file": "l2_2.wav",
+  "text": "So how does it glow?",
+  "dur": 1.718
+ },
+ {
+  "line": 3,
+  "file": "l3_1.wav",
+  "text": "The secret is hidden | inside the lid.",
+  "dur": 2.461
+ },
+ {
+  "line": 4,
+  "file": "l4_1.wav",
+  "text": "Behind the display | sits a light source | built just for the logo.",
+  "dur": 4.783
+ },
+ {
+  "line": 5,
+  "file": "l5_1.wav",
+  "text": "Four tiny LEDs | create the entire glow.",
+  "dur": 3.065
+ },
+ {
+  "line": 5,
+  "file": "l5_2.wav",
+  "text": "iFixit found them | along one edge.",
+  "dur": 2.136
+ },
+ {
+  "line": 6,
+  "file": "l6_1.wav",
+  "text": "A reflective layer | bounces their light,",
+  "dur": 2.554
+ },
+ {
+  "line": 6,
+  "file": "l6_2.wav",
+  "text": "a diffuser | spreads it evenly,",
+  "dur": 2.415
+ },
+ {
+  "line": 6,
+  "file": "l6_3.wav",
+  "text": "and it shines | through the whole logo.",
+  "dur": 2.322
+ },
+ {
+  "line": 7,
+  "file": "l7_1.wav",
+  "text": "The result? | One evenly lit logo, | with no screen backlight needed.",
+  "dur": 4.412
+ },
+ {
+  "line": 8,
+  "file": "l8_1.wav",
+  "text": "It even dims and brightens | with the light in your room.",
+  "dur": 2.833
+ },
+ {
+  "line": 9,
+  "file": "l9_1.wav",
+  "text": "And one Terminal command | switches it off.",
+  "dur": 1.904
+ }
+]

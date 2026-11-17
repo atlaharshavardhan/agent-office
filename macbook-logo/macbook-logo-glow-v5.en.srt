@@ -1,0 +1,52 @@
+1
+00:00:00,150 --> 00:00:01,560
+Apple's glowing logo is back.
+
+2
+00:00:01,750 --> 00:00:03,350
+But OLED screens have no backlight.
+
+3
+00:00:03,500 --> 00:00:04,750
+So how does it glow?
+
+4
+00:00:05,200 --> 00:00:06,790
+The secret is hidden inside the lid.
+
+5
+00:00:07,900 --> 00:00:11,780
+Behind the display sits a light source built just for the logo.
+
+6
+00:00:12,300 --> 00:00:15,370
+Four tiny LEDs create the entire glow.
+
+7
+00:00:15,500 --> 00:00:17,120
+iFixit found them along one edge.
+
+8
+00:00:17,600 --> 00:00:19,610
+A reflective layer bounces their light,
+
+9
+00:00:20,100 --> 00:00:21,800
+a diffuser spreads it evenly,
+
+10
+00:00:22,300 --> 00:00:23,880
+and it shines through the whole logo.
+
+11
+00:00:25,600 --> 00:00:29,470
+The result? One evenly lit logo, with no screen backlight needed.
+
+12
+00:00:31,300 --> 00:00:33,280
+It even dims and brightens with the light in your room.
+
+13
+00:00:35,200 --> 00:00:36,870
+And one Terminal command switches it off.
+
