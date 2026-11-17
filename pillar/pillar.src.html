@@ -258,11 +258,12 @@ const PW = (pts, t) => { if (t <= pts[0][0]) return pts[0][1]; for (let i = 1; i
 const TB = RUN.best.total, TN = RUN.none.total;
 // [start, end, run, screen→simulated-time map, experiment no., headline, distance from door (m), off-centre (m), highlighted meter]
 const SEG = [
-  [0, 11, 'none', [[0, 0], [3.6, 9], [11, 60]], 1, '<em>No pillar.</em> Everyone rushes one door.', null, null, 3],
-  [11, 17, 'close', [[11, 0], [12, 4], [17, 60]], 2, 'Pillar <em>right at the door</em>.', 0.7, 0, 1],
-  [17, 23, 'centre', [[17, 0], [18, 4], [23, 60]], 3, 'Pillar <em>dead centre</em>, further back.', 1.3, 0, 1],
-  [23, 38, 'best', [[23, 0], [24, 4], [33, 60], [37.2, TB + 0.5], [38, TB + 3]], 4, 'Pillar <em>off-centre</em>, 1 m from the door.', 1.05, 0.15, 2],
-  [38, 43, 'best', [[38, 22], [43, 34]], 4, '', 1.05, 0.15, 0],
+  [0, 9.5, 'none', [[0, 0], [3.6, 9], [9.3, 60], [9.5, 61]], 1, '<em>No pillar.</em> The crowd locks into an arch.', null, null, 3],
+  [9.5, 16, 'best', [[9.5, 0], [10.5, 4], [14.4, 60], [16, 68]], 2, 'Add a pillar <em>off-centre</em>. Flow goes up.', 1.05, 0.15, 2],
+  [16, 22, 'close', [[16, 0], [17, 4], [20.8, 60], [22, 66]], 3, '<em>Too close:</em> the pillar is the bottleneck.', 0.7, 0, 1],
+  [22, 28, 'centre', [[22, 0], [23, 4], [26.1, 60], [28, 66]], 4, '<em>Too far back:</em> the arch locks again.', 1.3, 0, 1],
+  [28, 38, 'best', [[28, 0], [29, 5], [33, 50], [37.2, TB + 0.5], [38, TB + 3]], 5, '<em>Right spot:</em> it takes the push.', 1.05, 0.15, 2],
+  [38, 43, 'best', [[38, 22], [43, 34]], 5, '', 1.05, 0.15, 0],
 ];
 const segAt = t => SEG.find(s => t >= s[0] && t < s[1]) || SEG[SEG.length - 1];
 const simAt = t => { const s = segAt(t), v = PW(s[3], t), v2 = PW(s[3], Math.min(s[1] - 1e-3, t + 0.1)); return { seg: s, k: s[2], s: v, rate: Math.round((v2 - v) / 0.1) }; };
@@ -284,7 +285,7 @@ function ui(t, st) {
   const sg = st.seg, prev = SEG[SEG.indexOf(sg) - 1], cut = t - sg[0];
   let N = '', T = '';
   if (t < 3.6) { N = 'SIMULATION · THE PILLAR PARADOX'; T = 'Can a pillar get <em>more</em> people out?'; }
-  else if (t < 33) { N = `SIMULATION · EXPERIMENT ${sg[4]} OF 4`; T = sg[5]; }
+  else if (t < 33) { N = `SIMULATION · EXPERIMENT ${sg[4]} OF 5`; T = sg[5]; }
   else if (t < 38) { N = 'RESULT · SAME 200 PEOPLE, SAME DOOR'; T = `All out in <em>${mmss(TB)}</em> instead of ${mmss(TN)}.`; }
   else { N = 'THE PILLAR PARADOX'; T = 'The right obstacle <em>speeds up</em> the exit.'; }
   if ($('card').dataset.k !== N + T) { $('card').dataset.k = N + T; $('cN').textContent = N; $('cT').innerHTML = T; }

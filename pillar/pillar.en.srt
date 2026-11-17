@@ -3,32 +3,32 @@
 Can a pillar in front of an exit get more people out?
 
 2
-00:00:03,700 --> 00:00:10,265
-Two hundred people rush for one narrow door. They jam into an arch, and in the first minute, only 47 get out.
+00:00:03,700 --> 00:00:09,413
+In a panic, the crowd squeezes into a locked arch at the door. In one minute, only 47 get out.
 
 3
-00:00:11,200 --> 00:00:14,682
-Put a pillar right at the door, and it blocks the way. Just 18.
+00:00:09,700 --> 00:00:14,503
+Add one pillar, just off-centre. It takes the push from behind, and 59 get out.
 
 4
-00:00:17,200 --> 00:00:20,778
-Move it back, dead centre, and it's still worse than no pillar at all.
+00:00:16,200 --> 00:00:20,996
+Too close, and the gap gets too narrow. The pillar becomes the bottleneck. Just 18.
 
 5
-00:00:23,200 --> 00:00:26,330
-But place it just off-centre, about a metre from the door.
+00:00:22,200 --> 00:00:26,292
+Too far back, and the crowd closes in again. The arch locks. 40.
 
 6
-00:00:27,000 --> 00:00:32,256
-It takes the push from the crowd behind, so people at the door can slip through. 59 get out.
+00:00:28,300 --> 00:00:33,131
+Back in the right spot, everyone is out in two minutes thirty-eight, instead of three minutes six.
 
 7
-00:00:33,200 --> 00:00:36,922
-Everyone is out in two minutes thirty-eight, instead of three minutes six.
+00:00:34,600 --> 00:00:37,098
+Same people. Same door. Just one pillar.
 
 8
-00:00:38,300 --> 00:00:41,301
-A well-placed obstacle can actually speed up an exit.
+00:00:38,300 --> 00:00:41,986
+This is the pillar paradox. The right obstacle speeds up the exit.
 
 9
 00:00:43,150 --> 00:00:44,898

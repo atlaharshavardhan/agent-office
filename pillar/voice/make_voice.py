@@ -12,15 +12,15 @@ def spoken(sec):   # 158.5 -> "two minutes thirty-eight"
     T = {2: "twenty", 3: "thirty", 4: "forty", 5: "fifty"}; m, s = int(sec // 60), int(sec % 60)
     ss = W[s] if s < 20 else T[s // 10] + ("" if s % 10 == 0 else "-" + W[s % 10])
     return f"{W[m]} minute{'s' if m != 1 else ''} {ss}"
-LINES = [  # (earliest start s, sentence with caption chunks split by |, optional speed)
+LINES = [  # (earliest start s, sentence with caption chunks split by |, optional speed) — each line says what changed and why the crowd reacts
     (0.3, "Can a pillar in front of an exit | get more people out?", 1.25),
-    (3.7, f"Two hundred people | rush for one narrow door. | They jam into an arch, | and in the first minute, | only {n60['none']} get out."),
-    (11.2, f"Put a pillar right at the door, | and it blocks the way. | Just {n60['close']}."),
-    (17.2, "Move it back, dead centre, | and it's still worse | than no pillar at all."),
-    (23.2, "But place it just off-centre, | about a metre from the door."),
-    (27.0, f"It takes the push | from the crowd behind, | so people at the door | can slip through. | {n60['best']} get out."),
-    (33.2, f"Everyone is out | in {spoken(R['best']['total'])}, | instead of {spoken(R['none']['total'])}."),
-    (38.3, "A well-placed obstacle | can actually speed up an exit."),
+    (3.7, f"In a panic, | the crowd squeezes into | a locked arch at the door. | In one minute, | only {n60['none']} get out."),
+    (9.7, f"Add one pillar, just off-centre. | It takes the push from behind, | and {n60['best']} get out."),
+    (16.2, f"Too close, | and the gap gets too narrow. | The pillar becomes the bottleneck. | Just {n60['close']}."),
+    (22.2, f"Too far back, | and the crowd closes in again. | The arch locks. | {n60['centre']}."),
+    (28.3, f"Back in the right spot, | everyone is out | in {spoken(R['best']['total'])}, | instead of {spoken(R['none']['total'])}."),
+    (34.6, "Same people. | Same door. | Just one pillar."),
+    (38.3, "This is the pillar paradox. | The right obstacle | speeds up the exit."),
     (43.15, "Follow InvisiTech | for more."),
 ]
 SPEED = 1.22
