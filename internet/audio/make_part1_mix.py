@@ -46,7 +46,7 @@ def put(sig, at, g=1.0): place(sig, at, g * np.sqrt(2))
 def t(d): return np.arange(int(d * SR)) / SR
 def fx(x, a=0.004, r=4.0): n = len(x); return x * np.minimum(1, np.arange(n) / (a * SR)) * np.exp(-r * np.arange(n) / n)
 def noise(d, k=24): w = rng.standard_normal(int(d * SR)); return np.convolve(w, np.ones(k) / k, 'same')
-def whoosh(at, d=0.5, g=0.4, k=24): x = t(d); put(noise(d, k)[:len(x)] * np.sin(np.pi * x / d) ** 2, at, g)
+def whoosh(at, d=0.5, g=0.4, k=24): pass   # whooshes removed at Harsh's request (17 Nov 2026)
 def ding(at, f0=1318, g=0.18): x = t(0.9); put(fx(np.sin(2 * np.pi * f0 * x) + 0.5 * np.sin(2 * np.pi * f0 * 1.5 * x), r=6), at, g)
 def blip(at, f0, g=0.07, d=0.05): x = t(d); put(fx(np.sin(2 * np.pi * f0 * x), r=5), at, g)
 whoosh(0.3, 1.2, 0.3, 40)                                                                                    # camera pulls back
@@ -63,7 +63,7 @@ for i in range(36): blip(13.0 + i * 0.22, 1500 + 140 * (i % 6), 0.045, 0.035)   
 for i in range(36): blip(15.6 + i * 0.22 + (0.8 if i >= 10 and i % 4 == 2 else 0), 2100 + 90 * (i % 6), 0.03, 0.03)   # tiles landing
 x = t(0.3); put(np.sin(2 * np.pi * (500 - 300 * x / 0.3) * x) * np.sin(np.pi * x / 0.3), 13.0 + 17 * 0.22 + 1.3, 0.14)   # one is lost
 blip(21.0, 1800, 0.09, 0.08); ding(23.65, 1568, 0.16); ding(23.8, 2093, 0.1)                                   # sent again; photo complete
-F0 = PHOTO; x = t(2.2); put(noise(2.2, 90)[:len(x)] * np.sin(np.pi * x / 2.2) ** 1.5 * (1 + 0.3 * np.sin(2 * np.pi * 38 * x)), F0 - 0.1, 0.55); whoosh(F0 + 1.55, 0.6, 0.35)   # the plane
+F0 = PHOTO; whoosh(F0 + 1.55, 0.6, 0.35)   # the plane
 for i in range(3): blip(F0 + 3.4 + i * 0.12, 880 + 220 * i, 0.06, 0.08)
 x = t(2.0); put(np.sin(2 * np.pi * (220 + 380 * (x / 2.0) ** 2) * x) * np.sin(np.pi * x / 2.0) * 0.1, F0 + 4.25)   # the cable draws across the globe
 for i in range(20): blip(F0 + 4.3 + i * 0.1, 1800 + rng.uniform(0, 2400), 0.035)

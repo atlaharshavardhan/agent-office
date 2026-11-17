@@ -15,7 +15,7 @@ def env(x, a=0.004, r=4.0): n = len(x); e = np.minimum(1, np.arange(n) / (a * SR
 voice('p5', 0.2); voice('p6', 2.3); voice('p6b', 4.95)
 # launcher: thump + air burst, then the line whizzing out
 x = t(0.25); put(env(np.sin(2 * np.pi * (140 * np.exp(-x * 18) + 45) * x), r=6) * 0.9 + env(rng.standard_normal(len(x)), r=9) * 0.35, 0.75)
-x = t(0.65); w = rng.standard_normal(len(x)); w = np.convolve(w, np.ones(24) / 24, 'same'); put(w * np.sin(np.pi * x / 0.65) ** 2 * 0.5 + np.sin(2 * np.pi * (900 + 1400 * x) * x) * np.sin(np.pi * x / 0.65) ** 2 * 0.05, 0.78)
+x = t(0.65); w = rng.standard_normal(len(x)); w = np.convolve(w, np.ones(24) / 24, 'same'); pass   # line-whizz air sound removed at Harsh's request (17 Nov 2026)
 # the anchor bites the railing: metal clink
 x = t(0.5); put(env(np.sin(2 * np.pi * 2100 * x) + 0.6 * np.sin(2 * np.pi * 3170 * x) + 0.4 * np.sin(2 * np.pi * 4630 * x), r=9) * 0.22 + env(np.sin(2 * np.pi * 90 * x), r=14) * 0.5, 1.4)
 # the wire goes live: rising hum + sparkle
@@ -32,7 +32,7 @@ for i in range(6): x = t(0.06); put(env(np.sin(2 * np.pi * (90 + 20 * (i % 2)) *
 x = t(0.5); put(np.sin(2 * np.pi * (520 - 380 * x / 0.5) * x) * np.sin(np.pi * x / 0.5) * 0.1, M + 0.7)
 for sh in (2.2, 3.8, 5.3):
     x = t(0.25); put(env(np.sin(2 * np.pi * (140 * np.exp(-x * 18) + 45) * x), r=6) * 0.8 + env(rng.standard_normal(len(x)), r=9) * 0.3, M + sh)
-    x = t(0.5); w = rng.standard_normal(len(x)); w = np.convolve(w, np.ones(24) / 24, 'same'); put(w * np.sin(np.pi * x / 0.5) ** 2 * 0.45, M + sh + 0.03)
+    x = t(0.5); w = rng.standard_normal(len(x)); w = np.convolve(w, np.ones(24) / 24, 'same'); pass   # whizz removed (17 Nov 2026)
     x = t(0.5); put(env(np.sin(2 * np.pi * 2100 * x) + 0.6 * np.sin(2 * np.pi * 3170 * x) + 0.4 * np.sin(2 * np.pi * 4630 * x), r=9) * 0.2 + env(np.sin(2 * np.pi * 90 * x), r=14) * 0.45, M + sh + 0.5)
 for i in (1, 2): x = t(0.35); put(np.sin(2 * np.pi * (500 + 500 * x) * x) * np.sin(np.pi * x / 0.35) * 0.09, M + [0, 3.0, 4.6][i])     # her hop
 for i in range(4): x = t(0.09); put(env(np.sin(2 * np.pi * (900 + 150 * i) * x), r=5) * 0.08, M + 6.0 + i * 0.18)                    # "me too" bubbles

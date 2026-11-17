@@ -10,4 +10,4 @@ for pair in IsoCityPhoto:840 Part1Fly:321; do ID=${pair%%:*}; N=${pair##*:}; : >
   ffmpeg -v error -y -f concat -safe 0 -i $C/$ID.txt -c copy $C/$ID.mp4 && echo "DONE $ID"; done
 printf "file 'IsoCityPhoto.mp4'\nfile 'Part1Fly.mp4'\n" > $C/new.txt
 ffmpeg -v error -y -f concat -safe 0 -i $C/new.txt -i public/part1-mix.wav -c:v copy -c:a aac -b:a 192k -shortest $C/new.mp4 || exit 1
-ffmpeg -v error -y -i ../video/chunks3/street.mp4 -i ../video/chunks3/city.mp4 -i $C/new.mp4 -filter_complex "[0:v][0:a][1:v][1:a][2:v][2:a]concat=n=3:v=1:a=1[v][a]" -map "[v]" -map "[a]" -c:v libx264 -crf 21 -preset slow -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart ../video/internet-part1-v1.mp4 && echo PART1_OK
+ffmpeg -v error -y -i $C/street-nw.mp4 -i $C/city-nw.mp4 -i $C/new.mp4 -filter_complex "[0:v][0:a][1:v][1:a][2:v][2:a]concat=n=3:v=1:a=1[v][a]" -map "[v]" -map "[a]" -c:v libx264 -crf 21 -preset slow -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart ../video/internet-part1-v2.mp4 && echo PART1_OK
