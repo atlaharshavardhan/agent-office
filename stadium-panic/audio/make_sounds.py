@@ -66,5 +66,4 @@ for k in range(16):   # a few raised voices inside the jam (formant-like noise b
     t0 = 18 + k * 0.75 + rng.random() * 0.4; L = int(0.35 * SR); f = 500 + rng.random() * 400
     v = lp(noise(L), 0.2) * np.sin(2 * np.pi * f * np.arange(L) / SR) * env(L, 0.04, 0.25, 3); place(sfx, v, t0, 0.18 * float(jamk[int(t0 * SR)] > 0.2), rng.random() * 1.2 - 0.6)
 sfx[:, 0] += steps * 0.9 + press * 0.17; sfx[:, 1] += steps * 0.9 + press * 0.17
-x = tt(0.5); place(sfx, hp(noise(len(x)), 0.4) * env(len(x), 0.02, 0.3, 5) * 0.5, 30.35, 0.4)   # whoosh as the barrier rises
 sf.write('music.wav', music.astype(np.float32), SR); sf.write('sfx.wav', sfx.astype(np.float32), SR); print('ok')
