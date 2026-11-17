@@ -7,25 +7,30 @@ Stop the scroll. On frame 1, with sound off, the viewer must already know: this 
 "Did a woman U.S. officials suspect of spying for China get close to the most powerful man in AI?"
 (20 words, ~3.3 s; starts at 0.15 s; ends ≤ 3.45 s)
 
-## Picture (reuse — NO new Blender render)
-Source: `renders/preview_frames/f_0001–f_0090.png` (existing GPU hook, already 1080×1920).
-Retime 90 → 105 frames (play at 0.857×, frame-blended), so the beats land on the voice:
+## Picture (reuse the V2 hook shot — NO new Blender render)
+Same shot as Scene 1 of `nvidia-market-collapse-v2-1080.mp4` (0–4.25 s): the GPU on the motherboard,
+3/4 top-down, green → red, red crack lines spreading across the dies.
+The V2 mp4 has the old "$2 TRILLION GONE" text burned in, so we rebuild the shot from the clean source frames
+with the exact same motion as V2 (`BlendSeq dir="hook" first=30 last=90`, slow zoom 1.04 → 1.09, image lifted 150 px, top/bottom shade):
+- Source: `renders/preview_frames/f_0030–f_0090.png` (1080×1920, already rendered)
+- Retime: 61 source frames over 3.5 s (105 out frames, frame-blended) — slightly faster than V2's 4.25 s
 
-| Out time | Hook frames | What we see | VO word |
-|---|---|---|---|
-| 0.00–0.95 s | 1–24 | Macro on die/HBM edge, green pulses, pull-back reveal | "Did a woman U.S. officials…" |
-| 0.95–1.80 s | 25–45 | Package rises, orbit, green flickers, red creeps in | "…suspect of spying for China…" |
-| 1.80–2.70 s | 46–69 | Red wave sweeps board, subtle cracks (metaphor only) | "…get close to…" |
-| 2.70–3.50 s | 70–90 | Fast push-in, dark set, red rim, top kept clear | "…the most powerful man in AI?" |
+| Out time | What we see | VO |
+|---|---|---|
+| 0.0–1.0 s | Chip sharp, green edge light, NVIDIA package fills the middle | "Did a woman U.S. officials…" |
+| 1.0–2.2 s | Red light floods in, first crack lines appear on the dies | "…suspect of spying for China…" |
+| 2.2–3.5 s | Cracks glow red across both dies, board goes dark red, slow push-in | "…get close to the most powerful man in AI?" |
+
+The chip sits in the middle third (≈ 560–1150 px), so the headline goes above it and captions below — same layout as V2.
 
 ## New overlays (Remotion, on top of the frames)
 1. **Red security-scan line** — 6 px horizontal bar, #E5484D at 70 %, soft 40 px glow, sweeps top→bottom 0.3–1.3 s, again 1.9–2.6 s. Leaves a faint red tint where it passed.
 2. **Headline (visible on frame 1, no fade-in):**
    - Line 1: `WHO GOT CLOSE` — Inter Display ExtraBold 128 px, white
    - Line 2: `TO NVIDIA'S CEO?` — 128 px, NV green #76B900 → turns red #E5484D at 1.8 s
-   - Top 220 px, centred inside safe area (L90 / R180), letter-spacing −3, shadow 0 6 30 #000
+   - Top 220 px (same position as V2's "$2 TRILLION GONE"), centred inside safe area (L90 / R180), letter-spacing −3, shadow 0 6 30 #000
    - Tiny scale settle 1.04 → 1.0 over 0.3 s
-3. **Tag chip (1.0 s →):** `ALLEGATIONS · NOT PROVEN` — white pill, black 34 px bold text, below headline (top ≈ 500 px).
+3. **Tag chip (1.0 s →):** `ALLEGATIONS · NOT PROVEN` — white pill, black 34 px bold text, directly under the headline (top ≈ 500 px, above the chip).
 4. **Captions:** sentence caption at 54 px, top 1262 px, "spying for China" highlighted red, "most powerful man in AI" green.
 5. **Disclaimer:** `3D illustration · not affiliated with NVIDIA` — 22 px, 62 % white, top 1528, left 90.
 6. Top/bottom shade gradients (0.7 / 0.4) so text always reads.
