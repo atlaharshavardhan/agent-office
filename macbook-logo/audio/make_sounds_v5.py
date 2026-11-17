@@ -53,7 +53,7 @@ def chime():   # soft sonic logo: two bell notes
 
 
 # V5.1 (Harsh): long pauses removed; the effects were placed on the 40 s grid, so map them onto the 36 s grid (scene by scene, plus the spread/shine phrases)
-_O = [0, 2, 5, 8, 12, 17, 20.0, 22.1, 25, 31, 35, 38, 40]; _N = [0, 2, 7.4, 9.4, 13.4, 18.7, 21.2, 23.15, 25.4, 30.4, 33.4, 36.4, 38.4]   # V5.2
+_O = [0, 2, 5, 8, 12, 17, 20.0, 22.1, 25, 31, 35, 38, 40]; _N = [0, 2, 7.4, 9.4, 13.4, 18.7, 21.2, 23.15, 25.4, 29.5, 32.5, 35.5, 37.5]   # V5.4   # V5.2
 M = lambda t: float(np.interp(t, _O, _N))
 def P(buf, sig, t0, *a, **k): place(buf, sig, M(t0), *a, **k)
 # 1 hook (0–2): the logo is already lit on frame 1 – subtle activation + one restrained impact
@@ -74,7 +74,7 @@ P(sfx, shimmer(1.6, 1300), 20.0, 0.15); P(sfx, activate(1319, 0.5), 20.15, 0.13)
 P(sfx, glow_on(1.5), 22.1, 0.3); P(sfx, shimmer(1.6, 2800), 22.95, 0.12); P(sfx, impact(60, 0.8), 22.95, 0.16); P(sfx, activate(1175, 0.4), 23.55, 0.2, 0.4)
 # 7 reassembly (25–31): soft mechanical clicks as the layers seat, then the sonic payoff on the finished logo
 for i, t0 in enumerate([25.7, 26.3, 26.9, 27.4]): P(sfx, click(0.9 + 0.1 * i), t0, 0.32, (-0.3, 0.3)[i % 2])
-P(sfx, impact(55, 1.1), 27.9, 0.35); P(sfx, glow_on(1.6), 27.9, 0.28); P(sfx, chime(), 27.95, 0.16); P(sfx, shimmer(1.6, 2200), 28.0, 0.1)
+P(sfx, glow_on(1.4), 27.9, 0.22); P(sfx, shimmer(1.4, 2200), 28.0, 0.08)   # V5.4: no impact/chime here (it sounded like the end)
 # 8 auto brightness (31–35): room dims, logo dims; room brightens, logo follows
 P(sfx, click(0.8), 31.1, 0.28, -0.3); P(sfx, glow_on(0.9), 32.7, 0.18)
 # 9 switch off + loop (35–38): keystrokes, the glow goes out, then it is back for the loop
