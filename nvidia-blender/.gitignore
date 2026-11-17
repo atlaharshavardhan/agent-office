@@ -11,3 +11,4 @@ video/frames4k/
 video/checks/
 audio/_*.wav
 audio/*.wav
+video/render.log
