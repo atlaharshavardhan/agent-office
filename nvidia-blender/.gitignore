@@ -14,3 +14,4 @@ audio/*.wav
 video/render.log
 renders/shot03/
 renders/shot07/
+renders/queue.log
