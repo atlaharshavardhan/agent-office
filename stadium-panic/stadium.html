@@ -1873,6 +1873,12 @@ function renderAt(t) {
 { const seen = new Set(); [scene, SS].forEach(S => S.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (seen.has(m)) return; seen.add(m); if (m.color && !m.map) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); });
   if (o.isLight) { o.color.convertSRGBToLinear(); if (o.groundColor) o.groundColor.convertSRGBToLinear(); } })); scene.fog.color.convertSRGBToLinear(); SS.fog.color.convertSRGBToLinear(); }
 const HEMI_N = hemi.color.clone(), HEMI_R = LIN(0x8a4a52);
-window.__tour = { total: TOTAL, renderAt }; window.__tourReady = () => true;
+window.__tour = { total: TOTAL, renderAt };
+window.__simStats = () => { const out = { fps: 30, walk: [], run: [], press: [], exits: [], doneA: TOT.A, doneB: TOT.B }; let prev = { A: 0, B: 0 };   // per video frame, for the sound effects
+  for (let i = 0; i < TOTAL * 30; i++) { const t = i / 30, st = simTimes(t), vis = t < 10 || t >= 43 ? [] : t < 19 ? ['A'] : t < 29 ? ['B'] : t < 38 ? ['A', 'B'] : ['A'];
+    let w = 0, r = 0, p = 0, n = 0, ex = 0; for (const id of vis) { const S = RUN[id], f = fIdx(S, st[id]); for (let j = 0; j < S.N; j++) { const b = j * S.nF + f; if (S.Z[b] < RM.Z0) continue; n++; const v = S.spd[b]; if (v > 2.7) r++; else if (v > 0.28) w++; p += S.heat[b]; }
+      const e = exitedBy(id, st[id]); if (t >= 10) ex += Math.max(0, e - prev[id]); prev[id] = e; }
+    if (t < 10) prev = { A: 0, B: 0 }; out.walk.push(w); out.run.push(r); out.press.push(n ? p / n / 255 : 0); out.exits.push(ex); }
+  return out; }; window.__tourReady = () => true;
 })();
 </script>
