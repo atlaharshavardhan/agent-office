@@ -36,3 +36,18 @@ The words "NVIDIA" are etched on the stiffener ring and printed on the board. Ha
 - In the edit, keep the on-screen line **"3D illustration · not affiliated with NVIDIA"**.
 
 NVIDIA is a trademark of NVIDIA Corporation.
+
+## v1 full Short ("NVIDIA market collapse"): extra tools and assets
+
+| Item | Licence | Notes |
+|---|---|---|
+| Kokoro-82M voice model (`kokoro-v1.0.onnx`, `voices-v1.0.bin`, via the kokoro-onnx GitHub release) | Apache-2.0 | Narration voice `am_michael`. The model files are kept out of git (`voice/models/`). |
+| kokoro-onnx (Python package) | MIT | |
+| Remotion 4.0.538 | Remotion License | Free for individuals and companies with up to 3 employees. A larger team needs a company licence from remotion.dev. |
+| three.js 0.176, @react-three/fiber 9 | MIT | |
+| Music bed and all sound effects (`audio/make_audio_v1.py`) | Original, synthesised in code | No samples and no third-party music |
+| Data-centre racks, server trays, cable trays, coolant pipes and boardroom (`scripts/build_datacenter.py`, `scripts/build_shots.py`) | Original procedural geometry | |
+| GPU model inside the Three.js scenes (`assets/models/nvidia_ai_gpu.glb`) | Original | Exported from our own `build_gpu.py` model |
+| Company names (Microsoft, Alphabet, Amazon, Meta) | Plain text only | No logos are shown |
+
+Nothing in v1 reuses code or geometry from `bddicken/nvidia` or `staru09/gpu_viz`, because neither has a licence.

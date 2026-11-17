@@ -139,7 +139,7 @@ def build_dc_set(red=False):
                     tube(f"Pipe_{idx}_{k}", [(pos[0], pos[1] - 3, pos[2] + 1.5), (pos[0] + side * 10, pos[1] - 3, pos[2] + 4),
                                              (x_front + side * 2, pos[1] - 3, pos[2] + 4)], 0.5, blue)
                 k += 1
-        S.area_light(f"TrayKey_{idx}", (cx, y - 10, z + 70), (cx, y, z), 40, 4e3, size_y=30)
+        S.area_light(f"TrayKey_{idx}", (cx - side * 10, y - 25, z + 60), (cx, y, z), 40, 1.6e4, size_y=30)
         trays.append((cx, y, z, side))
 
     # overhead cable trays + glowing data ribbons + coolant mains
@@ -221,22 +221,30 @@ def shot03():
     cdB = bpy.data.cameras.new("CamB")
     camB = bpy.data.objects.new("CamB", cdB)
     C.link(camB)
-    cdB.lens = 50
+    cdB.lens = 28
     cdB.sensor_width = 36
     cdB.clip_start = 0.5
     cdB.dof.use_dof = True
     cdB.dof.aperture_fstop = 2.0
     cx, y, z, side = trays[3]
+    tgB = bpy.data.objects.new("CamB_Target", None)
+    C.link(tgB)
+    tc = camB.constraints.new("TRACK_TO")
+    tc.target = tgB
+    tc.track_axis = "TRACK_NEGATIVE_Z"
+    tc.up_axis = "UP_Y"
+    cdB.dof.focus_object = None
+    cdB.dof.aperture_fstop = 3.2
+    near, far = Vector((cx - 12.5 * side, y - 13, z + 1.4)), Vector((cx + 12.5 * side, y + 13, z + 1.4))
     for f in range(121, 181):
         t = (f - 121) / 59
-        camB.location = (cx - side * 30 + side * 6 * t, y - 34 + 12 * t, z + 30 - 4 * t)
-        aim = Vector((cx, y, z + 1))
-        d = aim - camB.location
-        camB.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
-        near, far = Vector((cx - 12.5 * side, y - 13, z + 1)), Vector((cx + 12.5 * side, y + 13, z + 1))
-        cdB.dof.focus_distance = (near.lerp(far, min(1, t * 1.4)) - camB.location).length
+        e = t * t * (3 - 2 * t)
+        # slow slide along the tray, looking down ~40 deg; focus racks from the near GPU to the far one
+        camB.location = Vector((cx - side * 6, y - 50 + 8 * e, z + 44 - 3 * e))
+        tgB.location = Vector((cx, y + 2 * e, z + 1.4))
+        cdB.dof.focus_distance = (near.lerp(far, min(1, e * 1.3)) - camB.location).length
         camB.keyframe_insert("location", frame=f)
-        camB.keyframe_insert("rotation_euler", frame=f)
+        tgB.keyframe_insert("location", frame=f)
         cdB.dof.keyframe_insert("focus_distance", frame=f)
     m1 = sc.timeline_markers.new("A", frame=1)
     m1.camera = camA
@@ -273,15 +281,20 @@ def shot07():
     sc["fx_glow"] = 0.55
     sc["fx_red"] = -1.0
     S.build_world().inputs["Strength"].default_value = 0.02
-    S.area_light("Split_Green", (-38, -6, 12), (0, 0, 0.3), 30, 2.4e4, C.NV_GREEN, size_y=8)
-    S.area_light("Split_Red", (38, -6, 12), (0, 0, 0.3), 30, 2.4e4, C.DEEP_RED, size_y=8)
+    S.area_light("Split_Green", (-24, -8, 7), (0, 0, 0.3), 24, 4.5e4, C.NV_GREEN, size_y=10)
+    S.area_light("Split_Red", (24, -8, 7), (0, 0, 0.3), 24, 4.5e4, C.DEEP_RED, size_y=10)
+    # coloured reflection cards: the brushed ring and mirror dies pick up green on one side, red on the other
+    _, eg = S.card("Card_Green", (-26, 6, 20), (0, 0, 0), 22, 30, 2.0)
+    eg.inputs["Color"].default_value = C.hex_rgba(C.NV_GREEN)
+    _, er = S.card("Card_Red", (26, 6, 20), (0, 0, 0), 22, 30, 2.0)
+    er.inputs["Color"].default_value = C.hex_rgba(C.DEEP_RED)
     S.area_light("Top_Soft", (0, 0, 70), (0, 0, 0), 50, 1.2e4, size_y=40)
     S.card("Card_Back", (0, 38, 40), (0, 0, 0), 60, 22, 0.8)
     cam, tgt = S.build_camera()
     S.render_settings(samples=24)
-    sc.frame_end = 150
-    for f in range(1, 151):
-        t = (f - 1) / 149
+    sc.frame_end = 165
+    for f in range(1, 166):
+        t = (f - 1) / 164
         e = t * t * (3 - 2 * t)
         az = math.radians(-118 + 56 * e)          # controlled 56-degree orbit
         el = math.radians(24 + 6 * e)
@@ -293,7 +306,7 @@ def shot07():
         cam.keyframe_insert("location", frame=f)
         tgt.keyframe_insert("location", frame=f)
     cam.data.dof.aperture_fstop = 5.6
-    key_time(sc, 150)
+    key_time(sc, 165)
     bpy.ops.wm.save_as_mainfile(filepath=str(C.ROOT / "blender/shot07_orbit.blend"))
 
 
@@ -329,7 +342,6 @@ def still05c():
         chair(x, 105, math.pi, name=f"ChairN{i}")
     chair(-262, 0, -math.pi / 2, pushed=28, name="HeadChair")      # empty, pushed back
     # glass wall with night-city bokeh dots
-    C.box("GlassWall", (2, 900, 400), (-420, 0, 200), glass)
     city = emissive("CityLights", "#FFD8A0", 6)
     rnd = random.Random(3)
     bm = bmesh.new()
@@ -337,12 +349,12 @@ def still05c():
         C.add_box(bm, (1, rnd.uniform(1.5, 4), rnd.uniform(1.5, 4)), (-470, rnd.uniform(-450, 450), rnd.uniform(20, 380)))
     C.link(C.mesh_obj("City", bm, city))
     S.build_world().inputs["Strength"].default_value = 0.01
-    S.area_light("Spot_HeadChair", (-262, 28, 330), (-262, 28, 40), 40, 3.0e4, size_y=40, spread=40)
-    S.area_light("Table_Glow", (0, 0, 260), (0, 0, 74), 300, 6e3, "#9FB4D0", size_y=80)
-    S.area_light("Rim_Red", (-380, -200, 120), (-262, 28, 80), 60, 6e3, C.DEEP_RED, size_y=60)
+    S.area_light("Spot_HeadChair", (-234, 0, 300), (-234, 0, 40), 40, 4.0e5, size_y=40, spread=40)
+    S.area_light("Table_Glow", (0, 0, 260), (0, 0, 74), 300, 3.0e5, "#9FB4D0", size_y=80)
+    S.area_light("Rim_Red", (-380, -200, 120), (-234, 0, 80), 60, 1.2e5, C.DEEP_RED, size_y=60)
     cam, tgt = S.build_camera()
-    cam.location = (230, 40, 128)
-    tgt.location = (-262, 28, 78)
+    cam.location = (330, 30, 150)
+    tgt.location = (-234, 0, 80)
     cam.data.lens = 40
     cam.data.dof.aperture_fstop = 4.0
     S.render_settings(samples=48)

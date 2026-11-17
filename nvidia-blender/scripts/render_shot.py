@@ -11,7 +11,16 @@ args = sys.argv[1:]
 blend, out = args[0], Path(args[1])
 pct = int(args[args.index("--pct") + 1]) if "--pct" in args else 100
 samples = int(args[args.index("--samples") + 1]) if "--samples" in args else None
-nums = [a for a in args[2:] if a.isdigit()]
+pos, skip = [], False
+for i, a in enumerate(args[2:]):
+    if skip:
+        skip = False
+        continue
+    if a in ("--pct", "--samples"):
+        skip = True
+        continue
+    pos.append(a)
+nums = [a for a in pos if a.isdigit()]
 bpy.ops.wm.open_mainfile(filepath=blend)
 sc = bpy.context.scene
 sc.render.resolution_percentage = pct

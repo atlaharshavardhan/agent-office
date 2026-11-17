@@ -12,3 +12,5 @@ video/checks/
 audio/_*.wav
 audio/*.wav
 video/render.log
+renders/shot03/
+renders/shot07/
