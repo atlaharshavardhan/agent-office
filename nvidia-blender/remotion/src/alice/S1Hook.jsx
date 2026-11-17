@@ -36,8 +36,8 @@ export const AliceS1 = () => {
       <ScanLine t0={0.3} dur={1.0} />
       <ScanLine t0={1.9} dur={0.7} />
       <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 220, textAlign: 'center', transform: `scale(${settle})` }}>
-        <div style={{ font: `800 128px/0.98 ${FONT}`, letterSpacing: -3, color: C.white, textShadow: '0 6px 30px #000' }}>WHO GOT CLOSE</div>
-        <div style={{ font: `800 128px/0.98 ${FONT}`, letterSpacing: -3, color: line2, textShadow: `0 0 50px rgba(229,72,77,${0.45 * red}), 0 6px 30px #000` }}>TO NVIDIA’S CEO?</div>
+        <div style={{ font: `800 100px/1.0 ${FONT}`, letterSpacing: -3, whiteSpace: "nowrap", color: C.white, textShadow: '0 6px 30px #000' }}>WHO GOT CLOSE</div>
+        <div style={{ font: `800 100px/1.0 ${FONT}`, letterSpacing: -3, whiteSpace: "nowrap", color: line2, textShadow: `0 0 50px rgba(229,72,77,${0.45 * red}), 0 6px 30px #000` }}>TO NVIDIA’S CEO?</div>
         <div style={{ marginTop: 26, opacity: ramp(f, 1.0, 0.25) }}>
           <span style={{ font: `800 34px ${BODY}`, color: '#101214', background: '#F5F5F5', padding: '10px 26px', borderRadius: 40, letterSpacing: 1 }}>ALLEGATIONS · NOT PROVEN</span>
         </div>
