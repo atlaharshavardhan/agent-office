@@ -90,7 +90,7 @@ HOOK_END, BLEND = caps[0][1], 0.0   # clean cut between "This logo" and "shouldn
 CAFE, BED = (span('Brighter in a bright room'), span('dimmer in a dark one')) if not V5 else (None, None)
 def heading_from(im, frame3d):   # V5: lift the bright heading letters off the 3D frame (white + gold), with a soft shadow
     box = (round(100 * K), round(250 * K), round(920 * K), round(340 * K)); cut = frame3d.crop(box)
-    lum = np.asarray(cut.convert('L')).astype(np.float32); al = Image.fromarray(np.clip((lum - 25) / 110 * 255, 0, 255).astype(np.uint8))
+    lum = np.asarray(cut.convert('L')).astype(np.float32); al = Image.fromarray(np.clip((lum - 70) / 90 * 255, 0, 255).astype(np.uint8))
     sh = Image.new('RGBA', im.size, (0, 0, 0, 0)); sh.paste(Image.new('RGBA', cut.size, (0, 0, 0, 170)), (box[0], box[1] + round(4 * K)), al); im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(10 * K)))
     im.paste(cut.convert('RGBA'), box[:2], al)
 _B = json.load(open(os.path.join(vdir, 'timeline.json')))['B'] if V5 else None
