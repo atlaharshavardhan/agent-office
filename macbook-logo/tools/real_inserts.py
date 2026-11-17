@@ -104,6 +104,9 @@ def hook_title_v5(im):   # V5: on from frame 1, "THE GLOW" white, "IS BACK" gold
 def shot_v5(t, frame3d):
     if t < HOOK_END:   # opening photo (Higgsfield still 1), logo already glowing on frame 1, slow push-in; clean cut into the 3D pull-back
         im = ken(P_HOOK, t, 0, HOOK_END, 1.0, 1.06, 0.46).convert('RGBA'); hook_title_v5(im); subtitle(im, cap_at(t)); note(im); return im
+    if V5_BED[0] - 0.3 <= t < V5_BED[0]:   # V5.4: the 3D MacBook ends on the photo's framing; dissolve into the bedroom photo (card + heading arrive with it)
+        e = (t - (V5_BED[0] - 0.3)) / 0.3; e = e * e * (3 - 2 * e)
+        return Image.blend(frame3d.convert('RGBA'), ken(P_BED, V5_BED[0], V5_BED[0], V5_BED[1], 1.0, 1.06, 0.42).convert('RGBA'), e)
     for (s0, s1), P in ((V5_BED, P_BED), (V5_CAFE, P_CAFE)):
         if s0 <= t < s1:
             im = ken(P, t, s0, s1, 1.0, 1.06, 0.42).convert('RGBA'); card_from(im, frame3d); heading_from(im, frame3d); subtitle(im, cap_at(t)); note(im)

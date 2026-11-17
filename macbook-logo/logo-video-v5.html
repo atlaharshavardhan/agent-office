@@ -4977,7 +4977,7 @@ window.MBP_GLTF = "{\"accessors\": [{\"bufferView\": 2, \"componentType\": 5126,
 </script>
 <script>
 (() => {
-const TL = {"B": [0, 2, 7.4, 9.4, 13.4, 18.7, 25.4, 29.5, 32.5, 35.5, 37.5], "total": 37.5, "outro": 2.0, "voice": "chris_v5", "order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}, CAPS = [[0.15, 1.16, "Apple's glowing logo"], [1.16, 1.56, "is back"], [1.75, 2.97, "Older MacBooks borrowed light"], [2.97, 4.15, "from the screen's backlight"], [4.35, 4.79, "But OLED"], [4.79, 5.72, "has no backlight"], [6.0, 6.51, "So how does"], [6.51, 7.17, "the logo glow?"], [7.5, 8.41, "The secret is hidden"], [8.41, 9.09, "inside the lid"], [9.35, 10.49, "Behind the display"], [10.49, 11.7, "sits a light source"], [11.7, 13.23, "built just for the logo"], [13.6, 14.76, "Four tiny LEDs"], [14.76, 16.67, "create the entire glow"], [16.9, 17.76, "iFixit found them"], [17.76, 18.52, "along one edge"], [18.9, 19.85, "A reflective layer"], [19.85, 20.91, "bounces their light"], [21.2, 21.81, "a diffuser"], [21.81, 22.9, "spreads it evenly"], [23.2, 23.77, "and it shines"], [23.77, 24.78, "through the whole logo"], [25.5, 26.18, "The result?"], [26.18, 27.4, "One evenly lit logo"], [27.4, 29.37, "with no screen backlight needed"], [29.55, 30.5, "It even dims and brightens"], [30.5, 31.53, "with the light in your room"], [32.6, 33.6, "And one Terminal command"], [33.6, 34.27, "switches it off"]];
+const TL = {"B": [0, 2, 7.4, 9.4, 13.4, 18.7, 25.4, 29.5, 32.5, 35.5, 37.5], "total": 37.5, "outro": 2.0, "voice": "chris_v5", "order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}, CAPS = [[0.15, 1.16, "Apple's glowing logo"], [1.16, 1.56, "is back"], [1.75, 2.97, "Older MacBooks borrowed light"], [2.97, 4.15, "from the screen's backlight"], [4.35, 4.79, "But OLED"], [4.79, 5.72, "has no backlight"], [6.0, 6.51, "So how does"], [6.51, 7.17, "the logo glow?"], [7.5, 8.41, "The secret is hidden"], [8.41, 9.09, "inside the lid"], [9.35, 10.49, "Behind the display"], [10.49, 11.7, "sits a light source"], [11.7, 13.23, "built just for the logo"], [13.6, 14.47, "Four tiny LEDs"], [14.47, 15.9, "create the entire glow"], [16.2, 17.06, "iFixit found them"], [17.06, 17.82, "along one edge"], [18.9, 19.85, "A reflective layer"], [19.85, 20.91, "bounces their light"], [21.2, 21.81, "a diffuser"], [21.81, 22.9, "spreads it evenly"], [23.2, 23.77, "and it shines"], [23.77, 24.78, "through the whole logo"], [25.5, 26.18, "The result?"], [26.18, 27.4, "One evenly lit logo"], [27.4, 29.37, "with no screen backlight needed"], [29.55, 30.5, "It even dims and brightens"], [30.5, 31.53, "with the light in your room"], [32.6, 33.6, "And one Terminal command"], [33.6, 34.27, "switches it off"]];
 const Q = new URLSearchParams(location.search);
 const W = innerWidth, H = innerHeight, TOTAL = TL.total, B = TL.B;
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
@@ -5377,7 +5377,8 @@ const OPEN = 108;
 /* ================= V5 (Harsh, 17 Nov 2026): retention cut. Same models, materials, teardown, LEDs and light path as V4; new order, faster story,
    brighter opening, one heading at a time. Scene grid (seconds): 0 hook · 2 no backlight · 5 into the lid · 8 teardown · 12 LEDs · 17 bounce/spread/shine
    · 25 reassembly · 31 auto brightness · 35 switch off + loop · 38 brand (2 s). Every scene runs on real seconds (no stretching). ================= */
-const HOOK = { yaw: -2, pitch: -14, dist: 260 };                       // the opening composition; scene 9 ends on it again (loop)
+const HOOK = { yaw: -2, pitch: -14, dist: 260 };
+const MATCH = { yaw: 0, pitch: 11, dist: 1370, vo: -0.108 };   // V5.4: the bedroom photo's laptop: ~77% of the width, logo a little below the middle                       // the opening composition; scene 9 ends on it again (loop)
 const HOOK_END = { yaw: -8, pitch: 12, dist: 1350 };                    // = scene 2's first camera
 const tHook = () => lidPoint(LOGO_C), tSide = () => lidPoint(new THREE.Vector3(0, 0, 100)).add(new THREE.Vector3(0, -10, 0));
 const tTear = () => lidPoint(new THREE.Vector3(LOGO_C.x, 52, LOGO_C.z));
@@ -5503,7 +5504,7 @@ const SHOTS = [
     BLOOM.strength = 0.28;
     heading(['<em>4</em> HIDDEN LEDs'], 0.05, u);
     const sp = dx => lidPoint(STRIP_C.clone().add(new THREE.Vector3(dx, LAYER_Y.refl + 0.5, 0)));
-    sideTags([['led', 'Along one edge', sp(27), -1, ease(ramp(u, 3.3, 3.7)), 'acc big', -300]]);
+    sideTags([['led', 'Along one edge', sp(27), -1, ease(ramp(u, 2.6, 3.0)), 'acc big', -300]]);
   }],
   [B[5], B[6], u => { // 6. BOUNCE → SPREAD → SHINE: V4's light path, re-timed to the three narration phrases; stays open (it closes in scene 7)
     const w = u < 2.5 ? 2.2 * u / 2.5 : u < 4.45 ? 2.2 + 0.8 * (u - 2.5) / 1.95 : 3.0 + 2.0 * (u - 4.45) / 2.25;   // V5.1: spread starts 2.5 s, shine 4.45 s   // V4 times: bounce 0–2.2, spread 2.2–3.0, shine 3.0–5.0
@@ -5512,12 +5513,12 @@ const SHOTS = [
   }],
   [B[6], B[7], u => { // 7. PAYOFF: the layers slide back together, the lid turns solid, pull back to the finished MacBook with one even glow
     rim.intensity = 1.3; rim.color.setHex(0xdfe6f0); lidOpen(OPEN); room(0); screenOn(lerp(0.35, 1, ramp(u, 2, 3)), 0);
-    const cl = smoother(ramp(u, 0.2, 2.6)), sol = ease(ramp(u, 2.0, 3.2)), k = smoother(ramp(u, 0, 7.0));   // V5.4: still moving at the cut, so it doesn't feel like an ending
+    const cl = smoother(ramp(u, 0.2, 2.6)), sol = ease(ramp(u, 2.0, 3.2)), k = smoother(u / 6.6) / smoother(6 / 6.6);   // reaches the matched framing exactly at the cut, still gently moving   // V5.4: still moving at the cut, so it doesn't feel like an ending
     explode(1 - cl); tapeOff(1 - cl); setXray(1 - sol); ledOn([1, 1, 1, 1].map(v => 0.8 * v * (1 - ease(ramp(u, 1.6, 2.6))))); diffGlow(1 - ease(ramp(u, 1.6, 2.6)));
     const pay = ease(ramp(u, 2.9, 3.4)); logoGlow(1);
     LOGO_STREAK.material.opacity = 0.5 * Math.max(0, 1 - Math.abs(u - 3.1) / 0.6); LOGO_STREAK.visible = LOGO_STREAK.material.opacity > 0.01;   // the sonic payoff moment
     studio(pay); DRIFT = 1 - k;
-    VO = lerp(0, 0.075, k); orbit(tTear().lerp(tRear(), k), lerp(20, -6, k), lerp(14, 11, k), lerp(1000, 1700, k));
+    VO = lerp(0, MATCH.vo, k); orbit(tTear().lerp(tRear(), k), lerp(20, MATCH.yaw, k), lerp(14, MATCH.pitch, k), lerp(1000, MATCH.dist, k));   // V5.4: ends on the bedroom photo's framing (match cut), no full zoom-out
     if (u > 2.8) heading(['ONE <em>EVEN</em> GLOW'], 2.9, u);
   }],
   [B[7], B[8], u => { // 8. AUTO BRIGHTNESS: the room darkens, the logo dims; the room brightens, the logo follows (Apple Support)

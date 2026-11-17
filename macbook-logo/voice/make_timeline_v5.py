@@ -5,17 +5,21 @@ from pathlib import Path
 import sys
 ROOT = Path(__file__).parent; VAR = sys.argv[1] if len(sys.argv) > 1 else 'chris_v5'; HERE = ROOT / VAR; SR = 24000
 B = [0, 2, 7.4, 9.4, 13.4, 18.7, 25.4, 29.5, 32.5, 35.5, 37.5]   # V5.4 (Harsh): the payoff felt like an ending: shorter, brightness follows straight on; 37.5 s
-AT = {'l1_1': 0.15, 'l2_1': 1.75, 'l2_2': 4.35, 'l2_3': 6.0, 'l3_1': 7.5, 'l4_1': 9.35, 'l5_1': 13.6, 'l5_2': 16.9,
+AT = {'l1_1': 0.15, 'l2_1': 1.75, 'l2_2': 4.35, 'l2_3': 6.0, 'l3_1': 7.5, 'l4_1': 9.35, 'l5_1': 13.6, 'l5_2': 16.2,
       'l6_1': 18.9, 'l6_2': 21.2, 'l6_3': 23.2, 'l7_1': 25.5, 'l8_1': 29.55, 'l9_1': 32.6}
 ORDER = list(range(10))
 if VAR == 'chris_v5b':   # V5.4-B (Harsh): brightness + off switch up front, the engineering story ends on the payoff
     ORDER = [0, 7, 8, 1, 2, 3, 4, 5, 6, 9]
     B = [0, 2, 4.6, 7.4, 12.8, 14.8, 18.8, 23.8, 30.5, 35.5, 37.5]
-    AT = {'l1_1': 0.15, 'l8_1': 2.1, 'l9_1': 4.75, 'l2_1': 7.15, 'l2_2': 9.75, 'l2_3': 11.4, 'l3_1': 12.9, 'l4_1': 14.75, 'l5_1': 19.0, 'l5_2': 22.3,
+    AT = {'l1_1': 0.15, 'l8_1': 2.1, 'l9_1': 4.75, 'l2_1': 7.15, 'l2_2': 9.75, 'l2_3': 11.4, 'l3_1': 12.9, 'l4_1': 14.75, 'l5_1': 19.0, 'l5_2': 21.6,
           'l6_1': 24.0, 'l6_2': 26.3, 'l6_3': 28.3, 'l7_1': 30.7}
 S = json.load(open(HERE / 'sentences.json')); S.sort(key=lambda s: AT[s['file'][:-4]])
 def trim(a, thr=0.012):
-    i = np.where(np.abs(a) > thr)[0]; return a[max(0, i[0] - 240): min(len(a), i[-1] + 480)]
+    i = np.where(np.abs(a) > thr)[0]
+    # V5.4 (Harsh heard a cut before "iFixit found them"): drop a short stray burst after a pause at the end of a take (l5_1 ended with a 40 ms blip)
+    gaps = np.where(np.diff(i) > int(0.25 * SR))[0]
+    if len(gaps) and (i[-1] - i[gaps[-1] + 1]) < int(0.2 * SR): i = i[: gaps[-1] + 1]
+    a = a[max(0, i[0] - 240): min(len(a), i[-1] + 480)].copy(); f = int(0.008 * SR); a[:f] *= np.linspace(0, 1, f); a[-f:] *= np.linspace(1, 0, f); return a   # short fades: no clicks
 out = np.zeros(int(B[-1] * SR)); caps, sents, end = [], [], 0
 for s in S:
     a, sr = sf.read(HERE / s['file']); assert sr == SR; a = trim(a); t = AT[s['file'][:-4]]; assert t >= end - 1e-6, (s['file'], t, end)

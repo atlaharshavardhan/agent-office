@@ -31,11 +31,11 @@ The secret is hidden inside the lid.
 Behind the display sits a light source built just for the logo.
 
 9
-00:00:19,000 --> 00:00:22,070
+00:00:19,000 --> 00:00:21,300
 Four tiny LEDs create the entire glow.
 
 10
-00:00:22,300 --> 00:00:23,920
+00:00:21,600 --> 00:00:23,220
 iFixit found them along one edge.
 
 11
