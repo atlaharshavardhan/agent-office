@@ -12,7 +12,8 @@ const fontCss = [
   ['IBM Plex Mono', 'fontsource-ibm-plex-mono-5.0.12', 'ibm-plex-mono', [400, 500]],
 ].flatMap(([fam, pkg, base, ws]) => ws.map(w => `@font-face{font-family:"${fam}";font-weight:${w};font-style:normal;src:url(https://fonts.gstatic.com/local/${pkg}/${base}-latin-${w}-normal.woff2) format("woff2")}`)).join('\n');
 (async () => {
-  const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const browser = await chromium.launch({ args: process.env.GL_ARGS ? process.env.GL_ARGS.split(' ') : ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });   // GL_ARGS: e.g. a GPU machine ('--use-gl=angle --use-angle=vulkan --enable-features=Vulkan --ignore-gpu-blocklist'); default = software (SwiftShader)
+  if (process.env.GL_INFO) { const p = await browser.newPage(); await p.setContent('<canvas id=c></canvas>'); console.log('GL renderer:', await p.evaluate(() => { const g = document.getElementById('c').getContext('webgl'), d = g && g.getExtension('WEBGL_debug_renderer_info'); return g ? (d ? g.getParameter(d.UNMASKED_RENDERER_WEBGL) : 'webgl ok') : 'no webgl'; })); await p.close(); }
   const page = await browser.newPage({ viewport: { width: +process.env.VW || 1920, height: +process.env.VH || 1080 }, deviceScaleFactor: +process.env.DSF || 1 });  // DSF=2 → same layout, 2× pixels (4K from a 1080×1920 viewport)
   page.on('console', m => { if (m.type() === 'error') console.log('console:', m.text()); });
   page.on('pageerror', e => console.log('pageerror:', e.message));

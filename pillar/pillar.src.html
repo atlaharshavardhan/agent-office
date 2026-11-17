@@ -319,7 +319,7 @@ function renderAt(t) {
 { const seen = new Set(); scene.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (seen.has(m)) return; seen.add(m); if (m.color && !m.map) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); });
   if (o.isLight) { o.color.convertSRGBToLinear(); if (o.groundColor) o.groundColor.convertSRGBToLinear(); } }); scene.fog.color.convertSRGBToLinear(); }
 window.__tour = { total: TOTAL, renderAt }; window.__tourReady = () => true;
-window.__simStats = () => { const out = { fps: 30, walk: [], run: [], press: [], exits: [], pinned: [], cuts: SEG.slice(1, 4).map(s => s[0]), doneT: null }; let prevK = null, prevE = 0;   // per video frame, for the sound effects
+window.__simStats = () => { const out = { fps: 30, walk: [], run: [], press: [], exits: [], pinned: [], cuts: SEG.slice(1, 5).map(s => s[0]), doneT: null }; let prevK = null, prevE = 0;   // per video frame, for the sound effects
   for (let i = 0; i < TOTAL * 30; i++) { const t = i / 30; if (t >= 43) { ['walk', 'run', 'press', 'exits', 'pinned'].forEach(k => out[k].push(0)); continue; }
     const st = simAt(t), S = RUN[st.k], f = fIdx(S, st.s); let w = 0, r = 0, p = 0, n = 0; for (let j = 0; j < S.N; j++) { const b = j * S.nF + f; if (S.Z[b] < RM.Z0) continue; n++; const v = S.spd[b]; if (v > 2.7) r++; else if (v > 0.28) w++; p += S.heat[b]; }
     const e = exitedBy(st.k, st.s); out.exits.push(st.k === prevK ? Math.max(0, e - prevE) : 0); prevK = st.k; prevE = e;
