@@ -62,3 +62,5 @@ Nothing in v1 reuses code or geometry from `bddicken/nvidia` or `staru09/gpu_viz
 The "Jensen" character is a stylized signature look (grey hair, glasses, black leather jacket), not a facial likeness.
 It is always labelled as an illustration and is never shown saying or doing anything that did not happen.
 Executives and investors are fictional.
+
+| Country outlines (Alice Short, scene 4) | Natural Earth 1:50m admin-0 (github.com/nvkelso/natural-earth-vector) | Public domain |
