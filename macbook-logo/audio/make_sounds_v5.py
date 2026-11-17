@@ -52,32 +52,36 @@ def chime():   # soft sonic logo: two bell notes
     return out
 
 
+# V5.1 (Harsh): long pauses removed; the effects were placed on the 40 s grid, so map them onto the 36 s grid (scene by scene, plus the spread/shine phrases)
+_O = [0, 2, 5, 8, 12, 17, 20.0, 22.1, 25, 31, 35, 38, 40]; _N = [0, 2, 7.4, 9.4, 13.4, 18.7, 21.2, 23.15, 25.4, 30.4, 33.4, 36.4, 38.4]   # V5.2
+M = lambda t: float(np.interp(t, _O, _N))
+def P(buf, sig, t0, *a, **k): place(buf, sig, M(t0), *a, **k)
 # 1 hook (0–2): the logo is already lit on frame 1 – subtle activation + one restrained impact
-place(sfx, activate(988, 0.4), 0.0, 0.22); place(sfx, impact(52, 1.1), 0.02, 0.45); place(sfx, shimmer(1.4, 2100), 0.05, 0.1)
-# 2 no backlight (2–5): old backlight hums on, switches off; OLED pixels light; the question lands
-place(sfx, hum(0.9), 2.1, 0.12); place(sfx, glow_on(0.8), 2.15, 0.14); place(sfx, click(0.9), 3.05, 0.35, -0.3); place(sfx, shimmer(1.0, 1500), 3.3, 0.12); place(sfx, impact(60, 0.6), 3.1, 0.2)
+P(sfx, activate(988, 0.4), 0.0, 0.22); P(sfx, impact(52, 1.1), 0.02, 0.45); P(sfx, shimmer(1.4, 2100), 0.05, 0.1)
+# 2 LCD vs OLED (2–7.4, V5.2): layers part, the backlight hums on and its light travels out; it switches off, OLED pixels light; the lid closes on the question
+place(sfx, click(0.8), 2.25, 0.28, -0.3); place(sfx, hum(1.4), 2.75, 0.13); place(sfx, glow_on(1.0), 2.8, 0.16); place(sfx, shimmer(1.2, 1500), 2.95, 0.1); place(sfx, click(0.9), 4.3, 0.35, 0.3); place(sfx, impact(60, 0.6), 4.5, 0.2); place(sfx, shimmer(1.0, 2200), 4.6, 0.1); place(sfx, click(0.8), 6.6, 0.3, -0.2)
 # 3 into the lid (5–8): the aluminium turns to glass, the layers start to part
-place(sfx, shimmer(1.4, 1300), 6.0, 0.13); place(sfx, impact(70, 0.6), 6.7, 0.22)
+P(sfx, shimmer(1.4, 1300), 6.0, 0.13); P(sfx, impact(70, 0.6), 6.7, 0.22)
 # 4 teardown (8–12): a soft click as each label arrives
-for i in range(4): place(sfx, click(), 8.9 + i * 0.55, 0.3, (-0.4 if i < 2 else 0.4))
+for i in range(4): P(sfx, click(), 8.9 + i * 0.55, 0.3, (-0.4 if i < 2 else 0.4))
 # 5 four LEDs (12–17): impact into the macro, tape lifts, one electronic click/tone per LED in sync
-place(sfx, impact(58, 0.8), 12.0, 0.3); place(sfx, click(0.8), 12.2, 0.28)
-for i in range(4): t0 = 12.55 + i * 0.4; place(sfx, click(0.9), t0, 0.3, [-0.5, -0.17, 0.17, 0.5][i]); place(sfx, activate(784 * 2 ** (i * 2 / 12), 0.3), t0 + 0.01, 0.26, [-0.5, -0.17, 0.17, 0.5][i]); place(sfx, shimmer(0.4, 2600 + 200 * i), t0, 0.04)
-place(sfx, click(), 15.3, 0.3, -0.4)
+P(sfx, impact(58, 0.8), 12.0, 0.3); P(sfx, click(0.8), 12.2, 0.28)
+for i in range(4): t0 = 12.55 + i * 0.4; P(sfx, click(0.9), t0, 0.3, [-0.5, -0.17, 0.17, 0.5][i]); P(sfx, activate(784 * 2 ** (i * 2 / 12), 0.3), t0 + 0.01, 0.26, [-0.5, -0.17, 0.17, 0.5][i]); P(sfx, shimmer(0.4, 2600 + 200 * i), t0, 0.04)
+P(sfx, click(), 15.3, 0.3, -0.4)
 # 6 bounce → spread → shine (17–25)
-place(sfx, shimmer(1.0, 1700), 17.1, 0.14, -0.3); place(sfx, glow_on(1.2), 17.15, 0.1); place(sfx, click(), 17.5, 0.28, -0.4); place(sfx, click(), 18.4, 0.25, 0.4)
-place(sfx, shimmer(1.6, 1300), 20.0, 0.15); place(sfx, activate(1319, 0.5), 20.15, 0.13); place(sfx, shimmer(1.4, 2400), 20.3, 0.1); place(sfx, click(), 20.1, 0.28, 0.4)
-place(sfx, glow_on(1.5), 22.1, 0.3); place(sfx, shimmer(1.6, 2800), 22.95, 0.12); place(sfx, impact(60, 0.8), 22.95, 0.16); place(sfx, activate(1175, 0.4), 23.55, 0.2, 0.4)
+P(sfx, shimmer(1.0, 1700), 17.1, 0.14, -0.3); P(sfx, glow_on(1.2), 17.15, 0.1); P(sfx, click(), 17.5, 0.28, -0.4); P(sfx, click(), 18.4, 0.25, 0.4)
+P(sfx, shimmer(1.6, 1300), 20.0, 0.15); P(sfx, activate(1319, 0.5), 20.15, 0.13); P(sfx, shimmer(1.4, 2400), 20.3, 0.1); P(sfx, click(), 20.1, 0.28, 0.4)
+P(sfx, glow_on(1.5), 22.1, 0.3); P(sfx, shimmer(1.6, 2800), 22.95, 0.12); P(sfx, impact(60, 0.8), 22.95, 0.16); P(sfx, activate(1175, 0.4), 23.55, 0.2, 0.4)
 # 7 reassembly (25–31): soft mechanical clicks as the layers seat, then the sonic payoff on the finished logo
-for i, t0 in enumerate([25.7, 26.3, 26.9, 27.4]): place(sfx, click(0.9 + 0.1 * i), t0, 0.32, (-0.3, 0.3)[i % 2])
-place(sfx, impact(55, 1.1), 27.9, 0.35); place(sfx, glow_on(1.6), 27.9, 0.28); place(sfx, chime(), 27.95, 0.16); place(sfx, shimmer(1.6, 2200), 28.0, 0.1)
+for i, t0 in enumerate([25.7, 26.3, 26.9, 27.4]): P(sfx, click(0.9 + 0.1 * i), t0, 0.32, (-0.3, 0.3)[i % 2])
+P(sfx, impact(55, 1.1), 27.9, 0.35); P(sfx, glow_on(1.6), 27.9, 0.28); P(sfx, chime(), 27.95, 0.16); P(sfx, shimmer(1.6, 2200), 28.0, 0.1)
 # 8 auto brightness (31–35): room dims, logo dims; room brightens, logo follows
-place(sfx, click(0.8), 31.1, 0.28, -0.3); place(sfx, glow_on(0.9), 32.7, 0.18)
+P(sfx, click(0.8), 31.1, 0.28, -0.3); P(sfx, glow_on(0.9), 32.7, 0.18)
 # 9 switch off + loop (35–38): keystrokes, the glow goes out, then it is back for the loop
-for k in range(9): place(sfx, key(), 35.12 + k * 0.08, 0.3, 0.2 * np.sin(k))
-place(sfx, click(1.0), 36.05, 0.42); place(sfx, impact(48, 0.7), 36.1, 0.22); place(sfx, glow_on(1.0), 37.3, 0.2)
+for k in range(9): P(sfx, key(), 35.12 + k * 0.08, 0.3, 0.2 * np.sin(k))
+P(sfx, click(1.0), 36.05, 0.42); P(sfx, impact(48, 0.7), 36.1, 0.22); P(sfx, glow_on(1.0), 37.3, 0.2)
 # 10 brand (38–40): soft sonic logo
-place(sfx, impact(55, 1.0), 37.95, 0.26); place(sfx, chime(), 38.1, 0.3)
+P(sfx, impact(55, 1.0), 37.95, 0.26); P(sfx, chime(), 38.1, 0.3)
 sfx /= max(1, np.max(np.abs(sfx)) / 0.9)
 sf.write(f'sfx_{VOICE}.wav', sfx.astype(np.float32), SR)
 print('ok', DUR, 'peak', np.max(np.abs(sfx)))
