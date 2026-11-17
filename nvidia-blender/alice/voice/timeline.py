@@ -6,7 +6,7 @@ S = json.load(open(HERE / "sentences.json"))
 t, prev = 0.15, None
 for s in S:
     if prev is not None:
-        t += 0.18 if s["scene"] == prev else 0.32
+        t += 0.22 if s["scene"] == prev else 0.38
     s["t0"] = round(t, 3); t += s["dur"]; s["t1"] = round(t, 3); prev = s["scene"]
 first = {}
 for s in S: first.setdefault(s["scene"], s["t0"])

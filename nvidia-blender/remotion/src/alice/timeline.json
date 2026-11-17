@@ -1,91 +1,91 @@
 {
  "fps": 30,
- "end": 43.712,
- "frames": 1311,
+ "end": 49.849,
+ "frames": 1495,
  "scenes": [
   0.0,
-  5.051,
-  11.331,
-  17.588,
-  24.626,
-  30.194,
-  32.151,
-  33.744,
-  37.005,
-  41.712
+  6.279,
+  13.218,
+  20.952,
+  26.717,
+  33.708,
+  36.209,
+  38.115,
+  42.244,
+  47.849
  ],
  "sentences": [
   {
    "scene": 1,
    "say": "Did a woman U.S. officials suspect of spying for China get close to the most powerful man in A.I.?",
    "t0": 0.15,
-   "t1": 4.851
+   "t1": 6.019
   },
   {
    "scene": 2,
-   "say": "Meet Alice Huang, no relation, former C.E.O. of Megaspeed, a Singapore firm renting out Nvidia computing power.",
-   "t0": 5.171,
-   "t1": 11.131
+   "say": "Meet Alice Huang, no relation, who ran Megaspeed, a Singapore firm renting out Nvidia computing power.",
+   "t0": 6.399,
+   "t1": 12.958
   },
   {
    "scene": 3,
-   "say": "Bloomberg estimates it imported at least four point six billion dollars of Nvidia hardware.",
-   "t0": 11.451,
-   "t1": 15.292
+   "say": "Bloomberg estimates it bought at least four point six billion dollars of Nvidia hardware.",
+   "t0": 13.338,
+   "t1": 17.908
   },
   {
    "scene": 3,
    "say": "Its largest client, reports say: Alibaba.",
-   "t0": 15.472,
-   "t1": 17.388
+   "t0": 18.128,
+   "t1": 20.692
   },
   {
    "scene": 4,
    "say": "Renting that power abroad wasn't banned. Shipping chips into China was.",
-   "t0": 17.708,
-   "t1": 20.774
+   "t0": 21.072,
+   "t1": 24.865
   },
   {
    "scene": 4,
-   "say": "Investigators are probing whether chips crossed that line. No charges have been filed.",
-   "t0": 20.954,
-   "t1": 24.426
+   "say": "No charges have been filed.",
+   "t0": 25.085,
+   "t1": 26.457
   },
   {
    "scene": 5,
    "say": "The New York Times reported officials suspect she worked with Chinese intelligence, and had a relationship with Jensen Huang.",
-   "t0": 24.746,
-   "t1": 29.994
+   "t0": 26.837,
+   "t1": 33.448
   },
   {
    "scene": 6,
    "say": "Reuters says he called it routine business.",
-   "t0": 30.314,
-   "t1": 31.951
+   "t0": 33.828,
+   "t1": 35.949
   },
   {
    "scene": 7,
    "say": "On November twelfth, he resigned.",
-   "t0": 32.271,
-   "t1": 33.544
+   "t0": 36.329,
+   "t1": 37.855
   },
   {
    "scene": 8,
    "say": "China calls the claims groundless. Megaspeed denies wrongdoing.",
-   "t0": 33.864,
-   "t1": 36.805
+   "t0": 38.235,
+   "t1": 41.984
   },
   {
    "scene": 9,
-   "say": "So, did America's top A.I. tech leak? Nvidia's board says it has no reason to believe so.",
-   "t0": 37.125,
-   "t1": 41.512
+   "say": "So, did America's A.I. tech leak? Nvidia's board says it has no reason to believe so.",
+   "t0": 42.364,
+   "t1": 47.589
   },
   {
    "scene": 10,
    "say": "Follow Invisi Tech.",
-   "t0": 41.832,
-   "t1": 42.711
+   "t0": 47.969,
+   "t1": 48.954
   }
  ]
 }

@@ -7,24 +7,24 @@ from kokoro_onnx import Kokoro
 
 HERE = Path(__file__).parent
 ROOT = HERE.parent.parent
-S = [  # (scene, spoken)
+S = [  # (scene, spoken) — calmer pace version
     (1, "Did a woman U.S. officials suspect of spying for China get close to the most powerful man in A.I.?"),
-    (2, "Meet Alice Huang, no relation, former C.E.O. of Megaspeed, a Singapore firm renting out Nvidia computing power."),
-    (3, "Bloomberg estimates it imported at least four point six billion dollars of Nvidia hardware."),
+    (2, "Meet Alice Huang, no relation, who ran Megaspeed, a Singapore firm renting out Nvidia computing power."),
+    (3, "Bloomberg estimates it bought at least four point six billion dollars of Nvidia hardware."),
     (3, "Its largest client, reports say: Alibaba."),
     (4, "Renting that power abroad wasn't banned. Shipping chips into China was."),
-    (4, "Investigators are probing whether chips crossed that line. No charges have been filed."),
+    (4, "No charges have been filed."),
     (5, "The New York Times reported officials suspect she worked with Chinese intelligence, and had a relationship with Jensen Huang."),
     (6, "Reuters says he called it routine business."),
     (7, "On November twelfth, he resigned."),
     (8, "China calls the claims groundless. Megaspeed denies wrongdoing."),
-    (9, "So, did America's top A.I. tech leak? Nvidia's board says it has no reason to believe so."),
+    (9, "So, did America's A.I. tech leak? Nvidia's board says it has no reason to believe so."),
     (10, "Follow Invisi Tech."),
 ]
 k = Kokoro(str(ROOT / "voice/models/kokoro-v1.0.onnx"), str(ROOT / "voice/models/voices-v1.0.bin"))
 out = []
 for i, (sc, say) in enumerate(S):
-    a, sr = k.create(say, voice="am_michael", speed=1.38, lang="en-us")
+    a, sr = k.create(say, voice="am_michael", speed=1.23, lang="en-us")
     raw, f = HERE / f"_raw{i:02d}.wav", HERE / f"s_{i:02d}.wav"
     sf.write(raw, a, sr)
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(raw), "-af",

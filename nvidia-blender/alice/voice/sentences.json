@@ -2,61 +2,61 @@
  {
   "scene": 1,
   "say": "Did a woman U.S. officials suspect of spying for China get close to the most powerful man in A.I.?",
-  "dur": 4.701
+  "dur": 5.869
  },
  {
   "scene": 2,
-  "say": "Meet Alice Huang, no relation, former C.E.O. of Megaspeed, a Singapore firm renting out Nvidia computing power.",
-  "dur": 5.96
+  "say": "Meet Alice Huang, no relation, who ran Megaspeed, a Singapore firm renting out Nvidia computing power.",
+  "dur": 6.559
  },
  {
   "scene": 3,
-  "say": "Bloomberg estimates it imported at least four point six billion dollars of Nvidia hardware.",
-  "dur": 3.841
+  "say": "Bloomberg estimates it bought at least four point six billion dollars of Nvidia hardware.",
+  "dur": 4.57
  },
  {
   "scene": 3,
   "say": "Its largest client, reports say: Alibaba.",
-  "dur": 1.916
+  "dur": 2.564
  },
  {
   "scene": 4,
   "say": "Renting that power abroad wasn't banned. Shipping chips into China was.",
-  "dur": 3.066
+  "dur": 3.793
  },
  {
   "scene": 4,
-  "say": "Investigators are probing whether chips crossed that line. No charges have been filed.",
-  "dur": 3.472
+  "say": "No charges have been filed.",
+  "dur": 1.372
  },
  {
   "scene": 5,
   "say": "The New York Times reported officials suspect she worked with Chinese intelligence, and had a relationship with Jensen Huang.",
-  "dur": 5.248
+  "dur": 6.611
  },
  {
   "scene": 6,
   "say": "Reuters says he called it routine business.",
-  "dur": 1.637
+  "dur": 2.121
  },
  {
   "scene": 7,
   "say": "On November twelfth, he resigned.",
-  "dur": 1.273
+  "dur": 1.526
  },
  {
   "scene": 8,
   "say": "China calls the claims groundless. Megaspeed denies wrongdoing.",
-  "dur": 2.941
+  "dur": 3.749
  },
  {
   "scene": 9,
-  "say": "So, did America's top A.I. tech leak? Nvidia's board says it has no reason to believe so.",
-  "dur": 4.387
+  "say": "So, did America's A.I. tech leak? Nvidia's board says it has no reason to believe so.",
+  "dur": 5.225
  },
  {
   "scene": 10,
   "say": "Follow Invisi Tech.",
-  "dur": 0.879
+  "dur": 0.985
  }
 ]

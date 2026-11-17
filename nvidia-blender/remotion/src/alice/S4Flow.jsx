@@ -24,7 +24,7 @@ export const AliceS4F = ({ d = 7.04 }) => {
   const f = useCurrentFrame(), t = f / 30;
   const nA = ramp(f, 0, 0.3), mA = ramp(f, 0.15, 0.3), line = ramp(f, 0.35, 0.4), cn = ramp(f, 0.5, 0.3);
   const rentA = ramp(f, 0.4, 0.3), shipA = ramp(f, 1.8, 0.3);
-  const phaseB = ramp(f, d * 0.56, 0.3), noCh = ramp(f, d * 0.84, 0.3);
+  const phaseB = ramp(f, d * 0.58, 0.3), noCh = ramp(f, d * 0.72, 0.3);
   const yN = 330, yM = 560, yL = 900, yC = 1090;            // node rows and the export line
   const LX = CX - 150, RX = CX + 150;                       // rent path (left) / ship path (right)
   // rent: pulses flow straight through the line
@@ -63,7 +63,7 @@ export const AliceS4F = ({ d = 7.04 }) => {
         <div style={{ font: `700 30px ${BODY}`, color: '#ddd', marginTop: 6 }}>chips into China<br />banned</div>
       </div>
       {/* phase B: the question */}
-      <Chip x={RX} y={lerp(yM + 140, yL + 4, ease2(clamp((t - d * 0.58) / 1.0)))} s={1.3} col={C.red} o={phaseB * (1 - noCh * 0.5)} />
+      <Chip x={RX} y={lerp(yM + 140, yL + 4, ease2(clamp((t - d * 0.58) / 0.8)))} s={1.3} col={C.red} o={phaseB * (1 - noCh * 0.5)} />
       <div style={{ position: 'absolute', left: RX + 50, top: yL - 70, opacity: phaseB, font: `900 110px/1 ${FONT}`, color: C.red, textShadow: '0 0 30px rgba(229,72,77,.6)' }}>?</div>
       {/* headline */}
       <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 190, textAlign: 'center', opacity: 1 - phaseB }}>

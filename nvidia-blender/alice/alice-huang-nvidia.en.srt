@@ -1,48 +1,48 @@
 1
-00:00:00,150 --> 00:00:04,851
+00:00:00,150 --> 00:00:06,019
 Did a woman U.S. officials suspect of spying for China get close to the most powerful man in AI?
 
 2
-00:00:05,171 --> 00:00:11,131
-Meet Alice Huang, no relation, former CEO of Megaspeed, a Singapore firm renting out NVIDIA computing power.
+00:00:06,399 --> 00:00:12,958
+Meet Alice Huang, no relation, who ran Megaspeed, a Singapore firm renting out NVIDIA computing power.
 
 3
-00:00:11,451 --> 00:00:15,292
-Bloomberg estimates it imported at least $4.6 billion of NVIDIA hardware.
+00:00:13,338 --> 00:00:17,908
+Bloomberg estimates it bought at least $4.6 billion of NVIDIA hardware.
 
 4
-00:00:15,472 --> 00:00:17,388
+00:00:18,128 --> 00:00:20,692
 Its largest client, reports say: Alibaba.
 
 5
-00:00:17,708 --> 00:00:20,774
+00:00:21,072 --> 00:00:24,865
 Renting that power abroad wasn't banned. Shipping chips into China was.
 
 6
-00:00:20,954 --> 00:00:24,426
-Investigators are probing whether chips crossed that line. No charges have been filed.
+00:00:25,085 --> 00:00:26,457
+No charges have been filed.
 
 7
-00:00:24,746 --> 00:00:29,994
+00:00:26,837 --> 00:00:33,448
 The New York Times reported officials suspect she worked with Chinese intelligence, and had a relationship with Jensen Huang.
 
 8
-00:00:30,314 --> 00:00:31,951
+00:00:33,828 --> 00:00:35,949
 Reuters says he called it routine business.
 
 9
-00:00:32,271 --> 00:00:33,544
+00:00:36,329 --> 00:00:37,855
 On November 12, he resigned.
 
 10
-00:00:33,864 --> 00:00:36,805
+00:00:38,235 --> 00:00:41,984
 China calls the claims groundless. Megaspeed denies wrongdoing.
 
 11
-00:00:37,125 --> 00:00:41,512
-So, did America's top AI tech leak? NVIDIA's board says it has no reason to believe so.
+00:00:42,364 --> 00:00:47,589
+So, did America's AI tech leak? NVIDIA's board says it has no reason to believe so.
 
 12
-00:00:41,832 --> 00:00:42,711
+00:00:47,969 --> 00:00:48,954
 Follow InvisiTech.
 

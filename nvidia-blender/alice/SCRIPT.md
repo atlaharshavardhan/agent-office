@@ -27,3 +27,8 @@ belong to owners); Reuters + Megaspeed as text badges; U.S. and China as flags; 
 8. China calls the claims groundless. Megaspeed denies wrongdoing.
 9. So, did America's top AI tech leak? NVIDIA's board says it has no reason to believe so.
 Avoid: "by the hour", "smuggled", unattributed dollar figures.
+
+## v4 (calmer pace, ~49.8 s): v3 with small trims for pacing
+- "former CEO of" -> "who ran"; "imported" -> "bought"; "Investigators are probing whether chips crossed that line." dropped
+  (the on-screen "DID CHIPS CROSS?" carries it); "top" dropped from the last question. Voice speed 1.38 -> 1.23,
+  longer pauses between scenes.

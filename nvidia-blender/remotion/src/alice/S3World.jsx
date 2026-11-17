@@ -43,7 +43,7 @@ export const AliceS3W = ({ d = 6.26 }) => {
   const P = projector(cam, look, 40);
   const c1 = useMemo(() => arc(NV, TW, 2.6), []), c2 = useMemo(() => arc(TW, MY, 0.9), []), c3 = useMemo(() => arc(MY, HZ, 1.1), []);
   const a1 = ramp(f, 0.1, 0.4), r1 = ease((t - 0.35) / 1.0), r2 = ease((t - 1.25) / 0.9);
-  const ali = ramp(f, d * 0.6, 0.35), rent = ramp(f, d * 0.62, 0.4);
+  const ali = ramp(f, d * 0.63, 0.35), rent = ramp(f, d * 0.65, 0.4);
   const money = lerp(0, 4.6, ease((t - 0.4) / 2.4));
 
   const dots = (curve, upto, n, col, size, speed = 0.6, phase = 0, id = 'd') => [...Array(n)].map((_, k) => {
