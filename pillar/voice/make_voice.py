@@ -19,7 +19,7 @@ LINES = [  # (earliest start s, sentence with caption chunks split by |, optiona
     (14.8, f"Too close, | and the gap pinches shut. | The splitter becomes the bottleneck. | Just {n60['close']}."),
     (20.3, "Too far back, | and the streams merge again | before the door. | It barely helps."),
     (25.8, "Make it flat, | and the crowd hits it head-on. | No better than nothing."),
-    (31.3, f"Angle it at forty-five degrees, | one metre from the door, | and everyone is out in {spoken(R['best']['total'])}, | instead of {spoken(R['none']['total'])}."),
+    (31.3, f"At forty-five degrees, | one metre back, | everyone is out in {spoken(R['best']['total'])}, | not {spoken(R['none']['total'])}."),
     (38.3, "This is the exit paradox. | The right obstacle | speeds up the exit."),
     (43.15, "Follow InvisiTech | for more."),
 ]

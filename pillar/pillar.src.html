@@ -6,7 +6,7 @@
   /* layout follows the Shorts safe zones: title 220–450 px, picture 450–1500, caption 1250–1450, nothing below 1500 or right of 940 below 1100 */
   #hud > div { position: fixed; z-index: 4; pointer-events: none; color: #fff; }
   #card { top: 11.9%; left: 5.9vw; right: 5.9vw; background: rgba(16,22,38,.94); border: .2vw solid rgba(120,150,210,.28); border-radius: 2vw; padding: 1.7vw 3vw 1.9vw; box-sizing: border-box; box-shadow: 0 1.2vw 3vw rgba(0,0,0,.4); }
-  #card b { display: block; font: 700 2.3vw Sora, Arial; letter-spacing: .2em; color: #7fb2ff; } #card span { display: block; margin-top: .5vw; font: 800 4.0vw/1.15 Sora, Arial; color: #fff; white-space: nowrap; }
+  #card b { display: block; font: 700 2.3vw Sora, Arial; letter-spacing: .2em; color: #7fb2ff; } #card span { display: block; margin-top: .5vw; font: 800 3.8vw/1.15 Sora, Arial; color: #fff; white-space: nowrap; }
   #card span em { font-style: normal; color: #ffb547; }
   #meters { top: 18.3%; left: 5.9vw; right: 5.9vw; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.6vw; }
   #meters > div { background: rgba(16,22,38,.94); border: .2vw solid rgba(120,150,210,.22); border-radius: 1.6vw; padding: 1.3vw 2vw 1.4vw; box-sizing: border-box; }
@@ -200,9 +200,9 @@ const wm = new THREE.MeshStandardMaterial({ color: LOOK ? LOOK.wall : 0xeef0f2, 
   const rim = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.25, 60), new THREE.MeshBasicMaterial({ color: 0xf3e6c8, toneMapped: false })); rim.position.set(4.5 + 1.6 + ROWS * ST + 0.2, -0.3 + 0.3 + ROWS * RI, 0); scene.add(rim); }
 // the V-splitter: two short guide walls in front of the exit (exactly the walls in the physics), dark with a yellow top edge
 const wallM = new THREE.MeshStandardMaterial({ color: 0x2b303a, roughness: 0.45 }), topM = new THREE.MeshBasicMaterial({ color: 0xffc23d, toneMapped: false });
-function makeSplit(segs) { const g = new THREE.Group(), WH = 1.45, T = 0.14;
+function makeSplit(segs) { const g = new THREE.Group(), WH = 2.3, T = 0.18;
   for (const [x0, z0, x1, z1] of segs) { const L = Math.hypot(x1 - x0, z1 - z0), w = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(L + T, WH, T), wallM); b.position.y = WH / 2; b.castShadow = b.receiveShadow = true; w.add(b);
-    const cap = new THREE.Mesh(new THREE.BoxGeometry(L + T + 0.004, 0.05, T + 0.004), topM); cap.position.y = WH + 0.025; w.add(cap); w.position.set((x0 + x1) / 2, 0, (z0 + z1) / 2); w.rotation.y = -Math.atan2(z1 - z0, x1 - x0); g.add(w); }
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(L + T + 0.004, 0.08, T + 0.06), topM); cap.position.y = WH + 0.04; w.add(cap); w.position.set((x0 + x1) / 2, 0, (z0 + z1) / 2); w.rotation.y = -Math.atan2(z1 - z0, x1 - x0); g.add(w); }
   g.visible = false; scene.add(g); return g; }
 
 /* ---------- the four simulated runs (precomputed by tools/precompute.cjs from assets/fis.js; same 200 people, same start, same door) ---------- */

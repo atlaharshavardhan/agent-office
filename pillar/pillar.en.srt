@@ -1,34 +1,34 @@
 1
-00:00:00,300 --> 00:00:03,081
-Can a pillar in front of an exit get more people out?
+00:00:00,300 --> 00:00:02,724
+Can blocking an exit get more people out?
 
 2
-00:00:03,700 --> 00:00:09,413
-In a panic, the crowd squeezes into a locked arch at the door. In one minute, only 47 get out.
+00:00:03,700 --> 00:00:07,938
+In a panic, the crowd locks into an arch at the door. Only 52 get out.
 
 3
-00:00:09,700 --> 00:00:14,503
-Add one pillar, just off-centre. It takes the push from behind, and 59 get out.
+00:00:08,800 --> 00:00:14,190
+Add a V-shaped splitter. It cuts the crowd into two streams, and 94 get out. Nearly double.
 
 4
-00:00:16,200 --> 00:00:20,996
-Too close, and the gap gets too narrow. The pillar becomes the bottleneck. Just 18.
+00:00:14,800 --> 00:00:19,524
+Too close, and the gap pinches shut. The splitter becomes the bottleneck. Just 18.
 
 5
-00:00:22,200 --> 00:00:26,292
-Too far back, and the crowd closes in again. The arch locks. 40.
+00:00:20,300 --> 00:00:24,455
+Too far back, and the streams merge again before the door. It barely helps.
 
 6
-00:00:28,300 --> 00:00:33,131
-Back in the right spot, everyone is out in two minutes thirty-eight, instead of three minutes six.
+00:00:25,800 --> 00:00:29,385
+Make it flat, and the crowd hits it head-on. No better than nothing.
 
 7
-00:00:34,600 --> 00:00:37,098
-Same people. Same door. Just one pillar.
+00:00:31,300 --> 00:00:36,963
+At forty-five degrees, one metre back, everyone is out in two minutes two, not two minutes fifty-eight.
 
 8
-00:00:38,300 --> 00:00:41,986
-This is the pillar paradox. The right obstacle speeds up the exit.
+00:00:38,300 --> 00:00:41,942
+This is the exit paradox. The right obstacle speeds up the exit.
 
 9
 00:00:43,150 --> 00:00:44,898
