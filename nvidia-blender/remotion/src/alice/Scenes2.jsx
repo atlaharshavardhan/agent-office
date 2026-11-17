@@ -132,6 +132,7 @@ export const AliceS7 = ({ d }) => {
     <AbsoluteFill style={{ background: '#000' }}>
       <Seq dir="alice_s7" d={d} fallback={<BlendSeq dir="v2_stage" start={0} first={20} last={60} rate={1} filter={`brightness(${lerp(0.9, 0.25, clamp(f / (d * 30)))})`} />} />
       <Shade top={0.8} bottom={0.5} />
+      <AbsoluteFill style={{ background: 'linear-gradient(180deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.88) 30%, rgba(0,0,0,0) 46%)' }} />
       <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 230, textAlign: 'center' }}>
         <div style={{ font: `800 60px ${FONT}`, color: C.red, letterSpacing: 4, opacity: ramp(f, 0, 0.2) }}>NOV 12, 2026</div>
         <div style={{ font: `800 140px/1 ${FONT}`, color: '#fff', letterSpacing: -4, opacity: ramp(f, 0.2, 0.25) }}>RESIGNED</div>
