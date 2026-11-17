@@ -36,7 +36,8 @@
   #term pre b { color: #8fdcff; font-weight: 500; } #term pre mark { background: rgba(143,220,255,.14); color: #bfeaff; border-radius: .8vw; padding: 0 .5vw; box-shadow: inset 0 -.35vw 0 rgba(143,220,255,.55); } #term .cur { display: inline-block; width: 2vw; height: 4.1vw; background: #e8ecf2; vertical-align: -0.5vw; }
   #outro { position: fixed; inset: 0; z-index: 6; opacity: 0; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
     background: radial-gradient(60% 40% at 50% 46%, #111522 0%, #07080c 60%, #040506 100%); color: #fff; text-align: center; }
-  #oLogo { width: 21vw; height: 21vw; border-radius: 50%; }
+  #oWrap { position: relative; width: 21vw; height: 21vw; } #oLogo { position: relative; width: 21vw; height: 21vw; border-radius: 50%; }
+  #oWrap .wv { position: absolute; inset: 0; border-radius: 50%; border: .45vw solid rgba(74,168,255,.75); box-shadow: 0 0 3vw rgba(74,168,255,.55), inset 0 0 2vw rgba(74,168,255,.35); opacity: 0; }   /* V5.3: glow waves out of the logo (V4 style) */
   #oName { margin-top: 3.4vw; font: 800 10vw/1 Sora, Arial, sans-serif; letter-spacing: -0.02em; } #oName b { color: #4fc3f7; font-weight: 800; }
   #oTag { margin-top: 2.4vw; font: 500 3.7vw 'IBM Plex Sans', Arial, sans-serif; color: rgba(255,255,255,.72); letter-spacing: .01em; }
   #endcard { position: fixed; z-index: 4; left: 8%; right: 16%; top: 23.5%; height: 34.5%; border-radius: 5vw; overflow: hidden; border: 1px solid rgba(255,255,255,.22);
@@ -63,7 +64,7 @@
   <div class="row"><span class="ic"></span><b>Logo glow</b><div class="bar" id="lBar"><i></i></div></div></div>
 <div id="sw"><span>Glowing logo</span><div class="tg"><i></i></div></div>
 <div id="term"><div class="bar"><i></i><i></i><i></i><span>Terminal — zsh</span></div><pre id="tPre"></pre></div>
-<div id="outro"><img id="oLogo" src="__LOGO__" alt=""><div id="oName"><span>Invisi</span><b>Tech</b></div><div id="oTag">The tech behind everyday life.</div></div>
+<div id="outro"><div id="oWrap"><i class="wv"></i><i class="wv"></i><img id="oLogo" src="__LOGO__" alt=""></div><div id="oName"><span>Invisi</span><b>Tech</b></div><div id="oTag">The tech behind everyday life.</div></div>
 <div id="endcard"><canvas id="ecScene"></canvas><div id="ecShade"></div>
   <div id="ecBrand"><img id="ecLogo" src="__LOGO__" alt=""><div id="ecName"><span>Invisi</span><b>Tech</b></div><div id="ecHandle">@TheInvisiTech</div>
   <div id="ecIcons"><div><svg viewBox="0 0 24 24"><path d="M2 10h4v11H2zM8 21h9.5a2 2 0 0 0 2-1.6l1.4-7A2 2 0 0 0 19 10h-5.5l.8-4.2A2 2 0 0 0 12.4 3.5L8 9z" fill="#4aa8ff"/></svg>Like</div>
@@ -691,7 +692,10 @@ function renderAt(t) {
   SCREEN.material.map = WALL; SCREEN.material.color.setScalar(0); SCREEN.visible = true; draw();   // dark screen in every scene
   const o = $('outro'), uo = END.outro; o.style.opacity = uo < 0 ? 0 : ease(ramp(uo, 0, 0.25));   // V5 brand card: full frame, no buttons
   if (uo >= 0) { const pop = (el, a0, a1, s0) => { const v = easeOut(ramp(uo, a0, a1)); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 1.2}vh) scale(${s0 + (1 - s0) * v})`; };
-    pop($('oLogo'), 0.1, 0.6, 0.92); $('oLogo').style.boxShadow = `0 0 ${30 + 40 * ease(ramp(uo, 0.2, 0.9))}px rgba(74,168,255,${0.25 + 0.3 * ease(ramp(uo, 0.2, 0.9))})`;
+    pop($('oLogo'), 0.1, 0.6, 0.92); { const g = ease(ramp(uo, 0.2, 0.9)), br = 0.5 + 0.5 * Math.sin(uo * 4.2);   // V4-style halo: soft blue ring + glow that breathes
+      $('oLogo').style.boxShadow = `0 0 0 ${(2.4 * g).toFixed(2)}vw rgba(74,168,255,.12), 0 0 ${(45 + 35 * g + 12 * br * g).toFixed(1)}px rgba(74,168,255,${(0.35 + 0.4 * g).toFixed(3)})`; }
+    [...$('oWrap').querySelectorAll('.wv')].forEach((w, i) => { const f = (uo - 0.35 - i * 0.6) / 1.1, v = f > 0 && f < 1 ? f : -1;   // waves of light rippling out of the logo
+      w.style.opacity = v < 0 ? 0 : (0.9 * (1 - v) * Math.min(1, v * 6)).toFixed(3); w.style.transform = `scale(${v < 0 ? 1 : (1 + 1.3 * easeOut(v)).toFixed(3)})`; });
     pop($('oName'), 0.35, 0.85, 0.96); pop($('oTag'), 0.6, 1.1, 1); }
 }
 const END = { a: 0, brand: 0, screen: 0, card: 0, outro: -1 };
