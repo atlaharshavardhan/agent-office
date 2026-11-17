@@ -1,0 +1,149 @@
+{
+ "fps": 30,
+ "frames": 1350,
+ "end": 45.0,
+ "scenes": [
+  0.0,
+  4.253,
+  7.439,
+  13.319,
+  19.693,
+  30.293,
+  37.378,
+  43.0
+ ],
+ "beats": {
+  "reasons": [
+   20.908,
+   23.177,
+   26.24
+  ],
+  "cash": 5.928,
+  "question": 38.942,
+  "down35": 34.969,
+  "dc": 8.79,
+  "network": 17.656
+ },
+ "headline": [
+  "$2 TRILLION",
+  "GONE"
+ ],
+ "compare": {
+  "loss": 2.0,
+  "value": 1.59,
+  "name": "Meta"
+ },
+ "capex": {
+  "big": "$700B+",
+  "sub": "Big Tech\u2019s planned AI spending this year (est.)"
+ },
+ "reason1": {
+  "sub": "Local voters push back on new AI data centers",
+  "stat": "40 of 41",
+  "label": "local votes backed limits"
+ },
+ "reason3": {
+  "sub": "Amid a board investigation",
+  "kicker": "NOV 12 \u00b7 REPORTED BY MULTIPLE OUTLETS",
+  "headline": "Jensen Huang steps down as NVIDIA CEO"
+ },
+ "sales": "Latest quarter: $96.2B revenue, +106%",
+ "sentences": [
+  {
+   "line": 1,
+   "cap": "In six weeks, NVIDIA lost **$2 trillion** in market value.",
+   "t0": 0.35,
+   "t1": 4.083
+  },
+  {
+   "line": 2,
+   "cap": "That\u2019s more than **all of Meta.**",
+   "t0": 4.403,
+   "t1": 5.748
+  },
+  {
+   "line": 2,
+   "cap": "Not cash. **Paper value.**",
+   "t0": 5.928,
+   "t1": 7.269
+  },
+  {
+   "line": 3,
+   "cap": "Why so valuable?",
+   "t0": 7.589,
+   "t1": 8.71
+  },
+  {
+   "line": 3,
+   "cap": "NVIDIA makes about **8 in 10 AI chips.**",
+   "t0": 8.89,
+   "t1": 11.849
+  },
+  {
+   "line": 4,
+   "cap": "This year, Big Tech plans to spend **$700B+ on AI.**",
+   "t0": 13.469,
+   "t1": 17.576
+  },
+  {
+   "line": 4,
+   "cap": "NVIDIA sits at **the center.**",
+   "t0": 17.756,
+   "t1": 19.273
+  },
+  {
+   "line": 5,
+   "cap": "Then, **three shocks.**",
+   "t0": 19.843,
+   "t1": 20.828
+  },
+  {
+   "line": 5,
+   "cap": "Voters backed **limits on new data centers.**",
+   "t0": 21.008,
+   "t1": 23.097
+  },
+  {
+   "line": 5,
+   "cap": "Investors questioned NVIDIA **funding its own customers.**",
+   "t0": 23.277,
+   "t1": 26.16
+  },
+  {
+   "line": 5,
+   "cap": "And CEO Jensen Huang **stepped down** amid a board investigation.",
+   "t0": 26.34,
+   "t1": 30.123
+  },
+  {
+   "line": 6,
+   "cap": "From a record **$5.77T** to **$3.76T.**",
+   "t0": 30.443,
+   "t1": 34.789
+  },
+  {
+   "line": 6,
+   "cap": "Down **35%.**",
+   "t0": 34.969,
+   "t1": 36.308
+  },
+  {
+   "line": 7,
+   "cap": "Sales are **still growing.**",
+   "t0": 37.528,
+   "t1": 38.762
+  },
+  {
+   "line": 7,
+   "cap": "So, is this an **AI bubble,** or **market panic?**",
+   "t0": 38.942,
+   "t1": 41.669
+  },
+  {
+   "line": 8,
+   "cap": "Follow InvisiTech.",
+   "t0": 43.25,
+   "t1": 44.33
+  }
+ ]
+}

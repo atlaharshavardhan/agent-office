@@ -51,3 +51,14 @@ NVIDIA is a trademark of NVIDIA Corporation.
 | Company names (Microsoft, Alphabet, Amazon, Meta) | Plain text only | No logos are shown |
 
 Nothing in v1 reuses code or geometry from `bddicken/nvidia` or `staru09/gpu_viz`, because neither has a licence.
+
+## V2 additions
+| Asset | Source | License |
+|---|---|---|
+| Base human mesh, skeleton, weights, macro targets (`assets/characters/makehuman/`) | MakeHuman project (github.com/makehumancommunity) | CC0 1.0 |
+| Characters `assets/characters/*.blend` (jensen_huang, exec_a–c, investor_a–c) | Built here by `scripts/build_character.py` from the CC0 assets | Ours |
+| Scenes v2_stage / meeting / trading / build / overlook | Built here by `scripts/build_v2.py` | Ours |
+
+The "Jensen" character is a stylized signature look (grey hair, glasses, black leather jacket), not a facial likeness.
+It is always labelled as an illustration and is never shown saying or doing anything that did not happen.
+Executives and investors are fictional.

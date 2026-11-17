@@ -17,8 +17,8 @@ export const MoneyLoop3D = ({ start, end }) => {
   const lt = f / 30 - start, d = end - start;
   const s1 = ramp(f, start + 0.15, 0.5), s2 = ramp(f, start + 0.95, 0.5), s3 = ramp(f, start + 1.75, 0.5);
   const az = lerp(-0.35, 0.25, lt / d);
-  const cam = [Math.sin(az) * 7.6, 4.6, Math.cos(az) * 7.6];
-  const look = [0, 0.7, -0.3];
+  const cam = [Math.sin(az) * 12, 6.8, Math.cos(az) * 12];
+  const look = [0.35, 0.6, -0.4];
   const P = projector(cam, look, 40);
   const c1 = useMemo(() => arc(NV, AI, 2.6), []), c2 = useMemo(() => arc(AI, NV, 3.4), []), c3 = useMemo(() => arc(NV, DC, 2.4), []);
   const flow = (curve, n, on, color, kind) => [...Array(n)].map((_, k) => {
@@ -70,8 +70,8 @@ export const MoneyLoop3D = ({ start, end }) => {
       {lbl([AI.x, -0.15, AI.z + 0.7], 'AI companies', '#F5F5F5', s1, 40)}
       {lbl([DC.x, -0.1, DC.z + 1.1], 'GPU data centers', '#F5F5F5', s3, 36)}
       {lbl(c1.getPoint(0.5).toArray(), '① invests $', C.gold, s1)}
-      {lbl(c2.getPoint(0.5).toArray(), '② buys NVIDIA chips', C.green, s2)}
-      {lbl(c3.getPoint(0.5).toArray(), '③ chips ship out', C.green, s3)}
+      {lbl(c2.getPoint(0.4).toArray(), '② buys NVIDIA chips', C.green, s2)}
+      {lbl(c3.getPoint(0.72).toArray(), '③ chips ship out', C.green, s3)}
       <BigTitle at={start + 0.05} lines={[['The money loop']]} sub="Is the demand real, or partly funded by NVIDIA?" size={96} />
     </div>
   );

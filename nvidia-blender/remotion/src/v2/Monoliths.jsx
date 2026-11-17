@@ -14,8 +14,8 @@ export const Monoliths = ({ start, end, loss = 2.0, cmpValue = 1.59, cmpName = '
   const r1 = ramp(f, start + 0.05, 0.55), r2 = ramp(f, start + 0.35, 0.55);
   const k = 1.15;                                  // world units per $1T
   const h1 = loss * k * r1, h2 = cmpValue * k * r2;
-  const cam = [lerp(-0.6, 0.2, lt / d), 0.55 + lt * 0.05, lerp(6.2, 5.4, lt / d)];
-  const look = [0, 1.55, 0];
+  const cam = [lerp(-0.5, 0.2, lt / d), 1.1 + lt * 0.04, lerp(8.6, 7.8, lt / d)];
+  const look = [0.05, 1.75, 0];
   const P = projector(cam, look, 42);
   const cash = ramp(f, cashAt ?? start + 1.6, 0.4);
   const label = (p, node, a) => {
@@ -27,7 +27,9 @@ export const Monoliths = ({ start, end, loss = 2.0, cmpValue = 1.59, cmpName = '
       <ThreeCanvas width={W} height={H} shadows gl={{ antialias: true, preserveDrawingBuffer: true }}>
         <CamRig pos={cam} look={look} fov={42} />
         <StudioEnv />
-        <ambientLight intensity={0.25} />
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[2, 3, 8]} intensity={1.6} />
+        <pointLight position={[2.4, 2.6, 2.2]} color="#dfe6ee" intensity={6} distance={7} />
         <directionalLight position={[-3, 7, 4]} intensity={2.6} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048}
           shadow-camera-left={-6} shadow-camera-right={6} shadow-camera-top={6} shadow-camera-bottom={-6} />
         <pointLight position={[-1.2, 2.4, 1.6]} color={C.red} intensity={5} distance={6} />
@@ -54,7 +56,7 @@ export const Monoliths = ({ start, end, loss = 2.0, cmpValue = 1.59, cmpName = '
       {label([0.95, h2 + 0.12, 0.62], <div><div style={{ font: "800 92px/1 'Inter Display',Inter", color: C.silver }}>${cmpValue.toFixed(1)}T</div>
         <div style={{ font: '700 32px Inter', color: '#F5F5F5' }}>all of {cmpName}</div></div>, r2)}
       <BigTitle at={start + 0.05} lines={[['Bigger than'], [`all of ${cmpName}`, C.red]]} size={96} />
-      <div style={{ position: 'absolute', left: 90, right: 180, top: 1120, textAlign: 'center', opacity: cash }}>
+      <div style={{ position: 'absolute', left: 90, right: 180, top: 1160, textAlign: 'center', opacity: cash }}>
         <span style={{ font: "800 46px 'Inter Display',Inter", color: '#101214', background: '#F5F5F5', padding: '10px 26px', borderRadius: 12 }}>MARKET VALUE · NOT CASH</span>
       </div>
     </div>

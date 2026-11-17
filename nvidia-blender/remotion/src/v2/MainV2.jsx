@@ -68,7 +68,7 @@ const S4 = ({ start, end }) => {
   if (t < B.network) {
     return (
       <AbsoluteFill>
-        <BlendSeq dir="v2_meeting" start={start} first={1} last={105} step={2} rate={105 / ((B.network - start) * 30)} />
+        <BlendSeq dir="v2_meeting" start={start} first={1} last={105} step={2} rate={105 / ((B.network - start) * 30)} filter="brightness(1.9) contrast(1.05)" />
         <Shade top={0.6} bottom={0.35} />
         <BigTitle at={start + 0.1} lines={[[TL.capex.big, C.green]]} sub={TL.capex.sub} size={128} />
         <IllustrationTag text="Fictional executives · illustration" />
@@ -104,7 +104,7 @@ const S5 = ({ start, end }) => {
   if (t < r3) return <MoneyLoop3D start={r2} end={r3} />;
   return (
     <AbsoluteFill>
-      <BlendSeq dir="v2_trading" start={r3} first={1} last={110} step={2} rate={110 / ((end - r3) * 30)} />
+      <BlendSeq dir="v2_trading" start={r3} first={1} last={110} step={2} rate={110 / ((end - r3) * 30)} filter="brightness(1.7)" />
       <Shade top={0.6} bottom={0.35} />
       <BigTitle at={r3 + 0.05} lines={[['3 · CEO', C.white], ['steps down', C.red]]} sub={TL.reason3.sub} size={96} />
       <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 1020, opacity: ramp(f, r3 + 0.5, 0.35) }}>
