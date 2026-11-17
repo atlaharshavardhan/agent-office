@@ -6,9 +6,9 @@
      - unsure and stressed, most head for the exit they know (B), so B jams while A, C and D stay almost empty
      - after the announcement (and stewards at every exit) people pick the nearest exit that is not crowded */
 function runSim(opt) {
-  const o = Object.assign({ N: 650, fps: 30, T: 40, infoAt: 33.6, barAt: 27.5, seed: 11 }, opt || {});
+  const o = Object.assign({ N: 760, fps: 30, T: 40, infoAt: 33.6, barAt: 27.5, seed: 11 }, opt || {});
   let sd = o.seed; const R = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
-  const X0 = -17, X1 = 17, Z0 = -11, Z1 = 11, rad = 0.23, GW = 2.6;   // room (m); agent radius; exit gap width
+  const X0 = -17, X1 = 17, Z0 = -14, Z1 = 14, rad = 0.23, GW = 2.6;   // room (m); agent radius; exit gap width
   const EX = [   // exits: gap centre, outward normal
     { id: 'A', x: -9, z: Z0, nx: 0, nz: -1 }, { id: 'B', x: 9, z: Z0, nx: 0, nz: -1 },
     { id: 'C', x: X0, z: 1, nx: -1, nz: 0 }, { id: 'D', x: X1, z: 1, nx: 1, nz: 0 }];
@@ -27,7 +27,7 @@ function runSim(opt) {
   const N = P.length, F = Math.round(o.T * o.fps) + 1, dt = 1 / o.fps;
   const near = (p) => EX.reduce((b, e, i) => Math.hypot(p.x - e.x, p.z - e.z) < Math.hypot(p.x - EX[b].x, p.z - EX[b].z) ? i : b, 0);
   P.forEach(p => { p.ex = p.fam ? 1 : near(p); p.quickT = 0.2 + R() * 1.6; });
-  const BAR = [7.6, -8.9, 10.4, -9.8], barAt = o.barAt;   // slanted barrier in front of exit B (the obstacle effect), placed at barAt
+  const BAR = [7.6, -11.9, 10.4, -12.8], barAt = o.barAt;   // slanted barrier in front of exit B (the obstacle effect), placed at barAt
   const out = { N, F, fps: o.fps, EX, PIL, PR, seg, X0, X1, Z0, Z1, GW, BAR, barAt,
     x: new Float32Array(N * F), z: new Float32Array(N * F), yaw: new Float32Array(N * F), st: new Uint8Array(N * F), red: new Uint8Array(N * F), look: new Float32Array(N * F),
     stats: [] };   // st: 0 waiting, 1 moving, 2 outside/leaving, 3 gone

@@ -24,9 +24,9 @@
   .pr u { display: block; height: 100%; background: #4a9ae8; border-radius: 1vw; } .pr u.hot { background: #e0483e; }
   .pr em { font: 700 2.2vw Sora, Arial; font-style: normal; letter-spacing: .1em; }
   .pr.on { color: #fff; border-color: rgba(255,190,90,.75); box-shadow: 0 0 2vw rgba(255,190,90,.22); }
-  #cap { position: absolute; top: 65.6%; left: 8%; right: 14%; background: rgba(244,246,250,.96); color: #10151d; border-radius: 1.6vw; padding: 1.5vw 2.6vw; text-align: center; font: 700 3.3vw/1.22 Sora, Arial; box-shadow: 0 1.4vw 4vw rgba(0,0,0,.4); }
+  #cap { position: absolute; top: 67%; left: 8%; right: 14%; background: rgba(244,246,250,.96); color: #10151d; border-radius: 1.6vw; padding: 1.5vw 2.6vw; text-align: center; font: 700 3.3vw/1.22 Sora, Arial; box-shadow: 0 1.4vw 4vw rgba(0,0,0,.4); }
   #cap:empty { display: none; }
-  #stats { position: absolute; top: 72.4%; left: 8%; right: 14%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4vw; }
+  #stats { position: absolute; top: 73.3%; left: 8%; right: 14%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4vw; }
   #stats div { background: rgba(12,19,36,.92); border: .18vw solid rgba(255,255,255,.12); border-radius: 1.4vw; padding: .9vw 1vw; text-align: center; }
   #stats b { display: block; font: 700 4.4vw Sora, Arial; font-variant-numeric: tabular-nums; } #stats span { font: 600 2vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.65); letter-spacing: .08em; text-transform: uppercase; }
   #stats div.hot b { color: #ff6a5c; }
@@ -1386,9 +1386,9 @@
      - unsure and stressed, most head for the exit they know (B), so B jams while A, C and D stay almost empty
      - after the announcement (and stewards at every exit) people pick the nearest exit that is not crowded */
 function runSim(opt) {
-  const o = Object.assign({ N: 650, fps: 30, T: 40, infoAt: 33.6, barAt: 27.5, seed: 11 }, opt || {});
+  const o = Object.assign({ N: 760, fps: 30, T: 40, infoAt: 33.6, barAt: 27.5, seed: 11 }, opt || {});
   let sd = o.seed; const R = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
-  const X0 = -17, X1 = 17, Z0 = -11, Z1 = 11, rad = 0.23, GW = 2.6;   // room (m); agent radius; exit gap width
+  const X0 = -17, X1 = 17, Z0 = -14, Z1 = 14, rad = 0.23, GW = 2.6;   // room (m); agent radius; exit gap width
   const EX = [   // exits: gap centre, outward normal
     { id: 'A', x: -9, z: Z0, nx: 0, nz: -1 }, { id: 'B', x: 9, z: Z0, nx: 0, nz: -1 },
     { id: 'C', x: X0, z: 1, nx: -1, nz: 0 }, { id: 'D', x: X1, z: 1, nx: 1, nz: 0 }];
@@ -1407,7 +1407,7 @@ function runSim(opt) {
   const N = P.length, F = Math.round(o.T * o.fps) + 1, dt = 1 / o.fps;
   const near = (p) => EX.reduce((b, e, i) => Math.hypot(p.x - e.x, p.z - e.z) < Math.hypot(p.x - EX[b].x, p.z - EX[b].z) ? i : b, 0);
   P.forEach(p => { p.ex = p.fam ? 1 : near(p); p.quickT = 0.2 + R() * 1.6; });
-  const BAR = [7.6, -8.9, 10.4, -9.8], barAt = o.barAt;   // slanted barrier in front of exit B (the obstacle effect), placed at barAt
+  const BAR = [7.6, -11.9, 10.4, -12.8], barAt = o.barAt;   // slanted barrier in front of exit B (the obstacle effect), placed at barAt
   const out = { N, F, fps: o.fps, EX, PIL, PR, seg, X0, X1, Z0, Z1, GW, BAR, barAt,
     x: new Float32Array(N * F), z: new Float32Array(N * F), yaw: new Float32Array(N * F), st: new Uint8Array(N * F), red: new Uint8Array(N * F), look: new Float32Array(N * F),
     stats: [] };   // st: 0 waiting, 1 moving, 2 outside/leaving, 3 gone
@@ -1691,7 +1691,8 @@ const sRim = new THREE.DirectionalLight(0x6f9cff, 0.45); sRim.position.set(0, 20
   for (let i = 0; i < 16; i++) { px.fillStyle = i % 2 ? '#14351c' : '#173b20'; px.fillRect(i * 64, 0, 65, 256); }
   px.strokeStyle = 'rgba(255,255,255,.25)'; px.lineWidth = 5; px.beginPath(); px.moveTo(0, 60); px.lineTo(1024, 60); px.stroke(); px.strokeRect(330, 60, 364, 150);
   const pt = new THREE.CanvasTexture(pc); pt.encoding = THREE.sRGBEncoding;
-  const pitch = new THREE.Mesh(new THREE.PlaneGeometry(80, 20), new THREE.MeshStandardMaterial({ map: pt, roughness: 0.9, envMapIntensity: 0.2 })); pitch.rotation.x = -Math.PI / 2; pitch.position.set(0, -0.02, SIM.Z1 + 10.5); pitch.receiveShadow = true; SS.add(pitch);
+  const pitch = new THREE.Mesh(new THREE.PlaneGeometry(80, 20), new THREE.MeshStandardMaterial({ map: pt, roughness: 0.9, envMapIntensity: 0.2 })); pitch.rotation.x = -Math.PI / 2; pitch.position.set(0, -0.02, SIM.Z1 + 30);   // pitch pushed out of frame: only a dark pitch-side apron shows
+  const apron = new THREE.Mesh(new THREE.PlaneGeometry(90, 19), new THREE.MeshStandardMaterial({ color: 0x1a2230, roughness: 0.8 })); apron.rotation.x = -Math.PI / 2; apron.position.set(0, -0.01, SIM.Z1 + 9.8); apron.receiveShadow = true; SS.add(apron); pitch.receiveShadow = true; SS.add(pitch);
   const og = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), new THREE.MeshStandardMaterial({ color: 0x0c1018, roughness: 0.95 })); og.rotation.x = -Math.PI / 2; og.position.y = -0.05; SS.add(og);
   const wm = new THREE.MeshStandardMaterial({ color: 0x262b34, roughness: 0.85, envMapIntensity: 0.3 }), cm = new THREE.MeshStandardMaterial({ color: 0x6b7686, roughness: 0.4, metalness: 0.4 });
   const tun = new THREE.MeshBasicMaterial({ color: 0x020305 });
@@ -1793,7 +1794,7 @@ const SC = [
     setTitle(['What happens', 'when a stadium <em>panics?</em>'], sm(u, 0.2, 0.6));
   }],
   [3, 43, (u, t) => {   // 2–5. the explanation as a live crowd simulation: alarm → some move, others watch → copying ripples → one familiar exit jams → announcement + stewards → every exit used
-    const K = [[3, V(0, 58, 36), V(0, 0, 3)], [9.5, V(0, 72, 44), V(0, 0, 3.5)], [20, V(0, 72, 44), V(0, 0, 3.5)], [24, V(3, 62, 37), V(3, 0, 2)], [29.9, V(6, 52, 27), V(7, 0, -3)], [31.2, V(8, 36, 10), V(8, 0, -6.2)], [36.4, V(8, 38, 11), V(8, 0, -6)], [40, V(0, 72, 44), V(0, 0, 3.5)], [43, V(0, 75, 46), V(0, 0, 3.5)]];
+    const K = [[3, V(0, 66, 31), V(0, 0, 1.5)], [9.5, V(0, 80, 38), V(0, 0, 2)], [20, V(0, 80, 38), V(0, 0, 2)], [24, V(5, 60, 24), V(6, 0, -4)], [29.9, V(5, 60, 24), V(6, 0, -4)], [31.2, V(8, 36, 7), V(8, 0, -9.2)], [36.4, V(8, 38, 8), V(8, 0, -9)], [40, V(0, 80, 38), V(0, 0, 2)], [43, V(0, 82, 39), V(0, 0, 2)]];
     let j = 0; while (j < K.length - 2 && t >= K[j + 1][0]) j++; const k = easeIO(ramp(t, K[j][0], K[j + 1][0]));
     shot(K[j][1].clone().lerp(K[j + 1][1], k), K[j][2].clone().lerp(K[j + 1][2], k), 40, 50, 0);
     simUI(t, simFrame(t));
