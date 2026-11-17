@@ -78,7 +78,7 @@ def hook_title(im, t):
         text_c(d, (510 * K, y + 6 * K), line, F_HOOK, (0, 0, 0, int(160 * v))); lay = lay.filter(ImageFilter.GaussianBlur(12 * K)); d = ImageDraw.Draw(lay)
         text_c(d, (510 * K, y), line, F_HOOK, (255, 255, 255, int(255 * v))); im.alpha_composite(lay)
 
-V5 = os.path.basename(os.path.normpath(vdir)) == 'chris_v5'   # V5 (Harsh, 17 Nov 2026): no opening photo; bedroom on "dims", café on "brightens"; card sits lower, under the AUTO BRIGHTNESS heading
+V5 = os.path.basename(os.path.normpath(vdir)) in ('chris_v5', 'chris_v5b')   # V5 (Harsh, 17 Nov 2026): no opening photo; bedroom on "dims", café on "brightens"; card sits lower, under the AUTO BRIGHTNESS heading
 CARD = tuple(round(c * K) for c in ((124, 374, 896, 571) if V5 else (124, 237, 896, 434))); RAD, SH = round(48 * K), round(24 * K)
 card_mask = Image.new('L', (W, H), 0); ImageDraw.Draw(card_mask).rounded_rectangle(CARD, RAD, fill=255)
 card_shadow = Image.new('L', (W, H), 0); ImageDraw.Draw(card_shadow).rounded_rectangle((CARD[0], CARD[1] + SH, CARD[2], CARD[3] + SH), RAD, fill=150); card_shadow = card_shadow.filter(ImageFilter.GaussianBlur(30 * K))
@@ -90,11 +90,12 @@ HOOK_END, BLEND = caps[0][1], 0.0   # clean cut between "This logo" and "shouldn
 CAFE, BED = (span('Brighter in a bright room'), span('dimmer in a dark one')) if not V5 else (None, None)
 def heading_from(im, frame3d):   # V5: lift the bright heading letters off the 3D frame (white + gold), with a soft shadow
     box = (round(100 * K), round(250 * K), round(920 * K), round(340 * K)); cut = frame3d.crop(box)
-    lum = np.asarray(cut.convert('L')).astype(np.float32); al = Image.fromarray(np.clip((lum - 25) / 110 * 255, 0, 255).astype(np.uint8))
+    lum = np.asarray(cut.convert('L')).astype(np.float32); al = Image.fromarray(np.clip((lum - 70) / 90 * 255, 0, 255).astype(np.uint8))
     sh = Image.new('RGBA', im.size, (0, 0, 0, 0)); sh.paste(Image.new('RGBA', cut.size, (0, 0, 0, 170)), (box[0], box[1] + round(4 * K)), al); im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(10 * K)))
     im.paste(cut.convert('RGBA'), box[:2], al)
-_B = json.load(open(os.path.join(vdir, 'timeline.json')))['B'] if V5 else None
-V5_BED, V5_CAFE = ((_B[7], _B[7] + 1.3), (_B[7] + 1.3, _B[8])) if V5 else (None, None)   # V5.1: bedroom on "dims", café on "brightens"; hard cuts both ends
+_TL = json.load(open(os.path.join(vdir, 'timeline.json'))) if V5 else None
+_k = _TL.get('order', list(range(10))).index(7) if V5 else 0; _B = _TL['B'] if V5 else None   # slot of the brightness scene (V5.4-B plays it second)
+V5_BED, V5_CAFE = ((_B[_k], _B[_k] + 1.3), (_B[_k] + 1.3, _B[_k + 1])) if V5 else (None, None)   # V5.1: bedroom on "dims", café on "brightens"; hard cuts both ends
 def hook_title_v5(im):   # V5: on from frame 1, "THE GLOW" white, "IS BACK" gold, subtle shadow
     for i, (line, col) in enumerate([('THE GLOW', (255, 255, 255, 255)), ('IS BACK', (255, 197, 61, 255))]):
         lay = Image.new('RGBA', im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); y = (300 + i * 92) * K
@@ -103,6 +104,9 @@ def hook_title_v5(im):   # V5: on from frame 1, "THE GLOW" white, "IS BACK" gold
 def shot_v5(t, frame3d):
     if t < HOOK_END:   # opening photo (Higgsfield still 1), logo already glowing on frame 1, slow push-in; clean cut into the 3D pull-back
         im = ken(P_HOOK, t, 0, HOOK_END, 1.0, 1.06, 0.46).convert('RGBA'); hook_title_v5(im); subtitle(im, cap_at(t)); note(im); return im
+    if V5_BED[0] - 0.3 <= t < V5_BED[0]:   # V5.4: the 3D MacBook ends on the photo's framing; dissolve into the bedroom photo (card + heading arrive with it)
+        e = (t - (V5_BED[0] - 0.3)) / 0.3; e = e * e * (3 - 2 * e)
+        return Image.blend(frame3d.convert('RGBA'), ken(P_BED, V5_BED[0], V5_BED[0], V5_BED[1], 1.0, 1.06, 0.42).convert('RGBA'), e)
     for (s0, s1), P in ((V5_BED, P_BED), (V5_CAFE, P_CAFE)):
         if s0 <= t < s1:
             im = ken(P, t, s0, s1, 1.0, 1.06, 0.42).convert('RGBA'); card_from(im, frame3d); heading_from(im, frame3d); subtitle(im, cap_at(t)); note(im)

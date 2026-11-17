@@ -23,11 +23,11 @@ The secret is hidden inside the lid.
 Behind the display sits a light source built just for the logo.
 
 7
-00:00:13,600 --> 00:00:16,670
+00:00:13,600 --> 00:00:15,900
 Four tiny LEDs create the entire glow.
 
 8
-00:00:16,900 --> 00:00:18,520
+00:00:16,200 --> 00:00:17,820
 iFixit found them along one edge.
 
 9
@@ -43,14 +43,14 @@ a diffuser spreads it evenly,
 and it shines through the whole logo.
 
 12
-00:00:25,600 --> 00:00:29,470
+00:00:25,500 --> 00:00:29,370
 The result? One evenly lit logo, with no screen backlight needed.
 
 13
-00:00:30,450 --> 00:00:32,430
+00:00:29,550 --> 00:00:31,530
 It even dims and brightens with the light in your room.
 
 14
-00:00:33,450 --> 00:00:35,120
+00:00:32,600 --> 00:00:34,270
 And one Terminal command switches it off.
 
