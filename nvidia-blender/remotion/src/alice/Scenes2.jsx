@@ -18,7 +18,7 @@ const Head = ({ a = 1, lines, size = 96, top = 220 }) => (
   </div>
 );
 // a rendered sequence if its frames exist (GPU deliveries), else a fallback
-const Seq = ({ dir, n, d, fallback, ...rest }) => (fs[dir] ? <BlendSeq dir={dir} start={0} first={1} last={fs[dir]} rate={fs[dir] / (d * 30)} {...rest} /> : fallback);
+const Seq = ({ dir, n, d, fallback, ...rest }) => (fs[dir] ? <BlendSeq dir={dir} start={0} first={1} last={fs[dir]} step={2} rate={(fs[dir] - 1) / (d * 30)} {...rest} /> : fallback);
 
 // 2 · case file on the desk (GPU render) + story chain builds
 export const AliceS2 = ({ d }) => {
