@@ -1,0 +1,138 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  @font-face { font-family: InterD; src: url(../assets/fonts/InterDisplay-Bold.otf); font-weight: 800; }
+  :root { --g: #76B900; --r: #E5484D; --s: #BFC5CC; --gold: #C49A52; --bg: #07090B; }
+  * { margin: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); font-family: Inter, sans-serif; color: #fff; position: relative; }
+  .bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+  .bg.blur { filter: blur(26px) brightness(.32) saturate(1.2); transform: scale(1.1); }
+  .vign { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 55%, transparent 40%, rgba(0,0,0,.6)); }
+  /* Reel safe zones: title 220-450, subject 450-1500, subtitles 1250-1450 */
+  .title { position: absolute; left: 60px; right: 60px; top: 236px; text-align: center; }
+  .title h1 { font: 800 92px/1 InterD, Inter; letter-spacing: -2px; text-shadow: 0 6px 30px rgba(0,0,0,.7); }
+  .title h1 .r { color: var(--r); } .title h1 .g { color: var(--g); }
+  .title p { margin-top: 18px; font: 600 38px Inter; color: rgba(255,255,255,.82); text-shadow: 0 3px 14px #000; }
+  .sub { position: absolute; left: 80px; right: 150px; top: 1270px; height: 170px; display: flex; align-items: center; justify-content: center; text-align: center;
+         font: 700 50px/1.18 Inter; text-shadow: 0 0 6px #000, 0 3px 12px #000, 0 0 2px #000; }
+  .sub b { color: #FFD54A; }
+  .disc { position: absolute; left: 60px; top: 1458px; font: 500 22px Inter; color: rgba(255,255,255,.55); }
+  .src { position: absolute; left: 70px; top: 1190px; font: 600 24px Inter; color: rgba(255,255,255,.7); background: rgba(0,0,0,.5); padding: 8px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); }
+  .wm { position: absolute; right: 22px; top: 960px; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; opacity: .8; }
+  .wm img { width: 54px; height: 54px; border-radius: 50%; }
+  .wm span { writing-mode: vertical-rl; font: 700 22px Inter; letter-spacing: 1px; color: rgba(255,255,255,.85); text-shadow: 0 1px 6px #000; }
+  .panel { position: absolute; left: 70px; right: 140px; top: 480px; height: 690px; border-radius: 40px; background: linear-gradient(160deg, rgba(28,32,38,.88), rgba(10,12,15,.92));
+           border: 1px solid rgba(255,255,255,.14); box-shadow: 0 30px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08); padding: 46px; }
+  .label { font: 600 28px 'Inter'; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+  svg text { font-family: Inter; }
+  .scn { position: absolute; left: 24px; top: 24px; font: 700 24px Inter; color: rgba(255,255,255,.35); }
+  .zones .z { position: absolute; left: 0; right: 0; border-top: 2px dashed rgba(0,255,255,.6); font: 600 20px Inter; color: cyan; }
+</style></head>
+<body>
+<div id="root"></div>
+<script>
+const q = new URLSearchParams(location.search), S = +q.get('s') || 1, ZONES = q.get('zones') === '1';
+const R = document.getElementById('root');
+const html = (s) => R.insertAdjacentHTML('beforeend', s);
+const bg = (f, blur, dy = 0) => html(`<div class="bg ${blur ? 'blur' : ''}" style="background-image:url(bg/${f});top:${-dy}px;bottom:${dy}px"></div><div class="vign"></div><div style="position:absolute;left:0;right:0;bottom:0;height:${dy ? dy + 260 : 0}px;background:linear-gradient(transparent,#07090B 260px)"></div>`);
+const title = (h, p = '') => html(`<div class="title"><h1>${h}</h1>${p ? `<p>${p}</p>` : ''}</div>`);
+const sub = (t) => html(`<div class="sub"><div>${t}</div></div>`);
+const disc = () => html(`<div class="disc">3D illustration · not affiliated with NVIDIA</div>`);
+const src = (t) => html(`<div class="src">${t}</div>`);
+
+// market cap ($T): verified anchors from research/FACT-SHEET.md
+const CAP = [['Jun 24', 3.34], ['Sep 24', 2.7], ['Jan 25', 3.66], ['Apr 25', 2.3], ['Jul 25', 4.0], ['Oct 25', 5.03],
+             ['Feb 26', 4.6], ['Jun 26', 5.2], ['Oct 6', 5.77]];
+const DROP = [['Oct 6', 5.77], ['Nov 4', 4.82], ['Nov 5', 4.38], ['Nov 6', 4.5], ['Nov 9', 4.31], ['Nov 10', 4.07], ['Nov 12', 3.95], ['Nov 13', 3.92]];
+
+function graph(pts, { w = 800, h = 560, min = 0, max = 6.5, color = 'var(--g)', redFrom = 99, marks = [], line4 = false, label = '', few = false } = {}) {
+  const X = (i) => 60 + i * (w - 120) / (pts.length - 1), Y = (v) => h - 60 - (v - min) / (max - min) * (h - 110);
+  let d = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i)},${Y(p[1])}`).join(' ');
+  let g = '', red = '';
+  if (redFrom < pts.length) red = pts.slice(redFrom).map((p, i) => `${i ? 'L' : 'M'}${X(i + redFrom)},${Y(p[1])}`).join(' ');
+  for (let v = Math.ceil(min); v <= max; v++) g += `<line x1="50" x2="${w - 20}" y1="${Y(v)}" y2="${Y(v)}" stroke="rgba(255,255,255,.08)"/><text x="0" y="${Y(v) + 8}" fill="rgba(255,255,255,.45)" font-size="24">$${v}T</text>`;
+  const last = pts.length - 1;
+  const area = `${d} L${X(last)},${h - 60} L${X(0)},${h - 60} Z`;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#76B900" stop-opacity=".35"/><stop offset="1" stop-color="#76B900" stop-opacity="0"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    ${g}${line4 ? `<line x1="50" x2="${w - 20}" y1="${Y(4)}" y2="${Y(4)}" stroke="var(--r)" stroke-dasharray="10 8" stroke-width="3"/><text x="${w - 150}" y="${Y(4) - 12}" fill="var(--r)" font-size="26" font-weight="700">$4T line</text>` : ''}
+    <path d="${area}" fill="url(#ga)"/>
+    <path d="${d}" fill="none" stroke="${color}" stroke-width="7" stroke-linejoin="round" filter="url(#glow)"/>
+    ${red ? `<path d="${red}" fill="none" stroke="var(--r)" stroke-width="8" stroke-linejoin="round" filter="url(#glow)"/>` : ''}
+    ${pts.map((p, i) => (i === 0 || i === last || (!few && i % 2 === 0)) ? `<text x="${X(i)}" y="${h - 18}" fill="rgba(255,255,255,.5)" font-size="22" text-anchor="middle">${p[0]}</text>` : '').join('')}
+    ${marks.map(([i, t]) => `<circle cx="${X(i)}" cy="${Y(pts[i][1])}" r="16" fill="var(--r)" filter="url(#glow)"/><text x="${X(i)}" y="${Y(pts[i][1]) + 8}" text-anchor="middle" font-size="22" font-weight="800" fill="#fff">${t}</text>`).join('')}
+    ${label}
+  </svg>`;
+}
+
+const scenes = {
+  1() { bg('hook58.png', 0, 170); title('<span class="r">−$1.8 TRILLION</span>', 'NVIDIA’s value · Oct 6 → Nov 13, 2026'); disc();
+        sub('In five weeks, NVIDIA’s value fell by <b>1.8 trillion dollars.</b>'); },
+  2() { bg('hook24.png', 1); title('Almost <span class="r">HALF</span> of India', 'India’s yearly GDP vs NVIDIA’s lost value');
+        html(`<div class="panel" style="display:flex;align-items:flex-end;justify-content:space-around;padding-bottom:50px">
+          <div style="text-align:center"><div style="font:800 64px InterD">$4.15T</div><div style="width:230px;height:430px;margin:18px auto;border-radius:22px 22px 6px 6px;background:linear-gradient(#FF9933,#fff 50%,#138808)"></div><div class="label">India · 1 year GDP</div></div>
+          <div style="text-align:center"><div style="font:800 64px InterD;color:var(--r)">$1.8T</div><div style="width:230px;height:187px;margin:18px auto;border-radius:22px 22px 6px 6px;background:linear-gradient(var(--r),#5a0f12);box-shadow:0 0 60px rgba(229,72,77,.5)"></div><div class="label">NVIDIA lost value</div></div></div>
+          <div style="position:absolute;left:70px;right:140px;top:1192px;text-align:center;font:600 28px Inter;color:rgba(255,255,255,.6)">≈ ₹164 lakh crore at ₹91 / $ · IMF WEO Apr 2026</div>`);
+        sub('That’s almost half of India’s yearly economy, <b>wiped off its share price.</b> How?'); },
+  3() { html(`<div class="bg" style="background-image:url(../renders/stills/scene03_datacenter.png)"></div>`); title('The chips <span class="g">AI runs on</span>'); disc();
+        sub('NVIDIA makes the chips AI runs on. <b>ChatGPT</b> needs thousands of them.'); },
+  4() { bg('hook24.png', 1); title('<span class="g">$5.8T</span> record', 'World’s most valuable company · Oct 6, 2026');
+        html(`<div class="panel"><div class="label">NVIDIA market value</div>${graph(CAP, { h: 520, label: `<text x="610" y="70" fill="#76B900" font-size="44" font-weight="800">$5.8T</text>` })}</div>`);
+        sub('Every tech giant wanted them, so in October NVIDIA hit a record <b>5.8 trillion.</b>'); },
+  5() { bg('hook24.png', 1); title('Then: <span class="r">3 shocks</span>', 'within five weeks');
+        html(`<div class="panel"><div class="label">Oct 6 → Nov 13, 2026</div>${graph(DROP, { h: 520, min: 3, max: 6.2, redFrom: 0, marks: [[2, '1'], [4, '2'], [6, '3']] })}</div>`);
+        sub('Then, within weeks, <b>three shocks.</b>'); },
+  6() { bg('hook24.png', 1); title('<span class="r">1</span> · New rules', 'on AI data centres');
+        html(`<div class="panel" style="display:flex;flex-direction:column;align-items:center;gap:26px">
+          <div style="width:560px;padding:34px;border-radius:24px;background:#F3F1EA;color:#15171a;transform:rotate(-4deg);box-shadow:0 20px 60px rgba(0,0,0,.6)">
+            <div style="font:800 30px Inter;letter-spacing:.1em">OFFICIAL BALLOT · LOCAL MEASURE</div>
+            <div style="font:600 34px/1.25 Inter;margin:18px 0">Limit new AI data centres in this area?</div>
+            <div style="font:700 34px Inter"><span style="display:inline-block;width:40px;height:40px;border:4px solid #15171a;vertical-align:middle;text-align:center;line-height:30px;color:var(--r)">✓</span> YES &nbsp; <span style="display:inline-block;width:40px;height:40px;border:4px solid #15171a;vertical-align:middle"></span> NO</div></div>
+          <div style="font:800 120px InterD;color:var(--r);text-shadow:0 0 40px rgba(229,72,77,.6)">−9%</div><div class="label">in one day · Nov 5, 2026</div></div>`);
+        src('Source: CNBC · fall came after the US midterms'); sub('One: US voters passed local rules that could <b>slow new AI data centres.</b>'); },
+  7() { bg('hook24.png', 1); title('<span class="r">2</span> · The money loop');
+        const node = (x, y, t, c) => `<g transform="translate(${x},${y})"><circle r="105" fill="#11151a" stroke="${c}" stroke-width="5"/><text text-anchor="middle" y="12" font-size="34" font-weight="800" fill="#fff">${t}</text></g>`;
+        html(`<div class="panel"><svg width="770" height="600" viewBox="0 0 770 660"><defs><marker id="ar" markerWidth="12" markerHeight="12" refX="6" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12z" fill="var(--r)"/></marker></defs>
+          <path d="M470,150 Q650,250 600,420" fill="none" stroke="var(--r)" stroke-width="6" marker-end="url(#ar)"/><text x="600" y="240" fill="#fff" font-size="28" font-weight="700">invests $</text>
+          <path d="M470,540 Q330,610 210,520" fill="none" stroke="var(--r)" stroke-width="6" marker-end="url(#ar)"/><text x="250" y="625" fill="#fff" font-size="28" font-weight="700">buys chips</text>
+          <path d="M140,410 Q90,240 250,150" fill="none" stroke="var(--r)" stroke-width="6" marker-end="url(#ar)"/><text x="10" y="260" fill="#fff" font-size="28" font-weight="700">sales $</text>
+          ${node(370, 130, 'NVIDIA', 'var(--g)')}${node(590, 520, 'AI start-up', 'var(--s)')}${node(150, 500, 'Chip order', 'var(--gold)')}
+          <text x="385" y="400" text-anchor="middle" font-size="150" font-weight="800" fill="var(--r)">?</text></svg></div>`);
+        src('BofA est.: ~$70B stakes + ~$230B guarantees · CNBC, Aug 2026'); sub('Two: NVIDIA invests in AI start-ups, who then buy its chips. <b>Is that real demand?</b>'); },
+  8() { bg('hook24.png', 1); title('<span class="r">3</span> · CEO steps down', 'Nov 12, 2026 · board investigation');
+        html(`<div class="panel" style="overflow:hidden;padding:0"><svg width="870" height="690" viewBox="0 0 870 760" preserveAspectRatio="xMidYMid meet">
+          <defs><radialGradient id="sp" cx="50%" cy="0%" r="100%"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+          <polygon points="360,0 510,0 700,620 170,620" fill="url(#sp)"/><ellipse cx="435" cy="620" rx="260" ry="40" fill="rgba(255,255,255,.12)"/>
+          <g fill="#030405" stroke="rgba(255,255,255,.25)" stroke-width="2"><rect x="345" y="230" width="180" height="230" rx="40"/><rect x="315" y="440" width="240" height="60" rx="26"/>
+          <rect x="425" y="500" width="20" height="80"/><path d="M335,600 L435,575 L535,600" fill="none" stroke-width="12" stroke="#111"/></g>
+          <text x="435" y="720" text-anchor="middle" fill="var(--r)" font-size="40" font-weight="800">Value falls below $4T</text></svg></div>`);
+        src('Source: Bloomberg, CNBC · Nov 12, 2026'); sub('Three: its CEO, Jensen Huang, <b>stepped down</b> amid a board investigation.'); },
+  9() { bg('hook24.png', 1); title('<span class="g">Bubble?</span> or <span class="r">correction?</span>');
+        html(`<div class="panel" style="display:flex;gap:30px">
+          <div style="flex:1"><div class="label" style="color:var(--g)">Sales (quarter)</div>
+            <div style="display:flex;align-items:flex-end;gap:30px;height:440px;margin-top:40px">
+              <div style="flex:1;text-align:center"><div style="font:800 40px InterD">$46.7B</div><div style="height:160px;background:rgba(118,185,0,.45);border-radius:14px 14px 4px 4px;margin-top:10px"></div><div class="label" style="margin-top:12px">Aug 2025</div></div>
+              <div style="flex:1;text-align:center"><div style="font:800 40px InterD;color:var(--g)">$96.2B</div><div style="height:330px;background:var(--g);border-radius:14px 14px 4px 4px;margin-top:10px;box-shadow:0 0 50px rgba(118,185,0,.45)"></div><div class="label" style="margin-top:12px">Aug 2026</div></div></div>
+            <div style="font:800 46px InterD;color:var(--g);margin-top:20px;text-align:center">+106%</div></div>
+          <div style="flex:1"><div class="label" style="color:var(--r)">Share value</div>${graph(DROP, { w: 360, h: 540, min: 3, max: 6.2, redFrom: 0, few: true })}</div></div>`);
+        sub('Bubble? Sales still <b>doubled</b> in a year. Investors just fear it won’t last.'); },
+  10() { bg('hook90.png', 0, 420); title('A bet on the <span class="r">future</span>', 'The bet flipped, not the business'); disc();
+        sub('A share price is a bet on the future. <b>The bet flipped, not the business.</b>'); },
+  11() { bg('hook90.png', 1);
+        html(`<div style="position:absolute;left:86px;right:172px;top:451px;height:663px;border-radius:54px;overflow:hidden;border:1px solid rgba(255,255,255,.22);box-shadow:0 30px 80px rgba(0,0,0,.6)">
+          <div style="position:absolute;inset:0;background:url(bg/hook90.png) center 65%/cover"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,4,6,.3),rgba(12,4,6,.82) 55%,rgba(8,3,4,.94))"></div>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+            <img src="bg/logo.png" style="width:184px;height:184px;border-radius:50%;box-shadow:0 0 0 15px rgba(118,185,0,.12),0 0 50px rgba(118,185,0,.5)">
+            <div style="margin-top:22px;font:800 97px/1 InterD">Invisi<span style="color:var(--g)">Tech</span></div>
+            <div style="margin-top:14px;font:600 45px Inter">@TheInvisiTech</div>
+            <div style="display:flex;gap:70px;margin-top:28px;font:600 34px Inter"><span>👍 Like</span><span>💬 Comment</span><span>➕ Follow</span></div>
+            <div style="margin-top:28px;padding:20px 76px;border-radius:60px;background:#e53935;font:700 48px Inter;box-shadow:0 0 30px rgba(229,57,53,.55)">Subscribe</div></div></div>`);
+        sub('Follow InvisiTech for more.'); },
+};
+scenes[S]();
+if (S !== 11) html(`<div class="wm"><img src="bg/logo.png"><span>@TheInvisiTech</span></div>`);
+html(`<div class="scn">Scene ${S}</div>`);
+if (ZONES) html(`<div class="zones">${[[220, 'title 220'], [450, 'subject 450'], [1250, 'subs 1250'], [1450, '1450'], [1500, 'UI 1500+']].map(([y, t]) => `<div class="z" style="top:${y}px">${t}</div>`).join('')}<div style="position:absolute;left:940px;top:1100px;right:0;bottom:0;background:rgba(255,0,0,.15)"></div></div>`);
+</script></body></html>
