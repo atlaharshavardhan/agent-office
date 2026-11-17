@@ -8,7 +8,6 @@ import { BlendSeq, Shade } from '../v2/kit';
 import { Chunks } from './Chunks';
 import { NvLogo, TextBadge } from './Logos';
 
-const DUR = 3.5;
 
 const ScanLine = ({ t0, dur }) => {
   const f = useCurrentFrame(), t = f / 30 - t0;
@@ -57,7 +56,8 @@ const JensenFigure = () => (
     filter: 'brightness(.55) contrast(1.25) drop-shadow(-3px -2px 0 rgba(118,185,0,.85)) drop-shadow(3px -1px 0 rgba(220,230,255,.55)) drop-shadow(0 0 18px rgba(118,185,0,.35))' }} />
 );
 
-export const AliceS1 = () => {
+export const AliceS1 = ({ d = 3.5 }) => {
+  const DUR = d;
   const f = useCurrentFrame(), t = f / 30;
   const red = ramp(f, 1.8, 0.35);
   const line2 = `rgb(${Math.round(lerp(118, 229, red))},${Math.round(lerp(185, 72, red))},${Math.round(lerp(0, 77, red))})`;
@@ -84,7 +84,6 @@ export const AliceS1 = () => {
         name="ALICE HUANG" role="" logo={<TextBadge text="MEGASPEED" h={40} />} />
       <div style={{ position: 'absolute', left: 450, width: 90, top: 854, borderTop: '4px dashed #E5484D', opacity: ramp(f, 1.5, 0.3),
         filter: `drop-shadow(0 0 ${6 + 10 * Math.max(0, Math.sin((t - 1.5) * 6))}px #E5484D)` }} />
-      <Chunks t0={0.15} t1={3.45} chunks={[['Did a woman'], ['U.S. officials suspect'], ['of spying for China', C.red], ['get close to'], ['the most powerful man in AI?', C.green]]} />
       <div style={{ position: 'absolute', left: SAFE.l, top: 1528, font: `600 22px ${BODY}`, color: 'rgba(245,245,245,.62)', textShadow: '0 1px 6px #000' }}>Illustration · not affiliated with NVIDIA</div>
     </AbsoluteFill>
   );

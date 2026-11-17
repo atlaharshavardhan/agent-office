@@ -33,21 +33,20 @@ export const AliceS8 = () => {
         head={<><FlagCN h={46} /><span style={{ font: `800 40px ${FONT}`, color: '#fff', letterSpacing: 2 }}>CHINA</span></>} />
       <Statement a={ramp(f, 1.6, 0.3)} top={760} color={'#F5F5F5'} big="DENIES WRONGDOING" src="Company statement"
         head={<TextBadge text="MEGASPEED" h={46} />} />
-      <Chunks t0={0.1} t1={3.3} chunks={[['China calls it'], ['groundless', C.red], ['Megaspeed denies'], ['wrongdoing']]} />
       <Tag />
     </AbsoluteFill>
   );
 };
 
-export const AliceS9 = () => {
+export const AliceS9 = ({ d = 5 }) => {
   const f = useCurrentFrame(), t = f / 30;
-  const cut = 1.5, ans = ramp(f, 2.6, 0.3);
+  const cut = 1.3, ans = ramp(f, d * 0.52, 0.3);
   return (
     <AbsoluteFill style={{ background: C.bg }}>
       <FontFace />
       {t < cut
         ? <BlendSeq dir="shot03" start={0} first={1} last={45} rate={1} />
-        : <BlendSeq dir="v2_overlook" start={cut} first={1} last={169} step={2} rate={169 / ((5 - cut) * 30)} filter="brightness(.62) saturate(.5) contrast(1.1)" />}
+        : <BlendSeq dir="v2_overlook" start={cut} first={1} last={169} step={2} rate={169 / ((d - cut) * 30)} filter="brightness(.62) saturate(.5) contrast(1.1)" />}
       <Shade top={0.75} bottom={0.5} />
       {t >= cut - 0.1 && t < cut + 0.15 && <AbsoluteFill style={{ background: '#000', opacity: 0.7 * (1 - Math.abs(t - cut) / 0.15) }} />}
       <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 220, textAlign: 'center', opacity: 1 - ans }}>
@@ -62,7 +61,6 @@ export const AliceS9 = () => {
           <div style={{ font: `800 60px/1.08 ${FONT}`, color: C.green }}>secrets were compromised</div>
         </div>
       </div>
-      <Chunks t0={0.1} t1={4.8} chunks={[['So, did America’s'], ['top AI tech', C.green], ['leak?', C.red], ['NVIDIA’s board says'], ['no reason'], ['to believe so']]} />
       <Tag />
     </AbsoluteFill>
   );

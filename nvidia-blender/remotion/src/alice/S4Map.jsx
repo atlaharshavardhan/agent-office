@@ -15,7 +15,6 @@ import { FlagCN, FlagUS, TextBadge } from './Logos';
 const K = 0.13;
 const ll = (lon, lat) => [(lon - 110) * K, 0, -(lat - 16) * K];
 const SG = ll(103.82, 1.35), CN = ll(113.3, 23.1), BAR = ll(109.6, 17.2);
-const DUR = 5.0;
 
 const Land = () => {
   const geos = useMemo(() => ASIA.map((c) => {
@@ -37,7 +36,8 @@ const Land = () => {
   });
 };
 
-export const AliceS4 = () => {
+export const AliceS4 = ({ d = 7 }) => {
+  const DUR = d;
   const f = useCurrentFrame(), t = f / 30;
   const az = lerp(-0.12, 0.08, clamp(t / DUR));
   const cam = [Math.sin(az) * 5.0 + 0.1, 7.0 - 0.5 * clamp(t / DUR), Math.cos(az) * 5.0 + 3.6];
@@ -45,6 +45,9 @@ export const AliceS4 = () => {
   const P = projector(cam, look, 42);
   const curve = useMemo(() => new THREE.QuadraticBezierCurve3(new THREE.Vector3(SG[0], 0.12, SG[2]),
     new THREE.Vector3((SG[0] + CN[0]) / 2 - 0.3, 1.1, (SG[2] + CN[2]) / 2), new THREE.Vector3(CN[0], 0.15, CN[2])), []);
+  const rentC = useMemo(() => new THREE.QuadraticBezierCurve3(new THREE.Vector3(SG[0], 0.12, SG[2]),
+    new THREE.Vector3((SG[0] + CN[0]) / 2 + 0.9, 2.1, (SG[2] + CN[2]) / 2), new THREE.Vector3(CN[0], 0.15, CN[2])), []);
+  const rentA = ramp(f, 0.3, 0.4);
   const stopU = 0.62;                                   // where the route meets the barrier
   const travel = ramp(f, 0.5, 1.6) * stopU;
   const gp = curve.getPoint(travel);
@@ -57,7 +60,8 @@ export const AliceS4 = () => {
     return <div style={{ position: 'absolute', left: x, top: y, transform: 'translate(-50%,-50%)', opacity: a, font: `800 ${size}px ${BODY}`, color: col, textShadow: '0 2px 12px #000, 0 0 2px #000', whiteSpace: 'nowrap', letterSpacing: 2, display: 'flex', alignItems: 'center', gap: 12 }}>{txt}</div>;
   };
   const pulse = 0.5 + 0.5 * Math.sin(t * 6);
-  const noCharge = ramp(f, 3.4, 0.3);
+  const phaseB = ramp(f, d * 0.57, 0.3), noCharge = ramp(f, d * 0.84, 0.3);
+  const rp = rentC.getPoint(0.5);
   return (
     <AbsoluteFill style={{ background: 'radial-gradient(ellipse at 50% 45%, #0d1014, #040506 75%)' }}>
       <FontFace />
@@ -74,6 +78,9 @@ export const AliceS4 = () => {
           const u = (k / 28) * stopU; if (u > travel) return null;
           return <mesh key={k} position={curve.getPoint(u)}><sphereGeometry args={[0.022, 10, 10]} /><meshBasicMaterial color={C.green} /></mesh>;
         })}
+        {/* renting: computing power flows over the network (allowed then) */}
+        <mesh><tubeGeometry args={[rentC, 80, 0.01, 6, false]} /><meshBasicMaterial color={'#9BE22E'} transparent opacity={0.35 * rentA} /></mesh>
+        {[...Array(10)].map((_, k) => { const u = (t * 0.55 + k / 10) % 1; return rentA > 0 && <mesh key={'r' + k} position={rentC.getPoint(u)}><sphereGeometry args={[0.03, 10, 10]} /><meshBasicMaterial color={'#C6FF6A'} /></mesh>; })}
         {/* Singapore pulse */}
         <mesh position={[SG[0], 0.08, SG[2]]} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[0.08 + 0.12 * pulse, 0.11 + 0.12 * pulse, 40]} /><meshBasicMaterial color={C.green} transparent opacity={0.9 - 0.6 * pulse} /></mesh>
         <mesh position={[SG[0], 0.08, SG[2]]}><sphereGeometry args={[0.05, 16, 16]} /><meshBasicMaterial color={C.green} /></mesh>
@@ -89,18 +96,23 @@ export const AliceS4 = () => {
       </ThreeCanvas>
       {lbl([SG[0] - 0.75, 0, SG[2] - 0.05], <><span style={{ background: 'rgba(10,11,13,.85)', border: '2px solid #76B90088', borderRadius: 12, padding: '6px 14px' }}><TextBadge text="MEGASPEED" sub="Singapore" h={38} color="#9BE22E" /></span></>, C.green, route, 36)}
       {lbl([CN[0] + 1.0, 0.1, CN[2] - 0.8], <><FlagCN h={42} /><span>CHINA</span></>, C.red, route, 44)}
-      {lbl([bp.x, 0.95 * barrier, bp.z], <><FlagUS h={30} /><span>EXPORT CONTROLS</span></>, C.red, barrier, 30)}
-      {lbl([gp.x + 0.35, gp.y + 0.35, gp.z], '?', C.red, q, 110)}
-      {/* one idea at a time: question, then the answer replaces it */}
-      <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 220, textAlign: 'center', opacity: 1 - noCharge }}>
-        <div style={{ font: `800 96px/1 ${FONT}`, letterSpacing: -2.5, color: '#fff', textShadow: '0 6px 30px #000' }}>DID THE CHIPS</div>
-        <div style={{ font: `800 96px/1 ${FONT}`, letterSpacing: -2.5, color: C.red, textShadow: '0 6px 30px #000' }}>REACH CHINA?</div>
+      {lbl([bp.x, 0.95 * barrier, bp.z], <><FlagUS h={30} /><span>U.S. RULE</span></>, C.red, barrier, 28)}
+      {lbl([gp.x + 0.35, gp.y + 0.35, gp.z], '?', C.red, q * phaseB, 110)}
+      {lbl([rp.x + 0.25, rp.y + 0.25, rp.z], <span style={{ background: 'rgba(10,11,13,.85)', border: '2px solid #9BE22E', borderRadius: 12, padding: '4px 14px', color: '#C6FF6A' }}>RENT ✓</span>, '#C6FF6A', rentA, 36)}
+      {lbl([bp.x - 0.55, 0.35, bp.z + 0.2], <span style={{ background: 'rgba(10,11,13,.85)', border: '2px solid #E5484D', borderRadius: 12, padding: '4px 14px' }}>SHIP ✗</span>, C.red, barrier, 36)}
+      {/* phase A: the rule · phase B: the question · end: no charges */}
+      <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 220, textAlign: 'center', opacity: 1 - phaseB }}>
+        <div style={{ font: `800 68px/1.1 ${FONT}`, letterSpacing: -1.5, whiteSpace: 'nowrap', color: '#C6FF6A', textShadow: '0 6px 30px #000' }}>RENTING: NOT BANNED</div>
+        <div style={{ font: `800 68px/1.1 ${FONT}`, letterSpacing: -1.5, whiteSpace: 'nowrap', color: C.red, textShadow: '0 6px 30px #000', opacity: ramp(f, 1.6, 0.3) }}>SHIPPING: BANNED</div>
+      </div>
+      <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 220, textAlign: 'center', opacity: phaseB * (1 - noCharge) }}>
+        <div style={{ font: `800 96px/1 ${FONT}`, letterSpacing: -2.5, color: '#fff', textShadow: '0 6px 30px #000' }}>DID CHIPS</div>
+        <div style={{ font: `800 96px/1 ${FONT}`, letterSpacing: -2.5, color: C.red, textShadow: '0 6px 30px #000' }}>CROSS THE LINE?</div>
       </div>
       <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 250, textAlign: 'center', opacity: noCharge, transform: `scale(${0.9 + 0.1 * noCharge})` }}>
         <span style={{ font: `800 84px ${FONT}`, color: '#101214', background: '#F5F5F5', padding: '10px 34px', borderRadius: 16 }}>NO CHARGES</span>
       </div>
-      <Chunks t0={0.1} t1={4.6} chunks={[['U.S. investigators'], ['are probing'], ['whether the chips'], ['reached China', C.red], ['despite export limits'], ['No charges filed']]} />
-      <div style={{ position: 'absolute', left: SAFE.l, top: 1528, font: `600 22px ${BODY}`, color: 'rgba(245,245,245,.62)', textShadow: '0 1px 6px #000' }}>Illustrative route · not affiliated with NVIDIA</div>
+      <div style={{ position: 'absolute', left: SAFE.l, top: 1528, font: `600 22px ${BODY}`, color: 'rgba(245,245,245,.62)', textShadow: '0 1px 6px #000' }}>Illustrative · 2025 rules · not affiliated with NVIDIA</div>
     </AbsoluteFill>
   );
 };
