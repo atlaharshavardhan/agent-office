@@ -1,0 +1,17 @@
+{
+  "name": "invisitech-nvidia-collapse",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.jsx",
+    "render": "remotion render src/index.jsx NvidiaCollapse out/nvidia-market-collapse-v1-1080.mp4"
+  },
+  "dependencies": {
+    "@react-three/fiber": "9.1.2",
+    "@remotion/cli": "4.0.538",
+    "@remotion/three": "4.0.538",
+    "remotion": "4.0.538",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "three": "0.176.0"
+  }
+}
