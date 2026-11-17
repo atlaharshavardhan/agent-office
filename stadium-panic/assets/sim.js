@@ -6,7 +6,7 @@
      - unsure and stressed, most head for the exit they know (B), so B jams while A, C and D stay almost empty
      - after the announcement (and stewards at every exit) people pick the nearest exit that is not crowded */
 function runSim(opt) {
-  const o = Object.assign({ N: 650, fps: 30, T: 40, infoAt: 27.2, seed: 11 }, opt || {});
+  const o = Object.assign({ N: 650, fps: 30, T: 40, infoAt: 33.6, barAt: 27.5, seed: 11 }, opt || {});
   let sd = o.seed; const R = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
   const X0 = -17, X1 = 17, Z0 = -11, Z1 = 11, rad = 0.23, GW = 2.6;   // room (m); agent radius; exit gap width
   const EX = [   // exits: gap centre, outward normal
@@ -27,7 +27,8 @@ function runSim(opt) {
   const N = P.length, F = Math.round(o.T * o.fps) + 1, dt = 1 / o.fps;
   const near = (p) => EX.reduce((b, e, i) => Math.hypot(p.x - e.x, p.z - e.z) < Math.hypot(p.x - EX[b].x, p.z - EX[b].z) ? i : b, 0);
   P.forEach(p => { p.ex = p.fam ? 1 : near(p); p.quickT = 0.2 + R() * 1.6; });
-  const out = { N, F, fps: o.fps, EX, PIL, PR, seg, X0, X1, Z0, Z1, GW,
+  const BAR = [7.6, -8.9, 10.4, -9.8], barAt = o.barAt;   // slanted barrier in front of exit B (the obstacle effect), placed at barAt
+  const out = { N, F, fps: o.fps, EX, PIL, PR, seg, X0, X1, Z0, Z1, GW, BAR, barAt,
     x: new Float32Array(N * F), z: new Float32Array(N * F), yaw: new Float32Array(N * F), st: new Uint8Array(N * F), red: new Uint8Array(N * F), look: new Float32Array(N * F),
     stats: [] };   // st: 0 waiting, 1 moving, 2 outside/leaving, 3 gone
   const CS = 1.0, grid = new Map(), key = (i, j) => i * 1000 + j;
@@ -41,12 +42,13 @@ function runSim(opt) {
     if (t >= o.infoAt) {   // after the announcement: each person (once they hear it, at slightly different times) picks the nearest exit that is not crowded, and checks again every 2 s
       const q = EX.map(e => { let n = 0; each({ x: e.x, z: e.z }, 5, k => { const r = P[k]; if (r.st === 1 && Math.hypot(r.x - e.x, r.z - e.z) < 5) n++; }); return n; });
       P.forEach((p, i) => { if (p.done >= 0 || t < p.hear || p.st === 2) return; if (p.reroute && (f + i) % 60) return;
-        const cost = j => Math.hypot(p.x - EX[j].x, p.z - EX[j].z) + 0.07 * q[j];
+        const cost = j => Math.hypot(p.x - EX[j].x, p.z - EX[j].z) + 0.03 * q[j];
         let best = p.reroute ? p.ex : 0; EX.forEach((e, j) => { if (cost(j) < cost(best) - (p.reroute ? 3 : 0)) best = j; });
         p.ex = best; p.reroute = true; if (p.st === 0) p.st = 1; }); }
     // each door lets about 3 people a second through; a crushed, pushing crowd at the door clogs it ("faster is slower", Helbing et al. 2000)
     EX.forEach(e => { let n = 0, r = 0; each({ x: e.x, z: e.z }, 3, k => { const q = P[k]; if (q.done < 0 && Math.hypot(q.x - e.x, q.z - e.z) < 3) { n++; r += q.red; } });
-      e.tok = Math.min(2, (e.tok || 0) + dt * 4.5 * (1 - 0.7 * (n ? r / n : 0))); });
+      const clog = e.id === 'B' && t >= barAt ? 0.1 : 0.7;   // the barrier takes the crowd's push off the doorway, so the door stops clogging
+      e.tok = Math.min(2, (e.tok || 0) + dt * 4.5 * (1 - clog * (n ? r / n : 0))); });
     // decide who moves
     P.forEach((p, i) => { if (p.done >= 0) return;
       if (p.st < 0) p.st = 0;
@@ -74,13 +76,15 @@ function runSim(opt) {
           if (d < 2 * rad && d > 1e-6) { const s = (2 * rad - d) / 2 / d; p.x -= dx * s; p.z -= dz * s; q.x += dx * s; q.z += dz * s; } });
         for (const [ax, az, bx, bz] of seg) { const ux = bx - ax, uz = bz - az, L2 = ux * ux + uz * uz, u = Math.max(0, Math.min(1, ((p.x - ax) * ux + (p.z - az) * uz) / L2)), cx = ax + ux * u, cz = az + uz * u;
           const dx = p.x - cx, dz = p.z - cz, d = Math.hypot(dx, dz), m = rad + 0.12; if (d < m && d > 1e-6) { p.x = cx + dx / d * m; p.z = cz + dz / d * m; } }
+        if (t >= barAt) { const [ax, az, bx, bz] = BAR, ux = bx - ax, uz = bz - az, L2 = ux * ux + uz * uz, u = Math.max(0, Math.min(1, ((p.x - ax) * ux + (p.z - az) * uz) / L2)), cx = ax + ux * u, cz = az + uz * u;
+          const dx = p.x - cx, dz = p.z - cz, d = Math.hypot(dx, dz), m = rad + 0.15; if (d < m && d > 1e-6) { p.x = cx + dx / d * m; p.z = cz + dz / d * m; } }
         for (const [cx, cz] of PIL) { const dx = p.x - cx, dz = p.z - cz, d = Math.hypot(dx, dz), m = rad + PR; if (d < m && d > 1e-6) { p.x = cx + dx / d * m; p.z = cz + dz / d * m; } } }); }
     // jammed = moving, packed and nearly stopped
     build(); let w = 0, jam = 0, gone = 0, mov = 0;
     P.forEach((p, i) => { const b = i * F + f; if (p.done >= 0) { out.st[b] = 3; out.x[b] = p.x; out.z[b] = p.z; gone++; return; }
       const sp = Math.hypot(p.x - p.px, p.z - p.pz) / dt; p.spd += (sp - p.spd) * 0.12;
       let dens = 0; each(p, 0.75, k => { if (k !== i && P[k].done < 0 && Math.hypot(P[k].x - p.x, P[k].z - p.z) < 0.75) dens++; });
-      const jm = p.st === 1 && (p.reroute ? dens >= 6 && p.spd < 0.15 : dens >= 3 && p.spd < 0.3) ? 1 : 0; p.red += (jm - p.red) * 0.08;
+      const jm = p.st === 1 && dens >= 3 && p.spd < 0.3 ? 1 : 0; p.red += (jm - p.red) * 0.08;
       if (sp > 0.15) { const ty = Math.atan2(p.x - p.px, p.z - p.pz); let d = ty - p.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); p.yaw += d * 0.18; }
       else if (p.st === 0 && p.look) { let d = p.look - p.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); p.yaw += d * 0.03; }
       out.x[b] = p.x; out.z[b] = p.z; out.yaw[b] = p.yaw; out.st[b] = p.st; out.red[b] = Math.round(p.red * 255);

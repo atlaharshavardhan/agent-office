@@ -1386,7 +1386,7 @@
      - unsure and stressed, most head for the exit they know (B), so B jams while A, C and D stay almost empty
      - after the announcement (and stewards at every exit) people pick the nearest exit that is not crowded */
 function runSim(opt) {
-  const o = Object.assign({ N: 650, fps: 30, T: 40, infoAt: 27.2, seed: 11 }, opt || {});
+  const o = Object.assign({ N: 650, fps: 30, T: 40, infoAt: 33.6, barAt: 27.5, seed: 11 }, opt || {});
   let sd = o.seed; const R = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
   const X0 = -17, X1 = 17, Z0 = -11, Z1 = 11, rad = 0.23, GW = 2.6;   // room (m); agent radius; exit gap width
   const EX = [   // exits: gap centre, outward normal
@@ -1407,7 +1407,8 @@ function runSim(opt) {
   const N = P.length, F = Math.round(o.T * o.fps) + 1, dt = 1 / o.fps;
   const near = (p) => EX.reduce((b, e, i) => Math.hypot(p.x - e.x, p.z - e.z) < Math.hypot(p.x - EX[b].x, p.z - EX[b].z) ? i : b, 0);
   P.forEach(p => { p.ex = p.fam ? 1 : near(p); p.quickT = 0.2 + R() * 1.6; });
-  const out = { N, F, fps: o.fps, EX, PIL, PR, seg, X0, X1, Z0, Z1, GW,
+  const BAR = [7.6, -8.9, 10.4, -9.8], barAt = o.barAt;   // slanted barrier in front of exit B (the obstacle effect), placed at barAt
+  const out = { N, F, fps: o.fps, EX, PIL, PR, seg, X0, X1, Z0, Z1, GW, BAR, barAt,
     x: new Float32Array(N * F), z: new Float32Array(N * F), yaw: new Float32Array(N * F), st: new Uint8Array(N * F), red: new Uint8Array(N * F), look: new Float32Array(N * F),
     stats: [] };   // st: 0 waiting, 1 moving, 2 outside/leaving, 3 gone
   const CS = 1.0, grid = new Map(), key = (i, j) => i * 1000 + j;
@@ -1421,12 +1422,13 @@ function runSim(opt) {
     if (t >= o.infoAt) {   // after the announcement: each person (once they hear it, at slightly different times) picks the nearest exit that is not crowded, and checks again every 2 s
       const q = EX.map(e => { let n = 0; each({ x: e.x, z: e.z }, 5, k => { const r = P[k]; if (r.st === 1 && Math.hypot(r.x - e.x, r.z - e.z) < 5) n++; }); return n; });
       P.forEach((p, i) => { if (p.done >= 0 || t < p.hear || p.st === 2) return; if (p.reroute && (f + i) % 60) return;
-        const cost = j => Math.hypot(p.x - EX[j].x, p.z - EX[j].z) + 0.07 * q[j];
+        const cost = j => Math.hypot(p.x - EX[j].x, p.z - EX[j].z) + 0.03 * q[j];
         let best = p.reroute ? p.ex : 0; EX.forEach((e, j) => { if (cost(j) < cost(best) - (p.reroute ? 3 : 0)) best = j; });
         p.ex = best; p.reroute = true; if (p.st === 0) p.st = 1; }); }
     // each door lets about 3 people a second through; a crushed, pushing crowd at the door clogs it ("faster is slower", Helbing et al. 2000)
     EX.forEach(e => { let n = 0, r = 0; each({ x: e.x, z: e.z }, 3, k => { const q = P[k]; if (q.done < 0 && Math.hypot(q.x - e.x, q.z - e.z) < 3) { n++; r += q.red; } });
-      e.tok = Math.min(2, (e.tok || 0) + dt * 4.5 * (1 - 0.7 * (n ? r / n : 0))); });
+      const clog = e.id === 'B' && t >= barAt ? 0.1 : 0.7;   // the barrier takes the crowd's push off the doorway, so the door stops clogging
+      e.tok = Math.min(2, (e.tok || 0) + dt * 4.5 * (1 - clog * (n ? r / n : 0))); });
     // decide who moves
     P.forEach((p, i) => { if (p.done >= 0) return;
       if (p.st < 0) p.st = 0;
@@ -1454,13 +1456,15 @@ function runSim(opt) {
           if (d < 2 * rad && d > 1e-6) { const s = (2 * rad - d) / 2 / d; p.x -= dx * s; p.z -= dz * s; q.x += dx * s; q.z += dz * s; } });
         for (const [ax, az, bx, bz] of seg) { const ux = bx - ax, uz = bz - az, L2 = ux * ux + uz * uz, u = Math.max(0, Math.min(1, ((p.x - ax) * ux + (p.z - az) * uz) / L2)), cx = ax + ux * u, cz = az + uz * u;
           const dx = p.x - cx, dz = p.z - cz, d = Math.hypot(dx, dz), m = rad + 0.12; if (d < m && d > 1e-6) { p.x = cx + dx / d * m; p.z = cz + dz / d * m; } }
+        if (t >= barAt) { const [ax, az, bx, bz] = BAR, ux = bx - ax, uz = bz - az, L2 = ux * ux + uz * uz, u = Math.max(0, Math.min(1, ((p.x - ax) * ux + (p.z - az) * uz) / L2)), cx = ax + ux * u, cz = az + uz * u;
+          const dx = p.x - cx, dz = p.z - cz, d = Math.hypot(dx, dz), m = rad + 0.15; if (d < m && d > 1e-6) { p.x = cx + dx / d * m; p.z = cz + dz / d * m; } }
         for (const [cx, cz] of PIL) { const dx = p.x - cx, dz = p.z - cz, d = Math.hypot(dx, dz), m = rad + PR; if (d < m && d > 1e-6) { p.x = cx + dx / d * m; p.z = cz + dz / d * m; } } }); }
     // jammed = moving, packed and nearly stopped
     build(); let w = 0, jam = 0, gone = 0, mov = 0;
     P.forEach((p, i) => { const b = i * F + f; if (p.done >= 0) { out.st[b] = 3; out.x[b] = p.x; out.z[b] = p.z; gone++; return; }
       const sp = Math.hypot(p.x - p.px, p.z - p.pz) / dt; p.spd += (sp - p.spd) * 0.12;
       let dens = 0; each(p, 0.75, k => { if (k !== i && P[k].done < 0 && Math.hypot(P[k].x - p.x, P[k].z - p.z) < 0.75) dens++; });
-      const jm = p.st === 1 && (p.reroute ? dens >= 6 && p.spd < 0.15 : dens >= 3 && p.spd < 0.3) ? 1 : 0; p.red += (jm - p.red) * 0.08;
+      const jm = p.st === 1 && dens >= 3 && p.spd < 0.3 ? 1 : 0; p.red += (jm - p.red) * 0.08;
       if (sp > 0.15) { const ty = Math.atan2(p.x - p.px, p.z - p.pz); let d = ty - p.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); p.yaw += d * 0.18; }
       else if (p.st === 0 && p.look) { let d = p.look - p.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); p.yaw += d * 0.03; }
       out.x[b] = p.x; out.z[b] = p.z; out.yaw[b] = p.yaw; out.st[b] = p.st; out.red[b] = Math.round(p.red * 255);
@@ -1721,6 +1725,12 @@ const sRim = new THREE.DirectionalLight(0x6f9cff, 0.45); sRim.position.set(0, 20
   SIM.PIL.forEach(([px2, pz]) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(SIM.PR, SIM.PR, 2.7, 24), wm); m.position.set(px2, 1.35, pz); m.castShadow = true; SS.add(m);
      });
 }
+// fix one: the slanted barrier in front of exit B (rises out of the floor at 30.4 s)
+const BARM = new THREE.Group(); { const [ax, az, bx, bz] = SIM.BAR, L = Math.hypot(bx - ax, bz - az);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(L, 1.9, 0.3), new THREE.MeshStandardMaterial({ color: 0x3a4250, roughness: 0.35, metalness: 0.6 })); body.position.y = 0.95; body.castShadow = true; BARM.add(body);
+  const edge = new THREE.Mesh(new THREE.BoxGeometry(L + 0.04, 0.16, 0.34), new THREE.MeshBasicMaterial({ color: 0xffbe5a, toneMapped: false })); edge.position.y = 1.95; BARM.add(edge);
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(L + 1.6, 1.8), new THREE.MeshBasicMaterial({ map: soft([[0, 'rgba(255,190,90,0.55)'], [1, 'rgba(255,190,90,0)']]), transparent: true, depthWrite: false, toneMapped: false })); glow.rotation.x = -Math.PI / 2; glow.position.y = 0.03; BARM.add(glow); BARM.userData.glow = glow;
+  BARM.position.set((ax + bx) / 2, 0, (az + bz) / 2); BARM.rotation.y = -Math.atan2(bz - az, bx - ax); SS.add(BARM); }
 // the simulated people (same slim miniature figures) + stewards in hi-vis who appear with the announcement
 const simPpl = []; for (let i = 0; i < SN; i++) simPpl.push({ x: 0, y: 0, z: 0, yaw: 0, shirt: 0x2f8fe0, ph: rnd() * 6.28, seed: rnd() });
 const SIMC = new Crowd(simPpl, 1, G, SS);
@@ -1737,7 +1747,8 @@ function simFrame(t) {   // t = video time 3–43
     const red = SIM.red[b] / 255, walk = st >= 1 && red < 0.5;
     return { pose: red > 0.6 && p.seed < 0.12 ? 'armsHead' : st === 0 && p.seed > 0.97 ? 'armPoint' : 'armsDown', bob: walk ? Math.abs(Math.sin(t * 15 + p.ph)) * 0.06 : 0,
       yaw: walk ? Math.sin(t * 15 + p.ph) * 0.08 : 0, headYaw: st === 0 ? Math.sin(t * 0.9 + p.ph) * 0.5 : 0, headPitch: -0.05 }; });
-  const sk = ease(ramp(t, 30.4, 31.0));
+  const bk = ease(ramp(t, 30.4, 31.0)); BARM.visible = bk > 0.01; BARM.position.y = (bk - 1) * 2.1; BARM.userData.glow.position.y = 0.03 - (bk - 1) * 2.1;
+  const sk = ease(ramp(t, 36.6, 37.2));
   SIMS.update(p => sk < 0.02 ? { pose: 'hide' } : { pose: Math.sin(t * 2.4 + p.ph) > -0.3 ? 'armPoint' : 'armsDown', bob: (1 - sk) * 0.8, headYaw: Math.sin(t * 0.8 + p.ph) * 0.4 });
   return SIM.stats[f]; }
 // overlay UI (cards, sliders, counters)
@@ -1745,19 +1756,19 @@ const PRM = [['Uncertainty', 'u'], ['Social influence', 's'], ['Stress', 'x']];
 $('params').innerHTML = PRM.map(([n], i) => `<div class="pr" id="pr${i}"><span>${n}</span><i><u id="pb${i}"></u></i><em id="pv${i}"></em></div>`).join('');
 const lvl = v => v < 0.34 ? 'LOW' : v < 0.67 ? 'MID' : 'HIGH';
 function simUI(t, st) {
-  const L = t < 10 ? ['QUESTION', 'Why do some people move at once, while others wait?'] : t < 20 ? ['RULE 1', 'If people near me move, I move too.'] : t < 30 ? ['RULE 2', 'Unsure + copying + stressed = everyone picks the exit they know.'] : ['THE FIX', 'Clear announcements + stewards = people use the nearest exit.'];
+  const L = t < 10 ? ['QUESTION', 'Why do some people move at once, while others wait?'] : t < 20 ? ['RULE 1', 'If people near me move, I move too.'] : t < 30.4 ? ['RULE 2', 'Unsure + copying + stressed = everyone picks the exit they know.'] : t < 36.6 ? ['FIX 1', 'A slanted barrier in front of the door splits the push.'] : ['FIX 2', 'Clear announcements + stewards = every exit used.'];
   if ($('card').dataset.k !== L[1]) { $('card').dataset.k = L[1]; $('cardL').textContent = 'SIMULATION · ' + L[0]; $('cardT').textContent = L[1]; }
-  const ck = Math.min(...[3, 10, 20, 30].map(a => Math.abs(t - a))); $('card').style.opacity = Math.min(1, ck / 0.25 + (t < 3.3 ? 0 : 0));
-  const unc = t < 30 ? 0.9 : lerp(0.9, 0.12, ease(ramp(t, 30.4, 33))), soc = t < 10 ? 0.25 : t < 30 ? lerp(0.25, 0.85, ease(ramp(t, 12.9, 17))) : lerp(0.85, 0.3, ease(ramp(t, 31, 34))),
-        str = t < 20 ? lerp(0.35, 0.5, ramp(t, 3, 20)) : t < 30 ? lerp(0.5, 0.95, ease(ramp(t, 26.7, 28.5))) : lerp(0.95, 0.25, ease(ramp(t, 31, 35)));
-  const act = t >= 20.3 && t < 23.6 ? 0 : t >= 23.6 && t < 26.7 ? 1 : t >= 26.7 && t < 30 ? 2 : t >= 12.9 && t < 20 ? 1 : t >= 30.4 && t < 34 ? 0 : -1;
+  const ck = Math.min(...[3, 10, 20, 30.4, 36.6].map(a => Math.abs(t - a))); $('card').style.opacity = Math.min(1, ck / 0.25 + (t < 3.3 ? 0 : 0));
+  const unc = lerp(0.9, 0.12, ease(ramp(t, 36.8, 39))), soc = t < 10 ? 0.25 : t < 36 ? lerp(0.25, 0.85, ease(ramp(t, 12.9, 17))) : lerp(0.85, 0.3, ease(ramp(t, 37.2, 40))),
+        str = t < 20 ? lerp(0.35, 0.5, ramp(t, 3, 20)) : t < 30 ? lerp(0.5, 0.95, ease(ramp(t, 26.7, 28.5))) : lerp(0.95, 0.25, ease(ramp(t, 37.2, 41)));
+  const act = t >= 20.3 && t < 23.6 ? 0 : t >= 23.6 && t < 26.7 ? 1 : t >= 26.7 && t < 30.4 ? 2 : t >= 12.9 && t < 20 ? 1 : t >= 36.8 && t < 40 ? 0 : -1;
   [unc, soc, str].forEach((v, i) => { $('pb' + i).style.width = (v * 100).toFixed(1) + '%'; $('pv' + i).textContent = lvl(v); $('pr' + i).classList.toggle('on', i === act); $('pb' + i).classList.toggle('hot', v > 0.67); });
   const [w, mv, jam, gone, rate] = st; $('s0').textContent = w; $('s1').textContent = jam; $('s2').textContent = rate;
   $('stats').children[1].classList.toggle('hot', jam > 40);
 }
 
 /* ---------- 45-second timeline ---------- */
-const TOTAL = 45, CAPS = [[0.35, 2.42, "What happens when thousands of people"], [2.42, 3.71, "panic at the same time?"], [3.86, 4.61, "Some people"], [4.61, 5.83, "react immediately"], [5.98, 6.63, "Others wait"], [6.63, 8.27, "watching everyone around them"], [8.9, 10.55, "When information is unclear"], [10.55, 12.78, "people often look to others for clues"], [12.93, 14.23, "One person's reaction"], [14.23, 16.22, "can influence the people nearby"], [16.37, 17.27, "And that reaction"], [17.27, 18.8, "can ripple through the crowd"], [20.3, 21.02, "Uncertainty"], [21.02, 22.89, "No one knows what is happening"], [23.6, 24.64, "Social influence"], [24.64, 26.42, "We copy the people around us"], [26.7, 27.35, "And stress"], [27.35, 28.42, "So almost everyone"], [28.42, 30.38, "heads for the one exit they know"], [30.53, 31.12, "That's why"], [31.12, 32.79, "clear communication matters"], [33.0, 34.32, "During an emergency"], [34.32, 35.64, "reliable information"], [35.64, 37.09, "helps people stay calm"], [37.09, 38.15, "and move safely"], [38.6, 40.37, "People spread across the exits"], [40.37, 41.51, "and the crowd flows"], [43.15, 44.35, "Follow InvisiTech"], [44.35, 44.98, "for more"]], CAPL = [[0.35, 3.71, "What happens when thousands of people panic at the same time?"], [3.86, 5.83, "Some people react immediately."], [5.98, 8.27, "Others wait, watching everyone around them."], [8.9, 12.78, "When information is unclear, people often look to others for clues."], [12.93, 16.22, "One person's reaction can influence the people nearby."], [16.37, 18.8, "And that reaction can ripple through the crowd."], [20.3, 22.89, "Uncertainty. No one knows what is happening."], [23.6, 26.42, "Social influence. We copy the people around us."], [26.7, 30.38, "And stress. So almost everyone heads for the one exit they know."], [30.53, 32.79, "That's why clear communication matters."], [33.0, 38.15, "During an emergency, reliable information helps people stay calm and move safely."], [38.6, 41.51, "People spread across the exits, and the crowd flows."], [43.15, 44.98, "Follow InvisiTech for more."]];
+const TOTAL = 45, CAPS = [[0.35, 2.42, "What happens when thousands of people"], [2.42, 3.71, "panic at the same time?"], [3.86, 4.61, "Some people"], [4.61, 5.83, "react immediately"], [5.98, 6.63, "Others wait"], [6.63, 8.27, "watching everyone around them"], [8.9, 10.55, "When information is unclear"], [10.55, 12.78, "people often look to others for clues"], [12.93, 14.23, "One person's reaction"], [14.23, 16.22, "can influence the people nearby"], [16.37, 17.27, "And that reaction"], [17.27, 18.8, "can ripple through the crowd"], [20.3, 21.02, "Uncertainty"], [21.02, 22.89, "No one knows what is happening"], [23.6, 24.64, "Social influence"], [24.64, 26.42, "We copy the people around us"], [26.7, 27.35, "And stress"], [27.35, 28.42, "So almost everyone"], [28.42, 30.38, "heads for the one exit they know"], [30.53, 30.99, "Fix one:"], [30.99, 31.97, "a slanted barrier"], [31.97, 33.18, "in front of the door"], [33.5, 34.38, "In simulations"], [34.38, 35.49, "it splits the push"], [35.49, 37.13, "and the door stops clogging"], [37.28, 37.73, "Fix two:"], [37.73, 38.81, "clear announcements"], [38.81, 40.29, "send people to every exit"], [40.44, 41.38, "Smarter exits"], [41.38, 42.33, "calmer crowds"], [43.15, 44.35, "Follow InvisiTech"], [44.35, 44.98, "for more"]], CAPL = [[0.35, 3.71, "What happens when thousands of people panic at the same time?"], [3.86, 5.83, "Some people react immediately."], [5.98, 8.27, "Others wait, watching everyone around them."], [8.9, 12.78, "When information is unclear, people often look to others for clues."], [12.93, 16.22, "One person's reaction can influence the people nearby."], [16.37, 18.8, "And that reaction can ripple through the crowd."], [20.3, 22.89, "Uncertainty. No one knows what is happening."], [23.6, 26.42, "Social influence. We copy the people around us."], [26.7, 30.38, "And stress. So almost everyone heads for the one exit they know."], [30.53, 33.18, "Fix one: a slanted barrier in front of the door."], [33.5, 37.13, "In simulations, it splits the push, and the door stops clogging."], [37.28, 40.29, "Fix two: clear announcements send people to every exit."], [40.44, 42.33, "Smarter exits, calmer crowds."], [43.15, 44.98, "Follow InvisiTech for more."]];
 const easeIO = ease, sm = (u, a, b) => ease(ramp(u, a, b));
 const C2 = pick(N3 + 0.32, 1), C4A = pick(N3 + 0.36, 0), C4B = pick(N3 + 0.26, 3), C4C = pick(N3 + 0.44, 1), CL = pick(N3 + 0.28, 8), CL2 = pick(N3 + 0.4, 4);
 const LK = [buildLinks(CL, 16, 0xffb547), buildLinks(CL2, 12, 0x4fc3f7)], HOT = new Set(LK[0].near), COOL = new Set(LK[1].near);
@@ -1781,7 +1792,7 @@ const SC = [
     setTitle(['What happens', 'when a stadium <em>panics?</em>'], sm(u, 0.2, 0.6));
   }],
   [3, 43, (u, t) => {   // 2–5. the explanation as a live crowd simulation: alarm → some move, others watch → copying ripples → one familiar exit jams → announcement + stewards → every exit used
-    const K = [[3, V(0, 58, 36), V(0, 0, 3)], [9.5, V(0, 72, 44), V(0, 0, 3.5)], [20, V(0, 72, 44), V(0, 0, 3.5)], [24, V(3, 62, 37), V(3, 0, 2)], [30.2, V(3, 62, 37), V(3, 0, 2)], [34.5, V(0, 72, 44), V(0, 0, 3.5)], [43, V(0, 75, 46), V(0, 0, 3.5)]];
+    const K = [[3, V(0, 58, 36), V(0, 0, 3)], [9.5, V(0, 72, 44), V(0, 0, 3.5)], [20, V(0, 72, 44), V(0, 0, 3.5)], [24, V(3, 62, 37), V(3, 0, 2)], [29.9, V(6, 52, 27), V(7, 0, -3)], [31.2, V(8, 36, 10), V(8, 0, -6.2)], [36.4, V(8, 38, 11), V(8, 0, -6)], [40, V(0, 72, 44), V(0, 0, 3.5)], [43, V(0, 75, 46), V(0, 0, 3.5)]];
     let j = 0; while (j < K.length - 2 && t >= K[j + 1][0]) j++; const k = easeIO(ramp(t, K[j][0], K[j + 1][0]));
     shot(K[j][1].clone().lerp(K[j + 1][1], k), K[j][2].clone().lerp(K[j + 1][2], k), 40, 50, 0);
     simUI(t, simFrame(t));

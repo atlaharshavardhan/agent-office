@@ -15,9 +15,10 @@ LINES = [  # (earliest start s, sentence with caption chunks split by |). Lines 
     (20.3, "Uncertainty. | No one knows what is happening."),          # * (concept 1)
     (23.6, "Social influence. | We copy the people around us."),        # * (concept 2)
     (26.7, "And stress. | So almost everyone | heads for the one exit they know."),   # * changed for the simulation (familiar-exit effect)
-    (30.4, "That's why | clear communication matters."),
-    (33.0, "During an emergency, | reliable information | helps people stay calm | and move safely."),   # brief was cut off here: completed by Claude
-    (38.6, "People spread across the exits, | and the crowd flows."),          # * changed for the simulation
+    (30.4, "Fix one: | a slanted barrier | in front of the door."),        # * obstacle effect (reference reel)
+    (33.5, "In simulations, | it splits the push, | and the door stops clogging."),   # * (Helbing et al. 2000: simulated, not proven for real stadiums)
+    (36.6, "Fix two: | clear announcements | send people to every exit."),   # * communication (the brief's message)
+    (40.0, "Smarter exits, | calmer crowds."),                            # *
     (43.15, "Follow InvisiTech | for more."),
 ]
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))

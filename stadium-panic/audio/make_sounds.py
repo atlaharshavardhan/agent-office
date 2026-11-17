@@ -44,8 +44,9 @@ for k in range(10):   # murmurs as people react
     t0 = 3.4 + k * 0.62 + rng.uniform(0, 0.3); d = 0.5 + rng.uniform(0, 0.4); x = tt(d); m = lp(noise(len(x)), 0.08) * np.sin(np.pi * x / d) * (1 + 0.5 * np.sin(2 * np.pi * (4 + rng.uniform(0, 3)) * x))
     place(sfx, m, t0, 0.35, rng.uniform(-0.6, 0.6))
 def chime(f0): x = tt(1.4); return sum(np.sin(2 * np.pi * f0 * r * x) * env(len(x), 0.005, 1.0, 3) / (j + 1) for j, r in enumerate([1, 2, 3.01]))
-place(sfx, chime(midi(76)), 31.1, 0.35); place(sfx, chime(midi(72)), 31.45, 0.35)   # PA announcement chime
-x = tt(0.35); place(sfx, np.sin(2 * np.pi * 2900 * x * (1 + 0.02 * np.sin(2 * np.pi * 30 * x))) * env(len(x), 0.01, 0.3, 3), 32.2, 0.12, 0.4)   # steward whistle (short, soft)
+place(sfx, chime(midi(76)), 36.7, 0.35); place(sfx, chime(midi(72)), 37.05, 0.35)   # PA announcement chime (fix two)
+x = tt(0.6); place(sfx, (np.sin(2 * np.pi * 62 * x) * np.exp(-x * 9) + lp(np.random.default_rng(3).standard_normal(len(x)), 0.08) * np.exp(-x * 14) * 0.6), 30.55, 0.5)   # barrier rising into place (fix one): low thud
+x = tt(0.35); place(sfx, np.sin(2 * np.pi * 2900 * x * (1 + 0.02 * np.sin(2 * np.pi * 30 * x))) * env(len(x), 0.01, 0.3, 3), 37.7, 0.12, 0.4)   # steward whistle (short, soft)
 x = tt(1.8); so = np.sin(2 * np.pi * midi(74) * x) * env(len(x), 0.01, 1.4, 2.2) + 0.8 * np.sin(2 * np.pi * midi(81) * np.maximum(0, x - 0.18)) * env(len(x), 0.01, 1.5, 2.0) * (x > 0.18)
 place(sfx, so, 43.05, 0.35)   # sonic logo
 for b in (music, sfx): b /= max(1, np.max(np.abs(b)) / 0.9)
