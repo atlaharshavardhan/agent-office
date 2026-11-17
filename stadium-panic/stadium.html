@@ -16,20 +16,20 @@
   #oTag { margin-top: 2.4vw; font: 500 3.7vw 'IBM Plex Sans', Arial, sans-serif; color: rgba(255,255,255,.72); }
   #simui { position: fixed; inset: 0; z-index: 4; opacity: 0; pointer-events: none; color: #fff; }
   #card { position: absolute; top: 11.9%; left: 8%; right: 14%; background: rgba(12,19,36,.94); border: .18vw solid rgba(127,184,255,.35); border-radius: 2vw; padding: 1.7vw 3vw 2vw; box-shadow: 0 1.5vw 4vw rgba(0,0,0,.45); }
-  #cardL { display: block; font: 700 2.2vw Sora, Arial; color: #7fb8ff; letter-spacing: .16em; }
+  #cardL { display: block; font: 700 2.2vw Sora, Arial; color: #8fa6c4; letter-spacing: .16em; }
   #cardT { display: block; margin-top: .6vw; font: 700 3.7vw/1.2 Sora, Arial; }
   #params { position: absolute; top: 20.3%; left: 8%; right: 14%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4vw; }
   .pr { background: rgba(12,19,36,.9); border: .18vw solid rgba(255,255,255,.1); border-radius: 1.4vw; padding: 1.2vw 1.6vw; font: 600 2.3vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.62); transition: none; }
   .pr span { display: block; white-space: nowrap; } .pr i { display: block; height: 1vw; margin: 1vw 0 .7vw; background: rgba(255,255,255,.14); border-radius: 1vw; overflow: hidden; }
-  .pr u { display: block; height: 100%; background: #4fa3ff; border-radius: 1vw; } .pr u.hot { background: #ff5a4a; }
+  .pr u { display: block; height: 100%; background: #5a8cc4; border-radius: 1vw; } .pr u.hot { background: #c0473e; }
   .pr em { font: 700 2.2vw Sora, Arial; font-style: normal; letter-spacing: .1em; }
-  .pr.on { color: #fff; border-color: #ffb547; box-shadow: 0 0 2.4vw rgba(255,181,71,.35); }
-  #cap { position: absolute; top: 65.6%; left: 8%; right: 14%; background: rgba(255,255,255,.97); color: #0b1322; border-radius: 1.6vw; padding: 1.5vw 2.6vw; text-align: center; font: 700 3.3vw/1.22 Sora, Arial; box-shadow: 0 1.4vw 4vw rgba(0,0,0,.4); }
+  .pr.on { color: #fff; border-color: rgba(220,228,240,.55); }
+  #cap { position: absolute; top: 65.6%; left: 8%; right: 14%; background: rgba(226,230,236,.94); color: #10151d; border-radius: 1.6vw; padding: 1.5vw 2.6vw; text-align: center; font: 700 3.3vw/1.22 Sora, Arial; box-shadow: 0 1.4vw 4vw rgba(0,0,0,.4); }
   #cap:empty { display: none; }
   #stats { position: absolute; top: 72.4%; left: 8%; right: 14%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4vw; }
   #stats div { background: rgba(12,19,36,.92); border: .18vw solid rgba(255,255,255,.12); border-radius: 1.4vw; padding: .9vw 1vw; text-align: center; }
   #stats b { display: block; font: 700 4.4vw Sora, Arial; font-variant-numeric: tabular-nums; } #stats span { font: 600 2vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.65); letter-spacing: .08em; text-transform: uppercase; }
-  #stats div.hot b { color: #ff5a4a; }
+  #stats div.hot b { color: #d0574c; }
   #snote { position: absolute; top: 77.1%; left: 8%; right: 14%; text-align: center; font: 500 1.9vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.5); }
 </style>
 <div class="ov" id="title"></div>
@@ -1662,69 +1662,69 @@ const SIM = runSim(), SN = SIM.N, SF = SIM.F;
 const SS = new THREE.Scene(); SS.background = new THREE.Color(0x070a12); SS.environment = scene.environment;
 SS.fog = new THREE.Fog(0x070a12, 95, 170);
 const sHemi = new THREE.HemisphereLight(0x8fa4cc, 0x1a1c22, 0.5); SS.add(sHemi);
-const sKey = new THREE.DirectionalLight(0xfff4e2, 1.9); sKey.position.set(-18, 60, 30); sKey.castShadow = true; sKey.shadow.mapSize.set(2048, 2048);
+const sKey = new THREE.DirectionalLight(0xfff1df, 1.5); sKey.position.set(-18, 60, 30); sKey.castShadow = true; sKey.shadow.mapSize.set(2048, 2048);
 Object.assign(sKey.shadow.camera, { left: -32, right: 32, top: 32, bottom: -32, near: 5, far: 140 }); sKey.shadow.bias = -0.0005; sKey.shadow.radius = 4; SS.add(sKey);
 const sFill = new THREE.DirectionalLight(0xcfe0ff, 0.35); sFill.position.set(28, 30, -12); SS.add(sFill);
 { // stadium theme: dark concrete concourse at pitch level, blue seat tiers on three sides with tunnel exits, floodlights, the pitch in front
   const PX = 40, w = (SIM.X1 - SIM.X0) * PX, h = (SIM.Z1 - SIM.Z0) * PX, c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
   const toC = (X, Z) => [(X - SIM.X0) * PX, (Z - SIM.Z0) * PX];
-  x.fillStyle = '#3b414c'; x.fillRect(0, 0, w, h);
+  x.fillStyle = '#23272e'; x.fillRect(0, 0, w, h);
   for (let i = 0; i < 9000; i++) { x.fillStyle = `rgba(${Math.random() < .5 ? '20,24,30' : '120,128,140'},0.08)`; x.fillRect(Math.random() * w, Math.random() * h, 3, 3); }   // concrete grain
   for (let i = 0; i <= SIM.X1 - SIM.X0; i += 2) { x.fillStyle = 'rgba(0,0,0,.16)'; x.fillRect(i * PX - 1, 0, 2, h); }   // expansion joints
   for (let j = 0; j <= SIM.Z1 - SIM.Z0; j += 2) { x.fillStyle = 'rgba(0,0,0,.16)'; x.fillRect(0, j * PX - 1, w, 2); }
-  x.strokeStyle = 'rgba(255,205,60,.75)'; x.lineWidth = 8; x.setLineDash([36, 26]); x.strokeRect(30, 30, w - 60, h - 60); x.setLineDash([]);   // yellow walkway line
+  x.strokeStyle = 'rgba(255,255,255,.07)'; x.lineWidth = 6; x.strokeRect(30, 30, w - 60, h - 60);   // faint walkway edge
   SIM.EX.forEach(e => { const [cx, cz] = toC(e.x - e.nx * 2.4, e.z - e.nz * 2.4), fam = e.id === 'B';
-    x.save(); x.translate(cx, cz); x.rotate(Math.atan2(e.nx, -e.nz)); x.fillStyle = fam ? 'rgba(79,163,255,.28)' : 'rgba(40,210,130,.24)'; x.fillRect(-56, -64, 112, 128);
-    x.fillStyle = fam ? '#7fc0ff' : '#5cf0a8'; x.font = '700 70px Sora, Arial'; x.textAlign = 'center'; x.fillText(e.id, 0, 30);
+    x.save(); x.translate(cx, cz); x.rotate(Math.atan2(e.nx, -e.nz)); x.fillStyle = 'rgba(255,255,255,.05)'; x.fillRect(-56, -64, 112, 128);
+    x.fillStyle = 'rgba(200,210,225,.45)'; x.font = '700 70px Sora, Arial'; x.textAlign = 'center'; x.fillText(e.id, 0, 30);
     x.beginPath(); x.moveTo(-26, -40); x.lineTo(0, -62); x.lineTo(26, -40); x.lineWidth = 9; x.strokeStyle = x.fillStyle; x.stroke(); x.restore(); });
   const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 8;
   const f = new THREE.Mesh(new THREE.PlaneGeometry(SIM.X1 - SIM.X0, SIM.Z1 - SIM.Z0), new THREE.MeshStandardMaterial({ map: t, roughness: 0.75, envMapIntensity: 0.35 }));
   f.rotation.x = -Math.PI / 2; f.position.set((SIM.X0 + SIM.X1) / 2, 0, (SIM.Z0 + SIM.Z1) / 2); f.receiveShadow = true; SS.add(f);
   // the pitch in front of the barrier
   const pc = document.createElement('canvas'); pc.width = 1024; pc.height = 256; const px = pc.getContext('2d');
-  for (let i = 0; i < 16; i++) { px.fillStyle = i % 2 ? '#1f5526' : '#25602b'; px.fillRect(i * 64, 0, 65, 256); }
-  px.strokeStyle = 'rgba(255,255,255,.55)'; px.lineWidth = 5; px.beginPath(); px.moveTo(0, 60); px.lineTo(1024, 60); px.stroke(); px.strokeRect(330, 60, 364, 150);
+  for (let i = 0; i < 16; i++) { px.fillStyle = i % 2 ? '#0f1a13' : '#111e15'; px.fillRect(i * 64, 0, 65, 256); }
+  px.strokeStyle = 'rgba(255,255,255,.12)'; px.lineWidth = 5; px.beginPath(); px.moveTo(0, 60); px.lineTo(1024, 60); px.stroke(); px.strokeRect(330, 60, 364, 150);
   const pt = new THREE.CanvasTexture(pc); pt.encoding = THREE.sRGBEncoding;
   const pitch = new THREE.Mesh(new THREE.PlaneGeometry(80, 20), new THREE.MeshStandardMaterial({ map: pt, roughness: 0.9, envMapIntensity: 0.2 })); pitch.rotation.x = -Math.PI / 2; pitch.position.set(0, -0.02, SIM.Z1 + 10.5); pitch.receiveShadow = true; SS.add(pitch);
   const og = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), new THREE.MeshStandardMaterial({ color: 0x0c1018, roughness: 0.95 })); og.rotation.x = -Math.PI / 2; og.position.y = -0.05; SS.add(og);
-  const wm = new THREE.MeshStandardMaterial({ color: 0x2a2f38, roughness: 0.85, envMapIntensity: 0.3 }), cm = new THREE.MeshStandardMaterial({ color: 0x8a93a3, roughness: 0.5, metalness: 0.3 });
+  const wm = new THREE.MeshStandardMaterial({ color: 0x1b1f26, roughness: 0.85, envMapIntensity: 0.3 }), cm = new THREE.MeshStandardMaterial({ color: 0x3a414d, roughness: 0.5, metalness: 0.3 });
   const tun = new THREE.MeshBasicMaterial({ color: 0x020305 });
   // walls: the front one is a low pitch-side barrier (with an ad board), the others are the stand's front wall with tunnel openings
   SIM.seg.forEach(([ax, az, bx, bz]) => { const L = Math.hypot(bx - ax, bz - az); if (L < 0.05) return; const front = az === SIM.Z1 && bz === SIM.Z1, H = front ? 1.0 : 2.7, g = new THREE.Group();
     const b = new THREE.Mesh(new THREE.BoxGeometry(L + 0.5, H, 0.5), wm); b.position.y = H / 2; b.castShadow = b.receiveShadow = true; g.add(b);
     const cap = new THREE.Mesh(new THREE.BoxGeometry(L + 0.52, 0.07, 0.52), cm); cap.position.y = H + 0.03; g.add(cap);
-    if (front) { const ad = new THREE.Mesh(new THREE.PlaneGeometry(L, 0.7), new THREE.MeshBasicMaterial({ color: 0x1d6fe0, toneMapped: false })); ad.position.set(0, 0.5, 0.26); g.add(ad); }
+    
     g.position.set((ax + bx) / 2, 0, (az + bz) / 2); g.rotation.y = -Math.atan2(bz - az, bx - ax); SS.add(g); });
   // seat tiers rising behind the back and side walls (rows of blue seats, a few white ones)
   const ROWS = 12, RD = 0.9, RR = 0.55, Y0 = 2.7, seatPos = [];
-  const tierM = new THREE.MeshStandardMaterial({ color: 0x353b46, roughness: 0.9, envMapIntensity: 0.25 });
+  const tierM = new THREE.MeshStandardMaterial({ color: 0x1a1e25, roughness: 0.9, envMapIntensity: 0.25 });
   const side = (len, place) => { for (let r = 0; r < ROWS; r++) { const tr = new THREE.Mesh(new THREE.BoxGeometry(len + 2 * r * RD + 1, Y0 + (r + 1) * RR, RD), tierM); place(tr, r); tr.castShadow = tr.receiveShadow = true; SS.add(tr); } };
   side(SIM.X1 - SIM.X0, (m, r) => { m.position.set(0, (Y0 + (r + 1) * RR) / 2, SIM.Z0 - 0.25 - (r + 0.5) * RD); for (let s = -(SIM.X1 - SIM.X0) / 2 - r * RD; s < (SIM.X1 - SIM.X0) / 2 + r * RD; s += 0.6) seatPos.push([s, Y0 + (r + 1) * RR, SIM.Z0 - 0.25 - (r + 0.62) * RD, 0]); });
   for (const sg of [-1, 1]) side(SIM.Z1 - SIM.Z0, (m, r) => { m.rotation.y = Math.PI / 2; const X = sg * (SIM.X1 + 0.25 + (r + 0.5) * RD); m.position.set(X, (Y0 + (r + 1) * RR) / 2, (SIM.Z0 + SIM.Z1) / 2 + r * RD / 2 + 0.5);
     for (let s = SIM.Z0; s < SIM.Z1 + r * RD; s += 0.6) seatPos.push([sg * (SIM.X1 + 0.25 + (r + 0.62) * RD), Y0 + (r + 1) * RR, s, sg]); });
   const seatG = new THREE.BoxGeometry(0.46, 0.36, 0.4), SEATS = new THREE.InstancedMesh(seatG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55 }), seatPos.length), d = new THREE.Object3D(), sc = new THREE.Color();
-  seatPos.forEach(([X, Y, Z, sg], i) => { d.position.set(X, Y + 0.18, Z); d.rotation.set(0, sg ? -sg * Math.PI / 2 : 0, 0); d.updateMatrix(); SEATS.setMatrixAt(i, d.matrix); SEATS.setColorAt(i, sc.copy(LIN((i * 7919) % 23 === 0 ? 0xe8edf4 : 0x1d4fa8))); });
+  seatPos.forEach(([X, Y, Z, sg], i) => { d.position.set(X, Y + 0.18, Z); d.rotation.set(0, sg ? -sg * Math.PI / 2 : 0, 0); d.updateMatrix(); SEATS.setMatrixAt(i, d.matrix); SEATS.setColorAt(i, sc.copy(LIN(0x1f2a3d))); });
   SEATS.castShadow = true; SEATS.receiveShadow = true; SS.add(SEATS);
   // floodlight strips along the top of the stands
-  const top = Y0 + ROWS * RR + 0.3, lm = new THREE.MeshBasicMaterial({ color: 0xfff6e6, toneMapped: false });
+  const top = Y0 + ROWS * RR + 0.3, lm = new THREE.MeshBasicMaterial({ color: 0x8a8678, toneMapped: false });
   const fl = new THREE.Mesh(new THREE.BoxGeometry(SIM.X1 - SIM.X0 + 2 * ROWS * RD, 0.35, 0.35), lm); fl.position.set(0, top + 1.2, SIM.Z0 - ROWS * RD - 0.4); SS.add(fl);
   for (const sg of [-1, 1]) { const f2 = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, SIM.Z1 - SIM.Z0 + ROWS * RD), lm); f2.position.set(sg * (SIM.X1 + ROWS * RD + 0.4), top + 1.2, (SIM.Z0 + SIM.Z1) / 2 + ROWS * RD / 2); SS.add(f2); }
   // tunnel exits: dark openings under the stands with a glowing exit sign
   SIM.EX.forEach(e => { const tx = -e.nz, tz = e.nx, hw = SIM.GW / 2 + 0.25, ang = -Math.atan2(tz, tx);
     const hole = new THREE.Mesh(new THREE.BoxGeometry(SIM.GW + 0.4, 2.6, ROWS * RD), tun); hole.position.set(e.x + e.nx * (ROWS * RD / 2 + 0.3), 1.3, e.z + e.nz * (ROWS * RD / 2 + 0.3)); hole.rotation.y = ang; SS.add(hole);
     const roof = new THREE.Mesh(new THREE.BoxGeometry(SIM.GW + 1, 0.4, 0.5), wm); roof.position.set(e.x, 2.5, e.z); roof.rotation.y = ang; SS.add(roof);
-    const scv = document.createElement('canvas'); scv.width = 256; scv.height = 96; const sx = scv.getContext('2d'); sx.fillStyle = e.id === 'B' ? '#1f6fd6' : '#13a463'; sx.fillRect(0, 0, 256, 96);
-    sx.fillStyle = '#fff'; sx.font = '700 54px Sora, Arial'; sx.textAlign = 'center'; sx.fillText('EXIT ' + e.id, 128, 68); const st = new THREE.CanvasTexture(scv); st.encoding = THREE.sRGBEncoding;
+    const scv = document.createElement('canvas'); scv.width = 256; scv.height = 96; const sx = scv.getContext('2d'); sx.fillStyle = e.id === 'B' ? '#2a4d78' : '#24584a'; sx.fillRect(0, 0, 256, 96);
+    sx.fillStyle = '#d6dde6'; sx.font = '700 54px Sora, Arial'; sx.textAlign = 'center'; sx.fillText('EXIT ' + e.id, 128, 68); const st = new THREE.CanvasTexture(scv); st.encoding = THREE.sRGBEncoding;
     const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.82), new THREE.MeshBasicMaterial({ map: st, toneMapped: false })); sign.position.set(e.x - e.nx * 0.27, 3.2, e.z - e.nz * 0.27); sign.lookAt(e.x - e.nx * 5, 3.2, e.z - e.nz * 5); SS.add(sign); });
   SIM.PIL.forEach(([px2, pz]) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(SIM.PR, SIM.PR, 2.7, 24), wm); m.position.set(px2, 1.35, pz); m.castShadow = true; SS.add(m);
-    const ring = new THREE.Mesh(new THREE.CylinderGeometry(SIM.PR + 0.03, SIM.PR + 0.03, 0.12, 24), new THREE.MeshBasicMaterial({ color: 0xffcf3d, toneMapped: false })); ring.position.set(px2, 1.0, pz); SS.add(ring); });
+     });
 }
 // the simulated people (same slim miniature figures) + stewards in hi-vis who appear with the announcement
 const simPpl = []; for (let i = 0; i < SN; i++) simPpl.push({ x: 0, y: 0, z: 0, yaw: 0, shirt: 0x2f8fe0, ph: rnd() * 6.28, seed: rnd() });
 const SIMC = new Crowd(simPpl, 1, G, SS);
 const simStew = []; SIM.EX.forEach(e => { const tx = -e.nz, tz = e.nx; for (const s of e.id === 'B' ? [-1, 1] : [1]) simStew.push({ x: e.x - e.nx * 0.85 + tx * s * 2.0, y: 0, z: e.z - e.nz * 0.85 + tz * s * 2.0, yaw: Math.atan2(-e.nx, -e.nz) - s * 0.5, shirt: 0xd6ff2a, ph: rnd() * 6, seed: rnd() }); });
 const SIMS = new Crowd(simStew, 1, G, SS); SIMS.parts.torso.material = SIMS.parts.torso.material.clone(); SIMS.parts.torso.material.emissive = new THREE.Color(0x3a4a00);
-const C_WAIT = LIN(0xb9c2d0), C_MOVE = LIN(0x3aa0ff), C_JAM = LIN(0xff3b30);
+const C_WAIT = LIN(0x7d8696), C_MOVE = LIN(0x5a8cc4), C_JAM = LIN(0xc0473e);
 function simFrame(t) {   // t = video time 3–43
   const f = Math.max(0, Math.min(SF - 1, Math.round((t - 3) * SIM.fps))), c = new THREE.Color();
   SIMC.list.forEach((p, i) => { const b = i * SF + f, st = SIM.st[b], red = SIM.red[b] / 255;
@@ -1791,7 +1791,7 @@ function renderAt(t) {
   const i = SC.findIndex(s => t >= s[0] && t < s[1]), [a, , fn] = SC[i];
   ['cA', 'cB', 'cC'].forEach(id => concept(id, 0)); $('fade').style.opacity = 0; LINKS.visible = false;
   Object.values(STEW.parts).forEach(m => m.visible = false);
-  const simOn = t >= 3 && t < 43; RPASS.scene = simOn ? SS : scene; BLOOM.strength = simOn ? 0.28 : 0.5; BLOOM.threshold = simOn ? 0.9 : 0.85; renderer.toneMappingExposure = simOn ? 1.0 : renderer.toneMappingExposure;
+  const simOn = t >= 3 && t < 43; RPASS.scene = simOn ? SS : scene; BLOOM.strength = simOn ? 0.15 : 0.5; BLOOM.threshold = simOn ? 0.9 : 0.85; renderer.toneMappingExposure = simOn ? 1.0 : renderer.toneMappingExposure;
   $('simui').style.opacity = simOn ? Math.min(1, (t - 3) / 0.35) : 0; ['title', 'sub'].forEach(id => $(id).style.display = simOn ? 'none' : '');
   fn(t - a, t);
   const o = $('outro'), ou = t - 43; o.style.opacity = ou < 0 ? 0 : ease(ramp(ou, 0, 0.3));
