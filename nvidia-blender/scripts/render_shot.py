@@ -28,6 +28,20 @@ sc.render.resolution_percentage = pct
 if samples:
     sc.cycles.samples = samples
 sc.render.use_persistent_data = True
+if sc.render.engine == "CYCLES":  # use the GPU when there is one (OPTIX first, then CUDA); CPU otherwise
+    cp = bpy.context.preferences.addons["cycles"].preferences
+    for kind in ("OPTIX", "CUDA"):
+        try:
+            cp.compute_device_type = kind
+        except TypeError:
+            continue
+        cp.get_devices(); gpus = [d for d in cp.devices if d.type == kind]
+        if gpus:
+            for d in cp.devices:
+                d.use = d.type == kind
+            sc.cycles.device = "GPU"; print("Cycles device:", kind, [d.name for d in gpus], flush=True); break
+    else:
+        print("Cycles device: CPU", flush=True)
 if "--still" in args:
     out.parent.mkdir(parents=True, exist_ok=True)
     sc.render.filepath = str(out)
