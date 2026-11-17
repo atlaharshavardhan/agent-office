@@ -64,3 +64,4 @@ now she moved to London, that's part 1. Part 2: what happens if we need to send 
 - 17 Nov: Harsh said "yes, first lets do part1 video" and "do not worry about time" (length). Part 1 built: v3/src/dusk/CityPhoto.tsx
   (photo as one block, then packets, on the city map; 36 tiles stand for about 2,000 packets), closing shot Part1Fly in v3/src/v4/Short.tsx,
   sound audio/make_part1_mix.py, render + join v3/render_part1.sh -> internet/video/internet-part1-v1.mp4.
+- 17 Nov 2026: Part 1 v1 rendered and sent (internet/video/internet-part1-v1.mp4, 93 s). Known flaw: 'start again' label overlaps a 'waiting' counter near his home router.
