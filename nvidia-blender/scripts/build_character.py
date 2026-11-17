@@ -30,8 +30,8 @@ SCALE = 10.0
 
 PRESETS = {
     # race weights, gender (1 = male), age 0..1 (0 = young 25, 1 = old 90), weight target, outfit, hair
-    "jensen":     dict(race="asian", male=1, age=0.55, wt="averageweight", skin="#C69C7E", outfit="leather",
-                       hair=("short_side", "#A7A9AD"), glasses=True),
+    "jensen":     dict(race="asian", male=1, age=0.55, wt="averageweight", skin="#C69C7E", outfit="leather_croc",
+                       hair=("short_side", "#C4C6CA"), glasses=True),
     "exec_a":     dict(race="caucasian", male=0, age=0.25, wt="averageweight", skin="#E3B9A0", outfit="suit_navy",
                        hair=("bob", "#3A2A20"), glasses=False),
     "exec_b":     dict(race="african", male=1, age=0.3, wt="averageweight", skin="#6E4A35", outfit="suit_charcoal",
@@ -47,6 +47,7 @@ PRESETS = {
 }
 
 OUTFITS = {
+    "leather_croc":  dict(jacket=("#0A0A0B", "croc"), shirt="#0E0F11", trousers="#141518", shoes="#0A0A0A", tie=None),
     "leather":       dict(jacket=("#0B0B0C", "leather"), shirt="#111214", trousers="#16171A", shoes="#0A0A0A", tie=None),
     "suit_navy":     dict(jacket=("#1B2433", "wool"), shirt="#EDEFF2", trousers="#1B2433", shoes="#0E0C0B", tie=None),
     "suit_charcoal": dict(jacket=("#2A2C30", "wool"), shirt="#F0F2F5", trousers="#2A2C30", shoes="#0E0C0B", tie="#7A1F28"),
@@ -108,6 +109,22 @@ def mat_skin(hexc):
 
 
 def mat_cloth(hexc, kind):
+    if kind == "croc":                                              # glossy embossed leather (scale pattern)
+        m, p = C.principled("LeatherCroc", hexc, rough=0.2, coat=0.85)
+        p.inputs["Coat Roughness"].default_value = 0.12
+        b = C.NB(m)
+        tc = b.node("ShaderNodeTexCoord")
+        vor = b.node("ShaderNodeTexVoronoi", in_Scale=0.9)
+        vor.feature = "DISTANCE_TO_EDGE"
+        b.link(tc.outputs["Object"], vor.inputs["Vector"])
+        ramp = b.node("ShaderNodeMapRange")
+        ramp.inputs["From Min"].default_value = 0.0; ramp.inputs["From Max"].default_value = 0.08
+        b.link(vor.outputs["Distance"], ramp.inputs["Value"])
+        bp = b.node("ShaderNodeBump", in_Strength=0.6, in_Distance=0.25)
+        b.link(ramp.outputs["Result"], bp.inputs["Height"])
+        b.link(bp.outputs["Normal"], p.inputs["Normal"])
+        b.link(bp.outputs["Normal"], p.inputs["Coat Normal"])
+        return m
     if kind == "leather":
         m, p = C.principled("Leather", hexc, rough=0.5, coat=0.12)
         p.inputs["Coat Roughness"].default_value = 0.35
@@ -266,7 +283,7 @@ def make_character(preset="jensen", name=None, loc=(0, 0, 0)):
         bm.faces.new(vs)
         collar = C.mesh_obj(name + "_collar", bm, mat_cloth(O["shirt"], "cotton"))
         coll.objects.link(collar); to_bone(collar, arm, "spine05"); objs.append(collar)
-        if O["jacket"][1] == "leather":           # zipper line down the closed leather jacket
+        if O["jacket"][1] in ("leather", "croc"):           # zipper line down the closed leather jacket
             m_zip, _ = C.principled("Zipper", "#8C9096", metallic=1.0, rough=0.3)
             bm = bmesh.new(); C.add_box(bm, (0.5, 0.4, 44), (0, front_y + 0.1, top.z - 38))
             z = C.mesh_obj(name + "_zip", bm, m_zip); coll.objects.link(z); to_bone(z, arm, "spine03"); objs.append(z)
@@ -312,6 +329,7 @@ def make_character(preset="jensen", name=None, loc=(0, 0, 0)):
     bh = C.NB(m_hair)
     tc = bh.node("ShaderNodeTexCoord")
     wave = bh.node("ShaderNodeTexWave", in_Scale=6.0, in_Distortion=4.0, in_Detail=6.0)
+    wave.bands_direction = "X"                                  # strands run front-to-back (swept back)
     bh.link(tc.outputs["Object"], wave.inputs["Vector"])
     bp = bh.node("ShaderNodeBump", in_Strength=0.35, in_Distance=0.05)
     bh.link(wave.outputs["Fac"], bp.inputs["Height"])
