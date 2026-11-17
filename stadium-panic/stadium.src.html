@@ -14,6 +14,23 @@
   #oLogo { width: 21vw; height: 21vw; border-radius: 50%; box-shadow: 0 0 60px rgba(74,168,255,.45); }
   #oName { margin-top: 3.4vw; font: 800 10vw/1 Sora, Arial, sans-serif; letter-spacing: -0.02em; } #oName b { color: #4fc3f7; }
   #oTag { margin-top: 2.4vw; font: 500 3.7vw 'IBM Plex Sans', Arial, sans-serif; color: rgba(255,255,255,.72); }
+  #simui { position: fixed; inset: 0; z-index: 4; opacity: 0; pointer-events: none; color: #fff; }
+  #card { position: absolute; top: 11.9%; left: 8%; right: 14%; background: rgba(12,19,36,.94); border: .18vw solid rgba(127,184,255,.35); border-radius: 2vw; padding: 1.7vw 3vw 2vw; box-shadow: 0 1.5vw 4vw rgba(0,0,0,.45); }
+  #cardL { display: block; font: 700 2.2vw Sora, Arial; color: #8fc0f5; letter-spacing: .16em; }
+  #cardT { display: block; margin-top: .6vw; font: 700 3.7vw/1.2 Sora, Arial; }
+  #params { position: absolute; top: 20.3%; left: 8%; right: 14%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4vw; }
+  .pr { background: rgba(12,19,36,.9); border: .18vw solid rgba(255,255,255,.1); border-radius: 1.4vw; padding: 1.2vw 1.6vw; font: 600 2.3vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.62); transition: none; }
+  .pr span { display: block; white-space: nowrap; } .pr i { display: block; height: 1vw; margin: 1vw 0 .7vw; background: rgba(255,255,255,.14); border-radius: 1vw; overflow: hidden; }
+  .pr u { display: block; height: 100%; background: #4a9ae8; border-radius: 1vw; } .pr u.hot { background: #e0483e; }
+  .pr em { font: 700 2.2vw Sora, Arial; font-style: normal; letter-spacing: .1em; }
+  .pr.on { color: #fff; border-color: rgba(255,190,90,.75); box-shadow: 0 0 2vw rgba(255,190,90,.22); }
+  #cap { position: absolute; top: 67%; left: 8%; right: 14%; background: rgba(244,246,250,.96); color: #10151d; border-radius: 1.6vw; padding: 1.5vw 2.6vw; text-align: center; font: 700 3.3vw/1.22 Sora, Arial; box-shadow: 0 1.4vw 4vw rgba(0,0,0,.4); }
+  #cap:empty { display: none; }
+  #stats { position: absolute; top: 73.3%; left: 8%; right: 14%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4vw; }
+  #stats div { background: rgba(12,19,36,.92); border: .18vw solid rgba(255,255,255,.12); border-radius: 1.4vw; padding: .9vw 1vw; text-align: center; }
+  #stats b { display: block; font: 700 4.4vw Sora, Arial; font-variant-numeric: tabular-nums; } #stats span { font: 600 2vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.65); letter-spacing: .08em; text-transform: uppercase; }
+  #stats div.hot b { color: #ff6a5c; }
+  #snote { position: absolute; top: 77.1%; left: 8%; right: 14%; text-align: center; font: 500 1.9vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.5); }
 </style>
 <div class="ov" id="title"></div>
 <div class="ov" id="sub"></div>
@@ -21,6 +38,10 @@
 <div class="concept" id="cA" style="top:14%">Uncertainty<small>No one knows what is happening</small></div>
 <div class="concept" id="cB" style="top:14%">Social influence<small>People copy those around them</small></div>
 <div class="concept" id="cC" style="top:14%">Stress<small>Narrows attention, speeds up decisions</small></div>
+<div id="fade" style="position:fixed;inset:0;z-index:5;background:#000;opacity:0;pointer-events:none"></div>
+<div id="simui"><div id="card"><b id="cardL"></b><span id="cardT"></span></div><div id="params"></div><div id="cap"></div>
+  <div id="stats"><div><b id="s0">0</b><span>Waiting</span></div><div><b id="s1">0</b><span>Jammed</span></div><div><b id="s2">0</b><span>Leaving / min</span></div></div>
+</div>
 <div id="outro"><img id="oLogo" src="__LOGO__" alt=""><div id="oName"><span>Invisi</span><b>Tech</b></div><div id="oTag">The tech behind everyday life.</div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="assets/post/CopyShader.js"></script>
@@ -33,6 +54,7 @@
 <script src="assets/post/ShaderPass.js"></script>
 <script src="assets/post/UnrealBloomPass.js"></script>
 <script src="assets/post/BokehPass.js"></script>
+<script src="assets/sim.js"></script>
 <script>
 (() => {
 const W = innerWidth, H = innerHeight, $ = id => document.getElementById(id);
@@ -61,7 +83,7 @@ const redL = new THREE.PointLight(0xff3b2e, 0, 260, 1.6); redL.position.set(0, 4
 
 /* ---------- composer: bloom + depth of field ---------- */
 const RT = new THREE.WebGLMultisampleRenderTarget(Math.round(W * renderer.getPixelRatio()), Math.round(H * renderer.getPixelRatio()), { format: THREE.RGBAFormat, type: THREE.HalfFloatType, stencilBuffer: true }); RT.samples = 4;
-const composer = new THREE.EffectComposer(renderer, RT); composer.setSize(W, H); composer.addPass(new THREE.RenderPass(scene, camera));
+const composer = new THREE.EffectComposer(renderer, RT); composer.setSize(W, H); const RPASS = new THREE.RenderPass(scene, camera); composer.addPass(RPASS);
 const BOKEH = new THREE.BokehPass(scene, camera, { focus: 30, aperture: 0.00012, maxblur: 0.006, width: W, height: H }); composer.addPass(BOKEH);
 const BLOOM = new THREE.UnrealBloomPass(new THREE.Vector2(W, H), 0.5, 0.4, 0.85); [...BLOOM.renderTargetsHorizontal, ...BLOOM.renderTargetsVertical, BLOOM.renderTargetBright].forEach(t => t.texture.type = THREE.HalfFloatType); composer.addPass(BLOOM);
 composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));
@@ -118,40 +140,55 @@ function geo(parts) {   // merge [geometry, matrix] parts into one non-indexed g
 const M = (x, y, z, rx = 0, ry = 0, rz = 0, s = 1) => new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)), new THREE.Vector3(s, s, s));
 const rbox = (w, h, d) => { const g = new THREE.BoxGeometry(w, h, d, 2, 2, 2), p = g.attributes.position, v = new THREE.Vector3();   // softly rounded box
   for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); const k = 0.22, n = new THREE.Vector3(Math.sign(v.x) * w / 2, Math.sign(v.y) * h / 2, Math.sign(v.z) * d / 2); v.lerp(n.multiplyScalar(0.86), k); p.setXYZ(i, v.x, v.y, v.z); } g.computeVertexNormals(); return g; };
-const limb = (r0, r1, len) => new THREE.CylinderGeometry(r1, r0, len, 7, 1);
-const lathe = (pts, seg = 12) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), seg);
+let LO = false;   // light geometry for the far crowd
+const limb = (r0, r1, len) => new THREE.CylinderGeometry(r1, r0, len, LO ? 4 : 7, 1);
+const lathe = (pts, seg = 12) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), LO ? 6 : seg);
+const sph = (r, a, b, ...rest) => new THREE.SphereGeometry(r, LO ? 6 : a, LO ? 4 : b, ...rest);
 // slim miniature people (reference style): small head with dark hair, plain top, dark trousers, arms close to the body
+function makeG() {
 const torsoG = (() => { const g = lathe([[0.001, 1.0], [0.125, 1.0], [0.13, 1.12], [0.135, 1.28], [0.15, 1.4], [0.15, 1.45], [0.11, 1.49], [0.05, 1.51], [0.001, 1.515]], 12); g.scale(1, 1, 0.66); return g; })();
 function arm(side, sh, el) {   // side ±1; sh, el: [rx, rz] for shoulder and elbow
   const S = new THREE.Matrix4().makeTranslation(side * 0.165, 1.43, 0).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(sh[0], 0, side * sh[1])));
   const E = S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.29, 0)).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(el[0], 0, side * el[1])));
   return [[limb(0.034, 0.042, 0.3), S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.15, 0))], [limb(0.03, 0.035, 0.27), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.135, 0))],
-          [new THREE.SphereGeometry(0.034, 7, 5), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.285, 0))]]; }
-const G = {
+          [sph(0.034, 7, 5), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.285, 0))]]; }
+return {
   torso: geo([[torsoG, M(0, 0, 0)]]),
   legs: geo([[lathe([[0.001, 0.88], [0.135, 0.92], [0.135, 1.01], [0.001, 1.01]], 10), M(0, 0, 0)], [limb(0.052, 0.064, 0.47), M(-0.07, 0.69, 0)], [limb(0.052, 0.064, 0.47), M(0.07, 0.69, 0)],
                [limb(0.04, 0.052, 0.45), M(-0.07, 0.24, 0)], [limb(0.04, 0.052, 0.45), M(0.07, 0.24, 0)], [rbox(0.085, 0.06, 0.21), M(-0.07, 0.03, 0.04)], [rbox(0.085, 0.06, 0.21), M(0.07, 0.03, 0.04)]]),
-  head: geo([[new THREE.SphereGeometry(0.092, 14, 10), M(0, 1.64, 0)], [limb(0.034, 0.04, 0.09), M(0, 1.53, 0)]]),
-  eyes: geo([[new THREE.SphereGeometry(0.0095, 5, 4), M(-0.03, 1.652, 0.085)], [new THREE.SphereGeometry(0.0095, 5, 4), M(0.03, 1.652, 0.085)]]),
-  hair: geo([[new THREE.SphereGeometry(0.098, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.46), M(0, 1.648, -0.006, -0.42)]]),   // dark hair over the top and back of the head
+  head: geo([[sph(0.092, 14, 10), M(0, 1.64, 0)], [limb(0.034, 0.04, 0.09), M(0, 1.53, 0)]]),
+  eyes: geo([[sph(0.0095, 5, 4), M(-0.03, 1.652, 0.085)], [sph(0.0095, 5, 4), M(0.03, 1.652, 0.085)]]),
+  hair: geo([[sph(0.098, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.46), M(0, 1.648, -0.006, -0.42)]]),   // dark hair over the top and back of the head
   armsDown: geo([...arm(-1, [0, 0.06], [-0.12, 0]), ...arm(1, [0, 0.06], [-0.12, 0])]),
   armsUp: geo([...arm(-1, [0.1, 2.8], [0, -0.2]), ...arm(1, [0.1, 2.8], [0, -0.2])]),
   armPoint: geo([...arm(-1, [0, 0.06], [-0.12, 0]), ...arm(1, [-1.45, 0.2], [-0.1, 0])]),
   armsHead: geo([...arm(-1, [-1.3, -0.12], [-1.9, 0]), ...arm(1, [-1.3, -0.12], [-1.9, 0])]),   // hands up in front of the face (worry)
+  ...(() => {   // running cycle in 8 steps: legs stride from the hip with a bent knee, arms pump opposite to the legs
+    const o = {}, R = a => new THREE.Matrix4().makeRotationX(a), T = (x, y, z) => new THREE.Matrix4().makeTranslation(x, y, z);
+    const leg = (side, th, bend) => { const H = T(side * 0.07, 0.92, 0).multiply(R(th)), K = H.clone().multiply(T(0, -0.465, 0)).multiply(R(bend));
+      return [[limb(0.052, 0.064, 0.47), H.clone().multiply(T(0, -0.235, 0))], [limb(0.04, 0.052, 0.45), K.clone().multiply(T(0, -0.225, 0))], [rbox(0.085, 0.06, 0.21), K.clone().multiply(T(0, -0.44, 0.04))]]; };
+    for (let k = 0; k < 8; k++) { const ph = k / 8 * Math.PI * 2, tL = -0.62 * Math.sin(ph), tR = 0.62 * Math.sin(ph), bL = 0.2 + 1.1 * Math.max(0, Math.sin(ph + 1.2)), bR = 0.2 + 1.1 * Math.max(0, Math.sin(ph + 1.2 + Math.PI));
+      o['legsR' + k] = geo([[lathe([[0.001, 0.88], [0.135, 0.92], [0.135, 1.01], [0.001, 1.01]], 10), M(0, 0, 0)], ...leg(-1, tL, bL), ...leg(1, tR, bR)]);
+      o['armsR' + k] = geo([...arm(-1, [-tL * 1.1, 0.1], [-1.15, 0]), ...arm(1, [-tR * 1.1, 0.1], [-1.15, 0])]); }
+    return Object.entries(o); })().reduce((a, [k, v]) => (a[k] = v, a), {}),
 };
+}
+const G = makeG(); LO = true; const GL = makeG(); LO = false;
 const SKIN = [0x8d5524, 0xc68642, 0xe0ac69, 0xf1c27d, 0x6b3e26, 0xa0663c, 0xd29b6c], HAIRC = [0x111111, 0x161210, 0x1b1410, 0x0e0e10, 0x2c1b10, 0x111111, 0x3a2a1c], PANTS = [0x1c1e24, 0x22252c, 0x1c2a44, 0x2a2622, 0x1d2333];
 const SHIRT = [0x1d4fa8, 0x1d4fa8, 0x2f6fe0, 0xe8edf4, 0xd8342c, 0xffffff, 0x1d4fa8, 0xf2c230, 0x3aa760, 0xe86a2c, 0x7b4fd6];
 class Crowd {   // one group of people drawn with instanced parts; per person: pose + colours
-  constructor(list, detail = 1) { this.list = list; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
-    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) { const m = new THREE.InstancedMesh(G[k], mat(k === 'head' ? 0.7 : k === 'eyes' ? 0.4 : 0.92), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scene.add(m); }
+  constructor(list, detail = 1, GS = G, scn = scene, run = false) { this.list = list; this.run = run; const RK = run ? [...Array(8).keys()].flatMap(k => ['legsR' + k, 'armsR' + k]) : []; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
+    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead', ...RK]) { const m = new THREE.InstancedMesh(GS[k], mat(k === 'head' ? 0.7 : k === 'eyes' ? 0.4 : 0.92), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scn.add(m); }
     const c = new THREE.Color(); list.forEach((p, i) => { p.skin = p.skin ?? SKIN[(rnd() * SKIN.length) | 0]; p.shirt = p.shirt ?? SHIRT[(rnd() * SHIRT.length) | 0]; p.pants = PANTS[(rnd() * PANTS.length) | 0]; p.hairc = HAIRC[(rnd() * HAIRC.length) | 0]; p.h = 0.92 + rnd() * 0.16;
       this.parts.torso.setColorAt(i, c.copy(LIN(p.shirt))); this.parts.legs.setColorAt(i, c.copy(LIN(p.pants))); this.parts.head.setColorAt(i, c.copy(LIN(p.skin))); this.parts.hair.setColorAt(i, c.copy(LIN(p.hairc))); this.parts.eyes.setColorAt(i, c.copy(LIN(0x14100e)));
-      for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead']) this.parts[k].setColorAt(i, c.copy(LIN(p.shirt))); });
-    this.d = new THREE.Object3D(); this.hd = new THREE.Object3D(); this.zero = new THREE.Matrix4().makeScale(0, 0, 0); }
+      for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead', ...RK.filter(k => k[0] === 'a')]) this.parts[k].setColorAt(i, c.copy(LIN(p.shirt)));
+      for (const k of RK.filter(k => k[0] === 'l')) this.parts[k].setColorAt(i, c.copy(LIN(p.pants))); });
+    this.d = new THREE.Object3D(); this.d.rotation.order = 'YXZ'; this.hd = new THREE.Object3D(); this.zero = new THREE.Matrix4().makeScale(0, 0, 0); }
   update(fn) {   // fn(p, i) → { pose, yaw, headYaw, headPitch, bob, tint }
     const d = this.d, P = this.parts, hd = this.hd;
-    const cp = camera.position; this.list.forEach((p, i) => { const s = fn(p, i); if (Math.hypot(p.x - cp.x, p.z - cp.z) < 1.3 && Math.abs(p.y + 1 - cp.y) < 2.2) s.pose = 'hide'; d.position.set(p.x, p.y + (s.bob || 0), p.z); d.rotation.set(0, p.yaw + (s.yaw || 0), 0); d.scale.setScalar(p.h); d.updateMatrix();
-      for (const k of ['torso', 'legs']) P[k].setMatrixAt(i, s.pose === 'hide' ? this.zero : d.matrix);
+    const cp = camera.position; this.list.forEach((p, i) => { const s = fn(p, i); if (Math.hypot(p.x - cp.x, p.z - cp.z) < 1.3 && Math.abs(p.y + 1 - cp.y) < 2.2) s.pose = 'hide'; d.position.set(p.x, p.y + (s.bob || 0), p.z); d.rotation.set(s.lean || 0, p.yaw + (s.yaw || 0), 0); d.scale.setScalar(p.h); d.updateMatrix();
+      const run = s.pose === 'run'; P.torso.setMatrixAt(i, s.pose === 'hide' ? this.zero : d.matrix); P.legs.setMatrixAt(i, s.pose === 'hide' || run ? this.zero : d.matrix);
+      if (this.run) for (let k = 0; k < 8; k++) { const m = run && k === s.k ? d.matrix : this.zero; P['legsR' + k].setMatrixAt(i, m); P['armsR' + k].setMatrixAt(i, m); }
       for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead']) P[k].setMatrixAt(i, k === s.pose ? d.matrix : this.zero);
       hd.position.set(0, 1.56, 0); hd.rotation.set(s.headPitch || 0, s.headYaw || 0, s.headRoll || 0); hd.updateMatrix();   // the head turns around the neck
       const hm = d.matrix.clone().multiply(new THREE.Matrix4().makeTranslation(0, 1.56, 0)).multiply(new THREE.Matrix4().makeRotationFromEuler(hd.rotation)).multiply(new THREE.Matrix4().makeTranslation(0, -1.56, 0));
@@ -161,7 +198,10 @@ class Crowd {   // one group of people drawn with instanced parts; per person: p
 }
 // fans in the seats (stand in front of their seat, facing the pitch)
 const fans = seatSpots.filter(() => rnd() < 0.93).map(s => ({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, yaw: Math.atan2(-s.nx, -s.nz), r: s.r, t: s.t, ph: rnd() * 6.28, seed: rnd() }));
-const CROWD = new Crowd(fans);
+const N3 = 3 * Math.PI / 2, inHero = p => p.t > N3 + 0.1 && p.t < N3 + 0.6 && p.r <= 12;
+const heroFans = fans.filter(inHero), massFans = fans.filter(p => !inHero(p));
+const CROWD = new Crowd(massFans, 0, GL), HERO = new Crowd(heroFans, 1, G);
+const CROWDS = [CROWD, HERO], crowdUpdate = fn => CROWDS.forEach(C => C.update(fn)), crowdTint = fn => CROWDS.forEach(C => C.tint(fn));
 // stewards in hi-vis around the pitch (scene 5)
 const stewards = []; for (let i = 0; i < 26; i++) { const t = i / 26 * Math.PI * 2 + 0.1, [x, z] = SE(t, A0 - 4.5, B0 - 4.5); stewards.push({ x, y: 0, z, yaw: Math.atan2(x, z), shirt: 0xd6ff2a, t }); }   // stewards face the crowd
 const STEW = new Crowd(stewards);
@@ -208,43 +248,169 @@ const pick = (t, r) => fans.reduce((b, p) => Math.abs(p.t - t) + Math.abs(p.r - 
 
 /* ---------- lighting moods ---------- */
 function mood(red, calm) { flood.intensity = lerp(1.25, 0.45, red) * lerp(1, 1.1, calm); flood2.intensity = lerp(0.45, 0.15, red); hemi.intensity = lerp(0.22, 0.14, red); hemi.color.copy(red > 0.5 ? HEMI_R : HEMI_N);
-  redL.intensity = 3.2 * red * (0.85 + 0.15 * Math.sin(performance.now() * 0.01)); renderer.toneMappingExposure = lerp(0.95, 0.85, red); }
+  redL.intensity = 3.2 * red; renderer.toneMappingExposure = lerp(0.95, 0.85, red); }
 
-/* ---------- stills (the Remotion build animates between these) ---------- */
-let LK = null;
-const STILLS = {
-  1: () => { mood(0.15, 0); drawBoard('glitch'); smoke(0.8, 3.2); CROWD.update(p => ({ pose: p.seed < 0.55 ? 'armsDown' : 'armsUp', headPitch: -0.1 }));
-    shot(V(95, 120, 150), V(0, 6, -10), 36); tTitle(['What happens', 'when a stadium <em>panics?</em>'], 1); $('sub').textContent = 'What happens when thousands of people panic'; },
-  2: () => { mood(0.35, 0); drawBoard('glitch'); smoke(1, 5); const c = pick((3 * Math.PI / 2) + 0.32, 1);
-    const P = V(c.x, c.y, c.z), n = V(-c.x, 0, -c.z).normalize(), tg = V(-n.z, 0, n.x); shot(P.clone().addScaledVector(n, 4.4).addScaledVector(tg, 3.6).add(V(0, 1.55, 0)), P.clone().add(V(0, 1.75, 0)).addScaledVector(tg, -1.5), 30, 5.6, 0.0004);
-    CROWD.update(p => { const near = Math.hypot(p.x - c.x, p.z - c.z) < 14; const s = p.seed; return { pose: !near ? (s < 0.975 ? 'armsDown' : 'armPoint') : (s < 0.22 ? 'armsHead' : s < 0.32 ? 'armPoint' : 'armsDown'), headYaw: near ? (s - 0.5) * 2.2 : (s - 0.5) * 0.8, headPitch: near ? (s < 0.5 ? 0.15 : -0.2) : -0.15 }; });
-    tTitle([], 0); $('sub').textContent = 'Others wait, watching everyone around them'; },
-  3: () => { mood(0.25, 0); drawBoard('glitch'); smoke(0.7, 7); const c = pick((3 * Math.PI / 2) + 0.28, 8);
-    if (!LK) LK = [buildLinks(c, 16, 0xffb547), buildLinks(pick((3 * Math.PI / 2) + 0.4, 4), 12, 0x4fc3f7)];
-    LK.forEach(L => L.g.children.forEach(m => m.material.opacity = 0.9));
-    const hot = new Set(LK[0].near), cool = new Set(LK[1].near);
-    CROWD.tint(p => hot.has(p) ? [0xffb547, 0.9] : cool.has(p) ? [0x4fc3f7, 0.9] : [0x14171e, 0.8]);   // groups glow, everyone else steps back
-    CROWD.update(p => ({ pose: hot.has(p) ? (p.seed < 0.5 ? 'armPoint' : 'armsDown') : 'armsDown', headYaw: hot.has(p) ? -0.6 : 0, headPitch: -0.1 }));
-    { const n = V(-c.x, 0, -c.z).normalize(), tg = V(-n.z, 0, n.x); shot(V(c.x, c.y, c.z).addScaledVector(n, 26).addScaledVector(tg, -12).add(V(0, 16, 0)), V(c.x, c.y + 1.5, c.z).addScaledVector(tg, 3), 30); } tTitle(['One reaction', '<em>spreads</em>'], 1); $('sub').textContent = 'One person’s reaction can influence the people nearby'; },
-  4: () => { mood(0.4, 0); drawBoard('glitch'); smoke(0.9, 9); CROWD.tint(() => null); LINKS.visible = false; const c = pick((3 * Math.PI / 2) + 0.36, 0);
-    const P = V(c.x, c.y, c.z), n = V(-c.x, 0, -c.z).normalize(), tg = V(-n.z, 0, n.x); shot(P.clone().addScaledVector(n, 3.4).addScaledVector(tg, -1.6).add(V(0, 1.75, 0)), P.clone().add(V(0, 1.6, 0)), 30, 3.7, 0.0006);
-    CROWD.update(p => ({ pose: p.seed < 0.35 ? 'armsHead' : 'armsDown', headYaw: (p.seed - 0.5) * 1.6, headPitch: 0.1 }));
-    tTitle([], 0); $('cA').style.opacity = 1; $('sub').textContent = 'Uncertainty, stress and social influence'; },
-  5: () => { mood(0, 1); drawBoard('msg'); smoke(0.25, 12); LINKS.visible = false; CROWD.tint(() => null);
-    CROWD.update(p => ({ pose: 'armsDown', headYaw: (p.seed - 0.5) * 0.4, headPitch: -0.05 }));
-    STEW.update(p => ({ pose: 'armPoint', yaw: 0 })); const s = stewards.reduce((b, q) => q.z < b.z ? q : b, stewards[0]);
-    shot(V(s.x + 3.4, 2.1, s.z - 3.2), V(s.x - 0.6, 2.4, s.z - 10), 34, 4.6, 0.0004); tTitle(['Clear information', '<em>calms</em> a crowd'], 1); $('sub').textContent = 'That’s why clear communication matters'; },
-  6: () => { mood(0, 1); drawBoard('msg'); smoke(0, 0); CROWD.update(p => ({ pose: 'armsDown', headPitch: -0.1 })); STEW.update(() => ({ pose: 'armPoint' }));
-    shot(V(-150, 95, 170), V(0, 0, -5), 36); tTitle([], 0); $('sub').textContent = ''; },
-  7: () => { $('outro').style.opacity = 1; $('note').style.opacity = 0; $('sub').textContent = ''; },
-};
-function renderAt(t) { const k = Math.min(7, Math.max(1, Math.round(t)));
-  ['cA', 'cB', 'cC'].forEach(id => $(id).style.opacity = 0); $('outro').style.opacity = 0; $('note').style.opacity = 1; LINKS.visible = true; STEW.update(() => ({ pose: 'armsDown' }));
-  if (k < 5) STEW.list.forEach(() => {}), Object.values(STEW.parts).forEach(m => m.visible = k >= 5); else Object.values(STEW.parts).forEach(m => m.visible = true);
-  STILLS[k](); composer.render(); }
-{ const seen = new Set(); scene.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (seen.has(m)) return; seen.add(m); if (m.color && !m.map) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); });
-  if (o.isLight) { o.color.convertSRGBToLinear(); if (o.groundColor) o.groundColor.convertSRGBToLinear(); } }); scene.fog.color.convertSRGBToLinear(); }
+/* ================= 3–43 s: the explanation as a crowd simulation board (reference reel style) ================= */
+const SIM = runSim(), SN = SIM.N, SF = SIM.F;
+const SS = new THREE.Scene(); SS.background = new THREE.Color(0x070a12); SS.environment = scene.environment;
+SS.fog = new THREE.Fog(0x070a12, 95, 170);
+const sHemi = new THREE.HemisphereLight(0x8fa4cc, 0x1a1c22, 0.5); SS.add(sHemi);
+const sKey = new THREE.DirectionalLight(0xfff1df, 1.6); sKey.position.set(-18, 60, 30); sKey.castShadow = true; sKey.shadow.mapSize.set(2048, 2048);
+Object.assign(sKey.shadow.camera, { left: -32, right: 32, top: 32, bottom: -32, near: 5, far: 140 }); sKey.shadow.bias = -0.0005; sKey.shadow.radius = 4; SS.add(sKey);
+const sFill = new THREE.DirectionalLight(0xcfe0ff, 0.35); sFill.position.set(28, 30, -12); SS.add(sFill);
+const sSpot = new THREE.SpotLight(0xfff2dc, 0.7, 0, 0.45, 0.9, 1); sSpot.position.set(0, 45, 6); sSpot.target.position.set(0, 0, 0); SS.add(sSpot); SS.add(sSpot.target);   // a soft pool of light on the people
+const sRim = new THREE.DirectionalLight(0x6f9cff, 0.45); sRim.position.set(0, 20, -60); SS.add(sRim);   // cool rim light from behind the stands
+{ // stadium theme: dark concrete concourse at pitch level, blue seat tiers on three sides with tunnel exits, floodlights, the pitch in front
+  const PX = 40, w = (SIM.X1 - SIM.X0) * PX, h = (SIM.Z1 - SIM.Z0) * PX, c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+  const toC = (X, Z) => [(X - SIM.X0) * PX, (Z - SIM.Z0) * PX];
+  { const g = x.createRadialGradient(w / 2, h * 0.45, 0, w / 2, h * 0.45, w * 0.62); g.addColorStop(0, '#34465c'); g.addColorStop(1, '#1b2533'); x.fillStyle = g; x.fillRect(0, 0, w, h); }   // deep blue-slate floor, lit in the middle
+  for (let i = 0; i < 6000; i++) { x.fillStyle = `rgba(${Math.random() < .5 ? '10,14,20' : '150,170,195'},0.05)`; x.fillRect(Math.random() * w, Math.random() * h, 3, 3); }   // fine grain
+  for (let i = 0; i <= SIM.X1 - SIM.X0; i++) { x.fillStyle = i % 4 ? 'rgba(160,190,230,.05)' : 'rgba(160,190,230,.11)'; x.fillRect(i * PX - 1, 0, 2, h); }   // tile grid
+  for (let j = 0; j <= SIM.Z1 - SIM.Z0; j++) { x.fillStyle = j % 4 ? 'rgba(160,190,230,.05)' : 'rgba(160,190,230,.11)'; x.fillRect(0, j * PX - 1, w, 2); }
+  x.strokeStyle = 'rgba(160,190,230,.18)'; x.lineWidth = 6; x.strokeRect(30, 30, w - 60, h - 60);   // walkway edge
+  SIM.EX.forEach(e => { const [cx, cz] = toC(e.x - e.nx * 2.4, e.z - e.nz * 2.4), fam = e.id === 'B';
+    x.save(); x.translate(cx, cz); x.rotate(Math.atan2(e.nx, -e.nz)); x.fillStyle = fam ? 'rgba(74,154,232,.16)' : 'rgba(40,190,120,.13)'; x.fillRect(-56, -64, 112, 128);
+    x.fillStyle = fam ? 'rgba(140,195,250,.8)' : 'rgba(120,220,170,.75)'; x.font = '700 70px Sora, Arial'; x.textAlign = 'center'; x.fillText(e.id, 0, 30);
+    x.beginPath(); x.moveTo(-26, -40); x.lineTo(0, -62); x.lineTo(26, -40); x.lineWidth = 9; x.strokeStyle = x.fillStyle; x.stroke(); x.restore(); });
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 8;
+  const f = new THREE.Mesh(new THREE.PlaneGeometry(SIM.X1 - SIM.X0, SIM.Z1 - SIM.Z0), new THREE.MeshStandardMaterial({ map: t, roughness: 0.5, metalness: 0.1, envMapIntensity: 0.5 }));
+  f.rotation.x = -Math.PI / 2; f.position.set((SIM.X0 + SIM.X1) / 2, 0, (SIM.Z0 + SIM.Z1) / 2); f.receiveShadow = true; SS.add(f);
+  // the pitch in front of the barrier
+  const pc = document.createElement('canvas'); pc.width = 1024; pc.height = 256; const px = pc.getContext('2d');
+  for (let i = 0; i < 16; i++) { px.fillStyle = i % 2 ? '#14351c' : '#173b20'; px.fillRect(i * 64, 0, 65, 256); }
+  px.strokeStyle = 'rgba(255,255,255,.25)'; px.lineWidth = 5; px.beginPath(); px.moveTo(0, 60); px.lineTo(1024, 60); px.stroke(); px.strokeRect(330, 60, 364, 150);
+  const pt = new THREE.CanvasTexture(pc); pt.encoding = THREE.sRGBEncoding;
+  const pitch = new THREE.Mesh(new THREE.PlaneGeometry(80, 20), new THREE.MeshStandardMaterial({ map: pt, roughness: 0.9, envMapIntensity: 0.2 })); pitch.rotation.x = -Math.PI / 2; pitch.position.set(0, -0.02, SIM.Z1 + 30);   // pitch pushed out of frame: only a dark pitch-side apron shows
+  const apron = new THREE.Mesh(new THREE.PlaneGeometry(90, 19), new THREE.MeshStandardMaterial({ color: 0x1a2230, roughness: 0.8 })); apron.rotation.x = -Math.PI / 2; apron.position.set(0, -0.01, SIM.Z1 + 9.8); apron.receiveShadow = true; SS.add(apron); pitch.receiveShadow = true; SS.add(pitch);
+  const og = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), new THREE.MeshStandardMaterial({ color: 0x0c1018, roughness: 0.95 })); og.rotation.x = -Math.PI / 2; og.position.y = -0.05; SS.add(og);
+  const wm = new THREE.MeshStandardMaterial({ color: 0x262b34, roughness: 0.85, envMapIntensity: 0.3 }), cm = new THREE.MeshStandardMaterial({ color: 0x6b7686, roughness: 0.4, metalness: 0.4 });
+  const tun = new THREE.MeshBasicMaterial({ color: 0x020305 });
+  // walls: the front one is a low pitch-side barrier (with an ad board), the others are the stand's front wall with tunnel openings
+  SIM.seg.forEach(([ax, az, bx, bz]) => { const L = Math.hypot(bx - ax, bz - az); if (L < 0.05) return; const front = az === SIM.Z1 && bz === SIM.Z1, H = front ? 1.0 : 2.7, g = new THREE.Group();
+    const b = new THREE.Mesh(new THREE.BoxGeometry(L + 0.5, H, 0.5), wm); b.position.y = H / 2; b.castShadow = b.receiveShadow = true; g.add(b);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(L + 0.52, 0.07, 0.52), cm); cap.position.y = H + 0.03; g.add(cap);
+    
+    g.position.set((ax + bx) / 2, 0, (az + bz) / 2); g.rotation.y = -Math.atan2(bz - az, bx - ax); SS.add(g); });
+  // seat tiers rising behind the back and side walls (rows of blue seats, a few white ones)
+  const ROWS = 12, RD = 0.9, RR = 0.55, Y0 = 2.7, seatPos = [];
+  const tierM = new THREE.MeshStandardMaterial({ color: 0x272c35, roughness: 0.9, envMapIntensity: 0.25 });
+  const side = (len, place) => { for (let r = 0; r < ROWS; r++) { const tr = new THREE.Mesh(new THREE.BoxGeometry(len + 2 * r * RD + 1, Y0 + (r + 1) * RR, RD), tierM); place(tr, r); tr.castShadow = tr.receiveShadow = true; SS.add(tr); } };
+  side(SIM.X1 - SIM.X0, (m, r) => { m.position.set(0, (Y0 + (r + 1) * RR) / 2, SIM.Z0 - 0.25 - (r + 0.5) * RD); for (let s = -(SIM.X1 - SIM.X0) / 2 - r * RD; s < (SIM.X1 - SIM.X0) / 2 + r * RD; s += 0.6) seatPos.push([s, Y0 + (r + 1) * RR, SIM.Z0 - 0.25 - (r + 0.62) * RD, 0]); });
+  for (const sg of [-1, 1]) side(SIM.Z1 - SIM.Z0, (m, r) => { m.rotation.y = Math.PI / 2; const X = sg * (SIM.X1 + 0.25 + (r + 0.5) * RD); m.position.set(X, (Y0 + (r + 1) * RR) / 2, (SIM.Z0 + SIM.Z1) / 2 + r * RD / 2 + 0.5);
+    for (let s = SIM.Z0; s < SIM.Z1 + r * RD; s += 0.6) seatPos.push([sg * (SIM.X1 + 0.25 + (r + 0.62) * RD), Y0 + (r + 1) * RR, s, sg]); });
+  const seatG = new THREE.BoxGeometry(0.46, 0.36, 0.4), SEATS = new THREE.InstancedMesh(seatG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55 }), seatPos.length), d = new THREE.Object3D(), sc = new THREE.Color();
+  seatPos.forEach(([X, Y, Z, sg], i) => { d.position.set(X, Y + 0.18, Z); d.rotation.set(0, sg ? -sg * Math.PI / 2 : 0, 0); d.updateMatrix(); SEATS.setMatrixAt(i, d.matrix); SEATS.setColorAt(i, sc.copy(LIN((i % 97) < 3 ? 0x8a9bb5 : (i % 2 ? 0x1f4688 : 0x24509a)))); });
+  SEATS.castShadow = true; SEATS.receiveShadow = true; SS.add(SEATS);
+  // floodlight strips along the top of the stands
+  const top = Y0 + ROWS * RR + 0.3, lm = new THREE.MeshBasicMaterial({ color: 0xfff0d2, toneMapped: false });
+  const fl = new THREE.Mesh(new THREE.BoxGeometry(SIM.X1 - SIM.X0 + 2 * ROWS * RD, 0.35, 0.35), lm); fl.position.set(0, top + 1.2, SIM.Z0 - ROWS * RD - 0.4); SS.add(fl);
+  for (const sg of [-1, 1]) { const f2 = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, SIM.Z1 - SIM.Z0 + ROWS * RD), lm); f2.position.set(sg * (SIM.X1 + ROWS * RD + 0.4), top + 1.2, (SIM.Z0 + SIM.Z1) / 2 + ROWS * RD / 2); SS.add(f2); }
+  // tunnel exits: dark openings under the stands with a glowing exit sign
+  SIM.EX.forEach(e => { const tx = -e.nz, tz = e.nx, hw = SIM.GW / 2 + 0.25, ang = -Math.atan2(tz, tx);
+    const hole = new THREE.Mesh(new THREE.BoxGeometry(SIM.GW + 0.4, 2.6, ROWS * RD), tun); hole.position.set(e.x + e.nx * (ROWS * RD / 2 + 0.3), 1.3, e.z + e.nz * (ROWS * RD / 2 + 0.3)); hole.rotation.y = ang; SS.add(hole);
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(SIM.GW + 1, 0.4, 0.5), wm); roof.position.set(e.x, 2.5, e.z); roof.rotation.y = ang; SS.add(roof);
+    const scv = document.createElement('canvas'); scv.width = 256; scv.height = 96; const sx = scv.getContext('2d'); sx.fillStyle = e.id === 'B' ? '#2a6fd0' : '#17a066'; sx.fillRect(0, 0, 256, 96);
+    sx.fillStyle = '#ffffff'; sx.font = '700 54px Sora, Arial'; sx.textAlign = 'center'; sx.fillText('EXIT ' + e.id, 128, 68); const st = new THREE.CanvasTexture(scv); st.encoding = THREE.sRGBEncoding;
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.82), new THREE.MeshBasicMaterial({ map: st, toneMapped: false })); sign.position.set(e.x - e.nx * 0.27, 3.2, e.z - e.nz * 0.27); sign.lookAt(e.x - e.nx * 5, 3.2, e.z - e.nz * 5); SS.add(sign); });
+  SIM.PIL.forEach(([px2, pz]) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(SIM.PR, SIM.PR, 2.7, 24), wm); m.position.set(px2, 1.35, pz); m.castShadow = true; SS.add(m);
+     });
+}
+// fix one: the slanted barrier in front of exit B (rises out of the floor at 30.4 s)
+const BARM = new THREE.Group(); { const [ax, az, bx, bz] = SIM.BAR, L = Math.hypot(bx - ax, bz - az);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(L, 1.9, 0.3), new THREE.MeshStandardMaterial({ color: 0x3a4250, roughness: 0.35, metalness: 0.6 })); body.position.y = 0.95; body.castShadow = true; BARM.add(body);
+  const edge = new THREE.Mesh(new THREE.BoxGeometry(L + 0.04, 0.16, 0.34), new THREE.MeshBasicMaterial({ color: 0xffbe5a, toneMapped: false })); edge.position.y = 1.95; BARM.add(edge);
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(L + 1.6, 1.8), new THREE.MeshBasicMaterial({ map: soft([[0, 'rgba(255,190,90,0.55)'], [1, 'rgba(255,190,90,0)']]), transparent: true, depthWrite: false, toneMapped: false })); glow.rotation.x = -Math.PI / 2; glow.position.y = 0.03; BARM.add(glow); BARM.userData.glow = glow;
+  BARM.position.set((ax + bx) / 2, 0, (az + bz) / 2); BARM.rotation.y = -Math.atan2(bz - az, bx - ax); SS.add(BARM); }
+// the simulated people (same slim miniature figures) + stewards in hi-vis who appear with the announcement
+const simPpl = []; for (let i = 0; i < SN; i++) simPpl.push({ x: 0, y: 0, z: 0, yaw: 0, shirt: 0x2f8fe0, ph: rnd() * 6.28, seed: rnd() });
+const SIM_SCALE = 1.25;   // people drawn a bit bigger so they read clearly from above
+const SIMC = new Crowd(simPpl, 1, G, SS, true); simPpl.forEach(p => p.h *= SIM_SCALE);
+const simStew = []; SIM.EX.forEach(e => { const tx = -e.nz, tz = e.nx; for (const s of e.id === 'B' ? [-1, 1] : [1]) simStew.push({ x: e.x - e.nx * 0.85 + tx * s * 2.0, y: 0, z: e.z - e.nz * 0.85 + tz * s * 2.0, yaw: Math.atan2(-e.nx, -e.nz) - s * 0.5, shirt: 0xd6ff2a, ph: rnd() * 6, seed: rnd() }); });
+const SIMS = new Crowd(simStew, 1, G, SS); simStew.forEach(p => p.h *= SIM_SCALE); SIMS.parts.torso.material = SIMS.parts.torso.material.clone(); SIMS.parts.torso.material.emissive = new THREE.Color(0x3a4a00);
+const C_WAIT = LIN(0xe9ecf2), C_MOVE = LIN(0x58b4ff), C_JAM = LIN(0xff4d40);
+function simFrame(t) {   // t = video time 3–43
+  const f = Math.max(0, Math.min(SF - 1, Math.round((t - 3) * SIM.fps))), c = new THREE.Color();
+  SIMC.list.forEach((p, i) => { const b = i * SF + f, st = SIM.st[b], red = SIM.red[b] / 255;
+    c.copy(st === 0 ? C_WAIT : C_MOVE); if (red > 0) c.lerp(C_JAM, Math.min(1, red * 1.3));
+    for (const k of ['torso', 'armsDown', 'armsUp', 'armPoint', 'armsHead', 'armsR0', 'armsR1', 'armsR2', 'armsR3', 'armsR4', 'armsR5', 'armsR6', 'armsR7']) SIMC.parts[k].setColorAt(i, c); });
+  SIMC.update((p, i) => { const b = i * SF + f, st = SIM.st[b]; p.x = SIM.x[b]; p.z = SIM.z[b]; p.yaw = SIM.yaw[b];
+    if (st === 3) return { pose: 'hide' };
+    const red = SIM.red[b] / 255, fb = i * SF + Math.max(0, f - 4), spd = (SIM.dist[b] - SIM.dist[fb]) / (Math.max(1, f - Math.max(0, f - 4)) / SIM.fps);
+    if (st >= 1 && spd > 0.35) { const cyc = SIM.dist[b] / 1.7 + p.seed, k = Math.floor(cyc * 8) % 8, fast = Math.min(1, spd / 2.2);   // stride ≈ 1.7 m per full cycle
+      return { pose: 'run', k, lean: 0.06 + 0.16 * fast, bob: Math.abs(Math.sin(cyc * Math.PI * 2)) * 0.07 * fast, headPitch: -0.12 }; }
+    return { pose: red > 0.6 && p.seed < 0.12 ? 'armsHead' : st === 0 && p.seed > 0.97 ? 'armPoint' : 'armsDown', bob: 0, yaw: st >= 1 ? Math.sin(t * 7 + p.ph) * 0.05 : 0,
+      headYaw: st === 0 ? Math.sin(t * 0.9 + p.ph) * 0.5 : Math.sin(t * 1.3 + p.ph) * 0.25, headPitch: -0.05 }; });
+  const bk = ease(ramp(t, 30.4, 31.0)); BARM.visible = bk > 0.01; BARM.position.y = (bk - 1) * 2.1; BARM.userData.glow.position.y = 0.03 - (bk - 1) * 2.1;
+  const sk = ease(ramp(t, 36.6, 37.2));
+  SIMS.update(p => sk < 0.02 ? { pose: 'hide' } : { pose: Math.sin(t * 2.4 + p.ph) > -0.3 ? 'armPoint' : 'armsDown', bob: (1 - sk) * 0.8, headYaw: Math.sin(t * 0.8 + p.ph) * 0.4 });
+  return SIM.stats[f]; }
+// overlay UI (cards, sliders, counters)
+const PRM = [['Uncertainty', 'u'], ['Social influence', 's'], ['Stress', 'x']];
+$('params').innerHTML = PRM.map(([n], i) => `<div class="pr" id="pr${i}"><span>${n}</span><i><u id="pb${i}"></u></i><em id="pv${i}"></em></div>`).join('');
+const lvl = v => v < 0.34 ? 'LOW' : v < 0.67 ? 'MID' : 'HIGH';
+function simUI(t, st) {
+  const L = t < 10 ? ['QUESTION', 'Why do some people move at once, while others wait?'] : t < 20 ? ['RULE 1', 'If people near me move, I move too.'] : t < 30.4 ? ['RULE 2', 'Unsure + copying + stressed = everyone picks the exit they know.'] : t < 36.6 ? ['FIX 1', 'A slanted barrier in front of the door splits the push.'] : ['FIX 2', 'Clear announcements + stewards = every exit used.'];
+  if ($('card').dataset.k !== L[1]) { $('card').dataset.k = L[1]; $('cardL').textContent = 'SIMULATION · ' + L[0]; $('cardT').textContent = L[1]; }
+  const ck = Math.min(...[3, 10, 20, 30.4, 36.6].map(a => Math.abs(t - a))); $('card').style.opacity = Math.min(1, ck / 0.25 + (t < 3.3 ? 0 : 0));
+  const unc = lerp(0.9, 0.12, ease(ramp(t, 36.8, 39))), soc = t < 10 ? 0.25 : t < 36 ? lerp(0.25, 0.85, ease(ramp(t, 12.9, 17))) : lerp(0.85, 0.3, ease(ramp(t, 37.2, 40))),
+        str = t < 20 ? lerp(0.35, 0.5, ramp(t, 3, 20)) : t < 30 ? lerp(0.5, 0.95, ease(ramp(t, 26.7, 28.5))) : lerp(0.95, 0.25, ease(ramp(t, 37.2, 41)));
+  const act = t >= 20.3 && t < 23.6 ? 0 : t >= 23.6 && t < 26.7 ? 1 : t >= 26.7 && t < 30.4 ? 2 : t >= 12.9 && t < 20 ? 1 : t >= 36.8 && t < 40 ? 0 : -1;
+  [unc, soc, str].forEach((v, i) => { $('pb' + i).style.width = (v * 100).toFixed(1) + '%'; $('pv' + i).textContent = lvl(v); $('pr' + i).classList.toggle('on', i === act); $('pb' + i).classList.toggle('hot', v > 0.67); });
+  const [w, mv, jam, gone, rate] = st; $('s0').textContent = w; $('s1').textContent = jam; $('s2').textContent = rate;
+  $('stats').children[1].classList.toggle('hot', jam > 40);
+}
+
+/* ---------- 45-second timeline ---------- */
+const TOTAL = 45, CAPS = __CAPS__, CAPL = __LINES__;
+const easeIO = ease, sm = (u, a, b) => ease(ramp(u, a, b));
+const C2 = pick(N3 + 0.32, 1), C4A = pick(N3 + 0.36, 0), C4B = pick(N3 + 0.26, 3), C4C = pick(N3 + 0.44, 1), CL = pick(N3 + 0.28, 8), CL2 = pick(N3 + 0.4, 4);
+const LK = [buildLinks(CL, 16, 0xffb547), buildLinks(CL2, 12, 0x4fc3f7)], HOT = new Set(LK[0].near), COOL = new Set(LK[1].near);
+const STEW_S = stewards.reduce((b, q) => q.z < b.z ? q : b, stewards[0]);
+const front = c => { const n = V(-c.x, 0, -c.z).normalize(); return { P: V(c.x, c.y, c.z), n, tg: V(-n.z, 0, n.x) }; };
+const camLerp = (a, b, k) => [a[0].clone().lerp(b[0], k), a[1].clone().lerp(b[1], k)];
+const smokeO = SMOKE_O;
+function setTitle(lines, a) { const k = lines.join('|'); if ($('title').dataset.k !== k) { $('title').dataset.k = k; $('title').innerHTML = lines.map(l => `<span class="ln">${l}</span>`).join(''); }
+  $('title').style.opacity = a; $('title').style.transform = `translateY(${(1 - a) * 2}vh)`; }
+function concept(id, a) { const e = $(id); e.style.opacity = a; e.style.transform = `translateY(${(1 - a) * 2}vh)`; }
+let lastTint = '';
+function tintMode(m, k = 1) { const key = m + Math.round(k * 10); if (key === lastTint) return; lastTint = key;
+  if (m === 'none') crowdTint(() => null); else crowdTint(p => HOT.has(p) ? [0xffb547, 0.9 * k] : (m === 'both' && COOL.has(p)) ? [0x4fc3f7, 0.9 * k] : [0x14171e, 0.75 * k]); }
+// cheering: arms up/down in waves, little jumps
+const cheer = (p, t, k) => { const w = Math.sin(t * 6 + p.ph * 3 + p.x * 0.05); return { pose: k > 0.5 && w > 0.1 && p.seed < 0.75 ? 'armsUp' : 'armsDown', bob: k * Math.max(0, w) * 0.08 * (p.seed < 0.6 ? 1 : 0), headPitch: -0.12 }; };
+const SC = [
+  [0, 3, (u, t) => {   // 1. hook: packed stadium cheering, smoke and a glitch at the scoreboard, cheering stops; dramatic push-in
+    const fault = sm(u, 0.9, 1.4), red = sm(u, 1.3, 2.2); mood(0.6 * red, 0); drawBoard(u < 1.1 ? 'score' : 'glitch'); smoke(fault, t);
+    const ck = 1 - sm(u, 1.6, 2.6); crowdUpdate(p => { const c = cheer(p, t, ck); if (ck < 0.5) { c.pose = 'armsDown'; c.headYaw = (p.seed - 0.5) * 0.6 * (1 - ck); c.headPitch = -0.2; } return c; });
+    const k = easeIO(u / 3); shot(V(lerp(110, 60, k), lerp(135, 70, k), lerp(170, 95, k)), V(lerp(0, 4, k), lerp(4, 14, k), lerp(-8, -40, k)), lerp(36, 30, k));
+    setTitle(['What happens', 'when a stadium <em>panics?</em>'], sm(u, 0.2, 0.6));
+  }],
+  [3, 43, (u, t) => {   // 2–5. the explanation as a live crowd simulation: alarm → some move, others watch → copying ripples → one familiar exit jams → announcement + stewards → every exit used
+    const K = [[3, V(0, 66, 31), V(0, 0, 1.5)], [9.5, V(0, 80, 38), V(0, 0, 2)], [20, V(0, 80, 38), V(0, 0, 2)], [24, V(5, 60, 24), V(6, 0, -4)], [29.9, V(5, 60, 24), V(6, 0, -4)], [31.2, V(8, 36, 7), V(8, 0, -9.2)], [36.4, V(8, 38, 8), V(8, 0, -9)], [40, V(0, 80, 38), V(0, 0, 2)], [43, V(0, 82, 39), V(0, 0, 2)]];
+    let j = 0; while (j < K.length - 2 && t >= K[j + 1][0]) j++; const k = easeIO(ramp(t, K[j][0], K[j + 1][0]));
+    shot(K[j][1].clone().lerp(K[j + 1][1], k), K[j][2].clone().lerp(K[j + 1][2], k), 40, 50, 0);
+    simUI(t, simFrame(t));
+  }],
+  [43, 45, () => { mood(0, 1); }],
+];
+function renderAt(t) {
+  t = Math.max(0, Math.min(TOTAL - 1e-3, t));
+  const i = SC.findIndex(s => t >= s[0] && t < s[1]), [a, , fn] = SC[i];
+  ['cA', 'cB', 'cC'].forEach(id => concept(id, 0)); $('fade').style.opacity = 0; LINKS.visible = false;
+  Object.values(STEW.parts).forEach(m => m.visible = false);
+  const simOn = t >= 3 && t < 43; RPASS.scene = simOn ? SS : scene; BLOOM.strength = simOn ? 0.32 : 0.5; BLOOM.threshold = simOn ? 0.9 : 0.85; renderer.toneMappingExposure = simOn ? 1.0 : renderer.toneMappingExposure;
+  $('simui').style.opacity = simOn ? Math.min(1, (t - 3) / 0.35) : 0; ['title', 'sub'].forEach(id => $(id).style.display = simOn ? 'none' : '');
+  fn(t - a, t);
+  const o = $('outro'), ou = t - 43; o.style.opacity = ou < 0 ? 0 : ease(ramp(ou, 0, 0.3));
+  if (ou >= 0) { const pop = (el, a0, a1, s0) => { const v = ease(ramp(ou, a0, a1)); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 1.2}vh) scale(${s0 + (1 - s0) * v})`; }; pop($('oLogo'), 0.15, 0.65, 0.92); pop($('oName'), 0.4, 0.9, 0.96); pop($('oTag'), 0.65, 1.15, 1); }
+  $('note').style.opacity = t < 3 ? 1 : 0;
+  const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
+  const ln = [...CAPL].reverse().find(c => t >= c[0] - 0.1); $('cap').textContent = ln && t < 43 ? ln[2] : '';
+  for (const c of [3]) $('fade').style.opacity = Math.max(+$('fade').style.opacity, 0.5 - Math.abs(t - c) / 0.25);
+  if (t < 43) composer.render();
+}
+{ const seen = new Set(); [scene, SS].forEach(S => S.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (seen.has(m)) return; seen.add(m); if (m.color && !m.map) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); });
+  if (o.isLight) { o.color.convertSRGBToLinear(); if (o.groundColor) o.groundColor.convertSRGBToLinear(); } })); scene.fog.color.convertSRGBToLinear(); SS.fog.color.convertSRGBToLinear(); SS.background.convertSRGBToLinear(); }
 const HEMI_N = hemi.color.clone(), HEMI_R = LIN(0x8a4a52);
-window.__tour = { total: 8, renderAt }; window.__tourReady = () => true;
+window.__tour = { total: TOTAL, renderAt }; window.__tourReady = () => true;
 })();
 </script>

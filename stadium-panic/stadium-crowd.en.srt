@@ -1,0 +1,56 @@
+1
+00:00:00,350 --> 00:00:03,707
+What happens when thousands of people panic at the same time?
+
+2
+00:00:03,860 --> 00:00:05,825
+Some people react immediately.
+
+3
+00:00:05,975 --> 00:00:08,267
+Others wait, watching everyone around them.
+
+4
+00:00:08,900 --> 00:00:12,779
+When information is unclear, people often look to others for clues.
+
+5
+00:00:12,929 --> 00:00:16,221
+One person's reaction can influence the people nearby.
+
+6
+00:00:16,371 --> 00:00:18,803
+And that reaction can ripple through the crowd.
+
+7
+00:00:20,300 --> 00:00:22,887
+Uncertainty. No one knows what is happening.
+
+8
+00:00:23,600 --> 00:00:26,416
+Social influence. We copy the people around us.
+
+9
+00:00:26,700 --> 00:00:30,380
+And stress. So almost everyone heads for the one exit they know.
+
+10
+00:00:30,530 --> 00:00:33,183
+Fix one: a slanted barrier in front of the door.
+
+11
+00:00:33,500 --> 00:00:37,130
+In simulations, it splits the push, and the door stops clogging.
+
+12
+00:00:37,280 --> 00:00:40,288
+Fix two: clear announcements send people to every exit.
+
+13
+00:00:40,438 --> 00:00:42,332
+Smarter exits, calmer crowds.
+
+14
+00:00:43,150 --> 00:00:44,981
+Follow InvisiTech for more.
+

@@ -14,6 +14,23 @@
   #oLogo { width: 21vw; height: 21vw; border-radius: 50%; box-shadow: 0 0 60px rgba(74,168,255,.45); }
   #oName { margin-top: 3.4vw; font: 800 10vw/1 Sora, Arial, sans-serif; letter-spacing: -0.02em; } #oName b { color: #4fc3f7; }
   #oTag { margin-top: 2.4vw; font: 500 3.7vw 'IBM Plex Sans', Arial, sans-serif; color: rgba(255,255,255,.72); }
+  #simui { position: fixed; inset: 0; z-index: 4; opacity: 0; pointer-events: none; color: #fff; }
+  #card { position: absolute; top: 11.9%; left: 8%; right: 14%; background: rgba(12,19,36,.94); border: .18vw solid rgba(127,184,255,.35); border-radius: 2vw; padding: 1.7vw 3vw 2vw; box-shadow: 0 1.5vw 4vw rgba(0,0,0,.45); }
+  #cardL { display: block; font: 700 2.2vw Sora, Arial; color: #8fc0f5; letter-spacing: .16em; }
+  #cardT { display: block; margin-top: .6vw; font: 700 3.7vw/1.2 Sora, Arial; }
+  #params { position: absolute; top: 20.3%; left: 8%; right: 14%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4vw; }
+  .pr { background: rgba(12,19,36,.9); border: .18vw solid rgba(255,255,255,.1); border-radius: 1.4vw; padding: 1.2vw 1.6vw; font: 600 2.3vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.62); transition: none; }
+  .pr span { display: block; white-space: nowrap; } .pr i { display: block; height: 1vw; margin: 1vw 0 .7vw; background: rgba(255,255,255,.14); border-radius: 1vw; overflow: hidden; }
+  .pr u { display: block; height: 100%; background: #4a9ae8; border-radius: 1vw; } .pr u.hot { background: #e0483e; }
+  .pr em { font: 700 2.2vw Sora, Arial; font-style: normal; letter-spacing: .1em; }
+  .pr.on { color: #fff; border-color: rgba(255,190,90,.75); box-shadow: 0 0 2vw rgba(255,190,90,.22); }
+  #cap { position: absolute; top: 67%; left: 8%; right: 14%; background: rgba(244,246,250,.96); color: #10151d; border-radius: 1.6vw; padding: 1.5vw 2.6vw; text-align: center; font: 700 3.3vw/1.22 Sora, Arial; box-shadow: 0 1.4vw 4vw rgba(0,0,0,.4); }
+  #cap:empty { display: none; }
+  #stats { position: absolute; top: 73.3%; left: 8%; right: 14%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4vw; }
+  #stats div { background: rgba(12,19,36,.92); border: .18vw solid rgba(255,255,255,.12); border-radius: 1.4vw; padding: .9vw 1vw; text-align: center; }
+  #stats b { display: block; font: 700 4.4vw Sora, Arial; font-variant-numeric: tabular-nums; } #stats span { font: 600 2vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.65); letter-spacing: .08em; text-transform: uppercase; }
+  #stats div.hot b { color: #ff6a5c; }
+  #snote { position: absolute; top: 77.1%; left: 8%; right: 14%; text-align: center; font: 500 1.9vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.5); }
 </style>
 <div class="ov" id="title"></div>
 <div class="ov" id="sub"></div>
@@ -21,6 +38,10 @@
 <div class="concept" id="cA" style="top:14%">Uncertainty<small>No one knows what is happening</small></div>
 <div class="concept" id="cB" style="top:14%">Social influence<small>People copy those around them</small></div>
 <div class="concept" id="cC" style="top:14%">Stress<small>Narrows attention, speeds up decisions</small></div>
+<div id="fade" style="position:fixed;inset:0;z-index:5;background:#000;opacity:0;pointer-events:none"></div>
+<div id="simui"><div id="card"><b id="cardL"></b><span id="cardT"></span></div><div id="params"></div><div id="cap"></div>
+  <div id="stats"><div><b id="s0">0</b><span>Waiting</span></div><div><b id="s1">0</b><span>Jammed</span></div><div><b id="s2">0</b><span>Leaving / min</span></div></div>
+</div>
 <div id="outro"><img id="oLogo" src="data:image/png;base64,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" alt=""><div id="oName"><span>Invisi</span><b>Tech</b></div><div id="oTag">The tech behind everyday life.</div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -1357,6 +1378,105 @@
 
 </script>
 <script>
+/* Crowd simulation for the explanation part (video 3–43 s). Deterministic: every render part computes the same result.
+   A concourse behind a stand with four exits. B is the gate everyone came in through.
+   Rules (simplified from crowd research):
+     - a few people react to the alarm at once; the rest wait and watch
+     - a waiting person starts moving once enough people near them are moving (social influence)
+     - unsure and stressed, most head for the exit they know (B), so B jams while A, C and D stay almost empty
+     - after the announcement (and stewards at every exit) people pick the nearest exit that is not crowded */
+function runSim(opt) {
+  const o = Object.assign({ N: 760, fps: 30, T: 40, infoAt: 33.6, barAt: 27.5, seed: 11 }, opt || {});
+  let sd = o.seed; const R = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+  const X0 = -17, X1 = 17, Z0 = -14, Z1 = 14, rad = 0.23, GW = 2.6;   // room (m); agent radius; exit gap width
+  const EX = [   // exits: gap centre, outward normal
+    { id: 'A', x: -9, z: Z0, nx: 0, nz: -1 }, { id: 'B', x: 9, z: Z0, nx: 0, nz: -1 },
+    { id: 'C', x: X0, z: 1, nx: -1, nz: 0 }, { id: 'D', x: X1, z: 1, nx: 1, nz: 0 }];
+  const PIL = [[-7, -4], [3, -4], [-3, 5], [7, 5]], PR = 0.55;   // round columns
+  // wall segments with the exit gaps cut out
+  const seg = []; const wall = (ax, az, bx, bz, gaps) => { // gaps along the wall as [centre, width] (coordinate along it)
+    const L = Math.hypot(bx - ax, bz - az), ux = (bx - ax) / L, uz = (bz - az) / L; let s = 0;
+    gaps.sort((a, b) => a[0] - b[0]).forEach(([c, w]) => { seg.push([ax + ux * s, az + uz * s, ax + ux * (c - w / 2), az + uz * (c - w / 2)]); s = c + w / 2; });
+    seg.push([ax + ux * s, az + uz * s, bx, bz]); };
+  wall(X0, Z0, X1, Z0, EX.filter(e => e.nz < 0).map(e => [e.x - X0, GW])); wall(X0, Z0, X0, Z1, EX.filter(e => e.nx < 0).map(e => [e.z - Z0, GW])); wall(X1, Z0, X1, Z1, EX.filter(e => e.nx > 0).map(e => [e.z - Z0, GW])); wall(X0, Z1, X1, Z1, []);
+  // people: loose groups around the concourse
+  const P = []; const free = (x, z) => x > X0 + 0.8 && x < X1 - 0.8 && z > Z0 + 1.2 && z < Z1 - 0.8 && PIL.every(([px, pz]) => Math.hypot(x - px, z - pz) > PR + 0.5) && P.every(q => Math.hypot(q.x - x, q.z - z) > 2 * rad + 0.08);
+  const groups = []; for (let g = 0; g < 60; g++) groups.push([X0 + 1.5 + R() * (X1 - X0 - 3), Z0 + 2.5 + R() * (Z1 - Z0 - 4)]);
+  let tries = 0; while (P.length < o.N && tries < 200000) { tries++; const g = groups[(R() * groups.length) | 0], a = R() * 6.283, d = Math.sqrt(R()) * (1.5 + R() * 3.2), x = g[0] + Math.cos(a) * d, z = g[1] + Math.sin(a) * d;
+    if (free(x, z)) P.push({ x, z, vx: 0, vz: 0, yaw: R() * 6.283, quick: R() < 0.07, th: 0.3 + R() * 0.45, dl: 1.2 + R() * 3.2, prim: -1, st: -1, ex: -1, red: 0, spd: 0, done: -1, look: 0, hear: o.infoAt + R() * 2.8, fam: R() < 0.88, v0: 1.7 + R() * 0.5 }); }
+  const N = P.length, F = Math.round(o.T * o.fps) + 1, dt = 1 / o.fps;
+  const near = (p) => EX.reduce((b, e, i) => Math.hypot(p.x - e.x, p.z - e.z) < Math.hypot(p.x - EX[b].x, p.z - EX[b].z) ? i : b, 0);
+  P.forEach(p => { p.ex = p.fam ? 1 : near(p); p.quickT = 0.2 + R() * 1.6; });
+  const BAR = [7.6, -11.9, 10.4, -12.8], barAt = o.barAt;   // slanted barrier in front of exit B (the obstacle effect), placed at barAt
+  const out = { N, F, fps: o.fps, EX, PIL, PR, seg, X0, X1, Z0, Z1, GW, BAR, barAt,
+    x: new Float32Array(N * F), z: new Float32Array(N * F), dist: new Float32Array(N * F), yaw: new Float32Array(N * F), st: new Uint8Array(N * F), red: new Uint8Array(N * F), look: new Float32Array(N * F),
+    stats: [] };   // st: 0 waiting, 1 moving, 2 outside/leaving, 3 gone
+  const CS = 1.0, grid = new Map(), key = (i, j) => i * 1000 + j;
+  const build = () => { grid.clear(); P.forEach((p, i) => { if (p.done >= 0) return; const k = key(Math.floor(p.x / CS), Math.floor(p.z / CS)); let c = grid.get(k); if (!c) grid.set(k, c = []); c.push(i); }); };
+  const each = (p, r, fn) => { const i0 = Math.floor((p.x - r) / CS), i1 = Math.floor((p.x + r) / CS), j0 = Math.floor((p.z - r) / CS), j1 = Math.floor((p.z + r) / CS);
+    for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) { const c = grid.get(key(i, j)); if (c) for (const k of c) fn(k); } };
+  const XF = [];   // frames at which someone went through a door
+  for (let f = 0; f < F; f++) { const t = f * dt;
+    build();
+    // after the announcement: re-choose the exit (nearest, avoiding crowded ones); each person hears it at a slightly different time
+    if (t >= o.infoAt) {   // after the announcement: each person (once they hear it, at slightly different times) picks the nearest exit that is not crowded, and checks again every 2 s
+      const q = EX.map(e => { let n = 0; each({ x: e.x, z: e.z }, 5, k => { const r = P[k]; if (r.st === 1 && Math.hypot(r.x - e.x, r.z - e.z) < 5) n++; }); return n; });
+      P.forEach((p, i) => { if (p.done >= 0 || t < p.hear || p.st === 2) return; if (p.reroute && (f + i) % 60) return;
+        const cost = j => Math.hypot(p.x - EX[j].x, p.z - EX[j].z) + 0.03 * q[j];
+        let best = p.reroute ? p.ex : 0; EX.forEach((e, j) => { if (cost(j) < cost(best) - (p.reroute ? 3 : 0)) best = j; });
+        p.ex = best; p.reroute = true; if (p.st === 0) p.st = 1; }); }
+    // each door lets about 3 people a second through; a crushed, pushing crowd at the door clogs it ("faster is slower", Helbing et al. 2000)
+    EX.forEach(e => { let n = 0, r = 0; each({ x: e.x, z: e.z }, 3, k => { const q = P[k]; if (q.done < 0 && Math.hypot(q.x - e.x, q.z - e.z) < 3) { n++; r += q.red; } });
+      const clog = e.id === 'B' && t >= barAt ? 0.1 : 0.7;   // the barrier takes the crowd's push off the doorway, so the door stops clogging
+      e.tok = Math.min(2, (e.tok || 0) + dt * 4.5 * (1 - clog * (n ? r / n : 0))); });
+    // decide who moves
+    P.forEach((p, i) => { if (p.done >= 0) return;
+      if (p.st < 0) p.st = 0;
+      if (p.st === 0) { if (p.quick && t >= p.quickT) p.st = 1;
+        else { let n = 0, m = 0, lx = 0, lz = 0; each(p, 4, k => { if (k === i) return; const q = P[k]; if (q.done >= 0) return; const d = Math.hypot(q.x - p.x, q.z - p.z); if (d > 4) return; n++; if (q.st >= 1) { m++; lx += q.x - p.x; lz += q.z - p.z; } });
+          if (m) p.look = Math.atan2(lx, lz);   // waiting people turn to watch the ones who move
+          if (p.prim < 0 && m >= 2 && (m / Math.max(1, n) >= p.th || m >= 6)) p.prim = t;
+          if (p.prim >= 0 && t >= p.prim + p.dl) p.st = 1; } } });
+    // stress (video 20–30 s) makes people hurry; information calms them again
+    const hurry = t < 17 ? 1 : t < 27 ? 1 + 0.35 * Math.min(1, (t - 17) / 4) : 1.15;
+    P.forEach(p => { if (p.done >= 0) return; let dx = 0, dz = 0;
+      if (p.st >= 1) { const e = EX[p.ex], s = (p.x - e.x) * e.nx + (p.z - e.z) * e.nz;
+        if (s > 0.05 && p.st === 1) { if (e.tok >= 1) { e.tok--; p.st = 2; XF.push(f); } else { p.x -= e.nx * (s - 0.05); p.z -= e.nz * (s - 0.05); } }   // door capacity: people pass one by one
+        let tx, tz; if (p.st === 2) { tx = e.x + e.nx * 12; tz = e.z + e.nz * 12; if (s > 6) { p.done = t; p.st = 3; return; } }
+        else { tx = e.x + e.nx; tz = e.z + e.nz; }
+        let c = 0; const hx = tx - p.x, hz = tz - p.z; each(p, 1, k => { const q = P[k]; if (q !== p && q.done < 0 && Math.hypot(q.x - p.x, q.z - p.z) < 1 && (q.x - p.x) * hx + (q.z - p.z) * hz > 0) c += 2; });   // only people ahead slow you down
+        const dv = Math.max(0.08, 1 - c / 3.14 / 5.4);   // packed crowds slow down (speed falls as density rises)
+        const L = Math.hypot(tx - p.x, tz - p.z) || 1; dx = (tx - p.x) / L * p.v0 * hurry * dv; dz = (tz - p.z) / L * p.v0 * hurry * dv; }
+      if (p.st >= 1) { dx += (R() - 0.5) * 0.5; dz += (R() - 0.5) * 0.5; }   // small jostle: stops perfectly stable arches at the doors
+      p.vx += (dx - p.vx) * Math.min(1, dt / 0.45); p.vz += (dz - p.vz) * Math.min(1, dt / 0.45);
+      p.px = p.x; p.pz = p.z; p.x += p.vx * dt; p.z += p.vz * dt; });
+    // keep people apart, out of the walls and columns
+    for (let it = 0; it < 3; it++) { build();
+      P.forEach((p, i) => { if (p.done >= 0) return; each(p, 2 * rad, k => { if (k <= i) return; const q = P[k]; if (q.done >= 0) return; let dx = q.x - p.x, dz = q.z - p.z, d = Math.hypot(dx, dz);
+          if (d < 2 * rad && d > 1e-6) { const s = (2 * rad - d) / 2 / d; p.x -= dx * s; p.z -= dz * s; q.x += dx * s; q.z += dz * s; } });
+        for (const [ax, az, bx, bz] of seg) { const ux = bx - ax, uz = bz - az, L2 = ux * ux + uz * uz, u = Math.max(0, Math.min(1, ((p.x - ax) * ux + (p.z - az) * uz) / L2)), cx = ax + ux * u, cz = az + uz * u;
+          const dx = p.x - cx, dz = p.z - cz, d = Math.hypot(dx, dz), m = rad + 0.12; if (d < m && d > 1e-6) { p.x = cx + dx / d * m; p.z = cz + dz / d * m; } }
+        if (t >= barAt) { const [ax, az, bx, bz] = BAR, ux = bx - ax, uz = bz - az, L2 = ux * ux + uz * uz, u = Math.max(0, Math.min(1, ((p.x - ax) * ux + (p.z - az) * uz) / L2)), cx = ax + ux * u, cz = az + uz * u;
+          const dx = p.x - cx, dz = p.z - cz, d = Math.hypot(dx, dz), m = rad + 0.15; if (d < m && d > 1e-6) { p.x = cx + dx / d * m; p.z = cz + dz / d * m; } }
+        for (const [cx, cz] of PIL) { const dx = p.x - cx, dz = p.z - cz, d = Math.hypot(dx, dz), m = rad + PR; if (d < m && d > 1e-6) { p.x = cx + dx / d * m; p.z = cz + dz / d * m; } } }); }
+    // jammed = moving, packed and nearly stopped
+    build(); let w = 0, jam = 0, gone = 0, mov = 0;
+    P.forEach((p, i) => { const b = i * F + f; if (p.done >= 0) { out.st[b] = 3; out.x[b] = p.x; out.z[b] = p.z; gone++; return; }
+      const sp = Math.hypot(p.x - p.px, p.z - p.pz) / dt; p.spd += (sp - p.spd) * 0.12; p.dist = (p.dist || 0) + sp * dt;
+      let dens = 0; each(p, 0.75, k => { if (k !== i && P[k].done < 0 && Math.hypot(P[k].x - p.x, P[k].z - p.z) < 0.75) dens++; });
+      const jm = p.st === 1 && dens >= 3 && p.spd < 0.3 ? 1 : 0; p.red += (jm - p.red) * 0.08;
+      if (sp > 0.15) { const ty = Math.atan2(p.x - p.px, p.z - p.pz); let d = ty - p.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); p.yaw += d * 0.18; }
+      else if (p.st === 0 && p.look) { let d = p.look - p.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); p.yaw += d * 0.03; }
+      out.x[b] = p.x; out.z[b] = p.z; out.dist[b] = p.dist; out.yaw[b] = p.yaw; out.st[b] = p.st; out.red[b] = Math.round(p.red * 255);
+      if (p.st === 0) w++; else mov++; if (p.red > 0.5) jam++; });
+    let rc = 0; for (let k = XF.length - 1; k >= 0 && XF[k] > f - 90; k--) rc++;
+    out.stats.push([w, mov, jam, gone, rc * 20]); }   // last value: people leaving per minute (last 3 s)
+  return out;
+}
+if (typeof module !== 'undefined') module.exports = { runSim };
+
+</script>
+<script>
 (() => {
 const W = innerWidth, H = innerHeight, $ = id => document.getElementById(id);
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); }, lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
@@ -1384,7 +1504,7 @@ const redL = new THREE.PointLight(0xff3b2e, 0, 260, 1.6); redL.position.set(0, 4
 
 /* ---------- composer: bloom + depth of field ---------- */
 const RT = new THREE.WebGLMultisampleRenderTarget(Math.round(W * renderer.getPixelRatio()), Math.round(H * renderer.getPixelRatio()), { format: THREE.RGBAFormat, type: THREE.HalfFloatType, stencilBuffer: true }); RT.samples = 4;
-const composer = new THREE.EffectComposer(renderer, RT); composer.setSize(W, H); composer.addPass(new THREE.RenderPass(scene, camera));
+const composer = new THREE.EffectComposer(renderer, RT); composer.setSize(W, H); const RPASS = new THREE.RenderPass(scene, camera); composer.addPass(RPASS);
 const BOKEH = new THREE.BokehPass(scene, camera, { focus: 30, aperture: 0.00012, maxblur: 0.006, width: W, height: H }); composer.addPass(BOKEH);
 const BLOOM = new THREE.UnrealBloomPass(new THREE.Vector2(W, H), 0.5, 0.4, 0.85); [...BLOOM.renderTargetsHorizontal, ...BLOOM.renderTargetsVertical, BLOOM.renderTargetBright].forEach(t => t.texture.type = THREE.HalfFloatType); composer.addPass(BLOOM);
 composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));
@@ -1441,40 +1561,55 @@ function geo(parts) {   // merge [geometry, matrix] parts into one non-indexed g
 const M = (x, y, z, rx = 0, ry = 0, rz = 0, s = 1) => new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)), new THREE.Vector3(s, s, s));
 const rbox = (w, h, d) => { const g = new THREE.BoxGeometry(w, h, d, 2, 2, 2), p = g.attributes.position, v = new THREE.Vector3();   // softly rounded box
   for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); const k = 0.22, n = new THREE.Vector3(Math.sign(v.x) * w / 2, Math.sign(v.y) * h / 2, Math.sign(v.z) * d / 2); v.lerp(n.multiplyScalar(0.86), k); p.setXYZ(i, v.x, v.y, v.z); } g.computeVertexNormals(); return g; };
-const limb = (r0, r1, len) => new THREE.CylinderGeometry(r1, r0, len, 7, 1);
-const lathe = (pts, seg = 12) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), seg);
+let LO = false;   // light geometry for the far crowd
+const limb = (r0, r1, len) => new THREE.CylinderGeometry(r1, r0, len, LO ? 4 : 7, 1);
+const lathe = (pts, seg = 12) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), LO ? 6 : seg);
+const sph = (r, a, b, ...rest) => new THREE.SphereGeometry(r, LO ? 6 : a, LO ? 4 : b, ...rest);
 // slim miniature people (reference style): small head with dark hair, plain top, dark trousers, arms close to the body
+function makeG() {
 const torsoG = (() => { const g = lathe([[0.001, 1.0], [0.125, 1.0], [0.13, 1.12], [0.135, 1.28], [0.15, 1.4], [0.15, 1.45], [0.11, 1.49], [0.05, 1.51], [0.001, 1.515]], 12); g.scale(1, 1, 0.66); return g; })();
 function arm(side, sh, el) {   // side ±1; sh, el: [rx, rz] for shoulder and elbow
   const S = new THREE.Matrix4().makeTranslation(side * 0.165, 1.43, 0).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(sh[0], 0, side * sh[1])));
   const E = S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.29, 0)).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(el[0], 0, side * el[1])));
   return [[limb(0.034, 0.042, 0.3), S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.15, 0))], [limb(0.03, 0.035, 0.27), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.135, 0))],
-          [new THREE.SphereGeometry(0.034, 7, 5), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.285, 0))]]; }
-const G = {
+          [sph(0.034, 7, 5), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.285, 0))]]; }
+return {
   torso: geo([[torsoG, M(0, 0, 0)]]),
   legs: geo([[lathe([[0.001, 0.88], [0.135, 0.92], [0.135, 1.01], [0.001, 1.01]], 10), M(0, 0, 0)], [limb(0.052, 0.064, 0.47), M(-0.07, 0.69, 0)], [limb(0.052, 0.064, 0.47), M(0.07, 0.69, 0)],
                [limb(0.04, 0.052, 0.45), M(-0.07, 0.24, 0)], [limb(0.04, 0.052, 0.45), M(0.07, 0.24, 0)], [rbox(0.085, 0.06, 0.21), M(-0.07, 0.03, 0.04)], [rbox(0.085, 0.06, 0.21), M(0.07, 0.03, 0.04)]]),
-  head: geo([[new THREE.SphereGeometry(0.092, 14, 10), M(0, 1.64, 0)], [limb(0.034, 0.04, 0.09), M(0, 1.53, 0)]]),
-  eyes: geo([[new THREE.SphereGeometry(0.0095, 5, 4), M(-0.03, 1.652, 0.085)], [new THREE.SphereGeometry(0.0095, 5, 4), M(0.03, 1.652, 0.085)]]),
-  hair: geo([[new THREE.SphereGeometry(0.098, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.46), M(0, 1.648, -0.006, -0.42)]]),   // dark hair over the top and back of the head
+  head: geo([[sph(0.092, 14, 10), M(0, 1.64, 0)], [limb(0.034, 0.04, 0.09), M(0, 1.53, 0)]]),
+  eyes: geo([[sph(0.0095, 5, 4), M(-0.03, 1.652, 0.085)], [sph(0.0095, 5, 4), M(0.03, 1.652, 0.085)]]),
+  hair: geo([[sph(0.098, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.46), M(0, 1.648, -0.006, -0.42)]]),   // dark hair over the top and back of the head
   armsDown: geo([...arm(-1, [0, 0.06], [-0.12, 0]), ...arm(1, [0, 0.06], [-0.12, 0])]),
   armsUp: geo([...arm(-1, [0.1, 2.8], [0, -0.2]), ...arm(1, [0.1, 2.8], [0, -0.2])]),
   armPoint: geo([...arm(-1, [0, 0.06], [-0.12, 0]), ...arm(1, [-1.45, 0.2], [-0.1, 0])]),
   armsHead: geo([...arm(-1, [-1.3, -0.12], [-1.9, 0]), ...arm(1, [-1.3, -0.12], [-1.9, 0])]),   // hands up in front of the face (worry)
+  ...(() => {   // running cycle in 8 steps: legs stride from the hip with a bent knee, arms pump opposite to the legs
+    const o = {}, R = a => new THREE.Matrix4().makeRotationX(a), T = (x, y, z) => new THREE.Matrix4().makeTranslation(x, y, z);
+    const leg = (side, th, bend) => { const H = T(side * 0.07, 0.92, 0).multiply(R(th)), K = H.clone().multiply(T(0, -0.465, 0)).multiply(R(bend));
+      return [[limb(0.052, 0.064, 0.47), H.clone().multiply(T(0, -0.235, 0))], [limb(0.04, 0.052, 0.45), K.clone().multiply(T(0, -0.225, 0))], [rbox(0.085, 0.06, 0.21), K.clone().multiply(T(0, -0.44, 0.04))]]; };
+    for (let k = 0; k < 8; k++) { const ph = k / 8 * Math.PI * 2, tL = -0.62 * Math.sin(ph), tR = 0.62 * Math.sin(ph), bL = 0.2 + 1.1 * Math.max(0, Math.sin(ph + 1.2)), bR = 0.2 + 1.1 * Math.max(0, Math.sin(ph + 1.2 + Math.PI));
+      o['legsR' + k] = geo([[lathe([[0.001, 0.88], [0.135, 0.92], [0.135, 1.01], [0.001, 1.01]], 10), M(0, 0, 0)], ...leg(-1, tL, bL), ...leg(1, tR, bR)]);
+      o['armsR' + k] = geo([...arm(-1, [-tL * 1.1, 0.1], [-1.15, 0]), ...arm(1, [-tR * 1.1, 0.1], [-1.15, 0])]); }
+    return Object.entries(o); })().reduce((a, [k, v]) => (a[k] = v, a), {}),
 };
+}
+const G = makeG(); LO = true; const GL = makeG(); LO = false;
 const SKIN = [0x8d5524, 0xc68642, 0xe0ac69, 0xf1c27d, 0x6b3e26, 0xa0663c, 0xd29b6c], HAIRC = [0x111111, 0x161210, 0x1b1410, 0x0e0e10, 0x2c1b10, 0x111111, 0x3a2a1c], PANTS = [0x1c1e24, 0x22252c, 0x1c2a44, 0x2a2622, 0x1d2333];
 const SHIRT = [0x1d4fa8, 0x1d4fa8, 0x2f6fe0, 0xe8edf4, 0xd8342c, 0xffffff, 0x1d4fa8, 0xf2c230, 0x3aa760, 0xe86a2c, 0x7b4fd6];
 class Crowd {   // one group of people drawn with instanced parts; per person: pose + colours
-  constructor(list, detail = 1) { this.list = list; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
-    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) { const m = new THREE.InstancedMesh(G[k], mat(k === 'head' ? 0.7 : k === 'eyes' ? 0.4 : 0.92), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scene.add(m); }
+  constructor(list, detail = 1, GS = G, scn = scene, run = false) { this.list = list; this.run = run; const RK = run ? [...Array(8).keys()].flatMap(k => ['legsR' + k, 'armsR' + k]) : []; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
+    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead', ...RK]) { const m = new THREE.InstancedMesh(GS[k], mat(k === 'head' ? 0.7 : k === 'eyes' ? 0.4 : 0.92), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scn.add(m); }
     const c = new THREE.Color(); list.forEach((p, i) => { p.skin = p.skin ?? SKIN[(rnd() * SKIN.length) | 0]; p.shirt = p.shirt ?? SHIRT[(rnd() * SHIRT.length) | 0]; p.pants = PANTS[(rnd() * PANTS.length) | 0]; p.hairc = HAIRC[(rnd() * HAIRC.length) | 0]; p.h = 0.92 + rnd() * 0.16;
       this.parts.torso.setColorAt(i, c.copy(LIN(p.shirt))); this.parts.legs.setColorAt(i, c.copy(LIN(p.pants))); this.parts.head.setColorAt(i, c.copy(LIN(p.skin))); this.parts.hair.setColorAt(i, c.copy(LIN(p.hairc))); this.parts.eyes.setColorAt(i, c.copy(LIN(0x14100e)));
-      for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead']) this.parts[k].setColorAt(i, c.copy(LIN(p.shirt))); });
-    this.d = new THREE.Object3D(); this.hd = new THREE.Object3D(); this.zero = new THREE.Matrix4().makeScale(0, 0, 0); }
+      for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead', ...RK.filter(k => k[0] === 'a')]) this.parts[k].setColorAt(i, c.copy(LIN(p.shirt)));
+      for (const k of RK.filter(k => k[0] === 'l')) this.parts[k].setColorAt(i, c.copy(LIN(p.pants))); });
+    this.d = new THREE.Object3D(); this.d.rotation.order = 'YXZ'; this.hd = new THREE.Object3D(); this.zero = new THREE.Matrix4().makeScale(0, 0, 0); }
   update(fn) {   // fn(p, i) → { pose, yaw, headYaw, headPitch, bob, tint }
     const d = this.d, P = this.parts, hd = this.hd;
-    const cp = camera.position; this.list.forEach((p, i) => { const s = fn(p, i); if (Math.hypot(p.x - cp.x, p.z - cp.z) < 1.3 && Math.abs(p.y + 1 - cp.y) < 2.2) s.pose = 'hide'; d.position.set(p.x, p.y + (s.bob || 0), p.z); d.rotation.set(0, p.yaw + (s.yaw || 0), 0); d.scale.setScalar(p.h); d.updateMatrix();
-      for (const k of ['torso', 'legs']) P[k].setMatrixAt(i, s.pose === 'hide' ? this.zero : d.matrix);
+    const cp = camera.position; this.list.forEach((p, i) => { const s = fn(p, i); if (Math.hypot(p.x - cp.x, p.z - cp.z) < 1.3 && Math.abs(p.y + 1 - cp.y) < 2.2) s.pose = 'hide'; d.position.set(p.x, p.y + (s.bob || 0), p.z); d.rotation.set(s.lean || 0, p.yaw + (s.yaw || 0), 0); d.scale.setScalar(p.h); d.updateMatrix();
+      const run = s.pose === 'run'; P.torso.setMatrixAt(i, s.pose === 'hide' ? this.zero : d.matrix); P.legs.setMatrixAt(i, s.pose === 'hide' || run ? this.zero : d.matrix);
+      if (this.run) for (let k = 0; k < 8; k++) { const m = run && k === s.k ? d.matrix : this.zero; P['legsR' + k].setMatrixAt(i, m); P['armsR' + k].setMatrixAt(i, m); }
       for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead']) P[k].setMatrixAt(i, k === s.pose ? d.matrix : this.zero);
       hd.position.set(0, 1.56, 0); hd.rotation.set(s.headPitch || 0, s.headYaw || 0, s.headRoll || 0); hd.updateMatrix();   // the head turns around the neck
       const hm = d.matrix.clone().multiply(new THREE.Matrix4().makeTranslation(0, 1.56, 0)).multiply(new THREE.Matrix4().makeRotationFromEuler(hd.rotation)).multiply(new THREE.Matrix4().makeTranslation(0, -1.56, 0));
@@ -1484,7 +1619,10 @@ class Crowd {   // one group of people drawn with instanced parts; per person: p
 }
 // fans in the seats (stand in front of their seat, facing the pitch)
 const fans = seatSpots.filter(() => rnd() < 0.93).map(s => ({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, yaw: Math.atan2(-s.nx, -s.nz), r: s.r, t: s.t, ph: rnd() * 6.28, seed: rnd() }));
-const CROWD = new Crowd(fans);
+const N3 = 3 * Math.PI / 2, inHero = p => p.t > N3 + 0.1 && p.t < N3 + 0.6 && p.r <= 12;
+const heroFans = fans.filter(inHero), massFans = fans.filter(p => !inHero(p));
+const CROWD = new Crowd(massFans, 0, GL), HERO = new Crowd(heroFans, 1, G);
+const CROWDS = [CROWD, HERO], crowdUpdate = fn => CROWDS.forEach(C => C.update(fn)), crowdTint = fn => CROWDS.forEach(C => C.tint(fn));
 // stewards in hi-vis around the pitch (scene 5)
 const stewards = []; for (let i = 0; i < 26; i++) { const t = i / 26 * Math.PI * 2 + 0.1, [x, z] = SE(t, A0 - 4.5, B0 - 4.5); stewards.push({ x, y: 0, z, yaw: Math.atan2(x, z), shirt: 0xd6ff2a, t }); }   // stewards face the crowd
 const STEW = new Crowd(stewards);
@@ -1531,43 +1669,169 @@ const pick = (t, r) => fans.reduce((b, p) => Math.abs(p.t - t) + Math.abs(p.r - 
 
 /* ---------- lighting moods ---------- */
 function mood(red, calm) { flood.intensity = lerp(1.25, 0.45, red) * lerp(1, 1.1, calm); flood2.intensity = lerp(0.45, 0.15, red); hemi.intensity = lerp(0.22, 0.14, red); hemi.color.copy(red > 0.5 ? HEMI_R : HEMI_N);
-  redL.intensity = 3.2 * red * (0.85 + 0.15 * Math.sin(performance.now() * 0.01)); renderer.toneMappingExposure = lerp(0.95, 0.85, red); }
+  redL.intensity = 3.2 * red; renderer.toneMappingExposure = lerp(0.95, 0.85, red); }
 
-/* ---------- stills (the Remotion build animates between these) ---------- */
-let LK = null;
-const STILLS = {
-  1: () => { mood(0.15, 0); drawBoard('glitch'); smoke(0.8, 3.2); CROWD.update(p => ({ pose: p.seed < 0.55 ? 'armsDown' : 'armsUp', headPitch: -0.1 }));
-    shot(V(95, 120, 150), V(0, 6, -10), 36); tTitle(['What happens', 'when a stadium <em>panics?</em>'], 1); $('sub').textContent = 'What happens when thousands of people panic'; },
-  2: () => { mood(0.35, 0); drawBoard('glitch'); smoke(1, 5); const c = pick((3 * Math.PI / 2) + 0.32, 1);
-    const P = V(c.x, c.y, c.z), n = V(-c.x, 0, -c.z).normalize(), tg = V(-n.z, 0, n.x); shot(P.clone().addScaledVector(n, 4.4).addScaledVector(tg, 3.6).add(V(0, 1.55, 0)), P.clone().add(V(0, 1.75, 0)).addScaledVector(tg, -1.5), 30, 5.6, 0.0004);
-    CROWD.update(p => { const near = Math.hypot(p.x - c.x, p.z - c.z) < 14; const s = p.seed; return { pose: !near ? (s < 0.975 ? 'armsDown' : 'armPoint') : (s < 0.22 ? 'armsHead' : s < 0.32 ? 'armPoint' : 'armsDown'), headYaw: near ? (s - 0.5) * 2.2 : (s - 0.5) * 0.8, headPitch: near ? (s < 0.5 ? 0.15 : -0.2) : -0.15 }; });
-    tTitle([], 0); $('sub').textContent = 'Others wait, watching everyone around them'; },
-  3: () => { mood(0.25, 0); drawBoard('glitch'); smoke(0.7, 7); const c = pick((3 * Math.PI / 2) + 0.28, 8);
-    if (!LK) LK = [buildLinks(c, 16, 0xffb547), buildLinks(pick((3 * Math.PI / 2) + 0.4, 4), 12, 0x4fc3f7)];
-    LK.forEach(L => L.g.children.forEach(m => m.material.opacity = 0.9));
-    const hot = new Set(LK[0].near), cool = new Set(LK[1].near);
-    CROWD.tint(p => hot.has(p) ? [0xffb547, 0.9] : cool.has(p) ? [0x4fc3f7, 0.9] : [0x14171e, 0.8]);   // groups glow, everyone else steps back
-    CROWD.update(p => ({ pose: hot.has(p) ? (p.seed < 0.5 ? 'armPoint' : 'armsDown') : 'armsDown', headYaw: hot.has(p) ? -0.6 : 0, headPitch: -0.1 }));
-    { const n = V(-c.x, 0, -c.z).normalize(), tg = V(-n.z, 0, n.x); shot(V(c.x, c.y, c.z).addScaledVector(n, 26).addScaledVector(tg, -12).add(V(0, 16, 0)), V(c.x, c.y + 1.5, c.z).addScaledVector(tg, 3), 30); } tTitle(['One reaction', '<em>spreads</em>'], 1); $('sub').textContent = 'One person’s reaction can influence the people nearby'; },
-  4: () => { mood(0.4, 0); drawBoard('glitch'); smoke(0.9, 9); CROWD.tint(() => null); LINKS.visible = false; const c = pick((3 * Math.PI / 2) + 0.36, 0);
-    const P = V(c.x, c.y, c.z), n = V(-c.x, 0, -c.z).normalize(), tg = V(-n.z, 0, n.x); shot(P.clone().addScaledVector(n, 3.4).addScaledVector(tg, -1.6).add(V(0, 1.75, 0)), P.clone().add(V(0, 1.6, 0)), 30, 3.7, 0.0006);
-    CROWD.update(p => ({ pose: p.seed < 0.35 ? 'armsHead' : 'armsDown', headYaw: (p.seed - 0.5) * 1.6, headPitch: 0.1 }));
-    tTitle([], 0); $('cA').style.opacity = 1; $('sub').textContent = 'Uncertainty, stress and social influence'; },
-  5: () => { mood(0, 1); drawBoard('msg'); smoke(0.25, 12); LINKS.visible = false; CROWD.tint(() => null);
-    CROWD.update(p => ({ pose: 'armsDown', headYaw: (p.seed - 0.5) * 0.4, headPitch: -0.05 }));
-    STEW.update(p => ({ pose: 'armPoint', yaw: 0 })); const s = stewards.reduce((b, q) => q.z < b.z ? q : b, stewards[0]);
-    shot(V(s.x + 3.4, 2.1, s.z - 3.2), V(s.x - 0.6, 2.4, s.z - 10), 34, 4.6, 0.0004); tTitle(['Clear information', '<em>calms</em> a crowd'], 1); $('sub').textContent = 'That’s why clear communication matters'; },
-  6: () => { mood(0, 1); drawBoard('msg'); smoke(0, 0); CROWD.update(p => ({ pose: 'armsDown', headPitch: -0.1 })); STEW.update(() => ({ pose: 'armPoint' }));
-    shot(V(-150, 95, 170), V(0, 0, -5), 36); tTitle([], 0); $('sub').textContent = ''; },
-  7: () => { $('outro').style.opacity = 1; $('note').style.opacity = 0; $('sub').textContent = ''; },
-};
-function renderAt(t) { const k = Math.min(7, Math.max(1, Math.round(t)));
-  ['cA', 'cB', 'cC'].forEach(id => $(id).style.opacity = 0); $('outro').style.opacity = 0; $('note').style.opacity = 1; LINKS.visible = true; STEW.update(() => ({ pose: 'armsDown' }));
-  if (k < 5) STEW.list.forEach(() => {}), Object.values(STEW.parts).forEach(m => m.visible = k >= 5); else Object.values(STEW.parts).forEach(m => m.visible = true);
-  STILLS[k](); composer.render(); }
-{ const seen = new Set(); scene.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (seen.has(m)) return; seen.add(m); if (m.color && !m.map) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); });
-  if (o.isLight) { o.color.convertSRGBToLinear(); if (o.groundColor) o.groundColor.convertSRGBToLinear(); } }); scene.fog.color.convertSRGBToLinear(); }
+/* ================= 3–43 s: the explanation as a crowd simulation board (reference reel style) ================= */
+const SIM = runSim(), SN = SIM.N, SF = SIM.F;
+const SS = new THREE.Scene(); SS.background = new THREE.Color(0x070a12); SS.environment = scene.environment;
+SS.fog = new THREE.Fog(0x070a12, 95, 170);
+const sHemi = new THREE.HemisphereLight(0x8fa4cc, 0x1a1c22, 0.5); SS.add(sHemi);
+const sKey = new THREE.DirectionalLight(0xfff1df, 1.6); sKey.position.set(-18, 60, 30); sKey.castShadow = true; sKey.shadow.mapSize.set(2048, 2048);
+Object.assign(sKey.shadow.camera, { left: -32, right: 32, top: 32, bottom: -32, near: 5, far: 140 }); sKey.shadow.bias = -0.0005; sKey.shadow.radius = 4; SS.add(sKey);
+const sFill = new THREE.DirectionalLight(0xcfe0ff, 0.35); sFill.position.set(28, 30, -12); SS.add(sFill);
+const sSpot = new THREE.SpotLight(0xfff2dc, 0.7, 0, 0.45, 0.9, 1); sSpot.position.set(0, 45, 6); sSpot.target.position.set(0, 0, 0); SS.add(sSpot); SS.add(sSpot.target);   // a soft pool of light on the people
+const sRim = new THREE.DirectionalLight(0x6f9cff, 0.45); sRim.position.set(0, 20, -60); SS.add(sRim);   // cool rim light from behind the stands
+{ // stadium theme: dark concrete concourse at pitch level, blue seat tiers on three sides with tunnel exits, floodlights, the pitch in front
+  const PX = 40, w = (SIM.X1 - SIM.X0) * PX, h = (SIM.Z1 - SIM.Z0) * PX, c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+  const toC = (X, Z) => [(X - SIM.X0) * PX, (Z - SIM.Z0) * PX];
+  { const g = x.createRadialGradient(w / 2, h * 0.45, 0, w / 2, h * 0.45, w * 0.62); g.addColorStop(0, '#34465c'); g.addColorStop(1, '#1b2533'); x.fillStyle = g; x.fillRect(0, 0, w, h); }   // deep blue-slate floor, lit in the middle
+  for (let i = 0; i < 6000; i++) { x.fillStyle = `rgba(${Math.random() < .5 ? '10,14,20' : '150,170,195'},0.05)`; x.fillRect(Math.random() * w, Math.random() * h, 3, 3); }   // fine grain
+  for (let i = 0; i <= SIM.X1 - SIM.X0; i++) { x.fillStyle = i % 4 ? 'rgba(160,190,230,.05)' : 'rgba(160,190,230,.11)'; x.fillRect(i * PX - 1, 0, 2, h); }   // tile grid
+  for (let j = 0; j <= SIM.Z1 - SIM.Z0; j++) { x.fillStyle = j % 4 ? 'rgba(160,190,230,.05)' : 'rgba(160,190,230,.11)'; x.fillRect(0, j * PX - 1, w, 2); }
+  x.strokeStyle = 'rgba(160,190,230,.18)'; x.lineWidth = 6; x.strokeRect(30, 30, w - 60, h - 60);   // walkway edge
+  SIM.EX.forEach(e => { const [cx, cz] = toC(e.x - e.nx * 2.4, e.z - e.nz * 2.4), fam = e.id === 'B';
+    x.save(); x.translate(cx, cz); x.rotate(Math.atan2(e.nx, -e.nz)); x.fillStyle = fam ? 'rgba(74,154,232,.16)' : 'rgba(40,190,120,.13)'; x.fillRect(-56, -64, 112, 128);
+    x.fillStyle = fam ? 'rgba(140,195,250,.8)' : 'rgba(120,220,170,.75)'; x.font = '700 70px Sora, Arial'; x.textAlign = 'center'; x.fillText(e.id, 0, 30);
+    x.beginPath(); x.moveTo(-26, -40); x.lineTo(0, -62); x.lineTo(26, -40); x.lineWidth = 9; x.strokeStyle = x.fillStyle; x.stroke(); x.restore(); });
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 8;
+  const f = new THREE.Mesh(new THREE.PlaneGeometry(SIM.X1 - SIM.X0, SIM.Z1 - SIM.Z0), new THREE.MeshStandardMaterial({ map: t, roughness: 0.5, metalness: 0.1, envMapIntensity: 0.5 }));
+  f.rotation.x = -Math.PI / 2; f.position.set((SIM.X0 + SIM.X1) / 2, 0, (SIM.Z0 + SIM.Z1) / 2); f.receiveShadow = true; SS.add(f);
+  // the pitch in front of the barrier
+  const pc = document.createElement('canvas'); pc.width = 1024; pc.height = 256; const px = pc.getContext('2d');
+  for (let i = 0; i < 16; i++) { px.fillStyle = i % 2 ? '#14351c' : '#173b20'; px.fillRect(i * 64, 0, 65, 256); }
+  px.strokeStyle = 'rgba(255,255,255,.25)'; px.lineWidth = 5; px.beginPath(); px.moveTo(0, 60); px.lineTo(1024, 60); px.stroke(); px.strokeRect(330, 60, 364, 150);
+  const pt = new THREE.CanvasTexture(pc); pt.encoding = THREE.sRGBEncoding;
+  const pitch = new THREE.Mesh(new THREE.PlaneGeometry(80, 20), new THREE.MeshStandardMaterial({ map: pt, roughness: 0.9, envMapIntensity: 0.2 })); pitch.rotation.x = -Math.PI / 2; pitch.position.set(0, -0.02, SIM.Z1 + 30);   // pitch pushed out of frame: only a dark pitch-side apron shows
+  const apron = new THREE.Mesh(new THREE.PlaneGeometry(90, 19), new THREE.MeshStandardMaterial({ color: 0x1a2230, roughness: 0.8 })); apron.rotation.x = -Math.PI / 2; apron.position.set(0, -0.01, SIM.Z1 + 9.8); apron.receiveShadow = true; SS.add(apron); pitch.receiveShadow = true; SS.add(pitch);
+  const og = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), new THREE.MeshStandardMaterial({ color: 0x0c1018, roughness: 0.95 })); og.rotation.x = -Math.PI / 2; og.position.y = -0.05; SS.add(og);
+  const wm = new THREE.MeshStandardMaterial({ color: 0x262b34, roughness: 0.85, envMapIntensity: 0.3 }), cm = new THREE.MeshStandardMaterial({ color: 0x6b7686, roughness: 0.4, metalness: 0.4 });
+  const tun = new THREE.MeshBasicMaterial({ color: 0x020305 });
+  // walls: the front one is a low pitch-side barrier (with an ad board), the others are the stand's front wall with tunnel openings
+  SIM.seg.forEach(([ax, az, bx, bz]) => { const L = Math.hypot(bx - ax, bz - az); if (L < 0.05) return; const front = az === SIM.Z1 && bz === SIM.Z1, H = front ? 1.0 : 2.7, g = new THREE.Group();
+    const b = new THREE.Mesh(new THREE.BoxGeometry(L + 0.5, H, 0.5), wm); b.position.y = H / 2; b.castShadow = b.receiveShadow = true; g.add(b);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(L + 0.52, 0.07, 0.52), cm); cap.position.y = H + 0.03; g.add(cap);
+    
+    g.position.set((ax + bx) / 2, 0, (az + bz) / 2); g.rotation.y = -Math.atan2(bz - az, bx - ax); SS.add(g); });
+  // seat tiers rising behind the back and side walls (rows of blue seats, a few white ones)
+  const ROWS = 12, RD = 0.9, RR = 0.55, Y0 = 2.7, seatPos = [];
+  const tierM = new THREE.MeshStandardMaterial({ color: 0x272c35, roughness: 0.9, envMapIntensity: 0.25 });
+  const side = (len, place) => { for (let r = 0; r < ROWS; r++) { const tr = new THREE.Mesh(new THREE.BoxGeometry(len + 2 * r * RD + 1, Y0 + (r + 1) * RR, RD), tierM); place(tr, r); tr.castShadow = tr.receiveShadow = true; SS.add(tr); } };
+  side(SIM.X1 - SIM.X0, (m, r) => { m.position.set(0, (Y0 + (r + 1) * RR) / 2, SIM.Z0 - 0.25 - (r + 0.5) * RD); for (let s = -(SIM.X1 - SIM.X0) / 2 - r * RD; s < (SIM.X1 - SIM.X0) / 2 + r * RD; s += 0.6) seatPos.push([s, Y0 + (r + 1) * RR, SIM.Z0 - 0.25 - (r + 0.62) * RD, 0]); });
+  for (const sg of [-1, 1]) side(SIM.Z1 - SIM.Z0, (m, r) => { m.rotation.y = Math.PI / 2; const X = sg * (SIM.X1 + 0.25 + (r + 0.5) * RD); m.position.set(X, (Y0 + (r + 1) * RR) / 2, (SIM.Z0 + SIM.Z1) / 2 + r * RD / 2 + 0.5);
+    for (let s = SIM.Z0; s < SIM.Z1 + r * RD; s += 0.6) seatPos.push([sg * (SIM.X1 + 0.25 + (r + 0.62) * RD), Y0 + (r + 1) * RR, s, sg]); });
+  const seatG = new THREE.BoxGeometry(0.46, 0.36, 0.4), SEATS = new THREE.InstancedMesh(seatG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55 }), seatPos.length), d = new THREE.Object3D(), sc = new THREE.Color();
+  seatPos.forEach(([X, Y, Z, sg], i) => { d.position.set(X, Y + 0.18, Z); d.rotation.set(0, sg ? -sg * Math.PI / 2 : 0, 0); d.updateMatrix(); SEATS.setMatrixAt(i, d.matrix); SEATS.setColorAt(i, sc.copy(LIN((i % 97) < 3 ? 0x8a9bb5 : (i % 2 ? 0x1f4688 : 0x24509a)))); });
+  SEATS.castShadow = true; SEATS.receiveShadow = true; SS.add(SEATS);
+  // floodlight strips along the top of the stands
+  const top = Y0 + ROWS * RR + 0.3, lm = new THREE.MeshBasicMaterial({ color: 0xfff0d2, toneMapped: false });
+  const fl = new THREE.Mesh(new THREE.BoxGeometry(SIM.X1 - SIM.X0 + 2 * ROWS * RD, 0.35, 0.35), lm); fl.position.set(0, top + 1.2, SIM.Z0 - ROWS * RD - 0.4); SS.add(fl);
+  for (const sg of [-1, 1]) { const f2 = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, SIM.Z1 - SIM.Z0 + ROWS * RD), lm); f2.position.set(sg * (SIM.X1 + ROWS * RD + 0.4), top + 1.2, (SIM.Z0 + SIM.Z1) / 2 + ROWS * RD / 2); SS.add(f2); }
+  // tunnel exits: dark openings under the stands with a glowing exit sign
+  SIM.EX.forEach(e => { const tx = -e.nz, tz = e.nx, hw = SIM.GW / 2 + 0.25, ang = -Math.atan2(tz, tx);
+    const hole = new THREE.Mesh(new THREE.BoxGeometry(SIM.GW + 0.4, 2.6, ROWS * RD), tun); hole.position.set(e.x + e.nx * (ROWS * RD / 2 + 0.3), 1.3, e.z + e.nz * (ROWS * RD / 2 + 0.3)); hole.rotation.y = ang; SS.add(hole);
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(SIM.GW + 1, 0.4, 0.5), wm); roof.position.set(e.x, 2.5, e.z); roof.rotation.y = ang; SS.add(roof);
+    const scv = document.createElement('canvas'); scv.width = 256; scv.height = 96; const sx = scv.getContext('2d'); sx.fillStyle = e.id === 'B' ? '#2a6fd0' : '#17a066'; sx.fillRect(0, 0, 256, 96);
+    sx.fillStyle = '#ffffff'; sx.font = '700 54px Sora, Arial'; sx.textAlign = 'center'; sx.fillText('EXIT ' + e.id, 128, 68); const st = new THREE.CanvasTexture(scv); st.encoding = THREE.sRGBEncoding;
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.82), new THREE.MeshBasicMaterial({ map: st, toneMapped: false })); sign.position.set(e.x - e.nx * 0.27, 3.2, e.z - e.nz * 0.27); sign.lookAt(e.x - e.nx * 5, 3.2, e.z - e.nz * 5); SS.add(sign); });
+  SIM.PIL.forEach(([px2, pz]) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(SIM.PR, SIM.PR, 2.7, 24), wm); m.position.set(px2, 1.35, pz); m.castShadow = true; SS.add(m);
+     });
+}
+// fix one: the slanted barrier in front of exit B (rises out of the floor at 30.4 s)
+const BARM = new THREE.Group(); { const [ax, az, bx, bz] = SIM.BAR, L = Math.hypot(bx - ax, bz - az);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(L, 1.9, 0.3), new THREE.MeshStandardMaterial({ color: 0x3a4250, roughness: 0.35, metalness: 0.6 })); body.position.y = 0.95; body.castShadow = true; BARM.add(body);
+  const edge = new THREE.Mesh(new THREE.BoxGeometry(L + 0.04, 0.16, 0.34), new THREE.MeshBasicMaterial({ color: 0xffbe5a, toneMapped: false })); edge.position.y = 1.95; BARM.add(edge);
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(L + 1.6, 1.8), new THREE.MeshBasicMaterial({ map: soft([[0, 'rgba(255,190,90,0.55)'], [1, 'rgba(255,190,90,0)']]), transparent: true, depthWrite: false, toneMapped: false })); glow.rotation.x = -Math.PI / 2; glow.position.y = 0.03; BARM.add(glow); BARM.userData.glow = glow;
+  BARM.position.set((ax + bx) / 2, 0, (az + bz) / 2); BARM.rotation.y = -Math.atan2(bz - az, bx - ax); SS.add(BARM); }
+// the simulated people (same slim miniature figures) + stewards in hi-vis who appear with the announcement
+const simPpl = []; for (let i = 0; i < SN; i++) simPpl.push({ x: 0, y: 0, z: 0, yaw: 0, shirt: 0x2f8fe0, ph: rnd() * 6.28, seed: rnd() });
+const SIM_SCALE = 1.25;   // people drawn a bit bigger so they read clearly from above
+const SIMC = new Crowd(simPpl, 1, G, SS, true); simPpl.forEach(p => p.h *= SIM_SCALE);
+const simStew = []; SIM.EX.forEach(e => { const tx = -e.nz, tz = e.nx; for (const s of e.id === 'B' ? [-1, 1] : [1]) simStew.push({ x: e.x - e.nx * 0.85 + tx * s * 2.0, y: 0, z: e.z - e.nz * 0.85 + tz * s * 2.0, yaw: Math.atan2(-e.nx, -e.nz) - s * 0.5, shirt: 0xd6ff2a, ph: rnd() * 6, seed: rnd() }); });
+const SIMS = new Crowd(simStew, 1, G, SS); simStew.forEach(p => p.h *= SIM_SCALE); SIMS.parts.torso.material = SIMS.parts.torso.material.clone(); SIMS.parts.torso.material.emissive = new THREE.Color(0x3a4a00);
+const C_WAIT = LIN(0xe9ecf2), C_MOVE = LIN(0x58b4ff), C_JAM = LIN(0xff4d40);
+function simFrame(t) {   // t = video time 3–43
+  const f = Math.max(0, Math.min(SF - 1, Math.round((t - 3) * SIM.fps))), c = new THREE.Color();
+  SIMC.list.forEach((p, i) => { const b = i * SF + f, st = SIM.st[b], red = SIM.red[b] / 255;
+    c.copy(st === 0 ? C_WAIT : C_MOVE); if (red > 0) c.lerp(C_JAM, Math.min(1, red * 1.3));
+    for (const k of ['torso', 'armsDown', 'armsUp', 'armPoint', 'armsHead', 'armsR0', 'armsR1', 'armsR2', 'armsR3', 'armsR4', 'armsR5', 'armsR6', 'armsR7']) SIMC.parts[k].setColorAt(i, c); });
+  SIMC.update((p, i) => { const b = i * SF + f, st = SIM.st[b]; p.x = SIM.x[b]; p.z = SIM.z[b]; p.yaw = SIM.yaw[b];
+    if (st === 3) return { pose: 'hide' };
+    const red = SIM.red[b] / 255, fb = i * SF + Math.max(0, f - 4), spd = (SIM.dist[b] - SIM.dist[fb]) / (Math.max(1, f - Math.max(0, f - 4)) / SIM.fps);
+    if (st >= 1 && spd > 0.35) { const cyc = SIM.dist[b] / 1.7 + p.seed, k = Math.floor(cyc * 8) % 8, fast = Math.min(1, spd / 2.2);   // stride ≈ 1.7 m per full cycle
+      return { pose: 'run', k, lean: 0.06 + 0.16 * fast, bob: Math.abs(Math.sin(cyc * Math.PI * 2)) * 0.07 * fast, headPitch: -0.12 }; }
+    return { pose: red > 0.6 && p.seed < 0.12 ? 'armsHead' : st === 0 && p.seed > 0.97 ? 'armPoint' : 'armsDown', bob: 0, yaw: st >= 1 ? Math.sin(t * 7 + p.ph) * 0.05 : 0,
+      headYaw: st === 0 ? Math.sin(t * 0.9 + p.ph) * 0.5 : Math.sin(t * 1.3 + p.ph) * 0.25, headPitch: -0.05 }; });
+  const bk = ease(ramp(t, 30.4, 31.0)); BARM.visible = bk > 0.01; BARM.position.y = (bk - 1) * 2.1; BARM.userData.glow.position.y = 0.03 - (bk - 1) * 2.1;
+  const sk = ease(ramp(t, 36.6, 37.2));
+  SIMS.update(p => sk < 0.02 ? { pose: 'hide' } : { pose: Math.sin(t * 2.4 + p.ph) > -0.3 ? 'armPoint' : 'armsDown', bob: (1 - sk) * 0.8, headYaw: Math.sin(t * 0.8 + p.ph) * 0.4 });
+  return SIM.stats[f]; }
+// overlay UI (cards, sliders, counters)
+const PRM = [['Uncertainty', 'u'], ['Social influence', 's'], ['Stress', 'x']];
+$('params').innerHTML = PRM.map(([n], i) => `<div class="pr" id="pr${i}"><span>${n}</span><i><u id="pb${i}"></u></i><em id="pv${i}"></em></div>`).join('');
+const lvl = v => v < 0.34 ? 'LOW' : v < 0.67 ? 'MID' : 'HIGH';
+function simUI(t, st) {
+  const L = t < 10 ? ['QUESTION', 'Why do some people move at once, while others wait?'] : t < 20 ? ['RULE 1', 'If people near me move, I move too.'] : t < 30.4 ? ['RULE 2', 'Unsure + copying + stressed = everyone picks the exit they know.'] : t < 36.6 ? ['FIX 1', 'A slanted barrier in front of the door splits the push.'] : ['FIX 2', 'Clear announcements + stewards = every exit used.'];
+  if ($('card').dataset.k !== L[1]) { $('card').dataset.k = L[1]; $('cardL').textContent = 'SIMULATION · ' + L[0]; $('cardT').textContent = L[1]; }
+  const ck = Math.min(...[3, 10, 20, 30.4, 36.6].map(a => Math.abs(t - a))); $('card').style.opacity = Math.min(1, ck / 0.25 + (t < 3.3 ? 0 : 0));
+  const unc = lerp(0.9, 0.12, ease(ramp(t, 36.8, 39))), soc = t < 10 ? 0.25 : t < 36 ? lerp(0.25, 0.85, ease(ramp(t, 12.9, 17))) : lerp(0.85, 0.3, ease(ramp(t, 37.2, 40))),
+        str = t < 20 ? lerp(0.35, 0.5, ramp(t, 3, 20)) : t < 30 ? lerp(0.5, 0.95, ease(ramp(t, 26.7, 28.5))) : lerp(0.95, 0.25, ease(ramp(t, 37.2, 41)));
+  const act = t >= 20.3 && t < 23.6 ? 0 : t >= 23.6 && t < 26.7 ? 1 : t >= 26.7 && t < 30.4 ? 2 : t >= 12.9 && t < 20 ? 1 : t >= 36.8 && t < 40 ? 0 : -1;
+  [unc, soc, str].forEach((v, i) => { $('pb' + i).style.width = (v * 100).toFixed(1) + '%'; $('pv' + i).textContent = lvl(v); $('pr' + i).classList.toggle('on', i === act); $('pb' + i).classList.toggle('hot', v > 0.67); });
+  const [w, mv, jam, gone, rate] = st; $('s0').textContent = w; $('s1').textContent = jam; $('s2').textContent = rate;
+  $('stats').children[1].classList.toggle('hot', jam > 40);
+}
+
+/* ---------- 45-second timeline ---------- */
+const TOTAL = 45, CAPS = [[0.35, 2.42, "What happens when thousands of people"], [2.42, 3.71, "panic at the same time?"], [3.86, 4.61, "Some people"], [4.61, 5.83, "react immediately"], [5.98, 6.63, "Others wait"], [6.63, 8.27, "watching everyone around them"], [8.9, 10.55, "When information is unclear"], [10.55, 12.78, "people often look to others for clues"], [12.93, 14.23, "One person's reaction"], [14.23, 16.22, "can influence the people nearby"], [16.37, 17.27, "And that reaction"], [17.27, 18.8, "can ripple through the crowd"], [20.3, 21.02, "Uncertainty"], [21.02, 22.89, "No one knows what is happening"], [23.6, 24.64, "Social influence"], [24.64, 26.42, "We copy the people around us"], [26.7, 27.35, "And stress"], [27.35, 28.42, "So almost everyone"], [28.42, 30.38, "heads for the one exit they know"], [30.53, 30.99, "Fix one:"], [30.99, 31.97, "a slanted barrier"], [31.97, 33.18, "in front of the door"], [33.5, 34.38, "In simulations"], [34.38, 35.49, "it splits the push"], [35.49, 37.13, "and the door stops clogging"], [37.28, 37.73, "Fix two:"], [37.73, 38.81, "clear announcements"], [38.81, 40.29, "send people to every exit"], [40.44, 41.38, "Smarter exits"], [41.38, 42.33, "calmer crowds"], [43.15, 44.35, "Follow InvisiTech"], [44.35, 44.98, "for more"]], CAPL = [[0.35, 3.71, "What happens when thousands of people panic at the same time?"], [3.86, 5.83, "Some people react immediately."], [5.98, 8.27, "Others wait, watching everyone around them."], [8.9, 12.78, "When information is unclear, people often look to others for clues."], [12.93, 16.22, "One person's reaction can influence the people nearby."], [16.37, 18.8, "And that reaction can ripple through the crowd."], [20.3, 22.89, "Uncertainty. No one knows what is happening."], [23.6, 26.42, "Social influence. We copy the people around us."], [26.7, 30.38, "And stress. So almost everyone heads for the one exit they know."], [30.53, 33.18, "Fix one: a slanted barrier in front of the door."], [33.5, 37.13, "In simulations, it splits the push, and the door stops clogging."], [37.28, 40.29, "Fix two: clear announcements send people to every exit."], [40.44, 42.33, "Smarter exits, calmer crowds."], [43.15, 44.98, "Follow InvisiTech for more."]];
+const easeIO = ease, sm = (u, a, b) => ease(ramp(u, a, b));
+const C2 = pick(N3 + 0.32, 1), C4A = pick(N3 + 0.36, 0), C4B = pick(N3 + 0.26, 3), C4C = pick(N3 + 0.44, 1), CL = pick(N3 + 0.28, 8), CL2 = pick(N3 + 0.4, 4);
+const LK = [buildLinks(CL, 16, 0xffb547), buildLinks(CL2, 12, 0x4fc3f7)], HOT = new Set(LK[0].near), COOL = new Set(LK[1].near);
+const STEW_S = stewards.reduce((b, q) => q.z < b.z ? q : b, stewards[0]);
+const front = c => { const n = V(-c.x, 0, -c.z).normalize(); return { P: V(c.x, c.y, c.z), n, tg: V(-n.z, 0, n.x) }; };
+const camLerp = (a, b, k) => [a[0].clone().lerp(b[0], k), a[1].clone().lerp(b[1], k)];
+const smokeO = SMOKE_O;
+function setTitle(lines, a) { const k = lines.join('|'); if ($('title').dataset.k !== k) { $('title').dataset.k = k; $('title').innerHTML = lines.map(l => `<span class="ln">${l}</span>`).join(''); }
+  $('title').style.opacity = a; $('title').style.transform = `translateY(${(1 - a) * 2}vh)`; }
+function concept(id, a) { const e = $(id); e.style.opacity = a; e.style.transform = `translateY(${(1 - a) * 2}vh)`; }
+let lastTint = '';
+function tintMode(m, k = 1) { const key = m + Math.round(k * 10); if (key === lastTint) return; lastTint = key;
+  if (m === 'none') crowdTint(() => null); else crowdTint(p => HOT.has(p) ? [0xffb547, 0.9 * k] : (m === 'both' && COOL.has(p)) ? [0x4fc3f7, 0.9 * k] : [0x14171e, 0.75 * k]); }
+// cheering: arms up/down in waves, little jumps
+const cheer = (p, t, k) => { const w = Math.sin(t * 6 + p.ph * 3 + p.x * 0.05); return { pose: k > 0.5 && w > 0.1 && p.seed < 0.75 ? 'armsUp' : 'armsDown', bob: k * Math.max(0, w) * 0.08 * (p.seed < 0.6 ? 1 : 0), headPitch: -0.12 }; };
+const SC = [
+  [0, 3, (u, t) => {   // 1. hook: packed stadium cheering, smoke and a glitch at the scoreboard, cheering stops; dramatic push-in
+    const fault = sm(u, 0.9, 1.4), red = sm(u, 1.3, 2.2); mood(0.6 * red, 0); drawBoard(u < 1.1 ? 'score' : 'glitch'); smoke(fault, t);
+    const ck = 1 - sm(u, 1.6, 2.6); crowdUpdate(p => { const c = cheer(p, t, ck); if (ck < 0.5) { c.pose = 'armsDown'; c.headYaw = (p.seed - 0.5) * 0.6 * (1 - ck); c.headPitch = -0.2; } return c; });
+    const k = easeIO(u / 3); shot(V(lerp(110, 60, k), lerp(135, 70, k), lerp(170, 95, k)), V(lerp(0, 4, k), lerp(4, 14, k), lerp(-8, -40, k)), lerp(36, 30, k));
+    setTitle(['What happens', 'when a stadium <em>panics?</em>'], sm(u, 0.2, 0.6));
+  }],
+  [3, 43, (u, t) => {   // 2–5. the explanation as a live crowd simulation: alarm → some move, others watch → copying ripples → one familiar exit jams → announcement + stewards → every exit used
+    const K = [[3, V(0, 66, 31), V(0, 0, 1.5)], [9.5, V(0, 80, 38), V(0, 0, 2)], [20, V(0, 80, 38), V(0, 0, 2)], [24, V(5, 60, 24), V(6, 0, -4)], [29.9, V(5, 60, 24), V(6, 0, -4)], [31.2, V(8, 36, 7), V(8, 0, -9.2)], [36.4, V(8, 38, 8), V(8, 0, -9)], [40, V(0, 80, 38), V(0, 0, 2)], [43, V(0, 82, 39), V(0, 0, 2)]];
+    let j = 0; while (j < K.length - 2 && t >= K[j + 1][0]) j++; const k = easeIO(ramp(t, K[j][0], K[j + 1][0]));
+    shot(K[j][1].clone().lerp(K[j + 1][1], k), K[j][2].clone().lerp(K[j + 1][2], k), 40, 50, 0);
+    simUI(t, simFrame(t));
+  }],
+  [43, 45, () => { mood(0, 1); }],
+];
+function renderAt(t) {
+  t = Math.max(0, Math.min(TOTAL - 1e-3, t));
+  const i = SC.findIndex(s => t >= s[0] && t < s[1]), [a, , fn] = SC[i];
+  ['cA', 'cB', 'cC'].forEach(id => concept(id, 0)); $('fade').style.opacity = 0; LINKS.visible = false;
+  Object.values(STEW.parts).forEach(m => m.visible = false);
+  const simOn = t >= 3 && t < 43; RPASS.scene = simOn ? SS : scene; BLOOM.strength = simOn ? 0.32 : 0.5; BLOOM.threshold = simOn ? 0.9 : 0.85; renderer.toneMappingExposure = simOn ? 1.0 : renderer.toneMappingExposure;
+  $('simui').style.opacity = simOn ? Math.min(1, (t - 3) / 0.35) : 0; ['title', 'sub'].forEach(id => $(id).style.display = simOn ? 'none' : '');
+  fn(t - a, t);
+  const o = $('outro'), ou = t - 43; o.style.opacity = ou < 0 ? 0 : ease(ramp(ou, 0, 0.3));
+  if (ou >= 0) { const pop = (el, a0, a1, s0) => { const v = ease(ramp(ou, a0, a1)); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 1.2}vh) scale(${s0 + (1 - s0) * v})`; }; pop($('oLogo'), 0.15, 0.65, 0.92); pop($('oName'), 0.4, 0.9, 0.96); pop($('oTag'), 0.65, 1.15, 1); }
+  $('note').style.opacity = t < 3 ? 1 : 0;
+  const cp = CAPS.find(c => t >= c[0] - 0.05 && t < c[1] + 0.12); $('sub').textContent = cp ? cp[2] : '';
+  const ln = [...CAPL].reverse().find(c => t >= c[0] - 0.1); $('cap').textContent = ln && t < 43 ? ln[2] : '';
+  for (const c of [3]) $('fade').style.opacity = Math.max(+$('fade').style.opacity, 0.5 - Math.abs(t - c) / 0.25);
+  if (t < 43) composer.render();
+}
+{ const seen = new Set(); [scene, SS].forEach(S => S.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (seen.has(m)) return; seen.add(m); if (m.color && !m.map) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); });
+  if (o.isLight) { o.color.convertSRGBToLinear(); if (o.groundColor) o.groundColor.convertSRGBToLinear(); } })); scene.fog.color.convertSRGBToLinear(); SS.fog.color.convertSRGBToLinear(); SS.background.convertSRGBToLinear(); }
 const HEMI_N = hemi.color.clone(), HEMI_R = LIN(0x8a4a52);
-window.__tour = { total: 8, renderAt }; window.__tourReady = () => true;
+window.__tour = { total: TOTAL, renderAt }; window.__tourReady = () => true;
 })();
 </script>
