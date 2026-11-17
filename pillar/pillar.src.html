@@ -1,0 +1,310 @@
+<title>The pillar paradox</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0e14; font-family: 'IBM Plex Sans', Arial, sans-serif; }
+  canvas { display: block; position: fixed; inset: 0; }
+  /* layout follows the Shorts safe zones: title 220–450 px, picture 450–1500, caption 1250–1450, nothing below 1500 or right of 940 below 1100 */
+  #hud > div { position: fixed; z-index: 4; pointer-events: none; color: #fff; }
+  #chip { top: 12.3%; left: 50%; transform: translateX(-50%); white-space: nowrap; background: rgba(12,16,24,.9); border: .25vw solid rgba(120,170,255,.45); border-radius: 1.4vw; padding: .9vw 3vw 1vw; font: 800 4.3vw Sora, Arial; letter-spacing: .06em; box-shadow: 0 1vw 3vw rgba(0,0,0,.35); }
+  #chip em { font-style: normal; color: #ffb547; }
+  #q { top: 16.9%; left: 5.9vw; right: 5.9vw; text-align: center; font: 800 6.2vw/1.12 Sora, Arial; text-shadow: 0 .5vw 2.4vw rgba(0,0,0,.65); }
+  #q em { font-style: normal; color: #ffb547; }
+  #card { top: 16.6%; left: 5.9vw; right: 5.9vw; height: 11.6vw; display: flex; align-items: center; gap: 2.6vw; background: rgba(12,16,24,.92); border-radius: 1.8vw; padding: 1.5vw 2.6vw; box-sizing: border-box; border-left: 1vw solid #ff7a45; box-shadow: 0 1.2vw 3vw rgba(0,0,0,.35); }
+  #card.good { border-left-color: #3fc27f; } #card.bad { border-left-color: #e8463a; }
+  #card .l { flex: 1.25; min-width: 0; } #card .l b { display: block; font: 700 2.1vw Sora, Arial; letter-spacing: .16em; color: rgba(255,255,255,.6); }
+  #card .l span { display: block; margin-top: .4vw; font: 700 3.9vw/1.12 Sora, Arial; }
+  #card .r { flex: 1; display: grid; gap: 1.1vw; }
+  .sl { font: 600 2.05vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.75); } .sl p { margin: 0; display: flex; justify-content: space-between; } .sl p b { color: #fff; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .sl i { position: relative; display: block; height: .7vw; margin-top: .55vw; border-radius: 1vw; background: rgba(255,255,255,.14); } .sl i u { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 1vw; background: #5fa8ff; }
+  .sl i s { position: absolute; top: 50%; width: 1.9vw; height: 1.9vw; margin: -.95vw 0 0 -.95vw; border-radius: 50%; background: #fff; box-shadow: 0 .2vw .8vw rgba(0,0,0,.5); }
+  #res { top: 16.6%; left: 5.9vw; right: 5.9vw; background: rgba(12,16,24,.92); border-radius: 1.8vw; padding: 1.6vw 2.6vw 1.8vw; box-sizing: border-box; box-shadow: 0 1.2vw 3vw rgba(0,0,0,.35); }
+  #res > b { display: block; font: 700 2.1vw Sora, Arial; letter-spacing: .16em; color: rgba(255,255,255,.6); margin-bottom: .8vw; }
+  .bar { display: grid; grid-template-columns: 21vw 1fr 11vw; align-items: center; gap: 1.6vw; margin-top: .7vw; font: 600 2.5vw 'IBM Plex Sans', Arial; color: rgba(255,255,255,.85); }
+  .bar i { display: block; height: 2.6vw; border-radius: .8vw; background: rgba(255,255,255,.1); overflow: hidden; } .bar u { display: block; height: 100%; background: #ff7a45; border-radius: .8vw; } .bar.g u { background: #3fc27f; }
+  .bar b { font: 700 3.3vw Sora, Arial; text-align: right; font-variant-numeric: tabular-nums; }
+  #stats { top: 58.3%; left: 5.9vw; right: 13vw; display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 1.6vw; }
+  #stats > div { background: rgba(250,251,253,.97); color: #10151d; border-radius: 1.5vw; padding: 1vw 1.6vw 1.1vw; text-align: center; box-shadow: 0 1vw 2.6vw rgba(0,0,0,.25); border-top: .55vw solid #5fa8ff; }
+  #stats span { display: block; font: 700 1.85vw Sora, Arial; letter-spacing: .12em; color: #5b6472; } #stats b { display: block; margin-top: .2vw; font: 800 5.4vw/1.05 Sora, Arial; font-variant-numeric: tabular-nums; }
+  #stats small { display: block; font: 600 1.9vw 'IBM Plex Sans', Arial; color: #6b7482; } #stats .red { border-top-color: #e8463a; } #stats .red b { color: #d6362b; }
+  #cap { top: 65.9%; left: 5.9vw; right: 13vw; background: rgba(250,251,253,.97); color: #10151d; border-radius: 1.6vw; padding: 1.5vw 2.4vw; text-align: center; font: 700 3.5vw/1.22 Sora, Arial; box-shadow: 0 1.2vw 3.4vw rgba(0,0,0,.35); }
+  #cap:empty { display: none; } #hud #cap { color: #10151d; }
+  #rev { top: 12.3%; left: 5.9vw; right: 5.9vw; text-align: center; background: rgba(12,16,24,.92); border-radius: 2vw; padding: 2vw 2vw 2.2vw; box-sizing: border-box; box-shadow: 0 1.4vw 4vw rgba(0,0,0,.45); }
+  #rev b { display: block; font: 800 8vw/1.02 Sora, Arial; color: #ffb547; letter-spacing: .01em; } #rev small { display: block; margin-top: 1.4vw; font: 600 2.9vw/1.3 'IBM Plex Sans', Arial; color: rgba(255,255,255,.88); }
+  #disc { top: 59.4%; left: 5.9vw; right: 13vw; text-align: center; background: rgba(12,16,24,.85); border-radius: 1.2vw; padding: .9vw 1.6vw; box-sizing: border-box; font: 500 2vw/1.35 'IBM Plex Sans', Arial; color: rgba(255,255,255,.75); }
+  #flash { position: fixed; inset: 0; z-index: 3; background: #fff; opacity: 0; pointer-events: none; }
+  #outro { position: fixed; inset: 0; z-index: 6; opacity: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(60% 40% at 50% 46%, #111522 0%, #07080c 60%, #040506 100%); color: #fff; }
+  #oLogo { width: 21vw; height: 21vw; border-radius: 50%; box-shadow: 0 0 60px rgba(74,168,255,.45); }
+  #oName { margin-top: 3.4vw; font: 800 10vw/1 Sora, Arial, sans-serif; letter-spacing: -0.02em; } #oName b { color: #4fc3f7; }
+  #oTag { margin-top: 2.4vw; font: 500 3.7vw 'IBM Plex Sans', Arial, sans-serif; color: rgba(255,255,255,.72); }
+</style>
+<div id="flash"></div>
+<div id="hud">
+  <div id="chip">THE <em>PILLAR</em> PARADOX</div>
+  <div id="q">Can a pillar in front of an exit get <em>more</em> people out?</div>
+  <div id="card"><div class="l"><b id="cN"></b><span id="cT"></span></div>
+    <div class="r"><div class="sl"><p><span>Pillar distance from door</span><b id="sDv"></b></p><i><u id="sDu"></u><s id="sDs"></s></i></div>
+      <div class="sl"><p><span>Off-centre</span><b id="sOv"></b></p><i><u id="sOu"></u><s id="sOs"></s></i></div></div></div>
+  <div id="res"><b>EVERYONE OUT IN</b><div class="bar"><span>No pillar</span><i><u id="rA"></u></i><b id="rAt"></b></div><div class="bar g"><span>Pillar, best spot</span><i><u id="rB"></u></i><b id="rBt"></b></div></div>
+  <div id="stats"><div><span>OUT</span><b id="kO">0</b><small>of 200 people</small></div><div class="red"><span>PINNED</span><b id="kP">0</b><small>stuck at the door</small></div><div><span>SIM TIME</span><b id="kT">0:00</b><small id="kR"></small></div></div>
+  <div id="rev"><b>THE PILLAR<br>PARADOX</b><small id="revS"></small></div>
+  <div id="disc"></div>
+  <div id="cap"></div>
+</div>
+<div id="outro"><img id="oLogo" src="__LOGO__" alt=""><div id="oName"><span>Invisi</span><b>Tech</b></div><div id="oTag">The tech behind everyday life.</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="assets/post/CopyShader.js"></script>
+<script src="assets/post/LuminosityHighPassShader.js"></script>
+<script src="assets/post/GammaCorrectionShader.js"></script>
+<script src="assets/post/BokehShader.js"></script>
+<script src="assets/post/EffectComposer.js"></script>
+<script src="assets/post/MaskPass.js"></script>
+<script src="assets/post/RenderPass.js"></script>
+<script src="assets/post/ShaderPass.js"></script>
+<script src="assets/post/UnrealBloomPass.js"></script>
+<script src="assets/post/BokehPass.js"></script>
+<script src="assets/runs.js"></script>
+<script>
+(() => {
+const W = innerWidth, H = innerHeight, $ = id => document.getElementById(id);
+const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); }, lerp = (a, b, k) => a + (b - a) * k, ramp = (u, a, b) => clamp01((u - a) / (b - a));
+let sd = 7; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+const LIN = hex => new THREE.Color(hex).convertSRGBToLinear();
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(devicePixelRatio); renderer.setSize(W, H); renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, W / H, 0.3, 600);
+{ const pm = new THREE.PMREMGenerator(renderer), env = new THREE.Scene(); env.add(new THREE.Mesh(new THREE.SphereGeometry(50, 16, 8), new THREE.MeshBasicMaterial({ color: 0x1b2233, side: THREE.BackSide })));
+  for (const p of [[30, 25, 0], [-30, 25, 0], [0, 25, 30], [0, 25, -30]]) { const q = new THREE.Mesh(new THREE.PlaneGeometry(14, 6), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })); q.position.set(...p); q.lookAt(0, 0, 0); env.add(q); }
+  scene.environment = pm.fromScene(env, 0.04).texture; }
+{ const c = document.createElement('canvas'); c.width = 16; c.height = 256; const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 0, 256);
+  g.addColorStop(0, '#1d222b'); g.addColorStop(1, '#0d1015'); x.fillStyle = g; x.fillRect(0, 0, 16, 256); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; scene.background = t; }
+scene.fog = new THREE.Fog(0x15181e, 60, 140);
+const sHemi = new THREE.HemisphereLight(0xe8eef6, 0x3a3f47, 0.62); scene.add(sHemi);
+const sKey = new THREE.DirectionalLight(0xfff3e4, 1.45); sKey.position.set(-14, 34, 16); sKey.castShadow = true; sKey.shadow.mapSize.set(2048, 2048);
+Object.assign(sKey.shadow.camera, { left: -14, right: 14, top: 14, bottom: -14, near: 5, far: 90 }); sKey.shadow.bias = -0.0004; sKey.shadow.radius = 3; scene.add(sKey); sKey.target.position.set(0, 0, -2); scene.add(sKey.target);
+const sFill = new THREE.DirectionalLight(0xd6e4ff, 0.35); sFill.position.set(20, 18, -10); scene.add(sFill);
+const sRim = new THREE.DirectionalLight(0xbfd2ff, 0.3); sRim.position.set(0, 14, -40); scene.add(sRim);
+const RT = new THREE.WebGLMultisampleRenderTarget(Math.round(W * renderer.getPixelRatio()), Math.round(H * renderer.getPixelRatio()), { format: THREE.RGBAFormat, type: THREE.HalfFloatType, stencilBuffer: true }); RT.samples = 4;
+const composer = new THREE.EffectComposer(renderer, RT); composer.setSize(W, H); composer.addPass(new THREE.RenderPass(scene, camera));
+const BOKEH = new THREE.BokehPass(scene, camera, { focus: 30, aperture: 0.00006, maxblur: 0.004, width: W, height: H }); composer.addPass(BOKEH);
+const BLOOM = new THREE.UnrealBloomPass(new THREE.Vector2(W, H), 0.16, 0.4, 0.92); [...BLOOM.renderTargetsHorizontal, ...BLOOM.renderTargetsVertical, BLOOM.renderTargetBright].forEach(t => t.texture.type = THREE.HalfFloatType); composer.addPass(BLOOM);
+composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));
+
+/* ---------- people: head, hair, torso, arms, legs (stylised, never dots or capsules) ---------- */
+function geo(parts) {   // merge [geometry, matrix] parts into one non-indexed geometry
+  const P = [], N = []; parts.forEach(([g, m]) => { const q = g.toNonIndexed(); q.applyMatrix4(m); P.push(...q.attributes.position.array); N.push(...q.attributes.normal.array); });
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(N, 3)); return g; }
+const M = (x, y, z, rx = 0, ry = 0, rz = 0, s = 1) => new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)), new THREE.Vector3(s, s, s));
+const rbox = (w, h, d) => { const g = new THREE.BoxGeometry(w, h, d, 2, 2, 2), p = g.attributes.position, v = new THREE.Vector3();   // softly rounded box
+  for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); const k = 0.22, n = new THREE.Vector3(Math.sign(v.x) * w / 2, Math.sign(v.y) * h / 2, Math.sign(v.z) * d / 2); v.lerp(n.multiplyScalar(0.86), k); p.setXYZ(i, v.x, v.y, v.z); } g.computeVertexNormals(); return g; };
+let LO = false;   // light geometry for the far crowd
+const limb = (r0, r1, len) => new THREE.CylinderGeometry(r1, r0, len, LO ? 4 : 7, 1);
+const lathe = (pts, seg = 12) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), LO ? 6 : seg);
+const sph = (r, a, b, ...rest) => new THREE.SphereGeometry(r, LO ? 6 : a, LO ? 4 : b, ...rest);
+// slim miniature people (reference style): small head with dark hair, plain top, dark trousers, arms close to the body
+function makeG() {
+const torsoG = (() => { const g = lathe([[0.001, 1.0], [0.125, 1.0], [0.13, 1.12], [0.135, 1.28], [0.15, 1.4], [0.15, 1.45], [0.11, 1.49], [0.05, 1.51], [0.001, 1.515]], 12); g.scale(1, 1, 0.66); return g; })();
+function arm(side, sh, el) {   // side ±1; sh, el: [rx, rz] for shoulder and elbow
+  const S = new THREE.Matrix4().makeTranslation(side * 0.165, 1.43, 0).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(sh[0], 0, side * sh[1])));
+  const E = S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.29, 0)).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(el[0], 0, side * el[1])));
+  return [[limb(0.034, 0.042, 0.3), S.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.15, 0))], [limb(0.03, 0.035, 0.27), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.135, 0))],
+          [sph(0.034, 7, 5), E.clone().multiply(new THREE.Matrix4().makeTranslation(0, -0.285, 0))]]; }
+return {
+  torso: geo([[torsoG, M(0, 0, 0)]]),
+  legs: geo([[lathe([[0.001, 0.88], [0.135, 0.92], [0.135, 1.01], [0.001, 1.01]], 10), M(0, 0, 0)], [limb(0.052, 0.064, 0.47), M(-0.07, 0.69, 0)], [limb(0.052, 0.064, 0.47), M(0.07, 0.69, 0)],
+               [limb(0.04, 0.052, 0.45), M(-0.07, 0.24, 0)], [limb(0.04, 0.052, 0.45), M(0.07, 0.24, 0)], [rbox(0.085, 0.06, 0.21), M(-0.07, 0.03, 0.04)], [rbox(0.085, 0.06, 0.21), M(0.07, 0.03, 0.04)]]),
+  head: geo([[sph(0.092, 14, 10), M(0, 1.64, 0)], [limb(0.034, 0.04, 0.09), M(0, 1.53, 0)]]),
+  eyes: geo([[sph(0.0095, 5, 4), M(-0.03, 1.652, 0.085)], [sph(0.0095, 5, 4), M(0.03, 1.652, 0.085)]]),
+  hair: geo([[sph(0.098, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.46), M(0, 1.648, -0.006, -0.42)]]),   // dark hair over the top and back of the head
+  armsDown: geo([...arm(-1, [0, 0.06], [-0.12, 0]), ...arm(1, [0, 0.06], [-0.12, 0])]),
+  armsUp: geo([...arm(-1, [0.1, 2.8], [0, -0.2]), ...arm(1, [0.1, 2.8], [0, -0.2])]),
+  armPoint: geo([...arm(-1, [0, 0.06], [-0.12, 0]), ...arm(1, [-1.45, 0.2], [-0.1, 0])]),
+  armsHead: geo([...arm(-1, [-1.3, -0.12], [-1.9, 0]), ...arm(1, [-1.3, -0.12], [-1.9, 0])]),   // hands up in front of the face (worry)
+  ...(() => {   // running cycle in 8 steps: legs stride from the hip with a bent knee, arms pump opposite to the legs
+    const o = {}, R = a => new THREE.Matrix4().makeRotationX(a), T = (x, y, z) => new THREE.Matrix4().makeTranslation(x, y, z);
+    const leg = (side, th, bend) => { const H = T(side * 0.07, 0.92, 0).multiply(R(th)), K = H.clone().multiply(T(0, -0.465, 0)).multiply(R(bend));
+      return [[limb(0.052, 0.064, 0.47), H.clone().multiply(T(0, -0.235, 0))], [limb(0.04, 0.052, 0.45), K.clone().multiply(T(0, -0.225, 0))], [rbox(0.085, 0.06, 0.21), K.clone().multiply(T(0, -0.44, 0.04))]]; };
+    for (let k = 0; k < 8; k++) { const ph = k / 8 * Math.PI * 2, tL = -0.62 * Math.sin(ph), tR = 0.62 * Math.sin(ph), bL = 0.2 + 1.1 * Math.max(0, Math.sin(ph + 1.2)), bR = 0.2 + 1.1 * Math.max(0, Math.sin(ph + 1.2 + Math.PI));
+      o['legsR' + k] = geo([[lathe([[0.001, 0.88], [0.135, 0.92], [0.135, 1.01], [0.001, 1.01]], 10), M(0, 0, 0)], ...leg(-1, tL, bL), ...leg(1, tR, bR)]);
+      o['armsR' + k] = geo([...arm(-1, [-tL * 1.1, 0.1], [-1.15, 0]), ...arm(1, [-tR * 1.1, 0.1], [-1.15, 0])]);
+      const wL = -0.4 * Math.sin(ph), wR = 0.4 * Math.sin(ph), kL = 0.06 + 0.55 * Math.max(0, Math.sin(ph + 1.6)), kR = 0.06 + 0.55 * Math.max(0, Math.sin(ph + 1.6 + Math.PI));   // walking: shorter stride, small knee bend, relaxed arm swing
+      o['legsW' + k] = geo([[lathe([[0.001, 0.88], [0.135, 0.92], [0.135, 1.01], [0.001, 1.01]], 10), M(0, 0, 0)], ...leg(-1, wL, kL), ...leg(1, wR, kR)]);
+      o['armsW' + k] = geo([...arm(-1, [-wL * 0.9, 0.07], [-0.3, 0]), ...arm(1, [-wR * 0.9, 0.07], [-0.3, 0])]); }
+    return Object.entries(o); })().reduce((a, [k, v]) => (a[k] = v, a), {}),
+};
+}
+const G = makeG(); LO = true; const GL = makeG(); LO = false;
+const SKIN = [0x8d5524, 0xc68642, 0xe0ac69, 0xf1c27d, 0x6b3e26, 0xa0663c, 0xd29b6c], HAIRC = [0x111111, 0x161210, 0x1b1410, 0x0e0e10, 0x2c1b10, 0x111111, 0x3a2a1c], PANTS = [0x1c1e24, 0x22252c, 0x1c2a44, 0x2a2622, 0x1d2333];
+const SHIRT = [0x1d4fa8, 0x1d4fa8, 0x2f6fe0, 0xe8edf4, 0xd8342c, 0xffffff, 0x1d4fa8, 0xf2c230, 0x3aa760, 0xe86a2c, 0x7b4fd6];
+class Crowd {   // one group of people drawn with instanced parts; per person: pose + colours
+  constructor(list, detail = 1, GS = G, scn = scene, run = false) { this.list = list; this.run = run; const RK = run ? [...Array(8).keys()].flatMap(k => ['legsR' + k, 'armsR' + k, 'legsW' + k, 'armsW' + k]) : []; const n = list.length, mat = c => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: c, metalness: 0 });
+    this.parts = {}; for (const k of ['torso', 'legs', 'head', 'eyes', 'hair', 'armsDown', 'armsUp', 'armPoint', 'armsHead', ...RK]) { const m = new THREE.InstancedMesh(GS[k], mat(k === 'head' ? 0.7 : k === 'eyes' ? 0.4 : 0.92), n); m.castShadow = detail > 0; m.receiveShadow = true; m.frustumCulled = false; this.parts[k] = m; scn.add(m); }
+    const c = new THREE.Color(); list.forEach((p, i) => { p.skin = p.skin ?? SKIN[(rnd() * SKIN.length) | 0]; p.shirt = p.shirt ?? SHIRT[(rnd() * SHIRT.length) | 0]; p.pants = p.pants ?? PANTS[(rnd() * PANTS.length) | 0]; p.hairc = p.hairc ?? HAIRC[(rnd() * HAIRC.length) | 0]; p.h = p.h ?? (0.92 + rnd() * 0.16);
+      this.parts.torso.setColorAt(i, c.copy(LIN(p.shirt))); this.parts.legs.setColorAt(i, c.copy(LIN(p.pants))); this.parts.head.setColorAt(i, c.copy(LIN(p.skin))); this.parts.hair.setColorAt(i, c.copy(LIN(p.hairc))); this.parts.eyes.setColorAt(i, c.copy(LIN(0x14100e)));
+      for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead', ...RK.filter(k => k[0] === 'a')]) this.parts[k].setColorAt(i, c.copy(LIN(p.shirt)));
+      for (const k of RK.filter(k => k[0] === 'l')) this.parts[k].setColorAt(i, c.copy(LIN(p.pants))); });
+    this.d = new THREE.Object3D(); this.d.rotation.order = 'YXZ'; this.hd = new THREE.Object3D(); this.zero = new THREE.Matrix4().makeScale(0, 0, 0); }
+  update(fn) {   // fn(p, i) → { pose, yaw, headYaw, headPitch, bob, tint }
+    const d = this.d, P = this.parts, hd = this.hd;
+    const cp = camera.position; this.list.forEach((p, i) => { const s = fn(p, i); if (Math.hypot(p.x - cp.x, p.z - cp.z) < 1.3 && Math.abs(p.y + 1 - cp.y) < 2.2) s.pose = 'hide'; d.position.set(p.x, p.y + (s.bob || 0), p.z); d.rotation.set(s.lean || 0, p.yaw + (s.yaw || 0), 0); d.scale.set(p.h * (p.w || 1), p.h, p.h * (p.w || 1)); d.updateMatrix();
+      const run = s.pose === 'run' || s.pose === 'walk'; P.torso.setMatrixAt(i, s.pose === 'hide' ? this.zero : d.matrix); P.legs.setMatrixAt(i, s.pose === 'hide' || run ? this.zero : d.matrix);
+      if (this.run) for (let k = 0; k < 8; k++) { const mr = s.pose === 'run' && k === s.k ? d.matrix : this.zero, mw = s.pose === 'walk' && k === s.k ? d.matrix : this.zero; P['legsR' + k].setMatrixAt(i, mr); P['armsR' + k].setMatrixAt(i, mr); P['legsW' + k].setMatrixAt(i, mw); P['armsW' + k].setMatrixAt(i, mw); }
+      for (const k of ['armsDown', 'armsUp', 'armPoint', 'armsHead']) P[k].setMatrixAt(i, k === s.pose ? d.matrix : this.zero);
+      hd.position.set(0, 1.56, 0); hd.rotation.set(s.headPitch || 0, s.headYaw || 0, s.headRoll || 0); hd.updateMatrix();   // the head turns around the neck
+      const hm = d.matrix.clone().multiply(new THREE.Matrix4().makeTranslation(0, 1.56, 0)).multiply(new THREE.Matrix4().makeRotationFromEuler(hd.rotation)).multiply(new THREE.Matrix4().makeTranslation(0, -1.56, 0));
+      const hmm = s.pose === 'hide' ? this.zero : hm; P.head.setMatrixAt(i, hmm); P.hair.setMatrixAt(i, hmm); P.eyes.setMatrixAt(i, hmm); });
+    for (const k in P) { P[k].instanceMatrix.needsUpdate = true; if (P[k].instanceColor) P[k].instanceColor.needsUpdate = true; } }
+  tint(fn) { const c = new THREE.Color(); this.list.forEach((p, i) => { const t = fn(p, i); c.copy(LIN(p.shirt)); if (t) c.lerp(LIN(t[0]), t[1]); for (const k of ['torso', 'armsDown', 'armsUp', 'armPoint', 'armsHead']) this.parts[k].setColorAt(i, c); }); }
+}
+
+/* ---------- the room: a stadium concourse with one 1 m exit (same geometry as the physics in assets/fis.js) ---------- */
+const RM = { X0: -4.5, X1: 4.5, Z0: -7.5, Z1: 7.5, DW: 1.0 }, FPS = 30, V = (x, y, z) => new THREE.Vector3(x, y, z);
+{ const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshStandardMaterial({ color: 0x23272e, roughness: 0.95 })); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.62; ground.receiveShadow = true; scene.add(ground); }
+const wm = new THREE.MeshStandardMaterial({ color: 0xeef0f2, roughness: 0.75 }), cutM = new THREE.MeshStandardMaterial({ color: 0x3b414b, roughness: 0.6 }), HW = 1.45;
+{ const g = new THREE.Group(); scene.add(g); const W = RM.X1 - RM.X0, D = RM.Z1 - RM.Z0, hw = RM.DW / 2, T = 0.3;
+  const PX = 64, c = document.createElement('canvas'); c.width = W * PX; c.height = D * PX; const x = c.getContext('2d');
+  x.fillStyle = '#d4d7db'; x.fillRect(0, 0, c.width, c.height);
+  for (let i = 0; i < 9000; i++) { x.fillStyle = `rgba(${rnd() < .5 ? '90,96,104' : '255,255,255'},0.05)`; x.fillRect(rnd() * c.width, rnd() * c.height, 2, 2); }
+  for (let i = 1; i < W; i++) { x.fillStyle = 'rgba(70,78,90,.10)'; x.fillRect(i * PX - 1, 0, 2, c.height); }
+  for (let j = 1; j < D; j++) { x.fillStyle = 'rgba(70,78,90,.10)'; x.fillRect(0, j * PX - 1, c.width, 2); }
+  { const e = 26; for (const [x0, y0, x1, y1, w, h] of [[0, 0, e, 0, e, c.height], [c.width, 0, c.width - e, 0, e, c.height], [0, c.height, 0, c.height - e, c.width, e], [0, 0, 0, e, c.width, e]]) {
+    const gr = x.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, 'rgba(40,46,56,.22)'); gr.addColorStop(1, 'rgba(40,46,56,0)'); x.fillStyle = gr; x.fillRect(x0 === c.width ? c.width - e : 0, y0 === c.height ? c.height - e : 0, w, h); } }
+  x.strokeStyle = 'rgba(40,160,95,.55)'; x.lineWidth = 7; for (const [X, Y] of [[W / 2, 4.2], [W / 2, 8.2]]) { x.beginPath(); x.moveTo((X - 0.35) * PX, (Y + 0.3) * PX); x.lineTo(X * PX, (Y - 0.1) * PX); x.lineTo((X + 0.35) * PX, (Y + 0.3) * PX); x.stroke(); }
+  const ft = new THREE.CanvasTexture(c); ft.encoding = THREE.sRGBEncoding; ft.anisotropy = 8;
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.MeshStandardMaterial({ map: ft, roughness: 0.62, metalness: 0.02, envMapIntensity: 0.45 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; g.add(floor);
+  const slab = new THREE.Mesh(new THREE.BoxGeometry(W + 3.2, 0.6, D + 8.4), new THREE.MeshStandardMaterial({ color: 0xaeb3ba, roughness: 0.8 })); slab.position.set(0, -0.302, -1.6); slab.receiveShadow = true; g.add(slab);
+  const wall = (x0, z0, x1, z1, h = HW, t = T) => { const L = Math.hypot(x1 - x0, z1 - z0), w = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(L, h, t), wm); b.position.y = h / 2; b.castShadow = b.receiveShadow = true; w.add(b);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(L + 0.002, 0.04, t + 0.002), cutM); cap.position.y = h + 0.02; w.add(cap); w.position.set((x0 + x1) / 2, 0, (z0 + z1) / 2); w.rotation.y = -Math.atan2(z1 - z0, x1 - x0); g.add(w); };
+  wall(RM.X0 - T / 2, RM.Z0 - T, RM.X0 - T / 2, RM.Z1 + T); wall(RM.X1 + T / 2, RM.Z0 - T, RM.X1 + T / 2, RM.Z1 + T); wall(RM.X0 - T, RM.Z1 + T / 2, RM.X1 + T, RM.Z1 + T / 2);
+  wall(RM.X0 - T, RM.Z0 - T / 2, -hw, RM.Z0 - T / 2); wall(hw, RM.Z0 - T / 2, RM.X1 + T, RM.Z0 - T / 2);
+  wall(-hw - 0.08, RM.Z0, -hw - 0.08, RM.Z0 - 0.9, HW, 0.16); wall(hw + 0.08, RM.Z0, hw + 0.08, RM.Z0 - 0.9, HW, 0.16);
+  wall(-0.95, RM.Z0 - 0.9, -0.95, RM.Z0 - 4.3, HW, 0.2); wall(0.95, RM.Z0 - 0.9, 0.95, RM.Z0 - 4.3, HW, 0.2); wall(-hw - 0.16, RM.Z0 - 0.9, -0.85, RM.Z0 - 0.9, HW, 0.2); wall(hw + 0.16, RM.Z0 - 0.9, 0.85, RM.Z0 - 0.9, HW, 0.2);
+  const cor = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 3.6), new THREE.MeshStandardMaterial({ color: 0x8d939b, roughness: 0.7 })); cor.rotation.x = -Math.PI / 2; cor.position.set(0, 0.004, RM.Z0 - 2.4); cor.receiveShadow = true; g.add(cor);
+  const well = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.6, 1.4), new THREE.MeshBasicMaterial({ color: 0x07080a })); well.position.set(0, -0.29, RM.Z0 - 3.7); g.add(well);
+  for (let k = 0; k < 4; k++) { const st = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.03, 0.22), new THREE.MeshStandardMaterial({ color: 0x2a2e35, roughness: 0.8 })); st.position.set(0, 0.006 - k * 0.12, RM.Z0 - 3.1 - k * 0.24); g.add(st); }
+  const sc = document.createElement('canvas'); sc.width = 384; sc.height = 128; const sx = sc.getContext('2d'); sx.fillStyle = '#119a55'; sx.fillRect(0, 0, 384, 128);
+  sx.fillStyle = '#fff'; sx.font = '700 78px Sora, Arial'; sx.textAlign = 'center'; sx.fillText('EXIT', 220, 92); sx.beginPath(); sx.moveTo(40, 64); sx.lineTo(92, 26); sx.lineTo(92, 48); sx.lineTo(118, 48); sx.lineTo(118, 80); sx.lineTo(92, 80); sx.lineTo(92, 102); sx.closePath(); sx.fill();
+  const stt = new THREE.CanvasTexture(sc); stt.encoding = THREE.sRGBEncoding;
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.5, 0.06), [wm, wm, wm, wm, new THREE.MeshBasicMaterial({ map: stt, toneMapped: false }), wm]); sign.position.set(0, HW + 0.62, RM.Z0 - 0.15); sign.rotation.x = -0.75; g.add(sign);
+  for (const s of [-1, 1]) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.42, 0.05), cutM); post.position.set(s * 0.6, HW + 0.21, RM.Z0 - 0.15); g.add(post); } }
+// the pillar: a round concrete column, 0.6 m across (exactly the obstacle in the physics)
+const PILLAR = new THREE.Group(); scene.add(PILLAR);
+{ const PH = 2.5, conc = new THREE.MeshStandardMaterial({ color: 0xa7aeb8, roughness: 0.55 }); const c = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, PH, 40), conc); c.position.y = PH / 2; c.castShadow = c.receiveShadow = true; PILLAR.add(c);
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.302, 0.302, 0.05, 40), new THREE.MeshBasicMaterial({ color: 0xffc23d, toneMapped: false })); cap.position.y = PH + 0.025; PILLAR.add(cap);
+  for (const y of [1.0, 1.9]) { const band = new THREE.Mesh(new THREE.CylinderGeometry(0.305, 0.305, 0.18, 40), new THREE.MeshStandardMaterial({ color: 0xf2c230, roughness: 0.5 })); band.position.y = y; PILLAR.add(band); }
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.34, 0.42, 48), new THREE.MeshBasicMaterial({ color: 0xffb547, transparent: true, opacity: 0, depthWrite: false })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.015; PILLAR.add(ring); PILLAR.userData.ring = ring; }
+
+/* ---------- the four simulated runs (precomputed by tools/precompute.cjs from assets/fis.js; same 200 people, same start, same door) ---------- */
+const b64 = (s, T) => { const bin = atob(s), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new T(u.buffer); };
+const RUN = {};
+for (const [k, r] of Object.entries(RUNS.runs)) {   // decode (15 fps, mm) → 30 fps metres, then derive facing / stride / speed / pressure per person
+  const X15 = b64(r.X, Int16Array), Z15 = b64(r.Z, Int16Array), P15 = b64(r.P, Uint8Array), N = r.N, n15 = r.nF, nF = (n15 - 1) * 2 + 1;
+  const S = { k, N, nF, fps: FPS, pil: r.pil, dl: r.dl, r: r.r, exitT: r.exitT, total: r.total, X: new Float32Array(N * nF), Z: new Float32Array(N * nF), PR: new Float32Array(N * nF), out: new Int32Array(N).fill(-1) };
+  for (let i = 0; i < N; i++) for (let f = 0; f < nF; f++) { const a = i * n15 + (f >> 1), b = i * n15 + Math.min(n15 - 1, (f + 1) >> 1), o = i * nF + f;
+    S.X[o] = (X15[a] + X15[b]) / 2000; S.Z[o] = (Z15[a] + Z15[b]) / 2000; S.PR[o] = (P15[a] + P15[b]) / 2; if (S.out[i] < 0 && S.Z[o] < RM.Z0 - 0.9) S.out[i] = f; }
+  const yaw = new Float32Array(N * nF), dist = new Float32Array(N * nF), spd = new Float32Array(N * nF), heat = new Float32Array(N * nF); let sd2 = 99; const R2 = () => (sd2 = (sd2 * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < N; i++) { const b0 = i * nF, out = S.out[i] >= 0 ? S.out[i] : nF; let y = R2() * 6.28 - 3.14, d = 0, h = 0;
+    for (let f = 0; f < nF; f++) { const b = b0 + f;
+      if (f >= out) { const kk = f - out + 1, bl = b0 + out - 1; S.X[b] = S.X[bl] * Math.pow(0.96, kk); S.Z[b] = S.Z[bl] - kk * 1.6 / FPS; d += 1.6 / FPS; let dy = Math.PI - y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); y += Math.max(-0.25, Math.min(0.25, dy));
+        yaw[b] = y; dist[b] = d; spd[b] = 1.6; heat[b] = 0; continue; }
+      const fp = Math.max(0, f - 3), fn = Math.min(out - 1, f + 3), dtv = Math.max(1, fn - fp) / FPS, vx = (S.X[b0 + fn] - S.X[b0 + fp]) / dtv, vz = (S.Z[b0 + fn] - S.Z[b0 + fp]) / dtv, v = Math.hypot(vx, vz);
+      let ty = null; if (v > 0.2) ty = Math.atan2(vx, vz); else if (f / FPS > S.dl[i]) ty = Math.atan2(-S.X[b], RM.Z0 - S.Z[b]);
+      if (ty !== null) { let dy = ty - y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); const mx = 8 / FPS; y += Math.max(-mx, Math.min(mx, dy)); }
+      if (f > 0) d += Math.hypot(S.X[b] - S.X[b - 1], S.Z[b] - S.Z[b - 1]); h += (S.PR[b] - h) * 0.1;
+      yaw[b] = y; dist[b] = d; spd[b] = v; heat[b] = h; } }
+  Object.assign(S, { yaw, dist, spd, heat }); RUN[k] = S; }
+const fIdx = (S, s) => Math.max(0, Math.min(S.nF - 1, Math.round(s * FPS)));
+const exitedBy = (k, s) => { const e = RUN[k].exitT; let n = 0; while (n < e.length && e[n] <= s) n++; return n; };
+const PIN_P = 200, PIN_V = 0.35, PIN_R = 3.5;   // "pinned at the door": within 3.5 m of the doorway, squeezed by > 8000 N of contact force (smoothed), moving slower than 0.35 m/s
+const nearDoor = (x, z) => Math.hypot(x, z - RM.Z0) < PIN_R;
+const pinnedAt = (k, s) => { const S = RUN[k], f = fIdx(S, s); let n = 0; for (let i = 0; i < S.N; i++) { const b = i * S.nF + f; if (S.Z[b] >= RM.Z0 && S.heat[b] > PIN_P && S.spd[b] < PIN_V && nearDoor(S.X[b], S.Z[b])) n++; } return n; };
+const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+/* ---------- people (same clothes and builds in every run) ---------- */
+const CSHIRT = [0x2d4f8a, 0xe9e6df, 0x8a8f98, 0x3c6e47, 0xd9a23a, 0x2f7f7a, 0x5f6b3a, 0x6e2d3f, 0x6fa3d8, 0x26282c, 0x1d4fa8, 0xc85a2a, 0xe2b4b0, 0x7b4fd6, 0xf3f1ea, 0x1d4fa8];
+const CPANTS = [0x34496b, 0x1f2126, 0x8c7a5b, 0x5a5e66, 0x23314d, 0x2b2b2b, 0x6b5a46];
+const PEOPLE = RUN.none.r.map(r => ({ r, shirt: CSHIRT[(rnd() * CSHIRT.length) | 0], pants: CPANTS[(rnd() * CPANTS.length) | 0], skin: SKIN[(rnd() * SKIN.length) | 0], hairc: HAIRC[(rnd() * HAIRC.length) | 0], h: 0.96 + rnd() * 0.16, seed: rnd(), ph: rnd() * 6.28, x: 0, y: 0, z: 0, yaw: 0 }));
+PEOPLE.forEach(p => p.w = Math.max(0.95, 4.3 * p.r / p.h));
+const CROWD = new Crowd(PEOPLE, 1, G, scene, true);
+const TINTK = Object.keys(CROWD.parts).filter(k => k === 'torso' || k.startsWith('arms') || k === 'armPoint'), RED = LIN(0xe0352b), _c = new THREE.Color();
+function crowdAt(k, s) {   // pose and colour every person at simulated second s of run k; people squeezed and stuck turn red
+  const S = RUN[k], f = fIdx(S, s);
+  CROWD.update((p, i) => { const b = i * S.nF + f; p.x = S.X[b]; p.z = S.Z[b]; p.y = 0; p.yaw = S.yaw[b];
+    if (S.Z[b] < RM.Z0 - 3.4) return { pose: 'hide' };
+    const v = S.spd[b], d = S.dist[b] + p.seed * 3;
+    if (v > 2.7) { const cyc = d / 2.5, fast = Math.min(1, (v - 2) / 3); return { pose: 'run', k: Math.floor(cyc * 8) % 8, lean: 0.08 + 0.14 * fast, bob: Math.abs(Math.sin(cyc * Math.PI * 2)) * 0.05 * fast, headPitch: -0.1 }; }
+    if (v > 0.28) { const cyc = d / 1.35; return { pose: 'walk', k: Math.floor(cyc * 8) % 8, lean: 0.03 + 0.03 * Math.min(1, v / 2), bob: Math.abs(Math.sin(cyc * Math.PI * 2)) * 0.025, headPitch: -0.05 }; }
+    const waiting = f / FPS < S.dl[i], press = Math.min(1, S.heat[b] / 120);
+    return { pose: 'armsDown', lean: 0.04 + 0.1 * press, headYaw: waiting ? Math.sin(f / FPS * 1.1 + p.ph) * 0.5 : Math.sin(f / FPS * 0.9 + p.ph) * 0.18, headPitch: -0.04 }; });
+  PEOPLE.forEach((p, i) => { const b = i * S.nF + f, inside = S.Z[b] >= RM.Z0 - 0.2, red = inside ? clamp01((S.heat[b] - 150) / 70) * clamp01((PIN_R + 0.8 - Math.hypot(S.X[b], S.Z[b] - RM.Z0)) / 1.2) * clamp01((0.9 - S.spd[b]) / 0.5) * 0.92 : 0;
+    _c.copy(LIN(p.shirt)).lerp(RED, red); for (const kk of TINTK) CROWD.parts[kk].setColorAt(i, _c); });
+  for (const kk of TINTK) CROWD.parts[kk].instanceColor.needsUpdate = true; }
+
+/* ---------- 45-second timeline: one fixed camera, four experiments on the same crowd ---------- */
+const TOTAL = 45, CAPL = __LINES__, AVG = RUNS.avg;
+const PW = (pts, t) => { if (t <= pts[0][0]) return pts[0][1]; for (let i = 1; i < pts.length; i++) if (t <= pts[i][0]) { const [a, va] = pts[i - 1], [b, vb] = pts[i]; return va + (vb - va) * (t - a) / (b - a); } return pts[pts.length - 1][1]; };
+const TB = RUN.best.total, TN = RUN.none.total;
+// [start, end, run, screen→simulated-time map, experiment no., title, distance from door (m), off-centre (m), card style]
+const SEG = [
+  [0, 11, 'none', [[0, 0], [3.6, 9], [11, 60]], 1, 'No pillar', null, null, 'bad'],
+  [11, 17, 'close', [[11, 0], [12, 4], [17, 60]], 2, 'Pillar right at the door', 0.7, 0, 'bad'],
+  [17, 23, 'centre', [[17, 0], [18, 4], [23, 60]], 3, 'Pillar further back, dead centre', 1.3, 0, 'bad'],
+  [23, 38, 'best', [[23, 0], [24, 4], [33, 60], [37.2, TB + 0.5], [38, TB + 3]], 4, 'Pillar just off-centre', 1.05, 0.15, 'good'],
+  [38, 43, 'best', [[38, 22], [43, 34]], 4, '', 1.05, 0.15, 'good'],
+];
+const segAt = t => SEG.find(s => t >= s[0] && t < s[1]) || SEG[SEG.length - 1];
+const simAt = t => { const s = segAt(t), v = PW(s[3], t), v2 = PW(s[3], Math.min(s[1] - 1e-3, t + 0.1)); return { seg: s, k: s[2], s: v, rate: Math.round((v2 - v) / 0.1) }; };
+const CAM0 = { p: V(20, 42, 4), t: V(0.3, 0, -3.8), fov: 32 };
+{ const q = new URLSearchParams(location.search).get('cam'); if (q) { const c = JSON.parse(q); CAM0.p = V(...c[0]); CAM0.t = V(...c[1]); CAM0.fov = c[2]; } }
+function camAt(t) { const k = ease(t / 43), rv = ease(ramp(t, 38, 43));
+  const p = CAM0.p.clone().add(V(-0.6 * k, -0.8 * k, -0.6 * k)).lerp(V(13, 27, 0.5), rv * 0.6), tg = CAM0.t.clone().lerp(V(0.3, 0, -5.6), rv * 0.6);
+  camera.fov = CAM0.fov; camera.updateProjectionMatrix(); camera.position.copy(p); camera.lookAt(tg); BOKEH.uniforms.focus.value = p.distanceTo(tg); BOKEH.enabled = false; }
+const show = (id, a) => { $(id).style.opacity = a; $(id).style.visibility = a > 0.001 ? 'visible' : 'hidden'; };
+const slider = (id, v, max) => { $(id + 'v').textContent = v === null ? '—' : v.toFixed(2).replace(/0$/, '') + ' m'; const w = v === null ? 0 : Math.min(100, v / max * 100); $(id + 'u').style.width = w + '%'; $(id + 's').style.left = w + '%'; $(id + 's').style.opacity = v === null ? 0 : 1; };
+$('rAt').textContent = mmss(TN); $('rA').style.width = (TN / 200 * 100) + '%';
+$('revS').innerHTML = `Average of 8 simulated runs: everyone out in <b style="font:inherit;color:#46d18a;display:inline">${mmss(AVG.best.meanTotal)}</b> with the pillar, <b style="font:inherit;color:#ff8a5c;display:inline">${mmss(AVG.none.meanTotal)}</b> without (faster in ${AVG.faster} of 8)`;
+$('disc').textContent = 'Illustrative simulation (social force model, Helbing et al., Nature 2000) · 200 people, one 1 m exit · not evacuation guidance';
+function ui(t, st) {
+  const sg = st.seg, prev = SEG[SEG.indexOf(sg) - 1], cut = t - sg[0];
+  // hook: big question, then the experiment card
+  const qa = 1 - ramp(t, 3.3, 3.6); show('q', t < 3.6 ? Math.min(ramp(t, 0.15, 0.5), qa) : 0);
+  const cardOn = t >= 3.6 && t < 33; show('card', cardOn ? ramp(t, 3.6, 3.9) : 0);
+  if (cardOn) { $('cN').textContent = `EXPERIMENT ${sg[4]} OF 4`; $('cT').textContent = sg[5]; $('card').className = sg[8];
+    const a = prev && prev[4] !== sg[4] && prev[6] !== null ? ease(ramp(cut, 0, 0.45)) : 1, dv = sg[6] === null ? null : prev && prev[6] !== null ? lerp(prev[6], sg[6], a) : sg[6], ov = sg[7] === null ? null : prev && prev[7] !== null ? lerp(prev[7], sg[7], a) : sg[7];
+    slider('sD', dv, 2); slider('sO', ov, 0.5); }
+  show('res', t >= 33 && t < 38 ? ramp(t, 33, 33.3) : 0);
+  if (t >= 33 && t < 38) { const done = st.s >= TB; $('rB').style.width = (Math.min(st.s, TB) / 200 * 100) + '%'; $('rBt').textContent = done ? mmss(TB) : mmss(st.s); }
+  show('chip', t < 38 ? 1 : 1 - ramp(t, 38, 38.3));
+  show('stats', t >= 3.6 && t < 38 ? ramp(t, 3.6, 3.9) * (1 - ramp(t, 37.7, 38)) : 0);
+  $('kO').textContent = exitedBy(st.k, st.s); $('kP').textContent = pinnedAt(st.k, st.s); $('kT').textContent = mmss(Math.min(st.s, st.k === 'best' && st.s > TB ? TB : st.s));
+  $('kR').textContent = st.rate <= 1 ? 'real time' : `×${st.rate} speed`;
+  const rv = ease(ramp(t, 38.2, 38.8)); show('rev', rv); $('rev').style.transform = `translateY(${(1 - rv) * 2}vh)`; show('disc', ease(ramp(t, 38.6, 39.2)));
+  // cut between experiments: a quick white flash, then the pillar rises into its new spot
+  $('flash').style.opacity = SEG.some(s => s[0] > 0 && s[0] < 38 && t >= s[0] && t < s[0] + 0.2) ? 0.45 * (1 - ramp(cut, 0, 0.2)) : 0;
+}
+function renderAt(t) {
+  t = Math.max(0, Math.min(TOTAL - 1e-3, t));
+  if (t < 43) { const st = simAt(t), sg = st.seg; crowdAt(st.k, st.s); camAt(t);
+    const pil = RUN[st.k].pil; PILLAR.visible = !!pil;
+    if (pil) { const prev = SEG[SEG.indexOf(sg) - 1], grow = prev && prev[2] !== sg[2] && sg[0] < 38 ? ease(ramp(t - sg[0], 0.05, 0.45)) : 1; PILLAR.position.set(pil[0], 0, pil[1]); PILLAR.scale.set(1, Math.max(0.001, grow), 1);
+      PILLAR.userData.ring.material.opacity = sg[0] < 38 ? 0.9 * (1 - ramp(t - sg[0], 0.4, 1.6)) : 0; }
+    ui(t, st); composer.render(); }
+  $('hud').style.display = t < 43 ? '' : 'none';
+  const o = $('outro'), ou = t - 43; o.style.opacity = ou < 0 ? 0 : ease(ramp(ou, 0, 0.3));
+  if (ou >= 0) { const pop = (el, a0, a1, s0) => { const v = ease(ramp(ou, a0, a1)); el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 1.2}vh) scale(${s0 + (1 - s0) * v})`; }; pop($('oLogo'), 0.15, 0.65, 0.92); pop($('oName'), 0.4, 0.9, 0.96); pop($('oTag'), 0.65, 1.15, 1); }
+  const ln = [...CAPL].reverse().find(c => t >= c[0] - 0.1 && t < c[1] + 0.6); $('cap').textContent = ln && t >= 3.6 && t < 43 ? ln[2] : '';
+}
+{ const seen = new Set(); scene.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (seen.has(m)) return; seen.add(m); if (m.color && !m.map) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); });
+  if (o.isLight) { o.color.convertSRGBToLinear(); if (o.groundColor) o.groundColor.convertSRGBToLinear(); } }); scene.fog.color.convertSRGBToLinear(); }
+window.__tour = { total: TOTAL, renderAt }; window.__tourReady = () => true;
+window.__simStats = () => { const out = { fps: 30, walk: [], run: [], press: [], exits: [], pinned: [], cuts: SEG.slice(1, 4).map(s => s[0]), doneT: null }; let prevK = null, prevE = 0;   // per video frame, for the sound effects
+  for (let i = 0; i < TOTAL * 30; i++) { const t = i / 30; if (t >= 43) { ['walk', 'run', 'press', 'exits', 'pinned'].forEach(k => out[k].push(0)); continue; }
+    const st = simAt(t), S = RUN[st.k], f = fIdx(S, st.s); let w = 0, r = 0, p = 0, n = 0; for (let j = 0; j < S.N; j++) { const b = j * S.nF + f; if (S.Z[b] < RM.Z0) continue; n++; const v = S.spd[b]; if (v > 2.7) r++; else if (v > 0.28) w++; p += S.heat[b]; }
+    const e = exitedBy(st.k, st.s); out.exits.push(st.k === prevK ? Math.max(0, e - prevE) : 0); prevK = st.k; prevE = e;
+    if (st.k === 'best' && out.doneT === null && st.s >= TB) out.doneT = t;
+    out.walk.push(w); out.run.push(r); out.press.push(n ? p / n / 255 : 0); out.pinned.push(pinnedAt(st.k, st.s)); }
+  return out; };
+})();
+</script>
