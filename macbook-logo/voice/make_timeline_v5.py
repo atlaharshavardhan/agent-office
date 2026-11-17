@@ -3,9 +3,9 @@ Writes chris_v5/voice.wav, timeline.json (B = scene cuts), captions.json and ../
 import json, numpy as np, soundfile as sf
 from pathlib import Path
 ROOT = Path(__file__).parent; HERE = ROOT / 'chris_v5'; SR = 24000
-B = [0, 2, 5, 7, 11, 16.3, 23, 28, 31, 34, 36]        # V5.1 (Harsh): long pauses removed, 36 s; 1 hook · 2 no backlight · 3 into the lid · 4 teardown · 5 LEDs · 6 bounce/spread/shine · 7 reassembly · 8 auto brightness · 9 switch off + loop · 10 brand
-AT = {'l1_1': 0.15, 'l2_1': 1.75, 'l2_2': 3.5, 'l3_1': 5.1, 'l4_1': 6.95, 'l5_1': 11.2, 'l5_2': 14.5,
-      'l6_1': 16.5, 'l6_2': 18.8, 'l6_3': 20.8, 'l7_1': 23.2, 'l8_1': 28.05, 'l9_1': 31.05}
+B = [0, 2, 7.4, 9.4, 13.4, 18.7, 25.4, 30.4, 33.4, 36.4, 38.4]   # V5.2 (Harsh): LCD vs OLED cross-section 2–7.4 s, no long pauses; 38.4 s
+AT = {'l1_1': 0.15, 'l2_1': 1.75, 'l2_2': 4.35, 'l2_3': 6.0, 'l3_1': 7.5, 'l4_1': 9.35, 'l5_1': 13.6, 'l5_2': 16.9,
+      'l6_1': 18.9, 'l6_2': 21.2, 'l6_3': 23.2, 'l7_1': 25.6, 'l8_1': 30.45, 'l9_1': 33.45}
 S = json.load(open(HERE / 'sentences.json'))
 def trim(a, thr=0.012):
     i = np.where(np.abs(a) > thr)[0]; return a[max(0, i[0] - 240): min(len(a), i[-1] + 480)]

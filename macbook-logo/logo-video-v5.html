@@ -4976,7 +4976,7 @@ window.MBP_GLTF = "{\"accessors\": [{\"bufferView\": 2, \"componentType\": 5126,
 </script>
 <script>
 (() => {
-const TL = {"B": [0, 2, 5, 7, 11, 16.3, 23, 28, 31, 34, 36], "total": 36, "outro": 2.0, "voice": "chris_v5"}, CAPS = [[0.15, 1.16, "Apple's glowing logo"], [1.16, 1.56, "is back"], [1.75, 2.5, "But OLED screens"], [2.5, 3.35, "have no backlight"], [3.5, 4.75, "So how does it glow?"], [5.1, 6.01, "The secret is hidden"], [6.01, 6.69, "inside the lid"], [6.95, 8.09, "Behind the display"], [8.09, 9.3, "sits a light source"], [9.3, 10.83, "built just for the logo"], [11.2, 12.36, "Four tiny LEDs"], [12.36, 14.27, "create the entire glow"], [14.5, 15.36, "iFixit found them"], [15.36, 16.12, "along one edge"], [16.5, 17.45, "A reflective layer"], [17.45, 18.51, "bounces their light"], [18.8, 19.41, "a diffuser"], [19.41, 20.5, "spreads it evenly"], [20.8, 21.37, "and it shines"], [21.37, 22.38, "through the whole logo"], [23.2, 23.88, "The result?"], [23.88, 25.1, "One evenly lit logo"], [25.1, 27.07, "with no screen backlight needed"], [28.05, 29.0, "It even dims and brightens"], [29.0, 30.03, "with the light in your room"], [31.05, 32.05, "And one Terminal command"], [32.05, 32.72, "switches it off"]];
+const TL = {"B": [0, 2, 7.4, 9.4, 13.4, 18.7, 25.4, 30.4, 33.4, 36.4, 38.4], "total": 38.4, "outro": 2.0, "voice": "chris_v5"}, CAPS = [[0.15, 1.16, "Apple's glowing logo"], [1.16, 1.56, "is back"], [1.75, 2.97, "Older MacBooks borrowed light"], [2.97, 4.15, "from the screen's backlight"], [4.35, 4.79, "But OLED"], [4.79, 5.72, "has no backlight"], [6.0, 6.51, "So how does"], [6.51, 7.17, "the logo glow?"], [7.5, 8.41, "The secret is hidden"], [8.41, 9.09, "inside the lid"], [9.35, 10.49, "Behind the display"], [10.49, 11.7, "sits a light source"], [11.7, 13.23, "built just for the logo"], [13.6, 14.76, "Four tiny LEDs"], [14.76, 16.67, "create the entire glow"], [16.9, 17.76, "iFixit found them"], [17.76, 18.52, "along one edge"], [18.9, 19.85, "A reflective layer"], [19.85, 20.91, "bounces their light"], [21.2, 21.81, "a diffuser"], [21.81, 22.9, "spreads it evenly"], [23.2, 23.77, "and it shines"], [23.77, 24.78, "through the whole logo"], [25.6, 26.28, "The result?"], [26.28, 27.5, "One evenly lit logo"], [27.5, 29.47, "with no screen backlight needed"], [30.45, 31.4, "It even dims and brightens"], [31.4, 32.43, "with the light in your room"], [33.45, 34.45, "And one Terminal command"], [34.45, 35.12, "switches it off"]];
 const Q = new URLSearchParams(location.search);
 const W = innerWidth, H = innerHeight, TOTAL = TL.total, B = TL.B;
 const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
@@ -5385,6 +5385,29 @@ function studio(k) {   // V5: brighter, crisper studio for the product shots: bl
   rim.color.setHex(0xcfe0ff); rim.intensity = lerp(0.9, 2.1, k); edgeRim.intensity = lerp(1.15, 1.9, k); hemi.intensity = lerp(0.6, 0.95, k); key.intensity = lerp(1.2, 1.6, k);
   renderer.toneMappingExposure = lerp(1.05, 1.22, k); }
 function heading(lines, at, u, hook = true) { if (hook) $('title').classList.add('hook'); title(lines, lines.map((_, i) => at + i * 0.12), u); }
+const CUT = { on: false, plane: new THREE.Plane(), XC: 30 };
+function cutLid(on) {   // V5.2 cross-section: clip every lid part at lid-space x = XC (the logo stays whole), the base is not cut
+  renderer.localClippingEnabled = true;
+  const X = lidPoint(new THREE.Vector3(1, 0, 0)).sub(lidPoint(new THREE.Vector3(0, 0, 0))).normalize(); CUT.plane.setFromNormalAndCoplanarPoint(X.negate(), lidPoint(new THREE.Vector3(CUT.XC, 0, 0)));
+  if (CUT.on === on) return; CUT.on = on;
+  if (!CUT.base) { CUT.base = new Set(); const lidSet = new Set(); LID.traverse(o => lidSet.add(o)); MAC.traverse(o => { if (lidSet.has(o) || !o.material) return; (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => CUT.base.add(m)); });
+    LID.traverse(o => { if (!o.material || o.isSprite) return; if (Array.isArray(o.material)) o.material = o.material.map(m => CUT.base.has(m) && !m.isShaderMaterial ? m.clone() : m); else if (CUT.base.has(o.material) && !o.material.isShaderMaterial) o.material = o.material.clone(); }); }   // the lid gets its own copies of shared materials, so cutting it never cuts the base
+  LID.traverse(o => { if (!o.material || o.isSprite) return; (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { if (m.isShaderMaterial || CUT.base.has(m)) return; m.clippingPlanes = on ? [CUT.plane] : null; m.clipShadows = false; m.needsUpdate = true; }); }); }
+const CMP = { g: null, bly: 26 };
+function compare(sep, old, oled, u) {
+  const k = ease(0.85 * sep), yP = 3.6 + LAYER_Y.oled * k, yS = 7.25 + LAYER_Y.shell * k, yB = lerp(yP + 2, yS - 2, 0.45); CMP.bly = yB;
+  if (!CMP.g) { CMP.g = new THREE.Group(); LID.add(CMP.g);
+    CMP.sheet = new THREE.Mesh(new THREE.BoxGeometry(272, 1.2, 172), new THREE.MeshBasicMaterial({ color: 0xfff4dc, transparent: true, opacity: 0, depthWrite: false, toneMapped: false })); CMP.g.add(CMP.sheet);
+    CMP.edge = new THREE.LineSegments(new THREE.EdgesGeometry(CMP.sheet.geometry), new THREE.LineBasicMaterial({ color: 0xffd9a0, transparent: true, opacity: 0 })); CMP.sheet.add(CMP.edge);
+    CMP.down = []; CMP.up = [];
+    for (let i = 0; i < 6; i++) for (let j = 0; j < 4; j++) { const t = tube(new THREE.Vector3(), new THREE.Vector3(), 0.7, 0xffe7bf, 0.85); t.userData.x = -75 + i * 18; t.userData.z = 40 + j * 40; CMP.g.add(t); CMP.down.push(t); }
+    for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2, r = i % 3 === 0 ? 0 : 9; const t = tube(new THREE.Vector3(), new THREE.Vector3(), 0.8, 0xfff6e8, 0.95); t.userData.x = LOGO_C.x + Math.cos(a) * r; t.userData.z = LOGO_C.z + Math.sin(a) * r * 1.1; CMP.g.add(t); CMP.up.push(t); } }
+  CMP.g.visible = old > 0.01; if (!CMP.g.visible) return;
+  CMP.sheet.position.set(0, yB, 104); CMP.sheet.material.opacity = 0.75 * old; CMP.edge.material.opacity = 0.9 * old;
+  const flowK = f => clamp01((u - 0.95 - f) / 0.45);   // the light travels out from the backlight
+  CMP.down.forEach((t, n) => { t.userData.a.set(t.userData.x, yB - 0.8, t.userData.z); t.userData.b.set(t.userData.x, yP - 26, t.userData.z); setTube(t, flowK(0.04 * (n % 3)), 0.8 * old); });   // through the LCD panel, out of the screen
+  CMP.up.forEach((t, n) => { t.userData.a.set(t.userData.x, yB + 0.8, t.userData.z); t.userData.b.set(t.userData.x, yS + 34, t.userData.z); setTube(t, flowK(0.15 + 0.03 * n), old); });   // some of it out through the logo window
+}
 const BL = { g: null };
 function shellCut(c) {   // V5 cutaway: the aluminium back (with the logo) turns to faint glass so a camera behind the lid can see the layers
   SHELL.traverse(o => { if (!o.isMesh || !o.material || o.isSprite) return; const m = o.material;
@@ -5407,17 +5430,29 @@ const SHOTS = [
     BLOOM.strength = lerp(0.2, 0.3, k); BLOOM.radius = 0.15;   // crisp logo edges, soft halo only
     heading(['THE GLOW', '<em>IS BACK</em>'], 0.0, u + 0.35);   // fully on by ~0.1 s (no slow build)
   }],
-  [B[1], B[2], u => { // 2. MYSTERY: old LCD MacBooks lit the logo with the screen's backlight; OLED has none, yet the logo glows. "NO BACKLIGHT?"
-    tapeOff(0); lidOpen(OPEN); explode(0); room(0); ledOn([]); diffGlow(0); studio(lerp(1, 0.5, ramp(u, 0, 1.2)));
-    const k = smoother(u / 3), x = ease(ramp(u, 0.0, 0.45));
-    setXray(x, true); LAYERS.visible = false; logoGlow(1);
-    const old = ease(ramp(u, 0.15, 0.45)) * (1 - ease(ramp(u, 1.05, 1.4)));   // old LCD: backlight on
-    backlight(old); screenOn(lerp(0.15, 0.6, old) + 0.55 * ease(ramp(u, 1.3, 1.7)), 0.8 * ease(ramp(u, 1.4, 1.9)));   // OLED: each pixel lights itself, light only goes forward
-    const nb = ease(ramp(u, 1.35, 1.7)); NOBL.visible = nb > 0.01; NOBL.userData.parts.forEach(m => m.material.opacity = (m.isLineSegments ? 0.9 : 0.55) * nb);
-    VO = 0; orbit(tSide(), lerp(HOOK_END.yaw, 78, k), lerp(HOOK_END.pitch, 15, k), lerp(HOOK_END.dist, 1250, k));
-    sideTags([['old', 'Old MacBooks: LCD backlight', lidPoint(new THREE.Vector3(-100, 26, 150)), -1, old, 'big', -170],
-              ['oled', 'OLED: no backlight', lidPoint(new THREE.Vector3(-100, 26, 150)), -1, nb, 'red big', -170]]);
-    if (u > 1.05) heading(['NO <em>BACKLIGHT?</em>'], 1.1, u);
+  [B[1], B[2], u => { // 2. LCD vs OLED cross-section (V5.2, Harsh): old MacBooks shared the screen's backlight with the logo; OLED has none
+    tapeOff(0); lidOpen(OPEN); room(0); ledOn([]); diffGlow(0); studio(lerp(1, 0.35, ease(ramp(u, 0, 0.45))));
+    const sep = smoother(ramp(u, 0.15, 0.95)) * (1 - smoother(ramp(u, 4.55, 5.3)));   // layers part, then close again before scene 3
+    const x = ease(ramp(u, 0.1, 0.6)) * (1 - ease(ramp(u, 4.7, 5.3)));
+    explode(0.85 * sep); setXray(x, true); LAYERS.visible = sep > 0.02; cutLid(sep > 0.02); GHOST.forEach(o => { if (o.parent && o.parent.userData.lid) o.visible = false; });
+    hemi.intensity = lerp(hemi.intensity, 0.3, sep); key.intensity = lerp(key.intensity, 0.55, sep); renderer.toneMappingExposure = lerp(renderer.toneMappingExposure, 1.0, sep);   // keep the aluminium dark; only the light glows
+    [TOUCH, FOAM, REFL, DIFF].forEach(L => L.visible = false);   // only the three parts this story needs: screen panel, backlight, aluminium back
+    const old = ease(ramp(u, 0.75, 1.15)) * (1 - ease(ramp(u, 2.3, 2.65)));   // LCD era: the backlight is on
+    const oled = ease(ramp(u, 2.55, 2.95)) * (1 - ease(ramp(u, 4.6, 5.0)));
+    compare(sep, old, oled, u);
+    logoGlow(1); screenOn(0.12 + 0.5 * old + 0.55 * oled, 0.85 * oled); screenLight.intensity *= 0.2;   // no white flood on the keyboard
+    const nb = oled; NOBL.visible = nb > 0.01; NOBL.position.y = CMP.bly - 26; NOBL.userData.parts.forEach(m => m.material.opacity = (m.isLineSegments ? 0.9 : 0.35) * nb);
+    const kin = smoother(ramp(u, 0, 0.9)), kout = smoother(ramp(u, 4.4, 5.4)), tgt = lidPoint(new THREE.Vector3(CUT.XC, 52 * sep, 104));
+    const cam = { yaw: lerp(lerp(HOOK_END.yaw, 62, kin), 78, kout), pitch: lerp(lerp(HOOK_END.pitch, 16, kin), 15, kout), dist: lerp(lerp(HOOK_END.dist, 980, kin), 1250, kout) };
+    VO = 0; orbit(tSide().lerp(tgt, sep), cam.yaw + 4 * ramp(u, 1, 4.4), cam.pitch, cam.dist);
+    const P = (x, y, z) => lidPoint(new THREE.Vector3(x, y, z));
+    sideTags([['lcd', 'LCD panel', P(20, 3.6 + LAYER_Y.oled * ease(0.85 * sep), 150), -1, old, 'big', -60],
+              ['bl', 'LED backlight', P(20, CMP.bly, 150), -1, old, 'acc big', 40],
+              ['lid', 'Aluminium lid + logo window', P(10, 7.25 + LAYER_Y.shell * ease(0.85 * sep), 60), 1, old, 'big', -120],
+              ['px', 'OLED: pixels make their own light', P(20, 3.6 + LAYER_Y.oled * ease(0.85 * sep), 150), -1, oled, 'big', -60],
+              ['nb', '✕  No backlight', P(20, CMP.bly, 150), -1, oled, 'red big', 40],
+              ['lg', 'Logo still glows?', P(10, 7.25 + LAYER_Y.shell * ease(0.85 * sep), 60), 1, ease(ramp(u, 3.9, 4.2)) * (1 - ease(ramp(u, 4.7, 5.0))), 'acc big', -120]]);
+    if (u < 2.45) heading(['SHARED <em>BACKLIGHT</em>'], 0.35, u); else heading(['NO <em>BACKLIGHT?</em>'], 2.5, u);
   }],
   [B[2], B[3], u => { // 3. INTO THE LID: from the side, swing round to face the glowing logo and move in; the aluminium turns to glass (cutaway) and the layers start to part
     rim.intensity = 1.3; rim.color.setHex(0xdfe6f0); tapeOff(0); lidOpen(OPEN); room(0); ledOn([]); diffGlow(0); screenOn(1, 0);
@@ -5520,12 +5555,12 @@ function optics(u, d) {   // V4 scene 5 (bounce → spread → shine), kept as i
             ['b2', 'Diffuser', lidPoint(new THREE.Vector3(LOGO_C.x + 40, 6 + LAYER_Y.diff, LOGO_C.z)), 1, ease(ramp(u, 2.6, 3.0)) * (1 - ease(ramp(u, 3.7, 4.0))), 'big', -260],
             ['b3', '✓  Even glow', lidPoint(LOGO_C.clone().add(new THREE.Vector3(0, LAYER_Y.shell, 0))), 1, ease(ramp(u, 4.0, 4.4)), 'green big']]);
 }
-const DES = [2, 3, 3, 4, 5, 0, 6, 4, 3, 2];   // V5.1: each scene's animation was designed on these lengths (0 = real seconds); stretched onto the tighter grid
+const DES = [2, 0, 3, 4, 5, 0, 6, 4, 3, 2];   // V5.1: each scene's animation was designed on these lengths (0 = real seconds); stretched onto the tighter grid
 const CUTS = [B[4]];   // V5: every scene flows into the next; one short dip only into the LED macro
 function renderAt(t) {
   t = Math.max(0, Math.min(TOTAL - 1e-3, t)); TNOW = t; DRIFT = 0;
   const i = SHOTS.findIndex(s => t >= s[0] && t < s[1]), [a, b, fn] = SHOTS[i];
-  camera.zoom = 1; RIPPLES.forEach(m => m.visible = false); if (BEAMS.all) BEAMS.all.forEach(g => g.visible = false); LED_STREAKS.forEach(m => m.visible = false); if (LOGO_STREAK) LOGO_STREAK.visible = false; if (DIFF.userData.mesh) { DIFF.userData.mesh.material.emissive.setHex(0xffffff); DIFF.userData.mesh.material.color.setHex(0xf2f6fc); DIFF.userData.mesh.material.opacity = 0.72; DIFF.userData.mesh.children.forEach(c => c.material && (c.material.opacity = 0.2)); DIFF.userData.halo.material.color.setHex(0xffffff); } hideTags(); if (SCREEN_IMG) SCREEN_IMG.visible = false; $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0); backlight(0); shellCut(0);
+  camera.zoom = 1; RIPPLES.forEach(m => m.visible = false); if (BEAMS.all) BEAMS.all.forEach(g => g.visible = false); LED_STREAKS.forEach(m => m.visible = false); if (LOGO_STREAK) LOGO_STREAK.visible = false; if (DIFF.userData.mesh) { DIFF.userData.mesh.material.emissive.setHex(0xffffff); DIFF.userData.mesh.material.color.setHex(0xf2f6fc); DIFF.userData.mesh.material.opacity = 0.72; DIFF.userData.mesh.children.forEach(c => c.material && (c.material.opacity = 0.2)); DIFF.userData.halo.material.color.setHex(0xffffff); } hideTags(); if (SCREEN_IMG) SCREEN_IMG.visible = false; $('title').classList.remove('hook'); PIXM.visible = false; NOBL.visible = false; RINGS.forEach(r => r.visible = false); HOTS.forEach(h => h.visible = false); POOLS.forEach(pl => pl.material.opacity = 0); flow(FLOW.a, 0, 0, 0); flow(FLOW.b, 0, 0, 0); terminal(0, 0, 0, 0); renderer.domElement.style.filter = ''; DIFF.visible = true; SHELL.visible = true; BLOOM.strength = 0.36; BLOOM.radius = 0.35; hemi.intensity = 0.6; key.intensity = 1.2; edgeRim.intensity = 1.15; renderer.toneMappingExposure = 1.05; rim.intensity = 0.9; rim.color.setHex(0x8fa8ff); END.a = 0; END.brand = 0; END.screen = 0; END.card = 0; END.outro = -1; roomCard(0, 0, 0); switchCard(0, 1); title([], [], 0); backlight(0); shellCut(0); [TOUCH, FOAM, REFL].forEach(L => L.visible = true); NOBL.position.y = 0; if (CMP.g) CMP.g.visible = false; if (CUT.on) cutLid(false);
   RAYS.led.concat(RAYS.bounce, RAYS.spread).forEach(R => R.t.visible = false);
   fn(DES[i] ? (t - a) * DES[i] / (b - a) : t - a, DES[i] || b - a);
   note(i === 4 ? 'Source: iFixit teardown · 3D, not to scale · not affiliated with Apple' : i === 8 ? 'Command: Apple Support · not affiliated with Apple' : i === 7 ? 'Behaviour: Apple Support · 3D illustration' : '3D illustration · not to scale · not affiliated with Apple', i >= 9 ? 0 : 1);

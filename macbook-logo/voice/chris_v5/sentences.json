@@ -8,14 +8,17 @@
  {
   "line": 2,
   "file": "l2_1.wav",
-  "text": "But OLED screens | have no backlight.",
-  "dur": 1.672
+  "text": "Older MacBooks borrowed light | from the screen's backlight."
  },
  {
   "line": 2,
   "file": "l2_2.wav",
-  "text": "So how does it glow?",
-  "dur": 1.718
+  "text": "But OLED | has no backlight."
+ },
+ {
+  "line": 2,
+  "file": "l2_3.wav",
+  "text": "So how does | the logo glow?"
  },
  {
   "line": 3,

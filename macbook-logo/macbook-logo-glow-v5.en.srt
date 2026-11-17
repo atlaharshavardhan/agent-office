@@ -3,50 +3,54 @@
 Apple's glowing logo is back.
 
 2
-00:00:01,750 --> 00:00:03,350
-But OLED screens have no backlight.
+00:00:01,750 --> 00:00:04,150
+Older MacBooks borrowed light from the screen's backlight.
 
 3
-00:00:03,500 --> 00:00:04,750
-So how does it glow?
+00:00:04,350 --> 00:00:05,720
+But OLED has no backlight.
 
 4
-00:00:05,100 --> 00:00:06,690
-The secret is hidden inside the lid.
+00:00:06,000 --> 00:00:07,170
+So how does the logo glow?
 
 5
-00:00:06,950 --> 00:00:10,830
-Behind the display sits a light source built just for the logo.
+00:00:07,500 --> 00:00:09,090
+The secret is hidden inside the lid.
 
 6
-00:00:11,200 --> 00:00:14,270
-Four tiny LEDs create the entire glow.
+00:00:09,350 --> 00:00:13,230
+Behind the display sits a light source built just for the logo.
 
 7
-00:00:14,500 --> 00:00:16,120
-iFixit found them along one edge.
+00:00:13,600 --> 00:00:16,670
+Four tiny LEDs create the entire glow.
 
 8
-00:00:16,500 --> 00:00:18,510
-A reflective layer bounces their light,
+00:00:16,900 --> 00:00:18,520
+iFixit found them along one edge.
 
 9
-00:00:18,800 --> 00:00:20,500
-a diffuser spreads it evenly,
+00:00:18,900 --> 00:00:20,910
+A reflective layer bounces their light,
 
 10
-00:00:20,800 --> 00:00:22,380
-and it shines through the whole logo.
+00:00:21,200 --> 00:00:22,900
+a diffuser spreads it evenly,
 
 11
-00:00:23,200 --> 00:00:27,070
-The result? One evenly lit logo, with no screen backlight needed.
+00:00:23,200 --> 00:00:24,780
+and it shines through the whole logo.
 
 12
-00:00:28,050 --> 00:00:30,030
-It even dims and brightens with the light in your room.
+00:00:25,600 --> 00:00:29,470
+The result? One evenly lit logo, with no screen backlight needed.
 
 13
-00:00:31,050 --> 00:00:32,720
+00:00:30,450 --> 00:00:32,430
+It even dims and brightens with the light in your room.
+
+14
+00:00:33,450 --> 00:00:35,120
 And one Terminal command switches it off.
 

@@ -53,13 +53,13 @@ def chime():   # soft sonic logo: two bell notes
 
 
 # V5.1 (Harsh): long pauses removed; the effects were placed on the 40 s grid, so map them onto the 36 s grid (scene by scene, plus the spread/shine phrases)
-_O = [0, 2, 5, 8, 12, 17, 20.0, 22.1, 25, 31, 35, 38, 40]; _N = [0, 2, 5, 7, 11, 16.3, 18.8, 20.75, 23, 28, 31, 34, 36]
+_O = [0, 2, 5, 8, 12, 17, 20.0, 22.1, 25, 31, 35, 38, 40]; _N = [0, 2, 7.4, 9.4, 13.4, 18.7, 21.2, 23.15, 25.4, 30.4, 33.4, 36.4, 38.4]   # V5.2
 M = lambda t: float(np.interp(t, _O, _N))
 def P(buf, sig, t0, *a, **k): place(buf, sig, M(t0), *a, **k)
 # 1 hook (0–2): the logo is already lit on frame 1 – subtle activation + one restrained impact
 P(sfx, activate(988, 0.4), 0.0, 0.22); P(sfx, impact(52, 1.1), 0.02, 0.45); P(sfx, shimmer(1.4, 2100), 0.05, 0.1)
-# 2 no backlight (2–5): old backlight hums on, switches off; OLED pixels light; the question lands
-P(sfx, hum(0.9), 2.1, 0.12); P(sfx, glow_on(0.8), 2.15, 0.14); P(sfx, click(0.9), 3.05, 0.35, -0.3); P(sfx, shimmer(1.0, 1500), 3.3, 0.12); P(sfx, impact(60, 0.6), 3.1, 0.2)
+# 2 LCD vs OLED (2–7.4, V5.2): layers part, the backlight hums on and its light travels out; it switches off, OLED pixels light; the lid closes on the question
+place(sfx, click(0.8), 2.25, 0.28, -0.3); place(sfx, hum(1.4), 2.75, 0.13); place(sfx, glow_on(1.0), 2.8, 0.16); place(sfx, shimmer(1.2, 1500), 2.95, 0.1); place(sfx, click(0.9), 4.3, 0.35, 0.3); place(sfx, impact(60, 0.6), 4.5, 0.2); place(sfx, shimmer(1.0, 2200), 4.6, 0.1); place(sfx, click(0.8), 6.6, 0.3, -0.2)
 # 3 into the lid (5–8): the aluminium turns to glass, the layers start to part
 P(sfx, shimmer(1.4, 1300), 6.0, 0.13); P(sfx, impact(70, 0.6), 6.7, 0.22)
 # 4 teardown (8–12): a soft click as each label arrives
