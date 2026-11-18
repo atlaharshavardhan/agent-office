@@ -95,68 +95,65 @@ def build():
     sc.render.use_motion_blur = True; sc.render.motion_blur_shutter = 0.35
     sc.view_settings.view_transform = "AgX"
     # ---- environment: graphite table + soft backdrop for separation
-    table, pt = C.principled("Graphite", "#111820", metallic=0.15, rough=0.5, coat=0.08)
+    table, pt = C.principled("Graphite", "#0B1015", metallic=0.15, rough=0.5, coat=0.08)
     C.micro_roughness(table, pt, 0.5, 0.08, 18, 0.004)
     put(C.box("Table", (400, 300, 2), (0, 40, -1), table), "S1_ENVIRONMENT")
     back = bpy.data.materials.new("Backdrop"); back.use_nodes = True
     bp_ = back.node_tree.nodes["Principled BSDF"]; bp_.inputs["Base Color"].default_value = C.hex_rgba("#080C10")
     bp_.inputs["Emission Color"].default_value = C.hex_rgba("#16202A"); bp_.inputs["Emission Strength"].default_value = 0.35
     bd = C.box("Backdrop", (400, 2, 200), (0, 90, 60), back); put(bd, "S1_ENVIRONMENT")
-    # ---- identity card: brushed titanium plaque on a slim graphite stand, name engraved
-    ti = brushed("Titanium", "#9AA2AB", rough=0.3)
-    ink = C.principled("EngraveInk", "#1A2028", metallic=0.6, rough=0.45)[0]
-    card = C.box("ProfileCard", (19, 0.55, 12), (0, 0, 0), ti, 0.18, 4); put(card, "S1_IDENTITY_CARD")
-    card.location = (-6, 0, 7.6); card.rotation_euler = (math.radians(-14), 0, math.radians(8))
-    stand = C.box("CardStand", (14, 3, 1.2), (-6, 1.4, 0.6), C.principled("StandGraphite", "#0E141A", metallic=0.4, rough=0.3)[0], 0.3, 3)
-    put(stand, "S1_IDENTITY_CARD")
-    fx = lambda x, z: (x, -0.3, z)                            # card-local front-face positions
-    for ob in (text("ALICE HUANG", 2.05, fx(0, 1.6), (math.radians(90), 0, 0), ink, spacing=1.05),
-               text("PROFILE", 0.62, fx(-6.6, 4.3), (math.radians(90), 0, 0), ink, align="LEFT", spacing=1.6)):
-        ob.parent = card
-    line = text("FORMER EXECUTIVE  ·  MEGASPEED", 0.78, fx(0, -1.4), (math.radians(90), 0, 0),
-                fade_mat("RoleInk", "#2A333D", (F(84), F(96)), metallic=0.5), spacing=1.25); line.parent = card
-    green_rule = C.box("CardRule", (13, 0.05, 0.08), fx(0, -0.1), C.principled("RuleGreen", "#76B900", rough=0.3)[0])
-    green_rule.data.materials.clear(); green_rule.data.materials.append(fade_mat("RuleFade", "#76B900", (F(84), F(92)), emit=("#76B900", 2.0)))
-    green_rule.parent = card; put(green_rule, "S1_IDENTITY_CARD")
-    # ---- Megaspeed plaque (text only; rises from the table in beat 3)
-    dark_al = brushed("AnodizedDark", "#2B323B", rough=0.32, aniso=0.5)
-    plaque = C.box("MegaspeedPlaque", (14, 0.5, 4.6), (0, 0, 0), brushed("TitaniumPlaque", "#8E97A1", rough=0.3), 0.15, 4); put(plaque, "S1_CONNECTIONS")
-    pl_txt = text("MEGASPEED", 1.7, (0, -0.28, 0), (math.radians(90), 0, 0), C.principled("PlaqueInk", "#1A2028", metallic=0.6, rough=0.45)[0], spacing=1.15, cname="S1_CONNECTIONS")
+    # ---- V2 layout: GPU large in the foreground, Alice's dark identity slab behind it (layered parallax)
+    slab_m = brushed("DarkBrushedSteel", "#2C333C", rough=0.27, aniso=0.65)
+    ink = C.principled("EngravedLight", "#DCE2E9", metallic=0.7, rough=0.3)[0]
+    card = C.box("IdentitySlab", (24, 1.8, 13), (0, 0, 0), slab_m, 0.35, 5); put(card, "S1_IDENTITY_CARD")
+    card.location = (-3.5, 5, 6.5); card.rotation_euler = (math.radians(-7), 0, math.radians(6))
+    name = text("ALICE HUANG", 2.6, (0, -0.95, 0.4), (math.radians(90), 0, 0), ink, extrude=0.04, spacing=1.06); name.parent = card
+    accent = C.box("SlabAccent", (5.5, 0.05, 0.12), (0, -0.92, -2.2), fade_mat("AccentGreen", "#76B900", (F(0), F(8)), emit=("#76B900", 1.2)))
+    accent.parent = card; put(accent, "S1_IDENTITY_CARD")
+    # ---- Megaspeed: same dark-metal language, rises in beat 3 (text only)
+    plaque = C.box("MegaspeedPlaque", (16, 1.4, 5.2), (0, 0, 0), brushed("DarkBrushedSteel2", "#323A44", rough=0.28, aniso=0.6), 0.3, 5)
+    put(plaque, "S1_CONNECTIONS")
+    pl_txt = text("MEGASPEED", 1.9, (0, -0.75, 0), (math.radians(90), 0, 0), ink, extrude=0.03, spacing=1.15, cname="S1_CONNECTIONS")
     pl_txt.parent = plaque
-    plaque.rotation_euler = (math.radians(-10), 0, math.radians(-4))
-    for f, z in ((F(0), -7.0), (F(86), -7.0), (F(104), 5.2)):
-        plaque.location = (9.5, 9, z); plaque.keyframe_insert("location", frame=f)
-    # ---- the GPU (reused): tilted toward camera on a low display stand
+    plaque.rotation_euler = (math.radians(-6), 0, math.radians(-10))
+    for f, z in ((F(0), -8.0), (F(84), -8.0), (F(100), 2.6)):
+        plaque.location = (19, 7.5, z); plaque.keyframe_insert("location", frame=f)
+    # ---- GPU (reused) in the foreground, tilted toward camera; support block hidden behind it
     gcoll = gpu_asset()
-    gpu = gpu_instance(gcoll, (8, -12, 3.6), (math.radians(38), 0, math.radians(-14)), 1.3, "S1_GPU")
+    gpu = gpu_instance(gcoll, (0, -13, 4.4), (math.radians(40), 0, math.radians(-6)), 1.6, "S1_GPU")
     put(gpu, "S1_NVIDIA_GPU")
-    put(C.box("GpuStand", (11, 8, 1.4), (8, -10.4, 0.7), C.principled("StandGraphite2", "#0E141A", metallic=0.4, rough=0.3)[0], 0.3, 3), "S1_NVIDIA_GPU")
-    # ---- connection lines Alice -> Megaspeed -> NVIDIA (grow in beat 3)
+    put(C.box("HiddenSupport", (6, 3, 4.0), (0, -9.6, 2.0), C.principled("SupportGraphite", "#0B1015", rough=0.6)[0], 0.2, 2), "S1_NVIDIA_GPU")
+    # ---- restrained illuminated connections (no arrowheads): Alice - Megaspeed - NVIDIA
     glow = bpy.data.materials.new("ConnGlow"); glow.use_nodes = True
     g = glow.node_tree.nodes["Principled BSDF"]; g.inputs["Base Color"].default_value = C.hex_rgba("#76B900")
-    g.inputs["Emission Color"].default_value = C.hex_rgba("#76B900"); g.inputs["Emission Strength"].default_value = 6.0
-    l1 = bez("Conn_Alice_Megaspeed", [Vector((3.4, 1.5, 3.0)), Vector((3.2, 6, 3.4)), Vector((2.6, 8.6, 3.4))], glow)
-    l2 = bez("Conn_Megaspeed_NVIDIA", [Vector((14.5, 8.6, 3.4)), Vector((13.5, 0, 3.4)), Vector((10.0, -7.4, 3.0))], glow)
-    for lo, (a, b) in ((l1, (F(98), F(112))), (l2, (F(108), F(124)))):
+    g.inputs["Emission Color"].default_value = C.hex_rgba("#76B900"); g.inputs["Emission Strength"].default_value = 3.0
+    P1 = [Vector((8.4, 3.4, 2.0)), Vector((9.8, 5.2, 1.3)), Vector((11.2, 7.0, 1.4))]
+    P2 = [Vector((21.0, 6.2, 1.4)), Vector((17.5, -4.5, 1.1)), Vector((9.2, -9.8, 2.4))]
+    l1 = bez("Conn_Alice_Megaspeed", P1, glow, 0.045); l2 = bez("Conn_Megaspeed_NVIDIA", P2, glow, 0.045)
+    for lo, (a, b) in ((l1, (F(96), F(110))), (l2, (F(104), F(120)))):
         lo.data.bevel_factor_end = 0.0; lo.data.keyframe_insert("bevel_factor_end", frame=a)
         lo.data.bevel_factor_end = 1.0; lo.data.keyframe_insert("bevel_factor_end", frame=b)
-    # ---- lighting: product-photo setup
+    # ---- lighting: brighter soft key, overhead strip, separation, restrained green rim
     L = []
-    L.append(S.area_light("Key", (-30, -45, 45), (0, 2, 4), 60, 3.2e4, "#FFF4E8", size_y=45))
-    L.append(S.area_light("Fill", (40, -40, 20), (2, 2, 4), 70, 7.0e3, "#DCE6F2", size_y=50))
-    L.append(S.area_light("RimGreen", (0, 45, 38), (2, 2, 7), 70, 5.0e3, "#76B900", size_y=14))
-    L.append(S.area_light("DieReflector", (8, 8, 26), (8, -12, 3.6), 40, 6.0e3, "#EAF2FF", size_y=26))
-    L.append(S.area_light("MacroKick", (2, -20, 14), (8, -12, 3.6), 12, 1.6e3, "#FFFFFF", size_y=12))
-    L.append(S.area_light("TopStrip", (2, 4, 60), (2, 4, 0), 90, 1.2e4, "#FFFFFF", size_y=6))
-    L.append(S.area_light("CardSweep", (-40, -30, 22), (-6, 0, 7.6), 6, 0.0, "#FFFFFF", size_y=40))
+    L.append(S.area_light("Key", (-35, -50, 48), (0, -4, 5), 80, 5.0e4, "#FFF4E8", size_y=60))
+    L.append(S.area_light("Fill", (45, -45, 22), (2, -4, 5), 80, 1.6e4, "#DCE6F2", size_y=60))
+    L.append(S.area_light("TopStrip", (2, -4, 62), (2, -4, 0), 110, 3.0e4, "#FFFFFF", size_y=7))
+    L.append(S.area_light("Separation", (-10, 40, 40), (0, 5, 6), 80, 2.2e4, "#C9D6E6", size_y=30))
+    L.append(S.area_light("RimGreen", (25, 35, 30), (2, 0, 5), 50, 4.0e3, "#76B900", size_y=12))
+    L.append(S.area_light("DieReflector", (0, 12, 30), (0, -13, 4.4), 46, 1.2e4, "#EAF2FF", size_y=30))
+    L.append(S.area_light("PlaqueKey", (30, -24, 30), (19, 7.5, 2.6), 30, 1.1e4, "#FFFFFF", size_y=30))
+    L.append(S.area_light("SlabSweep", (-45, -30, 24), (-3.5, 5, 6.5), 6, 0.0, "#FFFFFF", size_y=44))
     for o in L:
         put(o, "S1_LIGHTING")
-    sw = L[-1]                                              # light sweep across the brushed card (beat 1)
-    for f, x, e in ((F(0), -40, 0), (F(4), -34, 9e3), (F(32), 22, 9e3), (F(40), 30, 0)):
+    sw = L[-1]
+    for f, x, e in ((F(0), -45, 0), (F(3), -38, 1.4e4), (F(34), 24, 1.4e4), (F(42), 32, 0)):
         sw.location.x = x; sw.data.energy = e
         sw.keyframe_insert("location", index=0, frame=f); sw.data.keyframe_insert("energy", frame=f)
-    S.build_world().inputs["Strength"].default_value = 0.05
-    # ---- camera: lens + position + focus, Bezier eased, continuous
+    bd_m = bpy.data.materials.get("Backdrop")
+    if bd_m:
+        bd_m.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.6
+    S.build_world().inputs["Strength"].default_value = 0.08
+    # ---- camera
     cam_d = bpy.data.cameras.new("S1_Cam"); cam = bpy.data.objects.new("S1_Cam", cam_d)
     bpy.context.scene.collection.objects.link(cam); put(cam, "S1_CAMERA"); sc.camera = cam
     tgt = bpy.data.objects.new("S1_LookAt", None); bpy.context.scene.collection.objects.link(tgt); put(tgt, "S1_CAMERA")
@@ -164,31 +161,44 @@ def build():
     tc = cam.constraints.new("TRACK_TO"); tc.target = tgt; tc.track_axis = "TRACK_NEGATIVE_Z"; tc.up_axis = "UP_Y"
     cam_d.sensor_width = 36; cam_d.sensor_fit = 'HORIZONTAL'; cam_d.clip_start = 0.5; cam_d.clip_end = 2000
     cam_d.dof.use_dof = True; cam_d.dof.focus_object = foc
+    GP, CD = (0, -13, 4.4), (-3.5, 5, 6.5)
     keys = [  # spec frame, cam pos, look-at, lens, focus point, f-stop
-        (0,   (-9.5, -40, 11.0), (-5.4, 0, 6.6), 55, (-6, 0, 7.6), 4.0),
-        (35,  (-8.0, -35, 10.5), (-5.0, 0, 6.8), 58, (-6, 0, 7.6), 4.0),
-        (83,  (15.0, -37, 13.0), (5.0, -6, 4.0), 46, (8, -12, 3.6), 4.0),
-        (128, (4.0, -44, 18.0), (3.0, 0.0, 4.8), 34, (3, 0, 5), 8.0),
-        (141, (8.5, -17.6, 9.0), (8.0, -11.7, 3.9), 68, (8.0, -11.7, 3.9), 11.0),
-        (149, (8.4, -17.0, 8.6), (8.0, -11.7, 3.9), 72, (8.0, -11.7, 3.9), 11.0),
+        (0,   (5.0, -50, 15.0), (-0.5, -3.5, 6.0), 44, GP, 8.0),
+        (35,  (3.5, -44, 14.0), (-0.5, -3.0, 6.0), 46, CD, 8.0),
+        (62,  (18.0, -38, 13.0), (0.5, -5.0, 5.5), 46, GP, 6.0),
+        (83,  (22.0, -27, 12.0), (1.0, -8.0, 4.8), 50, GP, 6.0),
+        (100, (12.0, -52, 19.0), (7.0, -0.5, 5.0), 40, (8, 0, 4), 11.0),
+        (118, (10.0, -56, 20.0), (7.0, 0.0, 5.0), 38, (8, 0, 4), 11.0),
+        (128, (9.0, -54, 19.0), (6.5, -0.5, 5.0), 38, (8, 0, 4), 11.0),
+        (141, (0.8, -24.0, 9.6), (0.0, -13.4, 4.2), 68, (0, -13.4, 4.2), 11.0),
+        (149, (0.6, -22.8, 9.0), (0.0, -13.4, 4.2), 72, (0, -13.4, 4.2), 11.0),
     ]
     for n, p, l, lens, fp, fs in keys:
         f = F(n)
         cam.location = p; tgt.location = l; foc.location = fp; cam_d.lens = lens; cam_d.dof.aperture_fstop = fs
         cam.keyframe_insert("location", frame=f); tgt.keyframe_insert("location", frame=f); foc.keyframe_insert("location", frame=f)
         cam_d.keyframe_insert("lens", frame=f); cam_d.dof.keyframe_insert("aperture_fstop", frame=f)
-    # tiny drift before frame 0 so motion exists at the very first frame
-    for ob, path in ((cam, "location"), (tgt, "location"), (foc, "location")):
+    for ob in (cam, tgt, foc):
         ad = ob.animation_data
         if ad and ad.action:
             for fc in fcurves(ad.action):
                 fc.extrapolation = "LINEAR"
+    # ---- screen-space anchors for the Remotion labels (so labels sit exactly on the 3D lines)
+    from bpy_extras.object_utils import world_to_camera_view
+    import json
+    anchors = {}
+    for fr in range(1, 151):
+        sc.frame_set(fr)
+        def sp(v):
+            c = world_to_camera_view(sc, cam, Vector(v)); return [round(c.x * 1080, 1), round((1 - c.y) * 1920, 1)]
+        anchors[fr - 1] = {"l1": sp(l1.matrix_world @ P1[1]), "l2": sp(l2.matrix_world @ P2[1]), "plaque": sp(plaque.matrix_world.translation)}
+    (C.ROOT / "remotion/src/s1/anchors.json").write_text(json.dumps(anchors))
     out = C.ROOT / "blender/s1_alice_mystery.blend"
     bpy.ops.wm.save_as_mainfile(filepath=str(out))
     print("[built]", out, "samples", SAMPLES, "final", FINAL, flush=True)
     if STILLS:
         od = Path(STILLS); od.mkdir(parents=True, exist_ok=True)
-        for n in (0, 36, 84, 129, 149):
+        for n in (0, 20, 36, 62, 84, 100, 118, 129, 149):
             sc.frame_set(F(n)); sc.render.filepath = str(od / f"frame-{n:03d}.png")
             bpy.ops.render.render(write_still=True); print("[still]", n, flush=True)
 
