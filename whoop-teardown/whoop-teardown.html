@@ -607,7 +607,7 @@ function bandGeo() {
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
   g.setIndex(idx); g.computeVertexNormals(); return { g, thA };
 }
-let BAND_LOOP = null;
+let BAND_LOOP = null, BAND_ENDS = null;
 function ribbonGeo(curve, width, thick, N = 48) {   // flat band (width along x) swept along a curve in the y–z plane
   const hw = width / 2, ht = thick / 2, cr = 0.6, prof = [];
   const corner = (cx, cy, a0) => { for (let k = 0; k <= 3; k++) { const a = a0 + k / 3 * Math.PI / 2; prof.push([cx + Math.cos(a) * cr, cy + Math.sin(a) * cr]); } };
@@ -626,6 +626,7 @@ const knitMat = () => phys({ color: 0xffffff, map: knitTex, bumpMap: knitBump, b
 BAND = addPart('band', 104, { az: 0.6, el: 0.5, k: 1.7 }, [FRAME.W / 2, POD.H + 0.8, -6], g => {
   // wrist loop (stays on the arm when the layers lift)
   BAND_LOOP = new THREE.Group(); g.add(BAND_LOOP);
+  BAND_ENDS = new THREE.Group(); g.add(BAND_ENDS);
   const { g: bg, thA } = bandGeo(); mesh(bg, knitMat(), 0, 0, 0, BAND_LOOP);
   // band ends wrap up around both ends of the pod and run under the frame into the top strip (no gap)
   const T = 1.9, ends = [thA, Math.PI - thA];
@@ -634,7 +635,7 @@ BAND = addPart('band', 104, { az: 0.6, el: 0.5, k: 1.7 }, [FRAME.W / 2, POD.H + 
     const foot = new THREE.Vector3(0, s0.y + s0.ny * T / 2, s0.z + s0.nz * T / 2);
     const pts = [new THREE.Vector3(0, POD.H + 0.35, sg * (FRAME.L / 2 - 3.0)), new THREE.Vector3(0, POD.H + 0.1, sg * (FRAME.L / 2 + 0.7)),
       new THREE.Vector3(0, POD.H - 1.2, sg * (FRAME.L / 2 + 1.35)), new THREE.Vector3(0, 2.2, sg * (FRAME.L / 2 + 1.45)), foot];
-    mesh(ribbonGeo(new THREE.CatmullRomCurve3(pts), BAND_HALF * 2, T), knitMat(), 0, 0, 0, BAND_LOOP);
+    mesh(ribbonGeo(new THREE.CatmullRomCurve3(pts), BAND_HALF * 2, T), knitMat(), 0, 0, 0, BAND_ENDS);
   });
   // knit strip running over the top of the pod
   const st = knitMat(); st.map = knitTex.clone(); st.map.needsUpdate = true; st.map.repeat.set(1 / 6, 1 / 6); st.bumpMap = knitBump.clone(); st.bumpMap.needsUpdate = true; st.bumpMap.repeat.set(1 / 6, 1 / 6);
@@ -656,7 +657,7 @@ BAND = addPart('band', 104, { az: 0.6, el: 0.5, k: 1.7 }, [FRAME.W / 2, POD.H + 
   window.__bandTh = thA;
 });
 { // camera framing + label for the band card use the lifted frame and strip only, not the whole loop
-  const b = new THREE.Box3(); BAND.group.children.forEach(o => { if (o !== BAND_LOOP) b.expandByObject(o); });
+  const b = new THREE.Box3(); BAND.group.children.forEach(o => { if (o !== BAND_LOOP && o !== BAND_ENDS) b.expandByObject(o); });
   BAND.center = b.getCenter(new THREE.Vector3()); BAND.radius = b.getBoundingSphere(new THREE.Sphere()).radius;
 }
 const ORDER = ['band', 'top', 'battery', 'board', 'sensor', 'bottom'];
@@ -669,7 +670,7 @@ parts.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id)).forEach((p, i) =
 const HULL = (() => { const g = new THREE.ExtrudeGeometry(rrShape(IN.W, IN.L, IN.R), { depth: CAV.y1 - CAV.y0, bevelEnabled: false, curveSegments: 28 }); flat(g); g.translate(0, CAV.y0, 0);
   return new THREE.Mesh(g, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })); })();
 window.__inside = () => {
-  const saved = parts.map(p => p.group.position.clone()); parts.forEach(p => p.group.position.set(0, 0, 0)); root.updateMatrixWorld(true); HULL.updateMatrixWorld(true);
+  const saved = parts.map(p => p.group.position.clone()), sy = root.scale.y; root.scale.set(1, 1, 1); parts.forEach(p => p.group.position.set(0, 0, 0)); root.updateMatrixWorld(true); HULL.updateMatrixWorld(true);
   const rc = new THREE.Raycaster(), v = new THREE.Vector3(), out = {}; let total = 0;
   const dirs = [[1, .013, .021], [-1, .017, -.011], [.012, 1, .019], [-.016, -1, .013], [.011, .014, 1], [-.019, .012, -1]].map(d => new THREE.Vector3(...d).normalize());
   parts.filter(p => INTERNAL_IDS.has(p.id)).forEach(p => p.group.traverse(o => {
@@ -678,7 +679,7 @@ window.__inside = () => {
       let exits = 0; for (const d of dirs) { rc.set(v, d); const h = rc.intersectObject(HULL, false)[0]; if (h && h.face.normal.clone().transformDirection(HULL.matrixWorld).dot(d) > 0) exits++; }
       if (exits < 6) bad++; }
     if (bad) { const c = new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()); out[p.id + ':' + o.geometry.type + '@' + c.toArray().map(x => x.toFixed(1)).join(',')] = bad + '/' + pa.count; } }));
-  parts.forEach((p, i) => p.group.position.copy(saved[i])); return { tested: total, outside: out };
+  parts.forEach((p, i) => p.group.position.copy(saved[i])); root.scale.set(1, sy, 1); return { tested: total, outside: out };
 };
 
 /* ---------------- View / state ---------------- */
@@ -709,7 +710,10 @@ SENSOR.flip = 0;
 const lift = (p, e) => { const k = ORDER.indexOf(p.id); return k >= 5 ? 0 : clamp01(e * 1.5 - k * 0.1); };
 function applyExplode(e) {
   parts.forEach(p => p.group.position.copy(p.offset).multiplyScalar(lift(p, e)));
-  BAND_LOOP.position.set(0, -BAND.group.position.y, 0);
+  // closed on the wrist the pod is shown slimmer (illustrative); it grows back to full size as the layers come apart
+  const sq = 1 - 0.3 * (1 - sstep(0, 0.3, e)); root.scale.set(1, sq, 1);
+  BAND_LOOP.position.set(0, -BAND.group.position.y, 0); BAND_LOOP.scale.set(1, 1 / sq, 1);   // wrist loop never changes
+  BAND_ENDS.position.set(0, -BAND.group.position.y, 0);
   // close-up only: turn the sensor board over (about its own centre) so the LEDs face the camera
   const a = -1.95 * ease(clamp01(SENSOR.flip)) * clamp01((e - 0.6) / 0.4);
   _fq.setFromEuler(_fe.set(a, 0, 0)); SENSOR.group.quaternion.copy(_fq);
