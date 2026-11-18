@@ -29,7 +29,7 @@ const Root = () => (
     <Composition id="AliceMs" component={MsPreview} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="AliceChain" component={ChainPreview} durationInFrames={30} fps={30} width={1080} height={1920} />
     {['S2a','S2b','S2c','S3','S4','S7'].map((k) => <Composition key={k} id={'V4' + k} component={F2[k]} durationInFrames={60} fps={30} width={1080} height={1920} />)}
-    <Composition id="V4Open" component={V4Open} durationInFrames={60} fps={30} width={1080} height={1920} />
+    <Composition id="V4Open" component={V4Open} durationInFrames={150} fps={30} width={1080} height={1920} />
     <Composition id="V4Remote" component={V4Remote} durationInFrames={60} fps={30} width={1080} height={1920} />
     <Composition id="AliceMain" component={AliceMain} durationInFrames={ALICE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="AliceS8" component={AliceS8} durationInFrames={105} fps={30} width={1080} height={1920} />

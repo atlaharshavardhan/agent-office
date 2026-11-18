@@ -16,11 +16,17 @@ const Packets = ({ curve, n, t, speed, color, size = 0.05, back = false }) => [.
 
 // ---------- Opening: physical GPU blocked at the line, digital stream passes over it
 export const V4Open = () => {
-  const f = useCurrentFrame(), t = f / 30 + 1.2;
-  const cam = [2.2 + Math.sin(t * 0.3) * 0.1, 2.3, 5.6], look = [-0.15, 0.05, 0];
+  const f = useCurrentFrame(), t = f / 30;
+  const ez = (x) => { x = clamp(x); return 1 - Math.pow(1 - x, 3); };
+  // 0-1.2 s chip slides in and hits the wall (small bounce); 1.0-2.6 s blue stream draws over; 2.4 s name card
+  const slide = ez(t / 1.2), hit = t > 1.2 ? Math.exp(-(t - 1.2) * 6) * Math.sin((t - 1.2) * 30) * 0.03 : 0;
+  const chipX = lerp(-1.05, -0.55, slide) - hit;
+  const draw = clamp((t - 1.0) / 1.6), card = clamp((t - 2.4) / 0.4), flash = t > 1.15 && t < 1.5 ? 1 - (t - 1.15) / 0.35 : 0;
+  const cam = [1.7 + t * 0.06, 1.9, 4.4 - t * 0.1], look = [-0.15, 0.25, 0];
   const P = projector(cam, look, 38);
-  const arc = useMemo(() => new THREE.QuadraticBezierCurve3(new THREE.Vector3(-1.5, 0.35, 0), new THREE.Vector3(0.1, 1.9, -0.1), new THREE.Vector3(1.6, 0.35, 0)), []);
-  const [bx, by] = P([0.25, 1.2, 0.9]); const [gx, gy] = P([-0.6, 0.0, 0.1]); const [dx, dy] = P([1.45, 0.75, 0]);
+  const arc = useMemo(() => new THREE.QuadraticBezierCurve3(new THREE.Vector3(-1.3, 0.4, 0), new THREE.Vector3(0.15, 1.45, -0.1), new THREE.Vector3(1.5, 0.4, 0)), []);
+  const part = useMemo(() => (draw > 0.01 ? new THREE.CatmullRomCurve3(arc.getPoints(40).slice(0, Math.max(2, Math.round(40 * draw)))) : null), [draw]);
+  const [bx, by] = P([0.25, 1.16, 0.9]); const [gx, gy] = P([chipX, 0.78, 0.1]); const [dx, dy] = P([1.3, 0.75, 0]);
   return (
     <AbsoluteFill style={{ background: `radial-gradient(ellipse at 50% 42%, #142131, ${V.bg} 70%)` }}>
       <FontFace />
@@ -29,24 +35,24 @@ export const V4Open = () => {
         <StudioEnv />
         <ambientLight intensity={0.35} />
         <directionalLight position={[-3, 6, 4]} intensity={2.2} castShadow />
-        <pointLight position={[-0.8, 1.2, 1.2]} color={V.green} intensity={6} distance={4} />
+        <pointLight position={[chipX, 0.8, 0.6]} color={V.green} intensity={2.5} distance={1.6} />
+        <pointLight position={[0.2, 0.9, 0.4]} color={V.red} intensity={3 * flash} distance={1.4} />
         <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[20, 20]} /><meshStandardMaterial color="#0c1218" metalness={0.5} roughness={0.35} /></mesh>
-        {/* export line: glass barrier */}
-        <mesh position={[0.25, 0.55, 0]}><boxGeometry args={[0.04, 1.1, 1.8]} /><meshPhysicalMaterial color={V.red} transparent opacity={0.28} roughness={0.1} /></mesh>
+        <mesh position={[0.25, 0.55, 0]}><boxGeometry args={[0.04, 1.1, 1.8]} /><meshPhysicalMaterial color={V.red} transparent opacity={0.28 + 0.3 * flash} roughness={0.1} /></mesh>
         <mesh position={[0.25, 1.11, 0]}><boxGeometry args={[0.06, 0.03, 1.8]} /><meshBasicMaterial color={V.red} /></mesh>
         <mesh position={[0.25, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.06, 1.8]} /><meshBasicMaterial color={V.red} /></mesh>
-        {/* the physical chip, stopped */}
-        <GpuModel scale={0.055} position={[-0.6, 0.3, 0.1]} rotation={[0.35, 0.4, 0]} />
-        {/* digital computing passes over */}
-        <mesh><tubeGeometry args={[arc, 80, 0.012, 8, false]} /><meshBasicMaterial color={V.blue} transparent opacity={0.45} /></mesh>
-        <Packets curve={arc} n={14} t={t} speed={0.35} color={V.blue} size={0.045} />
+        <GpuModel scale={0.08} position={[chipX, 0.32, 0.1]} rotation={[0.35, 0.4, 0]} />
+        {part && <mesh><tubeGeometry args={[part, 60, 0.012, 8, false]} /><meshBasicMaterial color={V.blue} transparent opacity={0.55} /></mesh>}
+        {draw >= 1 && <Packets curve={arc} n={14} t={t} speed={0.35} color={V.blue} size={0.045} />}
       </ThreeCanvas>
       <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 210, textAlign: 'center' }}>
         <div style={{ font: `800 112px/1 ${FONT}`, letterSpacing: -3, color: V.text, textShadow: '0 6px 30px #000' }}>WHO IS</div>
         <div style={{ font: `800 112px/1 ${FONT}`, letterSpacing: -3, color: V.text, textShadow: '0 6px 30px #000' }}>ALICE HUANG?</div>
       </div>
-      {/* identity card: verified role, silhouette (no likeness) */}
-      <div style={{ position: 'absolute', left: SAFE.l, top: 1050, display: 'flex', gap: 16, alignItems: 'center', background: 'rgba(17,24,32,.92)', border: '1px solid #26313d', borderRadius: 16, padding: '14px 18px' }}>
+      <div style={{ position: 'absolute', left: bx, top: by - 46, transform: 'translateX(-95%)', font: `800 28px ${BODY}`, color: V.red, letterSpacing: 2, whiteSpace: 'nowrap', textShadow: '0 2px 8px #000', opacity: clamp(t / 0.6) }}>EXPORT CONTROLS</div>
+      <div style={{ position: 'absolute', left: gx, top: gy - 30, transform: 'translateX(-50%)', font: `800 26px ${BODY}`, color: V.green, whiteSpace: 'nowrap', textShadow: '0 2px 8px #000', display: 'flex', alignItems: 'center', gap: 10 }}><NvLogo h={30} /><span style={{ opacity: clamp((t - 1.2) / 0.3) }}>physical chip ✗</span></div>
+      <div style={{ position: 'absolute', left: dx, top: dy - 70, transform: 'translateX(-60%)', font: `800 26px ${BODY}`, color: V.blue, whiteSpace: 'nowrap', textShadow: '0 2px 8px #000', opacity: clamp((t - 2.4) / 0.3) }}>computing power ✓</div>
+      <div style={{ position: 'absolute', left: SAFE.l, top: 1110, display: 'flex', gap: 16, alignItems: 'center', background: 'rgba(17,24,32,.92)', border: '1px solid #26313d', borderRadius: 16, padding: '14px 18px', opacity: card, transform: `translateY(${(1 - card) * 24}px)` }}>
         <div style={{ width: 92, height: 110, borderRadius: 10, background: '#05070a', display: 'flex', alignItems: 'center', justifyContent: 'center', font: `800 60px ${FONT}`, color: V.red }}>?</div>
         <div>
           <div style={{ font: `800 40px ${FONT}`, color: V.text }}>Alice Huang</div>
@@ -54,11 +60,8 @@ export const V4Open = () => {
           <div style={{ marginTop: 6 }}><MegaspeedLogo h={30} sub={false} /></div>
         </div>
       </div>
-      <div style={{ position: 'absolute', left: bx, top: by - 40, transform: 'translateX(-50%)', font: `800 28px ${BODY}`, color: V.red, letterSpacing: 2, whiteSpace: 'nowrap', textShadow: '0 2px 8px #000' }}>EXPORT CONTROLS</div>
-      <div style={{ position: 'absolute', left: gx, top: gy + 10, transform: 'translateX(-50%)', font: `800 26px ${BODY}`, color: V.green, whiteSpace: 'nowrap', textShadow: '0 2px 8px #000' }}>physical chip ✗</div>
-      <div style={{ position: 'absolute', left: dx, top: dy - 70, transform: 'translateX(-60%)', font: `800 26px ${BODY}`, color: V.blue, whiteSpace: 'nowrap', textShadow: '0 2px 8px #000' }}>computing power ✓</div>
-      <div style={{ position: 'absolute', right: 200, top: 1080 }}><NvLogo h={40} /></div>
-      <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 1300, textAlign: 'center', font: `800 60px ${BODY}`, color: V.text, textShadow: '0 4px 18px #000' }}>Who is Alice Huang?</div>
+      <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 1300, textAlign: 'center', font: `800 60px ${BODY}`, color: V.text, textShadow: '0 4px 18px #000' }}>{t < 1.6 ? 'Who is Alice Huang,' : t < 3.2 ? 'and why did her NVIDIA link' : 'draw scrutiny?'}</div>
+      <div style={{ position: 'absolute', left: SAFE.l, top: 1528, font: `600 22px ${BODY}`, color: 'rgba(244,246,248,.6)' }}>Illustration · not affiliated with NVIDIA or Megaspeed</div>
     </AbsoluteFill>
   );
 };
