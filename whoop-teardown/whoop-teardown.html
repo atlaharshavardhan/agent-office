@@ -199,7 +199,7 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // specs: plain string = verified; ['text', true] = unverified (shown in amber)
 const INFO = {
   top: { name: 'Top shell', role: 'A sealed matte lid, hidden under the band.',
-    body: 'The whole pod is about 34.7 × 24 × 10.6 mm and the device weighs about 26.5 g. There is nothing to press and nothing to read: the band does its work silently and sends everything to your phone. The shell is sealed for an IP68 rating, so it can go swimming down to 10 metres.',
+    body: 'The whole device is about 34.7 × 24 × 10.6 mm, band strip on top included, and weighs about 26.5 g. There is nothing to press and nothing to read: the band does its work silently and sends everything to your phone. The shell is sealed for an IP68 rating, so it can go swimming down to 10 metres.',
     specs: ['About 34.7 × 24 × 10.6 mm', 'About 26.5 g', 'IP68, water-resistant to 10 m'] },
   battery: { name: 'Battery', role: 'Most of the height is battery.', illus: 'Illustrative cell',
     body: 'The cell fills most of the space under the lid. WHOOP quotes about 14 days on one charge. Reports say 5.0 uses a silicon-anode cell, which stores more energy in the same space, but WHOOP has not confirmed the chemistry, so the cell shown here is only an example.',
@@ -348,11 +348,11 @@ function boardTex(w, l, seed, edge = true) {   // navy solder mask with faint tr
 const navy = (w, l, seed) => phys({ color: 0xffffff, map: boardTex(w, l, seed), metalness: 0.05, roughness: 0.55, clearcoat: 0.6, clearcoatRoughness: 0.18, envMapIntensity: 0.8 });
 
 /* ---------------- Pod dimensions (mm). Pod bottom (skin contact) at y = 0. ---------------- */
-const POD = { W: 24, L: 34.7, H: 10.6, R: 6.2 };
+const POD = { W: 24, L: 34.7, H: 9.2, R: 6.2 };   // H = pod body; with the band strip on top the whole device is about 10.6 mm
 const WALL = 1.0;
 const IN = { W: POD.W - 2 * WALL, L: POD.L - 2 * WALL, R: POD.R - WALL };
 const SPLIT = 4.0;                     // seam between bottom housing and top shell
-const CAV = { y0: 1.6, y1: 8.6 };      // free space inside: above the bottom plate, below the lid
+const CAV = { y0: 1.6, y1: 7.6 };      // free space inside: above the bottom plate, below the lid
 const root = new THREE.Group(); scene.add(root);
 const parts = [];
 const SHELL_IDS = new Set(['top', 'bottom']), INTERNAL_IDS = new Set(['battery', 'board', 'sensor']);
@@ -381,12 +381,12 @@ function addGhosts(p) { const list = []; p.group.traverse(o => { if (o.isMesh &&
 
 /* 2. Top shell: matte dark lid with soft, rounded top edges (plain: no logo); it sits under the band */
 const TOP = addPart('top', 80, { az: 0.55, el: 0.42, k: 2.3 }, [POD.W / 2, 8, 0], g => {
-  mesh(ring(POD.W, POD.L, POD.R, IN.W, IN.L, IN.R, SPLIT + 0.12, POD.H - 1.0), M.topShell, 0, 0, 0, g);
-  mesh(pillow(POD.W, POD.L, POD.R, 2.0, 0.95), M.topShell, 0, POD.H - 1.0, 0, g);
+  mesh(ring(POD.W, POD.L, POD.R, IN.W, IN.L, IN.R, SPLIT + 0.12, POD.H - 0.8), M.topShell, 0, 0, 0, g);
+  mesh(pillow(POD.W, POD.L, POD.R, 1.6, 0.75), M.topShell, 0, POD.H - 0.8, 0, g);
 });
 
 /* 2. Battery: brushed-steel pouch, amber Kapton band, small protection board and a flex down to the main board */
-const BAT_Y0 = 4.95, BAT_Y1 = 8.45;
+const BAT_Y0 = 4.8, BAT_Y1 = 7.45;
 const BATTERY = addPart('battery', 58, { az: 0.6, el: 0.5, k: 2.2 }, [9.8, (BAT_Y0 + BAT_Y1) / 2, 0], g => {
   const h = BAT_Y1 - BAT_Y0, yc = (BAT_Y0 + BAT_Y1) / 2;
   const brushTex = canvasTex(256, 256, (x, w, hh) => { x.fillStyle = '#b9bec5'; x.fillRect(0, 0, w, hh); const r = rng(7); for (let i = 0; i < 900; i++) { x.strokeStyle = `rgba(${r() < .5 ? '255,255,255' : '60,64,70'},${(r() * .18).toFixed(3)})`; x.beginPath(); const yy = r() * hh; x.moveTo(0, yy); x.lineTo(w, yy + (r() - .5) * 3); x.stroke(); } });
@@ -400,11 +400,11 @@ const BATTERY = addPart('battery', 58, { az: 0.6, el: 0.5, k: 2.2 }, [9.8, (BAT_
   const lab = new THREE.Mesh(new THREE.PlaneGeometry(12, 8.5), new THREE.MeshStandardMaterial({ map: labelTex([['Li-ion cell', 30], ['ILLUSTRATIVE', 22]], '#121418', '#c9ced6', 256, 180), metalness: 0.1, roughness: 0.5 }));
   lab.rotation.x = -Math.PI / 2; lab.position.set(0, BAT_Y1 + 0.01, -6.5); g.add(lab);
   // protection board + gold tabs at the +z end
-  const pcm = mesh(pillow(15, 1.9, 0.6, 1.0, 0.15), navy(15, 1.9, 11), 0, 6.2, 14.7, g);
-  for (const sx of [-4, 4]) box(3, 0.15, 1.6, M.gold, sx, 6.82, 14.6, g);
+  const pcm = mesh(pillow(15, 1.9, 0.6, 1.0, 0.15), navy(15, 1.9, 11), 0, 5.9, 14.7, g);
+  for (const sx of [-4, 4]) box(3, 0.15, 1.6, M.gold, sx, 6.52, 14.6, g);
   // flex tail down to the board connector
   const fl = new THREE.Shape(); fl.moveTo(-2.2, 0); fl.lineTo(2.2, 0); fl.lineTo(2.2, 0.12); fl.lineTo(-2.2, 0.12);
-  const path = new THREE.CatmullRomCurve3([new THREE.Vector3(5.5, 6.0, 15.0), new THREE.Vector3(5.5, 5.3, 15.6), new THREE.Vector3(5.5, 4.65, 14.6), new THREE.Vector3(5.5, 4.5, 12.6)]);
+  const path = new THREE.CatmullRomCurve3([new THREE.Vector3(5.5, 5.6, 15.0), new THREE.Vector3(5.5, 5.1, 15.6), new THREE.Vector3(5.5, 4.65, 14.6), new THREE.Vector3(5.5, 4.5, 12.6)]);
   mesh(new THREE.TubeGeometry(path, 24, 0.12, 4), M.flex, 0, 0, 0, g).scale.set(1, 1, 1);
   box(4.2, 0.12, 2.6, M.flex, 5.5, 4.55, 13.4, g);
   box(3.6, 0.4, 1.8, M.black, 5.5, 4.35, 12.4, g);   // plug
@@ -617,10 +617,10 @@ BAND = addPart('band', 104, { az: 0.6, el: 0.5, k: 1.7 }, [FRAME.W / 2, POD.H + 
   const st = knitMat(); st.map = knitTex.clone(); st.map.needsUpdate = true; st.map.repeat.set(1 / 6, 1 / 6); st.bumpMap = knitBump.clone(); st.bumpMap.needsUpdate = true; st.bumpMap.repeat.set(1 / 6, 1 / 6);
   const strip = mesh(pillow(POD.W - 0.2, FRAME.L - 1.6, 4, 1.5, 0.5), st, 0, POD.H + 0.7, -1.2, g); strip.userData.glassy = true;
   // polished metal frame around the pod
-  const fr = mesh(ring(FRAME.W, FRAME.L, FRAME.R, POD.W + 0.1, POD.L + 0.1, POD.R + 0.05, SPLIT + 1.2, POD.H + 1.1), M.chrome, 0, 0, 0, g); fr.userData.glassy = true;
+  const fr = mesh(ring(FRAME.W, FRAME.L, FRAME.R, POD.W + 0.1, POD.L + 0.1, POD.R + 0.05, POD.H - 2.4, POD.H + 1.1), M.chrome, 0, 0, 0, g); fr.userData.glassy = true;
   const lip = mesh(pillow(FRAME.W, FRAME.L, FRAME.R, 0.9, 0.42, [[POD.W - 1.2, POD.L - 1.2, POD.R - 0.6]]), M.chrome, 0, POD.H + 1.05, 0, g); lip.userData.glassy = true;
   // curved clasp plate across one end (plain: no logo)
-  const pl = mesh(pillow(FRAME.W - 0.1, 7.4, 2.4, 1.7, 0.8), M.chrome, 0, POD.H + 1.0, FRAME.L / 2 - 4.1, g); pl.userData.glassy = true;
+  const pl = mesh(pillow(FRAME.W - 0.1, 7.4, 2.4, 1.5, 0.7), M.chrome, 0, POD.H + 0.85, FRAME.L / 2 - 4.1, g); pl.userData.glassy = true;
   window.__bandTh = thA;
 });
 { // camera framing + label for the band card use the lifted frame and strip only, not the whole loop
