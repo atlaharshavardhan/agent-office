@@ -25,3 +25,4 @@ remotion/public/s1f/j/
 remotion/public/s1f/gpuA/
 remotion/public/s1f/gpuB/
 renders/s1_final/render.log
+renders/s1_final/gpuB/*.png  # in-progress render; force-added when complete
