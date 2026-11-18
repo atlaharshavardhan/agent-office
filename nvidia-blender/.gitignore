@@ -21,3 +21,7 @@ renders/queue_v2.log
 renders/alice_*/
 renders/alice_here.log
 renders/s1/
+remotion/public/s1f/j/
+remotion/public/s1f/gpuA/
+remotion/public/s1f/gpuB/
+renders/s1_final/render.log

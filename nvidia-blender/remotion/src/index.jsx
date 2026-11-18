@@ -13,6 +13,7 @@ import { S1AliceMystery } from './s1/S1AliceMystery';
 import { S1V4 } from './s1/S1V4';
 import { S1Shot3 } from './s1/S1Shot3';
 import { S1Motion } from './s1/S1Motion';
+import { S1Final } from './s1/S1Final';
 import { StoryChain, MegaspeedLogo } from './alice/Logos';
 import { FontFace } from './ui';
 const MsPreview = () => <div style={{ position: 'absolute', inset: 0, background: '#0b0c0e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 80 }}><FontFace /><MegaspeedLogo h={110} /><div style={{ background: '#E9E4D8', padding: 30 }}><MegaspeedLogo h={70} light={false} /></div></div>;
@@ -34,6 +35,7 @@ const Root = () => (
     <Composition id="AliceChain" component={ChainPreview} durationInFrames={30} fps={30} width={1080} height={1920} />
     {['S2a','S2b','S2c','S3','S4','S7'].map((k) => <Composition key={k} id={'V4' + k} component={F2[k]} durationInFrames={60} fps={30} width={1080} height={1920} />)}
     <Composition id="S1Motion" component={S1Motion} durationInFrames={150} fps={30} width={1080} height={1920} />
+    <Composition id="S1Final" component={S1Final} durationInFrames={150} fps={30} width={1080} height={1920} />
     <Composition id="S1Shot3" component={S1Shot3} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="S1V4" component={S1V4} durationInFrames={150} fps={30} width={1080} height={1920} />
     <Composition id="S1AliceMystery" component={S1AliceMystery} durationInFrames={150} fps={30} width={1080} height={1920} />
