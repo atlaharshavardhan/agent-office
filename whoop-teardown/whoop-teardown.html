@@ -589,7 +589,7 @@ const knitBump = canvasTex(256, 256, (x, w, h) => weave(x, w, h, '#1a1a1a', () =
 knitBump.wrapS = knitBump.wrapT = THREE.RepeatWrapping;
 function bandGeo() {
   // find where the band leaves the skin next to each end of the pod
-  let thA = Math.PI / 2; while (section(0, thA).z < FRAME.L / 2 - 0.4) thA -= 0.002;
+  let thA = Math.PI / 2; while (section(0, thA).z < FRAME.L / 2 + 1.4) thA -= 0.002;
   const span = Math.PI + 2 * thA, NT = 220, prof = [];
   const T0 = 0.06, T1 = 1.9, HW = BAND_HALF, cr = 0.7;
   // profile: rounded rect in (dx, dr), counter-clockwise
@@ -608,11 +608,34 @@ function bandGeo() {
   g.setIndex(idx); g.computeVertexNormals(); return { g, thA };
 }
 let BAND_LOOP = null;
+function ribbonGeo(curve, width, thick, N = 48) {   // flat band (width along x) swept along a curve in the y–z plane
+  const hw = width / 2, ht = thick / 2, cr = 0.6, prof = [];
+  const corner = (cx, cy, a0) => { for (let k = 0; k <= 3; k++) { const a = a0 + k / 3 * Math.PI / 2; prof.push([cx + Math.cos(a) * cr, cy + Math.sin(a) * cr]); } };
+  corner(hw - cr, -ht + cr, -Math.PI / 2); corner(hw - cr, ht - cr, 0); corner(-hw + cr, ht - cr, Math.PI / 2); corner(-hw + cr, -ht + cr, Math.PI);
+  const NP = prof.length, pos = [], uv = [], idx = []; let arc = 0, prev = null;
+  for (let i = 0; i <= N; i++) {
+    const t = i / N, P = curve.getPoint(t), Tn = curve.getTangent(t); if (prev) arc += P.distanceTo(prev); prev = P;
+    const n = new THREE.Vector3(0, -Tn.z, Tn.y).normalize();   // in-plane normal
+    for (let j = 0; j <= NP; j++) { const [dx, dn] = prof[j % NP]; pos.push(dx, P.y + n.y * dn, P.z + n.z * dn); uv.push(arc / 6, (j / NP) * 9); }
+  }
+  for (let i = 0; i < N; i++) for (let j = 0; j < NP; j++) { const a = i * (NP + 1) + j, b = a + NP + 1; idx.push(a, b, a + 1, b, b + 1, a + 1); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx); g.computeVertexNormals(); return g;
+}
 const knitMat = () => phys({ color: 0xffffff, map: knitTex, bumpMap: knitBump, bumpScale: 0.12, roughness: 0.9, metalness: 0, sheen: new THREE.Color(0x2a2a30) });
 BAND = addPart('band', 104, { az: 0.6, el: 0.5, k: 1.7 }, [FRAME.W / 2, POD.H + 0.8, -6], g => {
   // wrist loop (stays on the arm when the layers lift)
   BAND_LOOP = new THREE.Group(); g.add(BAND_LOOP);
   const { g: bg, thA } = bandGeo(); mesh(bg, knitMat(), 0, 0, 0, BAND_LOOP);
+  // band ends wrap up around both ends of the pod and run under the frame into the top strip (no gap)
+  const T = 1.9, ends = [thA, Math.PI - thA];
+  [1, -1].forEach((sg, k) => {
+    const s0 = section(0, ends[k]), nrm = new THREE.Vector2(s0.nz, s0.ny);
+    const foot = new THREE.Vector3(0, s0.y + s0.ny * T / 2, s0.z + s0.nz * T / 2);
+    const pts = [new THREE.Vector3(0, POD.H + 0.75, sg * (FRAME.L / 2 - 3.0)), new THREE.Vector3(0, POD.H + 0.55, sg * (FRAME.L / 2 + 0.4)),
+      new THREE.Vector3(0, POD.H - 1.2, sg * (FRAME.L / 2 + 1.35)), new THREE.Vector3(0, 2.2, sg * (FRAME.L / 2 + 1.45)), foot];
+    mesh(ribbonGeo(new THREE.CatmullRomCurve3(pts), BAND_HALF * 2, T), knitMat(), 0, 0, 0, BAND_LOOP);
+  });
   // knit strip running over the top of the pod
   const st = knitMat(); st.map = knitTex.clone(); st.map.needsUpdate = true; st.map.repeat.set(1 / 6, 1 / 6); st.bumpMap = knitBump.clone(); st.bumpMap.needsUpdate = true; st.bumpMap.repeat.set(1 / 6, 1 / 6);
   const strip = mesh(pillow(POD.W - 0.2, FRAME.L - 1.6, 4, 1.5, 0.5), st, 0, POD.H + 0.7, -1.2, g); strip.userData.glassy = true;
