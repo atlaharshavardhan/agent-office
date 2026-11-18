@@ -1,0 +1,5 @@
+{"resolution_preview": [1080, 1920], "resolution_final": [2160, 3840], "fps": 30, "duration_s": 45.0,
+ "story_end_s": 43.0, "brand_s": [43.0, 45.0], "narration": {"voice": "Kokoro am_michael (free, local)", "wpm_target": [150, 165], "words_target": [108, 115], "max_end_s": 43.0},
+ "safe_area": {"left": 90, "right": 180, "top": 200, "bottom": 350}, "watermark": false,
+ "tools": {"blender": "GPU hero, exploded view, racks (reuse assets)", "threejs": "globe, routes, packets, remote-compute scene", "remotion": "composition, type, counters, captions, audio", "higgsfield": "OPTIONAL, pending owner OK (standing 'No Higgsfield' rule): Singapore city, data-center establishing, investigation room — stills first"},
+ "gates": ["research.json passed", "hook selected", "script approved", "storyboard + stills approved", "1080p preview approved", "4K export"]}

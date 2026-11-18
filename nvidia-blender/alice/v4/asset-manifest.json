@@ -1,0 +1,19 @@
+{"reuse": [
+  {"asset": "NVIDIA-style GPU package (Blender + gpu.glb)", "path": "blender/nvidia_ai_gpu.blend, remotion/public/gpu.glb", "use": "S1, S2 macro + exploded, S5 hero GPU, S7 payoff", "rights": "ours"},
+  {"asset": "Motherboard / hook renders", "path": "renders/preview_frames (rebuild from blender/nvidia_hook.blend)", "use": "S2 macro", "rights": "ours"},
+  {"asset": "Data-center dolly", "path": "blender/shot03_datacenter.blend", "use": "S2 chip→infrastructure", "rights": "ours"},
+  {"asset": "Overlook hall", "path": "blender/v2_overlook.blend", "use": "S5/S7 establishing", "rights": "ours"},
+  {"asset": "Empty-chair stage", "path": "blender/alice_s7_stage.blend", "use": "S6 resignation beat (if kept)", "rights": "ours"},
+  {"asset": "Case-file desk", "path": "blender/alice_s2_desk.blend", "use": "S6 investigation (optional)", "rights": "ours"},
+  {"asset": "World + Asia outlines", "path": "remotion/src/alice/world.json, asia.json", "use": "S3 globe/routes", "rights": "Natural Earth, public domain"},
+  {"asset": "Logos: NVIDIA, NYT (Simple Icons CC0), Megaspeed (redrawn), flags", "path": "remotion/src/alice/Logos.jsx", "use": "labels", "rights": "editorial identification"},
+  {"asset": "Explainer scenes (map, 'the line')", "path": "remotion/src/alice/S3World.jsx, S4Flow.jsx", "use": "S3/S4 base", "rights": "ours"},
+  {"asset": "InvisiTech outro", "path": "remotion/src/alice/Scenes2.jsx (AliceS10)", "use": "S8", "rights": "ours"}
+ ],
+ "new_programmatic": ["S2 exploded-view GPU (Three.js, our glb)", "S3 3D globe (Three.js)", "S5 remote-compute mechanism (Three.js; frame built)", "S7 split payoff (Three.js)"],
+ "new_higgsfield_optional": [
+  {"id": "HF1", "what": "Singapore night skyline establishing still (no real logos/people)", "count": 2},
+  {"id": "HF2", "what": "Large AI data-center hall establishing still", "count": 2},
+  {"id": "HF3", "what": "Investigative newsroom/desk environment still (no people)", "count": 2}
+ ],
+ "blocked": ["Real photo of Alice Huang (no licensed source; private individual)", "Any AI-generated likeness of real people"]}

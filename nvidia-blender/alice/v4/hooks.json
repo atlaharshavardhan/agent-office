@@ -1,0 +1,20 @@
+{
+ "verbal": [
+  {"id": "H1", "type": "identity + mystery", "text": "Who is Alice Huang — and why did her link to NVIDIA draw scrutiny?", "words": 13, "risk": "low (needs C01/C02)"},
+  {"id": "H2", "type": "contradiction", "text": "America restricted AI chip exports to China. But Chinese companies could still use those chips.", "words": 15, "risk": "low (needs C07/C08); strongest curiosity gap, matches payoff"},
+  {"id": "H3", "type": "financial curiosity", "text": "A little-known Singapore company acquired billions in NVIDIA hardware. Who was behind it?", "words": 13, "risk": "medium (needs C04 scope wording: 'Bloomberg estimates')"}
+ ],
+ "visual": [
+  {"id": "V1", "desc": "Verified Alice photograph + moving GPU + timeline", "status": "BLOCKED: no licensed photo of a private individual; news photos are copyrighted (Reuters/Barron's); AI likeness forbidden by brief"},
+  {"id": "V2", "desc": "Physical GPU stopped at an export barrier while blue computing power arcs over it", "status": "built (frames/V4Open.png); motion from frame 0; previews the payoff"},
+  {"id": "V3", "desc": "Wall of GPU servers + $4.6B+ counter", "status": "feasible (reuse data-center renders); weaker link to Alice"}
+ ],
+ "matrix": [
+  {"combo": "H1+V1", "clarity": 4, "curiosity": 4, "payoff_link": 3, "legal_risk": "high", "feasible": false},
+  {"combo": "H1+V2", "clarity": 4, "curiosity": 4, "payoff_link": 5, "legal_risk": "low", "feasible": true},
+  {"combo": "H2+V2", "clarity": 5, "curiosity": 5, "payoff_link": 5, "legal_risk": "low", "feasible": true},
+  {"combo": "H3+V3", "clarity": 4, "curiosity": 4, "payoff_link": 2, "legal_risk": "medium", "feasible": true}
+ ],
+ "selected": "H1 + V2 (brief prefers H1; V1 blocked). Alternative to test: H2 + V2.",
+ "note": "Alice appears as a name card with a blank silhouette + verified role and Megaspeed logo."
+}
