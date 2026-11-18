@@ -1,0 +1,1192 @@
+<title>Band Explainer Shots</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap">
+<style>
+/* Layout: full-bleed dark 3D stage (forearm under a top light); layer rail right, part card left, controls docked bottom. */
+:root {
+  --bg: #050607;
+  --panel: rgba(14, 17, 20, 0.84);
+  --fg: #e8ecef;
+  --muted: #8b969f;
+  --line: rgba(160, 180, 195, 0.16);
+  --accent: #4be08a;      /* sensor-LED green */
+  --accent-ink: #04140a;
+  --amber: #f0a640;       /* "Illustrative" marks */
+  --gold: #d9ae55;
+  --font-display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { margin: 0; overflow: hidden; background: var(--bg); color: var(--fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+#app { position: fixed; inset: 0; }
+#c { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#c.dragging { cursor: grabbing; }
+button { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.top {
+  position: absolute; top: env(safe-area-inset-top, 0px); left: 0; right: 0;
+  padding-block: 18px;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  pointer-events: none;
+}
+.eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.top h1 { margin: 4px 0 0; font-family: var(--font-display); font-weight: 600; font-size: clamp(18px, 2.2vw, 26px); letter-spacing: -0.01em; text-wrap: balance; }
+.top .note { font-size: 12px; color: var(--muted); margin-top: 4px; max-width: 46ch; line-height: 1.45; }
+.illus-badge { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--amber); border: 1px solid rgba(240,166,64,.45); border-radius: 999px; padding: 5px 10px; white-space: nowrap; background: rgba(20,14,6,.6); }
+
+#parts {
+  position: absolute; right: max(20px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%);
+  width: 216px; padding: 14px 10px; border: 1px solid var(--line); border-radius: 14px;
+  background: var(--panel); backdrop-filter: blur(10px);
+}
+.rail-title { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 0 8px 8px; }
+#parts ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+#parts button {
+  width: 100%; display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 6px;
+  background: none; border: 0; border-radius: 8px; padding: 7px 8px; text-align: left; cursor: pointer;
+  font-size: 13.5px; color: var(--fg);
+}
+#parts button .n { font-family: var(--font-mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+#parts button:hover { background: rgba(255,255,255,.05); }
+#parts button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+#parts button[aria-pressed="true"] .n { color: var(--accent-ink); }
+
+#card {
+  position: absolute; left: max(24px, env(safe-area-inset-left, 0px)); top: 50%; transform: translateY(-50%);
+  width: min(400px, 34vw); padding: 22px 24px; border: 1px solid var(--line); border-radius: 16px;
+  background: var(--panel); backdrop-filter: blur(12px);
+  transition: opacity .35s ease;
+}
+#card .num { font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing: .08em; font-variant-numeric: tabular-nums; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+#card .illus { color: var(--amber); border: 1px solid rgba(240,166,64,.45); border-radius: 999px; padding: 2px 8px; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; }
+#card h2 { font-family: var(--font-display); font-weight: 600; font-size: 28px; line-height: 1.1; margin: 8px 0 6px; letter-spacing: -0.015em; text-wrap: balance; }
+#card .role { margin: 0 0 12px; color: var(--accent); font-weight: 500; font-size: 15px; }
+#card .body { margin: 0 0 16px; color: #c9d1d8; line-height: 1.55; font-size: 15px; }
+#card .specs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 12px; }
+#card .specs li { font-family: var(--font-mono); font-size: 12.5px; color: var(--fg); display: flex; gap: 8px; }
+#card .specs li::before { content: ""; width: 6px; height: 6px; margin-top: 6px; flex: none; border-radius: 1px; background: var(--gold); }
+#card .specs li.unv { color: #e9c89a; }
+#card .specs li.unv::before { background: var(--amber); }
+#card .nav { display: flex; gap: 8px; margin-top: 16px; }
+.btn {
+  border: 1px solid var(--line); background: rgba(255,255,255,.04); border-radius: 999px;
+  padding: 8px 14px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { background: rgba(255,255,255,.09); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+
+#controls {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 12px; padding: 8px 10px 8px 8px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--panel); backdrop-filter: blur(10px);
+  max-width: calc(100% - 32px);
+}
+#controls label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+#explode { width: 140px; accent-color: var(--accent); }
+#hint { position: absolute; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--muted); white-space: nowrap; pointer-events: none; }
+
+#labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.tag { position: absolute; left: 0; top: 0; display: flex; align-items: center; white-space: nowrap; will-change: transform; }
+.tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(75,224,138,.22); flex: none; }
+.tag b { width: 30px; height: 1px; background: rgba(75,224,138,.6); flex: none; }
+.tag span { font-size: 12.5px; font-weight: 500; padding: 3px 8px; border-radius: 6px; background: rgba(8,10,12,.8); border: 1px solid var(--line); }
+.tag.left { flex-direction: row-reverse; }
+
+#title-card { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 0 13vh 7vw; pointer-events: none; opacity: 0; }
+#title-card .eyebrow { font-size: 15px; }
+#title-card h2 { font-family: var(--font-display); font-size: clamp(34px, 5vw, 76px); font-weight: 700; letter-spacing: -0.03em; margin: 10px 0 8px; line-height: 1; max-width: 14ch; }
+#title-card p { font-size: clamp(15px, 1.5vw, 22px); color: #b9c3cb; margin: 0; max-width: 40ch; }
+
+/* Video render mode */
+body.render .top .note, body.render #parts, body.render #controls, body.render #hint, body.render #card .nav { display: none !important; }
+body.render #card { width: 560px; left: 88px; padding: 32px 36px; border-radius: 20px; transition: none; }
+body.render #card h2 { font-size: 44px; }
+body.render #card .num { font-size: 16px; }
+body.render #card .role { font-size: 21px; }
+body.render #card .body { font-size: 21px; }
+body.render #card .specs li { font-size: 17px; }
+body.render .top { padding: 40px 56px; }
+body.render .tag span { font-size: 17px; padding: 4px 10px; }
+
+@media (max-width: 820px) {
+  #parts { top: auto; transform: none; right: 0; left: 0; bottom: calc(124px + env(safe-area-inset-bottom, 0px)); width: auto; border: 0; border-radius: 0; background: none; backdrop-filter: none; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+  .rail-title { display: none; }
+  #parts ol { flex-direction: row; overflow-x: auto; gap: 6px; scrollbar-width: none; padding-bottom: 2px; }
+  #parts button { width: auto; white-space: nowrap; grid-template-columns: auto auto; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 13px; }
+  #card { top: auto; transform: none; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); width: auto; bottom: calc(168px + env(safe-area-inset-bottom, 0px)); padding: 14px 16px; max-height: 38vh; overflow-y: auto; }
+  #card h2 { font-size: 22px; }
+  #card .body { font-size: 14px; margin-bottom: 10px; }
+  #card .nav { margin-top: 10px; }
+  #hint { display: none; }
+  #explode { width: 90px; }
+  .top .note { display: none; }
+  .top { flex-direction: column; gap: 8px; }
+  .illus-badge { font-size: 9.5px; padding: 4px 8px; }
+  #controls { flex-wrap: wrap; justify-content: center; gap: 8px; border-radius: 22px; width: calc(100% - 24px); }
+  #controls label { display: none; }
+  #controls .btn { padding: 8px 12px; }
+}
+@media (prefers-reduced-motion: reduce) { #card { transition: none; } }
+</style>
+
+<div id="app">
+  <canvas id="c" aria-label="3D exploded view of a fitness band sensor pod worn on a forearm. Drag to rotate, scroll to zoom, tap a part to learn about it."></canvas>
+  <div id="labels"></div>
+
+  <header class="top">
+    <div>
+      <div class="eyebrow">Teardown · 6 parts · WHOOP 5.0 pod</div>
+      <h1>Inside WHOOP 5.0</h1>
+      <div class="note">Illustrative model built in code from WHOOP’s published specs and the TechInsights teardown summary. Board layout, LED count and battery chemistry are not confirmed, so they are drawn as examples. The name on the clasp is plain text, not WHOOP’s logo. Not affiliated with WHOOP.</div>
+    </div>
+    <div class="illus-badge">Illustrative · not to scale</div>
+  </header>
+
+  <aside id="parts" aria-label="Pod parts">
+    <div class="rail-title">Layers, top to skin</div>
+    <ol id="part-list"></ol>
+  </aside>
+
+  <section id="card" hidden aria-live="polite">
+    <div class="num"><span id="card-num"></span><span class="illus" id="card-illus" hidden></span></div>
+    <h2 id="card-name"></h2>
+    <p class="role" id="card-role"></p>
+    <p class="body" id="card-body"></p>
+    <ul class="specs" id="card-specs"></ul>
+    <div class="nav">
+      <button class="btn" id="prev" type="button">← Previous</button>
+      <button class="btn" id="next" type="button">Next →</button>
+    </div>
+  </section>
+
+  <div id="title-card" aria-hidden="true">
+    <div class="eyebrow" id="tc-eyebrow">Teardown</div>
+    <h2 id="tc-title">Inside WHOOP 5.0</h2>
+    <p id="tc-sub">The screenless band, layer by layer.</p>
+  </div>
+
+  <div id="hint">Drag to rotate · scroll or pinch to zoom · tap a part</div>
+
+  <div id="controls">
+    <button class="btn primary" id="play" type="button">▶ Play tour</button>
+    <label for="explode">Explode</label>
+    <input type="range" id="explode" min="0" max="1" step="0.01" value="1">
+    <button class="btn" id="glassBtn" type="button">Glass shell</button>
+    <button class="btn" id="ledBtn" type="button">LEDs on</button>
+    <button class="btn" id="overview" type="button">Overview</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+'use strict';
+const Q = new URLSearchParams(location.search);
+const RENDER = Q.has('render'), INSTANT = Q.has('instant');
+if (RENDER) document.body.classList.add('render');
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------------- Part descriptions (facts: whoop-teardown/BRIEF.md) ---------------- */
+// specs: plain string = verified; ['text', true] = unverified (shown in amber)
+const INFO = {
+  top: { name: 'Top shell', role: 'A sealed matte lid, hidden under the band.',
+    body: 'The whole device is about 34.7 × 24 × 10.6 mm, band strip on top included, and weighs about 26.5 g. There is nothing to press and nothing to read: the band does its work silently and sends everything to your phone. The shell is sealed for an IP68 rating, so it can go swimming down to 10 metres.',
+    specs: ['About 34.7 × 24 × 10.6 mm', 'About 26.5 g', 'IP68, water-resistant to 10 m'] },
+  battery: { name: 'Battery', role: 'Most of the height is battery.', illus: 'Illustrative cell',
+    body: 'The cell fills most of the space under the lid. WHOOP quotes about 14 days on one charge. Reports say 5.0 uses a silicon-anode cell, which stores more energy in the same space, but WHOOP has not confirmed the chemistry, so the cell shown here is only an example.',
+    specs: ['About 14 days per charge (official)', ['Silicon-anode chemistry: unverified', true], ['Cell shape and size: illustrative', true]] },
+  board: { name: 'Main board', role: 'The brain, the memory, and a buzzer.', illus: 'Illustrative layout',
+    body: 'The TechInsights teardown found an Ambiq Micro chip (Arm Cortex-M4 with Bluetooth LE 5.0 built in) and 512 MB of Micron flash memory that stores your data until your phone syncs. It also lists a TDK-InvenSense motion sensor (accelerometer + gyroscope) that tracks movement and sleep, a tiny vibration motor for silent alarms, Texas Instruments LED and vibration drivers, a power chip from Monolithic Power Systems and an onsemi battery gauge. Where each part sits on this board is our guess.',
+    specs: ['Ambiq Micro chip, Arm Cortex-M4 + BLE 5.0', 'Micron 512 MB flash memory', '6-axis motion sensor (TDK-InvenSense)', 'Vibration motor (haptic LRA)', ['Board layout: illustrative', true]] },
+  sensor: { name: 'Optical sensor board', role: 'Shines light into your skin, 26 times a second.', illus: 'Illustrative LEDs',
+    body: 'LEDs shine light into your wrist and light detectors (photodiodes) measure how much comes back. With every heartbeat a little more blood flows under the skin and soaks up more light, so the reflected light rises and falls with your pulse. WHOOP says the sensor samples 26 times a second. Reports count 5 LEDs (3 green, 1 red, 1 infrared) and 4 photodiodes; WHOOP has not confirmed that, so the layout here is an example. (We flip the board over here so you can see the side that faces your skin.)',
+    specs: ['Samples 26 times a second (official)', 'LEDs + light detectors', 'Skin temperature sensor', ['5 LEDs + 4 photodiodes: unverified', true], ['Sensor positions: illustrative', true]] },
+  bottom: { name: 'Bottom housing', role: 'The side that touches your skin.',
+    body: 'The underside carries a dark glass window over the LEDs and light detectors. It presses against your wrist so the light goes into the skin and not out to the sides. A snug fit matters: any gap lets room light in and spoils the reading. The seam between this housing and the top shell is part of the water seal.',
+    specs: ['Sensor window sits on the skin', 'Snug fit keeps room light out', 'Part of the IP68 seal'] },
+  band: { name: 'Band and clasp', role: 'The part you actually see. On the MG model, the clasp reads an ECG.', illus: 'Illustrative clasp',
+    body: 'There is no screen on top: the knit band runs right over the pod, held in a polished metal frame with a curved metal clasp plate at one end. The band keeps the sensor window pressed flat on your wrist. On the WHOOP MG model the clasp also works as an ECG sensor; the regular 5.0 does not have ECG. Our plate carries the name as plain engraved text, not the real logo.',
+    specs: ['Knit band runs over the top of the pod', 'Polished metal frame and clasp plate', 'ECG through the clasp: MG only (official)', ['Clasp details: illustrative', true]] },
+};
+
+/* ---------------- Three.js setup ---------------- */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: RENDER });
+renderer.setPixelRatio(RENDER ? 1 : Math.min(devicePixelRatio || 1, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const BG = 0x050607;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(BG);
+scene.fog = new THREE.Fog(BG, 330, 720);
+const camera = new THREE.PerspectiveCamera(30, 1, 2, 3000);
+const FOV = THREE.MathUtils.degToRad(30);
+
+/* Lighting: one warm top key (spot, soft shadows) + two rims. No hemisphere light. */
+const key = new THREE.SpotLight(0xfff1e0, 1.7, 0, 0.27, 0.95, 0);
+key.position.set(40, 360, 150); key.target.position.set(0, 18, 0);
+key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.camera.near = 150; key.shadow.camera.far = 700; key.shadow.bias = -0.0004;
+scene.add(key, key.target);
+const rim = new THREE.DirectionalLight(0xcfe0ff, 1.25); rim.position.set(-250, 22, -150); scene.add(rim);
+const rim2 = new THREE.DirectionalLight(0xffd2a8, 0.6); rim2.position.set(270, 30, -60); scene.add(rim2);
+const kick = new THREE.DirectionalLight(0xffffff, 0.12); kick.position.set(0, 40, 300); scene.add(kick);
+const ledLight = new THREE.PointLight(0x2cff74, 0, 42, 2); scene.add(ledLight);
+
+// Dark studio environment (reflections only): black room, a few bright softboxes.
+(function makeEnv() {
+  const es = new THREE.Scene();
+  es.add(new THREE.Mesh(new THREE.BoxGeometry(120, 70, 120), new THREE.MeshBasicMaterial({ color: 0x040506, side: THREE.BackSide })));
+  const panel = (w, h, k, x, y, z, ry = 0, rx = 0, tint = 0xffffff) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(tint).multiplyScalar(k), side: THREE.DoubleSide })); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); es.add(m); };
+  panel(26, 12, 2.0, 0, 34, 0, 0, Math.PI / 2);           // overhead softbox (matches the key)
+  panel(5, 40, 3.2, -58, 8, -14, Math.PI / 2, 0, 0xdfe8ff); // cool strip, left-back
+  panel(5, 40, 2.2, 58, 8, -20, Math.PI / 2, 0, 0xffe2c4);  // warm strip, right-back
+  panel(120, 1.5, 1.0, 0, -10, -59);                       // horizon line
+  const pm = new THREE.PMREMGenerator(renderer);
+  scene.environment = pm.fromScene(es, 0.02).texture;
+  pm.dispose();
+})();
+// Brighter studio used only as the reflection map for polished metal, so chrome reads silver in a dark room.
+const METAL_ENV = (function () {
+  const es = new THREE.Scene();
+  es.add(new THREE.Mesh(new THREE.BoxGeometry(120, 70, 120), new THREE.MeshBasicMaterial({ color: 0x1c1f23, side: THREE.BackSide })));
+  const panel = (w, h, k, x, y, z, ry = 0, rx = 0, tint = 0xffffff) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(tint).multiplyScalar(k), side: THREE.DoubleSide })); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); es.add(m); };
+  panel(70, 40, 2.4, 0, 34, 0, 0, Math.PI / 2);
+  panel(120, 10, 1.6, 0, 6, -59); panel(120, 10, 1.2, 0, 6, 59, Math.PI);
+  panel(10, 50, 3, -58, 8, 0, Math.PI / 2, 0, 0xdfe8ff); panel(10, 50, 2.4, 58, 8, 0, Math.PI / 2, 0, 0xffe6cc);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshBasicMaterial({ color: 0x0a0b0c })); floor.rotation.x = -Math.PI / 2; floor.position.y = -34; es.add(floor);
+  const pm = new THREE.PMREMGenerator(renderer); const t = pm.fromScene(es, 0.02).texture; pm.dispose(); return t;
+})();
+
+/* ---------------- Helpers ---------------- */
+function rrShape(w, h, r, cx = 0, cy = 0, PathT = THREE.Shape) {
+  const s = new PathT(); const x = cx - w / 2, y = cy - h / 2;
+  r = Math.min(r, w / 2, h / 2);
+  s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.absarc(x + w - r, y + r, r, -Math.PI / 2, 0);
+  s.lineTo(x + w, y + h - r); s.absarc(x + w - r, y + h - r, r, 0, Math.PI / 2);
+  s.lineTo(x + r, y + h); s.absarc(x + r, y + h - r, r, Math.PI / 2, Math.PI);
+  s.lineTo(x, y + r); s.absarc(x + r, y + r, r, Math.PI, Math.PI * 1.5);
+  return s;
+}
+// Footprint shapes are drawn in (x, z); extruded upward along +y. w = across the arm (x), l = along the pod's long axis (z).
+function flat(geo) { geo.rotateX(-Math.PI / 2); return geo; }
+function pillow(w, l, r, h, bev, holes = []) {      // rounded slab, h tall, centred at y = 0, rounded top/bottom edges
+  const s = rrShape(w - 2 * bev, l - 2 * bev, Math.max(r - bev, 0.2));
+  holes.forEach(([hw, hl, hr]) => s.holes.push(rrShape(hw + 2 * bev, hl + 2 * bev, hr + bev, 0, 0, THREE.Path)));
+  const d = Math.max(h - 2 * bev, 0.01);
+  const g = new THREE.ExtrudeGeometry(s, { depth: d, bevelEnabled: bev > 0, bevelThickness: bev, bevelSize: bev, bevelSegments: 4, curveSegments: 28 });
+  g.translate(0, 0, -d / 2); return flat(g);
+}
+function ring(wo, lo, ro, wi, li, ri, y0, y1) {     // vertical wall with a rounded-rect hole, from y0 to y1
+  const s = rrShape(wo, lo, ro); s.holes.push(rrShape(wi, li, ri, 0, 0, THREE.Path));
+  const g = new THREE.ExtrudeGeometry(s, { depth: y1 - y0, bevelEnabled: false, curveSegments: 28 });
+  flat(g); g.translate(0, y0, 0); return g;
+}
+function mesh(geo, mat, x = 0, y = 0, z = 0, parent) { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); if (parent) parent.add(m); return m; }
+function box(w, h, d, mat, x, y, z, parent) { return mesh(new THREE.BoxGeometry(w, h, d), mat, x, y, z, parent); }
+const std = (color, metalness, roughness, extra = {}) => new THREE.MeshStandardMaterial(Object.assign({ color, metalness, roughness }, extra));
+const phys = (o) => new THREE.MeshPhysicalMaterial(o);
+function canvasTex(w, h, draw, srgb = true) {
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  draw(cv.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(cv); if (srgb) t.encoding = THREE.sRGBEncoding; t.anisotropy = 8; return t;
+}
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function labelTex(lines, bg = '#0e0f12', fg = '#c9ced6', w = 256, h = 256) {
+  return canvasTex(w, h, (x) => {
+    x.fillStyle = bg; x.fillRect(0, 0, w, h);
+    x.fillStyle = fg; x.textAlign = 'center'; x.textBaseline = 'middle';
+    lines.forEach((l, i) => { x.font = (i === 0 ? '600 ' : '400 ') + l[1] + 'px monospace'; x.fillText(l[0], w / 2, h / 2 + (i - (lines.length - 1) / 2) * l[1] * 1.35); });
+  });
+}
+function chip(g, w, l, t, lines, x, y, z, mats) {   // flat IC: label on top
+  const side = std(0x0b0c0f, 0.3, 0.45);
+  const top = new THREE.MeshStandardMaterial({ map: labelTex(lines), metalness: 0.3, roughness: 0.35 });
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, t, l), [side, side, top, side, side, side]);
+  m.position.set(x, y + t / 2, z); g.add(m); return m;
+}
+
+/* ---------------- Materials (rule 23: navy boards, gold pads, steel, black glass, amber flex) ---------------- */
+const M = {
+  topShell: phys({ color: 0x0b0b0d, metalness: 0.05, roughness: 0.7, clearcoat: 0.1, clearcoatRoughness: 0.45, envMapIntensity: 0.9 }),
+  chrome: std(0xeef0f2, 1, 0.09, { envMap: METAL_ENV, envMapIntensity: 1.0 }),
+  botShell: phys({ color: 0x1e2024, metalness: 0.2, roughness: 0.6, clearcoat: 0.25, clearcoatRoughness: 0.35 }),
+  seam: std(0x050506, 0.2, 0.6),
+  steel: std(0xd6dade, 1, 0.16, { envMapIntensity: 1.3 }),
+  brushed: std(0xbfc4ca, 1, 0.34),
+  glass: phys({ color: 0x020203, metalness: 0, roughness: 0.03, clearcoat: 1, clearcoatRoughness: 0.02, reflectivity: 0.9, envMapIntensity: 1.6 }),
+  gold: std(0xd9ae55, 1, 0.24),
+  flex: std(0xd08a2e, 0.25, 0.38, { side: THREE.DoubleSide }),
+  black: std(0x0b0c0f, 0.3, 0.45),
+  ceramic: std(0xe9e5dc, 0, 0.5),
+  rubber: std(0x16171a, 0, 0.7),
+};
+function boardTex(w, l, seed, edge = true) {   // navy solder mask with faint traces and gold vias
+  const S = 24, W = Math.round(w * S), H = Math.round(l * S), r = rng(seed);
+  const t = canvasTex(W, H, (x) => {
+    x.fillStyle = '#07102a'; x.fillRect(0, 0, W, H);
+    x.strokeStyle = 'rgba(70,110,190,.28)'; x.lineWidth = 2;
+    for (let i = 0; i < 60; i++) { let px = r() * W, py = r() * H; x.beginPath(); x.moveTo(px, py); for (let k = 0; k < 4; k++) { if (r() < .5) px += (r() - .5) * W * .5; else py += (r() - .5) * H * .5; x.lineTo(px, py); } x.stroke(); }
+    x.fillStyle = '#d9ae55';
+    for (let i = 0; i < 90; i++) { x.beginPath(); x.arc(r() * W, r() * H, 2.2, 0, 7); x.fill(); }
+    if (edge) { x.strokeStyle = 'rgba(217,174,85,.55)'; x.lineWidth = 3; x.strokeRect(10, 10, W - 20, H - 20); }
+  });
+  t.repeat.set(1 / w, -1 / l); t.offset.set(0.5, 0.5); return t;   // ExtrudeGeometry caps use shape coords (mm) as UVs
+}
+const navy = (w, l, seed) => phys({ color: 0xffffff, map: boardTex(w, l, seed), metalness: 0.05, roughness: 0.55, clearcoat: 0.6, clearcoatRoughness: 0.18, envMapIntensity: 0.8 });
+
+/* ---------------- Pod dimensions (mm). Pod bottom (skin contact) at y = 0. ---------------- */
+const POD = { W: 24, L: 34.7, H: 9.2, R: 6.2 };   // H = pod body; with the band strip on top the whole device is about 10.6 mm
+const WALL = 1.0;
+const IN = { W: POD.W - 2 * WALL, L: POD.L - 2 * WALL, R: POD.R - WALL };
+const SPLIT = 4.0;                     // seam between bottom housing and top shell
+const CAV = { y0: 1.6, y1: 7.6 };      // free space inside: above the bottom plate, below the lid
+const root = new THREE.Group(); scene.add(root);
+const parts = [];
+const SHELL_IDS = new Set(['top', 'bottom']), INTERNAL_IDS = new Set(['battery', 'board', 'sensor']);
+function addPart(id, lift, view, anchor, build) {
+  const g = new THREE.Group(); build(g); root.add(g);
+  g.updateMatrixWorld(true);
+  const bb = new THREE.Box3().setFromObject(g);
+  const p = { id, index: parts.length, group: g, offset: new THREE.Vector3(0, lift, 0), center: bb.getCenter(new THREE.Vector3()), size: bb.getSize(new THREE.Vector3()),
+    radius: bb.getBoundingSphere(new THREE.Sphere()).radius, view, anchor: new THREE.Vector3(...anchor), dim: 0, info: INFO[id], ghosts: [] };
+  g.traverse(o => { if (o.isMesh) { o.userData.part = p; o.castShadow = true; o.receiveShadow = true;
+    const ms = Array.isArray(o.material) ? o.material : [o.material];
+    o.material = ms.map(m => { const c = m.clone(); c.userData.baseOpacity = c.opacity; c.userData.baseTransparent = c.transparent; c.userData.baseDepthWrite = c.depthWrite; return c; });
+    if (o.material.length === 1) o.material = o.material[0]; } });
+  parts.push(p); return p;
+}
+
+/* Glass x-ray: a fresnel rim copy of every shell mesh, faded in as the solid shell fades out. */
+const ghostMat = () => new THREE.ShaderMaterial({
+  uniforms: { alpha: { value: 0 }, tint: { value: new THREE.Color(0x9fd2f0) } },
+  vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
+  fragmentShader: 'uniform float alpha; uniform vec3 tint; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.2); gl_FragColor = vec4(tint * (0.3 + 1.1 * f), alpha * (0.025 + 0.42 * f)); }',
+  transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+});
+function addGhosts(p) { const list = []; p.group.traverse(o => { if (o.isMesh && !o.userData.noGhost && (SHELL_IDS.has(p.id) || o.userData.glassy)) list.push(o); });
+  list.forEach(o => { const gm = new THREE.Mesh(o.geometry, ghostMat()); gm.userData.ghost = true; gm.renderOrder = 5; gm.castShadow = false; gm.visible = false; o.add(gm); p.ghosts.push(gm); }); }
+
+/* 2. Top shell: matte dark lid with soft, rounded top edges (plain: no logo); it sits under the band */
+const TOP = addPart('top', 80, { az: 0.55, el: 0.42, k: 2.3 }, [POD.W / 2, 8, 0], g => {
+  mesh(ring(POD.W, POD.L, POD.R, IN.W, IN.L, IN.R, SPLIT + 0.12, POD.H - 0.8), M.topShell, 0, 0, 0, g);
+  mesh(pillow(POD.W, POD.L, POD.R, 1.6, 0.75), M.topShell, 0, POD.H - 0.8, 0, g);
+});
+
+/* 2. Battery: brushed-steel pouch, amber Kapton band, small protection board and a flex down to the main board */
+const BAT_Y0 = 4.8, BAT_Y1 = 7.45;
+const BATTERY = addPart('battery', 58, { az: 0.6, el: 0.5, k: 2.2 }, [9.8, (BAT_Y0 + BAT_Y1) / 2, 0], g => {
+  const h = BAT_Y1 - BAT_Y0, yc = (BAT_Y0 + BAT_Y1) / 2;
+  const brushTex = canvasTex(256, 256, (x, w, hh) => { x.fillStyle = '#b9bec5'; x.fillRect(0, 0, w, hh); const r = rng(7); for (let i = 0; i < 900; i++) { x.strokeStyle = `rgba(${r() < .5 ? '255,255,255' : '60,64,70'},${(r() * .18).toFixed(3)})`; x.beginPath(); const yy = r() * hh; x.moveTo(0, yy); x.lineTo(w, yy + (r() - .5) * 3); x.stroke(); } });
+  brushTex.wrapS = brushTex.wrapT = THREE.RepeatWrapping; brushTex.repeat.set(0.06, 0.06);
+  mesh(pillow(19.6, 22.0, 2.6, h, 0.9), std(0xffffff, 0.95, 0.3, { map: brushTex }), 0, yc, 2.2, g);
+  // sealed pouch lip along one long side
+  box(0.5, h * 0.42, 21.0, M.brushed, -9.95, yc, 2.2, g);
+  // amber Kapton band wrapping the cell
+  mesh(ring(19.75, 5.2, 0.5, 19.0, 4.6, 0.3, BAT_Y0 + 0.25, BAT_Y1 - 0.25), M.flex, 0, 0, 5.0, g);
+  // label (no brand)
+  const lab = new THREE.Mesh(new THREE.PlaneGeometry(12, 8.5), new THREE.MeshStandardMaterial({ map: labelTex([['Li-ion cell', 30], ['ILLUSTRATIVE', 22]], '#121418', '#c9ced6', 256, 180), metalness: 0.1, roughness: 0.5 }));
+  lab.rotation.x = -Math.PI / 2; lab.position.set(0, BAT_Y1 + 0.01, -3.0); g.add(lab);
+  // protection board + gold tabs at the +z end
+  const pcm = mesh(pillow(15, 1.9, 0.6, 1.0, 0.15), navy(15, 1.9, 11), 0, 5.9, 14.7, g);
+  for (const sx of [-4, 4]) box(3, 0.15, 1.6, M.gold, sx, 6.52, 14.6, g);
+  // flex tail down to the board connector
+  const fl = new THREE.Shape(); fl.moveTo(-2.2, 0); fl.lineTo(2.2, 0); fl.lineTo(2.2, 0.12); fl.lineTo(-2.2, 0.12);
+  const path = new THREE.CatmullRomCurve3([new THREE.Vector3(5.5, 5.6, 15.0), new THREE.Vector3(5.5, 5.1, 15.6), new THREE.Vector3(5.5, 4.65, 14.6), new THREE.Vector3(5.5, 4.5, 12.6)]);
+  mesh(new THREE.TubeGeometry(path, 24, 0.12, 4), M.flex, 0, 0, 0, g).scale.set(1, 1, 1);
+  box(4.2, 0.12, 2.6, M.flex, 5.5, 4.55, 13.4, g);
+  box(3.6, 0.4, 1.8, M.black, 5.5, 4.35, 12.4, g);   // plug
+});
+
+/* 3. Main board: navy, SoC + flash + small parts, steel RF can, gold test pads */
+const BRD_Y0 = 3.0, BRD_T = 0.7;
+const BOARD = addPart('board', 36, { az: 0.5, el: 0.62, k: 2.0 }, [10.6, BRD_Y0, 4], g => {
+  const bw = 21.2, bl = 31.6, top = BRD_Y0 + BRD_T;
+  mesh(pillow(bw, bl, 4.4, BRD_T, 0.12), navy(bw, bl, 3), 0, BRD_Y0 + BRD_T / 2, 0, g);
+  chip(g, 5.2, 5.2, 0.75, [['SoC', 46], ['M4 · BLE', 30]], -3.6, top, -4.5);
+  chip(g, 5.6, 4.4, 0.85, [['FLASH', 44], ['NAND', 30]], 4.0, top, -4.6);
+  chip(g, 3.0, 3.0, 0.6, [['PMIC', 48]], -5.4, top, 4.2);
+  chip(g, 2.2, 2.2, 0.55, [['', 30]], 0.4, top, 2.4);
+  // parts listed by the TechInsights teardown (positions illustrative)
+  chip(g, 3.0, 3.0, 0.8, [['IMU', 52], ['6-axis', 32]], -5.6, top, 0.2);
+  chip(g, 2.4, 2.4, 0.55, [['GAUGE', 34]], 1.0, top, -0.6);
+  chip(g, 2.6, 2.0, 0.6, [['SPI', 40]], 7.2, top, 0.4);
+  chip(g, 3.2, 3.2, 0.6, [['DRV', 48], ['LED·HAP', 26]], -1.4, top, 8.6);
+  // vibration motor (haptic LRA): small steel can
+  const lra = new THREE.Group(); lra.position.set(3.0, top, -11.6); g.add(lra);
+  mesh(pillow(9.0, 4.0, 1.4, 2.6, 0.5), M.steel, 0, 1.3, 0, lra);
+  box(2.2, 0.1, 1.2, M.gold, -3.2, 0.05, 2.3, lra); box(2.2, 0.1, 1.2, M.gold, 3.2, 0.05, 2.3, lra);
+  // steel RF shield (illustrative)
+  const can = new THREE.Group(); can.position.set(4.2, top, 5.6); g.add(can);
+  mesh(pillow(7.6, 7.0, 0.8, 0.9, 0.12), M.steel, 0, 0.45, 0, can);
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) box(0.5, 0.05, 0.5, M.black, -2.4 + i * 1.6, 0.92, -2.2 + j * 1.5, can);
+  // crystal
+  mesh(pillow(3.2, 1.6, 0.5, 0.7, 0.15), M.steel, -6.6, top + 0.35, -11.0, g);
+  // board-to-board connector (battery plugs in here) and test pads
+  box(4.0, 0.5, 2.0, M.black, 5.5, top + 0.25, 12.4, g);
+  for (let i = 0; i < 6; i++) mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.06, 20), M.gold, -7.5 + i * 2.1, top + 0.03, 12.6, g);
+  // passives scattered on the top (resistors/capacitors)
+  const r = rng(21); const keep = [[-3.6, -4.5, 3.2], [4.0, -4.6, 3.4], [4.2, 5.6, 4.4], [-5.4, 4.2, 2], [5.5, 12.4, 2.6], [-6.6, -11, 2.2], [-5.6, 0.2, 2], [1, -0.6, 1.6], [7.2, 0.4, 1.6], [-1.4, 8.6, 2.1], [3, -11.6, 5.2]];
+  for (let i = 0; i < 70; i++) { const x = (r() - .5) * 17, z = (r() - .5) * 26; if (keep.some(([kx, kz, kr]) => Math.abs(x - kx) < kr && Math.abs(z - kz) < kr)) continue;
+    const big = r() < .25, w = big ? 1.0 : 0.6, l = big ? 0.5 : 0.3;
+    const c = new THREE.Group(); c.position.set(x, top, z); c.rotation.y = r() < .5 ? 0 : Math.PI / 2; g.add(c);
+    box(w * 0.6, l * 0.9, l, r() < .5 ? M.ceramic : std(0x2a2520, 0.1, 0.5), 0, l * 0.45, 0, c);
+    for (const s of [-1, 1]) box(w * 0.2, l * 0.9, l, M.steel, s * w * 0.4, l * 0.45, 0, c); }
+  // a few parts on the underside (stay above the sensor board)
+  for (let i = 0; i < 14; i++) box(0.6, 0.25, 0.3, M.ceramic, (r() - .5) * 15, BRD_Y0 - 0.125, (r() - .5) * 22, g);
+});
+
+/* 4. Optical sensor board: LEDs + photodiodes face down through the window (count and layout illustrative) */
+const SNS_Y0 = 1.95, SNS_T = 0.6;
+const LED_DIES = [];
+const SENSOR = addPart('sensor', 18, { az: 0.45, el: 0.22, k: 1.9 }, [7.4, SNS_Y0, 3], g => {
+  const sw = 14.6, sl = 19.6, bot = SNS_Y0;
+  mesh(pillow(sw, sl, 3.2, SNS_T, 0.1), navy(sw, sl, 9), 0, SNS_Y0 + SNS_T / 2, 0, g);
+  // underside: 5 LEDs in a column (3 green, 1 red, 1 infrared) + 4 photodiodes (illustrative)
+  const ledCols = [0x2cff74, 0x2cff74, 0x2cff74, 0xff2a2a, 0x9a3cff];
+  [-4.2, -2.1, 0, 2.1, 4.2].forEach((z, i) => {
+    box(1.7, 0.26, 1.3, M.ceramic, 0, bot - 0.13, z, g);
+    const die = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.04, 0.62), std(0x111111, 0, 0.3, { emissive: new THREE.Color(ledCols[i]), emissiveIntensity: 0.4 }));
+    die.position.set(0, bot - 0.275, z); g.add(die); LED_DIES.push({ m: die, ir: i === 4 });
+  });
+  for (const [x, z] of [[-4.2, -6.2], [4.2, -6.2], [-4.2, 6.2], [4.2, 6.2]]) {
+    box(2.6, 0.22, 2.6, M.black, x, bot - 0.11, z, g);
+    box(1.9, 0.02, 1.9, std(0x1d1f3c, 0.6, 0.15, { envMapIntensity: 1.5 }), x, bot - 0.23, z, g);   // photodiode window
+  }
+  for (let i = 0; i < 10; i++) box(0.9, 0.06, 0.5, M.gold, (i % 2 ? 1 : -1) * 6, bot - 0.03, -8 + i * 1.7, g);   // gold pads
+  // top side: analog front-end (illustrative) + passives + amber flex up to the main board
+  chip(g, 3.6, 3.6, 0.5, [['AFE', 52]], 0, SNS_Y0 + SNS_T, -3.5);
+  // skin temperature sensor on the skin side, next to the window (position illustrative)
+  box(1.6, 0.3, 1.6, M.black, 5.6, SNS_Y0 - 0.15, -8.4, g); box(1.0, 0.04, 1.0, M.gold, 5.6, SNS_Y0 - 0.32, -8.4, g);
+  const r = rng(5); for (let i = 0; i < 18; i++) box(0.6, 0.25, 0.3, M.ceramic, (r() - .5) * 11, SNS_Y0 + SNS_T + 0.125, 1 + r() * 6, g);
+  box(5.0, 0.1, 3.0, M.flex, 0, SNS_Y0 + SNS_T + 0.05, 8.1, g);
+  const fx = new THREE.CatmullRomCurve3([new THREE.Vector3(0, SNS_Y0 + SNS_T + 0.1, 9.4), new THREE.Vector3(0, 2.85, 10.4), new THREE.Vector3(0, 2.95, 11.6)]);
+  const t1 = mesh(new THREE.TubeGeometry(fx, 16, 0.06, 4), M.flex, -1.6, 0, 0, g); mesh(t1.geometry, M.flex, 1.6, 0, 0, g); mesh(t1.geometry, M.flex, 0, 0, 0, g);
+});
+
+/* 5. Bottom housing: satin tray, black-glass sensor window ringed in polished steel */
+const WIN = { W: 13, L: 17, R: 4 };
+const BOTTOM = addPart('bottom', 0, { az: 0.35, el: 0.08, k: 2.2 }, [POD.W / 2, 2.4, 0], g => {
+  mesh(ring(POD.W - 0.1, POD.L - 0.1, POD.R - 0.05, IN.W, IN.L, IN.R, 0.8, SPLIT - 0.12), M.botShell, 0, 0, 0, g);
+  mesh(pillow(POD.W - 0.1, POD.L - 0.1, POD.R - 0.05, 1.6, 0.75, [[WIN.W, WIN.L, WIN.R]]), M.botShell, 0, 0.8, 0, g);
+  const seam = mesh(ring(POD.W - 0.4, POD.L - 0.4, POD.R - 0.2, IN.W, IN.L, IN.R, SPLIT - 0.12, SPLIT + 0.12), M.seam, 0, 0, 0, g); seam.userData.noGhost = true;
+  const win = mesh(pillow(WIN.W - 0.1, WIN.L - 0.1, WIN.R, 1.3, 0.5), M.glass, 0, 0.25, 0, g);   // dome sits 0.4 mm proud of the base
+  const trim = mesh(ring(WIN.W + 1.4, WIN.L + 1.4, WIN.R + 0.7, WIN.W, WIN.L, WIN.R, -0.05, 0.25), M.steel, 0, 0, 0, g);
+  // sensor dividers seen through the glass
+  for (const z of [-3, 3]) box(WIN.W - 2, 0.05, 0.25, M.black, 0, 0.92, z, g);
+});
+
+/* 6. Band and clasp: built around the forearm below */
+let BAND = null;
+
+/* ---------------- Forearm (procedural) ---------------- */
+// Arm runs along x (elbow at -x, hand at +x). Cross-section: superellipse in (z, y), half-width a, half-height b.
+const lerpKeys = (keys, x) => { if (x <= keys[0][0]) return keys[0].slice(1); for (let i = 1; i < keys.length; i++) if (x <= keys[i][0]) { const [x0, ...v0] = keys[i - 1], [x1, ...v1] = keys[i]; let t = (x - x0) / (x1 - x0); t = t * t * (3 - 2 * t); return v0.map((v, k) => v + (v1[k] - v) * t); } return keys[keys.length - 1].slice(1); };
+const ARM_KEYS = [ // x, a (half width), b (half height), exponent
+  [-420, 42, 36, 2.15], [-260, 41, 35, 2.15], [-160, 40, 33, 2.2], [-90, 36, 28, 2.3], [-40, 32, 22.8, 2.45], [-12, 30.2, 20.3, 2.55], [0, 30, 20, 2.6], [14, 29.4, 19.6, 2.6],
+  [32, 28.6, 18.2, 2.6], [50, 31.5, 16.5, 2.5], [75, 38, 15.2, 2.45], [130, 41, 14.2, 2.4], [190, 40, 13.6, 2.4], [330, 39, 13, 2.4]];
+const B0 = lerpKeys(ARM_KEYS, 0)[1];
+const TABLE = -1.97 * B0;                       // arm top at the pod (x = 0) sits at y = 0
+const BAND_HALF = 12.4;
+const FRAME = { W: POD.W + 2.6, L: POD.L + 2.6, R: POD.R + 1.3 };   // polished frame around the pod (from review photos)
+const POD_HX = FRAME.W / 2, POD_HZ = FRAME.L / 2;
+const sstep = (e0, e1, x) => { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
+function section(x, th) {   // → { y, z, ny, nz } on the relaxed skin
+  const [a, b, n] = lerpKeys(ARM_KEYS, x), e = 2 / n, c = Math.cos(th), s = Math.sin(th);
+  const yc = TABLE + b * 0.97;
+  let z = a * Math.sign(c) * Math.pow(Math.abs(c), e), y = b * Math.sign(s) * Math.pow(Math.abs(s), e);
+  // outward normal from the tangent
+  const d = 1e-3, c2 = Math.cos(th + d), s2 = Math.sin(th + d);
+  const z2 = a * Math.sign(c2) * Math.pow(Math.abs(c2), e), y2 = b * Math.sign(s2) * Math.pow(Math.abs(s2), e);
+  let tz = z2 - z, ty = y2 - y; const tl = Math.hypot(tz, ty) || 1; const nz = ty / tl, ny = -tz / tl;
+  // anatomy: wrist bone (ulna head) on the far side, muscle ridge up the forearm
+  let bump = 1.2 * Math.exp(-((x - 28) ** 2) / 60 - ((th - 2.2) ** 2) / 0.09);
+  bump += 1.6 * Math.exp(-((x + 110) ** 2) / 2600 - ((th - 1.25) ** 2) / 0.35);
+  bump -= 0.35 * Math.exp(-((x - 40) ** 2) / 12 - ((th - 1.57) ** 2) / 0.6);       // faint wrist crease
+  bump -= 0.4 * sstep(BAND_HALF + 1.2, BAND_HALF - 0.6, Math.abs(x));             // band presses in slightly
+  return { y: yc + y + ny * bump, z: z + nz * bump, ny, nz };
+}
+function armGeo() {
+  const X0 = -420, X1 = 330, NX = 420, NT = 180, pos = [], uv = [], idx = [];
+  for (let i = 0; i <= NX; i++) {
+    const x = X0 + (X1 - X0) * i / NX;
+    for (let j = 0; j <= NT; j++) {
+      const th = -Math.PI / 2 + 2 * Math.PI * j / NT;      // seam underneath
+      let { y, z } = section(x, th);
+      y = Math.max(y, TABLE + 0.3);                          // resting on the table
+      // skin pressed flat under the pod (sensor contact)
+      const fx = sstep(POD_HX + 3.5, POD_HX - 1, Math.abs(x)), fz = sstep(POD_HZ + 3.5, POD_HZ - 1, Math.abs(z));
+      const w = fx * fz * sstep(-5, -1, y);
+      y = y + (-0.25 - y) * w;
+      pos.push(x, y, z);
+      uv.push((x - X0) / 40, j / NT * 4);
+    }
+  }
+  for (let i = 0; i < NX; i++) for (let j = 0; j < NT; j++) { const a = i * (NT + 1) + j, b = a + NT + 1; idx.push(a, b, a + 1, b, b + 1, a + 1); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx); g.computeVertexNormals(); return g;
+}
+// Skin texture (tiles every 40 mm): mottled tone, pores, fine forearm hair running toward the hand.
+const SKIN_PX = 1024;
+const skinNoise = (() => { const r = rng(42), waves = []; for (let i = 0; i < 14; i++) waves.push([1 + Math.floor(r() * 9), Math.floor(r() * 9) - 4, r() * 6.283, 0.5 + r()]); return (u, v) => waves.reduce((s, [fu, fv, ph, a]) => s + a * Math.sin(6.283 * (fu * u + fv * v) + ph), 0) / 7; })();
+function drawHair(x, r, W, H, color, alphaK, width) {
+  for (let i = 0; i < 230; i++) {
+    const px = r() * W, py = r() * H, len = 40 + r() * 80, ang = (r() - 0.5) * 0.7 + (r() < 0.15 ? 0.6 : 0), bend = (r() - 0.5) * 0.6;
+    const a = (0.12 + r() * 0.3) * alphaK;
+    for (const ox of [-W, 0, W]) for (const oy of [-H, 0, H]) {
+      x.beginPath(); x.moveTo(px + ox, py + oy);
+      const cx = px + ox + Math.cos(ang) * len * 0.5, cy = py + oy + Math.sin(ang) * len * 0.5 + bend * len * 0.3;
+      x.quadraticCurveTo(cx, cy, px + ox + Math.cos(ang + bend) * len, py + oy + Math.sin(ang + bend) * len);
+      x.strokeStyle = color(a); x.lineWidth = width; x.stroke();
+    }
+  }
+}
+const skinMap = canvasTex(SKIN_PX, SKIN_PX, (x, W, H) => {
+  const img = x.createImageData(W, H), d = img.data, r = rng(3);
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    const n = skinNoise(i / W, j / H), m = skinNoise(i / W * 3 % 1, j / H * 3 % 1) * 0.4, k = (j * W + i) * 4, g = (r() - .5) * 6;
+    d[k] = 142 + n * 12 + m * 8 + g; d[k + 1] = 102 + n * 9 + m * 5 + g; d[k + 2] = 82 + n * 7 + m * 3 + g; d[k + 3] = 255;
+  }
+  x.putImageData(img, 0, 0);
+  for (let i = 0; i < 9000; i++) { x.fillStyle = `rgba(90,48,30,${(0.05 + r() * 0.12).toFixed(3)})`; x.beginPath(); x.arc(r() * W, r() * H, 0.7 + r() * 1.1, 0, 7); x.fill(); }
+  drawHair(x, rng(77), W, H, a => `rgba(46,28,18,${a.toFixed(3)})`, 1, 1.0);
+});
+skinMap.wrapS = skinMap.wrapT = THREE.RepeatWrapping;
+const skinBump = canvasTex(SKIN_PX, SKIN_PX, (x, W, H) => {
+  const img = x.createImageData(W, H), d = img.data, r = rng(9);
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) { const k = (j * W + i) * 4, v = 128 + skinNoise(i / W * 5 % 1, j / H * 5 % 1) * 2.5 + (r() - .5) * 22; d[k] = d[k + 1] = d[k + 2] = v; d[k + 3] = 255; }
+  x.putImageData(img, 0, 0);
+  // fine crosshatch of skin lines
+  x.strokeStyle = 'rgba(60,60,60,.18)'; x.lineWidth = 1.2; for (let i = 0; i < 260; i++) { const px = r() * W, py = r() * H, a = r() * 3.14, L = 20 + r() * 50; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a) * L, py + Math.sin(a) * L); x.stroke(); }
+  for (let i = 0; i < 9000; i++) { x.fillStyle = 'rgba(30,30,30,.35)'; x.beginPath(); x.arc(r() * W, r() * H, 0.8 + r() * 0.8, 0, 7); x.fill(); }
+  drawHair(x, rng(77), W, H, a => `rgba(235,235,235,${a.toFixed(3)})`, 1.0, 1.2);
+}, false);
+skinBump.wrapS = skinBump.wrapT = THREE.RepeatWrapping;
+const GLOW = { pos: { value: new THREE.Vector3(0, -0.2, 0) }, color: { value: new THREE.Color(0x1cff5e) }, k: { value: 0 }, r: { value: 5 }, half: { value: new THREE.Vector2(POD.W / 2 - 1.5, POD.L / 2 - 1.5) } };
+const skinMat = phys({ color: 0xffffff, map: skinMap, bumpMap: skinBump, bumpScale: 0.045, roughness: 0.52, metalness: 0, clearcoat: 0.12, clearcoatRoughness: 0.5, sheen: new THREE.Color(0x2a1208), envMapIntensity: 0.3 });
+skinMat.onBeforeCompile = sh => {   // green LED light bleeding into the skin around the pod
+  Object.assign(sh.uniforms, { gPos: GLOW.pos, gCol: GLOW.color, gK: GLOW.k, gR: GLOW.r, gHalf: GLOW.half });
+  sh.vertexShader = 'varying vec3 vGW;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n vGW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+  sh.fragmentShader = 'varying vec3 vGW; uniform vec3 gPos; uniform vec3 gCol; uniform float gK; uniform float gR; uniform vec2 gHalf;\n' + sh.fragmentShader.replace('#include <emissivemap_fragment>',
+    '#include <emissivemap_fragment>\n { vec2 q0 = abs(vGW.xz - gPos.xz) - gHalf; vec2 q = max(q0, 0.0); float inside = smoothstep(-3.0, 0.5, max(q0.x, q0.y)); float gd = length(q) + 0.25 * max(gPos.y - vGW.y - 2.0, 0.0); float gf = exp(-gd * gd / (gR * gR)); totalEmissiveRadiance += gK * gf * mix(0.18, 1.0, inside) * gCol * vec3(0.55, 1.0, 0.6); }');
+};
+const ARM = mesh(armGeo(), skinMat, 0, 0, 0, scene); ARM.receiveShadow = true; ARM.castShadow = true;
+
+// Table: dark, slightly glossy, catches the pool of light and the shadows.
+const table = mesh(new THREE.PlaneGeometry(2400, 2400), new THREE.MeshLambertMaterial({ color: 0x060708 }), 0, TABLE, 0, scene);
+table.rotation.x = -Math.PI / 2; table.receiveShadow = true;
+
+/* 6. Band + clasp around the wrist (part, not exploded) */
+const weave = (x, w, h, bg, cell) => {   // staggered rounded cells, 8 x 8 per tile
+  x.fillStyle = bg; x.fillRect(0, 0, w, h); const r = rng(13), n = 8, c = w / n;
+  for (let j = 0; j < n * 2; j++) for (let i = -1; i <= n; i++) { const cx = (i + (j % 2) * 0.5 + 0.5) * c, cy = (j + 0.5) * c / 2;
+    x.fillStyle = cell(r()); x.beginPath(); x.ellipse(cx, cy, c * 0.36, c * 0.3, 0, 0, 7); x.fill(); }
+};
+const knitTex = canvasTex(256, 256, (x, w, h) => weave(x, w, h, '#050506', v => { const l = 44 + v * 14; return `rgb(${l},${l},${l + 2})`; }));
+knitTex.wrapS = knitTex.wrapT = THREE.RepeatWrapping;
+const knitBump = canvasTex(256, 256, (x, w, h) => weave(x, w, h, '#1a1a1a', () => '#d8d8d8'), false);
+knitBump.wrapS = knitBump.wrapT = THREE.RepeatWrapping;
+function bandGeo() {
+  // find where the band leaves the skin next to each end of the pod
+  let thA = Math.PI / 2; while (section(0, thA).z < FRAME.L / 2 + 1.4) thA -= 0.002;
+  const span = Math.PI + 2 * thA, NT = 220, prof = [];
+  const T0 = 0.06, T1 = 1.9, HW = BAND_HALF, cr = 0.7;
+  // profile: rounded rect in (dx, dr), counter-clockwise
+  const corner = (cx, cr0, a0) => { for (let k = 0; k <= 4; k++) { const a = a0 + k / 4 * Math.PI / 2; prof.push([cx[0] + Math.cos(a) * cr0, cx[1] + Math.sin(a) * cr0]); } };
+  corner([HW - cr, T0 + cr], cr, -Math.PI / 2); corner([HW - cr, T1 - cr], cr, 0); corner([-HW + cr, T1 - cr], cr, Math.PI / 2); corner([-HW + cr, T0 + cr], cr, Math.PI);
+  const NP = prof.length, pos = [], uv = [], idx = [];
+  let arc = 0, prev = null;
+  for (let i = 0; i <= NT; i++) {
+    const th = thA - span * i / NT;
+    const c0 = section(0, th); if (prev) arc += Math.hypot(c0.y - prev.y, c0.z - prev.z); prev = c0;
+    for (let j = 0; j <= NP; j++) { const [dx, dr] = prof[j % NP], s = section(dx, th);
+      pos.push(dx, s.y + s.ny * dr, s.z + s.nz * dr); uv.push(arc / 6, (j / NP) * 9); }
+  }
+  for (let i = 0; i < NT; i++) for (let j = 0; j < NP; j++) { const a = i * (NP + 1) + j, b = a + NP + 1; idx.push(a, a + 1, b, b, a + 1, b + 1); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx); g.computeVertexNormals(); return { g, thA };
+}
+let BAND_LOOP = null, BAND_ENDS = null;
+function ribbonGeo(curve, width, thick, N = 48) {   // flat band (width along x) swept along a curve in the y–z plane
+  const hw = width / 2, ht = thick / 2, cr = 0.6, prof = [];
+  const corner = (cx, cy, a0) => { for (let k = 0; k <= 3; k++) { const a = a0 + k / 3 * Math.PI / 2; prof.push([cx + Math.cos(a) * cr, cy + Math.sin(a) * cr]); } };
+  corner(hw - cr, -ht + cr, -Math.PI / 2); corner(hw - cr, ht - cr, 0); corner(-hw + cr, ht - cr, Math.PI / 2); corner(-hw + cr, -ht + cr, Math.PI);
+  const NP = prof.length, pos = [], uv = [], idx = []; let arc = 0, prev = null;
+  for (let i = 0; i <= N; i++) {
+    const t = i / N, P = curve.getPoint(t), Tn = curve.getTangent(t); if (prev) arc += P.distanceTo(prev); prev = P;
+    const n = new THREE.Vector3(0, -Tn.z, Tn.y).normalize();   // in-plane normal
+    for (let j = 0; j <= NP; j++) { const [dx, dn] = prof[j % NP]; pos.push(dx, P.y + n.y * dn, P.z + n.z * dn); uv.push(arc / 6, (j / NP) * 9); }
+  }
+  for (let i = 0; i < N; i++) for (let j = 0; j < NP; j++) { const a = i * (NP + 1) + j, b = a + NP + 1; idx.push(a, b, a + 1, b, b + 1, a + 1); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx); g.computeVertexNormals(); return g;
+}
+const knitMat = () => phys({ color: 0xffffff, map: knitTex, bumpMap: knitBump, bumpScale: 0.12, roughness: 0.9, metalness: 0, sheen: new THREE.Color(0x2a2a30) });
+BAND = addPart('band', 104, { az: 0.6, el: 0.5, k: 1.7 }, [FRAME.W / 2, POD.H + 0.8, -6], g => {
+  // wrist loop (stays on the arm when the layers lift)
+  BAND_LOOP = new THREE.Group(); g.add(BAND_LOOP);
+  BAND_ENDS = new THREE.Group(); g.add(BAND_ENDS);
+  const { g: bg, thA } = bandGeo(); mesh(bg, knitMat(), 0, 0, 0, BAND_LOOP);
+  // band ends wrap up around both ends of the pod and run under the frame into the top strip (no gap)
+  const T = 1.9, ends = [thA, Math.PI - thA];
+  [1, -1].forEach((sg, k) => {
+    const s0 = section(0, ends[k]), nrm = new THREE.Vector2(s0.nz, s0.ny);
+    const foot = new THREE.Vector3(0, s0.y + s0.ny * T / 2, s0.z + s0.nz * T / 2);
+    const pts = [new THREE.Vector3(0, POD.H + 0.35, sg * (FRAME.L / 2 - 3.0)), new THREE.Vector3(0, POD.H + 0.1, sg * (FRAME.L / 2 + 0.7)),
+      new THREE.Vector3(0, POD.H - 1.2, sg * (FRAME.L / 2 + 1.35)), new THREE.Vector3(0, 2.2, sg * (FRAME.L / 2 + 1.45)), foot];
+    mesh(ribbonGeo(new THREE.CatmullRomCurve3(pts), BAND_HALF * 2, T), knitMat(), 0, 0, 0, BAND_ENDS);
+  });
+  // knit strip running over the top of the pod
+  const st = knitMat(); st.map = knitTex.clone(); st.map.needsUpdate = true; st.map.repeat.set(1 / 6, 1 / 6); st.bumpMap = knitBump.clone(); st.bumpMap.needsUpdate = true; st.bumpMap.repeat.set(1 / 6, 1 / 6);
+  const strip = mesh(pillow(POD.W - 0.2, FRAME.L - 1.6, 4, 1.5, 0.5), st, 0, POD.H + 0.7, -1.2, g); strip.userData.glassy = true;
+  // polished metal frame around the pod
+  const fr = mesh(ring(FRAME.W, FRAME.L, FRAME.R, POD.W + 0.1, POD.L + 0.1, POD.R + 0.05, POD.H - 2.4, POD.H + 1.1), M.chrome, 0, 0, 0, g); fr.userData.glassy = true;
+  const lip = mesh(pillow(FRAME.W, FRAME.L, FRAME.R, 0.9, 0.42, [[POD.W - 1.2, POD.L - 1.2, POD.R - 0.6]]), M.chrome, 0, POD.H + 1.05, 0, g); lip.userData.glassy = true;
+  // curved clasp plate across one end (plain: no logo)
+  const pl = mesh(pillow(FRAME.W - 0.1, 7.4, 2.4, 1.5, 0.7), M.chrome, 0, POD.H + 0.85, FRAME.L / 2 - 4.1, g); pl.userData.glassy = true;
+  // name engraved on the plate: plain bold text in our own font, not the brand's logo artwork (Harsh's call, rule 14 exception)
+  const nameTex = canvasTex(1024, 192, (x, w, h) => {
+    x.clearRect(0, 0, w, h); x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.font = '700 132px Sora, "Segoe UI", Arial, sans-serif'; const txt = 'WHOOP', sp = 34;
+    const widths = [...txt].map(c => x.measureText(c).width), tot = widths.reduce((a, b) => a + b, 0) + sp * (txt.length - 1); let cx = (w - tot) / 2;
+    [...txt].forEach((c, i) => { x.fillText(c, cx + widths[i] / 2, h / 2 + 6); cx += widths[i] + sp; });
+  });
+  const name = new THREE.Mesh(new THREE.PlaneGeometry(14, 2.6), new THREE.MeshStandardMaterial({ color: 0x3a3e44, metalness: 0.6, roughness: 0.55, alphaMap: nameTex, transparent: true, depthWrite: false }));
+  name.rotation.x = -Math.PI / 2; name.position.set(0, POD.H + 1.605, FRAME.L / 2 - 4.1); name.renderOrder = 2; name.userData.noGhost = true; name.userData.glassy = true; g.add(name);
+  window.__bandTh = thA;
+});
+{ // camera framing + label for the band card use the lifted frame and strip only, not the whole loop
+  const b = new THREE.Box3(); BAND.group.children.forEach(o => { if (o !== BAND_LOOP && o !== BAND_ENDS) b.expandByObject(o); });
+  BAND.center = b.getCenter(new THREE.Vector3()); BAND.radius = b.getBoundingSphere(new THREE.Sphere()).radius;
+}
+const ORDER = ['band', 'top', 'battery', 'board', 'sensor', 'bottom'];
+parts.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id)).forEach((p, i) => p.index = i);
+[TOP, BOTTOM, BAND].forEach(addGhosts);
+
+/* ---------------- Inside-the-shell ray test (like airpods-ear __inside) ----------------
+   Every internal vertex (battery, main board, sensor board) must be inside the closed cavity
+   hull (inner walls of the shell, between the bottom plate and the lid) when assembled. */
+const HULL = (() => { const g = new THREE.ExtrudeGeometry(rrShape(IN.W, IN.L, IN.R), { depth: CAV.y1 - CAV.y0, bevelEnabled: false, curveSegments: 28 }); flat(g); g.translate(0, CAV.y0, 0);
+  return new THREE.Mesh(g, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })); })();
+window.__inside = () => {
+  const saved = parts.map(p => p.group.position.clone()), sy = root.scale.y; root.scale.set(1, 1, 1); parts.forEach(p => p.group.position.set(0, 0, 0)); root.updateMatrixWorld(true); HULL.updateMatrixWorld(true);
+  const rc = new THREE.Raycaster(), v = new THREE.Vector3(), out = {}; let total = 0;
+  const dirs = [[1, .013, .021], [-1, .017, -.011], [.012, 1, .019], [-.016, -1, .013], [.011, .014, 1], [-.019, .012, -1]].map(d => new THREE.Vector3(...d).normalize());
+  parts.filter(p => INTERNAL_IDS.has(p.id)).forEach(p => p.group.traverse(o => {
+    if (!o.isMesh || o.userData.ghost) return; const pa = o.geometry.attributes.position; let bad = 0;
+    for (let i = 0; i < pa.count; i++) { v.fromBufferAttribute(pa, i).applyMatrix4(o.matrixWorld); total++;
+      let exits = 0; for (const d of dirs) { rc.set(v, d); const h = rc.intersectObject(HULL, false)[0]; if (h && h.face.normal.clone().transformDirection(HULL.matrixWorld).dot(d) > 0) exits++; }
+      if (exits < 6) bad++; }
+    if (bad) { const c = new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()); out[p.id + ':' + o.geometry.type + '@' + c.toArray().map(x => x.toFixed(1)).join(',')] = bad + '/' + pa.count; } }));
+  parts.forEach((p, i) => p.group.position.copy(saved[i])); root.scale.set(1, sy, 1); return { tested: total, outside: out };
+};
+
+/* ---------------- View / state ---------------- */
+const N = parts.length;
+const byId = id => parts.find(p => p.id === id);
+const STACK_TOP = POD.H + 2 + byId('band').offset.y;
+const OV_WIDE = { target: new THREE.Vector3(0, STACK_TOP * 0.47, 0), az: 0.62, el: 0.3, dist: 290, shift: 0 };
+const OV_TALL = { target: new THREE.Vector3(0, STACK_TOP * 0.47, 0), az: 0.5, el: 0.3, dist: 390, shift: 0 };
+const HERO = { target: new THREE.Vector3(0, 4, 0), az: 0.75, el: 0.2, dist: 165, shift: 0 };
+const isTall = () => innerWidth < innerHeight;
+const overviewPose = () => clonePose(isTall() ? OV_TALL : OV_WIDE);
+
+const view = overviewPose();
+let explode = 1, glass = 0, led = 1;
+
+function clonePose(p) { return { target: p.target.clone(), az: p.az, el: p.el, dist: p.dist, shift: p.shift }; }
+function lerpPose(a, b, t) { return { target: a.target.clone().lerp(b.target, t), az: a.az + (b.az - a.az) * t, el: a.el + (b.el - a.el) * t, dist: a.dist + (b.dist - a.dist) * t, shift: a.shift + (b.shift - a.shift) * t }; }
+function partPose(p, drift = 0) {
+  const c = p.center.clone().add(p.offset);
+  const dist = Math.max(p.radius / Math.sin(FOV / 2) * p.view.k * (isTall() ? 1.35 : 1), 40);
+  return { target: c, az: p.view.az + drift, el: p.view.el, dist, shift: 1 };
+}
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const clamp01 = t => Math.min(1, Math.max(0, t));
+
+const FLIP_PIVOT = new THREE.Vector3(0, SNS_Y0 + SNS_T / 2, 0), _fq = new THREE.Quaternion(), _fe = new THREE.Euler();
+SENSOR.flip = 0;
+const lift = (p, e) => { const k = ORDER.indexOf(p.id); return k >= 5 ? 0 : clamp01(e * 1.5 - k * 0.1); };
+function applyExplode(e) {
+  parts.forEach(p => p.group.position.copy(p.offset).multiplyScalar(lift(p, e)));
+  // closed on the wrist the pod is shown slimmer (illustrative); it grows back to full size as the layers come apart
+  const sq = 1 - 0.3 * (1 - sstep(0, 0.3, e)); root.scale.set(1, sq, 1);
+  BAND_LOOP.position.set(0, -BAND.group.position.y, 0); BAND_LOOP.scale.set(1, 1 / sq, 1);   // wrist loop never changes
+  BAND_ENDS.position.set(0, -BAND.group.position.y, 0);
+  // close-up only: turn the sensor board over (about its own centre) so the LEDs face the camera
+  const a = -1.95 * ease(clamp01(SENSOR.flip)) * clamp01((e - 0.6) / 0.4);
+  _fq.setFromEuler(_fe.set(a, 0, 0)); SENSOR.group.quaternion.copy(_fq);
+  SENSOR.group.position.add(FLIP_PIVOT.clone().sub(FLIP_PIVOT.clone().applyQuaternion(_fq)));
+}
+function applyMaterials() {
+  // shell: solid → glass; internals only visible once the shell is glass or the layers are apart
+  const showInside = glass > 0.55 || lift(TOP, explode) > 0.35;
+  parts.forEach(p => {
+    const d = p.dim;
+    if (INTERNAL_IDS.has(p.id)) p.group.visible = showInside;
+    p.group.traverse(o => {
+      if (!o.isMesh || o.userData.ghost) return;
+      const sh = SHELL_IDS.has(p.id) || !!o.userData.glassy;
+      (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => {
+        const u = m.userData, op = u.baseOpacity * (1 - 0.9 * d) * (sh ? 1 - 0.94 * glass : 1);
+        const tr = u.baseTransparent || op < 0.999;
+        if (m.transparent !== tr) { m.transparent = tr; m.needsUpdate = true; }
+        m.opacity = op; m.depthWrite = op > 0.6 ? u.baseDepthWrite : false;
+      });
+      o.castShadow = !(sh && glass > 0.5) && d < 0.5;
+    });
+    p.ghosts.forEach(gm => { gm.material.uniforms.alpha.value = glass * (1 - 0.85 * d); gm.visible = glass > 0.01; });
+  });
+}
+function applyLed(t, k) {   // LEDs pulse with a heartbeat rhythm; green light spills onto the skin
+  const ph = (t % 0.92) / 0.92, beat = Math.exp(-Math.pow((ph - 0.08) / 0.07, 2)) + 0.55 * Math.exp(-Math.pow((ph - 0.3) / 0.08, 2));
+  const flick = 0.85 + 0.15 * Math.sin(t * 26 * 6.283);
+  const v = k * (0.55 + 0.45 * beat) * flick;
+  LED_DIES.forEach(d => d.m.material.emissiveIntensity = d.ir ? 0.25 * k : 0.4 + 5.5 * v);
+  const sy = SENSOR.group.position.y + SNS_Y0 - 0.3;
+  GLOW.k.value = 0.75 * v * (1 - 0.6 * clamp01(sy / 30)); GLOW.r.value = 6.5 + 0.35 * Math.min(sy, 30);
+  ledLight.position.set(0, sy, 0); ledLight.intensity = 1.6 * v;
+}
+
+/* ---------------- Labels ---------------- */
+const labelsEl = document.getElementById('labels');
+parts.forEach(p => {
+  const el = document.createElement('div'); el.className = 'tag'; el.innerHTML = '<i></i><b></b><span></span>';
+  el.querySelector('span').textContent = p.info.name; labelsEl.appendChild(el); p.tag = el;
+});
+let labelsAlpha = 1;
+const tmpV = new THREE.Vector3();
+function updateLabels(w, h) {
+  labelsEl.style.opacity = labelsAlpha.toFixed(3);
+  if (labelsAlpha < 0.01) return;
+  parts.forEach(p => {
+    tmpV.copy(p.anchor).add(p.group.position).project(camera);
+    const x = (tmpV.x * 0.5 + 0.5) * w, y = (-tmpV.y * 0.5 + 0.5) * h;
+    const left = false;
+    p.tag.classList.toggle('left', left);
+    p.tag.style.transform = `translate(${left ? 'calc(' + x + 'px - 100% + 3.5px)' : (x - 3.5) + 'px'}, ${y - 12}px)`;
+    p.tag.style.visibility = tmpV.z < 1 && p.group.visible ? 'visible' : 'hidden';
+  });
+}
+
+/* ---------------- Card + title ---------------- */
+const card = document.getElementById('card');
+let cardIndex = -1;
+function setCard(i) {
+  if (i === cardIndex) return; cardIndex = i;
+  if (i < 0) { card.hidden = true; return; }
+  const p = parts[i];
+  document.getElementById('card-num').textContent = String(i + 1).padStart(2, '0') + ' / ' + N + '  ·  Layer';
+  const il = document.getElementById('card-illus'); il.hidden = !p.info.illus; il.textContent = p.info.illus || '';
+  document.getElementById('card-name').textContent = p.info.name;
+  document.getElementById('card-role').textContent = p.info.role;
+  document.getElementById('card-body').textContent = p.info.body;
+  const ul = document.getElementById('card-specs'); ul.innerHTML = '';
+  p.info.specs.forEach(s => { const li = document.createElement('li'); const unv = Array.isArray(s); li.textContent = unv ? s[0] : s; if (unv) li.className = 'unv'; ul.appendChild(li); });
+  card.hidden = false;
+}
+const titleCard = document.getElementById('title-card');
+const TITLES = {
+  intro: ['Teardown', 'Inside WHOOP 5.0', 'The screenless band, layer by layer.'],
+  outro: ['10.6 mm thin', 'A lab on your wrist.', 'Light sensor, processor, memory and a two-week battery, sealed in a pod smaller than a matchbox.'],
+};
+let titleKey = '';
+function setTitle(k, a) {
+  if (k && k !== titleKey) { titleKey = k; const [e, t, s] = TITLES[k]; document.getElementById('tc-eyebrow').textContent = e; document.getElementById('tc-title').textContent = t; document.getElementById('tc-sub').textContent = s; }
+  titleCard.style.opacity = k ? a.toFixed(3) : 0;
+}
+
+/* ---------------- Tour timeline ---------------- */
+const BLEND = 1.5, PART_DUR = 6.4;
+const segs = []; let tAcc = 0;
+function seg(o) { o.start = tAcc; tAcc += o.dur; segs.push(o); }
+const OV = () => overviewPose();
+seg({ kind: 'intro', dur: 5, focus: -1, explode: () => 0, glass: () => 0,
+  pose: t => ({ target: HERO.target.clone(), az: HERO.az - 0.35 + 0.35 * t, el: HERO.el, dist: HERO.dist, shift: 0 }), labels: () => 0,
+  title: t => ['intro', clamp01(Math.min(t * 5 / 0.8, (1 - t) * 5 / 0.8))] });
+seg({ kind: 'xray', dur: 2.6, focus: -1, explode: () => 0, glass: t => ease(clamp01(t * 1.4)),
+  pose: t => ({ target: HERO.target.clone(), az: HERO.az + 0.1 * t, el: HERO.el + 0.15 * t, dist: HERO.dist - 25 * t, shift: 0 }), labels: () => 0 });
+seg({ kind: 'explode', dur: 4.4, focus: -1, explode: t => ease(clamp01(t * 1.15)), glass: t => 1 - ease(clamp01((t - 0.55) / 0.45)),
+  pose: t => lerpPose({ target: HERO.target.clone(), az: HERO.az + 0.1, el: HERO.el + 0.15, dist: HERO.dist - 25, shift: 0 }, OV(), ease(t)), labels: t => clamp01((t - 0.75) / 0.25) });
+seg({ kind: 'overview', dur: 3.4, focus: -1, explode: () => 1, glass: () => 0, pose: t => Object.assign(OV(), { az: OV().az + 0.12 * t }), labels: () => 1 });
+parts.forEach((p, i) => seg({ kind: 'part', dur: PART_DUR, focus: i, explode: () => 1, glass: () => 0, pose: t => partPose(p, 0.16 * t - 0.08), labels: () => 0, card: true }));
+seg({ kind: 'collapse', dur: 5.6, focus: -1, explode: t => 1 - ease(clamp01(t * 1.4)), glass: t => clamp01(t * 6) * (1 - clamp01((t - 0.8) / 0.15)),
+  pose: t => lerpPose(OV(), Object.assign(clonePose(HERO), { az: HERO.az + 6.283 }), ease(t)), labels: () => 0,
+  title: t => ['outro', clamp01((t - 0.5) / 0.15)] });
+const TOTAL = tAcc;
+
+function segAt(t) { for (let i = segs.length - 1; i >= 0; i--) if (t >= segs[i].start) return i; return 0; }
+function dimTarget(p, s) { return s.focus >= 0 && p.index !== s.focus ? 1 : 0; }
+function stateAt(t) {
+  t = Math.min(Math.max(t, 0), TOTAL - 1e-4);
+  const si = segAt(t), s = segs[si], lt = t - s.start, u = lt / s.dur;
+  let pose = s.pose(u);
+  const prev = segs[si - 1];
+  const b = prev ? ease(clamp01(lt / BLEND)) : 1;
+  if (prev && b < 1) pose = lerpPose(prev.pose(1), pose, b);
+  const dimB = prev ? ease(clamp01(lt / 0.9)) : 1;
+  const dims = parts.map(p => prev ? dimTarget(p, prev) + (dimTarget(p, s) - dimTarget(p, prev)) * dimB : dimTarget(p, s));
+  let labels = s.labels(u);
+  if (prev && lt < 0.6) labels = Math.min(labels, prev.labels(1) * (1 - lt / 0.6) + labels * (lt / 0.6));
+  const cardA = s.card ? clamp01(Math.min((lt - 0.5) / 0.6, (s.dur - lt) / 0.45)) : 0;
+  const flip = s.focus === SENSOR.index ? clamp01(Math.min((lt - 0.4) / 1.3, (s.dur - lt) / 0.9)) : 0;
+  return { t, flip, explode: s.explode(u), glass: s.glass(u), pose, dims, labels, card: s.card ? s.focus : -1, cardA, title: s.title ? s.title(u) : [null, 0] };
+}
+function applyState(st) {
+  explode = st.explode; glass = st.glass; SENSOR.flip = st.flip; applyExplode(explode);
+  Object.assign(view, clonePose(st.pose));
+  parts.forEach((p, i) => p.dim = st.dims[i]); applyMaterials(); applyLed(st.t, 1);
+  labelsAlpha = st.labels;
+  setCard(st.card); card.style.opacity = st.cardA.toFixed(3);
+  setTitle(st.title[0], st.title[1]);
+}
+
+/* ---------------- Render ---------------- */
+function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+function draw() {
+  const w = innerWidth, h = innerHeight, c = Math.cos(view.el);
+  camera.position.set(view.target.x + view.dist * c * Math.sin(view.az), view.target.y + view.dist * Math.sin(view.el), view.target.z + view.dist * c * Math.cos(view.az));
+  camera.up.set(0, 1, 0); camera.lookAt(view.target);
+  const wide = w > 820, sx = wide ? -0.17 * w * view.shift : 0, sy = wide ? 0 : 0.2 * h * view.shift;
+  if (Math.abs(sx) + Math.abs(sy) > 0.5) camera.setViewOffset(w, h, sx, sy, w, h); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  renderer.render(scene, camera);
+  updateLabels(w, h);
+}
+addEventListener('resize', resize); resize();
+
+if (new URLSearchParams(location.search).has("shot")) window.__T = { scene, camera, renderer, root, ARM, table, BAND, BAND_LOOP, BAND_ENDS, BOTTOM, SENSOR, parts, applyExplode, applyMaterials, applyLed, setExplode: v => { explode = v; }, setGlass: v => { glass = v; }, pillow, knitMat, POD, FRAME, METAL_ENV, key, rim, rim2, kick };
+/* ---------------- Video render hook ---------------- */
+window.__tour = { total: TOTAL, renderAt(t) { applyState(stateAt(t)); draw(); return true; } };
+if (RENDER) { if (!Q.has("shot")) { applyState(stateAt(0)); draw(); } return; }
+
+/* ---------------- Interactive mode ---------------- */
+const listEl = document.getElementById('part-list');
+parts.forEach((p, i) => {
+  const li = document.createElement('li'); const b = document.createElement('button'); b.type = 'button';
+  b.innerHTML = `<span class="n">${String(i + 1).padStart(2, '0')}</span><span></span>`; b.lastChild.textContent = p.info.name;
+  b.setAttribute('aria-pressed', 'false'); b.addEventListener('click', () => select(selected === i ? -1 : i));
+  li.appendChild(b); listEl.appendChild(li); p.btn = b;
+});
+
+let selected = -1, touring = false, tourT = 0, glassOn = false, clock = 0;
+const ovI = () => Object.assign(overviewPose(), { shift: innerWidth > 820 ? 0 : 0.12 });
+let goal = ovI(), goalExplode = 1;
+Object.assign(view, ovI());
+const slider = document.getElementById('explode'), playBtn = document.getElementById('play'), glassBtn = document.getElementById('glassBtn'), ledBtn = document.getElementById('ledBtn');
+
+function select(i) {
+  stopTour();
+  selected = i;
+  parts.forEach(p => p.btn.setAttribute('aria-pressed', String(p.index === i)));
+  if (i >= 0) { if (goalExplode < 0.6) goalExplode = 1; slider.value = goalExplode; goal = partPose(parts[i]); setCard(i); card.style.opacity = 1; }
+  else { goal = ovI(); setCard(-1); }
+}
+document.getElementById('prev').addEventListener('click', () => select((selected - 1 + N) % N));
+document.getElementById('next').addEventListener('click', () => select((selected + 1) % N));
+document.getElementById('overview').addEventListener('click', () => { select(-1); goalExplode = 1; slider.value = 1; });
+slider.addEventListener('input', () => { stopTour(); goalExplode = +slider.value; if (selected < 0 && goalExplode < 0.2) goal = clonePose(HERO); else if (selected < 0) goal = ovI(); });
+glassBtn.addEventListener('click', () => { glassOn = !glassOn; glassBtn.classList.toggle('primary', glassOn); });
+ledBtn.addEventListener('click', () => { led = led ? 0 : 1; ledBtn.textContent = led ? 'LEDs on' : 'LEDs off'; ledBtn.classList.toggle('primary', !!led); });
+ledBtn.classList.add('primary');
+
+function startTour() { touring = true; tourT = 0; selected = -1; parts.forEach(p => p.btn.setAttribute('aria-pressed', 'false')); playBtn.textContent = '■ Stop tour'; }
+function stopTour() {
+  if (!touring) return; touring = false; playBtn.textContent = '▶ Play tour';
+  goal = clonePose(view); goal.shift = selected >= 0 ? 1 : 0; goalExplode = explode; slider.value = explode; setTitle(null, 0);
+  if (selected < 0) setCard(-1);
+}
+playBtn.addEventListener('click', () => touring ? (stopTour(), select(-1)) : startTour());
+
+// orbit controls
+const ptrs = new Map(); let pinch0 = 0, dist0 = 0, moved = 0;
+canvas.addEventListener('pointerdown', e => { canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = 0; canvas.classList.add('dragging');
+  if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); dist0 = goal.dist; } });
+canvas.addEventListener('pointermove', e => {
+  const p = ptrs.get(e.pointerId); if (!p) return;
+  const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY; moved += Math.abs(dx) + Math.abs(dy);
+  if (moved > 4 && touring) stopTour();
+  if (ptrs.size === 1) { goal.az -= dx * 0.008; goal.el = Math.max(-0.6, Math.min(1.3, goal.el + dy * 0.006)); }
+  else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); if (pinch0) goal.dist = Math.max(30, Math.min(700, dist0 * pinch0 / d)); }
+});
+function endPtr(e) { if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); if (!ptrs.size) canvas.classList.remove('dragging'); if (moved < 5 && e.type === 'pointerup') pick(e); }
+canvas.addEventListener('pointerup', endPtr); canvas.addEventListener('pointercancel', endPtr);
+canvas.addEventListener('wheel', e => { e.preventDefault(); if (touring) stopTour(); goal.dist = Math.max(30, Math.min(700, goal.dist * Math.exp(e.deltaY * 0.0012))); }, { passive: false });
+
+const ray = new THREE.Raycaster(); const ndc = new THREE.Vector2();
+function pick(e) {
+  if (touring) return;
+  const r = canvas.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const hit = ray.intersectObjects(root.children, true).find(h => h.object.userData.part && h.object.visible && !h.object.userData.ghost && h.object.userData.part.dim < 0.5);
+  if (hit) select(hit.object.userData.part.index); else if (selected >= 0) select(-1);
+}
+
+// screenshot / test hooks
+window.__parts = parts; window.__L = { key, rim, rim2, kick, ledLight, scene };
+window.__ui = { select, setExplode: e => { goalExplode = explode = e; slider.value = e; }, setGlass: on => { glassOn = on; glassBtn.classList.toggle('primary', on); }, setPose: p => { Object.assign(goal, p); if (p.target) goal.target = new THREE.Vector3(...p.target); Object.assign(view, clonePose(goal)); }, hero: () => clonePose(HERO) };
+
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now; clock += dt;
+  if (touring) {
+    tourT += dt; if (tourT >= TOTAL) { applyState(stateAt(TOTAL)); touring = false; playBtn.textContent = '▶ Play tour'; goal = clonePose(view); goalExplode = explode; slider.value = explode; setTitle(null, 0); }
+    else applyState(stateAt(tourT));
+  } else {
+    const k = INSTANT ? 1 : 1 - Math.exp(-dt * 5);
+    Object.assign(view, lerpPose(view, goal, k));
+    explode += (goalExplode - explode) * k; SENSOR.flip += ((selected === SENSOR.index ? 1 : 0) - SENSOR.flip) * (INSTANT ? 1 : 1 - Math.exp(-dt * 3)); applyExplode(explode);
+    const gGoal = glassOn || (Math.abs(goalExplode - explode) > 0.01 && explode < 0.9) || (explode > 0.005 && explode < 0.35) ? 1 : 0;
+    glass += (gGoal - glass) * (INSTANT ? 1 : 1 - Math.exp(-dt * 7));
+    parts.forEach(p => { const t = selected >= 0 && p.index !== selected ? 1 : 0; p.dim += (t - p.dim) * k; });
+    applyMaterials(); applyLed(clock, led);
+    const lt = selected < 0 && explode > 0.55 ? 1 : 0; labelsAlpha += (lt - labelsAlpha) * k;
+    if (!REDUCED && !INSTANT && selected < 0 && !ptrs.size && Math.abs(goalExplode - explode) < 0.01) goal.az += dt * 0.04;
+  }
+  draw(); requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+})();
+</script>
+
+<script>
+/* WHOOP explainer shots (1080x1920 stills for the Short). Injected into shots.html by build-shots.py.
+   Reuses the teardown page's pod, arm and lights through window.__T. Open shots.html?render=1&shot=1 and call __tour.renderAt(i). */
+(() => {
+'use strict';
+const Q = new URLSearchParams(location.search); if (!Q.has('shot')) return;
+document.body.classList.add('shot');
+const T = window.__T, W = 1080, H = 1920;
+const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+const sstep = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+function canvasTex(w, h, draw) { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; draw(cv.getContext('2d'), w, h); const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = 8; return t; }
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* ---------- overlay: title, illustrative mark, pills + leader lines, watermark ---------- */
+const ui = document.createElement('div'); ui.id = 'shotUI';
+ui.innerHTML = `<div id="sArt"></div><div id="sTitle"></div><div id="sIllus">Illustrative · not to scale</div><svg id="sLines" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"></svg><div id="sPills"></div>
+  <div id="sWm2">@TheInvisiTech</div><div id="sWm"><img src="../airpods-ear/assets/invisitech-logo.png" alt=""><span>@TheInvisiTech</span></div>`;
+document.body.appendChild(ui);
+const css = document.createElement('style'); css.textContent = `
+  body.shot .top, body.shot #parts, body.shot #controls, body.shot #hint, body.shot #card, body.shot #labels, body.shot #title-card { display: none !important; }
+  #shotUI { position: fixed; left: 0; top: 0; width: ${W}px; height: ${H}px; pointer-events: none; font-family: "IBM Plex Sans", sans-serif; color: #f2f4f6; }
+  #sTitle { position: absolute; left: 80px; right: 80px; top: 250px; text-align: center; font: 700 76px/1.08 Sora, sans-serif; letter-spacing: -0.02em; text-wrap: balance; }
+  #sTitle em { font-style: normal; } #sTitle .g { color: #4be08a; } #sTitle .r { color: #ff4d5e; }
+  #sIllus { position: absolute; left: 0; right: 0; top: 452px; text-align: center; font: 400 26px "IBM Plex Sans"; color: rgba(220,226,232,.55); }
+  .sp { position: absolute; padding: 12px 24px; border-radius: 999px; font: 600 34px "IBM Plex Sans"; background: rgba(10,12,14,.84); border: 2px solid rgba(255,255,255,.2); white-space: nowrap; transform: translate(-50%, -50%); }
+  .sp.g { border-color: rgba(75,224,138,.75); color: #d9ffe8; } .sp.r { border-color: rgba(255,77,94,.75); color: #ffe0e4; }
+  #sArt { position: absolute; inset: 0; }
+  #sWm { position: absolute; right: 18px; top: 960px; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 14px; opacity: .8; }
+  #sWm img { width: 70px; height: 70px; border-radius: 50%; } #sWm span { writing-mode: vertical-rl; font: 600 27px "IBM Plex Sans"; color: rgba(255,255,255,.85); letter-spacing: .04em; }
+  #sWm2 { position: absolute; left: 330px; top: 1010px; font: 600 40px "IBM Plex Sans"; color: rgba(255,255,255,.06); transform: rotate(-12deg); }`;
+document.head.appendChild(css);
+const $ = id => document.getElementById(id);
+const proj = v => { const p = v.clone().project(T.camera); return [(p.x * .5 + .5) * W, (-p.y * .5 + .5) * H]; };
+function pills(list) {   // [{ text, cls, at: [x,y] screen, to: Vector3 (optional leader target) }]
+  $('sPills').innerHTML = ''; let svg = '';
+  list.forEach(p => { const d = document.createElement('div'); d.className = 'sp ' + (p.cls || ''); d.innerHTML = p.text; d.style.left = p.at[0] + 'px'; d.style.top = p.at[1] + 'px'; $('sPills').appendChild(d);
+    if (p.to) { const [x, y] = Array.isArray(p.to) ? p.to : proj(p.to); const col = p.cls === 'r' ? 'rgba(255,77,94,.8)' : 'rgba(75,224,138,.8)';
+      svg += `<line x1="${p.at[0]}" y1="${p.at[1] + (y > p.at[1] ? 30 : -30)}" x2="${x}" y2="${y}" stroke="${col}" stroke-width="3"/><circle cx="${x}" cy="${y}" r="9" fill="${col}"/><circle cx="${x}" cy="${y}" r="18" fill="none" stroke="${col}" stroke-opacity=".35" stroke-width="3"/>`; } });
+  $('sLines').innerHTML = svg;
+}
+
+/* ---------- extra props ---------- */
+const extras = [];
+const add = (o, parent = T.scene) => { parent.add(o); extras.push(o); o.visible = false; return o; };
+// sensor-window glow: rounded window with rings, light "rays" and the LED/photodiode dots (our own design)
+const glowTex = canvasTex(520, 680, (x, w, h) => {
+  x.clearRect(0, 0, w, h); const cx = w / 2, cy = h / 2;
+  const rr = (s, a, lw) => { const ww = w * s, hh = h * s, r = 60 * s; x.beginPath(); x.roundRect(cx - ww / 2, cy - hh / 2, ww, hh, r); x.strokeStyle = `rgba(90,255,150,${a})`; x.lineWidth = lw; x.stroke(); };
+  const g = x.createRadialGradient(cx, cy, 10, cx, cy, w * .55); g.addColorStop(0, 'rgba(60,255,130,.75)'); g.addColorStop(.5, 'rgba(30,200,100,.25)'); g.addColorStop(1, 'rgba(0,80,40,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  [0.92, 0.76, 0.6, 0.44].forEach((s, i) => rr(s, 0.55 - i * 0.08, 3));
+  const r = rng(3); for (let i = 0; i < 72; i++) { const a = i / 72 * Math.PI * 2, L = 40 + r() * 120 * (0.5 + 0.5 * Math.abs(Math.sin(a * 3))); x.strokeStyle = 'rgba(120,255,170,.55)'; x.lineWidth = 2.5;
+    x.beginPath(); x.moveTo(cx + Math.cos(a) * 70, cy + Math.sin(a) * 70); x.lineTo(cx + Math.cos(a) * (70 + L), cy + Math.sin(a) * (70 + L)); x.stroke(); }
+  [-170, -85, 0, 85, 170].forEach((dy, i) => { const c = i === 3 ? '255,80,80' : i === 4 ? '200,120,255' : '200,255,220'; const gg = x.createRadialGradient(cx, cy + dy, 2, cx, cy + dy, 34); gg.addColorStop(0, `rgba(${c},1)`); gg.addColorStop(1, `rgba(${c},0)`); x.fillStyle = gg; x.beginPath(); x.arc(cx, cy + dy, 34, 0, 7); x.fill(); });
+  [[-130, -250], [130, -250], [-130, 250], [130, 250]].forEach(([dx, dy]) => { x.fillStyle = 'rgba(10,20,40,.9)'; x.fillRect(cx + dx - 40, cy + dy - 40, 80, 80); x.strokeStyle = 'rgba(90,255,150,.8)'; x.lineWidth = 3; x.strokeRect(cx + dx - 40, cy + dy - 40, 80, 80); });
+});
+const winGlow = add(new THREE.Mesh(new THREE.PlaneGeometry(13.2, 17.4), new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })), T.BOTTOM.group);
+winGlow.rotation.x = Math.PI / 2; winGlow.position.y = -0.45; winGlow.userData.ghost = true;
+// straps running straight off both ends (for the off-the-wrist shots)
+const straps = add(new THREE.Group(), T.BAND.group);
+[-1, 1].forEach(s => { const m = new THREE.Mesh(T.pillow(T.POD.W - 0.2, 80, 3, 1.9, 0.7), T.knitMat()); m.material.map = m.material.map.clone(); m.material.map.needsUpdate = true; m.material.map.repeat.set(1 / 6, 1 / 6);
+  m.position.set(0, T.POD.H - 0.2, s * (T.FRAME.L / 2 + 40)); m.userData.ghost = true; straps.add(m); });
+const underLight = add(new THREE.DirectionalLight(0xfff2e6, 0.55)); underLight.position.set(60, -200, 160);
+const underRim = add(new THREE.DirectionalLight(0xcfe0ff, 0.7)); underRim.position.set(-220, -40, -120);
+// warm blurred backdrop (seen when looking up from under the wrist)
+const warmTex = canvasTex(512, 512, (x, w, h) => { const g = x.createRadialGradient(w / 2, h / 2, 20, w / 2, h / 2, w / 2); g.addColorStop(0, '#5a3a2a'); g.addColorStop(.55, '#2a1a12'); g.addColorStop(1, '#070506'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+const backdrop = add(new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshBasicMaterial({ map: warmTex })));
+// skin with veins (flat lay for the stethoscope comparison)
+const veinTex = canvasTex(1024, 1024, (x, w, h) => {
+  const g = x.createRadialGradient(w * .5, h * .5, 50, w * .5, h * .5, w * .62); g.addColorStop(0, '#6e4636'); g.addColorStop(.7, '#3a2219'); g.addColorStop(1, '#120a08'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  const r = rng(9); for (let i = 0; i < 6000; i++) { x.fillStyle = `rgba(60,30,20,${(r() * .15).toFixed(3)})`; x.beginPath(); x.arc(r() * w, r() * h, .8 + r(), 0, 7); x.fill(); }
+  const vein = (px, py, ang, len, wd, depth) => { if (depth > 5 || wd < .6) return; x.strokeStyle = `rgba(150,40,50,${.25 + wd * .04})`; x.lineWidth = wd; x.lineCap = 'round'; x.beginPath(); x.moveTo(px, py); let qx = px, qy = py;
+    for (let k = 0; k < 10; k++) { ang += (r() - .5) * .5; qx += Math.cos(ang) * len / 10; qy += Math.sin(ang) * len / 10; x.lineTo(qx, qy); } x.stroke();
+    vein(qx, qy, ang + .5 + r() * .4, len * .7, wd * .7, depth + 1); vein(qx, qy, ang - .5 - r() * .4, len * .65, wd * .65, depth + 1); };
+  vein(80, 900, -1.1, 420, 9, 0); vein(560, 1000, -1.6, 380, 8, 0); vein(1000, 760, -2.4, 400, 7, 0);
+});
+const skinFlat = add(new THREE.Mesh(new THREE.PlaneGeometry(260, 260), new THREE.MeshStandardMaterial({ map: veinTex, roughness: 0.6 }))); skinFlat.rotation.x = -Math.PI / 2;
+// stethoscope chest piece (generic, no brand)
+const steth = add(new THREE.Group());
+{ const chrome = new THREE.MeshStandardMaterial({ color: 0xf0f2f4, metalness: 1, roughness: 0.1, envMap: T.METAL_ENV });
+  const ringM = new THREE.Mesh(new THREE.CylinderGeometry(14, 14.6, 4.5, 64), chrome); ringM.position.y = 2.25; steth.add(ringM);
+  const dia = new THREE.Mesh(new THREE.CylinderGeometry(12.6, 12.6, 0.6, 64), new THREE.MeshPhysicalMaterial({ color: 0x0c0d10, roughness: 0.55, clearcoat: 0.35, clearcoatRoughness: 0.35, envMapIntensity: 0.4 })); dia.position.y = 4.6; steth.add(dia);
+  const dot = new THREE.Mesh(new THREE.SphereGeometry(0.9, 24, 16), new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.3 })); dot.position.y = 4.9; steth.add(dot);
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.3, 14, 24), chrome); stem.rotation.z = Math.PI / 2; stem.rotation.y = -0.75; stem.position.set(-14.5, 2.5, 10.5); steth.add(stem);
+  const curve = new THREE.CatmullRomCurve3([V3(-19, 2.5, 15), V3(-28, 2.4, 26), V3(-30, 2.2, 52), V3(-46, 2, 80), V3(-70, 2, 110)]);
+  const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 80, 2.2, 16), new THREE.MeshPhysicalMaterial({ color: 0x0d0e10, roughness: 0.35, clearcoat: 0.6 })); steth.add(tube); }
+// red blood cell macro (its own little scene)
+const macro = new THREE.Scene(); macro.background = new THREE.Color(0x120405);
+const macroCam = new THREE.PerspectiveCamera(30, W / H, 1, 2000);
+{ macro.environment = T.scene.environment;
+  const k = new THREE.SpotLight(0xffe6dc, 0.55, 0, 0.6, 0.8, 0); k.position.set(-80, 160, 140); macro.add(k);
+  const rimL = new THREE.DirectionalLight(0xff8a80, 1.2); rimL.position.set(160, 40, -120); macro.add(rimL);
+  const prof = []; for (let i = 0; i <= 24; i++) { const r = i / 24; prof.push(new THREE.Vector2(r, Math.sqrt(Math.max(0, 1 - r * r)) * (0.2 + 0.9 * r * r - 0.6 * r ** 4) * 0.55)); }
+  for (let i = 24; i >= 0; i--) { const r = i / 24; prof.push(new THREE.Vector2(r, -Math.sqrt(Math.max(0, 1 - r * r)) * (0.2 + 0.9 * r * r - 0.6 * r ** 4) * 0.55)); }
+  const geo = new THREE.LatheGeometry(prof, 96); geo.computeVertexNormals();
+  const cellMat = new THREE.MeshPhysicalMaterial({ color: 0xa80f1c, roughness: 0.45, clearcoat: 0.35, clearcoatRoughness: 0.35, emissive: 0x220205, envMapIntensity: 0.25 });
+  const cell = new THREE.Mesh(geo, cellMat); cell.scale.setScalar(26); cell.rotation.set(0.62, 0, 0.3); macro.add(cell); T.__cell = cell;
+  const blurTex = canvasTex(256, 256, (x, w, h) => { const g = x.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 2); g.addColorStop(0, 'rgba(200,30,40,.9)'); g.addColorStop(.6, 'rgba(150,20,30,.5)'); g.addColorStop(1, 'rgba(100,10,20,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+  const r = rng(12); for (let i = 0; i < 26; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: blurTex, transparent: true, opacity: 0.18 + r() * 0.3, depthWrite: false })); const sc = 12 + r() * 26; s.scale.set(sc, sc * (0.5 + r() * .5), 1);
+    s.position.set((r() - .5) * 200, (r() - .5) * 320, -60 - r() * 160); macro.add(s); }
+  const beam = (from, to, w0, w1, c0, c1, a = 1) => { const dir = to.clone().sub(from), len = dir.length();
+    const tex = canvasTex(64, 256, (x, w, h) => { const g = x.createLinearGradient(0, h, 0, 0); g.addColorStop(0, c0); g.addColorStop(1, c1); x.fillStyle = g; x.fillRect(0, 0, w, h); const e = x.createLinearGradient(0, 0, w, 0); e.addColorStop(0, 'rgba(0,0,0,1)'); e.addColorStop(.3, 'rgba(0,0,0,0)'); e.addColorStop(.7, 'rgba(0,0,0,0)'); e.addColorStop(1, 'rgba(0,0,0,1)'); x.globalCompositeOperation = 'destination-out'; x.fillStyle = e; x.fillRect(0, 0, w, h); });
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute([-w0 / 2, 0, 0, w0 / 2, 0, 0, w1 / 2, len, 0, -w1 / 2, len, 0], 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 1, 0, 1, 1, 0, 1], 2)); g.setIndex([0, 1, 2, 0, 2, 3]);
+    const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: a, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+    m.position.copy(from); m.quaternion.setFromUnitVectors(V3(0, 1, 0), dir.normalize()); macro.add(m); return m; };
+  const hit = V3(-8, 10, 12);
+  beam(V3(-120, 210, 30), hit, 3, 4, 'rgba(70,255,140,1)', 'rgba(70,255,140,.9)');            // green light comes in...
+  beam(hit, V3(4, -4, 4), 4, 0.5, 'rgba(70,255,140,.9)', 'rgba(70,255,140,0)', 0.9);          // ...and is soaked up inside the cell
+  [[150, 120, 3, 14], [160, 70, 3, 16], [140, 165, 2.5, 12]].forEach(([x2, y2, w0, w1]) => beam(hit.clone().add(V3(2, 1, 1)), V3(x2, y2, 20), w0, w1, 'rgba(255,70,60,.95)', 'rgba(255,90,60,0)'));   // red bounces off
+  const flare = new THREE.Sprite(new THREE.SpriteMaterial({ map: blurTex, color: 0xaaffcc, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); flare.scale.set(9, 9, 1); flare.position.copy(hit); macro.add(flare);
+}
+
+/* ---------- 2D illustration: walking to work (our own character, faceless) ---------- */
+function walkSVG() {
+  const r = rng(5);
+  const windows = (x0, y0, cols, rows, dx, dy, w, h) => { let o = ''; for (let jj = 0; jj < rows; jj++) for (let ii = 0; ii < cols; ii++) { const lit = r() < .5; o += `<rect x="${x0 + ii * dx}" y="${y0 + jj * dy}" width="${w}" height="${h}" rx="4" fill="${lit ? '#e8b46a' : '#1c2230'}" opacity="${lit ? .5 + r() * .45 : .9}"/>`; } return o; };
+  const balcony = (x, y, w) => `<rect x="${x}" y="${y}" width="${w}" height="10" fill="#0e121a"/>` + [...Array(Math.floor(w / 16))].map((_, k) => `<rect x="${x + 4 + k * 16}" y="${y - 34}" width="4" height="34" fill="#0e121a"/>`).join('') + `<rect x="${x}" y="${y - 38}" width="${w}" height="6" fill="#0e121a"/>`;
+  const person = (x, y, s, c) => `<g transform="translate(${x} ${y}) scale(${s})" fill="${c}"><circle cx="0" cy="-200" r="30"/><path d="M-40 -165 q40 -16 80 0 l8 150 h-96 z"/><rect x="-34" y="-20" width="28" height="200" rx="12"/><rect x="6" y="-20" width="28" height="200" rx="12"/></g>`;
+  const sh = '#0c0f15';
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="position:absolute;inset:0">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#05070b"/><stop offset=".45" stop-color="#121a2a"/><stop offset=".72" stop-color="#2a2a33"/><stop offset="1" stop-color="#0b0c0f"/></linearGradient>
+    <radialGradient id="lamp" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffcf87" stop-opacity=".55"/><stop offset="1" stop-color="#ffcf87" stop-opacity="0"/></radialGradient>
+    <radialGradient id="vig" cx=".5" cy=".55" r=".78"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".85"/></radialGradient>
+    <linearGradient id="topfade" x1="0" y1="0" x2="0" y2="1"><stop offset=".78" stop-color="#05070b"/><stop offset="1" stop-color="#05070b" stop-opacity="0"/></linearGradient>
+    <radialGradient id="ledg" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#5cff9a" stop-opacity=".95"/><stop offset="1" stop-color="#5cff9a" stop-opacity="0"/></radialGradient>
+    <linearGradient id="teeG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#16393b"/><stop offset=".55" stop-color="#28605f"/><stop offset="1" stop-color="#1b4646"/></linearGradient>
+    <linearGradient id="skinG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b07a56"/><stop offset="1" stop-color="#7c4f36"/></linearGradient>
+    <linearGradient id="denimG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a3244"/><stop offset=".6" stop-color="#3b4660"/><stop offset="1" stop-color="#262d3e"/></linearGradient>
+    <pattern id="knit" width="9" height="7" patternUnits="userSpaceOnUse"><rect width="9" height="7" fill="#09090a"/><ellipse cx="4.5" cy="3.5" rx="3" ry="2.3" fill="#2e2e33"/></pattern>
+    <pattern id="tiles" width="120" height="40" patternUnits="userSpaceOnUse"><rect width="120" height="40" fill="#15171c"/><path d="M0 0 H120 M0 0 V40" stroke="#22252c" stroke-width="3"/></pattern>
+  </defs>
+  <rect width="${W}" height="${H}" fill="url(#sky)"/>
+  <!-- far buildings -->
+  <rect x="-10" y="700" width="260" height="760" fill="#111723"/>${windows(20, 740, 3, 6, 76, 110, 46, 60)}${balcony(10, 960, 230)}${balcony(10, 1180, 230)}
+  <rect x="250" y="620" width="230" height="840" fill="#0e131d"/>${windows(275, 660, 3, 7, 66, 104, 40, 58)}
+  <rect x="760" y="660" width="330" height="800" fill="#111723"/>${windows(790, 700, 4, 6, 72, 112, 44, 62)}${balcony(780, 920, 300)}${balcony(780, 1144, 300)}
+  <!-- chai stall with a warm sign (generic) -->
+  <rect x="780" y="1250" width="300" height="210" fill="#1a1712"/><rect x="780" y="1250" width="300" height="70" fill="#3a2a16"/>
+  <text x="930" y="1298" text-anchor="middle" font-family="Sora" font-weight="700" font-size="40" fill="#ffc46b" opacity=".9">CHAI</text>
+  <rect x="800" y="1330" width="260" height="120" fill="#e8b46a" opacity=".22"/>
+  <!-- street lamp -->
+  <rect x="210" y="900" width="10" height="560" fill="${sh}"/><path d="M215 900 q60 -20 90 10" stroke="${sh}" stroke-width="10" fill="none"/><circle cx="305" cy="922" r="140" fill="url(#lamp)"/><rect x="290" y="910" width="32" height="14" rx="5" fill="#ffd79a"/>
+  <!-- auto-rickshaw silhouette -->
+  <g transform="translate(560 1300)" fill="${sh}"><path d="M0 100 h250 q20 0 20 -20 v-60 q0 -70 -80 -90 h-120 q-60 0 -70 60 z"/><rect x="140" y="-60" width="70" height="80" rx="10" fill="#1a2030"/><circle cx="40" cy="105" r="30"/><circle cx="220" cy="105" r="30"/></g>
+  ${person(120, 1460, .9, '#0d1018')}${person(430, 1440, .7, '#0f131c')}${person(1010, 1470, .85, '#0d1018')}
+  <!-- footpath -->
+  <rect x="0" y="1460" width="${W}" height="460" fill="url(#tiles)"/><rect x="0" y="1460" width="${W}" height="8" fill="#2a2d35"/>
+  <ellipse cx="560" cy="1660" rx="300" ry="26" fill="#000" opacity=".55"/>
+  <!-- character walking right (faceless: head stays out of frame) -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M478 720 L430 890 L392 1040" stroke="#143031" stroke-width="64" fill="none"/>
+    <path d="M392 1040 L380 1075" stroke="#6e452f" stroke-width="44" fill="none"/>
+    <path d="M490 1190 L438 1400 L330 1585" stroke="#20283a" stroke-width="104" fill="none"/>
+    <path d="M300 1600 q-30 10 -24 34 l120 4 q10 -24 -14 -38 z" fill="#d9d6cf"/>
+    <path d="M470 560 L478 650 L548 650 L552 560 Z" fill="#141820"/>
+    <ellipse cx="512" cy="500" rx="74" ry="88" fill="#0f1218"/><path d="M584 470 q14 40 0 80" stroke="#3a4558" stroke-width="5" fill="none" opacity=".6"/>
+    <path d="M432 640 C 418 760 418 1020 428 1190 L 600 1190 C 610 1020 612 860 600 760 C 590 690 560 645 520 632 C 488 624 452 626 432 640 Z" fill="url(#teeG)"/>
+    <path d="M460 632 q44 22 88 4" stroke="#0f2829" stroke-width="12" fill="none"/>
+    <path d="M430 1160 L 602 1160 L 604 1196 L 428 1196 Z" fill="#0f0f10"/><rect x="560" y="1162" width="22" height="30" rx="3" fill="#5e5e5e"/>
+    <path d="M440 1196 L 600 1196 L 596 1250 L 444 1250 Z" fill="url(#denimG)"/>
+    <path d="M560 1210 L640 1400 L700 1590" stroke="url(#denimG)" stroke-width="108" fill="none"/>
+    <path d="M560 1210 L640 1400 L700 1590" stroke="#4a5674" stroke-width="2" stroke-dasharray="10 8" fill="none" opacity=".6"/>
+    <path d="M664 1612 q-6 36 30 40 l120 -6 q14 -26 -16 -40 l-70 -8 z" fill="#ebe8e1"/>
+    <path d="M548 670 C 600 690 628 760 632 830 L 560 846 C 548 790 530 740 512 710 Z" fill="#245a59"/>
+    <path d="M592 820 L640 930 L700 1050" stroke="url(#skinG)" stroke-width="54" fill="none"/>
+    <path d="M700 1050 L726 1102" stroke="#9a6a4b" stroke-width="58" fill="none"/>
+    <g transform="rotate(62 688 1028)"><rect x="652" y="1010" width="72" height="38" rx="9" fill="url(#knit)"/><rect x="668" y="1006" width="40" height="46" rx="10" fill="#18191c" stroke="#d6dade" stroke-width="3.5"/><rect x="671" y="1040" width="34" height="8" rx="3" fill="#dfe3e8"/></g>
+    <circle cx="688" cy="1030" r="46" fill="url(#ledg)" opacity=".5"/>
+  </g>
+  <rect width="${W}" height="${H}" fill="url(#vig)"/>
+  <rect x="0" y="0" width="${W}" height="600" fill="url(#topfade)"/>
+  </svg>`;
+}
+
+/* ---------- shot list ---------- */
+function reset() {
+  extras.forEach(o => o.visible = false);
+  T.ARM.visible = true; T.table.visible = true; T.BAND_LOOP.visible = true; T.BAND_ENDS.visible = true;
+  T.root.rotation.set(0, 0, 0); T.root.position.set(0, 0, 0);
+  [T.key, T.rim, T.rim2, T.kick].forEach(l => l.visible = true);
+  T.scene.background = new THREE.Color(0x050607); T.scene.fog = null;
+  T.camera.up.set(0, 1, 0); T.camera.clearViewOffset();
+  T.renderer.domElement.style.opacity = 1; $('sArt').innerHTML = ''; $('sIllus').style.display = '';
+  T.setGlass(0); T.SENSOR.flip = 0; T.parts.forEach(p => p.dim = 0);
+}
+function pod(e, glass = 0, t = 0.2) { T.setExplode(e); T.applyExplode(e); T.setGlass(glass); T.applyMaterials(); T.applyLed(t, 1); }
+function cam(pos, target, up, oy = 0) { T.camera.position.copy(pos); if (up) T.camera.up.copy(up); T.camera.lookAt(target); if (oy) T.camera.setViewOffset(W, H, 0, oy, W, H); T.camera.updateProjectionMatrix(); }
+function draw3D() { T.scene.updateMatrixWorld(true); T.renderer.render(T.scene, T.camera); }
+const offWrist = () => { T.ARM.visible = false; T.table.visible = false; T.BAND_LOOP.visible = false; T.BAND_ENDS.visible = false; };
+
+const SHOTS = [
+  // 1. underside: the green glow on the skin side
+  () => { offWrist(); straps.visible = true; winGlow.visible = true; underLight.visible = true; underRim.visible = true; backdrop.visible = true;
+    backdrop.position.set(0, 120, 0); backdrop.rotation.x = Math.PI / 2;
+    pod(0, 0); cam(V3(0, -205, 0), V3(0, 3, 0), V3(0, 0, -1), -60); draw3D();
+    $('sTitle').innerHTML = 'So what is <em class="g">that green glow</em> underneath?';
+    pills([{ text: 'Sensor window', cls: 'g', at: [290, 1250], to: V3(-4, -0.5, 6.5) }]); },
+  // 2. stethoscope comparison: it listens to your heart, with light
+  () => { offWrist(); straps.visible = true; winGlow.visible = true; skinFlat.visible = true; steth.visible = true;
+    T.root.rotation.z = Math.PI; T.root.position.set(24, 0, 0); skinFlat.position.set(0, -7.7, 0); steth.position.set(-32, -7.7, -4);
+    pod(0, 0); cam(V3(-6, 330, 0.01), V3(-6, 0, 0), V3(0, 0, -1), -60); draw3D();
+    $('sTitle').innerHTML = 'Like a stethoscope, it listens <em class="r">to your heart</em>';
+    pills([{ text: 'Listens with sound', cls: 'r', at: [270, 1250], to: V3(-32, -3, -4) }, { text: 'Listens with light', cls: 'g', at: [770, 1250], to: V3(24, -2, 0) }]); },
+  // 3. walking to work (2D illustration)
+  () => { T.renderer.domElement.style.opacity = 0; $('sArt').innerHTML = walkSVG(); $('sIllus').style.display = 'none';
+    $('sTitle').innerHTML = 'Walking to work, <em class="g">it never stops reading</em>';
+    pills([{ text: '♥ 74 bpm', cls: 'r', at: [850, 880], to: [692, 1022] }]); },
+  // 4. on the wrist, from above: no screen at all
+  () => { pod(0, 0); cam(V3(6, 215, 40), V3(0, 2, 0), null, -40); draw3D();
+    $('sTitle').innerHTML = 'No screen. It just <em class="g">keeps reading</em>';
+    pills([{ text: '♥ Heart rate', cls: 'r', at: [240, 1250], to: V3(-6, 8, 6) }, { text: 'Skin temperature', cls: 'g', at: [770, 1250], to: V3(6, 8, 10) }]); },
+  // 5. tilted exploded stack from below: the green LEDs
+  () => { offWrist(); underLight.visible = true; underRim.visible = true; winGlow.visible = true;
+    pod(1, 0, 0.3); cam(V3(200, -80, 320), V3(0, 50, 0), null, -120); draw3D();
+    $('sTitle').innerHTML = 'Underneath, there are <em class="g">green LEDs</em>';
+    const sb = T.SENSOR.group.position.y + 1.7;
+    pills([{ text: 'Green LEDs', cls: 'g', at: [800, 1060], to: V3(0, sb, 0) }, { text: 'Sensor window', cls: 'g', at: [300, 1250], to: V3(-3, -0.4, 4) }]); },
+  // 6. red blood cell macro: blood soaks up green light, red bounces off
+  () => { macroCam.position.set(10, 10, 250); macroCam.lookAt(10, 6, 0); macroCam.setViewOffset(W, H, 0, -60, W, H); macroCam.updateProjectionMatrix();
+    T.renderer.render(macro, macroCam);
+    $('sTitle').innerHTML = 'Blood <em class="r">soaks up</em> <em class="g">green light</em>';
+    const p = v => { const q = v.clone().project(macroCam); return [(q.x * .5 + .5) * W, (-q.y * .5 + .5) * H]; };
+    pills([{ text: 'Red blood cell', cls: 'r', at: [760, 1250], to: [560, 1150] }, { text: 'Green light in', cls: 'g', at: [250, 620], to: [150, 770] }, { text: 'Red bounces off', cls: 'r', at: [800, 640], to: [640, 760] }]); },
+];
+window.__tour = { total: SHOTS.length, renderAt(i) { reset(); $('sPills').innerHTML = ''; $('sLines').innerHTML = ''; SHOTS[Math.round(i)](); return true; } };
+window.__tourReady = () => true;
+})();
+
+</script>
