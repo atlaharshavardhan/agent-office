@@ -27,7 +27,7 @@ export const S1AliceMystery = () => {
       {/* headline: ALICE HUANG dominant */}
       <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 205, textAlign: 'center', opacity: head, transform: `scale(${settle})` }}>
         <div style={{ font: `800 64px/1 ${FONT}`, letterSpacing: 6, color: V.sub }}>WHO IS</div>
-        <div style={{ font: `800 128px/1.02 ${FONT}`, letterSpacing: -3.5, color: V.text, textShadow: '0 6px 30px rgba(0,0,0,.8)', marginTop: 8 }}>ALICE HUANG?</div>
+        <div style={{ font: `800 112px/1.02 ${FONT}`, letterSpacing: -3, whiteSpace: 'nowrap', color: V.text, textShadow: '0 6px 30px rgba(0,0,0,.8)', marginTop: 8 }}>ALICE HUANG?</div>
       </div>
       {/* beat 2: NVIDIA identified */}
       <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 1120, display: 'flex', justifyContent: 'center', opacity: nv }}>
@@ -35,12 +35,12 @@ export const S1AliceMystery = () => {
       </div>
       {/* beat 3: verified relationship, neutral */}
       <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 1095, opacity: rel, transform: `translateY(${(1 - rel) * 16}px)` }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, background: 'rgba(17,24,32,.9)', border: '1px solid #2a3540', borderRadius: 16, padding: '16px 18px' }}>
-          <span style={{ font: `800 34px ${FONT}`, color: V.text }}>ALICE HUANG</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: 'rgba(17,24,32,.9)', border: '1px solid #2a3540', borderRadius: 16, padding: '14px 14px', whiteSpace: 'nowrap' }}>
+          <span style={{ font: `800 28px ${FONT}`, color: V.text }}>ALICE HUANG</span>
           <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', font: `700 18px ${BODY}`, color: V.sub }}><span style={{ font: `800 34px ${BODY}`, color: V.green, lineHeight: 1 }}>→</span>former exec</span>
-          <span style={{ font: `800 34px ${FONT}`, color: V.text, letterSpacing: 1 }}>MEGASPEED</span>
+          <span style={{ font: `800 28px ${FONT}`, color: V.text, letterSpacing: 1 }}>MEGASPEED</span>
           <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', font: `700 18px ${BODY}`, color: V.sub }}><span style={{ font: `800 34px ${BODY}`, color: V.green, lineHeight: 1 }}>→</span>customer</span>
-          <NvLogo h={34} />
+          <NvLogo h={28} />
         </div>
       </div>
       {cap && <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 1300, textAlign: 'center', font: `800 60px/1.12 ${BODY}`, color: /NVIDIA/.test(cap[2]) ? V.green : V.text, textShadow: '0 0 10px #000, 0 4px 18px #000' }}>{cap[2]}</div>}
