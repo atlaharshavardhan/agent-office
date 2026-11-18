@@ -8,6 +8,7 @@ import { AliceS4 } from './alice/S4Map';
 import { AliceS8, AliceS9 } from './alice/S8S9';
 import { AliceMain, ALICE_FRAMES } from './alice/Scenes2';
 import { V4Open, V4Remote } from './alicev4/Frames';
+import * as F2 from './alicev4/Frames2';
 import { StoryChain, MegaspeedLogo } from './alice/Logos';
 import { FontFace } from './ui';
 const MsPreview = () => <div style={{ position: 'absolute', inset: 0, background: '#0b0c0e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 80 }}><FontFace /><MegaspeedLogo h={110} /><div style={{ background: '#E9E4D8', padding: 30 }}><MegaspeedLogo h={70} light={false} /></div></div>;
@@ -27,6 +28,7 @@ const Root = () => (
     ))}
     <Composition id="AliceMs" component={MsPreview} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="AliceChain" component={ChainPreview} durationInFrames={30} fps={30} width={1080} height={1920} />
+    {['S2a','S2b','S2c','S3','S4','S7'].map((k) => <Composition key={k} id={'V4' + k} component={F2[k]} durationInFrames={60} fps={30} width={1080} height={1920} />)}
     <Composition id="V4Open" component={V4Open} durationInFrames={60} fps={30} width={1080} height={1920} />
     <Composition id="V4Remote" component={V4Remote} durationInFrames={60} fps={30} width={1080} height={1920} />
     <Composition id="AliceMain" component={AliceMain} durationInFrames={ALICE_FRAMES} fps={30} width={1080} height={1920} />

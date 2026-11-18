@@ -1,0 +1,551 @@
+{
+  "checked": "2026-11-18",
+  "method": "Re-verified the three earlier notes (ALICE_SCRIPT_FACTCHECK.md, MEGASPEED_DETAILS_FACTCHECK.md, RESEARCH_V2.md) with ~35 fresh WebSearch queries on 2026-11-18, prioritising original/official outlets (NVIDIA IR/GlobeNewswire, SEC 8-K, CBS, NPR, Malaysiakini, Bernama, SCMP, Reuters/NYT syndications). Findings rest on search-result summaries; no article body was read in full. Cross-checked against the approved script (alice/SCRIPT.md v1/v3/v4).",
+  "access_limits": "WebFetch failed with DNS/allowlist errors for every host tried: nvidianews.nvidia.com, www.sec.gov, finance.yahoo.com, www.scmp.com, kutv.com, fortune.com (and earlier cnbc.com, cbsnews.com, thenextweb.com, tweaktown.com, npr.org). Not attempted: bloomberg.com, nytimes.com, wsj.com, ft.com, reuters.com (paywalled/previously refused). No primary Bloomberg, NYT, FT, WSJ or Reuters text, Federal Register entry, BIS release, MHA statement or MFA transcript was read. These hosts must be allowed in the session's network settings to read primaries.",
+  "claims": [
+    {
+      "id": "C01",
+      "claim": "Alice Huang (also reported as Huang Le) is the businesswoman at the centre of the story; private individual; any public statement.",
+      "status": "verified",
+      "safe_wording": "Alice Huang, no relation to Jensen Huang, a former Megaspeed executive. She has made no public statement.",
+      "evidence": "Multiple outlets citing NYT report her name is also given as Huang Le and that she is not related to Jensen Huang. C4ADS (via press) says shares of Megaspeed were transferred in March 2023 to Huang Le Limited, a BVI company. Reported as a Chinese citizen. NYT-derived coverage says she did not respond to the Times; no statement from her found in any search.",
+      "sources": [
+        {
+          "outlet": "CBS News",
+          "title": "Megaspeed says Alice Huang left company in 2025, denies wrongdoing amid Nvidia scandal",
+          "url": "https://www.cbsnews.com/news/nvidia-alice-huang-jensen-ai-china-singapore-megaspeed/",
+          "date": "2026-11-15",
+          "type": "original"
+        },
+        {
+          "outlet": "The Standard (HK)",
+          "title": "What we know about Megaspeed, Singapore-based customer of Nvidia",
+          "url": "https://www.thestandard.com.hk/china/article/348041/What-we-know-about-Megaspeed-Singapore-based-customer-of-Nvidia",
+          "date": "unknown",
+          "type": "syndicated"
+        },
+        {
+          "outlet": "Malay Mail",
+          "title": "Alleged Chinese spy Alice Huang leaves trail of shell firms and empty offices from Singapore to Johor",
+          "url": "https://www.malaymail.com/news/singapore/2026/11/13/alleged-chinese-spy-alice-huang-leaves-trail-of-shell-firms-and-empty-offices-from-singapore-to-johor/243161",
+          "date": "2026-11-13",
+          "type": "secondary"
+        }
+      ],
+      "cautions": "Treat as a private individual: no public office, no public statements. Do not speculate about her whereabouts or personal life; no 'honey trap'/'mistress'/sexualised framing in title, thumbnail or VO. Nationality 'Chinese citizen' rests on press reports only."
+    },
+    {
+      "id": "C02",
+      "claim": "Her role at Megaspeed: founder? CEO/chair? Took control 2023? Left Aug 30, 2025?",
+      "status": "corrected",
+      "safe_wording": "\"Alice Huang, a former Megaspeed executive\" (or \"widely reported as Megaspeed's former CEO\"). Megaspeed says she left on August 30, 2025.",
+      "evidence": "Megaspeed's emailed statement (Nov 15, 2026, via AP/Reuters/AFP) says she left effective Aug 30, 2025 and has no role. Singapore corporate records (via press) show her as a director, reportedly also managing director, from March to November 2023; C4ADS says she became controlling shareholder in March 2023 via Huang Le Limited, which sold/transferred the company in Nov 2023 (to Swiftdata, owned by Tan Yong Pong, now Megaspeed's director/CEO; accounts differ on the buyer). Megaspeed has rejected suggestions she served as its chief executive (SCMP headline/summary), though many outlets (incl. CBS) still call her former CEO. Culper Research (short seller) cited an employee saying she stayed involved in daily operations. 'Founder' is not supported consistently.",
+      "sources": [
+        {
+          "outlet": "CBS News",
+          "title": "Megaspeed says Alice Huang left company in 2025, denies wrongdoing amid Nvidia scandal",
+          "url": "https://www.cbsnews.com/news/nvidia-alice-huang-jensen-ai-china-singapore-megaspeed/",
+          "date": "2026-11-15",
+          "type": "original"
+        },
+        {
+          "outlet": "Macau Business (wire)",
+          "title": "Megaspeed says Alice Huang left firm in August 2025",
+          "url": "https://macaubusiness.com/megaspeed-says-alice-huang-left-firm-in-august-2025/",
+          "date": "2026-11-15",
+          "type": "syndicated"
+        },
+        {
+          "outlet": "South China Morning Post",
+          "title": "Megaspeed rejects claims over supply chain, distances itself from Alice Huang",
+          "url": "https://www.scmp.com/tech/article/3374493/megaspeed-rejects-claims-over-supply-chain-distances-itself-alice-huang",
+          "date": "unknown",
+          "type": "original"
+        },
+        {
+          "outlet": "KFGO (Reuters wire, corrected)",
+          "title": "(Corrects Megaspeed director's name to Tan Yong Pong)",
+          "url": "https://kfgo.com/?p=1372800",
+          "date": "unknown",
+          "type": "syndicated"
+        }
+      ],
+      "cautions": "Do NOT say 'founder'. Do NOT state 'She was CEO' or 'who ran Megaspeed' as fact: the title is disputed by the company and the records show director/MD Mar-Nov 2023. 'Took control in 2023' is OK only as 'became controlling shareholder in 2023, per C4ADS'. SCMP page could not be opened (blocked); wording from search summary."
+    },
+    {
+      "id": "C03",
+      "claim": "Megaspeed is a Singapore cloud company, founded 2023, that buys NVIDIA servers and rents compute.",
+      "status": "verified",
+      "safe_wording": "Megaspeed, a Singapore cloud company that buys NVIDIA-powered servers and rents out the computing power.",
+      "evidence": "Described across coverage as a Singapore-based cloud computing company and NVIDIA customer/cloud partner that buys equipment with NVIDIA processors and makes the capacity available to customers. Generally described as a 2023 spinoff of Chinese gaming/cloud firm 7Road; filings cited by press indicate the entity dates to 2015 as 7Road International and was renamed Megaspeed International in March 2023. Data centres in Malaysia and Indonesia.",
+      "sources": [
+        {
+          "outlet": "Mothership",
+          "title": "What is Megaspeed?",
+          "url": "https://mothership.sg/2026/11/what-is-megaspeed/",
+          "date": "2026-11",
+          "type": "secondary"
+        },
+        {
+          "outlet": "Bloomberg (via Thairath)",
+          "title": "Megaspeed profile citing Bloomberg investigation",
+          "url": "https://en.thairath.co.th/money/tech_innovation/tech_companies/2903761",
+          "date": "unknown",
+          "type": "secondary"
+        },
+        {
+          "outlet": "SemiAnalysis",
+          "title": "ClusterMAX 2.0 - Megaspeed",
+          "url": "https://clustermax.semianalysis.com/cloudreview/megaspeed",
+          "date": "unknown",
+          "type": "secondary"
+        }
+      ],
+      "cautions": "Say 'formed/renamed in 2023' rather than 'founded in 2023' (legal entity reportedly from 2015). Avoid 'by the hour' (no pricing evidence)."
+    },
+    {
+      "id": "C04",
+      "claim": "Bloomberg: at least $4.6B of NVIDIA hardware imported (Malaysian/Indonesian customs, 2023-Nov 2025, ~136,000 GPUs).",
+      "status": "partially_verified",
+      "safe_wording": "\"Bloomberg's analysis of customs records puts Megaspeed's NVIDIA hardware imports at about $4.6 billion.\" (Prefer 'imported' over 'bought'.)",
+      "evidence": "Search summaries of Bloomberg's investigation (dated ~Dec 22, 2025 per secondaries) say Megaspeed and affiliates imported about $4.6B of hardware with roughly 136,000 GPUs since its 2023 founding, per Malaysian and Indonesian customs data compiled by Big Trade Data. Bloomberg follow-up (Nov 2026, via TheNextWeb headline) found ~17,544 GB300 (~$787M) imported in Nov 2025 after NVIDIA said it cut Megaspeed off. Other figures (NYT ~$2B and >=$4.8B Speedmatrix Jun 2024-Feb 2026; WSJ ~$12B orders; The Information ~$7.5B) are not comparable.",
+      "sources": [
+        {
+          "outlet": "TweakTown (citing Bloomberg)",
+          "title": "$4.6 billion NVIDIA importer linked to supply network funneling restricted NVIDIA AI chips into China",
+          "url": "https://www.tweaktown.com/news/113621/dollars4-6-billion-nvidia-importer-linked-to-supply-network-funneling-restricted-nvidia-ai-chips-into-china/index.html",
+          "date": "unknown",
+          "type": "secondary"
+        },
+        {
+          "outlet": "TheNextWeb (citing Bloomberg)",
+          "title": "Nvidia says it cut off Megaspeed in 2025, but Bloomberg found later imports",
+          "url": "https://thenextweb.com/news/nvidia-megaspeed-ban-gb300-imports-bloomberg",
+          "date": "2026-11",
+          "type": "secondary"
+        },
+        {
+          "outlet": "Cryptopolitan (citing Bloomberg)",
+          "title": "Megaspeed's Nvidia imports exceed usage data",
+          "url": "https://www.cryptopolitan.com/megaspeed-nvidia-imports-exceed-usage-data/",
+          "date": "unknown",
+          "type": "secondary"
+        }
+      ],
+      "cautions": "Bloomberg original not opened (paywall/blocked); Dec 22, 2025 date from secondaries only. Imports are not proof of diversion. Do not attribute the $4.6B to 2022-2025/C4ADS. 'At least' vs 'about' differs by secondary: 'about' is safer."
+    },
+    {
+      "id": "C05",
+      "claim": "Speedmatrix is Megaspeed's Malaysian affiliate/subsidiary, importer and data-centre operator.",
+      "status": "verified",
+      "safe_wording": "Speedmatrix, Megaspeed's Malaysian affiliate, which imported the hardware and runs its data centres there.",
+      "evidence": "Malaysia's MITI (Nov 13, 2026) said it never cleared Megaspeed or its Malaysian affiliate Speedmatrix and leads a probe with Customs into whether chips imported by Speedmatrix were re-exported in breach of the Strategic Trade Act 2010. Police say they have probed alleged diversion since April 2025. US officials (via NYT) say servers went to Speedmatrix-run facilities in Malaysia and Indonesia. FT (via press) says Alibaba's Apex lent to Speedmatrix in June 2024.",
+      "sources": [
+        {
+          "outlet": "Malaysiakini",
+          "title": "Miti: Companies linked to Nvidia scandal not in the clear, AI chips smuggling claims probed",
+          "url": "https://www.malaysiakini.com/news/889017-miti-companies-linked-to-nvidia-scandal-not-in-the-clear-ai-chips-smuggling-claims-probed",
+          "date": "2026-11-13",
+          "type": "original"
+        },
+        {
+          "outlet": "Malaysiakini",
+          "title": "Cops probing alleged Nvidia chip diversion since April 2025, says Saifuddin",
+          "url": "https://www.malaysiakini.com/news/889108-cops-probing-alleged-nvidia-chip-diversion-since-april-2025-says-saifuddin",
+          "date": "2026-11",
+          "type": "original"
+        },
+        {
+          "outlet": "Lowyat.NET",
+          "title": "MITI: Megaspeed and Speedmatrix was never given the all clear in Malaysia",
+          "url": "https://www.lowyat.net/2026/409729/miti-megaspeed-and-speedmatrix-was-never-given-the-all-clear-in-malaysia/",
+          "date": "2026-11-13",
+          "type": "secondary"
+        }
+      ],
+      "cautions": "Minister named in results is Johari Abdul Ghani, not Tengku Zafrul. No re-export established."
+    },
+    {
+      "id": "C06",
+      "claim": "Alibaba is the anchor/largest customer renting Megaspeed compute in SE Asia.",
+      "status": "partially_verified",
+      "safe_wording": "\"Reports say its biggest client is Alibaba.\" Better: \"The Financial Times reports its largest client is Alibaba.\"",
+      "evidence": "Bloomberg (Dec 2025, documents reviewed) reported Megaspeed rents NVIDIA chips to Alibaba at several SE Asian sites. FT (Nov 2026, two people familiar, via secondaries) said Alibaba was the anchor customer from the outset and remains the largest client, and that Alibaba's Singapore unit Apex lent to Speedmatrix in June 2024. No Alibaba response found; Alibaba is not reported as a target of any probe.",
+      "sources": [
+        {
+          "outlet": "Magica (citing FT)",
+          "title": "Alice Huang pitched Nvidia chip access for Southeast Asian project, report says",
+          "url": "https://magica.com/news/alice-huang-nvidia-chip-access-data-centre-investment-pitch",
+          "date": "2026-11",
+          "type": "secondary"
+        },
+        {
+          "outlet": "Sovereign Magazine (citing FT/Bloomberg)",
+          "title": "Megaspeed company profile",
+          "url": "https://www.sovereignmagazine.com/companies/megaspeed",
+          "date": "unknown",
+          "type": "secondary"
+        },
+        {
+          "outlet": "Analytics Insight (citing Bloomberg)",
+          "title": "Bloomberg Report Traces Restricted NVIDIA AI Chips to Chinese Companies Through Southeast Asia",
+          "url": "https://www.analyticsinsight.net/news/bloomberg-report-traces-restricted-nvidia-ai-chips-to-chinese-companies-through-southeast-asia",
+          "date": "unknown",
+          "type": "secondary"
+        }
+      ],
+      "cautions": "FT and Bloomberg originals not read; 'largest client' rests on two anonymous sources. Renting compute to Alibaba outside China was legal then; do not imply Alibaba wrongdoing. Must stay attributed ('reports say')."
+    },
+    {
+      "id": "C07",
+      "claim": "US export controls: Oct 7, 2022 rule; Oct 17, 2023 update; scope; not all NVIDIA products banned; Nov 16, 2026 remote-access rule.",
+      "status": "verified",
+      "safe_wording": "\"U.S. rules require a license to ship NVIDIA's most advanced AI chips to China.\" (Not 'block all sales'.) \"On November 16, Commerce issued a rule to close the remote-access gap.\"",
+      "evidence": "BIS issued controls Oct 7, 2022; the Oct 17, 2023 package (interim final rules + Entity List rule; most provisions effective Nov 17, 2023) tightened thresholds and extended licence requirements to firms headquartered in China/Macau/arms-embargoed countries. Lower-performance or compliant parts have been sold (e.g., H20; Jan 15, 2026 BIS rule revised review policy for certain advanced chips to China). Nov 16, 2026: BIS interim final rule requiring licences to supply chips to data centres providing significant compute to companies headquartered in Macau/Country Group D:5, plus licences for advanced chip exports to Brazil, Indonesia, Malaysia, Singapore and Thailand; reported exemption for US-run data centres.",
+      "sources": [
+        {
+          "outlet": "Gibson Dunn",
+          "title": "In Three New Rules, BIS Continues Efforts to Reshape Global Semiconductor Supply Chains...",
+          "url": "https://www.gibsondunn.com/in-three-new-rules-bis-continues-efforts-to-reshape-global-semiconductor-supply-chains-and-future-of-artificial-intelligence-training-and-supercomputing/",
+          "date": "2023-10-25",
+          "type": "secondary"
+        },
+        {
+          "outlet": "Morgan Lewis",
+          "title": "BIS Revises Export Review Policy for Advanced AI Chips Destined for China and Macau",
+          "url": "https://www.morganlewis.com/pubs/2026/01/bis-revises-export-review-policy-for-advanced-ai-chips-destined-for-china-and-macau",
+          "date": "2026-01",
+          "type": "secondary"
+        },
+        {
+          "outlet": "NPR",
+          "title": "U.S. closes loophole allowing remote access to AI chips",
+          "url": "https://www.npr.org/2026/11/16/nx-s1-6042883/nvidia-jensen-huang-commerce-department",
+          "date": "2026-11-16",
+          "type": "original"
+        },
+        {
+          "outlet": "Fortune",
+          "title": "The Nvidia scandal fuels tougher China chip rules as Commerce targets Singapore and Malaysia",
+          "url": "https://fortune.com/2026/11/16/new-commerce-rule-nvidia-chip-singapore-malaysia-china/",
+          "date": "2026-11-16",
+          "type": "original"
+        },
+        {
+          "outlet": "Forbes",
+          "title": "US Closes Loophole That Allowed China To Remotely Access Nvidia Chips",
+          "url": "https://www.forbes.com/sites/zacharyfolk/2026/11/16/us-closes-loophole-that-allowed-china-to-remotely-access-nvidia-chips/",
+          "date": "2026-11-16",
+          "type": "original"
+        }
+      ],
+      "cautions": "Federal Register text and BIS release for the Nov 16 rule were not found/opened; rule title ('Addressing Remote Access...'), 12M TPP threshold and 90-day transition from earlier notes remain UNVERIFIED. Script line 'U.S. rules block sales of these chips to China' should become 'require a license' or 'restrict'."
+    },
+    {
+      "id": "C08",
+      "claim": "Before Nov 2026, Chinese firms renting compute in overseas data centres was legal (cloud loophole).",
+      "status": "verified",
+      "safe_wording": "\"Renting that computing power to Chinese firms from data centres abroad was generally allowed, until a new U.S. rule this month. Shipping the top chips into China needed a license.\"",
+      "evidence": "Coverage (Bloomberg via secondaries, CNN Nov 14, Sovereign Magazine) says renting AI chip capacity to Chinese firms for use outside China was generally permitted under US rules; the Nov 16, 2026 BIS rule was explicitly framed as closing that 'loophole'. Caveat: the Oct 2023 rule already required licences for exports to China-headquartered firms' overseas entities, and the Jan 2026 rule anticipated cloud providers screening restricted parties.",
+      "sources": [
+        {
+          "outlet": "NPR",
+          "title": "U.S. closes loophole allowing remote access to AI chips",
+          "url": "https://www.npr.org/2026/11/16/nx-s1-6042883/nvidia-jensen-huang-commerce-department",
+          "date": "2026-11-16",
+          "type": "original"
+        },
+        {
+          "outlet": "Quartz",
+          "title": "U.S. is closing AI chip cloud loophole with five-country license rule",
+          "url": "https://qz.com/us-ai-chip-reexport-licenses-five-countries-111626",
+          "date": "2026-11-16",
+          "type": "secondary"
+        },
+        {
+          "outlet": "Yahoo News (Tom's Hardware)",
+          "title": "New US rules aim to close loophole, restrict Chinese firms' remote access to AI servers",
+          "url": "https://www.yahoo.com/news/politics/articles/us-rules-aim-close-loophole-215000522.html",
+          "date": "2026-11-16",
+          "type": "syndicated"
+        }
+      ],
+      "cautions": "Use 'generally allowed' / 'wasn't banned', past tense, and mention it has now been restricted. Legality of any specific Megaspeed transaction is under investigation; don't say Megaspeed's business was 'legal' as a blanket fact."
+    },
+    {
+      "id": "C09",
+      "claim": "Physical diversion to China established? Probes (US Commerce, DOJ, Singapore, Malaysia); charges; Singapore findings on Alice.",
+      "status": "verified",
+      "safe_wording": "\"Investigators in the U.S., Singapore and Malaysia are probing whether chips reached China. Nothing has been proven, and no charges have been filed.\"",
+      "evidence": "No diversion established. Commerce probe (from 2024) was paused/transferred and is now a DOJ criminal inquiry (NYT via press); DOJ also reportedly probing Super Micro smuggling by Huang-linked entities (Bloomberg). AG Todd Blanche (Nov 12) said DOJ had not concluded she was a spy. Singapore MHA (Nov 12, 2026): police found insufficient evidence she committed offences linked to Megaspeed's possible false declarations; stern warning; re-entry ban for knowingly giving inaccurate information about her role; she left Singapore Feb 26, 2026; not investigated for espionage; probe into Megaspeed and six others ongoing. Malaysia MITI/police probing; no re-export established. NVIDIA says it found no evidence of diversion.",
+      "sources": [
+        {
+          "outlet": "CBS News",
+          "title": "Singapore held Alice Huang's passport for months, but got little help from U.S. on Nvidia chip probe, sources say",
+          "url": "https://www.cbsnews.com/news/jensen-huang-nvidia-alice-huang-singapore-investigation-china-chips/",
+          "date": "2026-11",
+          "type": "original"
+        },
+        {
+          "outlet": "Mothership",
+          "title": "MHA on Alice Huang and Megaspeed",
+          "url": "https://mothership.sg/2026/11/mha-alice-huang-megaspeed/",
+          "date": "2026-11-12",
+          "type": "secondary"
+        },
+        {
+          "outlet": "Bernama",
+          "title": "Singapore MHA statement coverage",
+          "url": "https://www.bernama.com/en/news.php?id=2633581",
+          "date": "2026-11-12",
+          "type": "original"
+        },
+        {
+          "outlet": "The Philadelphia Inquirer",
+          "title": "Nvidia investigation: Commerce, Justice, Megaspeed",
+          "url": "https://www.inquirer.com/news/nation-world/nvidia-investigation-commerce-justice-ai-chinese-spy-megaspeed-jensen-huang-trump-jeff-kessler-lutnick-20261109.html",
+          "date": "2026-11-09",
+          "type": "syndicated"
+        },
+        {
+          "outlet": "Malaysiakini",
+          "title": "Miti: Companies linked to Nvidia scandal not in the clear",
+          "url": "https://www.malaysiakini.com/news/889017-miti-companies-linked-to-nvidia-scandal-not-in-the-clear-ai-chips-smuggling-claims-probed",
+          "date": "2026-11-13",
+          "type": "original"
+        }
+      ],
+      "cautions": "A DOJ/Commerce joint statement (Nov 16-17) cited in earlier notes was NOT re-found in this pass: unverified. MHA statement itself not opened (mha.gov.sg not reached). Keep 'no charges' tied to 'as of Nov 18' and re-check before upload. Do not conflate with Singapore's separate server-fraud case."
+    },
+    {
+      "id": "C10",
+      "claim": "Reported Alice-Jensen relationship: NYT Oct 29, 2026; Jensen's Nov 8 admission without naming her; CBS confirmation.",
+      "status": "verified",
+      "safe_wording": "\"The New York Times reported U.S. officials believe she had a close relationship with Jensen Huang. He later admitted an affair, without naming her; CBS says sources confirmed it was Alice Huang.\"",
+      "evidence": "NYT Oct 29, 2026 (syndicated by GV Wire, Business Standard same day): US officials, anonymously sourced, concluded she was a Chinese intelligence asset and had a close relationship with Huang (later reporting, incl. FT on a memo, described it as romantic). Nov 8 memo: Huang wrote 'I was unfaithful to my wife'; excerpts did not name her. CBS: woman 'who sources confirmed to CBS News was Alice Huang'.",
+      "sources": [
+        {
+          "outlet": "GV Wire (NYT syndication)",
+          "title": "Nvidia chief seen as target of Chinese spy plot",
+          "url": "https://gvwire.com/2026/10/29/nvidia-chief-seen-as-target-of-chinese-spy-plot/",
+          "date": "2026-10-29",
+          "type": "syndicated"
+        },
+        {
+          "outlet": "Business Standard",
+          "title": "US intelligence links Nvidia CEO contact to China spying concerns: report",
+          "url": "https://business-standard.com/world-news/us-intelligence-links-nvidia-ceo-contact-to-china-spying-concerns-report-126102901145_1.html",
+          "date": "2026-10-29",
+          "type": "secondary"
+        },
+        {
+          "outlet": "CBS News",
+          "title": "Nvidia CEO Jensen Huang resigns in wake of affair with woman suspected of spying for China",
+          "url": "https://www.cbsnews.com/news/nvidia-ceo-jensen-huang-resigns/",
+          "date": "2026-11-12",
+          "type": "original"
+        },
+        {
+          "outlet": "OfficeChai",
+          "title": "'Was Unfaithful To My Wife, Am Deeply Sorry': NVIDIA CEO Jensen Huang Tells Employees In Memo",
+          "url": "https://officechai.com/ai/jensen-huang-unfaithful-memo/",
+          "date": "2026-11-08",
+          "type": "secondary"
+        }
+      ],
+      "cautions": "NYT original not opened. Keep 'reported' and 'relationship'; don't call her his 'mistress'. Jensen never publicly named her."
+    },
+    {
+      "id": "C11",
+      "claim": "Alleged intelligence involvement: attribution, DOJ position, China MFA denials, Megaspeed denial.",
+      "status": "verified",
+      "safe_wording": "\"The New York Times reported U.S. officials suspect she worked with Chinese intelligence. China calls the claims groundless. Megaspeed denies wrongdoing. The Justice Department says it hasn't reached a conclusion.\"",
+      "evidence": "Attribution: anonymous US officials per NYT (Oct 29); later reports of a classified memo naming the Ministry of State Security. AG Todd Blanche (Nov 12): DOJ has not concluded she was a spy; FBI still investigating. China MFA spokesperson Guo Jiakun on Oct 30 called the NYT report 'groundless speculation' and a smear; again Nov 9 said the allegation was unsubstantiated smears. (Mao Ning on Nov 12 'fabricating' per earlier notes; not re-checked.) Megaspeed (Nov 15) said media assertions about its business are 'not supported by verifiable evidence' and has hired outside counsel. Singapore says it did not investigate espionage.",
+      "sources": [
+        {
+          "outlet": "South China Morning Post",
+          "title": "China dismisses US report of suspected spy targeting Nvidia CEO Jensen Huang as groundless",
+          "url": "https://www.scmp.com/tech/tech-war/article/3372743/china-dismisses-us-report-suspected-spy-targeting-nvidia-ceo-jensen-huang-groundless",
+          "date": "2026-10-30",
+          "type": "original"
+        },
+        {
+          "outlet": "Taipei Times",
+          "title": "China response to NVIDIA spy report",
+          "url": "https://taipeitimes.com/News/world/archives/2026/10/31/2003866928",
+          "date": "2026-10-31",
+          "type": "syndicated"
+        },
+        {
+          "outlet": "CGTN",
+          "title": "Beijing dismisses Chinese spy claims over Nvidia saga as smears",
+          "url": "https://news.cgtn.com/news/2026-11-09/Beijing-dismisses-Chinese-spy-claims-over-Nvidia-saga-as-smears-1RVNrUyd0VW/share_amp.html",
+          "date": "2026-11-09",
+          "type": "official"
+        },
+        {
+          "outlet": "Bernama",
+          "title": "Blanche: DOJ has not concluded on Alice Huang",
+          "url": "https://www.bernama.com/en/news.php?id=2633618",
+          "date": "2026-11-12",
+          "type": "original"
+        },
+        {
+          "outlet": "CBS News",
+          "title": "Megaspeed says Alice Huang left company in 2025, denies wrongdoing",
+          "url": "https://www.cbsnews.com/news/nvidia-alice-huang-jensen-ai-china-singapore-megaspeed/",
+          "date": "2026-11-15",
+          "type": "original"
+        }
+      ],
+      "cautions": "Never state she is a spy. Line 1 of script ('a woman U.S. officials suspect of spying') should carry 'reportedly'. MFA transcripts (fmprc.gov.cn) not opened; quote only 'groundless speculation'."
+    },
+    {
+      "id": "C12",
+      "claim": "Jensen Huang resigned Nov 12, 2026; interim CEO; later developments; Q3 FY27 earnings Nov 17.",
+      "status": "verified",
+      "safe_wording": "\"On November 12, NVIDIA announced Jensen Huang had resigned. CFO Colette Kress is interim CEO.\" Optional: \"Days later, NVIDIA reported record revenue of $115.8 billion.\"",
+      "evidence": "NVIDIA release 'NVIDIA Announces CEO Transition' (Nov 12, GlobeNewswire; 8-K): resigned as president, CEO and director, effective immediately; 8-K reportedly says board accepted it Nov 11; Kress interim CEO (remains CFO); Harvey C. Jones first chair. Q3 FY27 (quarter ended Oct 25, 2026; reported Nov 17): revenue $115.8B, +103% y/y; Data Center $107.6B, +110%; non-GAAP EPS $2.68; Q4 outlook $130B +/-3% assuming no China data-center compute revenue; shares rose ~4% after hours. Yahoo Finance live-blog headline says the board will not reinstate Huang; CNBC source (Nov 16, earlier notes) said board not considering return; employees urged reinstatement (TweakTown).",
+      "sources": [
+        {
+          "outlet": "NVIDIA / GlobeNewswire",
+          "title": "NVIDIA Announces CEO Transition",
+          "url": "https://globenewswire.com/news-release/2026/11/12/3401635/0/en/nvidia-announces-ceo-transition.html",
+          "date": "2026-11-12",
+          "type": "official"
+        },
+        {
+          "outlet": "NVIDIA Investor Relations",
+          "title": "NVIDIA Announces CEO Transition",
+          "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-CEO-Transition/",
+          "date": "2026-11-12",
+          "type": "official"
+        },
+        {
+          "outlet": "SEC (NVIDIA 8-K Ex.99)",
+          "title": "NVIDIA Q3 FY27 press release",
+          "url": "https://www.sec.gov/Archives/edgar/data/0001045810/000104581026000088/q3fy27pr.htm",
+          "date": "2026-11-17",
+          "type": "official"
+        },
+        {
+          "outlet": "Stock Titan (NVIDIA release)",
+          "title": "NVIDIA Announces Financial Results for Third Quarter Fiscal 2027",
+          "url": "https://www.stocktitan.net/news/NVDA/nvidia-announces-financial-results-for-third-quarter-fiscal-fpx9dw5egxqa.html",
+          "date": "2026-11-17",
+          "type": "syndicated"
+        },
+        {
+          "outlet": "Quartz",
+          "title": "Nvidia's Q3 earnings beat estimates after Jensen Huang's exit",
+          "url": "https://qz.com/nvidia-earnings-beat-estimates-jensen-huang-exit-111726",
+          "date": "2026-11-17",
+          "type": "secondary"
+        },
+        {
+          "outlet": "Yahoo Finance",
+          "title": "Nvidia earnings live: Q3 beat ... board says it will not reinstate Jensen Huang as CEO",
+          "url": "https://finance.yahoo.com/technology/live/nvidia-earnings-live-nvidia-posts-q3-beat-board-says-it-will-not-reinstate-jensen-huang-as-ceo-221428433.html",
+          "date": "2026-11-17",
+          "type": "secondary"
+        }
+      ],
+      "cautions": "Say 'NVIDIA announced he resigned', not 'was fired' (circumstances unclear). Reinstatement: board 'will not reinstate' is a single headline (body not read) - UNVERIFIED; Jensen's reported Nov 17 'honored to be reinstated' statement - UNVERIFIED. Earnings figures from search summaries of the release; SEC page not opened."
+    },
+    {
+      "id": "C13",
+      "claim": "NVIDIA board (Nov 8, 2026): no reason to believe national security or company secrets were compromised.",
+      "status": "verified",
+      "safe_wording": "\"NVIDIA's board said it has no reason to believe national security or NVIDIA secrets were compromised.\"",
+      "evidence": "'Statement from NVIDIA Board of Directors', Nov 8, 2026: independent investigation into reports Huang was the target of a foreign intelligence effort; committee of independent directors with outside counsel; board has 'no reason to believe' national security or NVIDIA secrets were compromised; at that time also expressed confidence in Huang.",
+      "sources": [
+        {
+          "outlet": "NVIDIA Investor Relations",
+          "title": "Statement from NVIDIA Board of Directors",
+          "url": "https://investor.nvidia.com/news/press-release-details/2026/Statement-from-NVIDIA-Board-of-Directors/",
+          "date": "2026-11-08",
+          "type": "official"
+        },
+        {
+          "outlet": "NVIDIA Newsroom",
+          "title": "Statement from NVIDIA Board of Directors",
+          "url": "https://nvidianews.nvidia.com/news/statement-from-nvidia-board-of-directors",
+          "date": "2026-11-08",
+          "type": "official"
+        }
+      ],
+      "cautions": "Statement was made at the start of the inquiry (Nov 8), before the resignation; no findings yet. Say 'said' (past tense) and ideally 'in November 8 statement'. Exact sentence from search summaries; page not opened (nvidianews.nvidia.com blocked)."
+    },
+    {
+      "id": "C14",
+      "claim": "NVIDIA chips are designed in the US (Santa Clara) and manufactured by TSMC in Taiwan.",
+      "status": "verified",
+      "safe_wording": "\"Designed by NVIDIA in California, made by TSMC, mostly in Taiwan.\"",
+      "evidence": "Blackwell is fabricated by TSMC (4NP); first US Blackwell wafer at TSMC Arizona Fab 21 (Oct 17, 2025), but advanced packaging remains in Taiwan. NVIDIA is headquartered in Santa Clara, California.",
+      "sources": [
+        {
+          "outlet": "The Register",
+          "title": "Nvidia still needs Taiwan even as TSMC ramps Blackwell production in Arizona",
+          "url": "https://www.theregister.com/2025/10/20/nvidia_arizona_blackwell/",
+          "date": "2025-10-20",
+          "type": "original"
+        },
+        {
+          "outlet": "Tom's Hardware",
+          "title": "Nvidia and TSMC produce the first Blackwell wafer made in the U.S.",
+          "url": "https://tomshardware.com/tech-industry/semiconductors/nvidia-and-tsmc-produce-the-first-blackwell-wafer-made-in-the-u-s-chips-still-need-to-be-shipped-back-to-taiwan-to-complete-the-final-product",
+          "date": "2025-10",
+          "type": "original"
+        }
+      ],
+      "cautions": "Say 'mostly in Taiwan' because some wafers now come from Arizona."
+    },
+    {
+      "id": "C15",
+      "claim": "Reuters: Jensen described dealings to executives as routine/standard business.",
+      "status": "partially_verified",
+      "safe_wording": "\"Reuters reports he told NVIDIA executives his dealings with her were standard business with a customer.\"",
+      "evidence": "Reuters (Nov 13, 2026, anonymous sources + two October 2026 messages it reviewed) reported Huang misled senior leaders incl. GC Tim Teter and CMO Alison Wagonfeld, saying his interactions reflected standard business dealings with customers; sources say similar assurances in autumn 2025. Reuters reviewed messages on condition it not quote them verbatim, so no exact wording exists publicly.",
+      "sources": [
+        {
+          "outlet": "OfficeChai (citing Reuters)",
+          "title": "Jensen Huang Misled NVIDIA's Leaders On His Relationship With Alice Huang, Reuters Reports",
+          "url": "https://officechai.com/ai/jensen-huang-misled-nvidias-leaders-on-his-relationship-with-alice-huang-reuters-reports/",
+          "date": "2026-11-13",
+          "type": "secondary"
+        },
+        {
+          "outlet": "Daily Monitor (Reuters wire)",
+          "title": "Nvidia CEO misled top lawyer on affair with Chinese businesswoman, sources say",
+          "url": "https://www.monitor.co.ug/uganda/news/world/nvidia-ceo-misled-top-lawyer-on-affair-with-chinese-businesswoman-sources-say-5670504",
+          "date": "2026-11-13",
+          "type": "syndicated"
+        },
+        {
+          "outlet": "Business Today",
+          "title": "Ex-Nvidia CEO Jensen Huang misled company leaders on relationship with Alice Huang, claims report",
+          "url": "https://www.businesstoday.in/technology/news/story/nvidia-row-ex-nvidia-ceo-jensen-huang-misled-company-leaders-on-relationship-with-alice-huang-claims-report-567448-2026-11-14",
+          "date": "2026-11-14",
+          "type": "secondary"
+        }
+      ],
+      "cautions": "No verbatim quote exists; 'routine business' is a paraphrase - acceptable only as paraphrase ('Reuters says he described it as...'), never in quotation marks on screen. Reuters.com not reachable; via syndication."
+    }
+  ],
+  "gate": {
+    "passed": false,
+    "blocking_issues": [
+      "C02: Script states 'She was CEO of Megaspeed' (v1) / 'former CEO' (v3) / 'who ran' (v4) as fact. Megaspeed rejects that she was its chief executive; records show director/managing director Mar-Nov 2023. Replace with 'a former Megaspeed executive' (or 'widely reported as its former CEO').",
+      "C07: v1 line 'U.S. rules block sales of these chips to China' overstates; use 'U.S. rules restrict' or 'require a license to ship NVIDIA's top AI chips to China'. v3/v4 'Shipping chips into China was [banned]' -> 'Shipping the top chips into China needed a license.'",
+      "C04: v4 changed 'imported' to 'bought'; Bloomberg's figure is customs import data for Megaspeed and affiliates. Keep 'imported' and 'about $4.6 billion' (attributed to Bloomberg).",
+      "C11/C01: Opening line 'a woman U.S. officials suspect of spying for China' should be attributed ('reportedly' / 'according to The New York Times') since it precedes the NYT attribution."
+    ],
+    "non_blocking_notes": [
+      "C15: 'routine business' is a paraphrase (Reuters did not quote verbatim); OK as spoken paraphrase, never in on-screen quotes. 'standard business with a customer' is closer.",
+      "C06: 'largest client: Alibaba' must stay attributed ('reports say'/'the FT reports'); FT text not read.",
+      "C08: say 'wasn't banned' in past tense and ideally note the Nov 16 rule now restricts it.",
+      "C12/C09: re-check 'no charges' and Huang's status (reinstatement chatter unverified) on upload day.",
+      "C13: board statement dates from Nov 8, before the resignation; past tense 'said'."
+    ]
+  }
+}

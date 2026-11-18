@@ -1,0 +1,10 @@
+{"duration": 45, "scenes": [
+ {"id": "S1", "t": [0, 5], "vo": "L1", "visual": "Physical GPU stopped at a red export-control wall; blue computing power arcs over it; Alice name card (no face) + Megaspeed logo", "still": "frames/V4Open.png", "on_screen": "WHO IS ALICE HUANG?"},
+ {"id": "S2", "t": [5, 10], "vo": "L2", "visual": "Macro of our GPU -> exploded view (dies, HBM, package) -> thousands of GPUs in a data hall", "stills": ["frames/V4S2a.png", "frames/V4S2b.png", "frames/V4S2c.png"], "on_screen": "THE POWER BEHIND AI"},
+ {"id": "S3", "t": [10, 14], "vo": "L2 (end)", "visual": "3D globe: designs USA -> made in Taiwan -> advanced-chip shipment to China stopped (red ring)", "still": "frames/V4S3.png", "on_screen": "ADVANCED CHIP EXPORT CONTROLS"},
+ {"id": "S4", "t": [14, 21], "vo": "L3-L5", "visual": "Singapore night city (our render) + Megaspeed profile card + ≈$4.6B imported (Bloomberg, customs records, 2023–Nov 2025) + 'no charges'", "still": "frames/V4S4.png", "on_screen": "MEGASPEED — SINGAPORE"},
+ {"id": "S5", "t": [21, 31], "vo": "L6-L7", "visual": "Overseas data hall, GPU racks (green); remote customer sends AI job (blue packets) -> GPU processes -> results return; pull back: GPU never moved", "still": "frames/V4Remote.png", "on_screen": "THE CHIPS STAY. THE COMPUTING POWER TRAVELS."},
+ {"id": "S6", "t": [31, 37], "vo": "L8", "visual": "Investigation board (NYT credit, REPORTED · NOT PROVEN) -> empty chair under spotlight, 'NOV 12 · RESIGNED' (NVIDIA announcement)", "stills": ["../stills/full/t027.0.png", "../stills/s07_chair_f075.png"]},
+ {"id": "S7", "t": [37, 43], "vo": "L9", "visual": "Split: GPU stays in rack (green) | results arrive on remote screen (blue)", "still": "frames/V4S7.png", "on_screen": "ACCESS ≠ OWNERSHIP"},
+ {"id": "S8", "t": [43, 45], "vo": null, "visual": "InvisiTech outro (existing)", "still": "../stills/full/t042.5.png"}
+]}

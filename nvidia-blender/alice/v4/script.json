@@ -1,0 +1,14 @@
+{"version": "v4-draft-2026-11-18", "status": "awaiting approval", "voice": "Kokoro am_michael (free, local)", "target_wpm": 158,
+ "lines": [
+  {"id": "L1", "scene": "S1", "text": "Who is Alice Huang, and why did her NVIDIA link draw scrutiny?", "claims": ["C01"]},
+  {"id": "L2", "scene": "S2", "text": "NVIDIA's top AI chips are so powerful, America restricts their export to China.", "claims": ["C07", "C14"]},
+  {"id": "L3", "scene": "S4", "text": "She was an executive at Megaspeed, a Singapore cloud company.", "claims": ["C02", "C03"]},
+  {"id": "L4", "scene": "S4", "text": "Bloomberg estimates its network imported about four point six billion dollars of NVIDIA hardware.", "claims": ["C04", "C05"]},
+  {"id": "L5", "scene": "S4", "text": "Investigators are probing possible diversion to China. No charges have been filed.", "claims": ["C09"]},
+  {"id": "L6", "scene": "S5", "text": "But Chinese firms, reportedly including Alibaba, could rent that computing power from data centers abroad.", "claims": ["C06", "C08"]},
+  {"id": "L7", "scene": "S5", "text": "The chips stay. The computing power travels.", "claims": ["C08"]},
+  {"id": "L8", "scene": "S6", "text": "The New York Times reports officials suspect intelligence ties, and a relationship with Jensen Huang, who later resigned. China and Megaspeed reject the claims.", "claims": ["C10", "C11", "C12"]},
+  {"id": "L9", "scene": "S7", "text": "You don't need to own a chip to use it.", "claims": ["C08"]}
+ ],
+ "words": 112, "est_seconds_at_158wpm": 42.5,
+ "corrections_applied": ["Alice = 'an executive at Megaspeed' (not CEO/founder) per C02", "'imported about $4.6B' per C04", "'restricts' not 'bans' per C07", "allegations attributed to NYT; denials included per C11", "renting framed as legal at the time; not presented as wrongdoing per C08"]}

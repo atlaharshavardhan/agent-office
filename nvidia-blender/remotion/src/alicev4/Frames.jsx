@@ -50,7 +50,7 @@ export const V4Open = () => {
         <div style={{ width: 92, height: 110, borderRadius: 10, background: '#05070a', display: 'flex', alignItems: 'center', justifyContent: 'center', font: `800 60px ${FONT}`, color: V.red }}>?</div>
         <div>
           <div style={{ font: `800 40px ${FONT}`, color: V.text }}>Alice Huang</div>
-          <div style={{ font: `600 26px ${BODY}`, color: V.sub, marginTop: 4 }}>Ex-CEO ·</div>
+          <div style={{ font: `600 26px ${BODY}`, color: V.sub, marginTop: 4 }}>Former executive ·</div>
           <div style={{ marginTop: 6 }}><MegaspeedLogo h={30} sub={false} /></div>
         </div>
       </div>
