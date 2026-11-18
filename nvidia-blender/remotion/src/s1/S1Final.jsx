@@ -222,7 +222,7 @@ const AliceType = ({ f }) => {
 
 // ---------------------------------------------------------------- circuit transition (line -> traces)
 const Circuit = ({ f }) => {
-  const a = span(f, 86, 100), out = 1 - span(f, 104, 114);
+  const a = span(f, 86, 100), out = 1 - span(f, 99, 106);
   const paths = useMemo(() => [...Array(22)].map((_, k) => {
     let x = 640 + (random(`px${k}`) - 0.5) * 120, y = 1170; let d = `M ${x} ${y}`; let len = 0;
     for (let s = 0; s < 5; s++) { const horiz = s % 2 === 0; const step = (random(`ps${k}${s}`) - 0.5) * (horiz ? 900 : 700);
@@ -300,7 +300,7 @@ const Shot3 = ({ f }) => {
         <div style={{ position: 'absolute', left: qx, top: qy - 44, font: `900 64px ${FONT}`, color: V.text, textShadow: '0 0 18px #000', opacity: span(g, 30, 36) }}>?</div>
       </AbsoluteFill>
       {/* Blender GPU macro (pass B, transparent) — rises over the map, camera ends inside the die */}
-      <AbsoluteFill style={{ transform: `translateY(${(1 - span(g, 0, 14)) * 60 - 330 * (1 - eio((g - 6) / 34))}px)` }}>
+      <AbsoluteFill style={{ transform: `translateY(${(1 - span(g, 0, 14)) * 60 - 400 * (1 - eio((g - 14) / 32))}px) scale(${lerp(0.82, 1, eio((g - 10) / 30))})` }}>
         <Img src={staticFile(`s1f/gpuB/${pad(gi)}.png`)} style={{ width: W, height: H, filter: `drop-shadow(0 40px 60px rgba(0,0,0,.75))` }} />
       </AbsoluteFill>
       <AbsoluteFill style={{ background: 'radial-gradient(ellipse at 45% 50%, rgba(118,185,0,.28), transparent 60%)', opacity: bloom, mixBlendMode: 'screen' }} />

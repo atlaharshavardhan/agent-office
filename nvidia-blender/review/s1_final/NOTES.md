@@ -46,3 +46,19 @@ cd remotion && npx remotion render src/index.jsx S1Final ../exports/S1-hook-cine
 - Remotion composition: `remotion/src/s1/S1Final.jsx`, composition id `S1Final`. The Three.js map is `MapScene` / `Shot3` in the same file.
 - Layers and masks: `remotion/public/s1f/a/*` (Alice) and `remotion/public/s1f/j/{plate,fg}` (Jensen). Mask copies for review: `review/s1_final/layers/`.
 - Storyboard sheet: `review/s1_final/s1-final-storyboard.jpg` (frames 0, 30, 70, 118, 149).
+
+## QA (v1 render)
+- **ffprobe:**
+  - 1080×1920, h264, 30/1 fps, 150 frames, duration 5.000 s;
+  - AAC 48 kHz, 256 kb/s;
+  - −14.0 LUFS integrated, true peak −1.3 dBFS.
+- **Frame 0:** Jensen is on screen immediately, with no fade from black. The GPU is crisp in the lower-right foreground.
+- **Shot 2:**
+  - The window view was rebuilt as a layered high-floor night city (`scripts/s1_city.py`), replacing the empty water area that was flagged in review.
+  - Traffic, roof beacons and window flicker sit on the generated geometry (`remotion/src/s1/s1f_city.json`).
+  - Hair-edge motion is restrained, with no ghosting at 100 % crop.
+- **Shot 3:**
+  - The GPU starts above the map so all three markers stay readable, then descends into the die.
+  - The circuit transition clears by frame 106.
+- **Safe margins:** text stays inside the x 90–900 and y 228–1560 safe area.
+- **No paid generation was used.**
