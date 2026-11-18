@@ -16,7 +16,7 @@ const CAPS = [[36, 84, [['and why did her '], ['NVIDIA', V.green], [' connection
 const Tag = ({ at, txt, a }) => {
   const p = A[at] && A[at].l1; if (!p) return null;
   return (
-    <div style={{ position: 'absolute', left: p[0], top: p[1], transform: 'translate(-50%, -140%)', opacity: a, whiteSpace: 'nowrap',
+    <div style={{ position: 'absolute', left: p[0], top: p[1], transform: 'translate(-108%, -60%)', opacity: a, whiteSpace: 'nowrap',
       font: `700 26px ${BODY}`, color: V.text, background: 'rgba(8,12,16,.78)', border: '1px solid rgba(118,185,0,.55)', borderRadius: 10, padding: '6px 12px' }}>{txt}</div>
   );
 };
