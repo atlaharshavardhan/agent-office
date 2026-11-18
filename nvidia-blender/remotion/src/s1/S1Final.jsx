@@ -26,7 +26,7 @@ const S1_END = 45, S2_END = 96;
 const GREEN = V.green;
 
 // ---------------------------------------------------------------- shared grade: vignette + grain
-const Grade = () => {
+export const Grade = () => {
   const f = useCurrentFrame();
   return (
     <>
@@ -41,14 +41,14 @@ const Grade = () => {
 };
 
 // ---------------------------------------------------------------- Shot 1 pieces
-const Beam = ({ x, w, ang, f, speed, col, op, ph = 0 }) => {
+export const Beam = ({ x, w, ang, f, speed, col, op, ph = 0 }) => {
   const a = ang + Math.sin((f + ph) / 30 * speed) * 7;
   return <div style={{ position: 'absolute', left: x, top: -260, width: w, height: 1700, transformOrigin: '50% 0%', transform: `rotate(${a}deg)`,
     background: `linear-gradient(180deg, ${col} 0%, rgba(0,0,0,0) 80%)`, opacity: op, mixBlendMode: 'screen', filter: 'blur(22px)',
     clipPath: 'polygon(42% 0, 58% 0, 100% 100%, 0 100%)' }} />;
 };
 
-const StageScreen = ({ f }) => {
+export const StageScreen = ({ f }) => {
   // LED wall behind him: NVIDIA wordmark + living tech graphics (grid scroll, bars, scan line, die outline)
   const scroll = (f * 3) % 60;
   const bars = [...Array(14)].map((_, i) => 0.25 + 0.75 * Math.abs(Math.sin(f / 9 + i * 1.7)));
@@ -121,7 +121,7 @@ const Shot1 = ({ f }) => {
 };
 
 // ---------------------------------------------------------------- Shot 2 pieces
-const CityLife = ({ f }) => {
+export const CityLife = ({ f }) => {
   // animation sits exactly on the generated city (scripts/s1_city.py -> s1f_city.json)
   const tw = useMemo(() => CITY.twinkle.filter((_, k) => k % 2 === 0).map((b, k) => ({ x: b[0] + random(`tx${k}`) * b[2], y: b[1] + random(`ty${k}`) * Math.min(b[3], 500), p: random(`tp${k}`) * 6, warm: random(`tw${k}`) < 0.7 })), []);
   const cars = useMemo(() => CITY.streets.filter((st) => st[1] < 3).flatMap(([y, li]) => [...Array(7)].map((_, k) => ({ o: random(`co${y}${k}`) * 1340, v: (1.5 + li * 1.6) * (0.7 + random(`cv${y}${k}`) * 0.6), d: k % 2 ? 1 : -1, y: y - 2 + (k % 2) * 3, s: 0.6 + li * 0.25 }))), []);
@@ -136,7 +136,7 @@ const CityLife = ({ f }) => {
   );
 };
 
-const Shot2 = ({ f, horizon }) => {
+export const Shot2 = ({ f, horizon }) => {
   const k = eio(f / 60);
   const px = (d) => lerp(48, -48, k) * d;                       // lateral track, depth-weighted
   const z = lerp(1.04, 1.075, k);
