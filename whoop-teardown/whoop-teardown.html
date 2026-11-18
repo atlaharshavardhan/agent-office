@@ -204,12 +204,12 @@ const INFO = {
   battery: { name: 'Battery', role: 'Most of the height is battery.', illus: 'Illustrative cell',
     body: 'The cell fills most of the space under the lid. WHOOP quotes about 14 days on one charge. Reports say 5.0 uses a silicon-anode cell, which stores more energy in the same space, but WHOOP has not confirmed the chemistry, so the cell shown here is only an example.',
     specs: ['About 14 days per charge (official)', ['Silicon-anode chemistry: unverified', true], ['Cell shape and size: illustrative', true]] },
-  board: { name: 'Main board', role: 'The brain and the memory.', illus: 'Illustrative layout',
-    body: 'The TechInsights teardown found an Ambiq Micro chip with an Arm Cortex-M4 processor and Bluetooth Low Energy 5.0 built in, plus Micron flash memory that stores your data until your phone syncs. Ambiq chips are designed to sip very little power, which helps the battery last two weeks. Where each chip sits on this board is our guess.',
-    specs: ['Ambiq Micro chip, Arm Cortex-M4', 'Bluetooth LE 5.0', 'Micron NAND flash memory', ['Board layout: illustrative', true]] },
+  board: { name: 'Main board', role: 'The brain, the memory, and a buzzer.', illus: 'Illustrative layout',
+    body: 'The TechInsights teardown found an Ambiq Micro chip (Arm Cortex-M4 with Bluetooth LE 5.0 built in) and 512 MB of Micron flash memory that stores your data until your phone syncs. It also lists a TDK-InvenSense motion sensor (accelerometer + gyroscope) that tracks movement and sleep, a tiny vibration motor for silent alarms, Texas Instruments LED and vibration drivers, a power chip from Monolithic Power Systems and an onsemi battery gauge. Where each part sits on this board is our guess.',
+    specs: ['Ambiq Micro chip, Arm Cortex-M4 + BLE 5.0', 'Micron 512 MB flash memory', '6-axis motion sensor (TDK-InvenSense)', 'Vibration motor (haptic LRA)', ['Board layout: illustrative', true]] },
   sensor: { name: 'Optical sensor board', role: 'Shines light into your skin, 26 times a second.', illus: 'Illustrative LEDs',
     body: 'LEDs shine light into your wrist and light detectors (photodiodes) measure how much comes back. With every heartbeat a little more blood flows under the skin and soaks up more light, so the reflected light rises and falls with your pulse. WHOOP says the sensor samples 26 times a second. Reports count 5 LEDs (3 green, 1 red, 1 infrared) and 4 photodiodes; WHOOP has not confirmed that, so the layout here is an example. (We flip the board over here so you can see the side that faces your skin.)',
-    specs: ['Samples 26 times a second (official)', 'LEDs + light detectors', ['5 LEDs + 4 photodiodes: unverified', true]] },
+    specs: ['Samples 26 times a second (official)', 'LEDs + light detectors', 'Skin temperature sensor', ['5 LEDs + 4 photodiodes: unverified', true], ['Sensor positions: illustrative', true]] },
   bottom: { name: 'Bottom housing', role: 'The side that touches your skin.',
     body: 'The underside carries a dark glass window over the LEDs and light detectors. It presses against your wrist so the light goes into the skin and not out to the sides. A snug fit matters: any gap lets room light in and spoils the reading. The seam between this housing and the top shell is part of the water seal.',
     specs: ['Sensor window sits on the skin', 'Snug fit keeps room light out', 'Part of the IP68 seal'] },
@@ -391,14 +391,14 @@ const BATTERY = addPart('battery', 58, { az: 0.6, el: 0.5, k: 2.2 }, [9.8, (BAT_
   const h = BAT_Y1 - BAT_Y0, yc = (BAT_Y0 + BAT_Y1) / 2;
   const brushTex = canvasTex(256, 256, (x, w, hh) => { x.fillStyle = '#b9bec5'; x.fillRect(0, 0, w, hh); const r = rng(7); for (let i = 0; i < 900; i++) { x.strokeStyle = `rgba(${r() < .5 ? '255,255,255' : '60,64,70'},${(r() * .18).toFixed(3)})`; x.beginPath(); const yy = r() * hh; x.moveTo(0, yy); x.lineTo(w, yy + (r() - .5) * 3); x.stroke(); } });
   brushTex.wrapS = brushTex.wrapT = THREE.RepeatWrapping; brushTex.repeat.set(0.06, 0.06);
-  mesh(pillow(19.6, 27.6, 2.6, h, 0.9), std(0xffffff, 0.95, 0.3, { map: brushTex }), 0, yc, -0.6, g);
+  mesh(pillow(19.6, 22.0, 2.6, h, 0.9), std(0xffffff, 0.95, 0.3, { map: brushTex }), 0, yc, 2.2, g);
   // sealed pouch lip along one long side
-  box(0.5, h * 0.42, 26.6, M.brushed, -9.95, yc, -0.6, g);
+  box(0.5, h * 0.42, 21.0, M.brushed, -9.95, yc, 2.2, g);
   // amber Kapton band wrapping the cell
   mesh(ring(19.75, 5.2, 0.5, 19.0, 4.6, 0.3, BAT_Y0 + 0.25, BAT_Y1 - 0.25), M.flex, 0, 0, 5.0, g);
   // label (no brand)
   const lab = new THREE.Mesh(new THREE.PlaneGeometry(12, 8.5), new THREE.MeshStandardMaterial({ map: labelTex([['Li-ion cell', 30], ['ILLUSTRATIVE', 22]], '#121418', '#c9ced6', 256, 180), metalness: 0.1, roughness: 0.5 }));
-  lab.rotation.x = -Math.PI / 2; lab.position.set(0, BAT_Y1 + 0.01, -6.5); g.add(lab);
+  lab.rotation.x = -Math.PI / 2; lab.position.set(0, BAT_Y1 + 0.01, -3.0); g.add(lab);
   // protection board + gold tabs at the +z end
   const pcm = mesh(pillow(15, 1.9, 0.6, 1.0, 0.15), navy(15, 1.9, 11), 0, 5.9, 14.7, g);
   for (const sx of [-4, 4]) box(3, 0.15, 1.6, M.gold, sx, 6.52, 14.6, g);
@@ -419,6 +419,15 @@ const BOARD = addPart('board', 36, { az: 0.5, el: 0.62, k: 2.0 }, [10.6, BRD_Y0,
   chip(g, 5.6, 4.4, 0.85, [['FLASH', 44], ['NAND', 30]], 4.0, top, -4.6);
   chip(g, 3.0, 3.0, 0.6, [['PMIC', 48]], -5.4, top, 4.2);
   chip(g, 2.2, 2.2, 0.55, [['', 30]], 0.4, top, 2.4);
+  // parts listed by the TechInsights teardown (positions illustrative)
+  chip(g, 3.0, 3.0, 0.8, [['IMU', 52], ['6-axis', 32]], -5.6, top, 0.2);
+  chip(g, 2.4, 2.4, 0.55, [['GAUGE', 34]], 1.0, top, -0.6);
+  chip(g, 2.6, 2.0, 0.6, [['SPI', 40]], 7.2, top, 0.4);
+  chip(g, 3.2, 3.2, 0.6, [['DRV', 48], ['LED·HAP', 26]], -1.4, top, 8.6);
+  // vibration motor (haptic LRA): small steel can
+  const lra = new THREE.Group(); lra.position.set(3.0, top, -11.6); g.add(lra);
+  mesh(pillow(9.0, 4.0, 1.4, 2.6, 0.5), M.steel, 0, 1.3, 0, lra);
+  box(2.2, 0.1, 1.2, M.gold, -3.2, 0.05, 2.3, lra); box(2.2, 0.1, 1.2, M.gold, 3.2, 0.05, 2.3, lra);
   // steel RF shield (illustrative)
   const can = new THREE.Group(); can.position.set(4.2, top, 5.6); g.add(can);
   mesh(pillow(7.6, 7.0, 0.8, 0.9, 0.12), M.steel, 0, 0.45, 0, can);
@@ -429,7 +438,7 @@ const BOARD = addPart('board', 36, { az: 0.5, el: 0.62, k: 2.0 }, [10.6, BRD_Y0,
   box(4.0, 0.5, 2.0, M.black, 5.5, top + 0.25, 12.4, g);
   for (let i = 0; i < 6; i++) mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.06, 20), M.gold, -7.5 + i * 2.1, top + 0.03, 12.6, g);
   // passives scattered on the top (resistors/capacitors)
-  const r = rng(21); const keep = [[-3.6, -4.5, 3.2], [4.0, -4.6, 3.4], [4.2, 5.6, 4.4], [-5.4, 4.2, 2], [5.5, 12.4, 2.6], [-6.6, -11, 2.2]];
+  const r = rng(21); const keep = [[-3.6, -4.5, 3.2], [4.0, -4.6, 3.4], [4.2, 5.6, 4.4], [-5.4, 4.2, 2], [5.5, 12.4, 2.6], [-6.6, -11, 2.2], [-5.6, 0.2, 2], [1, -0.6, 1.6], [7.2, 0.4, 1.6], [-1.4, 8.6, 2.1], [3, -11.6, 5.2]];
   for (let i = 0; i < 70; i++) { const x = (r() - .5) * 17, z = (r() - .5) * 26; if (keep.some(([kx, kz, kr]) => Math.abs(x - kx) < kr && Math.abs(z - kz) < kr)) continue;
     const big = r() < .25, w = big ? 1.0 : 0.6, l = big ? 0.5 : 0.3;
     const c = new THREE.Group(); c.position.set(x, top, z); c.rotation.y = r() < .5 ? 0 : Math.PI / 2; g.add(c);
@@ -459,6 +468,8 @@ const SENSOR = addPart('sensor', 18, { az: 0.45, el: 0.22, k: 1.9 }, [7.4, SNS_Y
   for (let i = 0; i < 10; i++) box(0.9, 0.06, 0.5, M.gold, (i % 2 ? 1 : -1) * 6, bot - 0.03, -8 + i * 1.7, g);   // gold pads
   // top side: analog front-end (illustrative) + passives + amber flex up to the main board
   chip(g, 3.6, 3.6, 0.5, [['AFE', 52]], 0, SNS_Y0 + SNS_T, -3.5);
+  // skin temperature sensor on the skin side, next to the window (position illustrative)
+  box(1.6, 0.3, 1.6, M.black, 5.6, SNS_Y0 - 0.15, -8.4, g); box(1.0, 0.04, 1.0, M.gold, 5.6, SNS_Y0 - 0.32, -8.4, g);
   const r = rng(5); for (let i = 0; i < 18; i++) box(0.6, 0.25, 0.3, M.ceramic, (r() - .5) * 11, SNS_Y0 + SNS_T + 0.125, 1 + r() * 6, g);
   box(5.0, 0.1, 3.0, M.flex, 0, SNS_Y0 + SNS_T + 0.05, 8.1, g);
   const fx = new THREE.CatmullRomCurve3([new THREE.Vector3(0, SNS_Y0 + SNS_T + 0.1, 9.4), new THREE.Vector3(0, 2.85, 10.4), new THREE.Vector3(0, 2.95, 11.6)]);
