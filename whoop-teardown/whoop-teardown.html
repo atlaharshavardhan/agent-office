@@ -198,7 +198,7 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ---------------- Part descriptions (facts: whoop-teardown/BRIEF.md) ---------------- */
 // specs: plain string = verified; ['text', true] = unverified (shown in amber)
 const INFO = {
-  top: { name: 'Top shell', role: 'A sealed lid with no screen and no buttons.',
+  top: { name: 'Top shell', role: 'A sealed matte lid, hidden under the band.',
     body: 'The whole pod is about 34.7 × 24 × 10.6 mm and the device weighs about 26.5 g. There is nothing to press and nothing to read: the band does its work silently and sends everything to your phone. The shell is sealed for an IP68 rating, so it can go swimming down to 10 metres.',
     specs: ['About 34.7 × 24 × 10.6 mm', 'About 26.5 g', 'IP68, water-resistant to 10 m'] },
   battery: { name: 'Battery', role: 'Most of the height is battery.', illus: 'Illustrative cell',
@@ -213,9 +213,9 @@ const INFO = {
   bottom: { name: 'Bottom housing', role: 'The side that touches your skin.',
     body: 'The underside carries a dark glass window over the LEDs and light detectors. It presses against your wrist so the light goes into the skin and not out to the sides. A snug fit matters: any gap lets room light in and spoils the reading. The seam between this housing and the top shell is part of the water seal.',
     specs: ['Sensor window sits on the skin', 'Snug fit keeps room light out', 'Part of the IP68 seal'] },
-  band: { name: 'Band and clasp', role: 'Holds it snug. On the MG model, the clasp reads an ECG.', illus: 'Illustrative clasp',
-    body: 'The knit band hooks onto both ends of the pod and holds the sensor window flat on your wrist. On the WHOOP MG model the clasp also works as an ECG sensor; the regular 5.0 does not have ECG. The clasp shape here is drawn as an example.',
-    specs: ['Holds the sensor flat on the wrist', 'ECG through the clasp: MG only (official)', ['Clasp design: illustrative', true]] },
+  band: { name: 'Band and clasp', role: 'The part you actually see. On the MG model, the clasp reads an ECG.', illus: 'Illustrative clasp',
+    body: 'There is no screen on top: the knit band runs right over the pod, held in a polished metal frame with a curved metal clasp plate at one end. The band keeps the sensor window pressed flat on your wrist. On the WHOOP MG model the clasp also works as an ECG sensor; the regular 5.0 does not have ECG. Our frame and plate are plain, with no logo.',
+    specs: ['Knit band runs over the top of the pod', 'Polished metal frame and clasp plate', 'ECG through the clasp: MG only (official)', ['Clasp details: illustrative', true]] },
 };
 
 /* ---------------- Three.js setup ---------------- */
@@ -257,6 +257,17 @@ const ledLight = new THREE.PointLight(0x2cff74, 0, 42, 2); scene.add(ledLight);
   const pm = new THREE.PMREMGenerator(renderer);
   scene.environment = pm.fromScene(es, 0.02).texture;
   pm.dispose();
+})();
+// Brighter studio used only as the reflection map for polished metal, so chrome reads silver in a dark room.
+const METAL_ENV = (function () {
+  const es = new THREE.Scene();
+  es.add(new THREE.Mesh(new THREE.BoxGeometry(120, 70, 120), new THREE.MeshBasicMaterial({ color: 0x1c1f23, side: THREE.BackSide })));
+  const panel = (w, h, k, x, y, z, ry = 0, rx = 0, tint = 0xffffff) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(tint).multiplyScalar(k), side: THREE.DoubleSide })); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); es.add(m); };
+  panel(70, 40, 2.4, 0, 34, 0, 0, Math.PI / 2);
+  panel(120, 10, 1.6, 0, 6, -59); panel(120, 10, 1.2, 0, 6, 59, Math.PI);
+  panel(10, 50, 3, -58, 8, 0, Math.PI / 2, 0, 0xdfe8ff); panel(10, 50, 2.4, 58, 8, 0, Math.PI / 2, 0, 0xffe6cc);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshBasicMaterial({ color: 0x0a0b0c })); floor.rotation.x = -Math.PI / 2; floor.position.y = -34; es.add(floor);
+  const pm = new THREE.PMREMGenerator(renderer); const t = pm.fromScene(es, 0.02).texture; pm.dispose(); return t;
 })();
 
 /* ---------------- Helpers ---------------- */
@@ -309,7 +320,8 @@ function chip(g, w, l, t, lines, x, y, z, mats) {   // flat IC: label on top
 
 /* ---------------- Materials (rule 23: navy boards, gold pads, steel, black glass, amber flex) ---------------- */
 const M = {
-  topShell: phys({ color: 0x121316, metalness: 0.1, roughness: 0.42, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 1.0 }),
+  topShell: phys({ color: 0x0b0b0d, metalness: 0.05, roughness: 0.7, clearcoat: 0.1, clearcoatRoughness: 0.45, envMapIntensity: 0.9 }),
+  chrome: std(0xeef0f2, 1, 0.09, { envMap: METAL_ENV, envMapIntensity: 1.0 }),
   botShell: phys({ color: 0x1e2024, metalness: 0.2, roughness: 0.6, clearcoat: 0.25, clearcoatRoughness: 0.35 }),
   seam: std(0x050506, 0.2, 0.6),
   steel: std(0xd6dade, 1, 0.16, { envMapIntensity: 1.3 }),
@@ -340,7 +352,7 @@ const POD = { W: 24, L: 34.7, H: 10.6, R: 6.2 };
 const WALL = 1.0;
 const IN = { W: POD.W - 2 * WALL, L: POD.L - 2 * WALL, R: POD.R - WALL };
 const SPLIT = 4.0;                     // seam between bottom housing and top shell
-const CAV = { y0: 1.6, y1: 9.0 };      // free space inside: above the bottom plate, below the lid
+const CAV = { y0: 1.6, y1: 8.6 };      // free space inside: above the bottom plate, below the lid
 const root = new THREE.Group(); scene.add(root);
 const parts = [];
 const SHELL_IDS = new Set(['top', 'bottom']), INTERNAL_IDS = new Set(['battery', 'board', 'sensor']);
@@ -364,19 +376,17 @@ const ghostMat = () => new THREE.ShaderMaterial({
   fragmentShader: 'uniform float alpha; uniform vec3 tint; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.2); gl_FragColor = vec4(tint * (0.3 + 1.1 * f), alpha * (0.025 + 0.42 * f)); }',
   transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
 });
-function addGhosts(p) { const list = []; p.group.traverse(o => { if (o.isMesh && !o.userData.noGhost) list.push(o); });
+function addGhosts(p) { const list = []; p.group.traverse(o => { if (o.isMesh && !o.userData.noGhost && (SHELL_IDS.has(p.id) || o.userData.glassy)) list.push(o); });
   list.forEach(o => { const gm = new THREE.Mesh(o.geometry, ghostMat()); gm.userData.ghost = true; gm.renderOrder = 5; gm.castShadow = false; gm.visible = false; o.add(gm); p.ghosts.push(gm); }); }
 
-/* 1. Top shell: glossy dark lid and side wall down to the seam (plain: no logo, no slots) */
-const TOP = addPart('top', 82, { az: 0.55, el: 0.42, k: 2.3 }, [POD.W / 2, 8, 0], g => {
-  mesh(ring(POD.W, POD.L, POD.R, IN.W, IN.L, IN.R, SPLIT + 0.12, 9.78), M.topShell, 0, 0, 0, g);
-  mesh(pillow(POD.W, POD.L, POD.R, 1.6, 0.78), M.topShell, 0, POD.H - 0.8, 0, g);
-  // thin steel chamfer line just above the seam
-  const trim = mesh(ring(POD.W + 0.06, POD.L + 0.06, POD.R + 0.03, POD.W - 0.6, POD.L - 0.6, POD.R - 0.3, SPLIT + 0.12, SPLIT + 0.42), M.steel, 0, 0, 0, g); trim.userData.noGhost = true;
+/* 2. Top shell: matte dark lid with soft, rounded top edges (plain: no logo); it sits under the band */
+const TOP = addPart('top', 80, { az: 0.55, el: 0.42, k: 2.3 }, [POD.W / 2, 8, 0], g => {
+  mesh(ring(POD.W, POD.L, POD.R, IN.W, IN.L, IN.R, SPLIT + 0.12, POD.H - 1.0), M.topShell, 0, 0, 0, g);
+  mesh(pillow(POD.W, POD.L, POD.R, 2.0, 0.95), M.topShell, 0, POD.H - 1.0, 0, g);
 });
 
 /* 2. Battery: brushed-steel pouch, amber Kapton band, small protection board and a flex down to the main board */
-const BAT_Y0 = 4.95, BAT_Y1 = 8.75;
+const BAT_Y0 = 4.95, BAT_Y1 = 8.45;
 const BATTERY = addPart('battery', 58, { az: 0.6, el: 0.5, k: 2.2 }, [9.8, (BAT_Y0 + BAT_Y1) / 2, 0], g => {
   const h = BAT_Y1 - BAT_Y0, yc = (BAT_Y0 + BAT_Y1) / 2;
   const brushTex = canvasTex(256, 256, (x, w, hh) => { x.fillStyle = '#b9bec5'; x.fillRect(0, 0, w, hh); const r = rng(7); for (let i = 0; i < 900; i++) { x.strokeStyle = `rgba(${r() < .5 ? '255,255,255' : '60,64,70'},${(r() * .18).toFixed(3)})`; x.beginPath(); const yy = r() * hh; x.moveTo(0, yy); x.lineTo(w, yy + (r() - .5) * 3); x.stroke(); } });
@@ -478,7 +488,9 @@ const ARM_KEYS = [ // x, a (half width), b (half height), exponent
   [32, 28.6, 18.2, 2.6], [50, 31.5, 16.5, 2.5], [75, 38, 15.2, 2.45], [130, 41, 14.2, 2.4], [190, 40, 13.6, 2.4], [330, 39, 13, 2.4]];
 const B0 = lerpKeys(ARM_KEYS, 0)[1];
 const TABLE = -1.97 * B0;                       // arm top at the pod (x = 0) sits at y = 0
-const BAND_HALF = 12.4, POD_HX = POD.W / 2, POD_HZ = POD.L / 2;
+const BAND_HALF = 12.4;
+const FRAME = { W: POD.W + 2.6, L: POD.L + 2.6, R: POD.R + 1.3 };   // polished frame around the pod (from review photos)
+const POD_HX = FRAME.W / 2, POD_HZ = FRAME.L / 2;
 const sstep = (e0, e1, x) => { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
 function section(x, th) {   // → { y, z, ny, nz } on the relaxed skin
   const [a, b, n] = lerpKeys(ARM_KEYS, x), e = 2 / n, c = Math.cos(th), s = Math.sin(th);
@@ -566,17 +578,18 @@ const table = mesh(new THREE.PlaneGeometry(2400, 2400), new THREE.MeshLambertMat
 table.rotation.x = -Math.PI / 2; table.receiveShadow = true;
 
 /* 6. Band + clasp around the wrist (part, not exploded) */
-const knitTex = canvasTex(256, 256, (x, w, h) => {
-  x.fillStyle = '#26282c'; x.fillRect(0, 0, w, h); const r = rng(13);
-  for (let j = 0; j < 16; j++) for (let i = 0; i < 32; i++) { const cx = i * 8 + (j % 2) * 4, cy = j * 16 + 8; const l = 46 + r() * 16;
-    x.fillStyle = `rgb(${l},${l + 2},${l + 6})`; x.beginPath(); x.ellipse(cx, cy, 3.1, 7, (j % 2 ? 0.35 : -0.35), 0, 7); x.fill(); }
-});
+const weave = (x, w, h, bg, cell) => {   // staggered rounded cells, 8 x 8 per tile
+  x.fillStyle = bg; x.fillRect(0, 0, w, h); const r = rng(13), n = 8, c = w / n;
+  for (let j = 0; j < n * 2; j++) for (let i = -1; i <= n; i++) { const cx = (i + (j % 2) * 0.5 + 0.5) * c, cy = (j + 0.5) * c / 2;
+    x.fillStyle = cell(r()); x.beginPath(); x.ellipse(cx, cy, c * 0.36, c * 0.3, 0, 0, 7); x.fill(); }
+};
+const knitTex = canvasTex(256, 256, (x, w, h) => weave(x, w, h, '#050506', v => { const l = 44 + v * 14; return `rgb(${l},${l},${l + 2})`; }));
 knitTex.wrapS = knitTex.wrapT = THREE.RepeatWrapping;
-const knitBump = canvasTex(256, 256, (x, w, h) => { x.fillStyle = '#202020'; x.fillRect(0, 0, w, h); for (let j = 0; j < 16; j++) for (let i = 0; i < 32; i++) { x.fillStyle = '#d0d0d0'; x.beginPath(); x.ellipse(i * 8 + (j % 2) * 4, j * 16 + 8, 2.6, 6.4, (j % 2 ? 0.35 : -0.35), 0, 7); x.fill(); } }, false);
+const knitBump = canvasTex(256, 256, (x, w, h) => weave(x, w, h, '#1a1a1a', () => '#d8d8d8'), false);
 knitBump.wrapS = knitBump.wrapT = THREE.RepeatWrapping;
 function bandGeo() {
   // find where the band leaves the skin next to each end of the pod
-  let thA = Math.PI / 2; while (section(0, thA).z < POD_HZ - 0.6) thA -= 0.002;
+  let thA = Math.PI / 2; while (section(0, thA).z < FRAME.L / 2 - 0.4) thA -= 0.002;
   const span = Math.PI + 2 * thA, NT = 220, prof = [];
   const T0 = 0.06, T1 = 1.9, HW = BAND_HALF, cr = 0.7;
   // profile: rounded rect in (dx, dr), counter-clockwise
@@ -588,25 +601,35 @@ function bandGeo() {
     const th = thA - span * i / NT;
     const c0 = section(0, th); if (prev) arc += Math.hypot(c0.y - prev.y, c0.z - prev.z); prev = c0;
     for (let j = 0; j <= NP; j++) { const [dx, dr] = prof[j % NP], s = section(dx, th);
-      pos.push(dx, s.y + s.ny * dr, s.z + s.nz * dr); uv.push(arc / 9, (j / NP) * 6); }
+      pos.push(dx, s.y + s.ny * dr, s.z + s.nz * dr); uv.push(arc / 6, (j / NP) * 9); }
   }
   for (let i = 0; i < NT; i++) for (let j = 0; j < NP; j++) { const a = i * (NP + 1) + j, b = a + NP + 1; idx.push(a, a + 1, b, b, a + 1, b + 1); }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
   g.setIndex(idx); g.computeVertexNormals(); return { g, thA };
 }
-BAND = addPart('band', 0, { az: 0.85, el: 0.2, k: 1.25 }, [BAND_HALF, -16, 26], g => {
-  const { g: bg, thA } = bandGeo();
-  const bm = mesh(bg, phys({ color: 0xffffff, map: knitTex, bumpMap: knitBump, bumpScale: 0.05, roughness: 0.92, metalness: 0 }), 0, 0, 0, g);
-  // end lugs hooking the band onto the pod's short ends
-  // clasp on the side facing the camera (illustrative)
-  const th = -0.42, s = section(0, th);
-  const cl = new THREE.Group(); cl.position.set(0, s.y + s.ny * 2.25, s.z + s.nz * 2.25); cl.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, s.ny, s.nz)); g.add(cl);
-  mesh(pillow(BAND_HALF * 2 + 1.2, 9, 1.6, 1.2, 0.45), M.brushed, 0, 0, 0, cl);
-  mesh(pillow(BAND_HALF * 2 - 4, 5, 1.2, 0.3, 0.12), M.steel, 0, 0.6, 0, cl);
+let BAND_LOOP = null;
+const knitMat = () => phys({ color: 0xffffff, map: knitTex, bumpMap: knitBump, bumpScale: 0.12, roughness: 0.9, metalness: 0, sheen: new THREE.Color(0x2a2a30) });
+BAND = addPart('band', 104, { az: 0.6, el: 0.5, k: 1.7 }, [FRAME.W / 2, POD.H + 0.8, -6], g => {
+  // wrist loop (stays on the arm when the layers lift)
+  BAND_LOOP = new THREE.Group(); g.add(BAND_LOOP);
+  const { g: bg, thA } = bandGeo(); mesh(bg, knitMat(), 0, 0, 0, BAND_LOOP);
+  // knit strip running over the top of the pod
+  const st = knitMat(); st.map = knitTex.clone(); st.map.needsUpdate = true; st.map.repeat.set(1 / 6, 1 / 6); st.bumpMap = knitBump.clone(); st.bumpMap.needsUpdate = true; st.bumpMap.repeat.set(1 / 6, 1 / 6);
+  const strip = mesh(pillow(POD.W - 0.2, FRAME.L - 1.6, 4, 1.5, 0.5), st, 0, POD.H + 0.7, -1.2, g); strip.userData.glassy = true;
+  // polished metal frame around the pod
+  const fr = mesh(ring(FRAME.W, FRAME.L, FRAME.R, POD.W + 0.1, POD.L + 0.1, POD.R + 0.05, SPLIT + 1.2, POD.H + 1.1), M.chrome, 0, 0, 0, g); fr.userData.glassy = true;
+  const lip = mesh(pillow(FRAME.W, FRAME.L, FRAME.R, 0.9, 0.42, [[POD.W - 1.2, POD.L - 1.2, POD.R - 0.6]]), M.chrome, 0, POD.H + 1.05, 0, g); lip.userData.glassy = true;
+  // curved clasp plate across one end (plain: no logo)
+  const pl = mesh(pillow(FRAME.W - 0.1, 7.4, 2.4, 1.7, 0.8), M.chrome, 0, POD.H + 1.0, FRAME.L / 2 - 4.1, g); pl.userData.glassy = true;
   window.__bandTh = thA;
 });
-parts.sort((a, b) => ['top', 'battery', 'board', 'sensor', 'bottom', 'band'].indexOf(a.id) - ['top', 'battery', 'board', 'sensor', 'bottom', 'band'].indexOf(b.id)).forEach((p, i) => p.index = i);
-[TOP, BOTTOM].forEach(addGhosts);
+{ // camera framing + label for the band card use the lifted frame and strip only, not the whole loop
+  const b = new THREE.Box3(); BAND.group.children.forEach(o => { if (o !== BAND_LOOP) b.expandByObject(o); });
+  BAND.center = b.getCenter(new THREE.Vector3()); BAND.radius = b.getBoundingSphere(new THREE.Sphere()).radius;
+}
+const ORDER = ['band', 'top', 'battery', 'board', 'sensor', 'bottom'];
+parts.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id)).forEach((p, i) => p.index = i);
+[TOP, BOTTOM, BAND].forEach(addGhosts);
 
 /* ---------------- Inside-the-shell ray test (like airpods-ear __inside) ----------------
    Every internal vertex (battery, main board, sensor board) must be inside the closed cavity
@@ -629,9 +652,9 @@ window.__inside = () => {
 /* ---------------- View / state ---------------- */
 const N = parts.length;
 const byId = id => parts.find(p => p.id === id);
-const STACK_TOP = POD.H + byId('top').offset.y;
-const OV_WIDE = { target: new THREE.Vector3(0, STACK_TOP * 0.46, 0), az: 0.62, el: 0.3, dist: 235, shift: 0 };
-const OV_TALL = { target: new THREE.Vector3(0, STACK_TOP * 0.46, 0), az: 0.62, el: 0.3, dist: 300, shift: 0 };
+const STACK_TOP = POD.H + 2 + byId('band').offset.y;
+const OV_WIDE = { target: new THREE.Vector3(0, STACK_TOP * 0.47, 0), az: 0.62, el: 0.3, dist: 290, shift: 0 };
+const OV_TALL = { target: new THREE.Vector3(0, STACK_TOP * 0.47, 0), az: 0.5, el: 0.3, dist: 390, shift: 0 };
 const HERO = { target: new THREE.Vector3(0, 4, 0), az: 0.75, el: 0.2, dist: 165, shift: 0 };
 const isTall = () => innerWidth < innerHeight;
 const overviewPose = () => clonePose(isTall() ? OV_TALL : OV_WIDE);
@@ -651,8 +674,10 @@ const clamp01 = t => Math.min(1, Math.max(0, t));
 
 const FLIP_PIVOT = new THREE.Vector3(0, SNS_Y0 + SNS_T / 2, 0), _fq = new THREE.Quaternion(), _fe = new THREE.Euler();
 SENSOR.flip = 0;
+const lift = (p, e) => { const k = ORDER.indexOf(p.id); return k >= 5 ? 0 : clamp01(e * 1.5 - k * 0.1); };
 function applyExplode(e) {
-  parts.forEach(p => p.group.position.copy(p.offset).multiplyScalar(e));
+  parts.forEach(p => p.group.position.copy(p.offset).multiplyScalar(lift(p, e)));
+  BAND_LOOP.position.set(0, -BAND.group.position.y, 0);
   // close-up only: turn the sensor board over (about its own centre) so the LEDs face the camera
   const a = -1.95 * ease(clamp01(SENSOR.flip)) * clamp01((e - 0.6) / 0.4);
   _fq.setFromEuler(_fe.set(a, 0, 0)); SENSOR.group.quaternion.copy(_fq);
@@ -660,12 +685,13 @@ function applyExplode(e) {
 }
 function applyMaterials() {
   // shell: solid → glass; internals only visible once the shell is glass or the layers are apart
-  const showInside = glass > 0.55 || explode > 0.3;
+  const showInside = glass > 0.55 || lift(TOP, explode) > 0.35;
   parts.forEach(p => {
-    const d = p.dim, sh = SHELL_IDS.has(p.id);
+    const d = p.dim;
     if (INTERNAL_IDS.has(p.id)) p.group.visible = showInside;
     p.group.traverse(o => {
       if (!o.isMesh || o.userData.ghost) return;
+      const sh = SHELL_IDS.has(p.id) || !!o.userData.glassy;
       (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => {
         const u = m.userData, op = u.baseOpacity * (1 - 0.9 * d) * (sh ? 1 - 0.94 * glass : 1);
         const tr = u.baseTransparent || op < 0.999;
@@ -701,10 +727,10 @@ function updateLabels(w, h) {
   parts.forEach(p => {
     tmpV.copy(p.anchor).add(p.group.position).project(camera);
     const x = (tmpV.x * 0.5 + 0.5) * w, y = (-tmpV.y * 0.5 + 0.5) * h;
-    const left = p.id === 'band';
+    const left = false;
     p.tag.classList.toggle('left', left);
     p.tag.style.transform = `translate(${left ? 'calc(' + x + 'px - 100% + 3.5px)' : (x - 3.5) + 'px'}, ${y - 12}px)`;
-    p.tag.style.visibility = tmpV.z < 1 && (p.group.visible || p.id === 'band') ? 'visible' : 'hidden';
+    p.tag.style.visibility = tmpV.z < 1 && p.group.visible ? 'visible' : 'hidden';
   });
 }
 
