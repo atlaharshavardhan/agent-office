@@ -30,3 +30,24 @@ Voice draft is about 95 words. It will be timed with the real Kokoro audio, and 
 - Rings: our own ring design, not a copy of WHOOP's app UI. The only WHOOP text is the name, as approved.
 
 Sources: WHOOP / Business Wire launch release; the5krunner 5.0 / MG spec page; WHOOP "Which membership is right for you".
+
+## v2 (after Harsh's feedback: real 3D scenes, more depth). Proposed timing, still exactly 40.0 s
+
+| # | Time | Keyframe | Voice (draft) |
+|---|------|----------|---------------|
+| S1 | 0.0–3.5 | keyframes/S1-wrist-anatomy (skin turns see-through, pulse in the vessels) | "This band has no screen. So how does it read your body?" |
+| S2a | 3.5–5.5 | explainer-stills/1-underside-glow | "That green glow underneath…" |
+| S2b | 5.5–8.0 | explainer-stills/5-exploded-green-leds (teardown comes apart, LEDs on) | "…comes from green LEDs inside." |
+| S3a | 8.0–9.8 | ppg-stills/1-green-light-in | "Their light goes into your skin." |
+| S3b | 9.8–11.6 | explainer-stills/6-blood-cell-green-light | "Blood soaks up green light…" |
+| S3c | 11.6–13.4 | ppg-stills/2-blood-soaks-light | "…so every heartbeat dims the glow." |
+| S3d | 13.4–15.2 | ppg-stills/3-26-readings-a-second | "It reads that 26 times a second…" |
+| S3e | 15.2–17.0 | ppg-stills/4-gap-between-beats (label HRV) | "…and the gaps between beats are your HRV." |
+| S4 | 17.0–21.5 | Blender (PC), mock in frames/S4 | "At night, heart rate, breathing and movement become sleep stages." |
+| S5 | 21.5–25.5 | keyframes/S5-alcohol-journal | "Log a drink, and your night can show it." |
+| S6 | 25.5–30.0 | keyframes/S6-blood-pressure | "On MG, a cuff calibration lets it estimate blood-pressure trends." |
+| S7 | 30.0–35.0 | keyframes/S7-signals-to-metrics | "All of it feeds oxygen, stress, strain and more." |
+| S8 | 35.0–38.5 | keyframes/S8-hero-decoded | "Your body, decoded." |
+| End | 38.5–40.0 | frames/S9 (end card) | "Follow InvisiTech for more." |
+
+Change from v1: Scene 3 grows from 6 s to 9 s (5 beats); S1, S2, S5, S7 and S8 are tightened to make room.

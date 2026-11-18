@@ -12,7 +12,7 @@ function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let
 
 /* ---------- overlay: title, illustrative mark, pills + leader lines, watermark ---------- */
 const ui = document.createElement('div'); ui.id = 'shotUI';
-ui.innerHTML = `<div id="sArt"></div><div id="sTitle"></div><div id="sIllus">Illustrative · not to scale</div><svg id="sLines" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"></svg><div id="sPills"></div>
+ui.innerHTML = `<div id="sArt"></div><div id="sTitle"></div><div id="sIllus">Illustrative · not to scale</div><svg id="sLines" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"></svg><div id="sArt2"></div><div id="sPills"></div>
   <div id="sWm2">@TheInvisiTech</div><div id="sWm"><img src="../airpods-ear/assets/invisitech-logo.png" alt=""><span>@TheInvisiTech</span></div>`;
 document.body.appendChild(ui);
 const css = document.createElement('style'); css.textContent = `
@@ -23,7 +23,7 @@ const css = document.createElement('style'); css.textContent = `
   #sIllus { position: absolute; left: 0; right: 0; top: 452px; text-align: center; font: 400 26px "IBM Plex Sans"; color: rgba(220,226,232,.55); }
   .sp { position: absolute; padding: 12px 24px; border-radius: 999px; font: 600 34px "IBM Plex Sans"; background: rgba(10,12,14,.84); border: 2px solid rgba(255,255,255,.2); white-space: nowrap; transform: translate(-50%, -50%); }
   .sp.g { border-color: rgba(75,224,138,.75); color: #d9ffe8; } .sp.r { border-color: rgba(255,77,94,.75); color: #ffe0e4; }
-  #sArt { position: absolute; inset: 0; }
+  #sArt, #sArt2 { position: absolute; inset: 0; }
   #sWm { position: absolute; right: 18px; top: 960px; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 14px; opacity: .8; }
   #sWm img { width: 70px; height: 70px; border-radius: 50%; } #sWm span { writing-mode: vertical-rl; font: 600 27px "IBM Plex Sans"; color: rgba(255,255,255,.85); letter-spacing: .04em; }
   #sWm2 { position: absolute; left: 330px; top: 1010px; font: 600 40px "IBM Plex Sans"; color: rgba(255,255,255,.06); transform: rotate(-12deg); }`;
@@ -108,6 +108,52 @@ const macroCam = new THREE.PerspectiveCamera(30, W / H, 1, 2000);
   const flare = new THREE.Sprite(new THREE.SpriteMaterial({ map: blurTex, color: 0xaaffcc, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); flare.scale.set(9, 9, 1); flare.position.copy(hit); macro.add(flare);
 }
 
+
+/* ---------- props for the 40 s explainer keyframes ---------- */
+// S1: vessels under the skin (seen when the skin turns see-through)
+const vessels = add(new THREE.Group());
+{ const vm = new THREE.MeshPhysicalMaterial({ color: 0x8a0814, roughness: 0.35, clearcoat: 0.6, emissive: 0x5a0206 });
+  const vein = new THREE.MeshPhysicalMaterial({ color: 0x4a2a6a, roughness: 0.4, emissive: 0x150a22 });
+  const tube = (pts, r, m) => vessels.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(p => V3(...p))), 120, r, 16), m));
+  tube([[-140, -9, 10], [-70, -8, 9], [0, -7.5, 8], [60, -7, 9.5], [150, -8, 12]], 1.25, vm);
+  tube([[-120, -8, -12], [-40, -7, -10], [30, -7.5, -9], [140, -8.5, -13]], 1.0, vein);
+  tube([[-30, -7.6, 8.6], [-10, -6, 2], [10, -5.5, -3], [35, -6.5, -9]], 0.7, vm);
+  tube([[50, -7, 9.4], [70, -5.5, 4], [95, -6, -1]], 0.6, vm);
+  tube([[-80, -8, 9], [-95, -6, 2], [-115, -6.5, -5]], 0.6, vm);
+  T.__pulseCurve = new THREE.CatmullRomCurve3([[-140, -9, 10], [-70, -8, 9], [0, -7.5, 8], [60, -7, 9.5], [150, -8, 12]].map(p => V3(...p))); }
+const pulseTex = canvasTex(128, 128, (x, w, h) => { const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(255,120,130,1)'); g.addColorStop(.3, 'rgba(255,60,80,.6)'); g.addColorStop(1, 'rgba(255,40,60,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+const pulse = add(new THREE.Sprite(new THREE.SpriteMaterial({ map: pulseTex, transparent: true, blending: THREE.AdditiveBlending, depthTest: false })));
+pulse.scale.set(16, 16, 1);
+// S5: wine glass on a dark table (own scene)
+const glassScene = new THREE.Scene(); glassScene.background = new THREE.Color(0x0a0807); glassScene.environment = T.METAL_ENV;
+const glassCam = new THREE.PerspectiveCamera(30, W / H, 1, 3000);
+{ const k = new THREE.SpotLight(0xffe7d2, 1.6, 0, 0.45, 0.9, 0); k.position.set(-60, 260, 120); k.target.position.set(0, 40, 0); glassScene.add(k, k.target);
+  const rimG = new THREE.DirectionalLight(0xffb48a, 1.2); rimG.position.set(200, 80, -160); glassScene.add(rimG);
+  const tbl = new THREE.Mesh(new THREE.CircleGeometry(400, 64), new THREE.MeshStandardMaterial({ color: 0x0d0a09, roughness: 0.7, metalness: 0, envMapIntensity: 0.2 })); tbl.rotation.x = -Math.PI / 2; glassScene.add(tbl);
+  const prof = [[0, 0], [26, 0], [27, 1.5], [3, 3], [2.2, 6], [2.2, 52], [4, 58], [14, 64], [24, 76], [29, 92], [30, 110], [28.6, 128], [27.6, 136]].map(([r, y]) => new THREE.Vector2(r, y));
+  const glass = new THREE.Mesh(new THREE.LatheGeometry(prof, 96), new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.03, transparent: true, opacity: 0.22, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 2.2, side: THREE.DoubleSide, depthWrite: false }));
+  const lp = [[0, 60], [13, 65], [22.5, 76], [27.2, 92], [28, 104], [0, 104]].map(([r, y]) => new THREE.Vector2(r, y));
+  const wine = new THREE.Mesh(new THREE.LatheGeometry(lp, 96), new THREE.MeshPhysicalMaterial({ color: 0x6a0a18, roughness: 0.1, transparent: true, opacity: 0.92, clearcoat: 1, emissive: 0x1a0205 }));
+  glassScene.add(wine, glass);
+  const shadow = new THREE.Mesh(new THREE.CircleGeometry(34, 48), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.5 })); shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.2; glassScene.add(shadow); }
+// S6: upper arm with a blood-pressure cuff (own scene, generic cuff, no brand)
+const cuffScene = new THREE.Scene(); cuffScene.background = new THREE.Color(0x07080a); cuffScene.environment = T.METAL_ENV;
+const cuffCam = new THREE.PerspectiveCamera(30, W / H, 1, 3000);
+{ const k = new THREE.SpotLight(0xfff1e0, 1.5, 0, 0.5, 0.9, 0); k.position.set(140, 260, 220); k.target.position.set(0, 0, 0); cuffScene.add(k, k.target);
+  const rimC = new THREE.DirectionalLight(0xcfe0ff, 1.0); rimC.position.set(-220, 60, -140); cuffScene.add(rimC);
+  const armP = [[0, -170], [34, -170], [36, -120], [40, -60], [43, 0], [45, 60], [47, 120], [49, 170], [0, 170]].map(([r, y]) => new THREE.Vector2(r, y));
+  const skinT = canvasTex(512, 512, (x, w, h) => { const r = rng(4); x.fillStyle = '#8f5f45'; x.fillRect(0, 0, w, h); for (let i = 0; i < 4000; i++) { x.fillStyle = `rgba(60,34,22,${(r() * .18).toFixed(3)})`; x.beginPath(); x.arc(r() * w, r() * h, .6 + r(), 0, 7); x.fill(); } });
+  skinT.wrapS = skinT.wrapT = THREE.RepeatWrapping; skinT.repeat.set(3, 3);
+  const arm = new THREE.Mesh(new THREE.LatheGeometry(armP, 96), new THREE.MeshPhysicalMaterial({ map: skinT, roughness: 0.55, clearcoat: 0.1, sheen: new THREE.Color(0x2a1208) })); arm.rotation.z = 0.12; cuffScene.add(arm);
+  const fabT = canvasTex(256, 256, (x, w, h) => { x.fillStyle = '#1c2433'; x.fillRect(0, 0, w, h); for (let i = 0; i < 64; i++) { x.fillStyle = i % 2 ? '#222c3e' : '#18202d'; x.fillRect(0, i * 4, w, 2); } x.strokeStyle = '#3a4760'; x.setLineDash([6, 6]); x.lineWidth = 3; x.strokeRect(8, 8, w - 16, h - 16); });
+  fabT.wrapS = THREE.RepeatWrapping; fabT.repeat.set(3, 1);
+  const cuff = new THREE.Mesh(new THREE.CylinderGeometry(51, 49, 95, 96, 1, true), new THREE.MeshPhysicalMaterial({ map: fabT, roughness: 0.85, side: THREE.DoubleSide, sheen: new THREE.Color(0x30405a) })); cuff.position.y = 55; cuff.rotation.z = 0.12; cuffScene.add(cuff);
+  const tubeC = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V3(36, 30, 40), V3(50, -20, 70), V3(30, -90, 90), V3(-30, -150, 80)]), 80, 2.6, 16), new THREE.MeshPhysicalMaterial({ color: 0xd9dde2, roughness: 0.35, clearcoat: 0.6 })); cuffScene.add(tubeC);
+  const port = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 8, 24), new THREE.MeshStandardMaterial({ color: 0x9aa0a8, metalness: 1, roughness: 0.2 })); port.position.set(36, 34, 40); port.rotation.x = 1.0; cuffScene.add(port); }
+// S8: green rim light for the hero
+const greenRim = add(new THREE.DirectionalLight(0x3dff86, 1.6)); greenRim.position.set(-160, 40, -200);
+const greenRim2 = add(new THREE.DirectionalLight(0x3dff86, 0.8)); greenRim2.position.set(200, 20, -120);
+const panel = (html, style) => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;background:rgba(14,16,20,.9);border:2px solid rgba(255,255,255,.12);border-radius:26px;color:#f2f4f6;font-family:"IBM Plex Sans";' + style; d.innerHTML = html; $('sArt2').appendChild(d); return d; };
 /* ---------- 2D illustration: walking to work (our own character, faceless) ---------- */
 function walkSVG(zoom) {
   const r = rng(5);
@@ -215,7 +261,7 @@ function reset() {
   [T.key, T.rim, T.rim2, T.kick].forEach(l => l.visible = true);
   T.scene.background = new THREE.Color(0x050607); T.scene.fog = null;
   T.camera.up.set(0, 1, 0); T.camera.clearViewOffset();
-  T.renderer.domElement.style.opacity = 1; $('sArt').innerHTML = ''; $('sIllus').style.display = '';
+  T.renderer.domElement.style.opacity = 1; $('sArt').innerHTML = ''; $('sArt2').innerHTML = ''; T.ARM.material.transparent = false; T.ARM.material.opacity = 1; T.ARM.material.depthWrite = true; T.ARM.material.needsUpdate = true; T.parts.forEach(p => p.group.visible = true); $('sIllus').style.display = ''; $('sIllus').textContent = 'Illustrative · not to scale'; $('sIllus').style.color = '';
   T.setGlass(0); T.SENSOR.flip = 0; T.parts.forEach(p => p.dim = 0);
 }
 function pod(e, glass = 0, t = 0.2) { T.setExplode(e); T.applyExplode(e); T.setGlass(glass); T.applyMaterials(); T.applyLed(t, 1); }
@@ -257,6 +303,53 @@ const SHOTS = [
     $('sTitle').innerHTML = 'Blood <em class="r">soaks up</em> <em class="g">green light</em>';
     const p = v => { const q = v.clone().project(macroCam); return [(q.x * .5 + .5) * W, (-q.y * .5 + .5) * H]; };
     pills([{ text: 'Red blood cell', cls: 'r', at: [760, 1250], to: [560, 1150] }, { text: 'Green light in', cls: 'g', at: [250, 620], to: [150, 770] }, { text: 'Red bounces off', cls: 'r', at: [800, 640], to: [640, 760] }]); },
+  // 7. S1: on the wrist, skin turns see-through, a pulse travels along the vessels
+  () => { vessels.visible = true; pulse.visible = true; pulse.position.copy(T.__pulseCurve.getPointAt(0.46));
+    T.ARM.material.transparent = true; T.ARM.material.opacity = 0.55; T.ARM.material.depthWrite = false; T.ARM.material.needsUpdate = true;
+    pod(0, 0); cam(V3(70, 120, 120), V3(-6, -4, 2), null, -60); draw3D();
+    $('sTitle').innerHTML = 'No screen. So how does it <em class="g">read your body?</em>';
+    pills([{ text: 'Blood vessels', cls: 'r', at: [260, 1250], to: V3(-40, -8, 9) }, { text: 'Pulse', cls: 'r', at: [820, 1250], to: T.__pulseCurve.getPointAt(0.46) }]); },
+  // 8. S5: a logged drink, then two overnight patterns (illustrative)
+  () => { glassCam.position.set(30, 170, 620); glassCam.lookAt(0, 68, 0); glassCam.setViewOffset(W, H, 230, -150, W, H); glassCam.updateProjectionMatrix(); T.renderer.render(glassScene, glassCam);
+    $('sTitle').innerHTML = 'A drink can show up <em class="r">in your night</em>';
+    panel(`<div style="font:500 26px 'IBM Plex Sans';color:#9aa4ad">Journal · last night</div><div style="font:600 40px Sora;margin-top:14px">Had alcohol?</div>
+      <div style="display:flex;gap:16px;margin-top:20px"><span style="padding:10px 30px;border-radius:999px;background:#4be08a;color:#04140a;font:700 30px 'IBM Plex Sans'">Yes</span><span style="padding:10px 30px;border-radius:999px;border:2px solid #333;color:#777;font:600 30px 'IBM Plex Sans'">No</span></div>
+      <div style="font:400 22px/1.3 'IBM Plex Sans';color:#9aa4ad;margin-top:14px">You log it. The band does not detect alcohol.</div>`, 'left:540px;top:520px;width:470px;padding:28px 30px;box-sizing:border-box');
+    panel(`<div style="font:500 26px 'IBM Plex Sans';color:#9aa4ad">Overnight · illustrative</div>
+      <svg viewBox="0 0 860 300" width="400" height="140" style="display:block;margin-top:6px"><g font-family="IBM Plex Sans" font-size="24">
+      <text x="0" y="60" fill="#c9ced6">Resting heart rate</text><path d="M240 80 C 330 70 420 88 520 80 S 720 70 840 76" stroke="#5f6672" stroke-width="6" fill="none"/><path d="M240 50 C 330 38 420 56 520 44 S 720 34 840 40" stroke="#ff4d5e" stroke-width="6" fill="none"/><text x="840" y="24" fill="#ff4d5e" text-anchor="end">higher</text>
+      <text x="0" y="190" fill="#c9ced6">HRV</text>${[0, 1, 2, 3].map(i => `<rect x="${260 + i * 150}" y="${150 - i * 4}" width="44" height="${90 + i * 4}" rx="6" fill="#5f6672"/><rect x="${310 + i * 150}" y="${190 - i * 2}" width="44" height="${50 + i * 2}" rx="6" fill="#ff4d5e"/>`).join('')}<text x="840" y="140" fill="#ff4d5e" text-anchor="end">lower</text>
+      <circle cx="10" cy="285" r="9" fill="#5f6672"/><text x="28" y="293" fill="#9aa4ad">Usual night</text><circle cx="230" cy="285" r="9" fill="#ff4d5e"/><text x="248" y="293" fill="#9aa4ad">After a drink</text><text x="840" y="293" fill="#f0a640" text-anchor="end">Recovery may be lower</text></g></svg>`, 'left:540px;top:890px;width:470px;padding:22px 30px;box-sizing:border-box'); },
+  // 9. S6: cuff calibration -> artery pulse -> model -> estimated range (WHOOP MG / Life)
+  () => { cuffCam.position.set(160, 120, 900); cuffCam.lookAt(0, 120, 0); cuffCam.setViewOffset(W, H, 300, -60, W, H); cuffCam.updateProjectionMatrix(); T.renderer.render(cuffScene, cuffCam);
+    $('sTitle').innerHTML = 'It estimates <em class="r">blood-pressure</em> trends'; $('sIllus').textContent = 'WHOOP MG / Life · illustrative'; $('sIllus').style.color = '#4be08a';
+    $('sArt2').innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="position:absolute;inset:0"><defs><linearGradient id="artG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff3b4c"/><stop offset=".5" stop-color="#8a0a18"/><stop offset="1" stop-color="#ff3b4c"/></linearGradient></defs>
+      <rect x="560" y="560" width="440" height="110" rx="55" fill="url(#artG)"/><path d="M590 615 q 25 -40 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0" stroke="#ffe0e4" stroke-width="5" fill="none"/>
+      <text x="780" y="710" text-anchor="middle" font-family="IBM Plex Sans" font-size="26" fill="#c9ced6">Pulse wave in the artery</text>
+      <path d="M780 730 v 60" stroke="#4be08a" stroke-width="3" stroke-dasharray="8 8"/>
+      <g transform="translate(780 880)"><rect x="-200" y="-80" width="400" height="160" rx="26" fill="#0d121a" stroke="#4be08a" stroke-width="3"/>
+      ${[[-130, [-40, 0, 40]], [-40, [-55, -18, 18, 55]], [50, [-40, 0, 40]], [130, [-20, 20]]].map(([x, ys], ci, arr) => ys.map(y => `<circle cx="${x}" cy="${y}" r="9" fill="#4be08a"/>` + (ci < arr.length - 1 ? arr[ci + 1][1].map(y2 => `<line x1="${x}" y1="${y}" x2="${arr[ci + 1][0]}" y2="${y2}" stroke="#4be08a" stroke-opacity=".35" stroke-width="2"/>`).join('') : '')).join('')).join('')}</g>
+      <text x="780" y="1000" text-anchor="middle" font-family="IBM Plex Sans" font-size="26" fill="#c9ced6">Overnight signals → model</text>
+      <path d="M280 760 C 300 820 420 880 560 880" stroke="#c9ced6" stroke-width="3" stroke-dasharray="8 8" fill="none"/><text x="260" y="1060" text-anchor="middle" font-family="IBM Plex Sans" font-size="26" fill="#c9ced6">Cuff calibration</text></svg>`;
+    panel(`<div style="font:500 24px 'IBM Plex Sans';color:#9aa4ad">Estimated range (example)</div><div style="font:700 42px Sora;margin-top:6px;white-space:nowrap">112–122 <span style="color:#9aa4ad">/</span> 72–80</div><div style="font:400 22px 'IBM Plex Sans';color:#c9ced6;margin-top:8px">Wellness estimate — not a medical measurement.</div>`, 'left:560px;top:1050px;width:440px;padding:20px 26px;box-sizing:border-box'); },
+  // 10. S7: signals into the processor, out to metric cards and rings
+  () => { offWrist(); underLight.visible = true;
+    pod(1, 0, 0.3); T.parts.forEach(p => p.group.visible = p.id === 'board'); const by = T.parts.find(p => p.id === 'board').group.position.y + 3.5;
+    cam(V3(0, by + 120, 95), V3(0, by, 2), null, 120); draw3D();
+    $('sTitle').innerHTML = 'Signals in. <em class="g">Answers out.</em>';
+    const cards = [['SpO₂', 'blood oxygen'], ['Skin temp', 'vs your normal'], ['Stress', '0–3 scale'], ['Strain', 'today’s load'], ['ECG', 'MG only'], ['Healthspan', 'pace of ageing']];
+    let svg = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="position:absolute;inset:0"><g stroke="#4be08a" stroke-width="3" fill="none" opacity=".6">`;
+    const pos = [[200, 560], [540, 560], [880, 560], [200, 1060], [540, 1060], [880, 1060]];
+    pos.forEach(([x, y]) => { const yy = y < 800 ? 640 : 980; svg += `<path d="M540 ${y < 800 ? 760 : 900} C 540 ${(yy + (y < 800 ? 760 : 900)) / 2} ${x} ${(yy + (y < 800 ? 760 : 900)) / 2} ${x} ${yy}"/>`; });
+    svg += `</g></svg>`; $('sArt2').innerHTML = svg;
+    cards.forEach(([a, b], i) => panel(`<div style="font:600 32px 'IBM Plex Sans'">${a}</div><div style="font:400 22px 'IBM Plex Sans';color:#9aa4ad;margin-top:4px">${b}</div>`, `left:${pos[i][0] - 150}px;top:${pos[i][1] - 50}px;width:300px;height:${i < 3 ? 90 : 90}px;padding:12px 0;box-sizing:border-box;text-align:center`));
+    $('sArt2').insertAdjacentHTML('beforeend', `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="position:absolute;inset:0"><g fill="none" stroke-width="20" stroke-linecap="round" transform="translate(540 1190)">
+      ${[[-280, '#7fb4ff', .78, 'Sleep'], [0, '#4be08a', .66, 'Recovery'], [280, '#ff9f43', .45, 'Strain']].map(([x, c, f, n]) => `<circle cx="${x}" cy="0" r="46" stroke="#22262c"/><circle cx="${x}" cy="0" r="46" stroke="${c}" stroke-dasharray="${(2 * Math.PI * 46 * f).toFixed(1)} 999" transform="rotate(-90 ${x} 0)"/><text x="${x + 70}" y="10" font-family="IBM Plex Sans" font-size="28" fill="#c9ced6" stroke="none">${n}</text>`).join('')}</g></svg>`); },
+  // 11. S8: hero, reassembled, green rim light
+  () => { offWrist(); straps.visible = true; greenRim.visible = true; greenRim2.visible = true; winGlow.visible = true;
+    pod(0, 0); cam(V3(80, 100, 175), V3(0, 2, 0), null, 240); draw3D(); $('sIllus').style.display = 'none';
+    $('sTitle').innerHTML = '';
+    $('sArt2').innerHTML = `<div style="position:absolute;left:0;right:0;top:1110px;text-align:center;font:700 112px/1 Sora;letter-spacing:-0.03em;color:#f2f4f6">YOUR BODY.<br><span style="color:#4be08a">DECODED.</span></div>`; },
 ];
 window.__tour = { total: SHOTS.length, renderAt(i) { reset(); $('sPills').innerHTML = ''; $('sLines').innerHTML = ''; SHOTS[Math.round(i)](); return true; } };
 window.__tourReady = () => true;
