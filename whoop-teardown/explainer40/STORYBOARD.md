@@ -51,3 +51,28 @@ Sources: WHOOP / Business Wire launch release; the5krunner 5.0 / MG spec page; W
 | End | 38.5–40.0 | frames/S9 (end card) | "Follow InvisiTech for more." |
 
 Change from v1: Scene 3 grows from 6 s to 9 s (5 beats); S1, S2, S5, S7 and S8 are tightened to make room.
+
+## v3 (Harsh: add steps, gym and a sleep animation; up to 45 s is fine). Proposed, exactly 45.0 s
+
+| # | Time | Visual | Voice (draft) |
+|---|------|--------|---------------|
+| S1 | 0.0–3.5 | Wrist push-in, skin turns see-through, pulse in the vessels (Blender hand) | "This band has no screen. So how does it read your body?" |
+| S2 | 3.5–7.5 | Underside glow, then the teardown comes apart with the LEDs on | "That green glow comes from LEDs inside." |
+| S3 | 7.5–15.0 | PPG: light into skin, blood soaks the green light, 26 readings a second, the gaps between beats (HRV) | "Blood soaks up green light, so every heartbeat dims the glow. It reads that 26 times a second, and the gaps between beats are your HRV." |
+| **S4 Steps (new)** | 15.0–20.0 | The walking man on the street, then a match-cut into the x-ray pod: the motion chip (IMU) glows, 3 axis arrows move with the arm, and the acceleration line spikes once per footstep. Each spike adds to a step counter. A second pass with no arm swing (hands on a trolley) still counts | "A motion sensor feels each footstep as a spike and counts it, even when your arm isn't swinging." |
+| **S5 Gym (new)** | 20.0–25.5 | An arm doing a dumbbell curl. Motion trails show the speed of each rep (accelerometer and gyroscope). Heart rate climbs through coloured zones beside it. Both flow into a Strain gauge: cardio load plus muscular load. Tag "Strength Trainer" | "In the gym, heart rate gives the cardio load, and wrist motion measures every rep, so Strain counts your lifting too." |
+| **S6 Sleep (expanded)** | 25.5–31.5 | Blender bedroom, person asleep, chest breathing. Three lines (heart rate, breathing, movement) are cut into 30-second blocks; each block drops into a hypnogram row: Awake / Light / Deep / REM. REM blocks show faster, uneven breathing; deep sleep shows calm, even breathing | "At night, it checks heart rate, breathing and movement in 30-second blocks and sorts each one into a sleep stage." |
+| S7 | 31.5–34.5 | Glass, Journal "Alcohol: Yes", the night after (illustrative) | "Log a drink, and your night can show it." |
+| S8 | 34.5–38.5 | Cuff calibration, artery, BP range, "WHOOP MG / Life", wellness disclaimer | "On MG, a cuff calibration lets it estimate blood-pressure trends." |
+| S9 | 38.5–41.5 | Signals into the main chip, then the metric cards and three rings | "All of it becomes recovery, strain and sleep." |
+| S10 | 41.5–43.5 | Pod reassembles, hero turn, **YOUR BODY. DECODED.** | "Your body, decoded." |
+| End | 43.5–45.0 | Themed end card | "Follow InvisiTech for more." |
+
+New SFX: footstep ticks synced to the spikes (S4), a soft dumbbell clank and a rising tone as the Strain gauge fills (S5), slow breathing under S6.
+
+### Fact check for the new scenes (rule 7)
+- Steps: counted from the accelerometer. The newer algorithm on WHOOP 5.0 / MG is meant to count steps with little arm swing (treadmill, pushing a trolley) and works on the wrist or bicep. The exact algorithm is not public, so the spike-per-step graph is **Illustrative**.
+- Gym: Strength Trainer uses the accelerometer and gyroscope to measure rep speed and intensity (muscular load), which feeds Strain with heart-rate (cardio) load. WHOOP says it can detect strength training on its own; logging the exercises improves accuracy. How the two loads are combined is not public, so the gauge is **Illustrative**.
+- Sleep: sleep is detected from changes in heart rate and movement. Staging uses a model trained on lab sleep studies (polysomnography); it sorts 30-second blocks into Wake, Light, Slow Wave (Deep) and REM, using heart rate, HRV, breathing rate and movement. The REM vs deep breathing difference is from WHOOP's own article. Lines and hypnogram are **Illustrative**.
+
+Sources: WHOOP Steps page and the5krunner (Oct 2024); idevice.com on the 5.0 / MG no-arm-swing update; WHOOP Strength Trainer press release (Business Wire, Apr 2023) and "How WHOOP measures muscular load"; WHOOP "The WHOOP approach to measuring sleep" and "How well WHOOP measures sleep".
