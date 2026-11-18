@@ -1,0 +1,92 @@
+<title>Style test</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #05060a; }
+  canvas { position: fixed; inset: 0; display: block; }
+  #chip { position: fixed; z-index: 3; left: 4.4%; top: 9.5%; padding: 1vw 2.2vw 1vw 1.8vw; border-radius: 1vw; background: rgba(14,16,22,.82); border: 1px solid rgba(255,255,255,.08);
+    color: rgba(235,238,245,.9); font: 500 2.5vw 'IBM Plex Mono', monospace; letter-spacing: .02em; display: flex; align-items: center; gap: 1.4vw; }
+  #chip i { width: 1.3vw; height: 1.3vw; background: #e9ecf2; transform: skewX(-12deg); display: inline-block; border-radius: .2vw; }
+  #band { position: fixed; z-index: 2; left: 0; right: 0; top: 52%; height: 11%; background: linear-gradient(transparent, rgba(5,6,10,.55) 30%, rgba(5,6,10,.55) 70%, transparent); }
+  #cap { position: fixed; z-index: 3; left: 4%; right: 4%; top: 57.6%; transform: translateY(-50%); text-align: center; font: 600 5.6vw/1.2 Sora, Arial, sans-serif; color: rgba(255,255,255,.92); letter-spacing: -.01em; }
+  #cap span { display: inline-block; padding: .3vw 1.2vw; margin: 0 .2vw; border-radius: .9vw; transition: none; }
+  #cap span.on { background: #f4f5f7; color: #0b0c10; }
+  #fade { position: fixed; inset: 0; z-index: 5; background: #000; pointer-events: none; }
+</style>
+<div id="chip"><i></i>Recreated visualisation</div>
+<div id="band"></div>
+<div id="cap"></div>
+<div id="fade"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+const W = innerWidth, H = innerHeight, TOTAL = 5, VO_AT = 0.8;
+const clamp01 = x => Math.max(0, Math.min(1, x)), ease = x => { x = clamp01(x); return x * x * (3 - 2 * x); }, ramp = (u, a, b) => clamp01((u - a) / (b - a));
+const WORDS = __WORDS__, GROUPS = [[0, 4], [4, 7], [7, 10]];
+const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+r.setPixelRatio(devicePixelRatio); r.setSize(W, H); r.outputEncoding = THREE.sRGBEncoding; r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.0;
+document.body.prepend(r.domElement);
+const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(34, W / H, 0.1, 400);
+scene.background = new THREE.Color(0x05060a); scene.fog = new THREE.Fog(0x05060a, 30, 95);
+scene.add(new THREE.HemisphereLight(0x4a5878, 0x050608, 0.32));
+const carKey = new THREE.DirectionalLight(0xb8c6ff, 0.9); carKey.position.set(6, 10, 8); scene.add(carKey);
+const moon = new THREE.DirectionalLight(0x8fa3d6, 0.35); moon.position.set(-20, 30, -10); scene.add(moon);
+
+/* road: dark asphalt, solid edges, dashed centre lines */
+const road = new THREE.Mesh(new THREE.PlaneGeometry(14, 400), new THREE.MeshStandardMaterial({ color: 0x0f1013, roughness: 0.95 })); road.rotation.x = -Math.PI / 2; road.position.z = -150; scene.add(road);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ color: 0x07080b, roughness: 1 })); ground.rotation.x = -Math.PI / 2; ground.position.set(0, -0.01, -150); scene.add(ground);
+const paint = new THREE.MeshStandardMaterial({ color: 0xd9dce3, roughness: 0.6, emissive: 0x30333a });
+for (const x of [-6.6, 6.6]) { const l = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 400), paint); l.rotation.x = -Math.PI / 2; l.position.set(x, 0.01, -150); scene.add(l); }
+const dashes = new THREE.Group(); scene.add(dashes);
+for (const x of [-2.2, 2.2]) for (let z = 10; z > -300; z -= 6) { const d = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 2.6), paint); d.rotation.x = -Math.PI / 2; d.position.set(x, 0.011, z); dashes.add(d); }
+
+/* car: simple boxy SUV built from primitives */
+const car = new THREE.Group(); scene.add(car);
+const paintCar = new THREE.MeshStandardMaterial({ color: 0x1d2742, metalness: 0.6, roughness: 0.35 });
+const glass = new THREE.MeshStandardMaterial({ color: 0x0a0d14, metalness: 0.4, roughness: 0.15 });
+const body = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.85, 4.7), paintCar); body.position.y = 0.75; car.add(body);
+const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.7, 2.7), glass); cabin.position.set(0, 1.5, 0.25); car.add(cabin);
+const roof = new THREE.Mesh(new THREE.BoxGeometry(1.84, 0.08, 2.6), paintCar); roof.position.set(0, 1.88, 0.25); car.add(roof);
+for (const [x, z] of [[-1.0, -1.5], [1.0, -1.5], [-1.0, 1.5], [1.0, 1.5]]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.3, 24), new THREE.MeshStandardMaterial({ color: 0x0b0b0d, roughness: 0.8 })); w.rotation.z = Math.PI / 2; w.position.set(x, 0.42, z); car.add(w); }
+const tail = new THREE.MeshStandardMaterial({ color: 0x400008, emissive: 0xff1a2e, emissiveIntensity: 1.4 });
+for (const x of [-0.72, 0.72]) { const t = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.08, 0.04), tail); t.position.set(x, 0.98, 2.36); car.add(t); }
+const lamp = new THREE.MeshBasicMaterial({ color: 0xffffff });
+for (const x of [-0.72, 0.72]) { const h = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.07, 0.04), lamp); h.position.set(x, 0.95, -2.36); car.add(h); }
+
+/* light carpet: soft beam on the road, with chevrons drawn inside it */
+const beamTex = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 512; const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 512, 0, 0); g.addColorStop(0, 'rgba(255,255,255,0.0)'); g.addColorStop(0.06, 'rgba(255,255,255,0.75)'); g.addColorStop(0.6, 'rgba(255,255,255,0.45)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 64, 512); const s = x.createLinearGradient(0, 0, 64, 0); s.addColorStop(0, 'rgba(0,0,0,1)'); s.addColorStop(0.12, 'rgba(0,0,0,0)'); s.addColorStop(0.88, 'rgba(0,0,0,0)'); s.addColorStop(1, 'rgba(0,0,0,1)');
+  x.globalCompositeOperation = 'destination-out'; x.fillStyle = s; x.fillRect(0, 0, 64, 512); return new THREE.CanvasTexture(c); })();
+const beam = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 34), new THREE.MeshBasicMaterial({ map: beamTex, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false }));
+beam.rotation.x = -Math.PI / 2; beam.position.set(0, 0.02, -19); car.add(beam);
+const chevShape = (() => { const s = new THREE.Shape(); s.moveTo(-0.55, -0.25); s.lineTo(0, 0.25); s.lineTo(0.55, -0.25); s.lineTo(0.55, -0.05); s.lineTo(0, 0.45); s.lineTo(-0.55, -0.05); s.lineTo(-0.55, -0.25); return new THREE.ShapeGeometry(s); })();
+const chevs = [];
+for (let i = 0; i < 9; i++) for (const x of [-1.0, 1.0]) { const m = new THREE.Mesh(chevShape, new THREE.MeshBasicMaterial({ color: 0xf2f4f8, transparent: true, opacity: 0, depthWrite: false }));
+  m.rotation.x = -Math.PI / 2; m.position.set(x, 0.025, 0); m.userData.k = i; car.add(m); chevs.push(m); }
+
+/* captions: groups of a few words, the spoken word in a white box */
+const cap = document.getElementById('cap');
+function captions(t) {
+  const s = t - VO_AT; let gi = GROUPS.findIndex(([a, b]) => s < WORDS[b - 1][1] + 0.05); if (gi < 0) gi = GROUPS.length - 1;
+  if (s < WORDS[0][0] - 0.05) { cap.innerHTML = ''; return; }
+  const [a, b] = GROUPS[gi]; let html = '';
+  for (let i = a; i < b; i++) html += `<span class="${s >= WORDS[i][0] && s < WORDS[i][1] + 0.02 ? 'on' : ''}">${WORDS[i][2]}</span>`;
+  cap.innerHTML = html;
+}
+function renderAt(t) {
+  const drive = t * 9; car.position.set(0, 0, -drive); dashes.position.z = 0;
+  // chevrons stream forward inside the beam
+  chevs.forEach(m => { const f = ((t * 1.1 + m.userData.k / 9) % 1); m.position.z = -4.5 - f * 26; m.material.opacity = ease(ramp(t, 0.6, 1.4)) * 0.85 * Math.sin(Math.PI * f); });
+  beam.material.opacity = 0.2 + 0.4 * ease(ramp(t, 0.2, 1.0));
+  // camera: high top-down behind the car → low chase view
+  const k = ease(ramp(t, 0.3, 4.6));
+  const pos = new THREE.Vector3(0, 30 - 25.4 * k, 9 + 5.5 * k).add(car.position), tgt = car.position.clone().add(new THREE.Vector3(0, 0.6 * k, -10 - 6 * k));
+  cam.position.copy(pos); cam.lookAt(tgt);
+  captions(t);
+  document.getElementById('fade').style.opacity = 1 - ramp(t, 0, 0.35);
+  r.render(scene, cam);
+}
+window.__tour = { total: TOTAL, renderAt }; window.__tourReady = () => true; renderAt(0);
+if (!/render=1/.test(location.search)) { const t0 = performance.now(); const loop = () => { renderAt(((performance.now() - t0) / 1000) % TOTAL); requestAnimationFrame(loop); }; loop(); }
+})();
+</script>
