@@ -146,7 +146,7 @@ body.render .tag span { font-size: 17px; padding: 4px 10px; }
     <div>
       <div class="eyebrow">Teardown · 6 parts · WHOOP 5.0 pod</div>
       <h1>Inside WHOOP 5.0</h1>
-      <div class="note">Illustrative model built in code from WHOOP’s published specs and the TechInsights teardown summary. Board layout, LED count and battery chemistry are not confirmed, so they are drawn as examples. No logos. Not affiliated with WHOOP.</div>
+      <div class="note">Illustrative model built in code from WHOOP’s published specs and the TechInsights teardown summary. Board layout, LED count and battery chemistry are not confirmed, so they are drawn as examples. The name on the clasp is plain text, not WHOOP’s logo. Not affiliated with WHOOP.</div>
     </div>
     <div class="illus-badge">Illustrative · not to scale</div>
   </header>
@@ -214,7 +214,7 @@ const INFO = {
     body: 'The underside carries a dark glass window over the LEDs and light detectors. It presses against your wrist so the light goes into the skin and not out to the sides. A snug fit matters: any gap lets room light in and spoils the reading. The seam between this housing and the top shell is part of the water seal.',
     specs: ['Sensor window sits on the skin', 'Snug fit keeps room light out', 'Part of the IP68 seal'] },
   band: { name: 'Band and clasp', role: 'The part you actually see. On the MG model, the clasp reads an ECG.', illus: 'Illustrative clasp',
-    body: 'There is no screen on top: the knit band runs right over the pod, held in a polished metal frame with a curved metal clasp plate at one end. The band keeps the sensor window pressed flat on your wrist. On the WHOOP MG model the clasp also works as an ECG sensor; the regular 5.0 does not have ECG. Our frame and plate are plain, with no logo.',
+    body: 'There is no screen on top: the knit band runs right over the pod, held in a polished metal frame with a curved metal clasp plate at one end. The band keeps the sensor window pressed flat on your wrist. On the WHOOP MG model the clasp also works as an ECG sensor; the regular 5.0 does not have ECG. Our plate carries the name as plain engraved text, not the real logo.',
     specs: ['Knit band runs over the top of the pod', 'Polished metal frame and clasp plate', 'ECG through the clasp: MG only (official)', ['Clasp details: illustrative', true]] },
 };
 
@@ -632,7 +632,7 @@ BAND = addPart('band', 104, { az: 0.6, el: 0.5, k: 1.7 }, [FRAME.W / 2, POD.H + 
   [1, -1].forEach((sg, k) => {
     const s0 = section(0, ends[k]), nrm = new THREE.Vector2(s0.nz, s0.ny);
     const foot = new THREE.Vector3(0, s0.y + s0.ny * T / 2, s0.z + s0.nz * T / 2);
-    const pts = [new THREE.Vector3(0, POD.H + 0.75, sg * (FRAME.L / 2 - 3.0)), new THREE.Vector3(0, POD.H + 0.55, sg * (FRAME.L / 2 + 0.4)),
+    const pts = [new THREE.Vector3(0, POD.H + 0.35, sg * (FRAME.L / 2 - 3.0)), new THREE.Vector3(0, POD.H + 0.1, sg * (FRAME.L / 2 + 0.7)),
       new THREE.Vector3(0, POD.H - 1.2, sg * (FRAME.L / 2 + 1.35)), new THREE.Vector3(0, 2.2, sg * (FRAME.L / 2 + 1.45)), foot];
     mesh(ribbonGeo(new THREE.CatmullRomCurve3(pts), BAND_HALF * 2, T), knitMat(), 0, 0, 0, BAND_LOOP);
   });
@@ -644,6 +644,15 @@ BAND = addPart('band', 104, { az: 0.6, el: 0.5, k: 1.7 }, [FRAME.W / 2, POD.H + 
   const lip = mesh(pillow(FRAME.W, FRAME.L, FRAME.R, 0.9, 0.42, [[POD.W - 1.2, POD.L - 1.2, POD.R - 0.6]]), M.chrome, 0, POD.H + 1.05, 0, g); lip.userData.glassy = true;
   // curved clasp plate across one end (plain: no logo)
   const pl = mesh(pillow(FRAME.W - 0.1, 7.4, 2.4, 1.5, 0.7), M.chrome, 0, POD.H + 0.85, FRAME.L / 2 - 4.1, g); pl.userData.glassy = true;
+  // name engraved on the plate: plain bold text in our own font, not the brand's logo artwork (Harsh's call, rule 14 exception)
+  const nameTex = canvasTex(1024, 192, (x, w, h) => {
+    x.clearRect(0, 0, w, h); x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.font = '700 132px Sora, "Segoe UI", Arial, sans-serif'; const txt = 'WHOOP', sp = 34;
+    const widths = [...txt].map(c => x.measureText(c).width), tot = widths.reduce((a, b) => a + b, 0) + sp * (txt.length - 1); let cx = (w - tot) / 2;
+    [...txt].forEach((c, i) => { x.fillText(c, cx + widths[i] / 2, h / 2 + 6); cx += widths[i] + sp; });
+  });
+  const name = new THREE.Mesh(new THREE.PlaneGeometry(14, 2.6), new THREE.MeshStandardMaterial({ color: 0x3a3e44, metalness: 0.6, roughness: 0.55, alphaMap: nameTex, transparent: true, depthWrite: false }));
+  name.rotation.x = -Math.PI / 2; name.position.set(0, POD.H + 1.605, FRAME.L / 2 - 4.1); name.renderOrder = 2; name.userData.noGhost = true; name.userData.glassy = true; g.add(name);
   window.__bandTh = thA;
 });
 { // camera framing + label for the band card use the lifted frame and strip only, not the whole loop

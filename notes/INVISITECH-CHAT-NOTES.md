@@ -1,6 +1,6 @@
 # InvisiTech — chat notes (backup of decisions)
 
-_Last updated: 2026-11-01._
+_Last updated: 2026-11-18._
 
 This file backs up what lives only in the chats: your rules, how the chats work, and what's still open. If a chat is deleted, start a new one and type **`/restore`**. It reads this file and `INSTALLED.md` and carries on.
 
@@ -103,3 +103,4 @@ If the PC is off, Claude tells you and offers a cloud chat instead. A cloud chat
 | 2026-11-03 | Claude Animation Base installed (`tools\claude-animation-base\`, MIT) with the `painted-cartoon` skill. Clawd is Anthropic's mascot: practice only, never in published videos. Plan: design our own mascot "Bit" (cyan orb from the outro) in this painted style, images first |
 | 2026-11-04 | Blender MCP added (`blender` connector, MIT, telemetry off) + `blender-3d` skill for real 3D. Paid AI 3D generation inside it (Hyper3D, Meshy, Tripo, Hunyuan3D) only with your OK |
 | 2026-11-12 | Shorts rules 16–23 added from the AirPods ear-detection Short: Reel safe zones, no overlaps on the subject, continuous narration (≤ 50 s), music-first hook with a pause, music + sound effects, themed end card, watermark right-middle (hidden on the end card), premium 3D internals |
+| 2026-11-18 | WHOOP teardown: exception to rule 14 for this video only. Harsh chose plain engraved text "WHOOP" on the clasp plate (our own font, not the real logo artwork). Outer body matched to Tom's Guide review photos (reference only, on branch `claude/whoop-refs`) |
