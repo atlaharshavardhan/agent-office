@@ -15,6 +15,8 @@ import subprocess
 import shutil
 from pathlib import Path
 
+import sys as _sys
+_sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent))
 import cv2
 import numpy as np
 from rembg import new_session, remove
@@ -140,10 +142,13 @@ def shot2():
     glow = cv2.GaussianBlur(np.clip((lum - 120) / 120, 0, 1) * lamp, (0, 0), 40)
     cv2.imwrite(str(d / "lamp_glow.png"), (glow / max(glow.max(), 1e-6) * 255).astype(np.uint8))
     # 6 neutral skyline (replaces the recognisable Hong Kong view), wider for parallax
-    sky, horizon = city(w + 260, h)
-    sky = cv2.GaussianBlur(sky, (0, 0), 3.2)           # shallow depth of field: city is far behind her
-    cv2.imwrite(str(d / "skyline.jpg"), sky, [cv2.IMWRITE_JPEG_QUALITY, 92])
-    (d / "horizon.txt").write_text(str(horizon))
+    from s1_city import make_city
+    import json
+    sky, near, meta = make_city(w + 260, h)
+    cv2.imwrite(str(d / "skyline.jpg"), sky, [cv2.IMWRITE_JPEG_QUALITY, 93])
+    cv2.imwrite(str(d / "skyline_near.png"), near)
+    json.dump(meta, open(ROOT / "remotion/src/s1/s1f_city.json", "w"))
+    horizon = meta["horizon"]
     # 7 window reflection: faint mirrored interior (lamp) + mirrored character head, for the glass layer
     refl = cv2.flip(rec, 1).astype(np.float32) * 0.5
     head = np.zeros((h, w), np.uint8); head[:X(470)] = a[:X(470)]

@@ -16,6 +16,7 @@ import { V } from '../alicev4/brand';
 import { CamRig, projector } from '../three/kit';
 import WORLD from '../alice/world.json';
 import VO from './s1f_vo.json';
+import CITY from './s1f_city.json';
 
 const ease = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
 const eio = (x) => Easing.inOut(Easing.cubic)(clamp(x));
@@ -120,19 +121,17 @@ const Shot1 = ({ f }) => {
 };
 
 // ---------------------------------------------------------------- Shot 2 pieces
-const CityLife = ({ f, horizon }) => {
-  const pts = useMemo(() => [...Array(90)].map((_, k) => ({ x: random(`cx${k}`) * 1340, y: 520 + random(`cy${k}`) * (horizon - 540), s: 2 + random(`cs${k}`) * 3, p: random(`cp${k}`) * 6, w: random(`cw${k}`) < 0.7 })), [horizon]);
-  const cars = useMemo(() => [...Array(16)].map((_, k) => ({ o: random(`co${k}`) * 1340, v: 4 + random(`cv${k}`) * 6, d: k % 2 ? 1 : -1, y: horizon - 6 + (k % 3) * 3 })), [horizon]);
+const CityLife = ({ f }) => {
+  // animation sits exactly on the generated city (scripts/s1_city.py -> s1f_city.json)
+  const tw = useMemo(() => CITY.twinkle.filter((_, k) => k % 2 === 0).map((b, k) => ({ x: b[0] + random(`tx${k}`) * b[2], y: b[1] + random(`ty${k}`) * Math.min(b[3], 500), p: random(`tp${k}`) * 6, warm: random(`tw${k}`) < 0.7 })), []);
+  const cars = useMemo(() => CITY.streets.filter((st) => st[1] < 3).flatMap(([y, li]) => [...Array(7)].map((_, k) => ({ o: random(`co${y}${k}`) * 1340, v: (1.5 + li * 1.6) * (0.7 + random(`cv${y}${k}`) * 0.6), d: k % 2 ? 1 : -1, y: y - 2 + (k % 2) * 3, s: 0.6 + li * 0.25 }))), []);
   return (
     <>
-      {pts.map((s, k) => <div key={k} style={{ position: 'absolute', left: s.x, top: s.y, width: s.s, height: s.s, borderRadius: 9, background: s.w ? '#ffd9a0' : '#cfe6ff',
-        opacity: 0.15 + 0.6 * Math.max(0, Math.sin(f / 6 + s.p)), mixBlendMode: 'screen', boxShadow: `0 0 8px ${s.w ? '#ffc070' : '#9cc8ff'}` }} />)}
-      {cars.map((c, k) => { const x = ((c.o + c.d * f * c.v) % 1340 + 1340) % 1340; return <div key={`c${k}`} style={{ position: 'absolute', left: x, top: c.y, width: 16, height: 3, borderRadius: 3,
-        background: c.d > 0 ? '#fff3dc' : '#ff5a4a', boxShadow: `0 0 8px ${c.d > 0 ? '#ffe2a8' : '#ff3b30'}`, opacity: 0.85 }} />; })}
-      {[180, 460, 900, 1180].map((x, k) => <div key={`a${k}`} style={{ position: 'absolute', left: x, top: 560 + k * 37, width: 5, height: 5, borderRadius: 5, background: '#ff3b30', boxShadow: '0 0 10px #ff3b30', opacity: (Math.floor((f + k * 9) / 12) % 2) ? 0.9 : 0.15 }} />)}
-      {/* water shimmer */}
-      {[...Array(26)].map((_, k) => <div key={`w${k}`} style={{ position: 'absolute', left: random(`wx${k}`) * 1300, top: horizon + 20 + random(`wy${k}`) * 520, width: 40 + random(`ww${k}`) * 90, height: 2,
-        background: 'rgba(255,215,160,.55)', opacity: 0.1 + 0.4 * Math.max(0, Math.sin(f / 5 + k)), filter: 'blur(1px)', transform: `translateX(${Math.sin(f / 9 + k) * 10}px)` }} />)}
+      {tw.map((s, k) => { const o = 0.5 + 0.5 * Math.sin(f / 7 + s.p); return o > 0.75 ? <div key={k} style={{ position: 'absolute', left: s.x, top: s.y, width: 4, height: 3, background: s.warm ? '#ffd6a0' : '#d4e8ff',
+        opacity: (o - 0.75) * 3, mixBlendMode: 'screen', boxShadow: `0 0 6px ${s.warm ? '#ffc070' : '#9cc8ff'}`, filter: 'blur(1px)' }} /> : null; })}
+      {cars.map((c, k) => { const x = ((c.o + c.d * f * c.v) % 1340 + 1340) % 1340; return <div key={`c${k}`} style={{ position: 'absolute', left: x, top: c.y, width: 14 * c.s, height: 3 * c.s, borderRadius: 3,
+        background: c.d > 0 ? '#fff1d6' : '#ff5a45', boxShadow: `0 0 ${8 * c.s}px ${c.d > 0 ? '#ffe0a0' : '#ff3b30'}`, opacity: 0.9, filter: 'blur(0.8px)' }} />; })}
+      {CITY.beacons.map(([x, y], k) => <div key={`b${k}`} style={{ position: 'absolute', left: x - 3, top: y - 3, width: 6, height: 6, borderRadius: 6, background: '#ff3b30', boxShadow: '0 0 12px #ff3b30', opacity: (Math.floor((f + k * 11) / 14) % 2) ? 0.95 : 0.1 }} />)}
     </>
   );
 };
@@ -148,8 +147,10 @@ const Shot2 = ({ f, horizon }) => {
     <AbsoluteFill style={{ overflow: 'hidden', background: '#07090c' }}>
       <div style={{ ...layer(0.25), left: -130, width: 1340 }}>
         <Img src={staticFile('s1f/a/skyline.jpg')} style={{ position: 'absolute', left: 0, top: 0, width: 1340, height: H }} />
-        <CityLife f={f} horizon={horizon} />
+        <CityLife f={f} />
       </div>
+      {/* near towers on their own plane: more parallax than the far city */}
+      <div style={{ ...layer(0.42), left: -130, width: 1340 }}><Img src={staticFile('s1f/a/skyline_near.png')} style={{ position: 'absolute', left: 0, top: 0, width: 1340, height: H }} /></div>
       {/* window reflection: moves against the track (different optical depth) + slow glass sweep */}
       <div style={{ ...layer(-0.35), opacity: 0.16, mixBlendMode: 'screen' }}><Img src={staticFile('s1f/a/reflection.png')} style={{ width: W, height: H }} /></div>
       <div style={{ position: 'absolute', left: lerp(-500, 1300, clamp(f / 60)), top: -300, width: 240, height: 2600, transform: 'rotate(16deg)', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent)', mixBlendMode: 'screen' }} />
@@ -174,7 +175,7 @@ const Shot2 = ({ f, horizon }) => {
         <div style={{ position: 'absolute', inset: 0, WebkitMaskImage: `url(${ch})`, maskImage: `url(${ch})`, WebkitMaskSize: '100% 100%', maskSize: '100% 100%', mixBlendMode: 'soft-light',
           background: `linear-gradient(105deg, transparent ${lerp(-10, 40, k)}%, rgba(255,220,170,.55) ${lerp(5, 55, k)}%, transparent ${lerp(25, 75, k)}%)` }} />
       </div>
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 55%, rgba(4,6,9,.72) 82%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 58%, rgba(4,6,9,.55) 84%)' }} />
     </AbsoluteFill>
   );
 };
