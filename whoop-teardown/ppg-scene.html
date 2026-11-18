@@ -1,0 +1,273 @@
+<title>Pulse Light Scene</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap">
+<style>
+/* 1080x1920 Short scene: how the band reads your pulse (green light -> blood -> dips -> heart rate). Reel safe zones: title 220-450, subject 450-1500, subtitles 1250-1450. */
+:root { --bg: #050607; --fg: #f2f4f6; --green: #4be08a; --red: #ff4d5e; --muted: #9aa4ad; --line: rgba(160,180,195,.18); color-scheme: dark; }
+html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+#stage { position: fixed; left: 50%; top: 50%; width: 1080px; height: 1920px; transform: translate(-50%, -50%) scale(var(--k, 1)); transform-origin: 50% 50%; background: var(--bg); overflow: hidden; font-family: "IBM Plex Sans", system-ui, sans-serif; color: var(--fg); }
+#c { position: absolute; inset: 0; width: 1080px; height: 1920px; display: block; }
+#dim { position: absolute; inset: 0; background: rgba(4,5,6,.72); backdrop-filter: blur(10px); opacity: 0; }
+#title { position: absolute; left: 80px; right: 80px; top: 250px; text-align: center; font: 700 76px/1.08 Sora, sans-serif; letter-spacing: -0.02em; text-wrap: balance; }
+#title em { font-style: normal; }
+#title .g { color: var(--green); } #title .r { color: var(--red); }
+#illus { position: absolute; left: 0; right: 0; top: 452px; text-align: center; font: 400 26px "IBM Plex Sans", sans-serif; color: rgba(220,226,232,.55); }
+.pill { position: absolute; left: 0; top: 0; padding: 12px 24px; border-radius: 999px; font: 600 34px "IBM Plex Sans", sans-serif; background: rgba(10,12,14,.82); border: 2px solid rgba(255,255,255,.18); white-space: nowrap; transform: translate(-50%, -50%); opacity: 0; }
+.pill.g { border-color: rgba(75,224,138,.7); color: #d9ffe8; } .pill.r { border-color: rgba(255,77,94,.7); color: #ffe0e4; }
+#graph { position: absolute; left: 70px; top: 1070px; width: 830px; height: 176px; border-radius: 24px; background: rgba(10,12,14,.86); border: 2px solid var(--line); opacity: 0; }
+#graph canvas { position: absolute; inset: 0; }
+#phone { position: absolute; left: 330px; top: 500px; width: 420px; height: 730px; border-radius: 56px; background: #0b0d10; border: 3px solid #2a2f35; box-shadow: 0 30px 80px rgba(0,0,0,.6), inset 0 0 0 8px #050607; opacity: 0; overflow: hidden; }
+#phone .notch { position: absolute; left: 50%; top: 22px; width: 120px; height: 30px; margin-left: -60px; border-radius: 20px; background: #000; }
+#phone .lbl { position: absolute; left: 40px; top: 96px; font: 500 28px "IBM Plex Sans"; color: var(--muted); }
+#phone .bpm { position: absolute; left: 40px; top: 140px; font: 700 168px/1 Sora; letter-spacing: -0.04em; }
+#phone .unit { position: absolute; left: 44px; top: 318px; font: 600 34px "IBM Plex Sans"; color: var(--red); }
+#phone .heart { position: absolute; right: 44px; top: 170px; width: 70px; height: 70px; }
+#phone canvas { position: absolute; left: 24px; top: 400px; width: 372px; height: 170px; }
+#phone .foot { position: absolute; left: 40px; right: 40px; top: 600px; font: 400 25px/1.35 "IBM Plex Sans"; color: var(--muted); }
+#wm { position: absolute; right: 18px; top: 960px; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 14px; opacity: .8; }
+#wm img { width: 70px; height: 70px; border-radius: 50%; }
+#wm span { writing-mode: vertical-rl; font: 600 27px "IBM Plex Sans", sans-serif; color: rgba(255,255,255,.85); letter-spacing: .04em; }
+#wm2 { position: absolute; left: 0; top: 0; font: 600 40px "IBM Plex Sans"; color: rgba(255,255,255,.06); white-space: nowrap; pointer-events: none; }
+#zones { position: absolute; inset: 0; pointer-events: none; display: none; }
+body.zones #zones { display: block; }
+</style>
+
+<div id="stage">
+  <canvas id="c" aria-label="Cutaway of a wrist under a fitness band: green light enters the skin, blood absorbs some of it, and the light that returns dips with every heartbeat."></canvas>
+  <div id="dim"></div>
+  <div id="title"></div>
+  <div id="illus">Illustrative · not to scale</div>
+  <div class="pill g" id="pLed">Green LED</div>
+  <div class="pill g" id="pPd">Light sensor</div>
+  <div class="pill r" id="pArt">Blood vessel</div>
+  <div class="pill r" id="pCell">Red blood cells</div>
+  <div id="graph"><canvas id="gc" width="830" height="176"></canvas></div>
+  <div id="phone">
+    <div class="notch"></div>
+    <div class="lbl">Heart rate</div>
+    <div class="bpm" id="bpm">72</div>
+    <div class="unit">beats per minute</div>
+    <svg class="heart" viewBox="0 0 24 24"><path id="heartPath" fill="#ff4d5e" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.8 6.6 4.8c2.1 0 3.6 1.2 5.4 3.3 1.8-2.1 3.3-3.3 5.4-3.3 3.6 0 5.7 3.6 4.2 7-2.1 4.6-9.6 9.2-9.6 9.2z"/></svg>
+    <canvas id="pc" width="372" height="170"></canvas>
+    <div class="foot">One dip in the light = one heartbeat. Dips per minute = your heart rate.</div>
+  </div>
+  <div id="wm2"><span>@TheInvisiTech</span></div>
+  <div id="wm"><img src="../airpods-ear/assets/invisitech-logo.png" alt=""><span>@TheInvisiTech</span></div>
+  <svg id="zones" viewBox="0 0 1080 1920" width="1080" height="1920">
+    <rect x="0" y="0" width="1080" height="220" fill="rgba(255,0,0,.18)"/><rect x="0" y="1500" width="1080" height="420" fill="rgba(255,0,0,.18)"/>
+    <rect x="940" y="1100" width="140" height="400" fill="rgba(255,0,0,.18)"/>
+    <rect x="0" y="220" width="1080" height="230" fill="none" stroke="#ff0" stroke-width="3"/><rect x="0" y="1250" width="1080" height="200" fill="none" stroke="#0ff" stroke-width="3"/>
+  </svg>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+'use strict';
+const Q = new URLSearchParams(location.search), RENDER = Q.has('render');
+if (Q.has('zones')) document.body.classList.add('zones');
+const W = 1080, H = 1920;
+const stageEl = document.getElementById('stage');
+function fit() { stageEl.style.setProperty('--k', Math.min(innerWidth / W, innerHeight / H)); }
+addEventListener('resize', fit); fit();
+
+/* ---------------- renderer + scene (dark, key + rim lights) ---------------- */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: RENDER });
+renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x050607); scene.fog = new THREE.Fog(0x050607, 260, 520);
+const camera = new THREE.PerspectiveCamera(30, W / H, 1, 2000);
+const key = new THREE.SpotLight(0xfff1e0, 1.6, 0, 0.5, 0.9, 0); key.position.set(30, 260, 160); key.target.position.set(0, -6, 0); scene.add(key, key.target);
+const rim = new THREE.DirectionalLight(0xcfe0ff, 0.9); rim.position.set(-250, 40, -120); scene.add(rim);
+const rim2 = new THREE.DirectionalLight(0xffd2a8, 0.5); rim2.position.set(260, 30, -40); scene.add(rim2);
+const front = new THREE.DirectionalLight(0xffffff, 0.35); front.position.set(40, 30, 300); scene.add(front);
+const ledLight = new THREE.PointLight(0x2cff74, 0, 30, 2); scene.add(ledLight);
+(function env() {
+  const es = new THREE.Scene(); es.add(new THREE.Mesh(new THREE.BoxGeometry(120, 70, 120), new THREE.MeshBasicMaterial({ color: 0x15181c, side: THREE.BackSide })));
+  const panel = (w, h, k, x, y, z, ry = 0, rx = 0) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(0xffffff).multiplyScalar(k), side: THREE.DoubleSide })); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); es.add(m); };
+  panel(60, 30, 2.2, 0, 34, 0, 0, Math.PI / 2); panel(120, 8, 1.4, 0, 6, -59); panel(8, 40, 2.4, -58, 8, 0, Math.PI / 2); panel(8, 40, 1.8, 58, 8, 0, Math.PI / 2);
+  const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(es, 0.02).texture; pm.dispose();
+})();
+
+/* ---------------- helpers ---------------- */
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function canvasTex(w, h, draw, srgb = true) { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; draw(cv.getContext('2d'), w, h); const t = new THREE.CanvasTexture(cv); if (srgb) t.encoding = THREE.sRGBEncoding; t.anisotropy = 8; return t; }
+function rrShape(w, h, r) { const s = new THREE.Shape(), x = -w / 2, y = -h / 2; r = Math.min(r, w / 2, h / 2);
+  s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.absarc(x + w - r, y + r, r, -Math.PI / 2, 0); s.lineTo(x + w, y + h - r); s.absarc(x + w - r, y + h - r, r, 0, Math.PI / 2);
+  s.lineTo(x + r, y + h); s.absarc(x + r, y + h - r, r, Math.PI / 2, Math.PI); s.lineTo(x, y + r); s.absarc(x + r, y + r, r, Math.PI, Math.PI * 1.5); return s; }
+function pillow(w, l, r, h, bev) { const d = Math.max(h - 2 * bev, 0.01); const g = new THREE.ExtrudeGeometry(rrShape(w - 2 * bev, l - 2 * bev, Math.max(r - bev, 0.2)), { depth: d, bevelEnabled: true, bevelThickness: bev, bevelSize: bev, bevelSegments: 4, curveSegments: 24 }); g.translate(0, 0, -d / 2); g.rotateX(-Math.PI / 2); return g; }
+const sstep = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+const clamp01 = t => Math.min(1, Math.max(0, t));
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const glowTex = canvasTex(128, 128, (x, w, h) => { const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.25, 'rgba(255,255,255,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+
+/* ---------------- skin cutaway block: cut face at z = 0 faces the camera ---------------- */
+const BX = 72, BZ = 34, EPI = 4, DER = 30, FAT = 44;   // layer depths (illustrative)
+function layerTex(kind) {
+  return canvasTex(1024, 256, (x, w, h) => {
+    const r = rng(kind.length * 7);
+    if (kind === 'epi') { x.fillStyle = '#b98163'; x.fillRect(0, 0, w, h); for (let i = 0; i < 26; i++) { x.strokeStyle = `rgba(${90 + r() * 40},${50 + r() * 20},${35},.35)`; x.lineWidth = 2 + r() * 3; x.beginPath(); const y = r() * h; x.moveTo(0, y); for (let k = 0; k <= 16; k++) x.lineTo(k * w / 16, y + Math.sin(k * 0.9 + i) * 6); x.stroke(); } }
+    if (kind === 'der') { x.fillStyle = '#b8645c'; x.fillRect(0, 0, w, h); for (let i = 0; i < 260; i++) { x.strokeStyle = `rgba(${230},${170 + r() * 30},${160},${(.08 + r() * .12).toFixed(2)})`; x.lineWidth = 1.5 + r() * 2.5; x.beginPath(); let px = r() * w, py = r() * h; x.moveTo(px, py); for (let k = 0; k < 6; k++) { px += 20 + r() * 40; py += (r() - .5) * 26; x.lineTo(px, py); } x.stroke(); } }
+    if (kind === 'fat') { x.fillStyle = '#c99a4c'; x.fillRect(0, 0, w, h); for (let i = 0; i < 160; i++) { const cx = r() * w, cy = r() * h, rr = 18 + r() * 26; const g = x.createRadialGradient(cx, cy - rr * .3, 2, cx, cy, rr); g.addColorStop(0, '#f2d58a'); g.addColorStop(1, '#b8873c'); x.fillStyle = g; x.beginPath(); x.arc(cx, cy, rr, 0, 7); x.fill(); x.strokeStyle = 'rgba(120,70,30,.5)'; x.lineWidth = 2; x.stroke(); } }
+  });
+}
+const skinTop = canvasTex(512, 512, (x, w, h) => { const r = rng(4); x.fillStyle = '#9c6a4f'; x.fillRect(0, 0, w, h); for (let i = 0; i < 3000; i++) { x.fillStyle = `rgba(70,40,26,${(r() * .18).toFixed(3)})`; x.beginPath(); x.arc(r() * w, r() * h, .6 + r(), 0, 7); x.fill(); } for (let i = 0; i < 70; i++) { x.strokeStyle = 'rgba(40,24,15,.35)'; x.lineWidth = 1; x.beginPath(); const px = r() * w, py = r() * h; x.moveTo(px, py); x.quadraticCurveTo(px + 14, py + (r() - .5) * 8, px + 30 + r() * 20, py + (r() - .5) * 10); x.stroke(); } });
+skinTop.wrapS = skinTop.wrapT = THREE.RepeatWrapping; skinTop.repeat.set(4, 2);
+function layer(y0, y1, tex, color, top) {
+  const face = new THREE.MeshPhysicalMaterial({ map: tex, roughness: 0.55, clearcoat: 0.35, clearcoatRoughness: 0.4, sheen: new THREE.Color(0x401010) });
+  const side = new THREE.MeshStandardMaterial({ color, roughness: 0.7 });
+  const topM = top ? new THREE.MeshPhysicalMaterial({ map: skinTop, roughness: 0.5, clearcoat: 0.15, sheen: new THREE.Color(0x2a1208) }) : side;
+  const m = new THREE.Mesh(new THREE.BoxGeometry(BX, y0 - y1, BZ), [side, side, topM, side, face, side]);
+  m.position.set(0, (y0 + y1) / 2, -BZ / 2); scene.add(m); return m;
+}
+layer(0, -EPI, layerTex('epi'), 0x8e5a40, true);
+layer(-EPI, -DER, layerTex('der'), 0x7a3a34, false);
+layer(-DER, -FAT, layerTex('fat'), 0x8c6a30, false);
+
+/* ---------------- blood vessel (cut open along the face) + capillaries ---------------- */
+const ART = { y: -18, r: 4.6 };
+const artWall = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, BX - 1.5, 48, 1, true, 0, Math.PI), new THREE.MeshPhysicalMaterial({ color: 0x9a1422, roughness: 0.3, clearcoat: 0.8, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }));
+artWall.rotation.z = Math.PI / 2; artWall.rotation.y = 0; artWall.position.set(0, ART.y, 0); scene.add(artWall);
+const artBack = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, BX - 1.5, 48, 1, true, Math.PI, Math.PI), new THREE.MeshStandardMaterial({ color: 0x4a0a12, roughness: 0.6, side: THREE.BackSide }));
+artBack.rotation.z = Math.PI / 2; artBack.position.set(0, ART.y, 0); scene.add(artBack);
+// vessel channel painted on the cut face (dark red lumen with soft edges); swells with each beat
+const chanTex = canvasTex(16, 256, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(90,6,16,0)'); g.addColorStop(0.12, 'rgba(110,8,20,.95)'); g.addColorStop(0.5, 'rgba(70,4,12,1)'); g.addColorStop(0.88, 'rgba(110,8,20,.95)'); g.addColorStop(1, 'rgba(90,6,16,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+const chan = new THREE.Mesh(new THREE.PlaneGeometry(BX - 0.6, 2), new THREE.MeshBasicMaterial({ map: chanTex, transparent: true, depthWrite: false })); chan.position.set(0, ART.y, 0.03); scene.add(chan);
+// red blood cells: biconcave discs flowing along the vessel
+const prof = []; for (let i = 0; i <= 14; i++) { const r = i / 14; prof.push(new THREE.Vector2(r, Math.sqrt(Math.max(0, 1 - r * r)) * (0.18 + 0.85 * r * r - 0.55 * r ** 4) * 0.55)); }
+for (let i = 14; i >= 0; i--) { const r = i / 14; prof.push(new THREE.Vector2(r, -Math.sqrt(Math.max(0, 1 - r * r)) * (0.18 + 0.85 * r * r - 0.55 * r ** 4) * 0.55)); }
+const cellGeo = new THREE.LatheGeometry(prof, 28); cellGeo.computeVertexNormals();
+const NCELL = 130;
+const cells = new THREE.InstancedMesh(cellGeo, new THREE.MeshPhysicalMaterial({ color: 0xb0101c, roughness: 0.38, clearcoat: 0.6, clearcoatRoughness: 0.25, emissive: 0x200105, envMapIntensity: 0.5 }), NCELL);
+scene.add(cells);
+const rCell = rng(55), CELL = [...Array(NCELL)].map(() => ({ x: rCell() * BX - BX / 2, a: rCell() * 6.283, rr: Math.sqrt(rCell()), ax: rCell() * 6.28, ay: rCell() * 6.28, sp: 0.8 + rCell() * 0.5, s: 0.95 + rCell() * 0.3 }));
+const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _p = new THREE.Vector3(), _s = new THREE.Vector3();
+
+/* ---------------- the pod sitting on the skin (front edge on the cut face) ---------------- */
+const pod = new THREE.Group(); pod.position.set(0, 0, -12.6); scene.add(pod);
+const chrome = new THREE.MeshStandardMaterial({ color: 0xeef0f2, metalness: 1, roughness: 0.1 });
+const knitT = canvasTex(256, 256, (x, w, h) => { x.fillStyle = '#060607'; x.fillRect(0, 0, w, h); const r = rng(13), n = 8, c = w / n; for (let j = 0; j < n * 2; j++) for (let i = -1; i <= n; i++) { const l = 44 + r() * 14; x.fillStyle = `rgb(${l},${l},${l + 2})`; x.beginPath(); x.ellipse((i + (j % 2) * .5 + .5) * c, (j + .5) * c / 2, c * .36, c * .3, 0, 0, 7); x.fill(); } });
+knitT.wrapS = knitT.wrapT = THREE.RepeatWrapping; knitT.repeat.set(1 / 6, 1 / 6);
+const podBody = new THREE.Mesh(pillow(34.7, 24, 6, 5.2, 1.2), new THREE.MeshPhysicalMaterial({ color: 0x141518, roughness: 0.6, clearcoat: 0.2 })); podBody.position.y = 2.6; pod.add(podBody);
+const rim2m = new THREE.Mesh(pillow(36.6, 25.9, 6.8, 1.6, 0.6), chrome); rim2m.position.y = 5.4; pod.add(rim2m);
+const knit = new THREE.Mesh(pillow(33.6, 22.8, 5.6, 1.0, 0.35), new THREE.MeshPhysicalMaterial({ map: knitT, roughness: 0.9 })); knit.position.y = 6.15; pod.add(knit);
+// LED + light sensor windows on the underside, at the front edge (illustrative positions)
+const LED = new THREE.Vector3(-6.5, 0.05, -0.6), PD = new THREE.Vector3(6.5, 0.05, -0.6);
+const ledDie = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.3, 1.2), new THREE.MeshStandardMaterial({ color: 0x0a1a0e, emissive: 0x2cff74, emissiveIntensity: 0 })); ledDie.position.copy(LED); scene.add(ledDie);
+const pdDie = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.3, 1.2), new THREE.MeshStandardMaterial({ color: 0x1d1f3c, metalness: 0.5, roughness: 0.2, emissive: 0x2cff74, emissiveIntensity: 0 })); pdDie.position.copy(PD); scene.add(pdDie);
+const glow = (color, size) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false })); s.scale.set(size, size, 1); scene.add(s); return s; };
+const ledGlow = glow(0x1cff5e, 8); ledGlow.position.set(LED.x, -0.6, 0.4);
+const pdGlow = glow(0x1cff5e, 6); pdGlow.position.set(PD.x, -0.6, 0.4);
+const skinGlow = glow(0x1cff5e, 34); skinGlow.position.set(0, -6, 0.3); skinGlow.material.opacity = 0;
+
+/* ---------------- light paths: "banana" random walks from the LED to the sensor ---------------- */
+const rP = rng(7), PATHS = [];
+for (let i = 0; i < 46; i++) {
+  const deep = rP(), D = 3 + deep * deep * 17, absorbed = D > 13 && rP() < 0.85;
+  const pts = [new THREE.Vector3(LED.x + (rP() - .5), -0.2, 0.3)];
+  const n = 7; for (let k = 1; k < n; k++) { const a = k / n, xx = LED.x + (PD.x - LED.x) * a + (rP() - .5) * 5, yy = -D * Math.sin(a * Math.PI) * (0.85 + rP() * .3) - 0.3; pts.push(new THREE.Vector3(xx, yy, 0.3)); }
+  if (absorbed) { pts.length = 4 + Math.floor(rP() * 2); pts.push(new THREE.Vector3(pts[pts.length - 1].x + (rP() - .5) * 3, ART.y + (rP() - .5) * 2, 0.4)); }
+  else pts.push(new THREE.Vector3(PD.x + (rP() - .5), -0.2, 0.3));
+  const curve = new THREE.CatmullRomCurve3(pts), len = curve.getLength();
+  const line = new THREE.Mesh(new THREE.TubeGeometry(curve, 60, 0.13, 5), new THREE.MeshBasicMaterial({ color: absorbed ? 0x169a4c : 0x3dff86, transparent: true, opacity: 0, depthWrite: false }));
+  scene.add(line);
+  PATHS.push({ curve, len, absorbed, line, ph: rP(), sp: 12 + rP() * 8 });
+}
+const NPH = PATHS.length * 2;
+const phGeo = new THREE.BufferGeometry(); phGeo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(NPH * 3), 3)); phGeo.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(NPH * 3), 3));
+const photons = new THREE.Points(phGeo, new THREE.PointsMaterial({ size: 3.2, map: glowTex, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true }));
+scene.add(photons);
+
+/* ---------------- heartbeat ---------------- */
+const PERIOD = 60 / 72;
+function beat(t) { const ph = ((t % PERIOD) + PERIOD) % PERIOD / PERIOD; return Math.exp(-Math.pow((ph - 0.14) / 0.075, 2)) + 0.35 * Math.exp(-Math.pow((ph - 0.42) / 0.09, 2)); }
+const blood = t => 0.5 * beat(t) + 0.5 * beat(t - 0.05);     // blood volume under the sensor (smoothed)
+const lightBack = t => 1 - 0.55 * blood(t);                  // reflected light: dips at every beat
+
+/* ---------------- overlay ---------------- */
+const $ = id => document.getElementById(id);
+const PILLS = { pLed: [LED.x - 1, -2, 0.4], pPd: [PD.x + 1, -2, 0.4], pArt: [-22, ART.y + 3, 2.4], pCell: [14, ART.y - 3, 2.6] };
+const PILL_OFF = { pLed: [-250, -10], pPd: [250, -10], pArt: [-30, -120], pCell: [20, 140] };
+function placePills(alpha) {
+  for (const id in PILLS) { const v = new THREE.Vector3(...PILLS[id]).project(camera); const el = $(id);
+    const x = (v.x * .5 + .5) * W + PILL_OFF[id][0], y = (-v.y * .5 + .5) * H + PILL_OFF[id][1];
+    el.style.left = Math.min(Math.max(x, 190), 860) + 'px'; el.style.top = y + 'px'; el.style.opacity = (alpha[id] || 0).toFixed(3); }
+}
+function drawWave(cv, t, span, col, opts = {}) {
+  const x = cv.getContext('2d'), w = cv.width, h = cv.height; x.clearRect(0, 0, w, h);
+  const pad = opts.pad || 0, top = opts.top || 20, bot = opts.bot || 20;
+  x.strokeStyle = 'rgba(255,255,255,.07)'; x.lineWidth = 2; for (let i = 1; i < 4; i++) { x.beginPath(); x.moveTo(pad, top + (h - top - bot) * i / 4); x.lineTo(w - pad, top + (h - top - bot) * i / 4); x.stroke(); }
+  x.beginPath(); for (let i = 0; i <= 300; i++) { const tt = t - span + span * i / 300; const v = (lightBack(tt) - 0.45) / 0.55; const px = pad + (w - 2 * pad) * i / 300, py = top + (1 - v) * (h - top - bot); i ? x.lineTo(px, py) : x.moveTo(px, py); }
+  x.strokeStyle = col; x.lineWidth = opts.lw || 5; x.lineJoin = 'round'; x.shadowColor = col; x.shadowBlur = 14; x.stroke(); x.shadowBlur = 0;
+  const v = (lightBack(t) - 0.45) / 0.55; x.fillStyle = '#fff'; x.beginPath(); x.arc(w - pad, top + (1 - v) * (h - top - bot), 7, 0, 7); x.fill();
+  if (opts.marks) { for (let k = Math.ceil((t - span) / PERIOD); k * PERIOD < t; k++) { const tt = k * PERIOD + 0.14 * PERIOD; if (tt < t - span || tt > t) continue; const px = pad + (w - 2 * pad) * (tt - t + span) / span; x.fillStyle = 'rgba(255,77,94,.9)'; x.beginPath(); x.arc(px, h - 8, 5, 0, 7); x.fill(); } }
+}
+const gctx = $('gc').getContext('2d');
+function drawGraph(t, a) {
+  $('graph').style.opacity = a.toFixed(3); if (a < 0.01) return;
+  drawWave($('gc'), t, 3.2, '#4be08a', { pad: 30, top: 62, bot: 22, marks: true });
+  gctx.fillStyle = 'rgba(220,226,232,.75)'; gctx.font = '600 26px "IBM Plex Sans"'; gctx.fillText('Light coming back', 30, 40);
+  gctx.fillStyle = 'rgba(255,77,94,.9)'; gctx.textAlign = 'right'; gctx.fillText('dip = heartbeat', 800, 40); gctx.textAlign = 'left';
+}
+
+/* ---------------- timeline ---------------- */
+const SEGS = [
+  { dur: 5.5, title: 'The band shines <em class="g">green light</em> into your skin', pose: t => ({ tx: 5, ty: -16, az: 0.42 - 0.12 * t, el: 0.32 - 0.06 * t, dist: 335 - 15 * t, oy: 90 }), led: t => sstep(0.05, 0.25, t), paths: t => sstep(0.25, 0.9, t), pills: t => ({ pLed: sstep(.15, .3, t), pPd: sstep(.55, .7, t) }) },
+  { dur: 5, title: 'Your <em class="r">blood</em> soaks up some of that light', pose: t => ({ tx: 5, ty: -15, az: 0.26 - 0.06 * t, el: 0.14, dist: 300 - 12 * t, oy: 90 }), led: () => 1, paths: () => 1, pills: t => ({ pArt: sstep(.1, .25, t), pCell: sstep(.35, .5, t) }) },
+  { dur: 6, title: 'Each heartbeat = <em class="g">a dip in the light</em>', pose: t => ({ tx: 5, ty: -16, az: 0.3 + 0.06 * t, el: 0.2, dist: 360, oy: 215 }), led: () => 1, paths: () => 1, pills: () => ({}), graph: t => sstep(0.05, 0.2, t) },
+  { dur: 6, title: '<em class="r">Count the dips</em> and you get your heart rate', pose: t => ({ tx: 0, ty: -16, az: 0.36 + 0.05 * t, el: 0.22, dist: 340 + 20 * t, oy: 200 }), led: () => 1, paths: () => 1, pills: () => ({}), phone: t => sstep(0.05, 0.25, t) },
+];
+let acc = 0; SEGS.forEach(s => { s.start = acc; acc += s.dur; }); const TOTAL = acc;
+function segAt(t) { for (let i = SEGS.length - 1; i >= 0; i--) if (t >= SEGS[i].start) return i; return 0; }
+let lastTitle = -1;
+function renderAt(t) {
+  t = Math.min(Math.max(t, 0), TOTAL - 1e-3);
+  const si = segAt(t), s = SEGS[si], u = (t - s.start) / s.dur, prev = SEGS[si - 1];
+  let P = s.pose(u); if (prev) { const b = ease(clamp01((t - s.start) / 1.2)); const A = prev.pose(1); for (const k in P) P[k] = A[k] + (P[k] - A[k]) * b; }
+  const c = Math.cos(P.el); camera.position.set(P.tx + P.dist * c * Math.sin(P.az), P.ty + P.dist * Math.sin(P.el), P.dist * c * Math.cos(P.az));
+  camera.lookAt(P.tx, P.ty, 0); camera.setViewOffset(W, H, 0, P.oy, W, H); camera.updateProjectionMatrix();
+  // title (fade at segment edges)
+  if (si !== lastTitle) { $('title').innerHTML = s.title; lastTitle = si; }
+  $('title').style.opacity = Math.min(clamp01((t - s.start) / 0.35), clamp01((s.start + s.dur - t) / 0.3) + (si === SEGS.length - 1 ? 1 : 0)).toFixed(3);
+  // LED + light
+  const L = s.led(u), pathsA = s.paths(u), bl = blood(t), back = lightBack(t);
+  ledDie.material.emissiveIntensity = 3 * L; ledGlow.material.opacity = 0.55 * L; ledLight.intensity = 1.2 * L; ledLight.position.set(LED.x, -1, 1.5);
+  skinGlow.material.opacity = 0.18 * L; pdGlow.material.opacity = 0.5 * L * back * pathsA; pdDie.material.emissiveIntensity = 1.6 * L * back * pathsA;
+  // vessel swells with each beat
+  const rr = ART.r * (1 + 0.16 * bl); artWall.scale.set(rr, 1, rr); artBack.scale.set(rr, 1, rr); chan.scale.set(1, rr * 1.15, 1);
+  // cells flow (surge on the beat)
+  CELL.forEach((cl, i) => {
+    const x = ((cl.x + t * 10 * cl.sp + bl * 2 * cl.sp + 600) % BX) - BX / 2, rad = rr * 0.78 * cl.rr, ang = cl.a + t * 0.3;
+    _p.set(x, ART.y + Math.sin(ang) * rad, Math.abs(Math.cos(ang)) * rad * 0.9 + 0.2);
+    _q.setFromEuler(_e.set(cl.ax + t * 1.3 * cl.sp, cl.ay + t * 0.8, 0)); _s.setScalar(1.25 * cl.s * sstep(BX / 2 - 0.5, BX / 2 - 3, Math.abs(x)));
+    cells.setMatrixAt(i, _m.compose(_p, _q, _s));
+  }); cells.instanceMatrix.needsUpdate = true;
+  // photons: deep paths get soaked up more when blood volume is high
+  const pos = phGeo.attributes.position.array, col = phGeo.attributes.color.array;
+  PATHS.forEach((p, i) => {
+    p.line.material.opacity = (p.absorbed ? 0.45 + 0.3 * bl : 0.75 * (0.45 + 0.55 * back)) * pathsA;
+    for (let k = 0; k < 2; k++) { const j = i * 2 + k, f = ((t * p.sp / p.len + p.ph + k * 0.5) % 1 + 1) % 1, pt = p.curve.getPointAt(f);
+      pos[j * 3] = pt.x; pos[j * 3 + 1] = pt.y; pos[j * 3 + 2] = pt.z + 0.2;
+      const fade = p.absorbed ? (1 - sstep(0.75, 1, f)) * (0.7 + 0.6 * bl) : (0.55 + 0.45 * back);
+      const g = fade * pathsA * sstep(0, 0.06, f);
+      if (p.absorbed && f > 0.6) { col[j * 3] = 0.02 * g; col[j * 3 + 1] = 0.5 * g; col[j * 3 + 2] = 0.15 * g; } else { col[j * 3] = 0.05 * g; col[j * 3 + 1] = 0.9 * g; col[j * 3 + 2] = 0.3 * g; } }
+  });
+  phGeo.attributes.position.needsUpdate = true; phGeo.attributes.color.needsUpdate = true;
+  renderer.render(scene, camera);
+  // overlays
+  placePills(s.pills(u));
+  drawGraph(t, s.graph ? s.graph(u) : 0);
+  const ph = s.phone ? s.phone(u) : 0;
+  $('phone').style.opacity = ph.toFixed(3); $('phone').style.transform = `translateY(${(1 - ph) * 60}px)`; $('dim').style.opacity = (0.95 * ph).toFixed(3);
+  if (ph > 0.01) { drawWave($('pc'), t, 3.2, '#ff4d5e', { pad: 16, top: 16, bot: 26, marks: true, lw: 4 }); const hb = 1 + 0.14 * beat(t); $('heartPath').parentNode.style.transform = `scale(${hb})`; }
+  // faint drifting watermark (rule 15)
+  const wx = 140 + (t * 23) % 620, wy = 700 + 160 * Math.sin(t * 0.21); $('wm2').style.transform = `translate(${wx}px, ${wy}px) rotate(-12deg)`;
+  return true;
+}
+window.__tour = { total: TOTAL, renderAt };
+if (RENDER) { renderAt(Number(Q.get('t') || 0)); return; }
+const t0 = performance.now(); (function loop(now) { renderAt(((now - t0) / 1000) % TOTAL); requestAnimationFrame(loop); })(t0);
+})();
+</script>
