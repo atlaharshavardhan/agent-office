@@ -1,7 +1,7 @@
 // Scene S1 · "Who is Alice Huang?" (150 frames). Blender/Cycles plate (renders/s1/f_0001..0150, spec frame N = file N+1)
 // + crisp Remotion overlays: dominant headline, relationship row, voice-synced captions. No branding, no fade-in.
 import React from 'react';
-import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, Audio, Img, staticFile, useCurrentFrame } from 'remotion';
 import { FONT, BODY, SAFE, clamp } from '../theme';
 import { FontFace } from '../ui';
 import { NvLogo } from '../alice/Logos';
@@ -44,6 +44,7 @@ export const S1AliceMystery = () => {
         </div>
       </div>
       {cap && <div style={{ position: 'absolute', left: SAFE.l, right: SAFE.r, top: 1300, textAlign: 'center', font: `800 60px/1.12 ${BODY}`, color: /NVIDIA/.test(cap[2]) ? V.green : V.text, textShadow: '0 0 10px #000, 0 4px 18px #000' }}>{cap[2]}</div>}
+      <Audio src={staticFile('s1audio/s1_mix.wav')} />
       <div style={{ position: 'absolute', left: SAFE.l, top: 1528, font: `600 22px ${BODY}`, color: 'rgba(244,246,248,.6)' }}>3D illustration · not affiliated with NVIDIA or Megaspeed</div>
     </AbsoluteFill>
   );
