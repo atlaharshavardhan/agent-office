@@ -31,3 +31,4 @@ remotion/public/s1v2/
 renders/s1_v2/render.log
 # in-progress V2 GPU frames: force-added when complete
 renders/s1_v2/gpu/*.png
+renders/s1_v2/die_shot.png
