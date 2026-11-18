@@ -1073,7 +1073,7 @@ const macroCam = new THREE.PerspectiveCamera(30, W / H, 1, 2000);
 }
 
 /* ---------- 2D illustration: walking to work (our own character, faceless) ---------- */
-function walkSVG() {
+function walkSVG(zoom) {
   const r = rng(5);
   const windows = (x0, y0, cols, rows, dx, dy, w, h) => { let o = ''; for (let jj = 0; jj < rows; jj++) for (let ii = 0; ii < cols; ii++) { const lit = r() < .5; o += `<rect x="${x0 + ii * dx}" y="${y0 + jj * dy}" width="${w}" height="${h}" rx="4" fill="${lit ? '#e8b46a' : '#1c2230'}" opacity="${lit ? .5 + r() * .45 : .9}"/>`; } return o; };
   const balcony = (x, y, w) => `<rect x="${x}" y="${y}" width="${w}" height="10" fill="#0e121a"/>` + [...Array(Math.floor(w / 16))].map((_, k) => `<rect x="${x + 4 + k * 16}" y="${y - 34}" width="4" height="34" fill="#0e121a"/>`).join('') + `<rect x="${x}" y="${y - 38}" width="${w}" height="6" fill="#0e121a"/>`;
@@ -1109,27 +1109,63 @@ function walkSVG() {
   <!-- footpath -->
   <rect x="0" y="1460" width="${W}" height="460" fill="url(#tiles)"/><rect x="0" y="1460" width="${W}" height="8" fill="#2a2d35"/>
   <ellipse cx="560" cy="1660" rx="300" ry="26" fill="#000" opacity=".55"/>
-  <!-- character walking right (faceless: head stays out of frame) -->
-  <g stroke-linecap="round" stroke-linejoin="round">
-    <path d="M478 720 L430 890 L392 1040" stroke="#143031" stroke-width="64" fill="none"/>
-    <path d="M392 1040 L380 1075" stroke="#6e452f" stroke-width="44" fill="none"/>
-    <path d="M490 1190 L438 1400 L330 1585" stroke="#20283a" stroke-width="104" fill="none"/>
-    <path d="M300 1600 q-30 10 -24 34 l120 4 q10 -24 -14 -38 z" fill="#d9d6cf"/>
-    <path d="M470 560 L478 650 L548 650 L552 560 Z" fill="#141820"/>
-    <ellipse cx="512" cy="500" rx="74" ry="88" fill="#0f1218"/><path d="M584 470 q14 40 0 80" stroke="#3a4558" stroke-width="5" fill="none" opacity=".6"/>
-    <path d="M432 640 C 418 760 418 1020 428 1190 L 600 1190 C 610 1020 612 860 600 760 C 590 690 560 645 520 632 C 488 624 452 626 432 640 Z" fill="url(#teeG)"/>
-    <path d="M460 632 q44 22 88 4" stroke="#0f2829" stroke-width="12" fill="none"/>
-    <path d="M430 1160 L 602 1160 L 604 1196 L 428 1196 Z" fill="#0f0f10"/><rect x="560" y="1162" width="22" height="30" rx="3" fill="#5e5e5e"/>
-    <path d="M440 1196 L 600 1196 L 596 1250 L 444 1250 Z" fill="url(#denimG)"/>
-    <path d="M560 1210 L640 1400 L700 1590" stroke="url(#denimG)" stroke-width="108" fill="none"/>
-    <path d="M560 1210 L640 1400 L700 1590" stroke="#4a5674" stroke-width="2" stroke-dasharray="10 8" fill="none" opacity=".6"/>
-    <path d="M664 1612 q-6 36 30 40 l120 -6 q14 -26 -16 -40 l-70 -8 z" fill="#ebe8e1"/>
-    <path d="M548 670 C 600 690 628 760 632 830 L 560 846 C 548 790 530 740 512 710 Z" fill="#245a59"/>
-    <path d="M592 820 L640 930 L700 1050" stroke="url(#skinG)" stroke-width="54" fill="none"/>
-    <path d="M700 1050 L726 1102" stroke="#9a6a4b" stroke-width="58" fill="none"/>
-    <g transform="rotate(62 688 1028)"><rect x="652" y="1010" width="72" height="38" rx="9" fill="url(#knit)"/><rect x="668" y="1006" width="40" height="46" rx="10" fill="#18191c" stroke="#d6dade" stroke-width="3.5"/><rect x="671" y="1040" width="34" height="8" rx="3" fill="#dfe3e8"/></g>
-    <circle cx="688" cy="1030" r="46" fill="url(#ledg)" opacity=".5"/>
+  <!-- character walking right: faceless (head in shadow), Indian skin tone, WHOOP band on the near wrist -->
+  <defs>
+    <linearGradient id="tee2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#143536"/><stop offset=".55" stop-color="#2a6866"/><stop offset=".85" stop-color="#245a59"/><stop offset="1" stop-color="#163e3e"/></linearGradient>
+    <linearGradient id="sleeve2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f706e"/><stop offset="1" stop-color="#1d4b4a"/></linearGradient>
+    <linearGradient id="arm2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7a4b33"/><stop offset=".45" stop-color="#b37c58"/><stop offset="1" stop-color="#8a5a3e"/></linearGradient>
+    <linearGradient id="jean2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#222a3b"/><stop offset=".5" stop-color="#3a4762"/><stop offset="1" stop-color="#252d40"/></linearGradient>
+    <linearGradient id="jeanFar" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#171c28"/><stop offset="1" stop-color="#242b3c"/></linearGradient>
+  </defs>
+  <g stroke-linejoin="round">
+    <!-- far arm (behind the body, swinging back) -->
+    <path d="M470 662 C 446 740 428 820 414 892 L 452 904 C 466 836 486 760 504 690 Z" fill="#163a3a"/>
+    <path d="M414 888 C 400 950 388 1000 378 1040 L 410 1052 C 422 1010 438 958 452 900 Z" fill="#6a412c"/>
+    <path d="M376 1036 c -14 26 -10 52 10 58 c 16 4 28 -14 30 -40 z" fill="#5e3a27"/>
+    <!-- far leg (back) -->
+    <path d="M462 1186 L 548 1190 C 536 1270 512 1340 480 1404 C 452 1460 410 1520 372 1574 L 312 1548 C 350 1490 388 1432 414 1378 C 436 1320 452 1258 462 1186 Z" fill="url(#jeanFar)"/>
+    <path d="M300 1546 c -26 6 -34 34 -18 50 l 112 18 c 14 -4 16 -20 6 -32 l -38 -30 z" fill="#c9c6bf"/><path d="M282 1596 l 114 18 l -2 10 l -116 -18 z" fill="#8f8c86"/>
+    <!-- head in shadow (no face) and neck -->
+    <path d="M492 548 L 498 640 L 552 640 L 556 548 Z" fill="#1a1e27"/>
+    <path d="M520 382 c -58 0 -96 40 -98 96 c -2 50 28 90 74 100 c 36 8 72 -2 92 -30 c 14 -20 18 -48 14 -74 c -8 -58 -38 -92 -82 -92 z" fill="#10131a"/>
+    <path d="M436 452 c 8 -52 46 -80 90 -80 c 48 0 80 30 88 72 c -30 -24 -60 -32 -96 -30 c -34 2 -60 14 -82 38 z" fill="#07080b"/>
+    <path d="M604 452 c 10 28 10 58 -4 84" stroke="#3a4a5e" stroke-width="5" fill="none" opacity=".7" stroke-linecap="round"/>
+    <!-- torso: t-shirt -->
+    <path d="M452 628 C 428 660 424 770 428 900 C 430 1000 432 1100 438 1180 L 616 1180 C 620 1090 626 990 622 890 C 618 790 606 700 582 654 C 562 626 500 614 452 628 Z" fill="url(#tee2)"/>
+    <path d="M478 622 q 46 22 92 2" stroke="#0e2627" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <path d="M470 760 q 40 30 70 120 M 452 980 q 60 20 140 4 M 560 700 q 30 60 30 140" stroke="#0f2a2b" stroke-width="5" fill="none" opacity=".45" stroke-linecap="round"/>
+    <!-- belt + hips -->
+    <path d="M436 1166 L 618 1166 L 620 1200 L 434 1200 Z" fill="#0d0d0e"/><rect x="582" y="1168" width="22" height="30" rx="3" fill="#6f6f6f"/>
+    <path d="M440 1200 L 618 1200 L 614 1262 L 444 1262 Z" fill="url(#jean2)"/>
+    <!-- near leg (forward) -->
+    <path d="M520 1196 L 616 1200 C 632 1266 650 1330 664 1396 C 676 1456 694 1526 712 1592 L 646 1610 C 628 1546 610 1478 596 1416 C 580 1350 552 1280 520 1196 Z" fill="url(#jean2)"/>
+    <path d="M574 1250 C 600 1330 622 1420 676 1596" stroke="#55627f" stroke-width="2.5" stroke-dasharray="10 8" fill="none" opacity=".7"/>
+    <path d="M600 1380 q 30 8 54 0" stroke="#1c2232" stroke-width="5" fill="none" opacity=".7" stroke-linecap="round"/>
+    <path d="M640 1600 c -8 26 2 50 30 54 l 140 -2 c 20 -4 24 -24 8 -38 c -24 -20 -60 -28 -96 -32 z" fill="#efece6"/>
+    <path d="M668 1652 l 144 -2 c 4 6 2 14 -4 16 l -142 4 c -8 -4 -8 -12 2 -18 z" fill="#9a968f"/>
+    <path d="M690 1604 l 16 22 M 708 1600 l 16 22 M 726 1602 l 14 20" stroke="#3a3a3e" stroke-width="4" stroke-linecap="round"/>
+    <!-- near arm: sleeve, upper arm, forearm swinging forward -->
+    <path d="M540 642 C 590 650 626 700 640 780 L 652 846 L 584 866 C 576 820 562 770 534 734 Z" fill="url(#sleeve2)"/>
+    <path d="M592 862 L 650 844 C 660 880 672 912 682 940 L 624 964 C 612 930 600 896 592 862 Z" fill="url(#arm2)"/>
+    <path d="M624 960 L 682 936 C 704 976 726 1016 748 1054 L 698 1082 C 676 1044 650 1002 624 960 Z" fill="url(#arm2)"/>
+    <path d="M698 1080 C 688 1110 694 1150 726 1164 C 752 1174 776 1154 776 1124 C 776 1100 766 1074 750 1052 Z" fill="#a06e4e"/>
+    <path d="M748 1080 c 18 10 24 28 18 44" stroke="#7a4f37" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <!-- WHOOP band on the wrist: knit strap, chrome frame, clasp plate (face toward the viewer) -->
+    <g transform="translate(718 1050) rotate(-30)">
+      <rect x="-40" y="-20" width="80" height="40" rx="8" fill="url(#knit)"/>
+      <rect x="-30" y="-27" width="60" height="54" rx="12" fill="#2b2c30" stroke="#e3e6ea" stroke-width="4.5"/>
+      <rect x="-24" y="-21" width="48" height="34" rx="8" fill="url(#knit)"/>
+      <rect x="-26" y="12" width="52" height="12" rx="4" fill="#dfe3e8"/>
+      <text x="0" y="21.5" text-anchor="middle" font-family="Sora" font-weight="700" font-size="7.5" letter-spacing="1.6" fill="#4a4f57">WHOOP</text>
+    </g>
+    <circle cx="716" cy="1052" r="54" fill="url(#ledg)" opacity=".45"/>
   </g>
+  <!-- zoom bubble: the real 3D band from our model -->
+  ${zoom ? `<defs><clipPath id="zc"><circle cx="790" cy="730" r="148"/></clipPath></defs>
+  <line x1="728" y1="1030" x2="760" y2="878" stroke="rgba(75,224,138,.7)" stroke-width="3"/>
+  <circle cx="790" cy="730" r="154" fill="#000"/>
+  <image href="${zoom}" x="${790 - 540 * 0.62}" y="${730 - 960 * 0.62}" width="${1080 * 0.62}" height="${1920 * 0.62}" clip-path="url(#zc)"/>
+  <circle cx="790" cy="730" r="150" fill="none" stroke="#e3e6ea" stroke-width="6"/><circle cx="790" cy="730" r="160" fill="none" stroke="rgba(75,224,138,.55)" stroke-width="3"/>` : ''}
   <rect width="${W}" height="${H}" fill="url(#vig)"/>
   <rect x="0" y="0" width="${W}" height="600" fill="url(#topfade)"/>
   </svg>`;
@@ -1165,9 +1201,10 @@ const SHOTS = [
     $('sTitle').innerHTML = 'Like a stethoscope, it listens <em class="r">to your heart</em>';
     pills([{ text: 'Listens with sound', cls: 'r', at: [270, 1250], to: V3(-32, -3, -4) }, { text: 'Listens with light', cls: 'g', at: [770, 1250], to: V3(24, -2, 0) }]); },
   // 3. walking to work (2D illustration)
-  () => { T.renderer.domElement.style.opacity = 0; $('sArt').innerHTML = walkSVG(); $('sIllus').style.display = 'none';
+  () => { pod(0, 0); cam(V3(8, 430, 80), V3(0, 3, 0), null, 0); draw3D(); const zoom = T.renderer.domElement.toDataURL('image/jpeg', 0.92);
+    T.renderer.domElement.style.opacity = 0; $('sArt').innerHTML = walkSVG(zoom); $('sIllus').style.display = 'none';
     $('sTitle').innerHTML = 'Walking to work, <em class="g">it never stops reading</em>';
-    pills([{ text: '♥ 74 bpm', cls: 'r', at: [850, 880], to: [692, 1022] }]); },
+    pills([{ text: '♥ 74 bpm', cls: 'r', at: [790, 885] }]); },
   // 4. on the wrist, from above: no screen at all
   () => { pod(0, 0); cam(V3(6, 215, 40), V3(0, 2, 0), null, -40); draw3D();
     $('sTitle').innerHTML = 'No screen. It just <em class="g">keeps reading</em>';
