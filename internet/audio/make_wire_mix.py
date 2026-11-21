@@ -12,7 +12,7 @@ def voice(name, at):
     i = int(at * SR); bedpart = bed[int(15.6 * SR) + i:int(15.6 * SR) + i + len(a)] * 0.56; out[i:i + len(bedpart)] -= bedpart[:max(0, N - i)] * 0.45   # duck the music under the voice
 def t(d): return np.arange(int(d * SR)) / SR
 def env(x, a=0.004, r=4.0): n = len(x); e = np.minimum(1, np.arange(n) / (a * SR)) * np.exp(-r * np.arange(n) / n); return x * e
-voice('p5', 0.2); voice('p6', 2.3); voice('p6b', 4.95)
+voice('v3/p5c', 0.2); voice('p6', 2.3); voice('p6b', 4.95)
 # launcher: thump + air burst, then the line whizzing out
 x = t(0.25); put(env(np.sin(2 * np.pi * (140 * np.exp(-x * 18) + 45) * x), r=6) * 0.9 + env(rng.standard_normal(len(x)), r=9) * 0.35, 0.75)
 x = t(0.65); w = rng.standard_normal(len(x)); w = np.convolve(w, np.ones(24) / 24, 'same'); pass   # line-whizz air sound removed at Harsh's request (17 Nov 2026)

@@ -1,6 +1,7 @@
 {
  "photo": 28.0,
- "fly": 7.1,
+ "fly": 5.4,
+ "flyk": 1.3148148148148147,
  "end": 3.6,
  "subs": [
   [
@@ -76,18 +77,18 @@
  ],
  "flysubs": [
   [
-   0.4,
-   2.18,
+   0.25,
+   2.03,
    "Then she flies to *London.*"
   ],
   [
-   3.6,
-   5.81,
+   2.05,
+   4.26,
    "So how does a photo *cross an ocean?*"
   ],
   [
-   5.81,
-   7.02,
+   4.26,
+   5.47,
    "That's *part two.*"
   ]
  ]

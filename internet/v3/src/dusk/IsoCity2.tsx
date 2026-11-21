@@ -5,6 +5,8 @@ import { FPS, hash, lerp, prog, clamp01, easeOut, easeInOut } from '../lib/anim'
 import { FONT } from '../lib/palette';
 import { Adult } from './Adult';
 import { PhotoWorld, PhotoUI } from './CityPhoto';
+import { IPhone, Bubble, Compose, Keyboard } from './Phone';
+const KP = 1.2, HIS = { x: 676, y: 400 }, HER = { x: 640, y: 470 };
 import plan1 from './part1-plan.json';
 import type { StickPose } from './Dusk';
 
@@ -77,8 +79,9 @@ const Car: React.FC<{ x: number; y: number; c: string; dx: number; dy: number }>
     <circle cx={ux * 14} cy={uy * 8 - 2} r={11} fill="#fff3d6" opacity={0.45} filter="url(#cB)" /><circle cx={ux * 13} cy={uy * 8 - 2} r={2.6} fill="#fff6d8" /><circle cx={-ux * 13} cy={-uy * 8 - 2} r={2.2} fill="#ff4a5a" /></g>); };
 const PCOL = ['#ff8672', '#3fb8a8', '#f6c34a', '#b9a2ec', '#f58fb4', '#7fd0f0'], CCOL = ['#c8553a', '#e0b84a', '#3fa7a0', '#8a6fd8', '#f3f0ea', '#4a6fd0'];
 /* ext: Part 1's photo lesson. The scene starts where the 13 s city scene ends and carries on with the same map. */
-export const IsoCity2: React.FC<{ ext?: boolean }> = ({ ext }) => {
-  const f = useCurrentFrame() + (ext ? 390 : 0), t = f / FPS, te = ext ? t - 13 : -1;
+export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all: whole }) => {
+  const X = !!(ext || whole);   // ext: starts at 13 s; all: the 13 s city scene and the photo lesson in one piece
+  const f = useCurrentFrame() + (ext ? 390 : 0), t = f / FPS, te = X ? t - 13 : -1;
   const boxes: B[] = [...CT.flatMap((q) => town(q.c, q.n, q.cols, q.h[0], q.h[1], q.seed, q.r)),
     ...Array.from({ length: 46 }).map((_, i) => ({ x: -17 + hash(i * 9 + 3) * 34, y: -17 + hash(i * 13 + 5) * 34, w: 0.7, d: 0.7, h: 0.6 + hash(i) * 0.4, c: ['#4a3f7a', '#3d4a82', '#51437c'][i % 3], lit: 0.6 })).filter((b) => CT.every((q) => Math.hypot(q.c[0] - b.x, q.c[1] - b.y) > q.r + 2.2)),
   ].sort((a, b) => a.x + a.y - (b.x + b.y));
@@ -100,12 +103,13 @@ export const IsoCity2: React.FC<{ ext?: boolean }> = ({ ext }) => {
   const himXY = g(0, -1.3, 0.4, 2.6);
   // camera: close on home, ride with the bus, pull back to the whole region, then follow the message hop by hop
   const all = { x: 540, y: 950, z: 0.9 }, home = { x: g(0)[0], y: g(0)[1] - 70, z: 1.55 }, city = { x: g(3)[0], y: g(3)[1] - 150, z: 1.4 };
-  const keys: [number, { x: number; y: number; z: number }][] = [[0, home], [0.5, home], [1.2, { x: busP[0], y: busP[1] - 60, z: 1.35 }], [2.6, { x: busP[0], y: busP[1] - 60, z: 1.35 }], [3.2, city], [3.5, city], [4.6, all], [5.3, all], [5.9, { x: RT[0][0], y: RT[0][1] + 70, z: 2.0 }], [6.4, { x: RT[0][0], y: RT[0][1] + 70, z: 2.0 }], [7.1, all], [7.5, all], [8.3, { x: g(0)[0] + 230, y: g(0)[1] - 120, z: 1.25 }], [8.7, { x: g(0)[0] + 230, y: g(0)[1] - 120, z: 1.25 }], [9.15, { x: RT[0][0] + 150, y: RT[0][1] + 40, z: 1.9 }], [9.5, { x: hp[0] + 170, y: hp[1] + 30, z: 1.5 + 0.3 * bump }], [11.45, { x: hp[0] + 170, y: hp[1] + 30, z: 1.5 + 0.3 * bump }], [12.0, { x: RT[3][0] + 310 / 1.5, y: RT[3][1] + 200 / 1.5, z: 1.5 }], [13, { x: RT[3][0] + 310 / 1.58, y: RT[3][1] + 200 / 1.58, z: 1.58 }], ...(ext ? [[14.6, { x: 540, y: 921, z: 0.95 }], [60, { x: 540, y: 921, z: 0.95 }]] as [number, { x: number; y: number; z: number }][] : [])];
+  const keys: [number, { x: number; y: number; z: number }][] = [[0, home], [0.5, home], [1.2, { x: busP[0], y: busP[1] - 60, z: 1.35 }], [2.6, { x: busP[0], y: busP[1] - 60, z: 1.35 }], [3.2, city], [3.5, city], [4.6, all], [5.3, all], [5.9, { x: RT[0][0], y: RT[0][1] + 70, z: 2.0 }], [6.4, { x: RT[0][0], y: RT[0][1] + 70, z: 2.0 }], [7.1, all], [7.5, all], [8.3, { x: g(0)[0] + 230, y: g(0)[1] - 120, z: 1.25 }], [8.7, { x: g(0)[0] + 230, y: g(0)[1] - 120, z: 1.25 }], [9.15, { x: RT[0][0] + 150, y: RT[0][1] + 40, z: 1.9 }], [9.5, { x: hp[0] + 170, y: hp[1] + 30, z: 1.5 + 0.3 * bump }], [11.45, { x: hp[0] + 170, y: hp[1] + 30, z: 1.5 + 0.3 * bump }], [12.0, { x: RT[3][0] + 310 / 1.5, y: RT[3][1] + 200 / 1.5, z: 1.5 }], [13, { x: RT[3][0] + 310 / 1.58, y: RT[3][1] + 200 / 1.58, z: 1.58 }], ...(X ? [[14.6, { x: 540, y: 921, z: 0.95 }], [60, { x: 540, y: 921, z: 0.95 }]] as [number, { x: number; y: number; z: number }][] : [])];
   let ki = 0; while (ki < keys.length - 2 && t > keys[ki + 1][0]) ki++;
   const ka = keys[ki], kb = keys[ki + 1], ku = easeInOut(clamp01((t - ka[0]) / (kb[0] - ka[0])));
   const cam = { x: lerp(ka[1].x, kb[1].x, ku), y: lerp(ka[1].y, kb[1].y, ku), z: Math.exp(lerp(Math.log(ka[1].z), Math.log(kb[1].z), ku)) };
+  const scr = (p: readonly number[]) => [540 + cam.z * (p[0] - cam.x), 960 + cam.z * (p[1] - cam.y)] as const;
   let line: React.ReactNode = null; for (const [a, txt] of VO) if (t >= a) line = txt;
-  if (ext) { line = null; for (const [a, b, x] of plan1.subs as [number, number, string][]) if (te >= a && te < b) line = x.split('*').map((p, i) => (i % 2 ? <em key={i}>{p}</em> : <React.Fragment key={i}>{p}</React.Fragment>)); }
+  if (X && te >= 0) { line = null; for (const [a, b, x] of plan1.subs as [number, number, string][]) if (te >= a && te < b) line = x.split('*').map((p, i) => (i % 2 ? <em key={i}>{p}</em> : <React.Fragment key={i}>{p}</React.Fragment>)); }
   const router = (i: number, a: number, name: string) => { const on = onR(i), rt = i < 4; return a > 0 ? <g key={'r' + i} opacity={a * (rt ? 1 : lerp(1, 0.45, webA))}>
     <line x1={RB[i][0]} y1={RB[i][1]} x2={RT[i][0]} y2={RT[i][1] + (1 - a) * 60} stroke="#2b2e3a" strokeWidth={7} strokeLinecap="round" />
     <g transform={`translate(${RT[i][0]} ${RT[i][1] + (1 - a) * 60})`}><circle r={60} fill="url(#cDot)" />{on > 0 && <circle r={120} fill="url(#cPk)" opacity={on * (0.75 + 0.25 * Math.sin(t * 6))} />}
@@ -115,7 +119,7 @@ export const IsoCity2: React.FC<{ ext?: boolean }> = ({ ext }) => {
   const FC = ['#16303f', '#1a3644', '#14293a', '#1d3a3f', '#182f48'];
   return (
     <AbsoluteFill style={{ backgroundColor: '#0d1830' }}>
-      {!ext && <Audio src={staticFile('city-mix.wav')} />}
+      {!X && <Audio src={staticFile('city-mix.wav')} />}
       <svg width={1080} height={1920}>
         <defs><filter id="cB"><feGaussianBlur stdDeviation="5" /></filter><filter id="cB2"><feGaussianBlur stdDeviation="12" /></filter>
           <linearGradient id="cSh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".07" /><stop offset=".5" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#050718" stopOpacity=".45" /></linearGradient><linearGradient id="cHaze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#5a6fd0" stopOpacity=".45" /><stop offset=".3" stopColor="#3a4aa0" stopOpacity=".1" /><stop offset=".55" stopColor="#3a4aa0" stopOpacity="0" /></linearGradient><radialGradient id="cVig" cx=".5" cy=".5" r=".75"><stop offset=".55" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#02030c" stopOpacity=".7" /></radialGradient><filter id="cGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed={f} /><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 -0.12" /></filter><radialGradient id="cLamp"><stop offset="0" stopColor="#ffe2a8" stopOpacity=".55" /><stop offset="1" stopColor="#ffd9a0" stopOpacity="0" /></radialGradient><radialGradient id="cDot"><stop offset="0" stopColor="#bcd4ff" stopOpacity=".85" /><stop offset=".35" stopColor="#7fa6ff" stopOpacity=".4" /><stop offset="1" stopColor="#7fa6ff" stopOpacity="0" /></radialGradient><radialGradient id="cBok"><stop offset="0" stopColor="#8fb0ff" stopOpacity=".5" /><stop offset=".7" stopColor="#6f9bff" stopOpacity=".22" /><stop offset="1" stopColor="#6f9bff" stopOpacity="0" /></radialGradient><radialGradient id="cPk"><stop offset="0" stopColor="#c8f6ff" stopOpacity=".95" /><stop offset=".25" stopColor="#5fe3ff" stopOpacity=".5" /><stop offset=".6" stopColor="#2fb8ff" stopOpacity=".16" /><stop offset="1" stopColor="#2fb8ff" stopOpacity="0" /></radialGradient><radialGradient id="cHole"><stop offset="0" stopColor="#000" /><stop offset=".6" stopColor="#000" stopOpacity=".85" /><stop offset="1" stopColor="#000" stopOpacity="0" /></radialGradient><mask id="cSpot" maskUnits="userSpaceOnUse" x={-3000} y={-3000} width={7000} height={8000}><rect x={-3000} y={-3000} width={7000} height={8000} fill="#fff" />{[0, 1, 2, 3].map((i) => { const c = g(i, 0, 0, 1.2), r = (CT[i].r + 3.4) * S; return <ellipse key={i} cx={c[0]} cy={c[1]} rx={r} ry={r * 0.8} fill="url(#cHole)" opacity={litOf(i)} />; })}</mask><radialGradient id="cG"><stop offset="0" stopColor="#2a4266" /><stop offset="1" stopColor="#1a2d4a" stopOpacity="0" /></radialGradient></defs>
@@ -172,43 +176,45 @@ export const IsoCity2: React.FC<{ ext?: boolean }> = ({ ext }) => {
             </g>; })()}
           {CT.map((_, i) => router(i, i === 0 ? 1 : prog(f, 5.3 + (i % 6) * 0.1, 5.7 + (i % 6) * 0.1, easeOut), i === 0 ? 'HOME ROUTER' : i === 3 ? 'CITY ROUTER' : ''))}
           {/* hop counters and the travelling HELLO */}
-          {[0, 1, 2].map((i) => { const a = prog(f, H0 + i * 0.8 + 0.6, H0 + i * 0.8 + 0.8, easeOut); return a > 0 ? <g key={'h' + i} opacity={a} transform={`translate(${(RT[i][0] + RT[i + 1][0]) / 2 - 80} ${(RT[i][1] + RT[i + 1][1]) / 2 - 24}) scale(${0.62 + 0.16 * a})`}><rect x={-58} y={-24} width={116} height={46} rx={14} fill="#ffe08a" /><text y={9} textAnchor="middle" style={{ font: `800 28px ${FONT.ui}` }} fill="#3a2a05">hop {i + 1}</text></g> : null; })}
+          {[0, 1, 2].map((i) => { const a = prog(f, H0 + i * 0.8 + 0.6, H0 + i * 0.8 + 0.8, easeOut) * (1 - clamp01(te / 0.6)); return a > 0 ? <g key={'h' + i} opacity={a} transform={`translate(${(RT[i][0] + RT[i + 1][0]) / 2 - 80} ${(RT[i][1] + RT[i + 1][1]) / 2 - 24}) scale(${0.62 + 0.16 * a})`}><rect x={-58} y={-24} width={116} height={46} rx={14} fill="#ffe08a" /><text y={9} textAnchor="middle" style={{ font: `800 28px ${FONT.ui}` }} fill="#3a2a05">hop {i + 1}</text></g> : null; })}
           {t > H0 && t < H0 + 2.55 && <g>{[1, 2, 3, 4, 5, 6, 7, 8].map((k) => { const q = hpos(hop - k * 0.045); return <circle key={k} cx={q[0]} cy={q[1]} r={11 - k} fill="#9fefff" opacity={0.7 - k * 0.075} />; })}
             <g transform={`translate(${hp[0]} ${hp[1]})`}><circle r={95} fill="url(#cPk)" /><g transform={`scale(${1.25 + 0.08 * Math.sin(t * 14)})`}><rect x={-27} y={-18} width={54} height={36} rx={8} fill="#f2fdff" stroke="#22c4ee" strokeWidth={3.5} /><path d="M -22 -13 L 0 5 L 22 -13" stroke="#1a8fb0" strokeWidth={4} fill="none" strokeLinecap="round" /></g></g></g>}
           {t > 8.7 && t < 9.2 && [0, 1, 2].map((i) => { const u = clamp01((t - 8.7 - i * 0.08) / 0.3); return u > 0 && u < 1 ? <circle key={'wf' + i} cx={himXY[0]} cy={himXY[1] - 60} r={50 + u * 90} fill="none" stroke="#9fe9ff" strokeWidth={5} opacity={1 - u} /> : null; })}
-          {ext && <PhotoWorld te={te} RT={RT} />}
+          {X && <PhotoWorld te={te} RT={RT} />}
           {/* the two of them, as portrait pins */}
           <Face kind="man" x={himXY[0]} y={himXY[1] - 60} ring="#3fb8a8" id="m" />
           <Face kind="woman" x={herXY[0]} y={herXY[1] - 60} ring="#ff8672" id="w" smile={bus < 1 ? 0.6 : 1} />
           
           
           {/* city name plates, on the front edge of each border */}
-          {CT.slice(0, 4).map((q, i) => { const c = g(i), r = (q.r + 2.0) * S * 0.92, hero = i === 0 || i === 3, w = NAMES[i].length * (hero ? 23 : 18) + 44; const sy = 960 + cam.z * (c[1] + r * 0.58 + 4 - cam.y); return <g key={'nm' + i} opacity={clamp01((Math.abs(sy - 1345) - 140) / 50)} transform={`translate(${c[0]} ${c[1] + r * 0.58 + 4})`}><rect x={-w / 2} y={-24} width={w} height={hero ? 52 : 42} rx={14} fill={hero ? (i ? '#ff6f91' : '#2f9c95') : '#1a2250'} stroke={hero ? '#fff' : '#aab6ee'} strokeWidth={hero ? 3 : 2} /><text y={hero ? 13 : 6} textAnchor="middle" style={{ font: `800 ${hero ? 34 : 26}px ${FONT.ui}`, letterSpacing: '0.04em' }} fill="#fff">{NAMES[i]}</text></g>; })}
+          {CT.slice(0, 4).map((q, i) => { const c = g(i), r = (q.r + 2.0) * S * 0.92, hero = i === 0 || i === 3, w = NAMES[i].length * (hero ? 23 : 18) + 44; const sy = 960 + cam.z * (c[1] + r * 0.58 + 4 - cam.y); return <g key={'nm' + i} opacity={clamp01((Math.abs(sy - 1345) - 140) / 50) * (i === 3 ? 1 - clamp01((te - 16.2) / 0.4) : 1)} transform={`translate(${c[0]} ${c[1] + r * 0.58 + 4})`}><rect x={-w / 2} y={-24} width={w} height={hero ? 52 : 42} rx={14} fill={hero ? (i ? '#ff6f91' : '#2f9c95') : '#1a2250'} stroke={hero ? '#fff' : '#aab6ee'} strokeWidth={hero ? 3 : 2} /><text y={hero ? 13 : 6} textAnchor="middle" style={{ font: `800 ${hero ? 34 : 26}px ${FONT.ui}`, letterSpacing: '0.04em' }} fill="#fff">{NAMES[i]}</text></g>; })}
         </g>
       </svg>
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}><rect width={1080} height={1920} fill="url(#cHaze)" style={{ mixBlendMode: 'screen' }} /><rect width={1080} height={1920} fill="url(#cVig)" /><rect width={1080} height={1920} filter="url(#cGrain)" opacity={0.1} style={{ mixBlendMode: 'overlay' }} /></svg>
       <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 230, backdropFilter: 'blur(5px)', WebkitMaskImage: 'linear-gradient(#000 20%, transparent)', maskImage: 'linear-gradient(#000 20%, transparent)' }} />
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 330, backdropFilter: 'blur(5px)', WebkitMaskImage: 'linear-gradient(transparent, #000 80%)', maskImage: 'linear-gradient(transparent, #000 80%)' }} />
       {/* his phone, on the right: type HELLO, send, then watch it go step by step */}
-      {ext && <PhotoUI te={te} />}
-      {t > 7.4 && te < 0.35 && (() => { const a = prog(f, 7.4, 7.8, easeOut), typed = 'Hello'.slice(0, Math.max(0, Math.min(5, Math.floor((t - 7.9) / 0.12)))), sent = t >= 8.7, press = t > 8.6 && t < 8.78;
-        const delivered = t >= H0 + 2.6, reply = prog(f, H0 + 3.1, H0 + 3.45, easeOut), big = prog(f, H0 + 2.55, H0 + 3.0, easeInOut), glow = 1 - prog(f, H0 + 3.45, H0 + 3.85);
-        return <div style={{ position: 'absolute', left: 640, top: 470, width: 292, height: 330, borderRadius: 44, background: '#05060f', border: '5px solid #2b3154', boxShadow: '0 30px 80px rgba(0,0,0,.6)', transform: `translateX(${(1 - a) * 560}px) scale(${1.28 + 0.44 * big})`, transformOrigin: 'right top', overflow: 'hidden', fontFamily: FONT.ui }}>
-          <div style={{ position: 'absolute', inset: 8, borderRadius: 36, background: 'linear-gradient(#141a44,#0d1230)', overflow: 'hidden' }}>
-            <div style={{ height: 62, background: '#1c2458', display: 'flex', alignItems: 'center', gap: 10, padding: '0 14px' }}><div style={{ width: 38, height: 38, borderRadius: 19, background: '#ff8672', display: 'grid', placeItems: 'center', font: `800 20px ${FONT.ui}`, color: '#fff' }}>♥</div><div><div style={{ font: `800 21px ${FONT.ui}`, color: '#fff' }}>Her</div><div style={{ font: `600 13px ${FONT.ui}`, color: '#9fb0ff' }}>{NAMES[3][0] + NAMES[3].slice(1).toLowerCase()}</div></div></div>
-            <div style={{ padding: '14px 12px 0', height: 150 }}>
-              {sent && <div style={{ marginLeft: 'auto', width: 'fit-content', opacity: t < 9.15 ? 0.35 : 1, background: '#2f9c95', color: '#fff', borderRadius: '18px 18px 4px 18px', padding: '8px 14px', font: `700 24px ${FONT.ui}` }}>Hello <span style={{ font: `700 15px ${FONT.ui}`, color: delivered ? '#9fe9ff' : '#cfe' }}>{delivered ? '✓✓' : '✓'}</span></div>}
-              {reply > 0 && <div style={{ marginTop: 10, width: 'fit-content', background: '#2a3270', color: '#fff', borderRadius: '18px 18px 18px 4px', padding: '8px 14px', font: `700 24px ${FONT.ui}`, opacity: Math.min(1, reply * 2), transform: `translateY(${(1 - reply) * 22}px) scale(${0.5 + 0.5 * reply + 0.22 * Math.sin(Math.PI * reply)})`, transformOrigin: 'left bottom', boxShadow: `0 0 ${26 * glow}px ${6 * glow}px rgba(255,134,114,${0.85 * glow})` }}>Hi! ❤️</div>}
-            </div>
-            <div style={{ position: 'absolute', left: 10, right: 10, bottom: 12, height: 48, borderRadius: 24, background: '#1c2458', display: 'flex', alignItems: 'center', padding: '0 6px 0 16px', gap: 8 }}>
-              <div style={{ flex: 1, font: `700 21px ${FONT.ui}`, color: '#fff' }}>{sent ? <span style={{ color: '#6a74a8' }}>Message</span> : <>{typed}<span style={{ opacity: Math.sin(t * 10) > 0 ? 1 : 0, color: '#9fe9ff' }}>|</span></>}</div>
-              <div style={{ width: 38, height: 38, borderRadius: 19, background: press ? '#fff' : '#2f9c95', display: 'grid', placeItems: 'center', font: `800 20px ${FONT.ui}`, color: press ? '#2f9c95' : '#fff', transform: `scale(${press ? 1.25 : 1})` }}>➤</div>
-            </div>
+      {X && <PhotoUI te={te} RT={RT} scr={scr} />}
+      {/* his small iPhone: he types Hello and taps send, the message jumps out to the home router, and the phone is gone */}
+      {t > 7.4 && t < 9.2 && (() => { const o = prog(f, 7.4, 7.8, easeOut) * (1 - prog(f, 8.85, 9.15)), n = Math.max(0, Math.min(5, Math.floor((t - 7.9) / 0.12))), typed = 'Hello'.slice(0, n), sent = t >= 8.7, press = t > 8.58 && t < 8.76;
+        const hit = !sent && t >= 7.9 && n < 5 && (t - 7.9) % 0.12 < 0.085 ? 'hello'[n] : undefined;
+        return <IPhone left={HIS.x} top={HIS.y} o={o} k={KP} name="Her" avatar="#ff8672">
+          <Compose bottom={148} press={press} ready={n > 0 && !sent} text={sent ? <span style={{ color: '#6b6b70' }}>iMessage</span> : n === 0 ? <><span style={{ opacity: Math.sin(t * 10) > 0 ? 1 : 0, color: '#0a84ff' }}>|</span><span style={{ color: '#6b6b70' }}>iMessage</span></> : <>{typed}<span style={{ opacity: Math.sin(t * 10) > 0 ? 1 : 0, color: '#0a84ff' }}>|</span></>} />
+          <Keyboard hit={hit} />
+        </IPhone>; })()}
+      {t >= 8.7 && t < 9.15 && (() => { const u = easeInOut(clamp01((t - 8.7) / 0.45)), q = scr(RT[0]), sx = HIS.x + 96 * KP, sy = HIS.y + 318 * KP, x = lerp(sx, q[0], u), y = lerp(sy, q[1], u) - 110 * Math.sin(Math.PI * u), sc = lerp(1.15, 0.55, u);
+        return <><div style={{ position: 'absolute', left: x, top: y, transform: `translate(-50%,-50%) scale(${sc})`, background: '#0a84ff', color: '#fff', borderRadius: '17px 17px 5px 17px', padding: '6px 13px', font: `700 22px ${FONT.ui}`, boxShadow: '0 0 30px rgba(95,200,255,.95)' }}>Hello</div>
+          {[0.25, 0.5, 0.75].map((k) => <div key={k} style={{ position: 'absolute', left: lerp(sx, q[0], u * k), top: lerp(sy, q[1], u * k) - 110 * Math.sin(Math.PI * u * k), width: 10, height: 10, borderRadius: 5, background: '#9fe9ff', opacity: 0.7 * k, transform: 'translate(-50%,-50%)' }} />)}</>; })()}
+      {/* her small iPhone pops up only when the message arrives */}
+      {t > H0 + 2.35 && te < 0.4 && (() => { const o = prog(f, H0 + 2.35, H0 + 2.7, easeOut) * (1 - clamp01(te / 0.35)), inn = prog(f, H0 + 2.75, H0 + 3.0, easeOut), reply = prog(f, H0 + 3.25, H0 + 3.55, easeOut), q = scr(RT[3]), u = prog(f, H0 + 2.45, H0 + 2.8);
+        return <><IPhone left={HER.x} top={HER.y} o={o} k={KP} name="Him" avatar="#3fb8a8">
+          <div style={{ padding: '16px 10px 0' }}>
+            {inn > 0 && <Bubble style={{ opacity: inn, transform: `scale(${0.6 + 0.4 * inn})`, transformOrigin: 'left bottom', boxShadow: `0 0 ${22 * (1 - prog(f, H0 + 3.0, H0 + 3.5))}px rgba(95,227,255,.9)` }}>Hello</Bubble>}
+            {reply > 0 && <Bubble mine style={{ marginTop: 10, opacity: Math.min(1, reply * 2), transform: `translateY(${(1 - reply) * 18}px) scale(${0.5 + 0.5 * reply + 0.2 * Math.sin(Math.PI * reply)})`, transformOrigin: 'right bottom' }}>Hi! ❤️</Bubble>}
           </div>
-        </div>; })()}
-      {t >= 8.7 && t < 9.15 && (() => { const u = easeInOut(clamp01((t - 8.7) / 0.45)), tx = 540 + cam.z * (RT[0][0] - cam.x), ty = 960 + cam.z * (RT[0][1] - cam.y), x = lerp(840, tx, u), y = lerp(585, ty, u) - 90 * Math.sin(Math.PI * u), sc = lerp(1.28, 0.6, u);
-        return <><div style={{ position: 'absolute', left: x, top: y, transform: `translate(-50%,-50%) scale(${sc})`, background: '#2f9c95', color: '#fff', borderRadius: '18px 18px 4px 18px', padding: '8px 14px', font: `700 24px ${FONT.ui}`, boxShadow: '0 0 30px rgba(95,227,255,.9)' }}>Hello</div>
-          {[0.25, 0.5, 0.75].map((k) => <div key={k} style={{ position: 'absolute', left: lerp(840, tx, u * k), top: lerp(585, ty, u * k) - 90 * Math.sin(Math.PI * u * k), width: 10, height: 10, borderRadius: 5, background: '#9fe9ff', opacity: 0.7 * k, transform: 'translate(-50%,-50%)' }} />)}</>; })()}
+          <Compose bottom={18} text={<span style={{ color: '#6b6b70' }}>iMessage</span>} />
+        </IPhone>
+          {u > 0 && u < 1 && <div style={{ position: 'absolute', left: lerp(q[0], HER.x + 60 * KP, u), top: lerp(q[1], HER.y + 135 * KP, u) - 70 * Math.sin(Math.PI * u), width: 44, height: 30, borderRadius: 7, background: '#f2fdff', border: '3px solid #22c4ee', transform: `translate(-50%,-50%) scale(${1.2 - 0.5 * u})`, boxShadow: '0 0 26px rgba(95,227,255,.9)' }} />}</>; })()}
       {line && <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div>}
       <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
       <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}>

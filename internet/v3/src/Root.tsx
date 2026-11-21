@@ -98,6 +98,7 @@ export const Root: React.FC = () => (
     <Composition id="Pov" component={Pov} durationInFrames={90} fps={30} width={1080} height={1920} />
     <Composition id="IsoCity2" component={IsoCity2} durationInFrames={390} fps={30} width={1080} height={1920} />
     <Composition id="Part1Fly" component={Part1Fly} durationInFrames={PART1_FLY_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="CityAll" component={() => <IsoCity2 all />} durationInFrames={1230} fps={30} width={1080} height={1920} />
     <Composition id="IsoCityPhoto" component={() => <IsoCity2 ext />} durationInFrames={840} fps={30} width={1080} height={1920} />
     <Composition id="IsoDetail" component={IsoDetail} durationInFrames={468} fps={30} width={1080} height={1920} />
     <Composition id="IsoMoveDetail" component={IsoMoveDetail} durationInFrames={504} fps={30} width={1080} height={1920} />
