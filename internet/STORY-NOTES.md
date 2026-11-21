@@ -66,3 +66,11 @@ now she moved to London, that's part 1. Part 2: what happens if we need to send 
   sound audio/make_part1_mix.py, render + join v3/render_part1.sh -> internet/video/internet-part1-v1.mp4.
 - 17 Nov 2026: Part 1 v1 rendered and sent (internet/video/internet-part1-v1.mp4, 93 s). Known flaw: 'start again' label overlaps a 'waiting' counter near his home router.
 - 17 Nov 2026: Harsh: no whoosh sounds in Part 1. Removed: all whooshes and the plane fly-by rush in make_part1_mix.py; camera whooshes subtracted from hook-mix.wav; line-whizz air sound removed in make_wire_mix.py; two swish moments in city-mix.wav turned down (no recipe existed for that file). Old files kept as *-with-whoosh.wav. Result: internet/video/internet-part1-v2.mp4 (street-nw.mp4 / city-nw.mp4 in video/part1 carry the new sound; chunks3 originals untouched). Rule for Part 2 and later: no whoosh sounds.
+
+## Part 1 version 3: Harsh's review notes (21 Nov 2026)
+- Remove the "glass core / blinks every second" close-up; just say it is a wire like a LAN cable. Done: street scene without that cutaway, line "So we use a LAN cable."
+- Remove the "Reads the address / inside the router" explainer. Done: the street view stays on screen.
+- Phones: use a real-looking small iPhone. He types, taps send, the message jumps out and travels the lines, and the phone disappears. The same for the photo. The receiving phone shows up only when packets arrive; they land jumbled, then sort by number into the photo.
+- Then she flies to London, plane and globe, fast (5.4 s instead of 7.1 s).
+- Hook must lock the viewer. New opening line in the first second: "You can build the internet with a torch. Seriously." then "Flash it at your friend across the street, and you've basically built the internet."
+- Build: Phone.tsx (iPhone), CityPhoto.tsx, IsoCity2 "all" mode (composition CityAll), make_hook_mix.py, render_part1_v3.sh. Output: internet/video/internet-part1-v3.mp4.
