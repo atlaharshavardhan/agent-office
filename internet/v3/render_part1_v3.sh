@@ -15,7 +15,7 @@ part IsoFullHi 0 1244; part Part1Fly 0 227; part CityAll 0 1229
 # audio: street (41.5 s) + cities (13 s) + photo lesson, flight and end card (35.6 s)
 ffmpeg -v error -y -i public/full-mix.wav -i public/city-mix.wav -i public/part1-mix.wav -filter_complex "[0:a][1:a][2:a]concat=n=3:v=0:a=1,volume=3dB,alimiter=limit=0.89[a]" -map "[a]" $C/audio.wav || exit 1
 # the watermark: horizontal, see-through, moved to a free spot in each scene. Rows are "start-second x y" (top-left of the 420 x 64 strip).
-MARKS="${MARKS:-0 330 1170|3.3 330 250}"; END=86.5   # END: the end card has its own handle
+MARKS="${MARKS:-0 330 1170|3.3 330 250|8.4 330 1170|15.6 330 250|17.9 330 1170|23 40 235|41.5 330 240|54.5 255 1180|82.5 330 250}"; END=86.5   # END: the end card has its own handle
 X=""; Y=""; n=0; IFS='|' read -ra ROWS <<< "$MARKS"
 for i in "${!ROWS[@]}"; do set -- ${ROWS[$i]}; nx=${ROWS[$((i+1))]}; e=$END; [ -n "$nx" ] && e=${nx%% *}; X="$X+$2*between(t,$1,$e-0.001)"; Y="$Y+$3*between(t,$1,$e-0.001)"; done
 ffmpeg -v error -y -i $C/IsoFullHi-0-all.mp4 -i $C/CityAll-0-all.mp4 -i $C/Part1Fly-0-all.mp4 -loop 1 -i $C/mark.png -i $C/audio.wav \
