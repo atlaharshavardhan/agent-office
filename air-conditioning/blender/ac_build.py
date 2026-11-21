@@ -47,16 +47,21 @@ def window_fan(M, z0):
 
 
 def ice_tray_on_sill(M, z0):
-    """A deeper shelf on the window stool + a tray of ice cubes right in front of the fan."""
-    A.box("Shelf", (0.7, 0.24, 0.025), (0, -0.2, z0 - 0.005), M["trim"], bevel=0.005)
+    """A shelf on the window stool + ONE big ice block (in a shallow tray) right in front of the fan."""
+    A.box("Shelf", (0.7, 0.26, 0.025), (0, -0.2, z0 - 0.005), M["trim"], bevel=0.005)
     A.box("ShelfBracketL", (0.025, 0.2, 0.12), (-0.3, -0.18, z0 - 0.07), M["trim"])
     A.box("ShelfBracketR", (0.025, 0.2, 0.12), (0.3, -0.18, z0 - 0.07), M["trim"])
-    A.build_tray(M, loc=(0, -0.2, z0 + 0.008))
-    for o in [o for o in bpy.data.objects if o.name.startswith(("Tray", "Ice"))]:
-        o.scale = (1.5, 1.5, 1.5); o.location.z = z0 + 0.008 + (o.location.z - z0 - 0.008) * 1.5
-    # a few extra cubes piled on top (reads as "a lot of ice")
-    for i, (dx, dy) in enumerate(((-0.07, -0.02), (0.0, 0.03), (0.07, -0.01))):
-        A.box(f"IceTop{i}", (0.055, 0.055, 0.05), (dx, -0.2 + dy, z0 + 0.09), M["ice"], bevel=0.01, rot=(0, 0, 0.3 * i))
+    zt = z0 + 0.008
+    A.box("TrayBase", (0.5, 0.22, 0.01), (0, -0.2, zt + 0.005), M["tray"])
+    for nm, sz, l in (("TrayF", (0.5, 0.008, 0.04), (0, -0.31, zt + 0.02)), ("TrayB", (0.5, 0.008, 0.04), (0, -0.09, zt + 0.02)),
+                      ("TrayL", (0.008, 0.22, 0.04), (-0.25, -0.2, zt + 0.02)), ("TrayR", (0.008, 0.22, 0.04), (0.25, -0.2, zt + 0.02))):
+        A.box(nm, sz, l, M["tray"])
+    ice = A.mat("IceBlock", (0.82, 0.93, 1.0), 0.12, transmission=0.85)
+    nt = ice.node_tree                                       # frosty, slightly uneven surface
+    nz = nt.nodes.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = 18
+    bm = nt.nodes.new("ShaderNodeBump"); bm.inputs["Strength"].default_value = 0.25
+    nt.links.new(nz.outputs["Fac"], bm.inputs["Height"]); nt.links.new(bm.outputs["Normal"], nt.nodes["Principled BSDF"].inputs["Normal"])
+    A.box("IceBlock", (0.42, 0.17, 0.24), (0, -0.2, zt + 0.13), ice, bevel=0.025)
 
 
 def main():
