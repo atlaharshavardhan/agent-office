@@ -1,0 +1,15 @@
+{
+  "name": "invisitech-air-conditioning",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.jsx",
+    "still": "remotion still src/index.jsx AirConditioning",
+    "render": "remotion render src/index.jsx AirConditioning out/how-youd-invent-air-conditioning-1080.mp4 --codec h264 --audio-codec aac --crf 16"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.538",
+    "remotion": "4.0.538",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
