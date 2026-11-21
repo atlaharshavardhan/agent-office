@@ -1,4 +1,5 @@
 import React from 'react';
+import { MARK_O } from '../lib/mark';
 import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { FPS, hash, lerp } from '../lib/anim';
 import { DUSK, StickPose } from './Dusk';
@@ -637,7 +638,7 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
       {hook && <HookOverlays f={f} t={t} macro={macro} mute={mute} />}
       {wire && <WireOverlays f={f} t={t} />}
       {net && <NetOverlays f={f} t={t} />}
-      {move && (() => { let line: React.ReactNode = null; for (const [a, txt] of MVO) if (t >= a) line = txt; return line ? <><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div><style>{'.sub em{font-style:normal;color:#ffd38a}'}</style><div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}><Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span></div></> : null; })()}
+      {move && (() => { let line: React.ReactNode = null; for (const [a, txt] of MVO) if (t >= a) line = txt; return line ? <><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div><style>{'.sub em{font-style:normal;color:#ffd38a}'}</style><div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}><Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span></div></> : null; })()}
       {concept && <><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{CSUB[concept]}</div></div><style>{'.sub em{font-style:normal;color:#ffd38a}'}</style></>}
     </AbsoluteFill>
   );
@@ -702,7 +703,7 @@ const HookOverlays: React.FC<{ f: number; t: number; macro: number; mute?: boole
         </div>
       )}
       <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
-      <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}>
+      <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}>
         <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} />
         <span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>
       </div>
@@ -736,7 +737,7 @@ const WireOverlays: React.FC<{ f: number; t: number }> = ({ f, t }) => {
         </div>
       )}
       <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
-      <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}>
+      <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}>
         <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} />
         <span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>
       </div>
@@ -766,7 +767,7 @@ const NetOverlays: React.FC<{ f: number; t: number }> = ({ f, t }) => {
         </div>
       )}
       <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
-      <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}>
+      <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}>
         <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} />
         <span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>
       </div>

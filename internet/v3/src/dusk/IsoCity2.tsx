@@ -1,4 +1,5 @@
 import React from 'react';
+import { MARK_O } from '../lib/mark';
 import { AbsoluteFill, Audio, Img, staticFile, useCurrentFrame } from 'remotion';
 import '@fontsource/manrope/700.css'; import '@fontsource/manrope/800.css'; import '@fontsource/ibm-plex-mono/600.css';
 import { FPS, hash, lerp, prog, clamp01, easeOut, easeInOut } from '../lib/anim';
@@ -217,7 +218,7 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
           {u > 0 && u < 1 && <div style={{ position: 'absolute', left: lerp(q[0], HER.x + 60 * KP, u), top: lerp(q[1], HER.y + 135 * KP, u) - 70 * Math.sin(Math.PI * u), width: 44, height: 30, borderRadius: 7, background: '#f2fdff', border: '3px solid #22c4ee', transform: `translate(-50%,-50%) scale(${1.2 - 0.5 * u})`, boxShadow: '0 0 26px rgba(95,227,255,.9)' }} />}</>; })()}
       {line && <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div>}
       <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
-      <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}>
+      <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}>
         <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>
       </div>
     </AbsoluteFill>

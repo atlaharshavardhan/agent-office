@@ -1,4 +1,5 @@
 import React from 'react';
+import { MARK_O } from '../lib/mark';
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import { FPS, hash, prog, lerp, easeOut, easeInOut, clamp01 } from '../lib/anim';
 import { FONT } from '../lib/palette';
@@ -7,7 +8,7 @@ import type { StickPose } from './Dusk';
 
 /* Three cutaway shots that drop into the existing film. Each runs on the clock of the scene it interrupts, so the narration stays in sync. */
 export const Sub: React.FC<{ children: React.ReactNode }> = ({ children }) => (<><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{children}</div></div><style>{'.sub em{font-style:normal;color:#ffd38a}'}</style></>);
-export const Mark: React.FC = () => (<div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.8 }}><Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span></div>);
+export const Mark: React.FC = () => (<div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}><Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span></div>);
 export const Panel: React.FC<{ o?: number; children: React.ReactNode }> = ({ o = 1, children }) => (<div style={{ position: 'absolute', top: 226, left: 70, right: 70, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.86)', border: '1px solid rgba(160,176,255,.25)', boxShadow: '0 20px 60px rgba(0,0,0,.45)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: o }}>{children}</div>);
 export const Night: React.FC<{ id: string; f: number; stars?: number }> = ({ id, f, stars = 40 }) => (<>
   <defs><linearGradient id={id + 'S'} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#070a22" /><stop offset=".6" stopColor="#141a52" /><stop offset="1" stopColor="#1d2266" /></linearGradient>

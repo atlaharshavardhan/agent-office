@@ -1,12 +1,12 @@
 """Audio and caption times for the new end of Part 1: the photo lesson on the city map (28 s), then she flies to London and the end card (10.7 s).
 Writes v3/public/part1-mix.wav and v3/src/dusk/part1-plan.json (captions, read by the scene). Run from internet/."""
 import json, numpy as np, soundfile as sf
-SR = 48000; rng = np.random.default_rng(31); PHOTO = 28.0; FLY = 5.4; FLYK = 7.1 / 5.4; END = 3.6; DUR = PHOTO + FLY + END; N = int(DUR * SR)   # the flight shot plays FLYK times faster than drawn
+SR = 48000; rng = np.random.default_rng(31); PHOTO = 28.0; FLY = 4.0; FLYK = 7.1 / 4.0; END = 3.6; DUR = PHOTO + FLY + END; N = int(DUR * SR)   # the flight shot plays FLYK times faster than drawn
 V = [("part1/a1", 0.2, ["A text is tiny.", "But what about a *photo?*"]), ("part1/b1", 3.05, ["Send it as *one big block,*", "and it holds the *whole line.*"]), ("part1/b2", 6.4, ["Everyone else has to *wait.*"]),
      ("part1/b3", 8.3, ["One glitch, and it *starts all over* again."]), ("part1/c1", 10.8, ["So the internet *never* sends it whole."]),
      ("part1/d1", 13.1, ["It cuts the photo into", "about *2,000* small packets,"]), ("part1/d2", 16.4, ["each with her *address* and a *number.*"]), ("part1/d3", 18.5, ["They *share the lines* with everyone else."]),
      ("part1/d4", 20.7, ["Busy road? Some go *another way.*"]), ("part1/d5", 22.7, ["One lost? Only *that one* is sent again."]), ("part1/d6", 25.3, ["And her phone puts them *back in order.*"]),
-     ("t3", PHOTO + 0.25, ["Then she flies to *London.*"]), ("part1/z1", PHOTO + 2.05, ["So how does a photo *cross an ocean?*", "That's *part two.*"]), ("t10", PHOTO + FLY + 0.5, [])]
+     ("t3", PHOTO + 0.1, ["Then she flies to *London.*"]), ("v3/z2", PHOTO + 1.75, ["Next: how a photo *crosses an ocean.*"]), ("t10", PHOTO + FLY + 0.5, [])]
 midi = lambda m: 440 * 2 ** ((m - 69) / 12); beat = 60 / 96
 def env(n, a=0.005, r=0.2, shape=4.0): t = np.arange(n) / SR; return np.minimum(1, t / max(a, 1e-4)) * np.exp(-shape * t / max(r, 1e-4))
 out = np.zeros((N, 2))
@@ -68,8 +68,8 @@ for i in range(12): blip(26.1 + i * 0.07, 900 + 70 * i, 0.04, 0.04)             
 ding(27.1, 1568, 0.16); ding(27.25, 2093, 0.1)                                   # sent again; photo complete
 F0 = PHOTO; whoosh(F0 + 1.55, 0.6, 0.35)   # the plane
 for i in range(3): blip(F0 + (3.4 + i * 0.12) / FLYK, 880 + 220 * i, 0.06, 0.08)
-x = t(1.5); put(np.sin(2 * np.pi * (220 + 380 * (x / 1.5) ** 2) * x) * np.sin(np.pi * x / 1.5) * 0.1, F0 + 4.25 / FLYK)   # the cable draws across the globe
-for i in range(20): blip(F0 + (4.3 + i * 0.1) / FLYK, 1800 + rng.uniform(0, 2400), 0.035)
+x = t(1.1); put(np.sin(2 * np.pi * (220 + 380 * (x / 1.1) ** 2) * x) * np.sin(np.pi * x / 1.1) * 0.1, F0 + 4.25 / FLYK)   # the cable draws across the globe
+for i in range(20): blip(F0 + (4.3 + (i % 14) * 0.1) / FLYK, 1800 + rng.uniform(0, 2400), 0.035)
 whoosh(F0 + 6.35, 0.9, 0.5, 60); whoosh(F0 + FLY - 0.1, 0.6, 0.35)
 out[:int(0.4 * SR)] *= np.linspace(0, 1, int(0.4 * SR))[:, None]; out[-int(1.2 * SR):] *= np.linspace(1, 0, int(1.2 * SR))[:, None]
 ab = np.abs(out); out = np.where(ab > 0.75, np.sign(out) * (0.75 + 0.15 * np.tanh((ab - 0.75) / 0.15)), out)
