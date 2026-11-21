@@ -5,7 +5,7 @@
 import React from 'react';
 import { random } from 'remotion';
 import {
-  clamp, lerp, ramp, eout, windowOpen, fanAngle, fanSpeed, trayIn, melt, coolAir, cutaway, acOn, temperature,
+  clamp, lerp, ramp, eout, acAppear, windowOpen, fanAngle, fanSpeed, trayIn, melt, coolAir, cutaway, acOn, temperature,
 } from './timeline';
 
 export const C = {
@@ -471,8 +471,13 @@ export const World = ({ f, par }) => {
       <Curtain f={f} side="l" />
       <Curtain f={f} side="r" />
       <Thermometer f={f} />
-      <Trunking f={f} />
-      <IndoorUnit f={f} />
+      {/* the AC doesn't exist yet in the "tries" (window, fan, ice): it appears when it's invented (18-21 s) */}
+      {acAppear(f) > 0 && (
+        <g opacity={acAppear(f)} transform={`translate(780 550) scale(${0.85 + 0.15 * acAppear(f)}) translate(-780 -550)`}>
+          <Trunking f={f} />
+          <IndoorUnit f={f} />
+        </g>
+      )}
       <Refrigerant f={f} />
       <CoolOut f={f} />
       <HotAir f={f} />

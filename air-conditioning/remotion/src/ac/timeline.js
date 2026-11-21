@@ -89,6 +89,8 @@ export const fanAngle = (f) => {                                 // integral of 
 export const trayIn = (f) => ramp(f, 336, 372, eout);
 export const melt = (f) => ramp(f, 420, 500, (x) => clamp(x));   // 0 solid -> 1 puddle
 export const coolAir = (f) => ramp(f, 384, 404) * (1 - ramp(f, 466, 494));
+/** the AC is "invented" during the question beat: absent before, there for the cutaway and the payoff */
+export const acAppear = (f) => ramp(f, 566, 596, (x) => Easing.out(Easing.back(1.6))(x));
 export const cutaway = (f) => ramp(f, 588, 640) * (1 - ramp(f, 1198, 1214));
 export const acOn = (f) => (f >= 650 && f < 1205 ? ramp(f, 650, 672) : 0) + (f >= 1205 ? ramp(f, 1210, 1232) : 0);
 export const temperature = (f) => {
