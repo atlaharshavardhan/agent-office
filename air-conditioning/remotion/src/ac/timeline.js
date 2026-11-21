@@ -54,31 +54,46 @@ export const CAPTIONS = VO_LINES.flatMap((l) => {
   return chunks.map((c) => { const d = (l.to - l.from) * (c.length + 4) / total; const o = { text: c, from: t, to: t + d }; t += d; return o; });
 });
 
-// ---------------------------------------------------------------- camera (world point at screen centre + zoom)
-// Opening composition = (540, 960, 1). The payoff returns to it exactly.
-const CAM = [
+// ---------------------------------------------------------------- cameras (world point at screen centre + zoom)
+// 3/4 room camera. Opening composition = (540, 960, 1); the payoff returns to it exactly at frame 1200.
+const CAM34 = [
   [0, 540, 960, 1], [150, 540, 960, 1],
-  [232, 505, 800, 1.75], [298, 505, 800, 1.75],        // push in on the thermometer
-  [336, 680, 1010, 1.42], [494, 680, 1010, 1.42],       // fan + ice on the table
+  [188, 560, 870, 1.55], [322, 560, 870, 1.55],          // fan + thermometer together (35°C readable)
+  [342, 720, 985, 1.45], [496, 720, 985, 1.45],          // fan airflow over the ice tray
   [512, 735, 1044.7, 3], [540, 735, 1044.7, 3],          // close-up: drop lands in the tray
-  [604, 1050, 800, 0.78],                                // pull back: cutaway reveal
-  [664, 1092, 650, 1.0], [1018, 1092, 650, 1.0],       // short push-in on the AC cutaway
-  [1040, 1092, 700, 1.0], [1148, 1092, 700, 1.0],
-  [1170, 1180, 1203.3, 3], [1199, 1180, 1203.3, 3],      // close-up: drop leaves the drain hose (echoes 512-540)
-  [1222, 540, 960, 1], [1350, 540, 960, 1],              // back to the opening composition
+  [570, 250, 880, 1.45], [646, 250, 880, 1.45],          // back to the same window: the AC slides into the opening
+  [1199, 250, 880, 1.45], [1200, 540, 960, 1], [1350, 540, 960, 1],
 ];
-export const camera = (f) => {
-  const fr = CAM.map((k) => k[0]);
-  const cx = keys(f, fr, CAM.map((k) => k[1]));
-  const cy = keys(f, fr, CAM.map((k) => k[2]));
-  const z = keys(f, fr, CAM.map((k) => k[3]));
-  // subtle handheld-free drift, only between the opening and the payoff (so both compositions match exactly)
-  const env = ramp(f, 150, 190) * (1 - ramp(f, 1180, 1215));
-  return { cx: cx + Math.sin(f / 47) * 5 * env, cy: cy + Math.cos(f / 61) * 4 * env, z };
+// flat 2D side cutaway camera (2D coordinates = screen coordinates at (540,960,1)); straight pans/zooms only
+const CAM2D = [
+  [630, 570, 740, 1.1], [664, 570, 740, 1.1],            // wide: one box straddling the window
+  [690, 300, 745, 1.55], [744, 300, 745, 1.55],          // 1 room heat into the indoor coil
+  [766, 570, 740, 1.1], [796, 570, 740, 1.1],            // 2 refrigerant circulates inside the box
+  [818, 770, 745, 1.55], [904, 770, 745, 1.55],          // 3 compressor, 4 outdoor coil releases heat outside
+  [926, 570, 740, 1.1], [1020, 570, 740, 1.1],           // 5 cycle repeats
+  [1034, 570, 750, 1.1], [1138, 570, 750, 1.1],          // water: pan -> outlet at the outdoor end
+  [1160, 915, 939.3, 3], [1212, 915, 939.3, 3],          // close-up: drop falls outside (same size/path as the tray drop)
+];
+const cam = (K, f) => {
+  const fr = K.map((k) => k[0]);
+  return { cx: keys(f, fr, K.map((k) => k[1])), cy: keys(f, fr, K.map((k) => k[2])), z: keys(f, fr, K.map((k) => k[3])) };
 };
+export const camera = (f) => {
+  const c = cam(CAM34, f);
+  const env = ramp(f, 150, 190) * (1 - ramp(f, 500, 520));     // tiny drift only inside the experiments
+  return { cx: c.cx + Math.sin(f / 47) * 4 * env, cy: c.cy + Math.cos(f / 61) * 3 * env, z: c.z };
+};
+export const camera2d = (f) => cam(CAM2D, f);
+/** which view is on screen: 0 = 3/4 room, 1 = 2D cutaway */
+export const cutMix = (f) => ramp(f, 632, 650) * (1 - ramp(f, 1200, 1210));
 
 // ---------------------------------------------------------------- state curves
-export const windowOpen = (f) => ramp(f, 14, 44) * (1 - ramp(f, 1208, 1240));
+export const windowOpen = (f) => ramp(f, 14, 44) * (1 - 0.32 * ramp(f, 600, 622));   // opens, then lowers onto the window AC
+/** air moving through the open window (curtain gusts, hot air): stops once the AC fills the opening */
+export const breeze = (f) => ramp(f, 14, 44) * (1 - ramp(f, 560, 600));
+/** window AC: slides into the opening, side gaps filled, then runs (cutaway + payoff) */
+export const winAcIn = (f) => ramp(f, 566, 598, (x) => Easing.out(Easing.cubic)(x));
+export const winAcGaps = (f) => ramp(f, 612, 632);
 export const fanSpeed = (f) => clamp((f - 160) / 40);           // 0..1 spin-up
 export const fanAngle = (f) => {                                 // integral of speed (deg)
   const max = 34;
@@ -90,12 +105,12 @@ export const trayIn = (f) => ramp(f, 336, 372, eout);
 export const melt = (f) => ramp(f, 420, 500, (x) => clamp(x));   // 0 solid -> 1 puddle
 export const coolAir = (f) => ramp(f, 384, 404) * (1 - ramp(f, 466, 494));
 /** the AC is "invented" during the question beat: absent before, there for the cutaway and the payoff */
-export const acAppear = (f) => ramp(f, 566, 596, (x) => Easing.out(Easing.back(1.6))(x));
-export const cutaway = (f) => ramp(f, 588, 640) * (1 - ramp(f, 1198, 1214));
-export const acOn = (f) => (f >= 650 && f < 1205 ? ramp(f, 650, 672) : 0) + (f >= 1205 ? ramp(f, 1210, 1232) : 0);
+export const acAppear = () => 0;   // no split AC in this story
+export const cutaway = () => 0;   // the 3/4 room is never cut open: the explanation uses the flat 2D cutaway
+export const acOn = (f) => (f >= 1200 ? ramp(f, 1204, 1222) : 0);   // window AC running at the payoff
 export const temperature = (f) => {
   let t = keys(f, [0, 20, 140], [33, 33, 35]);
   t -= 0.6 * ramp(f, 400, 440) * (1 - ramp(f, 476, 520));         // ice: tiny dip, then back
-  t -= 11 * ramp(f, 1226, 1288, Easing.out(Easing.quad));         // payoff: 35 -> 24
+  t -= 11 * ramp(f, 1228, 1262, Easing.inOut(Easing.quad));       // payoff: 35 -> 24, then holds 24°C to 1290
   return t;
 };

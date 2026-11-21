@@ -5,7 +5,7 @@
 import React from 'react';
 import { random } from 'remotion';
 import {
-  clamp, lerp, ramp, eout, acAppear, windowOpen, fanAngle, fanSpeed, trayIn, melt, coolAir, cutaway, acOn, temperature,
+  clamp, lerp, ramp, eout, acAppear, windowOpen, breeze, winAcIn, winAcGaps, fanAngle, fanSpeed, trayIn, melt, coolAir, cutaway, acOn, temperature,
 } from './timeline';
 
 export const C = {
@@ -37,18 +37,18 @@ const loop = (f, start, period) => ((f - start) % period + period) % period / pe
 const Architecture = () => (
   <g>
     {/* ceiling, walls, floor */}
-    <polygon points={P([[-400, -600], [1110, -600], [1110, 430], [380, 430], [-400, 60]])} fill={C.ceiling} />
-    <polygon points={P([[380, 430], [1110, 430], [1110, 1240], [380, 1240]])} fill={C.back} />
+    <polygon points={P([[-400, -600], [1900, -600], [1900, 430], [380, 430], [-400, 60]])} fill={C.ceiling} />
+    <polygon points={P([[380, 430], [1900, 430], [1900, 1240], [380, 1240]])} fill={C.back} />
     <polygon points={P([[-400, 60], [380, 430], [380, 1240], [-400, 1650]])} fill={C.left} />
-    <polygon points={P([[-400, 1650], [380, 1240], [1110, 1240], [1110, 2600], [-400, 2600]])} fill={C.floor} />
+    <polygon points={P([[-400, 1650], [380, 1240], [1900, 1240], [1900, 2600], [-400, 2600]])} fill={C.floor} />
     {/* floor planks converging toward the back wall */}
     {[...Array(14)].map((_, i) => { const xb = 380 + i * 56; const xf = -900 + i * 170; return <line key={i} x1={xb} y1={1240} x2={xf} y2={2600} stroke={C.floorLine} strokeWidth="2" opacity=".45" />; })}
-    {[1300, 1390, 1510, 1680, 1900].map((y, i) => <line key={`h${i}`} x1={-400} y1={y} x2={1110} y2={y} stroke={C.floorLine} strokeWidth="1.5" opacity=".25" />)}
+    {[1300, 1390, 1510, 1680, 1900].map((y, i) => <line key={`h${i}`} x1={-400} y1={y} x2={1900} y2={y} stroke={C.floorLine} strokeWidth="1.5" opacity=".25" />)}
     {/* soft ambient shading: corner + ceiling line */}
     <polygon points={P([[380, 430], [430, 430], [430, 1240], [380, 1240]])} fill="url(#cornerShade)" />
-    <rect x={380} y={430} width={730} height={40} fill="url(#ceilShade)" />
+    <rect x={380} y={430} width={1520} height={40} fill="url(#ceilShade)" />
     {/* baseboards */}
-    <polygon points={P([[380, 1218], [1110, 1218], [1110, 1240], [380, 1240]])} fill={C.trim} />
+    <polygon points={P([[380, 1218], [1900, 1218], [1900, 1240], [380, 1240]])} fill={C.trim} />
     <polygon points={P([[-400, 1622], [380, 1218], [380, 1240], [-400, 1650]])} fill="#EFE6DA" />
     {/* framed print (generic art) */}
     <g>
@@ -93,6 +93,7 @@ const WindowView = ({ f, par }) => {
         <polygon points={P([A, B, R, L])} fill="none" stroke={C.trim} strokeWidth="12" />
         <line x1={L[0]} y1={L[1]} x2={R[0]} y2={R[1]} stroke={C.trim} strokeWidth="14" />
       </g>
+      <WindowAC f={f} />
       {/* frame + sill */}
       <polygon points={P([A, B, Cc, D])} fill="none" stroke={C.trim} strokeWidth="18" strokeLinejoin="round" />
       <polygon points={P([[52, 1062], [338, 1000], [360, 1016], [64, 1086]])} fill={C.trim} />
@@ -101,9 +102,46 @@ const WindowView = ({ f, par }) => {
   );
 };
 
+// point in the window plane: u 0 (near edge, x 70) -> 1 (corner side, x 320); v 0 (top) -> 1 (sill)
+const WP = (u, v) => { const { A, B, Cc, D } = WIN; const t = mid(A, B, u), b = mid(D, Cc, u); return mid(t, b, v); };
+const add = (p, n, k = 1) => [p[0] + n[0] * k, p[1] + n[1] * k];
+const WinAC = { u0: 0.08, u1: 0.92, v0: 0.66, v1: 1.0, n: [34, 7] };
+const WindowAC = ({ f }) => {
+  const s = winAcIn(f);
+  if (s <= 0) return null;
+  const { u0, u1, v0, v1, n } = WinAC;
+  const off = add([0, 0], n, 5 * (1 - s));                     // slides in from the room side
+  const q = (u, v, k = 1) => add(add(WP(u, v), n, k), off);
+  const top = [q(u0, v0, 0), q(u1, v0, 0), q(u1, v0), q(u0, v0)];
+  const face = [q(u0, v0), q(u1, v0), q(u1, v1), q(u0, v1)];
+  const side = [q(u0, v0, 0), q(u0, v0), q(u0, v1), q(u0, v1, 0)];
+  const g = winAcGaps(f);
+  const gap = (ua, ub) => [WP(ua, v0), WP(ub, v0), WP(ub, v1), WP(ua, v1)];
+  const louvers = [0.12, 0.2, 0.28, 0.36].map((t) => [q(lerp(u0, u1, 0.06), lerp(v0, v1, t)), q(lerp(u0, u1, 0.7), lerp(v0, v1, t))]);
+  const slots = [...Array(9)].map((_, i) => { const u = lerp(u0, u1, 0.08 + i * 0.07); return [q(u, lerp(v0, v1, 0.52)), q(u, lerp(v0, v1, 0.9))]; });
+  return (
+    <g opacity={clamp(s * 1.4)}>
+      {/* accordion side panels fill the gaps between the unit and the frame */}
+      {g > 0 && [gap(0, u0 * g), gap(1 - (1 - u1) * g, 1)].map((pp, i) => (
+        <g key={i}>
+          <polygon points={P(pp)} fill="#EEEDE8" stroke="#CFCEC8" strokeWidth="2" />
+          {[0.25, 0.5, 0.75].map((t) => { const a = mid(pp[0], pp[1], t), b = mid(pp[3], pp[2], t); return <line key={t} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#CFCEC8" strokeWidth="2" />; })}
+        </g>))}
+      <polygon points={P(side)} fill="#D8DAD6" />
+      <polygon points={P(top)} fill="#F1F2EF" />
+      <polygon points={P(face)} fill="#FAFAF7" stroke="#D9DBD6" strokeWidth="3" strokeLinejoin="round" />
+      {louvers.map(([a, b], i) => <line key={`l${i}`} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#C9CDC8" strokeWidth="3" />)}
+      {slots.map(([a, b], i) => <line key={`s${i}`} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#D2D5D0" strokeWidth="3" />)}
+      <polygon points={P([q(lerp(u0, u1, 0.76), lerp(v0, v1, 0.12)), q(lerp(u0, u1, 0.94), lerp(v0, v1, 0.12)), q(lerp(u0, u1, 0.94), lerp(v0, v1, 0.4)), q(lerp(u0, u1, 0.76), lerp(v0, v1, 0.4))])} fill="#E7E9E5" />
+      {(() => { const p = q(lerp(u0, u1, 0.85), lerp(v0, v1, 0.26)); return <circle cx={p[0]} cy={p[1]} r={4} fill={acOn(f) > 0.5 ? '#46C2F0' : '#C9CDC8'} />; })()}
+    </g>
+  );
+};
+export const WIN_AC_FRONT = () => WP(0.45, 0.72);
+
 const Curtain = ({ f, side }) => {
   // hangs from a rod near the corner; bottom blows inward (toward the room) while the window is open
-  const k = windowOpen(f);
+  const k = breeze(f);
   const gust = 0.55 + 0.45 * Math.sin(f / 11) * Math.sin(f / 23 + 1);
   const early = f < 160 ? 1.0 : 0.55;
   const w = k * gust * early;
@@ -165,21 +203,21 @@ const Table = () => (
   </g>
 );
 
-const FAN = { x: 578, y: 898, rx: 76, ry: 94 };
+const FAN = { x: 578, y: 944, rx: 70, ry: 86 };
 const Fan = ({ f }) => {
   const a = fanAngle(f), sp = fanSpeed(f);
   return (
     <g>
       <ellipse cx={560} cy={1066} rx={60} ry={15} fill={C.shadow} />
       <ellipse cx={556} cy={1058} rx={54} ry={14} fill="#EDEFEA" stroke="#CDD2CC" strokeWidth="3" />
-      <rect x={550} y={950} width={12} height={110} rx={6} fill="#DADFD9" />
-      <ellipse cx={545} cy={900} rx={34} ry={42} fill="#E3E7E1" />
+      <rect x={550} y={1000} width={12} height={60} rx={6} fill="#DADFD9" />
+      <ellipse cx={547} cy={944} rx={32} ry={40} fill="#E3E7E1" />
       {/* blades (independent layer, rotate inside a 3/4-squashed disc) */}
       <g transform={`translate(${FAN.x} ${FAN.y}) scale(0.8 1)`}>
         <g transform={`rotate(${a})`} opacity={1 - sp * 0.35}>
-          {[0, 120, 240].map((r) => <path key={r} transform={`rotate(${r})`} d="M 0 -8 C 30 -60 70 -70 80 -40 C 85 -20 40 -6 0 8 Z" fill="#8FC9BE" stroke="#73B0A4" strokeWidth="2" />)}
+          {[0, 120, 240].map((r) => <path key={r} transform={`rotate(${r})`} d="M 0 -8 C 28 -54 64 -64 73 -36 C 77 -18 36 -6 0 8 Z" fill="#8FC9BE" stroke="#73B0A4" strokeWidth="2" />)}
         </g>
-        <circle r={86} fill="#9FD3C7" opacity={sp * 0.32} />
+        <circle r={78} fill="#9FD3C7" opacity={sp * 0.32} />
         <circle r={14} fill="#E9EEE8" stroke="#BFC7BE" strokeWidth="3" />
       </g>
       {/* guard */}
@@ -194,16 +232,22 @@ const Fan = ({ f }) => {
 
 const Airflow = ({ f }) => {
   const sp = fanSpeed(f);
-  if (sp <= 0) return null;
+  if (sp <= 0 || f > 600) return null;
   const cool = coolAir(f);
-  const col = cool > 0.05 ? `rgba(${Math.round(lerp(255, 63, cool))},${Math.round(lerp(255, 169, cool))},${Math.round(lerp(255, 245, cool))},.85)` : 'rgba(255,255,255,.8)';
-  const lines = [[-40, 0], [-10, 0.4], [20, 0.8], [50, 0.2]];
+  const down = `rgba(${Math.round(lerp(255, 63, cool))},${Math.round(lerp(255, 169, cool))},${Math.round(lerp(255, 245, cool))},.9)`;
+  const lanes = [-34, -12, 10, 32];
   return (
-    <g opacity={sp * (f < 620 ? 1 : 1 - ramp(f, 620, 650))}>
-      {lines.map(([dy, ph], i) => {
-        const y0 = FAN.y + dy;
-        const d = `M ${FAN.x + 50} ${y0} C ${FAN.x + 150} ${y0 + 20 + dy * 0.3} ${FAN.x + 240} ${y0 + 60} ${FAN.x + 380} ${y0 + 90 + dy * 0.6}`;
-        return <path key={i} d={d} fill="none" stroke={col} strokeWidth={cool > 0.05 ? 7 : 5} strokeLinecap="round" strokeDasharray="60 70" strokeDashoffset={-f * 9 - ph * 130} />;
+    <g opacity={sp * (1 - ramp(f, 560, 590))}>
+      {lanes.map((dy, i) => {
+        const y0 = FAN.y + dy * 0.8, yT = 1040 + i * 6;
+        const up = `M ${FAN.x + 40} ${y0} C ${FAN.x + 90} ${y0 + 10} ${672} ${yT - 30} ${700} ${yT}`;              // fan -> over the cubes
+        const dn = `M ${700} ${yT} L ${836} ${yT + 2} C ${880} ${yT + 3} ${930} ${yT - 10} ${1000} ${yT - 30}`;     // over and past the tray
+        return (
+          <g key={i}>
+            <path d={up} fill="none" stroke="rgba(255,255,255,.88)" strokeWidth="5" strokeLinecap="round" strokeDasharray="36 46" strokeDashoffset={-f * 7 - i * 20} />
+            <path d={dn} fill="none" stroke={down} strokeWidth={5 + 2 * cool} strokeLinecap="round" strokeDasharray="36 46" strokeDashoffset={-f * 7 - i * 20 - 30} />
+          </g>
+        );
       })}
     </g>
   );
@@ -237,21 +281,25 @@ const IceTray = ({ f }) => {
         );
       })}
       {/* the drop (close-up): falls 515-527, ripple 527-540 */}
-      <Drop f={f} x={735} y0={991} y1={1074} start={515} land={527} />
+      <Drop f={f} x={735} y0={991} y1={1074} start={515} land={527} form={10} />
     </g>
   );
 };
 
 /** a single water drop that falls from y0 to y1 and makes a ripple (shared by the tray and the drain hose) */
-export const Drop = ({ f, x, y0, y1, start, land, form = 0, ripple = true }) => {
-  if (f < start - form || f > land + 16) return null;
+export const Drop = ({ f, x, y0, y1, start, land, form = 0, ripple = true, through = false }) => {
+  // forms for `form` frames, falls y0 -> y1 between start and land (same size and timing for the tray and the hose)
+  const end = through ? land + 14 : land + 16;
+  if (f < start - form || f > end) return null;
   const grow = form ? clamp((f - (start - form)) / form) : 1;
   const t = clamp((f - start) / (land - start));
-  const y = lerp(y0, y1, t * t);
+  const v = (y1 - y0) * 2 / (land - start);                       // speed at landing (keeps falling if `through`)
+  const y = f <= land ? lerp(y0, y1, t * t) : y1 + v * (f - land);
   const rt = clamp((f - land) / 14);
+  const shape = <path transform={`translate(${x} ${y}) scale(${grow})`} d="M 0 -12 C 5 -4 8 1 8 5 A 8 8 0 1 1 -8 5 C -8 1 -5 -4 0 -12 Z" fill={C.water} stroke="#2F8FD0" strokeWidth="1.2" />;
   return (
     <g>
-      {f <= land && <path transform={`translate(${x} ${y}) scale(${grow})`} d="M 0 -12 C 5 -4 8 1 8 5 A 8 8 0 1 1 -8 5 C -8 1 -5 -4 0 -12 Z" fill={C.water} stroke="#2F8FD0" strokeWidth="1.2" />}
+      {(f <= land || through) && <g opacity={through && f > land ? 1 - rt : 1}>{shape}</g>}
       {ripple && f > land && [0, 0.35].map((d, i) => <ellipse key={i} cx={x} cy={y1} rx={4 + 26 * clamp(rt - d)} ry={(4 + 26 * clamp(rt - d)) * 0.3} fill="none" stroke="#FFFFFF" strokeWidth="2" opacity={(1 - clamp(rt - d)) * 0.9} />)}
     </g>
   );
@@ -259,13 +307,13 @@ export const Drop = ({ f, x, y0, y1, start, land, form = 0, ripple = true }) => 
 
 // ------------------------------------------------------------------ hot air through the window
 const HotAir = ({ f }) => {
-  const k = windowOpen(f) * (f < 160 ? 1 : 0.35) * (1 - ramp(f, 560, 600));
+  const k = breeze(f) * (f < 170 ? ramp(f, 30, 50) : 0.3) * (1 - ramp(f, 330, 360));
   if (k <= 0.01) return null;
   return (
     <g opacity={k}>
-      {[[640, 0], [760, 0.3], [880, 0.6], [980, 0.15]].map(([y, ph], i) => (
-        <path key={i} d={`M 160 ${y} C 260 ${y - 40} 330 ${y + 50} 420 ${y + 10} S 560 ${y - 30} 640 ${y + 30}`} fill="none" stroke={C.heat} strokeWidth="6"
-          strokeLinecap="round" strokeDasharray="70 90" strokeDashoffset={-f * 7 - ph * 160} opacity=".75" />
+      {[[880, 0], [930, 0.3], [975, 0.6], [1015, 0.15]].map(([y, ph], i) => (
+        <path key={i} d={`M ${90 + i * 40} ${y} C ${200 + i * 30} ${y - 30} ${300} ${y + 30} ${400} ${y - 10} S ${520} ${y - 60} ${620} ${y - 40}`} fill="none" stroke={C.heat} strokeWidth="7"
+          strokeLinecap="round" strokeDasharray="60 70" strokeDashoffset={-f * 7 - ph * 130} opacity=".85" />
       ))}
     </g>
   );
@@ -273,9 +321,6 @@ const HotAir = ({ f }) => {
 
 // ------------------------------------------------------------------ AC indoor unit (cover + internals) + refrigerant + drain
 const AC = { x: 600, y: 488, w: 362, h: 124 };
-const LOOP_BLUE = 'M 1246 548 L 1236 548 L 1236 640 L 1170 640 L 1110 582 L 962 578 L 912 552 L 646 552 L 646 538 L 912 538 L 912 524 L 646 524 L 646 510 L 912 510';
-const LOOP_ORANGE = 'M 912 510 L 936 512 L 962 542 L 1110 542 L 1170 600 L 1316 600 L 1316 735 L 1276 735 L 1276 548 L 1261 548 L 1261 725 L 1246 725 L 1246 548';
-const DRAIN = 'M 930 572 L 958 606 L 1110 616 L 1172 664 L 1182 664 L 1182 1146';
 
 const IndoorUnit = ({ f }) => {
   const c = cutaway(f), on = acOn(f);
@@ -323,185 +368,53 @@ const CoolOut = ({ f }) => {
   );
 };
 
-const Trunking = ({ f }) => {
-  const c = cutaway(f);
-  return (
-    <g>
-      {/* copper lines + drain hose (visible through the trunking in the cutaway) */}
-      <g opacity={0.15 + 0.85 * c}>
-        <path d="M 962 542 L 1110 542 L 1170 600 L 1236 600" fill="none" stroke={C.copper} strokeWidth="11" strokeLinejoin="round" />
-        <path d="M 962 578 L 1110 582 L 1170 640 L 1236 640" fill="none" stroke={C.copper} strokeWidth="8" strokeLinejoin="round" />
-        <path d={DRAIN} fill="none" stroke={C.hose} strokeWidth="12" strokeLinejoin="round" strokeLinecap="round" />
-        <path d={DRAIN} fill="none" stroke="#B5BBC1" strokeWidth="12" strokeDasharray="2 6" strokeLinejoin="round" />
-      </g>
-      {/* white trunking cover along the back wall (normal view) */}
-      <rect x={962} y={530} width={160} height={64} rx={8} fill="#F8F8F5" stroke="#E0DFDA" strokeWidth="2" opacity={1 - c * 0.85} />
-    </g>
-  );
-};
-
-const Refrigerant = ({ f }) => {
-  const c = cutaway(f), on = acOn(f);
-  if (c <= 0.05) return null;
-  const off = -f * 4.5 * on;
-  return (
-    <g opacity={c}>
-      <path d={`${LOOP_BLUE} ${LOOP_ORANGE.replace('M', 'L')}`} fill="none" stroke="#FFFFFF" strokeWidth="2" opacity=".35" />
-      <path d={LOOP_BLUE} fill="none" stroke={C.cool} strokeWidth="7" strokeLinecap="round" strokeDasharray="8 18" strokeDashoffset={off} opacity={on} />
-      <path d={LOOP_ORANGE} fill="none" stroke={C.heat} strokeWidth="7" strokeLinecap="round" strokeDasharray="8 18" strokeDashoffset={off} opacity={on} />
-    </g>
-  );
-};
-
-// ------------------------------------------------------------------ wall section + outside + outdoor unit
-const Outside = ({ f, par }) => (
+const Trunking = () => (
+  // white pipe cover running from the indoor unit along the wall (pipes go through the wall behind it)
   <g>
-    <g transform={`translate(${par.x * 0.5} ${par.y * 0.5})`}>
-      <rect x={1170} y={-700} width={1000} height={3400} fill="url(#skyOut)" />
-      {[[1400, 1100, 90, 380], [1520, 1180, 120, 300], [1680, 1060, 80, 420], [1790, 1150, 110, 330], [1950, 1080, 90, 400]].map(([x, y, w, h], i) =>
-        <rect key={i} x={x} y={y} width={w} height={h} fill={C.city} opacity=".8" />)}
-      <rect x={1170} y={1480} width={1000} height={1400} fill="#D7B88E" opacity=".6" />
-    </g>
-    {/* exterior wall face below/above the unit (light render) */}
-    <rect x={1170} y={-700} width={14} height={3400} fill="#E9DDCB" />
+    <rect x={962} y={530} width={190} height={64} rx={8} fill="#F8F8F5" stroke="#E0DFDA" strokeWidth="2" />
+    <rect x={962} y={584} width={190} height={10} rx={4} fill="#ECEBE6" />
   </g>
 );
-
-const WallSection = () => (
-  <g>
-    <rect x={1110} y={-700} width={62} height={3400} fill="#C9B59B" />
-    {[...Array(60)].map((_, i) => <line key={i} x1={1110} y1={-700 + i * 60} x2={1172} y2={-640 + i * 60} stroke="#AE9879" strokeWidth="3" />)}
-    <rect x={1110} y={-700} width={62} height={3400} fill="none" stroke="#9B8467" strokeWidth="4" />
-    {/* floor slab section */}
-    <rect x={1110} y={1240} width={62} height={70} fill="#B9A589" />
-  </g>
-);
-
-const OutdoorUnit = ({ f }) => {
-  const c = cutaway(f), on = acOn(f);
-  const comp = ramp(f, 840, 860) * (1 - ramp(f, 905, 930));
-  const fa = f * 14 * on;
-  return (
-    <g>
-      {/* brackets */}
-      <path d="M 1184 760 L 1300 760 L 1184 680 Z" fill="none" stroke="#8D949B" strokeWidth="8" strokeLinejoin="round" />
-      <ellipse cx={1378} cy={770} rx={150} ry={14} fill="rgba(60,50,40,.18)" />
-      {/* internals */}
-      <g opacity={0.3 + 0.7 * c}>
-        <rect x={1232} y={518} width={292} height={226} rx={14} fill="#5A6068" />
-        {[...Array(6)].map((_, i) => <line key={i} x1={1242 + i * 7} y1={532} x2={1242 + i * 7} y2={736} stroke="#9AA5B1" strokeWidth="2" />)}
-        <rect x={1240} y={528} width={44} height={210} fill="#C8D1DA" opacity=".55" />
-        <g>
-          <rect x={1290} y={642} width={52} height={92} rx={22} fill={comp > 0 ? '#FFB067' : '#2E3238'} stroke={comp > 0 ? C.heat : '#1E2125'} strokeWidth="4" />
-          <rect x={1290} y={642} width={52} height={92} rx={22} fill="none" stroke={C.heat} strokeWidth={10} opacity={comp * (0.5 + 0.5 * Math.sin(f / 3))} />
-        </g>
-      </g>
-      {/* cover */}
-      <g opacity={1 - c * 0.8}>
-        <rect x={1232} y={518} width={292} height={226} rx={14} fill={C.unit} stroke="#C9CED3" strokeWidth="3" />
-      </g>
-      {/* fan grille (always visible) */}
-      <g transform={`translate(1418 632)`}>
-        <circle r={84} fill="#3B4047" opacity={0.85} />
-        <g transform={`rotate(${fa})`}>{[0, 90, 180, 270].map((r) => <path key={r} transform={`rotate(${r})`} d="M 0 -6 C 22 -50 56 -58 66 -32 C 70 -16 30 -4 0 6 Z" fill="#8C959F" />)}</g>
-        {[30, 55, 80].map((r) => <circle key={r} r={r} fill="none" stroke="#C9CED3" strokeWidth="3" />)}
-      </g>
-    </g>
-  );
-};
-
-// ------------------------------------------------------------------ heat arrows, moisture, labels
-const HeatArrows = ({ f }) => {
-  const a = ramp(f, 690, 712) * (1 - ramp(f, 1010, 1030));
-  const b = ramp(f, 780, 800) * (1 - ramp(f, 1010, 1030));
-  if (a <= 0 && b <= 0) return null;
-  const inPaths = [[[640, 820], [700, 600]], [[740, 840], [790, 600]], [[840, 820], [880, 600]]];
-  const outPaths = [[[1380, 560], [1400, 400]], [[1430, 560], [1480, 410]], [[1480, 575], [1555, 440]]];
-  return (
-    <g>
-      {inPaths.map(([p, q], i) => [0, 0.5].map((d) => <Arrow key={`i${i}${d}`} from={p} to={q} t={loop(f, 690 + i * 9, 60) + d - (loop(f, 690 + i * 9, 60) + d > 1 ? 1 : 0)} op={a} size={0.9} />))}
-      {outPaths.map(([p, q], i) => [0, 0.5].map((d) => <Arrow key={`o${i}${d}`} from={p} to={q} t={loop(f, 780 + i * 11, 60) + d - (loop(f, 780 + i * 11, 60) + d > 1 ? 1 : 0)} op={b} size={0.9} />))}
-    </g>
-  );
-};
-
-const Moisture = ({ f }) => {
-  if (f < 1026 || f > 1205) return null;
-  const drops = [...Array(14)].map((_, i) => ({ x: 650 + i * 19 + random(`mx${i}`) * 8, y: 540 + random(`my${i}`) * 16, t0: 1030 + random(`mt${i}`) * 34 }));
-  const pan = ramp(f, 1066, 1104);
-  const flow = ramp(f, 1096, 1112) * (1 - ramp(f, 1195, 1205));
-  return (
-    <g>
-      {drops.map((d, i) => {
-        const g = clamp((f - d.t0) / 16), fall = clamp((f - d.t0 - 28) / 10);
-        if (g <= 0 || fall >= 1) return null;
-        return <circle key={i} cx={d.x} cy={lerp(d.y, 568, fall * fall)} r={4.5 * g} fill={C.water} stroke="#2F8FD0" strokeWidth="1" />;
-      })}
-      <rect x={636} y={566 - 5 * pan} width={296} height={5 * pan} fill={C.water} opacity=".85" />
-      <path d={DRAIN} fill="none" stroke={C.water} strokeWidth="6" strokeLinecap="round" strokeDasharray="14 18" strokeDashoffset={-f * 6} opacity={flow} />
-      {/* final drop from the hose end (close-up, echoes the tray drop) */}
-      <Drop f={f} x={1182} y0={1150} y1={1237} start={1180} land={1196} form={10} ripple={false} />
-    </g>
-  );
-};
-
-const Label = ({ x, y, text, op, anchor = 'middle' }) => {
-  if (op <= 0) return null;
-  const w = text.length * 17.5 + 36;
-  const x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
-  return (
-    <g opacity={op}>
-      <rect x={x0} y={y - 32} width={w} height={50} rx={25} fill="rgba(11,30,63,.88)" />
-      <text x={x0 + w / 2} y={y + 3} textAnchor="middle" fontFamily="InterDisplay" fontWeight="800" fontSize="30" fill="#FFFFFF">{text}</text>
-    </g>
-  );
-};
 
 // ------------------------------------------------------------------ the world
-export const World = ({ f, par }) => {
-  const c = cutaway(f);
-  const lab = (a, b, e) => ramp(f, a, a + 12) * (1 - ramp(f, b, b + 12)) * (e ?? 1);
+const WindowAcAir = ({ f }) => {
+  const on = acOn(f);
+  if (on <= 0) return null;
+  const [x, y] = [WP(0.45, 0.72)[0] + 40, WP(0.45, 0.72)[1]];
   return (
-    <g>
-      <Outside f={f} par={par} />
-      <WallSection />
-      <OutdoorUnit f={f} />
-      <Architecture />
-      <WindowView f={f} par={par} />
-      <Curtain f={f} side="l" />
-      <Curtain f={f} side="r" />
-      <Thermometer f={f} />
-      {/* the AC doesn't exist yet in the "tries" (window, fan, ice): it appears when it's invented (18-21 s) */}
-      {acAppear(f) > 0 && (
-        <g opacity={acAppear(f)} transform={`translate(780 550) scale(${0.85 + 0.15 * acAppear(f)}) translate(-780 -550)`}>
-          <Trunking f={f} />
-          <IndoorUnit f={f} />
-        </g>
-      )}
-      <Refrigerant f={f} />
-      <CoolOut f={f} />
-      <HotAir f={f} />
-      <g transform={`translate(${par.x * 0.04} ${par.y * 0.04})`}>
-        <Table />
-        <Fan f={f} />
-        <IceTray f={f} />
-        <Airflow f={f} />
-      </g>
-      <HeatArrows f={f} />
-      <Moisture f={f} />
-      <Label x={780} y={452} text="Indoor coil" op={lab(700, 1150, c)} />
-      <Label x={1330} y={488} text="Outdoor coil" op={lab(790, 1150, c)} />
-      <Label x={1330} y={800} text="Compressor" op={lab(840, 930, c)} />
-      <Label x={1196} y={960} text="Drain hose" anchor="start" op={lab(1100, 1150, c)} />
-      {/* foreground plant (most parallax) */}
-      <g transform={`translate(${par.x * 0.1} ${par.y * 0.1})`}>
-        <rect x={980} y={1150} width={70} height={90} rx={10} fill="#C8835E" />
-        {[[-40, -150], [-10, -190], [20, -160], [45, -120], [-55, -95]].map(([dx, dy], i) =>
-          <path key={i} d={`M 1015 1155 Q ${1015 + dx * 0.4} ${1155 + dy * 0.5} ${1015 + dx} ${1155 + dy}`} fill="none" stroke="#5E8D5A" strokeWidth="14" strokeLinecap="round" />)}
-      </g>
+    <g opacity={on * 0.9}>
+      {[0, 1, 2, 3].map((i) => (
+        <path key={i} d={`M ${x + i * 14} ${y - 10 + i * 16} C ${x + 120} ${y - 40 + i * 20} ${x + 220} ${y + 10 + i * 18} ${x + 330} ${y - 20 + i * 24}`} fill="none" stroke={C.cool}
+          strokeWidth="6" strokeLinecap="round" strokeDasharray="44 56" strokeDashoffset={-f * 6 - i * 25} opacity=".75" />
+      ))}
     </g>
   );
 };
+
+export const World = ({ f, par }) => (
+  <g>
+    <Architecture />
+    <WindowView f={f} par={par} />
+    <Curtain f={f} side="l" />
+    <Curtain f={f} side="r" />
+    <Thermometer f={f} />
+    {/* no wall-mounted AC anywhere: the back wall stays empty */}
+    <WindowAcAir f={f} />
+    <HotAir f={f} />
+    <g transform={`translate(${par.x * 0.04} ${par.y * 0.04})`}>
+      <Table />
+      <Fan f={f} />
+      <IceTray f={f} />
+      <Airflow f={f} />
+    </g>
+    {/* foreground plant (most parallax) */}
+    <g transform={`translate(${par.x * 0.1} ${par.y * 0.1})`}>
+      <rect x={980} y={1150} width={70} height={90} rx={10} fill="#C8835E" />
+      {[[-40, -150], [-10, -190], [20, -160], [45, -120], [-55, -95]].map(([dx, dy], i) =>
+        <path key={i} d={`M 1015 1155 Q ${1015 + dx * 0.4} ${1155 + dy * 0.5} ${1015 + dx} ${1155 + dy}`} fill="none" stroke="#5E8D5A" strokeWidth="14" strokeLinecap="round" />)}
+    </g>
+  </g>
+);
 
 export const Defs = () => (
   <defs>
