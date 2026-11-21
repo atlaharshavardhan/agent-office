@@ -28,6 +28,22 @@ def reset():
     sc = bpy.context.scene
     sc.render.engine = "CYCLES"
     sc.cycles.device = "CPU"
+    try:                                           # use the GPU when there is one (e.g. the GCP VM's L4)
+        prefs = bpy.context.preferences.addons["cycles"].preferences
+        for kind in ("OPTIX", "CUDA", "HIP", "METAL"):
+            try:
+                prefs.compute_device_type = kind
+                prefs.get_devices()
+                if any(d.type == kind for d in prefs.devices):
+                    for d in prefs.devices:
+                        d.use = d.type == kind
+                    sc.cycles.device = "GPU"
+                    print("Cycles device:", kind)
+                    break
+            except Exception:
+                continue
+    except Exception:
+        pass
     sc.cycles.samples = SAMPLES
     sc.cycles.use_denoising = True
     sc.cycles.max_bounces = 5
