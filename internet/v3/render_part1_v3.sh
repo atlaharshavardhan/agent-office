@@ -18,6 +18,6 @@ ffmpeg -v error -y -i public/full-mix.wav -i public/city-mix.wav -i public/part1
 MARKS="${MARKS:-0 330 1170|3.3 330 250|8.4 330 1170|15.6 330 250|17.9 330 1170|23 40 235|41.5 330 240|54.5 255 1180|82.5 330 250}"; END=86.5   # END: the end card has its own handle
 X=""; Y=""; n=0; IFS='|' read -ra ROWS <<< "$MARKS"
 for i in "${!ROWS[@]}"; do set -- ${ROWS[$i]}; nx=${ROWS[$((i+1))]}; e=$END; [ -n "$nx" ] && e=${nx%% *}; X="$X+$2*between(t,$1,$e-0.001)"; Y="$Y+$3*between(t,$1,$e-0.001)"; done
-ffmpeg -v error -y -i $C/IsoFullHi-0-all.mp4 -i $C/CityAll-0-all.mp4 -i $C/Part1Fly-0-all.mp4 -loop 1 -i $C/mark.png -i $C/audio.wav \
-  -filter_complex "[0:v][1:v][2:v]concat=n=3:v=1:a=0[b];[3:v]format=rgba,colorchannelmixer=aa=${MARK_ALPHA:-0.42}[m];[b][m]overlay=x='0$X':y='0$Y':enable='lt(t,$END)':shortest=1[v]" \
-  -map "[v]" -map 4:a -c:v libx264 -crf 20 -preset medium -pix_fmt yuv420p -r 30 -c:a aac -b:a 192k -movflags +faststart ../video/internet-part1-v3.mp4 && echo PART1V3_OK
+ffmpeg -v error -y -i $C/IsoFullHi-0-all.mp4 -i $C/CityAll-0-all.mp4 -i $C/Part1Fly-0-all.mp4 -loop 1 -framerate 30 -t 91 -i $C/mark.png -i $C/audio.wav \
+  -filter_complex "[0:v][1:v][2:v]concat=n=3:v=1:a=0[b];[3:v]format=rgba,colorchannelmixer=aa=${MARK_ALPHA:-0.42}[m];[b][m]overlay=x='0$X':y='0$Y':enable='lt(t,$END)'[v]" \
+  -map "[v]" -map 4:a -t 90.1 -c:v libx264 -crf 20 -preset medium -pix_fmt yuv420p -r 30 -c:a aac -b:a 192k -movflags +faststart ../video/internet-part1-v3.mp4 && echo PART1V3_OK

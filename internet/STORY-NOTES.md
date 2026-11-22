@@ -74,3 +74,4 @@ now she moved to London, that's part 1. Part 2: what happens if we need to send 
 - Then she flies to London, plane and globe, fast (5.4 s instead of 7.1 s).
 - Hook must lock the viewer. New opening line in the first second: "You can build the internet with a torch. Seriously." then "Flash it at your friend across the street, and you've basically built the internet."
 - Build: Phone.tsx (iPhone), CityPhoto.tsx, IsoCity2 "all" mode (composition CityAll), make_hook_mix.py, render_part1_v3.sh. Output: internet/video/internet-part1-v3.mp4.
+- 22 Nov 2026: Part 1 v3 rendered and sent (internet/video/internet-part1-v3.mp4, 90.1 s). Watermark is now added in the join: horizontal, 42% see-through, position per scene set by MARKS in render_part1_v3.sh. Flight and globe 4 s. Closing line: 'Next: how a photo crosses an ocean.'
