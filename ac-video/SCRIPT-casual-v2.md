@@ -20,11 +20,13 @@ Harsh's note on v1: instead of "Swap the ice for a copper pipe coil", say "Let's
 | 39.3–41.4 | Second coil | Now let's dump that heat. Add another coil. |
 | 41.5–45.9 | Outdoor fan, heat out | A fan blows the heat away, and the gas cools back into liquid. |
 | 46.0–47.3 | CONDENSER | That's the condenser. |
-| 47.5–49.7 | EXPANSION VALVE | One last trick: a tiny valve. |
-| 49.7–55.5 | Pressure drops, cold | The pressure drops, the liquid turns ice cold, and it heads back inside for more heat. Our ice that never melts. |
-| 55.9–59.3 | Water drops on coil | Our cold coil still pulls water out of the air. |
+| 47.5–49.7 | EXPANSION VALVE | But wait, this liquid is still warm and squeezed tight. It can't grab heat yet. |
+| 49.7–55.5 | Pressure drops, cold | So, one last trick: a tiny valve. The pressure drops, the liquid turns ice cold, and it heads back inside. |
+| 55.9–59.3 | Water drops on coil | Our ice that never melts! It even pulls water out of the air. |
 | 59.4–62.5 | DRAIN | So let's give it a small pipe to drip outside. No wet floor this time. |
 | 62.7–67.7 | Thermostat, ON/OFF | Let's add a brain too: when the room hits your temperature, the compressor takes a break. |
 | 67.9–73.8 | Filter, ducts | Throw in a filter for dust, some pipes to every room… and you just built an AC. |
 
-About 235 words, close to the original, so the timing should still fit.
+v2.1 (Harsh's note): the valve now starts with *why* we need it (the liquid is still warm and under pressure), then introduces it. Timing note: the valve appears on screen at 47.5 s while the voice is still on the "why". In the re-edit, the condenser shot can hold about 1.5 s longer so the valve shows up right on "a tiny valve".
+
+About 240 words, close to the original, so the timing should still fit.
