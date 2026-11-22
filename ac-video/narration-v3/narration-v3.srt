@@ -1,0 +1,87 @@
+1
+00:00:00,300 --> 00:00:04,972
+It's boiling in your room, so you open the window. But it's just as hot outside.
+
+2
+00:00:05,322 --> 00:00:09,973
+So you stick a fan in the window. Okay, there's a breeze... but it's still hot air.
+
+3
+00:00:10,323 --> 00:00:14,355
+Put some ice in front of the fan, and finally, the air feels cool.
+
+4
+00:00:14,705 --> 00:00:19,825
+Then the ice melts, water spills everywhere, and you're back to a hot room... with a wet floor.
+
+5
+00:00:20,175 --> 00:00:23,993
+We need ice that never runs out. So let's build our own ice.
+
+6
+00:00:24,343 --> 00:00:30,871
+Start with a copper coil and fill it with a special liquid. It soaks up the heat from the air and turns into gas.
+
+7
+00:00:31,221 --> 00:00:33,461
+Boom, our ice: the evaporator.
+
+8
+00:00:33,811 --> 00:00:43,091
+But now that gas is full of heat, and it's 35 degrees outside. Heat only flows from hot to cold, so our gas has to be even hotter than outside.
+
+9
+00:00:43,441 --> 00:00:47,132
+So let's squeeze it with a pump. Squeeze a gas, and it heats up.
+
+10
+00:00:47,482 --> 00:00:48,762
+Meet the compressor.
+
+11
+00:00:49,112 --> 00:00:54,659
+Now this super-hot gas has to lose its heat somewhere. So let's add a second coil outside.
+
+12
+00:00:55,009 --> 00:00:58,870
+A fan blows the heat away, and the gas cools back into liquid.
+
+13
+00:00:59,220 --> 00:01:00,479
+That's the condenser.
+
+14
+00:01:00,829 --> 00:01:05,394
+But wait, this liquid is still warm and squeezed tight. It can't grab heat yet.
+
+15
+00:01:05,744 --> 00:01:12,464
+So, one last trick: a tiny valve. The pressure drops, the liquid turns ice cold, and it heads back inside.
+
+16
+00:01:12,814 --> 00:01:19,171
+Our ice that never melts! But a cold coil pulls water out of the air, just like a cold glass gets wet.
+
+17
+00:01:19,521 --> 00:01:23,681
+So let's give it a small pipe to drip outside. No wet floor this time.
+
+18
+00:01:24,031 --> 00:01:28,938
+But now it just keeps cooling, forever. Too cold, and a huge electricity bill.
+
+19
+00:01:29,288 --> 00:01:35,155
+So let's give it a brain: a thermostat. When the room hits your temperature, the compressor takes a break.
+
+20
+00:01:35,505 --> 00:01:43,995
+And all that room air brings dust. It sticks to the wet coil, blocks the air, and the AC gets weaker. So let's put a filter in front to catch it.
+
+21
+00:01:44,345 --> 00:01:49,295
+Only one room is cool? Add some pipes in the ceiling to carry the cold air everywhere...
+
+22
+00:01:49,645 --> 00:01:51,415
+...and you just built an AC.
