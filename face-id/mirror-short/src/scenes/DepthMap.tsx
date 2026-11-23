@@ -55,7 +55,7 @@ export const DepthMap: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: 240 }}><span>NEAR</span><span>FAR</span></div>
         <div style={{ width: 22, height: 240, borderRadius: 11, background: 'linear-gradient(#fff, #000)', border: `2px solid ${C.violet}` }} />
       </div>
-      <div style={{ position: 'absolute', left: 80, top: 1530, opacity: 0.5 * (1 - toMap), font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>Illustration · fewer dots drawn than fired</div>
+      <div style={{ position: 'absolute', left: 80, top: 1562, opacity: 0.5 * (1 - toMap), font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>Illustration · fewer dots drawn than fired</div>
     </AbsoluteFill>
   );
 };

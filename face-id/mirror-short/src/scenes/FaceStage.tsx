@@ -41,8 +41,8 @@ export const FaceStage: React.FC<{
             </filter>
           </defs>
           {rays && rays.o > 0 && dotO && <g style={{ mixBlendMode: 'screen' }}>
-            {DOTS.map((d, k) => (k % 5 === 0 && dotO(d) > 0.5
-              ? <line key={k} x1={rays.from[0]} y1={rays.from[1]} x2={dotX(d, t, warp)} y2={d[1]} stroke={C.ir} strokeWidth={0.8} opacity={rays.o * (0.3 + 0.45 * d[3])} />
+            {DOTS.map((d, k) => (k % 7 === 0 && dotO(d) > 0.5
+              ? <line key={k} x1={rays.from[0]} y1={rays.from[1]} x2={dotX(d, t, warp)} y2={d[1]} stroke={C.ir} strokeWidth={0.6} opacity={rays.o * (0.16 + 0.3 * d[3])} />
               : null))}
           </g>}
           <g filter="url(#dotGlow)">

@@ -56,7 +56,7 @@ const CloseScan: React.FC<{ l: number }> = ({ l }) => {
       <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: stat, color: C.ir, font: `800 112px/1 ${FONT}` }}>
         30,000+ <span style={{ fontSize: 46, letterSpacing: '0.06em' }}>DOTS</span>
       </div>
-      <div style={{ position: 'absolute', left: 80, top: 1530, opacity: 0.5 * stat, font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>Illustration · dot count: Apple · fewer dots drawn than fired · invisible to the eye</div>
+      <div style={{ position: 'absolute', left: 80, top: 1562, opacity: 0.5 * stat, font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>Illustration · dot count: Apple · fewer dots drawn than fired · invisible to the eye</div>
     </AbsoluteFill>
   );
 };
