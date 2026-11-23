@@ -48,8 +48,9 @@ void main(){ vec4 r = texture2D(uRelief, vUv); if (r.g < 0.5) discard;
 const PVS = `attribute float aB; uniform float uSize; varying float vB;
 void main(){ vB = aB; gl_PointSize = uSize * (0.85 + 0.3 * aB); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
 const PFS = `varying float vB; uniform float uO;
-void main(){ float r = length(gl_PointCoord - 0.5) * 2.0; float a = smoothstep(1.0, 0.72, r) * uO * (0.5 + 0.5 * vB); if (a < 0.01) discard;
-  gl_FragColor = vec4(1.0, 0.965, 0.93, a); }`;
+void main(){ float r = length(gl_PointCoord - 0.5) * 2.0; float a = smoothstep(1.0, 0.72, r) * uO * (0.65 + 0.35 * vB); if (a < 0.01) discard;
+  vec3 red = vec3(1.0, 0.24, 0.37);                                           // the channel's infrared red (#ff3d5e)
+  gl_FragColor = vec4(mix(red, vec3(1.0, 0.86, 0.88), smoothstep(0.55, 0.0, r) * 0.55), a); }`;
 
 type P = { az: number; zoom: number; irMix: number; depthMix: number; dotO: number };
 const Inner: React.FC<P & { face: THREE.Texture; ir: THREE.Texture; relief: THREE.Texture }> = ({ az, zoom, irMix, depthMix, dotO, face, ir, relief }) => {
@@ -71,7 +72,7 @@ const Inner: React.FC<P & { face: THREE.Texture; ir: THREE.Texture; relief: THRE
     const m = new THREE.ShaderMaterial({ vertexShader: PVS, fragmentShader: PFS, transparent: true, depthTest: false, depthWrite: false, uniforms: { uSize: { value: 3 }, uO: { value: 0 } } });
     return { geo, m };
   }, []);
-  pts.m.uniforms.uSize.value = 2.7 * w.k * (gl.domElement.height / 1920);     // ~2.7 source px across, crisp
+  pts.m.uniforms.uSize.value = 3.1 * w.k * (gl.domElement.height / 1920);     // ~2.7 source px across, crisp
   pts.m.uniforms.uO.value = dotO;
   return (
     <group position={PIVOT} rotation={[0, (az * Math.PI) / 180, 0]}>
