@@ -22,7 +22,7 @@ export const DepthMap: React.FC = () => {
   const [nx, ny] = pt(NOSE), [ex, ey] = pt(EYE);
   return (
     <AbsoluteFill>
-      <FaceStage t={t} zoom={Z} origin={O} warp={warp} faceDim={1 - ramp(l, 160, 166)} faceO={1 - ramp(l, 166, 173)} depthO={toMap}
+      <FaceStage t={t} zoom={Z} origin={O} warp={warp} ir={1} faceO={1 - ramp(l, 166, 173)} depthO={toMap}
         dotO={(d) => {
           const dist = Math.hypot(d[0] - SPOT.x, d[1] - SPOT.y);
           const dim = 1 - 0.7 * spot * Math.min(1, Math.max(0, (dist - 110) / 120));

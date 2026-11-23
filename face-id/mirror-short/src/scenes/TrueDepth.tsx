@@ -32,31 +32,32 @@ export const TrueDepth: React.FC = () => {
   // phone in the foreground, bottom of frame; its Dynamic Island fires the dots up at the face
   const PH = { dx: 70, dy: 1166 };
   const di: [number, number] = [540 + PH.dx, PHONE.cy - PHONE.h / 2 + 13 + DI.top + DI.h / 2 + PH.dy];
-  const src: [number, number] = [((di[0] / FACE.s) - 376) / z + 376, (((di[1] + 5) / FACE.s) - 600) / z + 600];
-  const launch = (d: number[]) => 3 + ((880 - d[1]) / 630) * 30 + d[3] * 8;    // chin first, sweeping up
-  const sweep = ramp(l, 3, 44);
-  const beamO = ramp(l, 0, 3) * (1 - ramp(l, 50, 58));
-  const topY = interpolate(sweep, [0, 1], [1250, 430]);
+  // Dots appear directly on the skin, spreading out from the nose and eyes (no flying lights).
+  const HIT = { x: 290, y: 610 };                       // source px: between nose and eye
+  const appear = (d: number[]) => 8 + (Math.hypot(d[0] - HIT.x, d[1] - HIT.y) / 430) * 36 + d[3] * 5;
+  const spread = ramp(l, 8, 48);
+  const beamO = ramp(l, 2, 6) * (1 - ramp(l, 52, 60));
+  const hx = HIT.x * FACE.s, hy = HIT.y * FACE.s - 5, hw = 50 + 190 * spread;
   return (
     <AbsoluteFill>
-      <FaceStage t={0} zoom={z} faceDim={ramp(l, 0, 4)} from={src}
-        fly={(d) => ramp(l, launch(d), launch(d) + 9, 0, 1)}
-        dotO={() => 1}
-        dotR={(d) => (1.6 + 1.1 * d[2]) * (1 + 0.9 * (1 - ramp(l, launch(d) + 9, launch(d) + 14)))} />
-      {/* the beam: a soft red column from the Dynamic Island up the face */}
+      <FaceStage t={0} zoom={z} ir={1}
+        dotO={(d) => ramp(l, appear(d), appear(d) + 3)}
+        dotR={(d) => (1.4 + 0.9 * d[2]) * (1 + 0.8 * (1 - ramp(l, appear(d), appear(d) + 6)))} />
+      {/* narrow infrared beam from the Dynamic Island to the face */}
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, mixBlendMode: 'screen' }}>
         <defs>
           <linearGradient id="beam" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stopColor={C.ir} stopOpacity="0.55" /><stop offset="1" stopColor={C.ir} stopOpacity="0.04" />
+            <stop offset="0" stopColor={C.ir} stopOpacity="0.7" /><stop offset="1" stopColor={C.ir} stopOpacity="0.05" />
           </linearGradient>
         </defs>
-        <polygon points={`${di[0] - 14},${di[1]} ${di[0] + 14},${di[1]} 800,${topY} 300,${topY}`} fill="url(#beam)" opacity={beamO * (0.85 + 0.15 * Math.sin(l * 0.9))} />
-        <circle cx={di[0]} cy={di[1]} r={26} fill={C.ir} opacity={beamO * 0.8} />
+        <polygon points={`${di[0] - 10},${di[1]} ${di[0] + 10},${di[1]} ${hx + hw},${hy} ${hx - hw},${hy}`} fill="url(#beam)" opacity={beamO * (0.75 + 0.25 * Math.sin(l * 1.7))} />
+        <circle cx={di[0]} cy={di[1]} r={22} fill={C.ir} opacity={beamO} />
+        <circle cx={di[0]} cy={di[1]} r={9} fill="#fff" opacity={beamO} />
       </svg>
       <div style={{ position: 'absolute', inset: 0, transform: `translate(${PH.dx}px, ${PH.dy}px)` }}>
         <PhoneFront glow={0.22} />
       </div>
-      <Label text="INFRARED DOTS" x={90} y={330} o={ramp(l, 40, 43) * (1 - ramp(l, 104, 108))} color={C.ir} />
+      <Label text="INFRARED DOTS" x={90} y={330} o={ramp(l, 44, 47) * (1 - ramp(l, 104, 108))} color={C.ir} />
     </AbsoluteFill>
   );
 };
