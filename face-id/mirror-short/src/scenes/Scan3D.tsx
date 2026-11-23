@@ -1,10 +1,11 @@
 import { ThreeCanvas } from '@remotion/three';
 import { useThree } from '@react-three/fiber';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { AbsoluteFill, continueRender, delayRender, interpolate, staticFile } from 'remotion';
+import { AbsoluteFill, continueRender, delayRender, staticFile } from 'remotion';
 import * as THREE from 'three';
 import data from '../dots3d.json';
-import { C, FONT, Label, clamp, ramp } from '../theme';
+import { C, FONT, Label, ramp } from '../theme';
+import { ISLAND_Y, P3, Phone3D } from './Phone3D';
 
 // Real 3D scan scene (Three.js). g = frames since the close-up starts; it runs through the end
 // of scene 2 (g 0..79) and all of scene 3 (g 79..349).
@@ -25,11 +26,12 @@ const FACE_DIR = new THREE.Vector3(-0.57, 0, 0.82);
 const PHONE_POS = NOSE.clone().addScaledVector(FACE_DIR, 330).add(new THREE.Vector3(0, -30, 0));
 const phoneObj = new THREE.Object3D();
 phoneObj.position.copy(PHONE_POS);
-const PROJ_LOCAL = new THREE.Vector3(0, 146 * 0.85, 9);
+const PS = 0.95;
+const PROJ_LOCAL = new THREE.Vector3(-14 * PS, ISLAND_Y * PS, (P3.d / 2 + 1.5) * PS);
 
 // ---- camera path --------------------------------------------------------------------------
 const KEYS = { g: [0, 79, 190, 245, 300, 349], az: [17, 7, -6, -14, 22, 8], el: [4, 2, 0, 1, 3, 2], dist: [3000, 2550, 1550, 1750, 1950, 2050],
-  tx: [-110, -100, 10, -70, -40, -50], ty: [90, 80, 130, 110, 90, 90], tz: [140, 140, 190, 150, 120, 120] };
+  tx: [-150, -130, 10, -70, -40, -50], ty: [90, 80, 130, 110, 90, 90], tz: [140, 140, 190, 150, 120, 120] };
 const smooth = (g: number, v: number[]) => {
   for (let i = 0; i < KEYS.g.length - 1; i++) if (g <= KEYS.g[i + 1] || i === KEYS.g.length - 2) {
     const u = Math.min(1, Math.max(0, (g - KEYS.g[i]) / (KEYS.g[i + 1] - KEYS.g[i]))), e = u * u * (3 - 2 * u);
@@ -132,12 +134,13 @@ const Inner: React.FC<{ g: number; cam: THREE.PerspectiveCamera; face: THREE.Tex
       <lineSegments geometry={rays}><lineBasicMaterial color={C.ir} transparent opacity={rayO} blending={THREE.AdditiveBlending} depthWrite={false} /></lineSegments>
       <points geometry={pts.geo} material={pts.mat} frustumCulled={false} />
       {/* phone */}
-      <group position={phoneObj.position} quaternion={phoneObj.quaternion} scale={0.85} visible={g < 198}>
-        <mesh><boxGeometry args={[162, 338, 14]} /><meshBasicMaterial color="#2a2726" /></mesh>
-        <mesh position={[0, 0, 7.4]}><planeGeometry args={[150, 326]} /><meshBasicMaterial color="#4a3f78" /></mesh>
-        <mesh position={[0, 146, 7.8]}><planeGeometry args={[50, 15]} /><meshBasicMaterial color="#050505" /></mesh>
-        <mesh position={[0, 146, 8.2]}><circleGeometry args={[5, 20]} /><meshBasicMaterial color="#ffffff" /></mesh>
-        <mesh position={[0, 146, 8.1]}><circleGeometry args={[16, 24]} /><meshBasicMaterial color={C.ir} transparent opacity={0.75 * (1 - ramp(g, 186, 196))} blending={THREE.AdditiveBlending} /></mesh>
+      <ambientLight intensity={1.6} />
+      <directionalLight position={[600, 500, 2200]} intensity={2.2} />
+      <pointLight position={[200, 500, 900]} intensity={3} color="#ffb060" decay={0} />
+      <group position={phoneObj.position} quaternion={phoneObj.quaternion} scale={PS} visible={g < 198}>
+        <Phone3D glow={0.85} />
+        <mesh position={[-14, ISLAND_Y, P3.d / 2 + 1.2]}><circleGeometry args={[4, 20]} /><meshBasicMaterial color="#ffffff" /></mesh>
+        <mesh position={[-14, ISLAND_Y, P3.d / 2 + 1.1]}><circleGeometry args={[15, 24]} /><meshBasicMaterial color={C.ir} transparent opacity={0.75 * (1 - ramp(g, 186, 196))} blending={THREE.AdditiveBlending} /></mesh>
       </group>
     </>
   );

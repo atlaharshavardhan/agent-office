@@ -32,6 +32,9 @@ export const NARRATION: Line[] = [
   { id: 'n5', at: 28.4, text: "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?" },
 ];
 
+// Used only while there is no real test clip: an open question, no result.
+export const GUESS_LINE = { id: 'n6_guess', text: 'So what do you think? Does my reflection unlock it? Comment your guess.' };
+
 export const RESULT_LINES = {
   open: { id: 'n6_open', text: 'It unlocked. On my iPhone, the reflection was enough.' },
   locked: { id: 'n6_locked', text: "It stayed locked. My reflection alone didn't unlock it in this test." },

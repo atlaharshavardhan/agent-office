@@ -16,6 +16,7 @@ LINES = {
     "n3": "Watch what happens around the nose and cheeks. The camera reads that dot pattern to build a map of your face in three dimensions.",
     "n4": "It also captures an infrared image. Your iPhone uses both to check whether the face matches the one you enrolled.",
     "n5": "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?",
+    "n6_guess": "So what do you think? Does my reflection unlock it? Comment your guess.",
     "n6_open": "It unlocked. On my iPhone, the reflection was enough.",
     "n6_locked": "It stayed locked. My reflection alone didn't unlock it in this test.",
 }
