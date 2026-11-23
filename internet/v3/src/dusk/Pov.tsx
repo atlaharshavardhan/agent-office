@@ -1,5 +1,6 @@
 import React from 'react';
 import { MARK_O } from '../lib/mark';
+import { fx, fw, isWide } from '../lib/wide';
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import { FPS, hash, prog, pulse, lerp, easeOut } from '../lib/anim';
 import { FONT, TECH } from '../lib/palette';
@@ -39,14 +40,23 @@ export const Pov: React.FC<{ hi?: boolean }> = ({ hi }) => {
           <filter id="pB"><feGaussianBlur stdDeviation="10" /></filter><filter id="pB2"><feGaussianBlur stdDeviation="4" /></filter>
           <filter id="pGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed={f} /><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 -0.12" /></filter>
         </defs>
-        <rect width={1080} height={1920} fill="url(#pSky)" />
-        {Array.from({ length: 70 }).map((_, i) => <circle key={i} cx={hash(i * 3) * 1080} cy={hash(i * 7) * 420} r={1 + hash(i) * 1.8} fill="#dfe6ff" opacity={0.35 + 0.4 * Math.sin(t * 2 + i)} />)}
+        <rect x={fx()} width={fw()} height={1920} fill="url(#pSky)" />
+        {Array.from({ length: 70 }).map((_, i) => <circle key={i} cx={fx() + hash(i * 3) * fw()} cy={hash(i * 7) * 420} r={1 + hash(i) * 1.8} fill="#dfe6ff" opacity={0.35 + 0.4 * Math.sin(t * 2 + i)} />)}
         {/* neighbours, held back in shadow */}
         {/* left: the park. right: the pink hostel. Both held back in shadow, as in the street scene */}
         <rect x={-20} y={700} width={230} height={420} fill="#143a36" /><ellipse cx={60} cy={705} rx={200} ry={46} fill="#143a36" />
         {[[30, 700, 74], [130, 760, 60], [-10, 860, 66], [110, 900, 78], [40, 1000, 62], [160, 1020, 50]].map(([x, y, r], i) => <g key={'pt' + i}><rect x={x - 7} y={y} width={14} height={r * 1.3} fill="#1c1630" /><circle cx={x} cy={y} r={r} fill={i % 2 ? '#1f5a44' : '#1a4c3c'} /><circle cx={x - r * 0.3} cy={y - r * 0.3} r={r * 0.55} fill="#2c6e52" /></g>)}
         {Array.from({ length: 26 }).map((_, i) => { const x = 6 + hash(i * 3) * 180 + Math.sin(t * 0.8 + i) * 8, y = 640 + hash(i * 7) * 440 + Math.cos(t * 0.6 + i * 2) * 8; return <g key={'ff' + i} opacity={0.5 + 0.5 * Math.sin(t * 3 + i * 1.7)}><circle cx={x} cy={y} r={7} fill="#d8ff8a" opacity={0.25} /><circle cx={x} cy={y} r={2.4} fill="#f2ffc0" /></g>; })}
         <g opacity={0.6}><rect x={870} y={420} width={280} height={730} fill="#b0568a" /><rect x={860} y={400} width={300} height={26} fill="#d078a8" /><Win x={940} y={520} w={90} h={130} lit={false} /><Win x={940} y={840} w={90} h={130} dim={0.7} /></g>
+        {/* wide film only: more of the street on both sides, held back in shadow */}
+        {isWide() && <g opacity={0.55}>
+          <rect x={-800} y={500} width={520} height={650} fill="#3a4a8a" /><rect x={-812} y={480} width={544} height={26} fill="#5a6ab0" />
+          <Win x={-740} y={590} w={100} h={140} /><Win x={-560} y={590} w={100} h={140} lit={false} /><Win x={-740} y={860} w={100} h={140} lit={false} /><Win x={-400} y={860} w={100} h={140} />
+          <rect x={-260} y={760} width={250} height={360} fill="#143a36" /><ellipse cx={-130} cy={765} rx={150} ry={40} fill="#143a36" />
+          <rect x={1190} y={520} width={420} height={630} fill="#3d6a5a" /><rect x={1180} y={500} width={440} height={26} fill="#5a9a80" />
+          <Win x={1250} y={610} w={100} h={140} lit={false} /><Win x={1440} y={610} w={100} h={140} /><Win x={1250} y={880} w={100} h={140} />
+          <rect x={1650} y={420} width={300} height={730} fill="#6a4a8a" /><rect x={1640} y={400} width={320} height={26} fill="#8a6ab0" /><Win x={1710} y={520} w={100} h={140} /><Win x={1710} y={820} w={100} h={140} lit={false} />
+        </g>}
         {/* her house, straight ahead */}
         <rect x={190} y={350} width={700} height={790} fill="url(#pWall)" />
         {Array.from({ length: 44 }).map((_, i) => <line key={i} x1={190} y1={368 + i * 18} x2={890} y2={368 + i * 18} stroke="#000" strokeWidth={1.5} opacity={0.13} />)}
@@ -75,14 +85,14 @@ export const Pov: React.FC<{ hi?: boolean }> = ({ hi }) => {
         {Array.from({ length: 13 }).map((_, i) => <line key={i} x1={320 + i * 36.6} y1={612} x2={320 + i * 36.6} y2={718} stroke="#14152a" strokeWidth={5} />)}
         {[0, 0.5].map((d) => { const u = (t * 1.2 + d) % 1; return <circle key={d} cx={tg.x} cy={tg.y} r={40 + u * 150} fill="none" stroke="#ffe2a8" strokeWidth={6 * (1 - u) + 1} opacity={(1 - u) * 0.6 * on} />; })}
         {/* hedge, footpath, street */}
-        <rect x={0} y={1108} width={1080} height={48} fill="#1f5a44" /><rect x={0} y={1100} width={1080} height={14} fill="#2a6a4a" />
+        <rect x={fx()} y={1108} width={fw()} height={48} fill="#1f5a44" /><rect x={fx()} y={1100} width={fw()} height={14} fill="#2a6a4a" />
         {[90, 990].map((x) => <g key={x}><rect x={x - 8} y={1010} width={16} height={130} fill="#2a1f3a" /><circle cx={x} cy={990} r={62} fill="#1f5a44" /><circle cx={x - 20} cy={966} r={36} fill="#2c6e52" /></g>)}
-        <rect x={0} y={1150} width={1080} height={50} fill="#4a4f8a" /><polygon points="0,1200 1080,1200 1080,1920 0,1920" fill="#15183a" />
+        <rect x={fx()} y={1150} width={fw()} height={50} fill="#4a4f8a" /><rect x={fx()} y={1200} width={fw()} height={720} fill="#15183a" />
         {[0, 1, 2, 3, 4, 5].map((i) => <polygon key={i} points={`${380 + i * 56},1210 ${420 + i * 56},1210 ${340 + i * 96 + 60},1470 ${340 + i * 96 - 10},1470`} fill="#8e8cc0" opacity={0.5} />)}
         {[140, 930].map((x) => <g key={x}><ellipse cx={x} cy={1200} rx={170} ry={50} fill="url(#pLamp)" /><line x1={x} y1={1196} x2={x} y2={920} stroke="#0c0d20" strokeWidth={8} /><circle cx={x} cy={914} r={46} fill="url(#pLamp)" /><circle cx={x} cy={914} r={11} fill="#fff3d6" /></g>)}
         <g transform="translate(150 1290)"><ellipse cx={0} cy={58} rx={150} ry={18} fill="#000" opacity={0.4} /><rect x={-140} y={-10} width={280} height={62} rx={20} fill="#c8553a" /><path d="M -90 -10 L -60 -62 L 70 -62 L 104 -10 Z" fill="#a8432c" /><path d="M -74 -12 L -52 -52 L 0 -52 L 0 -12 Z M 10 -12 L 10 -52 L 62 -52 L 88 -12 Z" fill="#9fd0ff" opacity={0.6} /><circle cx={-84} cy={52} r={26} fill="#14152a" /><circle cx={84} cy={52} r={26} fill="#14152a" /><circle cx={-84} cy={52} r={10} fill="#cfd3de" /><circle cx={84} cy={52} r={10} fill="#cfd3de" /><circle cx={136} cy={16} r={9} fill="#fff6d8" /></g>
         {/* selective light: the world drops back, she stays bright */}
-        <rect x={-460} y={-420} width={2000} height={2200} fill="url(#pSpot)" />
+        <rect x={isWide() ? -1260 : -460} y={-420} width={isWide() ? 3600 : 2000} height={2200} fill="url(#pSpot)" />
         {/* the beam from your torch to her */}
         <g transform={`translate(${lens.x} ${lens.y}) rotate(${ang})`} style={{ mixBlendMode: 'screen' }} opacity={on}>
           <path d={`M 0 -62 L ${len} -22 L ${len} 22 L 0 62 Z`} fill="url(#pBeam)" opacity={0.55} filter="url(#pB)" />
@@ -90,7 +100,7 @@ export const Pov: React.FC<{ hi?: boolean }> = ({ hi }) => {
           {[0, 0.5].map((d) => { const u = (t * 1.4 + d) % 1; return <g key={d} opacity={Math.sin(Math.PI * u)}><circle cx={len * u} cy={0} r={70 - 40 * u} fill="url(#pWarm)" /><circle cx={len * u} cy={0} r={9 - 4 * u} fill="#fffbee" /></g>; })}
         </g>
         {/* your balcony railing, out of focus */}
-        <g filter="url(#pB2)"><line x1={-40} y1={1585} x2={1120} y2={1525} stroke="#070818" strokeWidth={30} strokeLinecap="round" />{Array.from({ length: 9 }).map((_, i) => <line key={i} x1={40 + i * 128} y1={1582 - i * 6.6} x2={40 + i * 128} y2={1940} stroke="#070818" strokeWidth={18} />)}
+        <g filter="url(#pB2)"><line x1={isWide() ? -900 : -40} y1={isWide() ? 1630 : 1585} x2={isWide() ? 1980 : 1120} y2={isWide() ? 1480 : 1525} stroke="#070818" strokeWidth={30} strokeLinecap="round" />{Array.from({ length: 9 }).map((_, i) => <line key={i} x1={40 + i * 128} y1={1582 - i * 6.6} x2={40 + i * 128} y2={1940} stroke="#070818" strokeWidth={18} />)}
           <line x1={-40} y1={1578} x2={1120} y2={1518} stroke="#3a4a9a" strokeWidth={5} opacity={0.6} /></g>
         {/* the bits fly from your torch to her, and the letters land beside her */}
         {hi && HI.map((b, i) => { const u = (T - (HB0 + i * HBD)) / HFLY; if (u < 0 || u > 1) return null; const x = lerp(lens.x, tg.x, u), y = lerp(lens.y - 40, tg.y, u), k = lerp(1, 0.5, u);
@@ -123,8 +133,8 @@ export const Pov: React.FC<{ hi?: boolean }> = ({ hi }) => {
           <g transform="rotate(-24 -150 70)"><rect x={-190} y={34} width={104} height={44} rx={22} fill="#e2b592" stroke="#b07f5a" strokeWidth={3} /><rect x={-112} y={40} width={22} height={30} rx={10} fill="#f6dcc4" opacity={0.75} /></g>
           <circle cx={0} cy={0} r={150} fill="url(#pWarm)" style={{ mixBlendMode: 'screen' }} opacity={on} />
         </g>
-        <rect width={1080} height={1920} fill="url(#pVig)" />
-        <rect width={1080} height={1920} filter="url(#pGrain)" opacity={0.1} style={{ mixBlendMode: 'overlay' }} />
+        <rect x={fx()} width={fw()} height={1920} fill="url(#pVig)" />
+        <rect x={fx()} width={fw()} height={1920} filter="url(#pGrain)" opacity={0.1} style={{ mixBlendMode: 'overlay' }} />
       </svg>
       {hi && (() => { let line: React.ReactNode = null; for (const [a, txt] of HVO) if (T >= a) line = txt; const bitsOn = T >= 10.15;
         return <>

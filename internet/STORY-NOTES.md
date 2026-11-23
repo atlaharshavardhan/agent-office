@@ -75,3 +75,8 @@ now she moved to London, that's part 1. Part 2: what happens if we need to send 
 - Hook must lock the viewer. New opening line in the first second: "You can build the internet with a torch. Seriously." then "Flash it at your friend across the street, and you've basically built the internet."
 - Build: Phone.tsx (iPhone), CityPhoto.tsx, IsoCity2 "all" mode (composition CityAll), make_hook_mix.py, render_part1_v3.sh. Output: internet/video/internet-part1-v3.mp4.
 - 22 Nov 2026: Part 1 v3 rendered and sent (internet/video/internet-part1-v3.mp4, 90.1 s). Watermark is now added in the join: horizontal, 42% see-through, position per scene set by MARKS in render_part1_v3.sh. Flight and globe 4 s. Closing line: 'Next: how a photo crosses an ocean.'
+
+## Part 1 in 16:9 (23 Nov 2026)
+- Harsh asked for Part 1 as a true full-screen 16:9 film at 1080p (not the tall video inside a wide frame).
+- How: src/lib/wide.ts + WideWrap.tsx draw the tall layout at 0.72 scale in the middle of 1920 x 1080 and let the world spill to both sides; skies, ground, skyline and vignettes are widened; the first-person shot gets extra neighbour houses; phones are bigger and stand beside the middle column.
+- Compositions WStreet, WCity, WFly. Script: v3/render_part1_wide.sh. Output: internet/video/internet-part1-wide-v1.mp4. Sound is the same as the vertical version 3.

@@ -1,5 +1,6 @@
 import React from 'react';
 import { MARK_O } from '../lib/mark';
+import { fx, fw, isWide } from '../lib/wide';
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import { FPS, hash, prog, lerp, easeOut, easeInOut, clamp01 } from '../lib/anim';
 import { FONT } from '../lib/palette';
@@ -15,8 +16,8 @@ export const Night: React.FC<{ id: string; f: number; stars?: number }> = ({ id,
     <radialGradient id={id + 'V'} cx=".5" cy=".45" r=".8"><stop offset=".4" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#02030c" stopOpacity=".85" /></radialGradient>
     <radialGradient id={id + 'C'}><stop offset="0" stopColor="#e9fdff" stopOpacity=".95" /><stop offset=".3" stopColor="#5fe3ff" stopOpacity=".5" /><stop offset="1" stopColor="#5fe3ff" stopOpacity="0" /></radialGradient>
     <radialGradient id={id + 'W'}><stop offset="0" stopColor="#fff6dc" stopOpacity=".9" /><stop offset=".3" stopColor="#ffd98a" stopOpacity=".4" /><stop offset="1" stopColor="#ffc864" stopOpacity="0" /></radialGradient></defs>
-  <rect width={1080} height={1920} fill={`url(#${id}S)`} />
-  {Array.from({ length: stars }).map((_, i) => <circle key={i} cx={hash(i * 3) * 1080} cy={hash(i * 7) * 1920} r={1 + hash(i) * 1.6} fill="#dfe6ff" opacity={0.2 + 0.25 * Math.sin(f / 15 + i)} />)}
+  <rect x={fx()} width={fw()} height={1920} fill={`url(#${id}S)`} />
+  {Array.from({ length: isWide() ? stars * 2 : stars }).map((_, i) => <circle key={i} cx={fx() + hash(i * 3) * fw()} cy={hash(i * 7) * 1920} r={1 + hash(i) * 1.6} fill="#dfe6ff" opacity={0.2 + 0.25 * Math.sin(f / 15 + i)} />)}
 </>);
 
 /* 1. Inside the wire: light pulses bouncing down a glass core. Wire-scene clock 2.3 s to 4.9 s. */

@@ -23,6 +23,7 @@ import { MapConcept } from './dusk/MapConcept';
 import { IsoCity } from './dusk/IsoCity';
 import { IsoCity2 } from './dusk/IsoCity2';
 import { MarkStrip } from './dusk/MarkStrip';
+import { WideWrap } from './lib/WideWrap';
 import { Pov, PovHi } from './dusk/Pov';
 import { FiberCut, RouterCut, Finale } from './dusk/Extras';
 import { World, WorldWeb } from './tail/World';
@@ -100,6 +101,9 @@ export const Root: React.FC = () => (
     <Composition id="IsoCity2" component={IsoCity2} durationInFrames={390} fps={30} width={1080} height={1920} />
     <Composition id="Part1Fly" component={Part1Fly} durationInFrames={PART1_FLY_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="MarkStrip" component={MarkStrip} durationInFrames={1} fps={30} width={420} height={64} />
+    <Composition id="WStreet" component={() => <WideWrap><IsoFullHi /></WideWrap>} durationInFrames={1245} fps={30} width={1920} height={1080} />
+    <Composition id="WCity" component={() => <WideWrap><IsoCity2 all /></WideWrap>} durationInFrames={1230} fps={30} width={1920} height={1080} />
+    <Composition id="WFly" component={() => <WideWrap><Part1Fly /></WideWrap>} durationInFrames={PART1_FLY_FRAMES} fps={30} width={1920} height={1080} />
     <Composition id="CityAll" component={() => <IsoCity2 all />} durationInFrames={1230} fps={30} width={1080} height={1920} />
     <Composition id="IsoCityPhoto" component={() => <IsoCity2 ext />} durationInFrames={840} fps={30} width={1080} height={1920} />
     <Composition id="IsoDetail" component={IsoDetail} durationInFrames={468} fps={30} width={1080} height={1920} />

@@ -2,6 +2,7 @@ import React from 'react';
 import { hash, lerp, clamp01, easeOut, easeInOut } from '../lib/anim';
 import { FONT } from '../lib/palette';
 import { IPhone, Compose, SCR } from './Phone';
+import { isWide } from '../lib/wide';
 
 /* Part 1, after "hop by hop": the same city map, but now he sends a PHOTO.
    First as one big block (the whole line is held, everyone else waits, one glitch and it starts again),
@@ -74,7 +75,6 @@ export const PhotoWorld: React.FC<{ te: number; RT: Pt[] }> = ({ te, RT }) => {
 
 /* ---- drawn on the screen: small iPhones that appear only while sending or receiving, and the heading ---- */
 type Scr = (p: Pt) => readonly number[];
-const PHIS = { x: 60, y: 290 }, PHER = { x: 690, y: 786 };
 const TH = 150, THX = SCR.x + (SCR.w - TH) / 2, THY = SCR.y + 96 + 16, GR = 204, GRX = SCR.x + (SCR.w - GR) / 2, GRY = SCR.y + 96 + 12, CELL = GR / 6, MC = 15;
 /* one square of the photo, as its own little picture */
 const Tile: React.FC<{ i: number; s: number; x: number; y: number; label?: number; glow?: boolean }> = ({ i, s, x, y, label = 0, glow }) => (
@@ -86,6 +86,7 @@ const Note: React.FC<{ c?: string; children: React.ReactNode }> = ({ c = '#9fe9f
 const arc = (a: readonly number[], b: readonly number[], u: number, h: number) => [lerp(a[0], b[0], u), lerp(a[1], b[1], u) - h * Math.sin(Math.PI * u)] as const;
 export const PhotoUI: React.FC<{ te: number; RT: Pt[]; scr: Scr }> = ({ te, RT, scr }) => {
   if (te < 0) return null;
+  const Z = isWide() ? 1.5 : 1, PHIS = isWide() ? { x: -340, y: 330 } : { x: 60, y: 290 }, PHER = isWide() ? { x: 1050, y: 440 } : { x: 690, y: 786 };   // wide film: bigger phones, beside the middle column
   const home = scr(RT[0]), cityR = scr(RT[3]);
   const head = te < B_END + 0.2 ? seg(te, B0 - 0.6, B0 - 0.2) : 0, head2 = seg(te, 12.0, 12.4);
   const chip = (txt: string, sub: string, col: string, a: number) => a > 0 ? <div style={{ position: 'absolute', left: 372, top: 250, width: 400, opacity: a, transform: `translateY(${(1 - a) * -16}px)`, textAlign: 'left' }}>
@@ -95,34 +96,34 @@ export const PhotoUI: React.FC<{ te: number; RT: Pt[]; scr: Scr }> = ({ te, RT, 
   const o1 = easeOut(seg(te, 0.5, 0.9)) * (1 - seg(te, 3.5, 3.85)), tap1 = te > 3.02 && te < 3.2, sent1 = te >= 3.15, j1 = easeInOut(seg(te, 3.15, 3.65));
   /* 2) packets: the photo is cut into squares in his phone, he taps send, they all jump out and queue above his router */
   const o2 = easeOut(seg(te, 11.0, 11.4)) * (1 - seg(te, 13.95, 14.3)), grid = seg(te, 12.0, 12.9), tap2 = te > 13.22 && te < 13.4;
-  const bst = (i: number) => seg(te, 13.35 + i * 0.012, 13.75 + i * 0.012), mos = (i: number) => [home[0] - 6 + (i % 6) * MC, home[1] - 172 + Math.floor(i / 6) * MC] as const, thumb = (i: number) => [PHIS.x + THX + (i % 6 + 0.5) * (TH / 6), PHIS.y + THY + (Math.floor(i / 6) + 0.5) * (TH / 6)] as const;
+  const bst = (i: number) => seg(te, 13.35 + i * 0.012, 13.75 + i * 0.012), mos = (i: number) => [home[0] - 6 + (i % 6) * MC, home[1] - 172 + Math.floor(i / 6) * MC] as const, thumb = (i: number) => [PHIS.x + Z * (THX + (i % 6 + 0.5) * (TH / 6)), PHIS.y + Z * (THY + (Math.floor(i / 6) + 0.5) * (TH / 6))] as const;
   const sentN = PK.filter((p) => te >= p.dep).length, mosO = seg(te, 13.4, 13.8) * (1 - seg(te, PK[N - 1].dep + 0.2, PK[N - 1].dep + 0.8));
   /* 3) her phone shows up only when the first packets are about to arrive; they land in arrival order, then sort by number */
-  const o3 = easeOut(seg(te, 16.3, 16.7)), slot = (k: number) => [PHER.x + GRX + (k % 6 + 0.5) * CELL, PHER.y + GRY + (Math.floor(k / 6) + 0.5) * CELL] as const;
+  const o3 = easeOut(seg(te, 16.3, 16.7)), slot = (k: number) => [PHER.x + Z * (GRX + (k % 6 + 0.5) * CELL), PHER.y + Z * (GRY + (Math.floor(k / 6) + 0.5) * CELL)] as const;
   const landed = PK.filter((p) => te >= p.arr + HOP).length, sorted = te >= DONE, glow = sorted ? 1 - seg(te, DONE + 0.1, DONE + 1.2) : 0;
   return <>
     {chip('WITHOUT PACKETS', 'the photo as one big block', '#ffb020', head)}
     {chip('WITH PACKETS', 'what the internet really does', '#5fe3ff', head2)}
-    {o1 > 0 && <IPhone left={PHIS.x} top={PHIS.y} o={o1} name="Her" avatar="#ff8672">
+    {o1 > 0 && <IPhone left={PHIS.x} top={PHIS.y} o={o1} k={Z} name="Her" avatar="#ff8672">
       <div style={{ paddingTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}><div style={{ opacity: sent1 ? 0.15 : 1 }}><Pic id="pa" s={TH} tiles={Array(36).fill(true)} grid={0} /></div><Note c="#ffd27a">{sent1 ? 'sending as 1 block…' : 'photo.jpg · 3 MB'}</Note></div>
       <Compose bottom={18} ready={!sent1} press={tap1} text={<span style={{ color: '#6b6b70' }}>{sent1 ? 'iMessage' : '1 photo'}</span>} />
     </IPhone>}
-    {sent1 && j1 < 1 && (() => { const q = arc([PHIS.x + THX + TH / 2, PHIS.y + THY + TH / 2], [home[0], home[1] - 34], j1, 120), sz = lerp(TH, 112, j1); return <div style={{ position: 'absolute', left: q[0] - sz / 2, top: q[1] - sz / 2, boxShadow: '0 0 34px rgba(255,180,94,.9)', borderRadius: 10 }}><Pic id="pj" s={sz} tiles={Array(36).fill(true)} grid={0} /></div>; })()}
-    {o2 > 0 && <IPhone left={PHIS.x} top={PHIS.y} o={o2} name="Her" avatar="#ff8672">
+    {sent1 && j1 < 1 && (() => { const q = arc([PHIS.x + Z * (THX + TH / 2), PHIS.y + Z * (THY + TH / 2)], [home[0], home[1] - 34], j1, 120), sz = lerp(TH * Z, 112, j1); return <div style={{ position: 'absolute', left: q[0] - sz / 2, top: q[1] - sz / 2, boxShadow: '0 0 34px rgba(255,180,94,.9)', borderRadius: 10 }}><Pic id="pj" s={sz} tiles={Array(36).fill(true)} grid={0} /></div>; })()}
+    {o2 > 0 && <IPhone left={PHIS.x} top={PHIS.y} o={o2} k={Z} name="Her" avatar="#ff8672">
       <div style={{ paddingTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}><Pic id="pc" s={TH} tiles={PK.map((p) => bst(p.i) <= 0)} grid={grid} /><Note>{grid > 0 ? 'about 2,000 packets' : 'photo.jpg · 3 MB'}</Note></div>
       <Compose bottom={18} ready={te < 13.35} press={tap2} text={<span style={{ color: '#6b6b70' }}>{te < 13.35 ? '1 photo' : 'iMessage'}</span>} />
     </IPhone>}
     {/* the squares in flight from his phone, then waiting above his router until their turn */}
-    {te > 13.3 && PK.map((p) => { const u = bst(p.i); if (u <= 0 || te >= p.dep) return null; const q = arc(thumb(p.i), mos(p.i), easeInOut(u), 60 + (p.i % 6) * 8); return <Tile key={'m' + p.i} i={p.i} s={lerp(TH / 6, MC - 1, u)} x={q[0]} y={q[1]} />; })}
+    {te > 13.3 && PK.map((p) => { const u = bst(p.i); if (u <= 0 || te >= p.dep) return null; const q = arc(thumb(p.i), mos(p.i), easeInOut(u), 60 + (p.i % 6) * 8); return <Tile key={'m' + p.i} i={p.i} s={lerp(Z * TH / 6, MC - 1, u)} x={q[0]} y={q[1]} />; })}
     {mosO > 0 && <div style={{ position: 'absolute', left: home[0] - 78, top: home[1] - 226, width: 220, opacity: mosO, textAlign: 'center' }}><span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: 12, background: 'rgba(10,14,36,.92)', border: '2px solid #5fe3ff', font: `600 18px ${FONT.mono}`, color: '#eef1ff', whiteSpace: 'nowrap' }}>sent {Math.round((sentN / N) * 2000).toLocaleString('en-US')} of 2,000</span></div>}
-    {o3 > 0 && <IPhone left={PHER.x} top={PHER.y} o={o3} name="Him" avatar="#3fb8a8">
+    {o3 > 0 && <IPhone left={PHER.x} top={PHER.y} o={o3} k={Z} name="Him" avatar="#3fb8a8">
       <div style={{ position: 'absolute', left: GRX - SCR.x, top: GRY - SCR.y - 96, width: GR, height: GR, borderRadius: 10, background: '#111318', boxShadow: glow > 0 ? `0 0 ${30 * glow}px 4px #5fe3ff` : 'inset 0 0 0 1px #2c2c2e' }} />
       <div style={{ position: 'absolute', left: 0, right: 0, top: GRY - SCR.y - 96 + GR + 10 }}>{sorted ? <><Note c="#7dffb0">✓ photo received</Note><Note c="#eef1ff">back in order</Note></> : te >= REORD ? <><Note>sorting by number…</Note><Note c="#eef1ff">1, 2, 3, 4 …</Note></> : <><Note>receiving packets</Note><Note c="#eef1ff">{Math.round((landed / N) * 2000).toLocaleString('en-US')} of 2,000</Note></>}</div>
       <Compose bottom={18} text={<span style={{ color: '#6b6b70' }}>iMessage</span>} />
     </IPhone>}
     {/* each packet hops from her city router into the next free slot; at the end every square slides to its own number */}
     {o3 > 0 && PK.map((p) => { const u = (te - p.arr) / HOP; if (u <= 0) return null; const k = SLOT[p.i];
-      if (u < 1) { const q = arc(cityR, slot(k), easeInOut(u), 50); return <Tile key={'h' + p.i} i={p.i} s={lerp(30, CELL - 1, u)} x={q[0]} y={q[1]} glow label={1} />; }
+      if (u < 1) { const q = arc(cityR, slot(k), easeInOut(u), 50); return <Tile key={'h' + p.i} i={p.i} s={lerp(30, Z * CELL - 1, u)} x={q[0]} y={q[1]} glow label={1} />; }
       const r = easeInOut(seg(te, REORD + (p.i % 6) * 0.03, REORD + 0.75 + (p.i % 6) * 0.03)), a = slot(k), b = slot(p.i);
-      return <Tile key={'s' + p.i} i={p.i} s={CELL - (sorted ? 0 : 1)} x={lerp(a[0], b[0], r)} y={lerp(a[1], b[1], r) - 16 * Math.sin(Math.PI * r) * (k === p.i ? 0 : 1)} label={(1 - seg(te, DONE, DONE + 0.4)) * o3} glow={u < 1.6} />; })}
+      return <Tile key={'s' + p.i} i={p.i} s={Z * CELL - (sorted ? 0 : 1)} x={lerp(a[0], b[0], r)} y={lerp(a[1], b[1], r) - 16 * Math.sin(Math.PI * r) * (k === p.i ? 0 : 1)} label={(1 - seg(te, DONE, DONE + 0.4)) * o3} glow={u < 1.6} />; })}
   </>; };

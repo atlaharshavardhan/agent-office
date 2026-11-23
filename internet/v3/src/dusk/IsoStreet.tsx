@@ -1,4 +1,5 @@
 import React from 'react';
+import { fx, fw, isWide } from '../lib/wide';
 import { MARK_O } from '../lib/mark';
 import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { FPS, hash, lerp } from '../lib/anim';
@@ -353,9 +354,9 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
           <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed={f} /><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 -0.12" /></filter>
           <filter id="iB"><feGaussianBlur stdDeviation="5" /></filter><filter id="iB2"><feGaussianBlur stdDeviation="9" /></filter>
         </defs>
-        <rect width={1080} height={1920} fill="url(#iSky)" />
+        <rect x={fx()} width={fw()} height={1920} fill="url(#iSky)" />
         <ellipse cx={540} cy={380} rx={700} ry={140} transform="rotate(-22 540 380)" fill="url(#iMilky)" />
-        {Array.from({ length: 280 }).map((_, i) => { const tw = 0.55 + 0.45 * Math.sin(f / 9 + i * 2.3); return <circle key={i} cx={hash(i) * 1080} cy={hash(i + 9) * 1920} r={hash(i + 3) * 1.6 + 0.4} fill={i % 7 ? '#fff' : '#ffe6c2'} opacity={(0.2 + 0.7 * hash(i + 5)) * tw * (hash(i + 9) < 0.45 ? 1 : 0.35)} />; })}
+        {Array.from({ length: 280 }).map((_, i) => { const tw = 0.55 + 0.45 * Math.sin(f / 9 + i * 2.3); return <circle key={i} cx={fx() + hash(i) * fw()} cy={hash(i + 9) * 1920} r={hash(i + 3) * 1.6 + 0.4} fill={i % 7 ? '#fff' : '#ffe6c2'} opacity={(0.2 + 0.7 * hash(i + 5)) * tw * (hash(i + 9) < 0.45 ? 1 : 0.35)} />; })}
         <g transform="translate(900 190)"><circle r={120} fill="#cfd8ff" opacity={0.07} /><circle r={44} fill="#f3eedb" /><circle cx={17} cy={-11} r={41} fill="#050819" /></g>
         <g transform={`translate(${540 + Math.sin(t * 95) * 9 * kick + Math.sin(t * 120) * 5 * thud} ${960 + Math.cos(t * 80) * 7 * kick + Math.cos(t * 100) * 4 * thud}) scale(${cam.z}) translate(${-cam.fx} ${-cam.fy})`}>
         {/* ground: the neighbourhood continues past the frame */}
@@ -621,9 +622,9 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
           {Array.from({ length: cine ? 16 : 40 }).map((_, i) => { const x = 20 + hash(i * 3) * 520 + Math.sin(t * 0.8 + i) * 16, y = 300 + hash(i * 7) * 460 + Math.cos(t * 0.6 + i * 2) * 14, tw = 0.5 + 0.5 * Math.sin(t * 3 + i * 1.7); return <g key={'ff' + i} opacity={tw}><circle cx={x} cy={y} r={9} fill="#d8ff8a" opacity={0.18} /><circle cx={x} cy={y} r={5} fill="#d8ff8a" opacity={0.3} /><circle cx={x} cy={y} r={2} fill="#f2ffc0" /></g>; })}
           {[[590, 850], [565, 1208], [270, 1560]].map(([lx, ly], i) => [0, 1, 2].map((k) => <circle key={`mo${i}${k}`} cx={lx + Math.sin(t * 5 + k * 2 + i) * 22} cy={ly + Math.cos(t * 6.3 + k * 1.3) * 16} r={2.2} fill="#fff" opacity={0.8} />))}
           {[0, 1, 2].map((i) => { const x = ((t * 60 + i * 420) % 1400) - 150, y = 150 + i * 90 + Math.sin(t * 2 + i) * 20, wv = Math.sin(t * 16 + i) * 7; return <path key={'bat' + i} d={`M ${x - 14} ${y + wv} Q ${x - 6} ${y - 8} ${x} ${y} Q ${x + 6} ${y - 8} ${x + 14} ${y + wv}`} stroke="#05060f" strokeWidth={4} fill="none" strokeLinecap="round" />; })}
-          <rect width={1080} height={1920} fill="url(#hazeT)" style={{ mixBlendMode: 'screen' }} />
-          <rect width={1080} height={1920} fill="url(#vig)" />
-          <rect width={1080} height={1920} filter="url(#grain)" opacity={0.1} style={{ mixBlendMode: 'overlay' }} />
+          <rect x={fx()} width={fw()} height={1920} fill="url(#hazeT)" style={{ mixBlendMode: 'screen' }} />
+          <rect x={fx()} width={fw()} height={1920} fill="url(#vig)" />
+          <rect x={fx()} width={fw()} height={1920} filter="url(#grain)" opacity={0.1} style={{ mixBlendMode: 'overlay' }} />
         </>}
         {/* HELLO floats over the park while the count runs */}
         {hook && t > 12.45 && t < 14.3 && 'HELLO'.split('').map((ch, j) => { const a = prog(f, 12.5 + j * 0.2, 12.75 + j * 0.2, easeOut); return (
@@ -655,7 +656,7 @@ const HookOverlays: React.FC<{ f: number; t: number; macro: number; mute?: boole
           <svg width={1080} height={1920}>
             <defs><filter id="mB"><feGaussianBlur stdDeviation="26" /></filter><filter id="mB2"><feGaussianBlur stdDeviation="9" /></filter><radialGradient id="mG"><stop offset="0" stopColor="#fff8e6" /><stop offset=".3" stopColor="#ffe2a8" stopOpacity=".8" /><stop offset="1" stopColor="#ffcf80" stopOpacity="0" /></radialGradient>
               <linearGradient id="mT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#4a5266" /><stop offset=".3" stopColor="#8e97ab" /><stop offset=".5" stopColor="#2a2f3c" /><stop offset="1" stopColor="#14161d" /></linearGradient></defs>
-            <rect width={1080} height={1920} fill="#0b1030" />
+            <rect x={fx()} width={fw()} height={1920} fill="#0b1030" />
             <g filter="url(#mB)">{Array.from({ length: 30 }).map((_, i) => <circle key={i} cx={hash(i) * 1080} cy={600 + hash(i + 3) * 1200} r={30 + hash(i + 5) * 60} fill={i % 3 ? '#ffc46a' : '#8f7be0'} opacity={0.35} />)}</g>
             <g transform={`translate(600 1080) rotate(-18) scale(${0.92 + (t - 8.4) * 0.03})`}>
               {pulse(f, 8.95, 9.5) > 0 && <g style={{ mixBlendMode: 'screen' }}><path d="M 290 -40 L 1200 -330 L 1200 330 L 290 40 Z" fill="url(#mG)" opacity={0.6} filter="url(#mB2)" /><circle cx={300} cy={0} r={180} fill="url(#mG)" /></g>}

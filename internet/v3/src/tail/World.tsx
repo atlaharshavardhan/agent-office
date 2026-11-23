@@ -1,4 +1,5 @@
 import React from 'react';
+import { fx, fw, isWide } from '../lib/wide';
 import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { FPS, hash, prog, lerp, easeOut, easeInOut, clamp01 } from '../lib/anim';
 import { FONT } from '../lib/palette';
@@ -56,16 +57,16 @@ export const Plane: React.FC<{ f: number; her?: StickPose }> = ({ f, her }) => {
 const Skyline: React.FC<{ f: number; shift: number }> = ({ f, shift }) => (
   <g>
     {/* far towers */}
-    <g transform={`translate(${-shift * 0.25} 0)`}>{Array.from({ length: 26 }).map((_, i) => { const x = -200 + i * 86, h = 150 + hash(i * 3) * 260, w = 56 + hash(i * 7) * 30; return <g key={i}><rect x={x} y={1420 - h} width={w} height={h + 200} fill="#161a4a" />{Array.from({ length: Math.floor(h / 34) }).map((_, r) => [0, 1, 2].map((c) => hash(i * 31 + r * 7 + c) > 0.55 ? <rect key={`${r}_${c}`} x={x + 8 + c * (w - 16) / 3} y={1420 - h + 14 + r * 34} width={8} height={12} fill="#ffd88a" opacity={0.55} /> : null))}</g>; })}</g>
+    <g transform={`translate(${-shift * 0.25} 0)`}>{Array.from({ length: isWide() ? 46 : 26 }).map((_, i) => { const x = -200 + fx() + i * 86, h = 150 + hash(i * 3) * 260, w = 56 + hash(i * 7) * 30; return <g key={i}><rect x={x} y={1420 - h} width={w} height={h + 200} fill="#161a4a" />{Array.from({ length: Math.floor(h / 34) }).map((_, r) => [0, 1, 2].map((c) => hash(i * 31 + r * 7 + c) > 0.55 ? <rect key={`${r}_${c}`} x={x + 8 + c * (w - 16) / 3} y={1420 - h + 14 + r * 34} width={8} height={12} fill="#ffd88a" opacity={0.55} /> : null))}</g>; })}</g>
     {/* the sea link: two towers and their cables */}
     <g transform={`translate(${-shift * 0.4} 0)`} opacity={0.95}>{[620, 900].map((x) => <g key={x}><path d={`M ${x - 14} 1440 L ${x - 5} 1130 L ${x + 5} 1130 L ${x + 14} 1440 Z`} fill="#0e1238" />{Array.from({ length: 9 }).map((_, j) => <g key={j}><line x1={x} y1={1140 + j * 14} x2={x - 130 + j * 9} y2={1436} stroke="#3a4390" strokeWidth={2} /><line x1={x} y1={1140 + j * 14} x2={x + 130 - j * 9} y2={1436} stroke="#3a4390" strokeWidth={2} /></g>)}<circle cx={x} cy={1128} r={5} fill="#ff6a6a" opacity={0.6 + 0.4 * Math.sin(f / 5)} /></g>)}<rect x={300} y={1434} width={920} height={12} fill="#0e1238" />{Array.from({ length: 22 }).map((_, j) => <circle key={j} cx={320 + j * 42} cy={1430} r={3} fill="#ffd98a" />)}{Array.from({ length: 8 }).map((_, j) => <rect key={j} x={340 + j * 120} y={1446} width={14} height={90} fill="#0e1238" />)}</g>
     {/* near buildings and the Gateway arch */}
     <g transform={`translate(${-shift * 0.7} 0)`}>
-      {Array.from({ length: 22 }).map((_, i) => { const x = -300 + i * 120 + hash(i) * 30, h = 120 + hash(i * 5 + 1) * 240, w = 84 + hash(i * 9) * 30, col = ['#2a2466', '#33276e', '#24306e'][i % 3]; return <g key={i}><rect x={x} y={1560 - h} width={w} height={h + 200} fill={col} /><rect x={x} y={1560 - h} width={w} height={8} fill="#5a4cb0" />{Array.from({ length: Math.floor(h / 38) }).map((_, r) => [0, 1, 2].map((c) => hash(i * 17 + r * 3 + c) > 0.4 ? <rect key={`${r}_${c}`} x={x + 12 + c * (w - 24) / 3} y={1560 - h + 20 + r * 38} width={13} height={18} fill={hash(i + r + c) > 0.5 ? '#ffd88a' : '#e98f6a'} opacity={0.85} /> : null))}</g>; })}
+      {Array.from({ length: isWide() ? 36 : 22 }).map((_, i) => { const x = -300 + fx() + i * 120 + hash(i) * 30, h = 120 + hash(i * 5 + 1) * 240, w = 84 + hash(i * 9) * 30, col = ['#2a2466', '#33276e', '#24306e'][i % 3]; return <g key={i}><rect x={x} y={1560 - h} width={w} height={h + 200} fill={col} /><rect x={x} y={1560 - h} width={w} height={8} fill="#5a4cb0" />{Array.from({ length: Math.floor(h / 38) }).map((_, r) => [0, 1, 2].map((c) => hash(i * 17 + r * 3 + c) > 0.4 ? <rect key={`${r}_${c}`} x={x + 12 + c * (w - 24) / 3} y={1560 - h + 20 + r * 38} width={13} height={18} fill={hash(i + r + c) > 0.5 ? '#ffd88a' : '#e98f6a'} opacity={0.85} /> : null))}</g>; })}
       <g transform="translate(250 1560)"><rect x={-110} y={-150} width={220} height={150} fill="#c9a36a" /><rect x={-124} y={-164} width={248} height={18} fill="#e2c08a" /><path d="M -34 0 L -34 -80 A 34 34 0 0 1 34 -80 L 34 0 Z" fill="#241c3a" /><path d="M -90 0 L -90 -50 A 16 16 0 0 1 -58 -50 L -58 0 Z M 58 0 L 58 -50 A 16 16 0 0 1 90 -50 L 90 0 Z" fill="#241c3a" />{[-110, -40, 40, 110].map((x) => <g key={x}><rect x={x - 9} y={-200} width={18} height={40} fill="#c9a36a" /><path d={`M ${x - 12} -200 A 12 12 0 0 1 ${x + 12} -200 Z`} fill="#e2c08a" /></g>)}<path d="M -44 -164 A 44 40 0 0 1 44 -164 Z" fill="#e2c08a" /><ellipse cx={0} cy={-90} rx={150} ry={120} fill="#ffd98a" opacity={0.12} /></g>
     </g>
     {/* sea, with the city in it */}
-    <rect x={0} y={1560} width={1080} height={360} fill="#0c1040" />{Array.from({ length: 46 }).map((_, i) => <rect key={i} x={((hash(i * 3) * 1400 - shift * 0.9 + f * 2) % 1400 + 1400) % 1400 - 160} y={1575 + hash(i * 7) * 320} width={30 + hash(i) * 90} height={3} rx={1.5} fill={i % 3 ? '#5a66c8' : '#ffd98a'} opacity={0.18 + 0.25 * hash(i * 11)} />)}
+    <rect x={fx()} y={1560} width={fw()} height={360} fill="#0c1040" />{Array.from({ length: isWide() ? 100 : 46 }).map((_, i) => <rect key={i} x={((hash(i * 3) * (fw() + 320) - shift * 0.9 + f * 2) % (fw() + 320) + (fw() + 320)) % (fw() + 320) - 160 + fx()} y={1575 + hash(i * 7) * 320} width={30 + hash(i) * 90} height={3} rx={1.5} fill={i % 3 ? '#5a66c8' : '#ffd98a'} opacity={0.18 + 0.25 * hash(i * 11)} />)}
   </g>
 );
 
@@ -105,8 +106,8 @@ export const World: React.FC = () => {
         </g>}
         {/* take-off: Mumbai falls away below the plane */}
         {toff > 0 && <g opacity={toff}>
-          <rect width={1080} height={1920} fill="url(#wdS)" /><circle cx={860} cy={420 + climb * 120} r={150} fill="url(#wdMoon)" opacity={0.25} /><circle cx={860} cy={420 + climb * 120} r={56} fill="#fff3d6" /><circle cx={842} cy={404 + climb * 120} r={12} fill="#e8d6a6" opacity={0.6} /><circle cx={878} cy={438 + climb * 120} r={8} fill="#e8d6a6" opacity={0.6} />
-          {Array.from({ length: 70 }).map((_, i) => <circle key={i} cx={hash(i * 3) * 1080} cy={hash(i * 7) * 1200} r={1 + hash(i) * 1.8} fill="#dfe6ff" opacity={0.3 + 0.4 * Math.sin(t * 2 + i)} />)}
+          <rect x={fx()} width={fw()} height={1920} fill="url(#wdS)" /><circle cx={860} cy={420 + climb * 120} r={150} fill="url(#wdMoon)" opacity={0.25} /><circle cx={860} cy={420 + climb * 120} r={56} fill="#fff3d6" /><circle cx={842} cy={404 + climb * 120} r={12} fill="#e8d6a6" opacity={0.6} /><circle cx={878} cy={438 + climb * 120} r={8} fill="#e8d6a6" opacity={0.6} />
+          {Array.from({ length: 70 }).map((_, i) => <circle key={i} cx={fx() + hash(i * 3) * fw()} cy={hash(i * 7) * 1200} r={1 + hash(i) * 1.8} fill="#dfe6ff" opacity={0.3 + 0.4 * Math.sin(t * 2 + i)} />)}
           <g transform={`translate(0 ${climb * 420})`}><Skyline f={f} shift={t * 260} /></g>
           {Array.from({ length: 6 }).map((_, i) => { const x = ((hash(i * 5) * 1700 - t * (220 + i * 60)) % 1700 + 1700) % 1700 - 300, y = 520 + i * 150 + climb * 200; return <g key={i} opacity={0.16 + 0.05 * i}><ellipse cx={x} cy={y} rx={190} ry={34} fill="#aab4ff" /><ellipse cx={x + 90} cy={y - 22} rx={110} ry={30} fill="#aab4ff" /><ellipse cx={x - 80} cy={y - 14} rx={90} ry={24} fill="#aab4ff" /></g>; })}
           <g transform={`translate(${lerp(300, 560, climb)} ${lerp(1240, 860, climb)}) rotate(${lerp(-4, -15, climb)}) scale(${lerp(0.9, 0.96, climb) * (1 - 0.55 * prog(f, 1.5, 1.95))})`}>
@@ -115,8 +116,8 @@ export const World: React.FC = () => {
           </g>
         </g>}
         {/* the dive: the sea rushes up */}
-        <rect width={1080} height={1920} fill="url(#wdDeep)" opacity={prog(f, 6.7, 7.1)} />
-        <rect width={1080} height={1920} fill="url(#wdV)" />
+        <rect x={fx()} width={fw()} height={1920} fill="url(#wdDeep)" opacity={prog(f, 6.7, 7.1)} />
+        <rect x={fx()} width={fw()} height={1920} fill="url(#wdV)" />
       </svg>
       {/* her, landed, on the London pin */}
     </AbsoluteFill>
@@ -152,8 +153,8 @@ export const WorldWeb: React.FC<{ mode: 'all' | 'cut' }> = ({ mode }) => {
               <g opacity={v}>{[0, 0.5].map((d0) => { const u = (t * 1.3 + d0) % 1; return <circle key={d0} cx={bx} cy={by} r={14 + u * 46} fill="none" stroke="#ff6a6a" strokeWidth={5 * (1 - u) + 1} opacity={1 - u} />; })}<circle cx={bx} cy={by} r={15} fill="#ff6a6a" /><path d={`M ${bx - 7} ${by - 7} L ${bx + 7} ${by + 7} M ${bx + 7} ${by - 7} L ${bx - 7} ${by + 7}`} stroke="#fff" strokeWidth={4} strokeLinecap="round" /></g></g>; })()}
           <Pin g={g} at={MUMBAI} name="MUMBAI" up={false} o={cut ? 1 : prog(f, 0.9, 1.2)} /><Pin g={g} at={LONDON} name="LONDON" col="#ff9c8a" o={cut ? 1 : prog(f, 0.9, 1.2)} />
         </>}</Globe>
-        {!cut && <rect width={1080} height={1920} fill="url(#wwDeep)" opacity={1 - prog(f, 0, 0.45)} />}
-        <rect width={1080} height={1920} fill="url(#wwV)" />
+        {!cut && <rect x={fx()} width={fw()} height={1920} fill="url(#wwDeep)" opacity={1 - prog(f, 0, 0.45)} />}
+        <rect x={fx()} width={fw()} height={1920} fill="url(#wwV)" />
       </svg>
       {cut && <div style={{ position: 'absolute', top: 226, left: 70, right: 70, height: 190, borderRadius: 40, background: 'rgba(10,14,36,.86)', border: '1px solid rgba(160,176,255,.25)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: prog(f, 0.15, 0.4) }}>
         <div style={{ font: `700 92px/1 ${FONT.mono}`, color: '#9fe9ff' }}>{Math.round(lerp(1, 570, easeOut(clamp01((t - 0.15) / 1.1))))}+</div><div style={{ font: `600 27px ${FONT.mono}`, letterSpacing: '0.2em', color: '#cfd8ff' }}>CABLES UNDER THE SEA</div></div>}

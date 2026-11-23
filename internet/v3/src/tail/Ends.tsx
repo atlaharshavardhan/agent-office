@@ -1,4 +1,5 @@
 import React from 'react';
+import { fx, fw } from '../lib/wide';
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import { FPS, hash, prog, lerp, easeOut, easeInOut, clamp01 } from '../lib/anim';
 import { FONT } from '../lib/palette';
@@ -74,7 +75,7 @@ export const Packets: React.FC = () => {
           return <g key={i} transform={`translate(${st[0]} ${st[1]}) scale(${s})`}><circle r={74} fill="url(#pkC)" opacity={0.7} />
             <rect x={-TW / 2 - 5} y={-TH / 2 - 5} width={TW + 10} height={TH + 26} rx={8} fill="#0e1430" stroke="#5fe3ff" strokeWidth={3} /><Tile c={c} r={r} x={-TW / 2} y={-TH / 2} w={TW} h={TH} /><text x={0} y={TH / 2 + 17} textAnchor="middle" style={{ font: `700 18px ${FONT.mono}` }} fill="#9fe9ff">#{i + 1}</text>
             {tag > 0 && <g transform={`translate(0 ${-TH / 2 - 26}) scale(${0.7 + 0.3 * tag})`} opacity={tag}><rect x={-62} y={-17} width={124} height={34} rx={10} fill="#ffe08a" /><text y={7} textAnchor="middle" style={{ font: `700 18px ${FONT.mono}` }} fill="#3a2a05">To: …1.7</text></g>}</g>; })}
-        <rect width={1080} height={1920} fill="url(#pkV)" />
+        <rect x={fx()} width={fw()} height={1920} fill="url(#pkV)" />
       </svg>
       <div style={{ position: 'absolute', top: 226, left: 70, width: 520, height: 150, borderRadius: 36, background: 'rgba(10,14,36,.86)', border: '1px solid rgba(160,176,255,.25)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: prog(f, 1.2, 1.45) }}>
         <div style={{ font: `800 50px/1 ${FONT.ui}`, color: '#eef1ff' }}>1 video = <span style={{ color: '#9fe9ff' }}>12 packets</span></div><div style={{ font: `600 23px ${FONT.mono}`, letterSpacing: '0.14em', color: '#a9b4dd' }}>{t < 2.9 ? 'NUMBERED, SO THEY FIT BACK' : t < 4.4 ? 'EACH ONE KNOWS HER ADDRESS' : 'BACK IN ORDER'}</div></div>
@@ -134,7 +135,7 @@ export const London: React.FC = () => {
             {sent > 0 ? <text x={0} y={22} textAnchor="middle" style={{ font: `800 62px ${FONT.ui}` }} fill="#fff">Hi!</text> : [0, 1, 2].map((j) => <circle key={j} cx={-36 + j * 36} cy={0 - Math.abs(Math.sin(k * 9 - j * 0.9)) * 12} r={11} fill="#fff" />)}</g>}
           {joy > 0 && [0, 1, 2].map((i) => { const v = ((k - 2.6) * 0.9 + i / 3) % 1, x = HX + 110 + i * 60 + Math.sin(k * 2 + i) * 10, y = HY - 520 - v * 200; return <path key={i} d={`M ${x} ${y} c -14 -16 -34 2 0 26 c 34 -24 14 -42 0 -26 Z`} fill="#ff6f91" opacity={(1 - v) * 0.9 * joy} />; })}
         </g>
-        <rect width={1080} height={1920} fill="url(#lnV)" />
+        <rect x={fx()} width={fw()} height={1920} fill="url(#lnV)" />
       </svg>
     </AbsoluteFill>
   );
@@ -154,7 +155,7 @@ export const EndCard: React.FC = () => {
         <g transform="translate(540 1530) scale(0.8)" opacity={b}><path d="M -46 -96 L -250 -1100 L 250 -1100 L 46 -96 Z" fill="url(#ecBeam)" opacity={0.28 + 0.05 * Math.sin(k * 5)} style={{ mixBlendMode: 'screen' }} />
           <circle cx={0} cy={-100} r={110} fill="url(#ecW)" opacity={0.8} /><rect x={-30} y={-10} width={60} height={150} rx={14} fill="#2a2f4c" /><rect x={-30} y={-10} width={20} height={150} rx={10} fill="#5a6088" opacity={0.7} />{[0, 1, 2, 3, 4].map((i) => <rect key={i} x={-30} y={40 + i * 16} width={60} height={5} fill="#0a0c14" opacity={0.5} />)}
           <polygon points="-30,-10 -56,-84 56,-84 30,-10" fill="#d24a30" /><polygon points="-30,-10 -56,-84 -30,-84 -14,-10" fill="#ff8a6a" opacity={0.6} /><rect x={-60} y={-98} width={120} height={16} rx={7} fill="#e3e7f2" /><ellipse cx={0} cy={-98} rx={54} ry={9} fill="#fffbe8" /></g>
-        <rect width={1080} height={1920} fill="url(#ecV)" />
+        <rect x={fx()} width={fw()} height={1920} fill="url(#ecV)" />
       </svg>
       <div style={{ position: 'absolute', top: 1090, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, opacity: b, transform: `translateY(${(1 - b) * 30}px)` }}>
         <Img src={staticFile('logo.png')} style={{ width: 150, height: 150, borderRadius: 75, boxShadow: '0 0 0 5px rgba(95,227,255,.6), 0 0 60px rgba(95,227,255,.5)' }} />

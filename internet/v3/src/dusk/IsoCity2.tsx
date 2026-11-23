@@ -1,4 +1,5 @@
 import React from 'react';
+import { fx, fw, isWide } from '../lib/wide';
 import { MARK_O } from '../lib/mark';
 import { AbsoluteFill, Audio, Img, staticFile, useCurrentFrame } from 'remotion';
 import '@fontsource/manrope/700.css'; import '@fontsource/manrope/800.css'; import '@fontsource/ibm-plex-mono/600.css';
@@ -7,7 +8,7 @@ import { FONT } from '../lib/palette';
 import { Adult } from './Adult';
 import { PhotoWorld, PhotoUI } from './CityPhoto';
 import { IPhone, Bubble, Compose, Keyboard } from './Phone';
-const KP = 1.2, HIS = { x: 676, y: 400 }, HER = { x: 640, y: 470 };
+
 import plan1 from './part1-plan.json';
 import type { StickPose } from './Dusk';
 
@@ -108,6 +109,8 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
   let ki = 0; while (ki < keys.length - 2 && t > keys[ki + 1][0]) ki++;
   const ka = keys[ki], kb = keys[ki + 1], ku = easeInOut(clamp01((t - ka[0]) / (kb[0] - ka[0])));
   const cam = { x: lerp(ka[1].x, kb[1].x, ku), y: lerp(ka[1].y, kb[1].y, ku), z: Math.exp(lerp(Math.log(ka[1].z), Math.log(kb[1].z), ku)) };
+  /* phones: in the wide film they are bigger and stand beside the middle column instead of on it */
+  const KP = isWide() ? 1.6 : 1.2, HIS = isWide() ? { x: 1030, y: 330 } : { x: 676, y: 400 }, HER = isWide() ? { x: 1010, y: 330 } : { x: 640, y: 470 };
   const scr = (p: readonly number[]) => [540 + cam.z * (p[0] - cam.x), 960 + cam.z * (p[1] - cam.y)] as const;
   let line: React.ReactNode = null; for (const [a, txt] of VO) if (t >= a) line = txt;
   if (X && te >= 0) { line = null; for (const [a, b, x] of plan1.subs as [number, number, string][]) if (te >= a && te < b) line = x.split('*').map((p, i) => (i % 2 ? <em key={i}>{p}</em> : <React.Fragment key={i}>{p}</React.Fragment>)); }
@@ -191,7 +194,7 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
           {CT.slice(0, 4).map((q, i) => { const c = g(i), r = (q.r + 2.0) * S * 0.92, hero = i === 0 || i === 3, w = NAMES[i].length * (hero ? 23 : 18) + 44; const sy = 960 + cam.z * (c[1] + r * 0.58 + 4 - cam.y); return <g key={'nm' + i} opacity={clamp01((Math.abs(sy - 1345) - 140) / 50) * (i === 3 ? 1 - clamp01((te - 16.2) / 0.4) : 1)} transform={`translate(${c[0]} ${c[1] + r * 0.58 + 4})`}><rect x={-w / 2} y={-24} width={w} height={hero ? 52 : 42} rx={14} fill={hero ? (i ? '#ff6f91' : '#2f9c95') : '#1a2250'} stroke={hero ? '#fff' : '#aab6ee'} strokeWidth={hero ? 3 : 2} /><text y={hero ? 13 : 6} textAnchor="middle" style={{ font: `800 ${hero ? 34 : 26}px ${FONT.ui}`, letterSpacing: '0.04em' }} fill="#fff">{NAMES[i]}</text></g>; })}
         </g>
       </svg>
-      <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}><rect width={1080} height={1920} fill="url(#cHaze)" style={{ mixBlendMode: 'screen' }} /><rect width={1080} height={1920} fill="url(#cVig)" /><rect width={1080} height={1920} filter="url(#cGrain)" opacity={0.1} style={{ mixBlendMode: 'overlay' }} /></svg>
+      <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}><rect x={fx()} width={fw()} height={1920} fill="url(#cHaze)" style={{ mixBlendMode: 'screen' }} /><rect x={fx()} width={fw()} height={1920} fill="url(#cVig)" /><rect x={fx()} width={fw()} height={1920} filter="url(#cGrain)" opacity={0.1} style={{ mixBlendMode: 'overlay' }} /></svg>
       <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 230, backdropFilter: 'blur(5px)', WebkitMaskImage: 'linear-gradient(#000 20%, transparent)', maskImage: 'linear-gradient(#000 20%, transparent)' }} />
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 330, backdropFilter: 'blur(5px)', WebkitMaskImage: 'linear-gradient(transparent, #000 80%)', maskImage: 'linear-gradient(transparent, #000 80%)' }} />
       {/* his phone, on the right: type HELLO, send, then watch it go step by step */}
