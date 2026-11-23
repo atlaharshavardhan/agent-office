@@ -15,15 +15,15 @@ const Card: React.FC<{ src: string; x: number; y: number; w: number; o: number; 
 
 export const Compare: React.FC = () => {
   const l = useCurrentFrame();
-  const m = ramp(l, 95, 140);                 // move into the comparison layout (22.2–23.7 s)
+  const m = ramp(l, 95, 106);                 // snap into the comparison layout (22.2–22.5 s)
   const W0 = 420, W1 = 250;
   const w = interpolate(m, [0, 1], [W0, W1]);
   const y = interpolate(m, [0, 1], [330, 210]);
   const lx = interpolate(m, [0, 1], [80, 265]), rx = interpolate(m, [0, 1], [540, 565]);
-  const irIn = ramp(l, 6, 22);
-  const lab = 1 - ramp(l, 92, 104);
+  const irIn = ramp(l, 6, 12);
+  const lab = 1 - ramp(l, 93, 97);
   const h1 = CROP.h * (W1 / CROP.w);
-  const enr = ramp(l, 150, 175), cmp = ramp(l, 135, 150);
+  const enr = ramp(l, 116, 124), cmp = ramp(l, 106, 112);
   const EW = 330, EH = CROP.h * (EW / CROP.w), EX = 540 - EW / 2 + 0, EY = 760;
   const scanBottom = 210 + h1;
   return (

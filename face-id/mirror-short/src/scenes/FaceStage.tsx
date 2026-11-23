@@ -44,10 +44,11 @@ export const FaceStage: React.FC<{
               const tx = dotX(d, t, warp), ty = d[1];
               const p = fly ? fly(d) : 1;
               if (p <= 0) return null;
-              if (p < 1) {               // in flight: a short streak heading for its spot on the face
-                const x = from[0] + (tx - from[0]) * p, y = from[1] + (ty - from[1]) * p;
-                const bx = x - (tx - from[0]) * 0.035, by = y - (ty - from[1]) * 0.035;
-                return <line key={k} x1={bx} y1={by} x2={x} y2={y} stroke={C.ir} strokeWidth={r * 0.9} strokeLinecap="round" opacity={o * 0.9} />;
+              if (p < 1) {               // in flight: the dot hops from the phone up and over onto its spot
+                const cx = (from[0] + tx) / 2 + (tx - from[0]) * 0.35, cy = ty - 110 - 90 * d[3];
+                const at = (u: number) => [(1 - u) ** 2 * from[0] + 2 * (1 - u) * u * cx + u * u * tx, (1 - u) ** 2 * from[1] + 2 * (1 - u) * u * cy + u * u * ty];
+                const [x, y] = at(p), [bx, by] = at(Math.max(0, p - 0.1));
+                return <g key={k} opacity={o}><line x1={bx} y1={by} x2={x} y2={y} stroke={C.ir} strokeWidth={r * 0.8} strokeLinecap="round" opacity={0.55} /><circle cx={x} cy={y} r={r * 1.1} fill={C.ir} /><circle cx={x} cy={y} r={r * 0.5} fill={C.irCore} /></g>;
               }
               const a = o * (0.7 + 0.3 * d[2]);
               return <g key={k} opacity={a}><circle cx={tx} cy={ty} r={r} fill={C.ir} /><circle cx={tx} cy={ty} r={r * 0.45} fill={C.irCore} /></g>;

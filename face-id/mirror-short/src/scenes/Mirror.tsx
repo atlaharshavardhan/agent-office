@@ -20,8 +20,8 @@ const poly = (p: number[][]) => p.map((q, i) => `${i ? 'L' : 'M'} ${q[0]} ${q[1]
 
 export const Mirror: React.FC = () => {
   const l = useCurrentFrame();
-  const draw1 = ramp(l, 40, 85), o1 = ramp(l, 38, 44) * (1 - 0.6 * ramp(l, 115, 130));
-  const draw2 = ramp(l, 125, 160), o2 = ramp(l, 123, 129);
+  const draw1 = ramp(l, 40, 52), o1 = ramp(l, 38, 41) * (1 - 0.6 * ramp(l, 120, 125));
+  const draw2 = ramp(l, 125, 136), o2 = ramp(l, 123, 126);
   const L1 = len(P_OUT), L2 = len(P_SEE);
   const push = interpolate(l, [0, 240], [1, 1.04], clamp);
   return (
@@ -31,7 +31,7 @@ export const Mirror: React.FC = () => {
         <svg viewBox="0 0 941 1672" preserveAspectRatio="xMidYMid slice" style={{ position: 'absolute', inset: 0, width: 1080, height: 1920 }}>
           <path d={poly(P_OUT)} fill="none" stroke={C.ir} strokeWidth={2.4} strokeLinejoin="round" strokeDasharray={`${L1 * draw1} ${L1}`} opacity={o1} />
           {draw1 > 0 && draw1 < 1 && (() => { const [x, y] = along(P_OUT, draw1); return <circle cx={x} cy={y} r={4.5} fill={C.label} opacity={o1} />; })()}
-          {draw1 >= 1 && [0, 1, 2].map((k) => { const u = ((l - 85) / 40 + k / 3) % 1; const [x, y] = along(P_OUT, u); return <circle key={k} cx={x} cy={y} r={3.2} fill={C.ir} opacity={o1 * 0.9} />; })}
+          {draw1 >= 1 && [0, 1, 2].map((k) => { const u = ((l - 52) / 24 + k / 3) % 1; const [x, y] = along(P_OUT, u); return <circle key={k} cx={x} cy={y} r={3.2} fill={C.ir} opacity={o1 * 0.9} />; })}
           <path d={poly(P_SEE)} fill="none" stroke={C.label} strokeWidth={2} strokeDasharray="7 7" strokeDashoffset={-l * 0.6} opacity={o2} clipPath="url(#reveal)" />
           <clipPath id="reveal"><rect x={0} y={0} width={538 + (858 - 538) * draw2} height={1672} /></clipPath>
         </svg>
