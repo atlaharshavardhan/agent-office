@@ -39,6 +39,7 @@ export const DepthMap: React.FC = () => {
       </svg>
       <Label text="NOSE · CLOSEST" x={90} y={ny + 100} o={call} size={30} />
       <Label text="EYES · SET BACK" x={90} y={ey - 220} o={call} size={30} />
+      <Label text="INFRARED CAMERA VIEW" x={90} y={300} o={ramp(l, 3, 6) * (1 - ramp(l, 160, 164))} color={C.ir} />
       <Label text="DEPTH MAP" x={90} y={300} o={ramp(l, 172, 176)} />
       {/* near / far legend */}
       <div style={{ position: 'absolute', left: 830, top: 300, opacity: ramp(l, 176, 180), display: 'flex', gap: 14, alignItems: 'stretch', font: `800 24px/1 ${FONT}`, color: C.label, letterSpacing: '0.12em' }}>
