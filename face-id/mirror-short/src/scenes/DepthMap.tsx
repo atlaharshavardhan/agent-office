@@ -22,7 +22,7 @@ export const DepthMap: React.FC = () => {
   const [nx, ny] = pt(NOSE), [ex, ey] = pt(EYE);
   return (
     <AbsoluteFill>
-      <FaceStage t={t} zoom={Z} origin={O} warp={warp} faceO={1 - ramp(l, 172, 200)} depthO={toMap}
+      <FaceStage t={t} zoom={Z} origin={O} warp={warp} faceDim={1 - ramp(l, 150, 175)} faceO={1 - ramp(l, 172, 200)} depthO={toMap}
         dotO={(d) => {
           const dist = Math.hypot(d[0] - SPOT.x, d[1] - SPOT.y);
           const dim = 1 - 0.7 * spot * Math.min(1, Math.max(0, (dist - 110) / 120));
@@ -31,7 +31,7 @@ export const DepthMap: React.FC = () => {
       {/* nose / cheek spotlight ring */}
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
         {(() => { const [sx, sy] = disp(SPOT.x + data.A * t * 0.8 + WARP_PX * warp * 0.8, SPOT.y); return (
-          <ellipse cx={sx} cy={sy} rx={245} ry={230} fill="none" stroke={C.violet} strokeWidth={3} strokeDasharray="10 12" opacity={spot * 0.8} />); })()}
+          <ellipse cx={sx} cy={sy} rx={245} ry={230} fill="none" stroke={C.ir} strokeWidth={3} strokeDasharray="10 12" opacity={spot * 0.8} />); })()}
         {call > 0 && <g opacity={call} stroke={C.label} strokeWidth={3} fill="none">
           <path d={`M ${nx - 12} ${ny} L 380 ${ny + 120}`} /><circle cx={nx} cy={ny} r={9} fill={C.label} />
           <path d={`M ${ex - 10} ${ey - 6} L 380 ${ey - 170}`} /><circle cx={ex} cy={ey} r={9} fill={C.label} />

@@ -29,14 +29,14 @@ export const Mirror: React.FC = () => {
       <div style={{ position: 'absolute', inset: 0, transformOrigin: '600px 700px', transform: `scale(${push})` }}>
         <Img src={staticFile('bathroom_side.png')} style={{ width: 1080, height: 1920, objectFit: 'cover' }} />
         <svg viewBox="0 0 941 1672" preserveAspectRatio="xMidYMid slice" style={{ position: 'absolute', inset: 0, width: 1080, height: 1920 }}>
-          <path d={poly(P_OUT)} fill="none" stroke={C.violet} strokeWidth={2.2} strokeLinejoin="round" strokeDasharray={`${L1 * draw1} ${L1}`} opacity={o1} />
+          <path d={poly(P_OUT)} fill="none" stroke={C.ir} strokeWidth={2.4} strokeLinejoin="round" strokeDasharray={`${L1 * draw1} ${L1}`} opacity={o1} />
           {draw1 > 0 && draw1 < 1 && (() => { const [x, y] = along(P_OUT, draw1); return <circle cx={x} cy={y} r={4.5} fill={C.label} opacity={o1} />; })()}
-          {draw1 >= 1 && [0, 1, 2].map((k) => { const u = ((l - 85) / 40 + k / 3) % 1; const [x, y] = along(P_OUT, u); return <circle key={k} cx={x} cy={y} r={3} fill={C.violet} opacity={o1 * 0.9} />; })}
+          {draw1 >= 1 && [0, 1, 2].map((k) => { const u = ((l - 85) / 40 + k / 3) % 1; const [x, y] = along(P_OUT, u); return <circle key={k} cx={x} cy={y} r={3.2} fill={C.ir} opacity={o1 * 0.9} />; })}
           <path d={poly(P_SEE)} fill="none" stroke={C.label} strokeWidth={2} strokeDasharray="7 7" strokeDashoffset={-l * 0.6} opacity={o2} clipPath="url(#reveal)" />
           <clipPath id="reveal"><rect x={0} y={0} width={538 + (858 - 538) * draw2} height={1672} /></clipPath>
         </svg>
       </div>
-      <div style={{ position: 'absolute', left: 90, top: 1110, opacity: o1, font: `800 28px/1 ${FONT}`, letterSpacing: '0.14em', color: C.label, padding: '12px 18px', borderRadius: 10, background: 'rgba(18,13,10,.62)', border: `2px solid ${C.violet}` }}>INFRARED PATH · ILLUSTRATIVE</div>
+      <div style={{ position: 'absolute', left: 90, top: 1110, opacity: o1, font: `800 28px/1 ${FONT}`, letterSpacing: '0.14em', color: C.label, padding: '12px 18px', borderRadius: 10, background: 'rgba(18,13,10,.62)', border: `2px solid ${C.ir}` }}>INFRARED PATH · ILLUSTRATIVE</div>
       <div style={{ position: 'absolute', left: 90, top: 1185, opacity: o2, font: `800 28px/1 ${FONT}`, letterSpacing: '0.14em', color: C.label, padding: '12px 18px', borderRadius: 10, background: 'rgba(18,13,10,.62)', border: `2px dashed ${C.label}` }}>WHAT THE PHONE SEES</div>
     </AbsoluteFill>
   );

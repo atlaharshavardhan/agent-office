@@ -35,7 +35,7 @@ export const Captions: React.FC<{ lines: Line[] }> = ({ lines }) => {
       {/* centre-safe box: clear of the right-side buttons and the bottom title area */}
       <div style={{ position: 'absolute', left: 80, width: 860, top: 1290, display: 'flex', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center', font: `800 66px/1.18 ${FONT}`, color: C.text, textShadow: '0 3px 10px rgba(0,0,0,.8)', background: 'rgba(14,10,8,.62)', padding: '14px 26px', borderRadius: 18 }}>
-          {c.text.split(' ').map((w, i) => <span key={i} style={{ color: KEY.test(w) ? C.violet : undefined }}>{w} </span>)}
+          {c.text.split(' ').map((w, i) => <span key={i} style={{ color: KEY.test(w) ? '#ff8296' : undefined }}>{w} </span>)}
         </div>
       </div>
     </AbsoluteFill>
