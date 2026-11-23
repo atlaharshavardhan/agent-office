@@ -3,7 +3,7 @@ import { Captions } from './Captions';
 import { Watermark } from './Watermark';
 import { DEFAULT_TEST, GUESS_LINE, LEN, Line, NARRATION, RESULT_LINES, SCENES, SFX, STORY_END, TestProps, TOTAL, f } from './script';
 import { Compare } from './scenes/Compare';
-import { DepthMap } from './scenes/DepthMap';
+import { Scan } from './scenes/Scan';
 import { EndCard } from './scenes/EndCard';
 import { Hook } from './scenes/Hook';
 import { Mirror } from './scenes/Mirror';
@@ -24,7 +24,7 @@ export const MirrorFaceID: React.FC<TestProps> = (props) => {
       {/* ---- VIDEO ---- */}
       <Sequence name="1 · Mirror hook" {...S('hook')}><Hook /></Sequence>
       <Sequence name="2 · TrueDepth reveal" {...S('truedepth')}><TrueDepth /></Sequence>
-      <Sequence name="3 · Depth map" {...S('depthmap')}><DepthMap /></Sequence>
+      <Sequence name="3 · Infrared scan and depth map" {...S('scan')}><Scan /></Sequence>
       <Sequence name="4 · What the iPhone compares" {...S('compare')}><Compare /></Sequence>
       <Sequence name="5 · Back to the mirror" {...S('mirror')}><Mirror /></Sequence>
       <Sequence name="6 · Real test" {...S('test')}><Test p={p} /></Sequence>

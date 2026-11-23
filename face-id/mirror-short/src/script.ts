@@ -8,7 +8,7 @@ export const STORY_END = 43;          // end card = last 2 s
 export const f = (s: number) => Math.round(s * FPS);
 
 export const SCENES = {
-  hook: [0, 2.5], truedepth: [2.5, 10], depthmap: [10, 19], compare: [19, 28],
+  hook: [0, 2.5], truedepth: [2.5, 6], scan: [6, 19], compare: [19, 28],
   mirror: [28, 36], test: [36, 43], end: [43, 45],
 } as const;
 
@@ -26,8 +26,10 @@ export type Line = { id: string; at: number; text: string };
 // Narration = caption text.  `at` is when the voice line starts.
 export const NARRATION: Line[] = [
   { id: 'n1', at: 0.05, text: 'Can a mirror fool Face ID?' },
-  { id: 'n2', at: 2.55, text: 'Every time you glance at your iPhone, the TrueDepth camera projects thousands of invisible infrared dots onto your face.' },
-  { id: 'n3', at: 10.3, text: 'Watch what happens around the nose and cheeks. The camera reads that dot pattern to build a map of your face in three dimensions.' },
+  { id: 'n2', at: 2.2, text: 'Every time you glance at your iPhone, the TrueDepth camera wakes up.' },
+  { id: 'n3a', at: 6.05, text: 'The projector shines thousands of invisible dots onto your face.' },
+  { id: 'n3b', at: 9.9, text: 'The infrared camera captures that pattern.' },
+  { id: 'n3c', at: 12.4, text: 'Your iPhone uses it to work out which parts are closer, like your nose, and which are farther away, like your cheeks.' },
   { id: 'n4', at: 19.3, text: 'It also captures an infrared image. Your iPhone uses both to check whether the face matches the one you enrolled.' },
   { id: 'n5', at: 28.4, text: "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?" },
 ];
@@ -44,8 +46,8 @@ export const LEN: Record<string, number> = lengths as any;
 
 export const SFX = [
   { name: 'SFX · whoosh (hook push)', file: 'whoosh.wav', at: 1.55, vol: 0.35 },
-  { name: 'SFX · whoosh (into TrueDepth)', file: 'whoosh.wav', at: 4.55, vol: 0.3 },
-  { name: 'SFX · dots', file: 'dots.wav', at: 6.4, vol: 0.4 },
+  { name: 'SFX · whoosh (into TrueDepth)', file: 'whoosh.wav', at: 5.3, vol: 0.3 },
+  { name: 'SFX · whoosh (to the sensor)', file: 'whoosh.wav', at: 7.35, vol: 0.25 },
   { name: 'SFX · thump (real test)', file: 'thump.wav', at: 36.0, vol: 0.45 },
 ];
 

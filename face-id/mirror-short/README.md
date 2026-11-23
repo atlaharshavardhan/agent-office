@@ -15,8 +15,8 @@ npm run render          # out/mirror-faceid.mp4
 | Track | Time | What |
 |---|---|---|
 | 1 · Mirror hook | 0–2.5 s | 3 excerpts of `public/mirror_clip.mp4`, normal speed, hard cuts |
-| 2 · TrueDepth reveal | 2.5–10 s | match cut to the iPhone 17 Pro Max graphic, push into the Dynamic Island, cut to the 3/4 face, IR dots land |
-| 3 · Depth map | 10–19 s | dots ride on the face as it turns, warp around nose and cheeks, then become the depth map |
+| 2 · TrueDepth reveal | 2.5–6 s | match cut to the iPhone 17 Pro Max graphic, quick push into the TrueDepth sensor area |
+| 3 · Infrared scan and depth map | 6–19 s | side profile with the phone facing him → his face from the phone's viewpoint → infrared camera view, dot pattern captured at once and pinned to the skin → closer / farther → aligned depth map → only the depth map turns |
 | 4 · What the iPhone compares | 19–28 s | depth map + infrared image → "ENROLLED FACE DATA" (no lock screen) |
 | 5 · Back to the mirror | 28–36 s | bathroom side view with a thin illustrative IR path |
 | 6 · Real test | 36–43 s | your real footage, or a labelled placeholder |
@@ -63,3 +63,5 @@ If you change a narration line, regenerate the audio:
   camera orbits. `FaceStage.tsx` and `public/rot/*` are the older 2D version, no longer used.
 - The 3D phone is `public/models/iphone.glb`, the GLTF iPhone Pro Max model from the HyperFrames registry block
   `vfx-iphone-device` (`npx hyperframes add vfx-iphone-device`); our own lit screen is mapped onto its front glass.
+- Scene 3 (`src/scenes/Scan.tsx`) uses the host's face stills unchanged (colour, infrared, depth map are the same
+  aligned image). `Scan3D.tsx` / `Phone3D.tsx` (Three.js version) are kept but no longer on the timeline.
