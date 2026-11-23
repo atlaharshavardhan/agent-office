@@ -57,3 +57,7 @@ If you change a narration line, regenerate the audio:
   `src/dots.json` (dot pattern with depth per dot, so dots stay on the face).
 - `tools/make_sfx.py` builds the SFX.
 - Dots, the depth map and the IR path are explainer visuals (the real dots are invisible).
+
+- Scenes 2–3 dot scan is real 3D (`src/scenes/Scan3D.tsx`, Three.js): the face is a relief mesh built from
+  `public/relief.png` (`tools/prep_3d.py`), the dots fly from the phone's projector and land on it, and the
+  camera orbits. `FaceStage.tsx` and `public/rot/*` are the older 2D version, no longer used.

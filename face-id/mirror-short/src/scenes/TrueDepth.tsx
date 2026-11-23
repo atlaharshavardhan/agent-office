@@ -2,6 +2,7 @@ import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame } from 'rem
 import { C, FONT, Label, clamp, ramp } from '../theme';
 import { FaceStage, toSource } from './FaceStage';
 import { DI, PHONE, PhoneFront } from './Phone';
+import { Scan3D } from './Scan3D';
 
 // Scene 2 (2.5–10 s, 225 frames). Local frames.
 const CUT_TO_FACE = 114;   // 6.3 s
@@ -28,7 +29,7 @@ export const TrueDepth: React.FC = () => {
     );
   }
   const l = fr - CUT_TO_FACE;
-  return l < SIDE ? <SideScan l={l} /> : <CloseScan l={l - SIDE} />;
+  return l < SIDE ? <SideScan l={l} /> : <Scan3D g={l - SIDE} />;
 };
 
 // ---- Close-up: phone at the left, fine rays fan onto his face, dots fill in ---------------
