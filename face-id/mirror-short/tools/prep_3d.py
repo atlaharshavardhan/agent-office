@@ -9,12 +9,14 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 R = Path(__file__).resolve().parent.parent
-ZS = 330.0
+ZS = 250.0
 dep_img = Image.open(R / "public/face_depth.png").convert("L")
 dep = np.asarray(dep_img).astype(np.float32) / 255
 H, W = dep.shape
 mask = dep > 0.07
-sm = np.asarray(Image.fromarray((dep * mask * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(5))).astype(np.float32) / 255
+# the generated depth map exaggerates the nose: compress the near end so it has real proportions
+shape = np.where(dep > 0.6, 0.6 + (dep - 0.6) * 0.5, dep)
+sm = np.asarray(Image.fromarray((shape * mask * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(5))).astype(np.float32) / 255
 m8 = np.asarray(Image.fromarray((mask * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.5)))
 Image.fromarray(np.dstack([(sm * 255).astype(np.uint8), m8, (dep * 255).astype(np.uint8)])).save(R / "public/relief.png")
 

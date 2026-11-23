@@ -3,9 +3,10 @@ import { useThree } from '@react-three/fiber';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { AbsoluteFill, continueRender, delayRender, staticFile } from 'remotion';
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import data from '../dots3d.json';
 import { C, FONT, Label, ramp } from '../theme';
-import { ISLAND_Y, P3, Phone3D } from './Phone3D';
+import { ISLAND_Y, P3, Phone3D, usePhoneModel } from './Phone3D';
 
 // Real 3D scan scene (Three.js). g = frames since the close-up starts; it runs through the end
 // of scene 2 (g 0..79) and all of scene 3 (g 79..349).
@@ -27,10 +28,10 @@ const PHONE_POS = NOSE.clone().addScaledVector(FACE_DIR, 330).add(new THREE.Vect
 const phoneObj = new THREE.Object3D();
 phoneObj.position.copy(PHONE_POS);
 const PS = 0.95;
-const PROJ_LOCAL = new THREE.Vector3(-14 * PS, ISLAND_Y * PS, (P3.d / 2 + 1.5) * PS);
+const PROJ_LOCAL = new THREE.Vector3(-13 * PS, ISLAND_Y * PS, (P3.d / 2 + 1.5) * PS);
 
 // ---- camera path --------------------------------------------------------------------------
-const KEYS = { g: [0, 79, 190, 245, 300, 349], az: [17, 7, -6, -14, 22, 8], el: [4, 2, 0, 1, 3, 2], dist: [3000, 2550, 1550, 1750, 1950, 2050],
+const KEYS = { g: [0, 79, 190, 245, 300, 349], az: [9, 3, -5, -9, 13, 5], el: [4, 2, 0, 1, 3, 2], dist: [3000, 2550, 1550, 1750, 1950, 2050],
   tx: [-150, -130, 10, -70, -40, -50], ty: [90, 80, 130, 110, 90, 90], tz: [140, 140, 190, 150, 120, 120] };
 const smooth = (g: number, v: number[]) => {
   for (let i = 0; i < KEYS.g.length - 1; i++) if (g <= KEYS.g[i + 1] || i === KEYS.g.length - 2) {
@@ -75,8 +76,13 @@ const FLIGHT = 11;
 const cyanAt = (d: D4) => 195 + ((d[0] + 240) / 560) * 16 + d[3] * 4;
 const RED = new THREE.Color(C.ir), CY = new THREE.Color(CYAN);
 
-const Inner: React.FC<{ g: number; cam: THREE.PerspectiveCamera; face: THREE.Texture; relief: THREE.Texture }> = ({ g, cam, face, relief }) => {
+const Inner: React.FC<{ g: number; cam: THREE.PerspectiveCamera; face: THREE.Texture; relief: THREE.Texture; phone: THREE.Object3D }> = ({ g, cam, face, relief, phone }) => {
   const gl = useThree((s) => s.gl);
+  const scene = useThree((s) => s.scene);
+  useEffect(() => {      // soft studio reflections so the titanium reads as metal
+    const pm = new THREE.PMREMGenerator(gl); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.55;
+    return () => pm.dispose();
+  }, [gl, scene]);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   useLayoutEffect(() => {
     camera.position.copy(cam.position); camera.quaternion.copy(cam.quaternion);
@@ -134,13 +140,13 @@ const Inner: React.FC<{ g: number; cam: THREE.PerspectiveCamera; face: THREE.Tex
       <lineSegments geometry={rays}><lineBasicMaterial color={C.ir} transparent opacity={rayO} blending={THREE.AdditiveBlending} depthWrite={false} /></lineSegments>
       <points geometry={pts.geo} material={pts.mat} frustumCulled={false} />
       {/* phone */}
-      <ambientLight intensity={1.6} />
+      <ambientLight intensity={0.5} />
       <directionalLight position={[600, 500, 2200]} intensity={2.2} />
       <pointLight position={[200, 500, 900]} intensity={3} color="#ffb060" decay={0} />
       <group position={phoneObj.position} quaternion={phoneObj.quaternion} scale={PS} visible={g < 198}>
-        <Phone3D glow={0.85} />
-        <mesh position={[-14, ISLAND_Y, P3.d / 2 + 1.2]}><circleGeometry args={[4, 20]} /><meshBasicMaterial color="#ffffff" /></mesh>
-        <mesh position={[-14, ISLAND_Y, P3.d / 2 + 1.1]}><circleGeometry args={[15, 24]} /><meshBasicMaterial color={C.ir} transparent opacity={0.75 * (1 - ramp(g, 186, 196))} blending={THREE.AdditiveBlending} /></mesh>
+        <Phone3D model={phone} />
+        <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.2]}><circleGeometry args={[4, 20]} /><meshBasicMaterial color="#ffffff" /></mesh>
+        <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.1]}><circleGeometry args={[15, 24]} /><meshBasicMaterial color={C.ir} transparent opacity={0.75 * (1 - ramp(g, 186, 196))} blending={THREE.AdditiveBlending} /></mesh>
       </group>
     </>
   );
@@ -154,7 +160,7 @@ const Call: React.FC<{ title: string; sub: string; x: number; y: number; o: numb
 );
 
 export const Scan3D: React.FC<{ g: number }> = ({ g }) => {
-  const face = useTex('face_34.png'), relief = useTex('relief.png');
+  const face = useTex('face_34.png'), relief = useTex('relief.png'), phone = usePhoneModel();
   const cam = useMemo(() => makeCamera(g), [g]);
   const [nx, ny] = toScreen(cam, NOSE), [ex, ey] = toScreen(cam, EYE);
   const dotsStat = ramp(g, 44, 48) * (1 - ramp(g, 84, 88));
@@ -163,8 +169,8 @@ export const Scan3D: React.FC<{ g: number }> = ({ g }) => {
   const late = ramp(g, 262, 266);
   return (
     <AbsoluteFill style={{ backgroundColor: '#070606' }}>
-      <ThreeCanvas width={1080} height={1920} linear flat gl={{ antialias: true }} camera={{ fov: FOV, near: 10, far: 8000 }}>
-        {face && relief && <Inner g={g} cam={cam} face={face} relief={relief} />}
+      <ThreeCanvas width={1080} height={1920} flat gl={{ antialias: true }} camera={{ fov: FOV, near: 10, far: 8000 }}>
+        {face && relief && phone && <Inner g={g} cam={cam} face={face} relief={relief} phone={phone} />}
       </ThreeCanvas>
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
         <g opacity={early} stroke="#fff" strokeWidth={2.5} fill="#fff">

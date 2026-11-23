@@ -61,3 +61,5 @@ If you change a narration line, regenerate the audio:
 - Scenes 2–3 dot scan is real 3D (`src/scenes/Scan3D.tsx`, Three.js): the face is a relief mesh built from
   `public/relief.png` (`tools/prep_3d.py`), the dots fly from the phone's projector and land on it, and the
   camera orbits. `FaceStage.tsx` and `public/rot/*` are the older 2D version, no longer used.
+- The 3D phone is `public/models/iphone.glb`, the GLTF iPhone Pro Max model from the HyperFrames registry block
+  `vfx-iphone-device` (`npx hyperframes add vfx-iphone-device`); our own lit screen is mapped onto its front glass.
