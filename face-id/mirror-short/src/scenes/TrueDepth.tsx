@@ -1,5 +1,6 @@
 import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame } from 'remotion';
 import { C, FONT, Label, clamp, ramp } from '../theme';
+import { FaceStage, toSource } from './FaceStage';
 import { DI, PHONE, PhoneFront } from './Phone';
 
 // Scene 2 (2.5–10 s, 225 frames). Local frames.
@@ -10,7 +11,7 @@ export const TrueDepth: React.FC = () => {
   const fr = useCurrentFrame();
   if (fr < CUT_TO_FACE) {
     // match cut: starts as a full-screen glow (like the reflected screen), settles to the phone
-    const settle = ramp(fr, 0, 6, 2.05, 1);
+    const settle = ramp(fr, 0, 6, 2.5, 1);
     const push = ramp(fr, PUSH[0], PUSH[1], 0, 1);
     const drift = 1 + 0.16 * ramp(fr, 6, PUSH[0], 0, 1, (x) => x);   // keep moving while the line plays
     const s = settle * drift * (1 + 3.6 * push * push);
@@ -26,7 +27,38 @@ export const TrueDepth: React.FC = () => {
       </AbsoluteFill>
     );
   }
-  return <SideScan l={fr - CUT_TO_FACE} />;
+  const l = fr - CUT_TO_FACE;
+  return l < SIDE ? <SideScan l={l} /> : <CloseScan l={l - SIDE} />;
+};
+
+// ---- Close-up: phone at the left, fine rays fan onto his face, dots fill in ---------------
+const SIDE = 32;                                         // 1.07 s of the side view first
+const CloseScan: React.FC<{ l: number }> = ({ l }) => {
+  const z = 1 + 0.06 * (l / 79), O: [number, number] = [376, 600], DY = 150;
+  const CAMPT: [number, number] = [150, 700];            // Dynamic Island of the small phone (screen px)
+  const appear = (d: number[]) => 1 + (Math.hypot(d[0] - 240, d[1] - 560) / 430) * 20 + d[3] * 4;
+  const diY = PHONE.cy - PHONE.h / 2 + 13 + DI.top + DI.h / 2;
+  const stat = ramp(l, 26, 30);
+  return (
+    <AbsoluteFill>
+      <FaceStage t={0} zoom={z} origin={O} dy={DY} dark={1}
+        rays={{ from: toSource(CAMPT[0], CAMPT[1], z, O, DY), o: ramp(l, 0, 3) }}
+        dotO={(d) => ramp(l, appear(d), appear(d) + 3)}
+        dotR={(d) => (1.1 + 0.7 * d[2]) * (1 + 0.8 * (1 - ramp(l, appear(d), appear(d) + 5)))} />
+      <div style={{ position: 'absolute', inset: 0, perspective: 1400, perspectiveOrigin: `${CAMPT[0]}px ${CAMPT[1]}px` }}>
+        <div style={{ position: 'absolute', inset: 0, transformOrigin: `540px ${diY}px`, transform: `translate(${CAMPT[0] - 540}px, ${CAMPT[1] - diY}px) rotateY(38deg) scale(0.4)` }}>
+          <PhoneFront glow={0.5} />
+        </div>
+      </div>
+      <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, mixBlendMode: 'screen' }}>
+        <circle cx={CAMPT[0]} cy={CAMPT[1]} r={16} fill={C.ir} opacity={0.9} /><circle cx={CAMPT[0]} cy={CAMPT[1]} r={6} fill="#fff" />
+      </svg>
+      <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: stat, color: C.ir, font: `800 112px/1 ${FONT}` }}>
+        30,000+ <span style={{ fontSize: 46, letterSpacing: '0.06em' }}>DOTS</span>
+      </div>
+      <div style={{ position: 'absolute', left: 80, top: 1530, opacity: 0.5 * stat, font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>Illustration · dot count: Apple · fewer dots drawn than fired · invisible to the eye</div>
+    </AbsoluteFill>
+  );
 };
 
 // ---- He holds the phone; its TrueDepth camera lights his face (side view) -----------------
@@ -89,11 +121,8 @@ const SideScan: React.FC<{ l: number }> = ({ l }) => {
       {/* explanations */}
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
         <path d={`M ${cx} ${cy - 26} V 716`} stroke={C.label} strokeWidth={3} opacity={ramp(l, 6, 10)} />
-        <path d="M 300 560 V 640" stroke={C.label} strokeWidth={3} opacity={ramp(l, 40, 44)} />
       </svg>
       <Label text="TRUEDEPTH CAMERA" x={cx} y={660} o={ramp(l, 6, 10)} size={28} align="center" color={C.ir} />
-      <Label text="30,000+ INFRARED DOTS" x={90} y={440} o={ramp(l, 40, 44)} size={30} color={C.ir} />
-      <div style={{ position: 'absolute', left: 92, top: 512, opacity: ramp(l, 46, 50), font: `600 26px/1 ${FONT}`, color: C.label, textShadow: '0 2px 8px #000' }}>invisible to your eyes · shown in red here</div>
     </AbsoluteFill>
   );
 };

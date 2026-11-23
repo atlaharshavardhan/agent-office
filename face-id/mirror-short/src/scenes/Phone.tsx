@@ -1,6 +1,6 @@
 // Front of an iPhone 17 Pro Max (163.4 x 78.0 mm), drawn in SVG: thin even bezels, rounded
 // display corners and the Dynamic Island pill (about 29% of the display width).
-export const PHONE = { w: 620, h: Math.round(620 * 163.4 / 78), cx: 540, cy: 960 };
+export const PHONE = { w: 520, h: Math.round(520 * 163.4 / 78), cx: 540, cy: 1100 };
 export const DI = { w: 168, h: 50, top: 30 }; // relative to the display
 
 export const PhoneFront: React.FC<{ glow: number; emit?: number; t?: number }> = ({ glow, emit = 0, t = 0 }) => {

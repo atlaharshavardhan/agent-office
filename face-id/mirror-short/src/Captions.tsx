@@ -53,8 +53,8 @@ export const Captions: React.FC<{ lines: Line[] }> = ({ lines }) => {
   if (!c) return null;
   return (
     <AbsoluteFill>
-      {/* centre-safe: clear of the right-side buttons and the bottom title area */}
-      <div style={{ position: 'absolute', left: 70, width: 870, top: 1270, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      {/* top of the frame, inside the Shorts safe area (like the reference) */}
+      <div style={{ position: 'absolute', left: 70, width: 870, top: 230, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
         <div style={{ position: 'absolute', inset: '-30px -10px', background: 'radial-gradient(closest-side, rgba(8,6,5,.78), rgba(8,6,5,0))' }} />
         {c.lines.map((ln, i) => (
           <div key={i} style={{ position: 'relative', display: 'flex', gap: 20, font: `800 76px/1.12 ${CAP_FONT}` }}>

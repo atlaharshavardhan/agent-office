@@ -29,6 +29,7 @@ export const Compare: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg }}>
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(70% 50% at 50% 40%, #241911 0%, #120d0a 75%)' }} />
+      <div style={{ position: 'absolute', inset: 0, transform: 'translateY(215px)' }}>
       <Card src="face_depth.png" x={lx} y={y} w={w} o={1} filter="contrast(1.18)" />
       <Card src="face_ir.png" x={rx + (1 - irIn) * 140} y={y} w={w} o={irIn} />
       <Label text="DEPTH MAP" x={lx + w / 2} y={y + w * CROP.h / CROP.w + 22} o={lab} size={30} align="center" />
@@ -53,6 +54,7 @@ export const Compare: React.FC = () => {
         </svg>
       </div>
       <Label text="ENROLLED FACE DATA" x={540} y={EY + EH + 20} o={enr} size={30} align="center" />
+      </div>
     </AbsoluteFill>
   );
 };
