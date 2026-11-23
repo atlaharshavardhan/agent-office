@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@fontsource/inter": "5.2.6",
+    "@fontsource/plus-jakarta-sans": "5.3.0",
     "@remotion/cli": "4.0.538",
     "@remotion/media-utils": "4.0.538",
     "react": "19.1.0",

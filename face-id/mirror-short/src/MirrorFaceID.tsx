@@ -1,5 +1,6 @@
 import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
 import { Captions } from './Captions';
+import { Watermark } from './Watermark';
 import { DEFAULT_TEST, LEN, Line, NARRATION, RESULT_LINES, SCENES, SFX, STORY_END, TestProps, TOTAL, f } from './script';
 import { Compare } from './scenes/Compare';
 import { DepthMap } from './scenes/DepthMap';
@@ -27,6 +28,9 @@ export const MirrorFaceID: React.FC<TestProps> = (props) => {
       <Sequence name="5 · Back to the mirror" {...S('mirror')}><Mirror /></Sequence>
       <Sequence name="6 · Real test" {...S('test')}><Test p={p} /></Sequence>
       <Sequence name="7 · End card" {...S('end')}><EndCard /></Sequence>
+
+      {/* ---- WATERMARK (hidden on the end card) ---- */}
+      <Sequence name="Watermark" from={0} durationInFrames={f(STORY_END)}><Watermark /></Sequence>
 
       {/* ---- CAPTIONS (story only, never over the end card) ---- */}
       <Sequence name="Captions" from={0} durationInFrames={f(STORY_END)}><Captions lines={lines} /></Sequence>
