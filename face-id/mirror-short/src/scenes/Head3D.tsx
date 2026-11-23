@@ -42,15 +42,15 @@ void main(){ vUv = uv; vec3 p = position; p.z += texture2D(uRelief, uv).r * uZS;
 const FS = `uniform sampler2D uFace; uniform sampler2D uIr; uniform sampler2D uRelief; uniform float uIrMix; uniform float uDepth; varying vec2 vUv;
 void main(){ vec4 r = texture2D(uRelief, vUv); if (r.g < 0.5) discard;
   vec3 c = texture2D(uFace, vUv).rgb;
-  vec3 ir = texture2D(uIr, vUv).rgb * 0.74 * vec3(1.04, 1.0, 0.93);          // near-monochrome infrared look
+  vec3 ir = texture2D(uIr, vUv).rgb * 0.6 * vec3(1.04, 1.0, 0.93);          // near-monochrome infrared look
   vec3 d = vec3(clamp((pow(r.b, 0.9) - 0.5) * 1.15 + 0.5, 0.0, 1.0));        // shaded depth map
   gl_FragColor = vec4(mix(mix(c, ir, uIrMix), d, uDepth), 1.0); }`;
 const PVS = `attribute float aB; uniform float uSize; varying float vB;
 void main(){ vB = aB; gl_PointSize = uSize * (0.85 + 0.3 * aB); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
 const PFS = `varying float vB; uniform float uO;
-void main(){ float r = length(gl_PointCoord - 0.5) * 2.0; float a = smoothstep(1.0, 0.72, r) * uO * (0.65 + 0.35 * vB); if (a < 0.01) discard;
-  vec3 red = vec3(1.0, 0.24, 0.37);                                           // the channel's infrared red (#ff3d5e)
-  gl_FragColor = vec4(mix(red, vec3(1.0, 0.86, 0.88), smoothstep(0.55, 0.0, r) * 0.55), a); }`;
+void main(){ float r = length(gl_PointCoord - 0.5) * 2.0; float a = smoothstep(1.0, 0.72, r) * uO * (0.82 + 0.18 * vB); if (a < 0.01) discard;
+  vec3 red = vec3(1.0, 0.16, 0.30);                                           // the channel's infrared red (#ff3d5e)
+  gl_FragColor = vec4(mix(red, vec3(1.0, 0.86, 0.88), smoothstep(0.5, 0.0, r) * 0.7), a); }`;
 
 type P = { az: number; zoom: number; irMix: number; depthMix: number; dotO: number };
 const Inner: React.FC<P & { face: THREE.Texture; ir: THREE.Texture; relief: THREE.Texture }> = ({ az, zoom, irMix, depthMix, dotO, face, ir, relief }) => {
@@ -72,7 +72,7 @@ const Inner: React.FC<P & { face: THREE.Texture; ir: THREE.Texture; relief: THRE
     const m = new THREE.ShaderMaterial({ vertexShader: PVS, fragmentShader: PFS, transparent: true, depthTest: false, depthWrite: false, uniforms: { uSize: { value: 3 }, uO: { value: 0 } } });
     return { geo, m };
   }, []);
-  pts.m.uniforms.uSize.value = 3.1 * w.k * (gl.domElement.height / 1920);     // ~2.7 source px across, crisp
+  pts.m.uniforms.uSize.value = 4.3 * w.k * (gl.domElement.height / 1920);     // ~2.7 source px across, crisp
   pts.m.uniforms.uO.value = dotO;
   return (
     <group position={PIVOT} rotation={[0, (az * Math.PI) / 180, 0]}>
