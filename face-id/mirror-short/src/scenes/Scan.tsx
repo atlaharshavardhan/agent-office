@@ -63,15 +63,14 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
         const far = Math.max(...P.map((q) => Math.hypot(q[0] - front.nose[0], q[1] - front.nose[1])));
         const when = (k: number) => t0 + (Math.hypot(P[k][0] - front.nose[0], P[k][1] - front.nose[1]) / far) * SPAN;
         const xs = L.map((q) => q[0]), ys = L.map((q) => q[1]), X0 = Math.min(...xs), X1 = Math.max(...xs), Y0 = Math.min(...ys), Y1 = Math.max(...ys);
-        // the scan is a wave: a soft round patch of blue that starts on one side of the forehead and travels
-        // diagonally down across the nose to the opposite side of the jaw; each pass starts from the other side
-        const CYC = 44, T0 = t0 + SPAN - 6, pass = Math.max(0, Math.floor((s - T0) / CYC)), sweep = s < T0 ? -1 : ((s - T0) % CYC) / CYC;
-        const MX = (X0 + X1) / 2, WX = X1 - X0, WY = Y1 - Y0, side = pass % 2 ? -1 : 1, e = sweep * sweep * (3 - 2 * sweep), RW = 0.21 * WX;
-        // path: forehead (one side) -> bridge of the nose -> cheek and jaw (other side), as a smooth curve
-        const PA = [MX - side * 0.24 * WX, Y0 + 0.1 * WY], PB = [MX - side * 0.02 * WX, Y0 + 0.5 * WY], PC = [MX + side * 0.3 * WX, Y0 + 0.92 * WY];
-        const wx = (1 - e) * (1 - e) * PA[0] + 2 * e * (1 - e) * PB[0] + e * e * PC[0], wy = (1 - e) * (1 - e) * PA[1] + 2 * e * (1 - e) * PB[1] + e * e * PC[1];
-        const fade = sweep < 0 ? 0 : Math.min(1, sweep * 8, (1 - sweep) * 8);
-        const band = (x: number, y: number) => (sweep < 0 ? 0 : fade * Math.max(0, 1 - Math.hypot(x - wx, y - wy) / RW));
+        // the scan is a wave: a wide band of blue, lying across the whole face, that travels diagonally from the upper
+        // left of the forehead down over the nose to the lower right of the jaw, so every part of the web is covered
+        const CYC = 40, T0 = t0 + SPAN - 6, sweep = s < T0 ? -1 : ((s - T0) % CYC) / CYC;
+        const MX = (X0 + X1) / 2, MY = (Y0 + Y1) / 2, DX = 0.6, DY = 0.8, HW = 85;      // (DX, DY): direction of travel
+        const along = (x: number, y: number) => (x - MX) * DX + (y - MY) * DY;
+        const ext = Math.max(...L.map((q) => Math.abs(along(q[0], q[1])))) + HW, pos = -ext + 2 * ext * sweep;
+        const band = (x: number, y: number) => (sweep < 0 ? 0 : Math.max(0, 1 - Math.abs(along(x, y) - pos) / HW));
+        const at = (a: number, t: number) => `${MX + DX * a - DY * t},${MY + DY * a + DX * t}`;
         return (
           <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
             {(mesh.lines as number[][][]).map((ln, i) => {
@@ -90,7 +89,7 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
               </g>
             </g>
             {/* the scan never leaves the web: it is clipped to the web's own triangles, so it follows the face as it moves */}
-            <defs><clipPath id="band-clip"><circle cx={wx} cy={wy} r={RW * 0.9 * fade} /></clipPath><clipPath id="scan-clip">{(mesh.tris as number[][]).map(([a, b, c], i) => <polygon key={i} points={`${L[a][0]},${L[a][1]} ${L[b][0]},${L[b][1]} ${L[c][0]},${L[c][1]}`} />)}</clipPath></defs>
+            <defs><clipPath id="band-clip"><polygon points={`${at(pos - HW * 0.8, -1200)} ${at(pos - HW * 0.8, 1200)} ${at(pos + HW * 0.8, 1200)} ${at(pos + HW * 0.8, -1200)}`} /></clipPath><clipPath id="scan-clip">{(mesh.tris as number[][]).map(([a, b, c], i) => <polygon key={i} points={`${L[a][0]},${L[a][1]} ${L[b][0]},${L[b][1]} ${L[c][0]},${L[c][1]}`} />)}</clipPath></defs>
           </svg>
         );
       })()}
