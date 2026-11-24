@@ -57,7 +57,9 @@ export const Scan: React.FC = () => {
   const s = raw - (CUE.toSensor + DOTS3D) + CUE.capture;
   const captured = s >= CUE.capture, depth = s >= CUE.depth;
   const zoom = captured ? 1.25 : 1 + 0.03 * ((s - CUE.toSensor) / (CUE.capture - CUE.toSensor));
-  const az = ramp(s, CUE.turn, 390, 0, -15, (x) => x * x * (3 - 2 * x));       // only the depth map turns
+  // the head keeps moving while the depth mesh is on: a slow sway, blending into the final turn
+  const tt = ramp(s, CUE.turn, 390, 0, 1, (x) => x * x * (3 - 2 * x));
+  const az = (depth ? 8 * Math.sin((s - CUE.depth) / 19) * ramp(s, CUE.depth, CUE.depth + 20) : 0) * (1 - tt) - 15 * tt;       // only the depth map turns
   const toDepth = ramp(s, CUE.depth, CUE.depth + 10);                          // short transition, face stays aligned
   const dots = ramp(s, CUE.dots, CUE.dots + 3) * (1 - ramp(s, CUE.depth + 2, CUE.depth + 12));
   const [nx, ny] = headPoint(NOSE, az, zoom), [cx, cy] = headPoint(CHEEK, az, zoom);
@@ -76,14 +78,25 @@ export const Scan: React.FC = () => {
       {/* depth mesh: points pinned to his face, joined by lines; a bigger, brighter point is closer to the phone */}
       {depth && (() => {
         const L = (mesh.pts as number[][]).map((q) => [...headPoint({ x: q[0], y: q[1], d: q[2] }, az, zoom), q[2]]);
-        const E = mesh.edges as number[][], t0 = CUE.depth + 2;
+        const E = mesh.edges as number[][], P = mesh.pts as number[][], t0 = CUE.depth + 2, SPAN = 46;
+        // the mesh forms live: it spreads outward from the nose, point by point and line by line (about 1.5 s)
+        const far = Math.max(...P.map((q) => Math.hypot(q[0] - front.nose[0], q[1] - front.nose[1])));
+        const when = (k: number) => t0 + (Math.hypot(P[k][0] - front.nose[0], P[k][1] - front.nose[1]) / far) * SPAN;
         return (
           <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
-            {E.map(([a, b], i) => {
-              const g = ramp(s, t0 + (i / E.length) * 12, t0 + 6 + (i / E.length) * 12);
-              return g > 0 ? <line key={i} x1={L[a][0]} y1={L[a][1]} x2={L[a][0] + (L[b][0] - L[a][0]) * g} y2={L[a][1] + (L[b][1] - L[a][1]) * g} stroke={MESH} strokeWidth={2.4} opacity={0.8} /> : null;
+            {E.map(([a0, b0], i) => {
+              const [a, b] = when(a0) <= when(b0) ? [a0, b0] : [b0, a0];           // grow from the point that appears first
+              const g = ramp(s, when(a) + 2, when(b) + 4);
+              if (g <= 0) return null;
+              const u = ((s / 22) + i * 0.37) % 1;                                   // a pulse keeps travelling along the line
+              return (
+                <g key={i}>
+                  <line x1={L[a][0]} y1={L[a][1]} x2={L[a][0] + (L[b][0] - L[a][0]) * g} y2={L[a][1] + (L[b][1] - L[a][1]) * g} stroke={MESH} strokeWidth={2.4} opacity={0.8} />
+                  {g >= 1 && i % 3 === 0 && <circle cx={L[a][0] + (L[b][0] - L[a][0]) * u} cy={L[a][1] + (L[b][1] - L[a][1]) * u} r={3.2} fill="#fff" opacity={0.9 * Math.sin(Math.PI * u)} />}
+                </g>
+              );
             })}
-            {L.map(([x, y, d], i) => { const k = ramp(s, t0 + i * 0.25, t0 + 4 + i * 0.25); return <circle key={i} cx={x} cy={y} r={(5 + 9 * d) * k} fill={MESH} opacity={0.55 + 0.45 * d} />; })}
+            {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); return k > 0 ? <circle key={i} cx={x} cy={y} r={(5 + 9 * d) * k * (1 + 0.9 * (1 - ramp(s, when(i), when(i) + 9))) * (1 + 0.1 * Math.sin(s / 6 + i))} fill={MESH} opacity={0.55 + 0.45 * d} /> : null; })}
           </svg>
         );
       })()}
