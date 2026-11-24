@@ -22,7 +22,7 @@ export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
   const on = ramp(f, 68, 74);                           // crisp drawn island replaces the soft photo one
   const part = (fx: number) => left + w * fx;           // x of a part inside the island
   const PARTS = [
-    { fx: 0.14, label: 'IR CAMERA', ly: 640, at: 78, anchor: 'end' as const, lx: 30 },
+    { fx: 0.14, label: 'IR CAMERA', ly: 640, at: 78, anchor: 'start' as const, lx: -150 },
     { fx: 0.31, label: 'FLOOD ILLUMINATOR', ly: 545, at: 90, anchor: 'start' as const, lx: -8 },
     { fx: 0.51, label: 'DOT PROJECTOR', ly: 592, at: 102, anchor: 'start' as const, lx: -8 },
   ];
