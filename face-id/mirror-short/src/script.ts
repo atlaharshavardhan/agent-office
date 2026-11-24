@@ -46,7 +46,7 @@ export const LEN: Record<string, number> = lengths as any;
 
 export const SFX = [
   { name: 'SFX · whoosh (hook push)', file: 'whoosh.wav', at: 1.55, vol: 0.35 },
-  { name: 'SFX · whoosh (into TrueDepth)', file: 'whoosh.wav', at: 5.3, vol: 0.3 },
+  { name: 'SFX · whoosh (into TrueDepth)', file: 'whoosh.wav', at: 5.25, vol: 0.3 },
   { name: 'SFX · whoosh (to the sensor)', file: 'whoosh.wav', at: 7.35, vol: 0.25 },
   { name: 'SFX · thump (real test)', file: 'thump.wav', at: 36.0, vol: 0.45 },
 ];

@@ -10,6 +10,34 @@ const S = 338 / 0.15;
 export const P3 = { w: 162, h: 338, d: 28.4 };          // d/2 = front glass plane
 export const ISLAND_Y = 150;                             // Dynamic Island height above the phone's centre
 
+// A lock screen (time, date, closed padlock, flashlight and camera buttons). The padlock stays closed.
+const lockTexture = () => {
+  const W = 707, H = 1488, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#050505'; g.fillRect(0, 0, W, H);
+  const m = 17;
+  g.save(); g.beginPath(); g.roundRect(m, m, W - 2 * m, H - 2 * m, 92); g.clip();
+  const bg = g.createLinearGradient(0, 0, W * 0.6, H); bg.addColorStop(0, '#1a1430'); bg.addColorStop(0.45, '#4a2f5e'); bg.addColorStop(0.8, '#b0603a'); bg.addColorStop(1, '#2a1612');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  const glow = g.createRadialGradient(W * 0.5, H * 0.72, 20, W * 0.5, H * 0.72, W * 0.9);
+  glow.addColorStop(0, 'rgba(255,190,120,.55)'); glow.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = glow; g.fillRect(0, 0, W, H);
+  g.fillStyle = '#030303'; g.beginPath(); g.roundRect(W / 2 - 100, 48, 200, 58, 29); g.fill();   // Dynamic Island
+  g.fillStyle = '#141a2a'; g.beginPath(); g.arc(W / 2 + 66, 77, 13, 0, 7); g.fill();
+  // closed padlock
+  g.fillStyle = '#fff'; g.strokeStyle = '#fff'; g.lineWidth = 7; g.lineCap = 'round';
+  g.beginPath(); g.roundRect(W / 2 - 22, 176, 44, 36, 8); g.fill();
+  g.beginPath(); g.arc(W / 2, 176, 14, Math.PI, 0); g.stroke();
+  g.textAlign = 'center';
+  g.font = '600 40px Inter, system-ui, sans-serif'; g.fillStyle = 'rgba(255,255,255,.92)'; g.fillText('Monday 9 June', W / 2, 290);
+  g.font = '800 190px Inter, system-ui, sans-serif'; g.fillStyle = '#fff'; g.fillText('9:41', W / 2, 470);
+  for (const x of [112, W - 112]) { g.fillStyle = 'rgba(40,36,48,.72)'; g.beginPath(); g.arc(x, H - 150, 50, 0, 7); g.fill(); }
+  g.fillStyle = '#fff'; g.beginPath(); g.roundRect(100, H - 172, 24, 46, 6); g.fill(); g.beginPath(); g.roundRect(94, H - 180, 36, 14, 4); g.fill();   // flashlight
+  g.beginPath(); g.roundRect(W - 138, H - 166, 52, 36, 8); g.fill(); g.fillStyle = 'rgba(40,36,48,.9)'; g.beginPath(); g.arc(W - 112, H - 148, 10, 0, 7); g.fill();   // camera
+  g.fillStyle = 'rgba(255,255,255,.8)'; g.beginPath(); g.roundRect(W / 2 - 115, H - 44, 230, 9, 4.5); g.fill();
+  g.restore();
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+};
+
 const screenTexture = () => {
   const W = 707, H = 1488, c = document.createElement('canvas'); c.width = W; c.height = H;
   const g = c.getContext('2d')!;
@@ -29,12 +57,12 @@ const screenTexture = () => {
 };
 
 // Load outside the canvas (like the textures) so the first drawn frame already has the phone.
-export const usePhoneModel = () => {
+export const usePhoneModel = (lock = false) => {
   const [model, setModel] = useState<THREE.Object3D | null>(null);
   const [h] = useState(() => delayRender('iphone.glb'));
   useEffect(() => {
     new GLTFLoader().load(staticFile('models/iphone.glb'), (gltf) => {
-      const tex = screenTexture();
+      const tex = lock ? lockTexture() : screenTexture();
       gltf.scene.traverse((o) => {
         const mesh = o as THREE.Mesh;
         if (mesh.isMesh && mesh.name.indexOf('front-glass') === 0) {
@@ -44,6 +72,7 @@ export const usePhoneModel = () => {
           for (let i = 0; i < pos.count; i++) { uv[i * 2] = (pos.getX(i) - b.min.x) / (b.max.x - b.min.x); uv[i * 2 + 1] = (pos.getY(i) - b.min.y) / (b.max.y - b.min.y); }
           geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
           mesh.material = new THREE.MeshBasicMaterial({ map: tex });
+          gltf.scene.userData.screen = mesh.material;      // so a scene can dim / wake the display
         }
       });
       setModel(gltf.scene); continueRender(h);
