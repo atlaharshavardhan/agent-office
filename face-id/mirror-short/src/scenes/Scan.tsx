@@ -11,7 +11,7 @@ import { Orbit3D } from './Orbit3D';
 // 220–268  the same dots as a cyan point cloud                              "Your iPhone uses it to measure"
 // 268–432  DEPTH MAP: face mesh ("the depth of your face"); CLOSER on "nose" (317), FARTHER on "cheeks" (351)
 export const CUE = { front: 147, cyan: 187, depth: 237, nose: 284, cheek: 318, turn: 329, end: 369 };
-const MESH = '#dff3ff';
+const MESH = '#dff3ff', SCAN = '#3dff8f';
 const pt = (a: number[]) => ({ x: a[0], y: a[1], d: a[2] });
 const NOSE = pt(front.nose), CHEEK = pt(front.cheek);
 
@@ -48,7 +48,7 @@ export const Scan: React.FC = () => {
         <path d={corner(90, 470, 1, 1)} /><path d={corner(930, 470, -1, 1)} /><path d={corner(90, 1420, 1, -1)} /><path d={corner(930, 1420, -1, -1)} />
       </svg>}
       {!depth && <Label text="INFRARED CAMERA VIEW" x={505} y={1470} o={1} size={30} align="center" color={C.label} />}
-      {depth && <Label text="DEPTH MAP" x={505} y={1560} o={1} size={30} align="center" color={C.label} />}
+      {depth && <Label text="DEPTH MAP" x={505} y={1690} o={1} size={30} align="center" color={C.label} />}
       {/* depth mesh: points pinned to his face, joined by fine lines; a bigger, brighter point is closer to the phone */}
       {depth && (() => {
         const L = (mesh.pts as number[][]).map((q) => [...headPoint({ x: q[0], y: q[1], d: q[2] }, az, zoom), q[2]]);
@@ -56,6 +56,9 @@ export const Scan: React.FC = () => {
         // the mesh forms live: it spreads outward from the nose, point by point and line by line (about 1 s)
         const far = Math.max(...P.map((q) => Math.hypot(q[0] - front.nose[0], q[1] - front.nose[1])));
         const when = (k: number) => t0 + (Math.hypot(P[k][0] - front.nose[0], P[k][1] - front.nose[1]) / far) * SPAN;
+        const xs = L.map((q) => q[0]), ys = L.map((q) => q[1]), X0 = Math.min(...xs), X1 = Math.max(...xs), Y0 = Math.min(...ys), Y1 = Math.max(...ys);
+        const sweep = s < t0 + SPAN - 6 ? -1 : ((s - (t0 + SPAN - 6)) % 44) / 44, xb = X0 - 40 + (X1 - X0 + 80) * sweep;
+        const band = (x: number) => (sweep < 0 ? 0 : Math.max(0, 1 - Math.abs(x - xb + 30) / 80));
         return (
           <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
             {E.map(([a0, b0], i) => {
@@ -63,9 +66,16 @@ export const Scan: React.FC = () => {
               const g = ramp(s, when(a) + 2, when(b) + 4);
               if (g <= 0) return null;
               const near = (L[a][2] + L[b][2]) / 2;                                // nearer strands are brighter
-              return <line key={i} x1={L[a][0]} y1={L[a][1]} x2={L[a][0] + (L[b][0] - L[a][0]) * g} y2={L[a][1] + (L[b][1] - L[a][1]) * g} stroke={MESH} strokeWidth={1.1} opacity={0.18 + 0.6 * near} />;
+              const k = band((L[a][0] + L[b][0]) / 2);                             // inside the green scan band
+              return <line key={i} x1={L[a][0]} y1={L[a][1]} x2={L[a][0] + (L[b][0] - L[a][0]) * g} y2={L[a][1] + (L[b][1] - L[a][1]) * g} stroke={k > 0.02 ? SCAN : MESH} strokeWidth={1.1 + 1.5 * k} opacity={Math.min(1, 0.18 + 0.6 * near + 0.7 * k)} />;
             })}
-            {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); return k > 0 ? <circle key={i} cx={x} cy={y} r={(1.4 + 2.6 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9)))} fill="#fff" opacity={0.35 + 0.65 * d} /> : null; })}
+            {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); return k > 0 ? <circle key={i} cx={x} cy={y} r={(1.4 + 2.6 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9)))} fill={band(x) > 0.3 ? SCAN : '#fff'} opacity={0.35 + 0.65 * d} /> : null; })}
+            {/* the scan: a green band sweeps the whole web from left to right, again and again */}
+            <g opacity={ramp(s, t0 + SPAN - 6, t0 + SPAN)}>
+              <rect x={xb - 70} y={Y0 - 10} width={70} height={Y1 - Y0 + 20} fill="url(#scan-g)" />
+              <line x1={xb} x2={xb} y1={Y0 - 10} y2={Y1 + 10} stroke={SCAN} strokeWidth={3} />
+            </g>
+            <defs><linearGradient id="scan-g" x1="0" x2="1"><stop offset="0" stopColor={SCAN} stopOpacity={0} /><stop offset="1" stopColor={SCAN} stopOpacity={0.22} /></linearGradient></defs>
           </svg>
         );
       })()}

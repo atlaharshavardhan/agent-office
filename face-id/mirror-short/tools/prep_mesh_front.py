@@ -15,17 +15,18 @@ dep = np.asarray(dep_i.filter(ImageFilter.GaussianBlur(8))).astype(float) / 255
 raw = np.asarray(dep_i).astype(float) / 255
 ir = np.asarray(Image.open(R / "public/face_front_ir.png").convert("L").filter(ImageFilter.GaussianBlur(4))).astype(float) / 255
 H, W = dep.shape
-# face only: no ears (beyond the cheeks) and no neck (below the jaw line, which narrows toward the chin)
+# all visible skin: face, ears and neck down to the collar (hair is excluded by the infrared brightness)
 yy, xx = np.arange(H)[:, None], np.arange(W)[None, :]
 JAW = 868
-skin = (raw > 0.12) & (ir > 0.40) & (np.abs(xx - F["nose"][0]) < 152) & (yy < JAW - 0.0016 * (xx - F["nose"][0]) ** 2)
+NECK = F["chin"] + 78
+skin = (raw > 0.10) & (ir > 0.38) & (yy < NECK)
 Z = [(575,470),(380,500),(770,500),(575,600),(300,700),(440,660),(540,700),(640,700),(740,660),(860,700),
      (350,775),(490,780),(660,780),(800,775),(585,740),(585,860),(585,950),(505,985),(660,985),(350,930),(810,930),
      (455,1120),(700,1120),(575,1085),(575,1165),(575,1250),(575,1350)]
 pts = [(96 + x / 2, 200 + y / 2) for x, y in Z]
 rng = np.random.default_rng(4); S = 30
-for gy in np.arange(300, JAW + 6, S * 0.87):
-    for k, gx in enumerate(np.arange(170, 610, S)):
+for gy in np.arange(300, NECK, S * 0.87):
+    for k, gx in enumerate(np.arange(120, 640, S)):
         x = gx + (S / 2 if int(gy / (S * 0.87)) % 2 else 0) + rng.uniform(-5, 5); y = gy + rng.uniform(-5, 5)
         if 0 <= int(x) < W and skin[int(y), int(x)] and min(np.hypot(x - px, y - py) for px, py in pts) > 15:
             pts.append((x, y))
