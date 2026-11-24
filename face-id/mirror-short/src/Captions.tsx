@@ -1,7 +1,7 @@
 import '@fontsource/plus-jakarta-sans/600.css';
 import '@fontsource/plus-jakarta-sans/800.css';
 import { AbsoluteFill, useCurrentFrame } from 'remotion';
-import { CAPTIONS_AT_BOTTOM, FPS, LEN, Line } from './script';
+import { CAPTION_PLACEMENT, CAPTION_TOP_DEFAULT, FPS, LEN, Line } from './script';
 
 // Word-by-word captions (style from the reference): words already spoken are bold white,
 // words still to come are dim grey, and the word being spoken sits in a blue selection box
@@ -54,7 +54,7 @@ export const Captions: React.FC<{ lines: Line[] }> = ({ lines }) => {
   return (
     <AbsoluteFill>
       {/* top of the frame, inside the Shorts safe area (like the reference) */}
-      <div style={{ position: 'absolute', left: 70, width: 870, top: CAPTIONS_AT_BOTTOM.some(([a, b]) => t >= a && t < b) ? 1250 : 230, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <div style={{ position: 'absolute', left: 70, width: 870, top: CAPTION_PLACEMENT.find((r) => t >= r.from && t < r.to)?.top ?? CAPTION_TOP_DEFAULT, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
         <div style={{ position: 'absolute', inset: '-30px -10px', background: 'radial-gradient(closest-side, rgba(8,6,5,.78), rgba(8,6,5,0))' }} />
         {c.lines.map((ln, i) => (
           <div key={i} style={{ position: 'relative', display: 'flex', gap: 20, font: `800 76px/1.12 ${CAP_FONT}` }}>
