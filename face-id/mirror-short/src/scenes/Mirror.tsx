@@ -3,13 +3,16 @@ import { C, FONT, Label, clamp, ramp } from '../theme';
 
 // Scene 5 (8 s, 240 frames): "Here's the twist. A mirror can reflect infrared light too. So what happens
 // when the phone sees only my reflection?"  Seen from behind him (public/bathroom_rear.png, 941 x 1672).
-// The dot projector is on the FRONT of the phone, so the rays come from the front camera area of the
-// phone we see in the mirror (never from the back of the phone in his hand).
+// The dot projector is on the FRONT of the phone he is holding. From behind we cannot see that side, so:
+//  - the rays leave the top edge of his real phone (from its hidden front, never from the back cameras),
+//  - the mirror shows that front camera glowing, with the mirror image of the same rays,
+//  - both meet at the glass, and the reflected rays land on the face we see in the mirror.
 //   0– 35  cut to the rear view and push in toward the mirror
 //  40–130  the front camera in the mirror lights up; a fan of red rays sweeps down his reflected face
 //          and the dot pattern appears behind it, with a scan frame and a running percentage
 // 130–240  second push-in on the reflection; closed padlock with a question mark. No result is shown.
 const K = 1080 / 941;
+const SRC = [822, 537];                                                   // top edge of the phone in his hand (its front faces the mirror)
 const CAM = [702, 498], FACE = { x: 595, y: 502, rx: 47, ry: 62 };      // front camera of the reflected phone; reflected face
 const io = (x: number) => x * x * (3 - 2 * x);
 let seed = 23; const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296);
@@ -38,15 +41,23 @@ export const Mirror: React.FC = () => {
         <svg viewBox="0 0 941 1672" style={{ position: 'absolute', inset: 0, width: 1080, height: 1672 * K }}>
           {/* rays from the front camera (in the mirror) to the line of his face being scanned */}
           <g opacity={fire}>
-            {FAN.map((k, i) => { const x = FACE.x + k * half, u = ((l / 9) + i * 0.37) % 1; return (
+            {FAN.map((k, i) => { const x = FACE.x + k * half, u = ((l / 9) + i * 0.37) % 1;
+              const gx = 764 + k * 5, gy = 512 + (sy - FACE.y) * 0.45 + k * 9;         // where this ray meets the glass, between the two phones
+              const pos = u < 0.5 ? [SRC[0] + (gx - SRC[0]) * u * 2, SRC[1] + (gy - SRC[1]) * u * 2] : [gx + (x - gx) * (u - 0.5) * 2, gy + (sy - gy) * (u - 0.5) * 2];
+              return (
               <g key={i}>
-                <line x1={CAM[0]} y1={CAM[1]} x2={x} y2={sy} stroke={C.ir} strokeWidth={0.75} opacity={0.75} />
-                <circle cx={CAM[0] + (x - CAM[0]) * u} cy={CAM[1] + (sy - CAM[1]) * u} r={1.3} fill={C.irCore} />
+                <line x1={SRC[0]} y1={SRC[1]} x2={gx} y2={gy} stroke={C.ir} strokeWidth={1} opacity={0.9} />
+                <line x1={CAM[0]} y1={CAM[1]} x2={gx} y2={gy} stroke={C.irCore} strokeWidth={0.6} strokeDasharray="3 3" opacity={0.6} />
+                <line x1={gx} y1={gy} x2={x} y2={sy} stroke={C.ir} strokeWidth={0.75} opacity={0.75} />
+                <circle cx={gx} cy={gy} r={1.6 + 2.2 * u} fill="none" stroke={C.irCore} strokeWidth={0.6} opacity={0.8 * (1 - u)} />
+                <circle cx={pos[0]} cy={pos[1]} r={1.4} fill={C.irCore} />
               </g>); })}
             <line x1={FACE.x - half} x2={FACE.x + half} y1={sy} y2={sy} stroke={C.irCore} strokeWidth={1.4} />
           </g>
           {/* the dot pattern appears behind the scan line */}
           {DOTS.map((d, i) => (d[1] <= sy && l >= 50 ? <circle key={i} cx={d[0]} cy={d[1]} r={1.05} fill={C.ir} opacity={0.7 + 0.3 * d[2]} /> : null))}
+          {/* the hidden front of his real phone: light spilling over its top edge */}
+          <g opacity={ramp(l, 38, 44) * (1 - ramp(l, 128, 136))}><ellipse cx={SRC[0]} cy={SRC[1]} rx={16} ry={4} fill={C.ir} opacity={0.85} /><ellipse cx={SRC[0]} cy={SRC[1]} rx={7} ry={1.8} fill="#fff" /></g>
           {/* front camera glow on the phone in the mirror */}
           <g opacity={ramp(l, 38, 44)}><circle cx={CAM[0]} cy={CAM[1]} r={5 + 1.2 * Math.sin(l / 3)} fill={C.ir} opacity={0.85} /><circle cx={CAM[0]} cy={CAM[1]} r={2} fill="#fff" /></g>
           {/* scan frame on the reflection */}
@@ -59,7 +70,11 @@ export const Mirror: React.FC = () => {
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: ramp(l, 38, 44) * (1 - ramp(l, 130, 136)) }}>
         <path d={`M ${cx} ${cy - 12} V ${cy - 96}`} stroke="#fff" strokeWidth={3} /><circle cx={cx} cy={cy - 12} r={5} fill="#fff" />
       </svg>
-      <div style={{ position: 'absolute', left: Math.min(cx - 150, 620), top: cy - 150, opacity: ramp(l, 38, 44) * (1 - ramp(l, 130, 136)), padding: '10px 16px', borderRadius: 10, background: 'rgba(10,8,7,.8)', border: `2px solid ${C.ir}`, font: `800 26px/1 ${FONT}`, letterSpacing: '0.1em', color: '#fff', whiteSpace: 'nowrap' }}>FRONT CAMERA · IN THE MIRROR</div>
+      <div style={{ position: 'absolute', left: Math.min(cx - 290, 360), top: cy - 150, opacity: ramp(l, 38, 44) * (1 - ramp(l, 130, 136)), padding: '10px 16px', borderRadius: 10, background: 'rgba(10,8,7,.8)', border: `2px solid ${C.ir}`, font: `800 26px/1 ${FONT}`, letterSpacing: '0.1em', color: '#fff', whiteSpace: 'nowrap' }}>FRONT CAMERA · SEEN IN THE MIRROR</div>
+      {(() => { const [rx, ry] = scr(SRC[0], SRC[1]), o = ramp(l, 38, 44) * (1 - ramp(l, 130, 136)); return (<>
+        <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: o }}><path d={`M ${rx + 30} ${ry + 4} H ${rx + 70} V ${ry + 150}`} stroke="#fff" strokeWidth={3} fill="none" /><circle cx={rx + 30} cy={ry + 4} r={5} fill="#fff" /></svg>
+        <div style={{ position: 'absolute', left: Math.min(rx - 150, 600), top: ry + 150, opacity: o, padding: '10px 16px', borderRadius: 10, background: 'rgba(10,8,7,.85)', border: `2px solid ${C.ir}`, font: `800 24px/1.25 ${FONT}`, letterSpacing: '0.08em', color: '#fff' }}>RAYS LEAVE THE FRONT<br />OF THE PHONE HE HOLDS</div>
+      </>); })()}
       {/* live read-out under the scan frame */}
       <div style={{ position: 'absolute', left: bx, top: by + 14, opacity: ramp(l, 48, 52), padding: '8px 14px', borderRadius: 8, background: 'rgba(10,8,7,.8)', font: `800 26px/1 ${FONT}`, letterSpacing: '0.08em', color: '#fff', whiteSpace: 'nowrap' }}>{scan < 1 ? `SCANNING ${pct}%` : 'REFLECTION SCANNED'}</div>
       {/* closed padlock + question mark beside the frame */}
