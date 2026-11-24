@@ -18,7 +18,7 @@ const hash = (i: number) => { const x = Math.sin(i * 12.9898) * 43758.5453; retu
 
 export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
   const z = ramp(f, 30, 50, 0, 1, io), z2 = ramp(f, 54, 72, 0, 1, io);
-  const s = (1 + 0.1 * ramp(f, 0, 30, 0, 1, out3)) * (1 + 0.72 * z) * (1 + 1.55 * z2) * (1 + 0.04 * ramp(f, 72, 135));
+  const s = (1 + 0.1 * ramp(f, 0, 30, 0, 1, out3)) * (1 + 0.72 * z) * (1 + 1.55 * z2) * (1 + 0.05 * ramp(f, 72, 190));
   const cx = ISL.x + (540 - ISL.x) * z, cy = ISL.y + (490 - ISL.y) * z + (800 - 490) * z2;      // island centre on screen
   const w = ISL.w * s, h = ISL.h * s, top = cy - h / 2, left = cx - w / 2;
   const on = ramp(f, 68, 74);                           // crisp drawn island replaces the soft photo one
@@ -29,7 +29,7 @@ export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
     { fx: 0.51, label: 'DOT PROJECTOR', ly: 592, at: 86, anchor: 'start' as const, lx: -8 },
   ];
   const r = h * 0.3;
-  const LIFT = 285, active = f < 106 ? -1 : Math.min(2, Math.floor((f - 106) / 14));
+  const LIFT = 285, CARD = 27, active = f < 106 ? -1 : Math.min(2, Math.floor((f - 106) / CARD));   // each part is explained for 0.9 s
   const MODS = [
     { fx: 0.14, k: 1, at: 76, col: TEAL, label: 'IR CAMERA', does: 'reads the dots on your face' },
     { fx: 0.31, k: 0.8, at: 79, col: RED, label: 'FLOOD ILLUMINATOR', does: 'lights your face in infrared' },
@@ -65,7 +65,7 @@ export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
               {/* what the active part does, shown with light */}
               {act && i === 0 && [0, 1, 2].map((k) => { const u = ((f / 12) + k / 3) % 1; return <circle key={k} cx={x} cy={y} r={r * sc * (1.9 - 0.9 * u)} fill="none" stroke={TEAL} strokeWidth={3} opacity={0.8 * u} />; })}
               {act && i === 1 && <path d={`M ${x} ${y} L ${x - 190} ${y - 300} L ${x + 190} ${y - 300} Z`} fill={RED} opacity={0.16 + 0.08 * Math.sin(f / 2)} />}
-              {act && i === 2 && Array.from({ length: 46 }, (_, k) => { const u = ((f - 134) / 12 + hash(k)) % 1, a = (hash(k + 7) - 0.5) * 1.5; return <circle key={k} cx={x + Math.sin(a) * 300 * u} cy={y - r - 300 * u} r={3 + 2 * u} fill={RED} opacity={0.95 * (1 - u)} />; })}
+              {act && i === 2 && Array.from({ length: 46 }, (_, k) => { const u = ((f - 106 - 2 * CARD) / 12 + hash(k)) % 1, a = (hash(k + 7) - 0.5) * 1.5; return <circle key={k} cx={x + Math.sin(a) * 300 * u} cy={y - r - 300 * u} r={3 + 2 * u} fill={RED} opacity={0.95 * (1 - u)} />; })}
             </g>); })}
         {/* first pass: the three parts are named while still in the island */}
         {PARTS.map((p) => { const o = ramp(f, p.at, p.at + 4) * (1 - ramp(f, TEAR - 4, TEAR)), x = part(p.fx); return (
@@ -81,7 +81,7 @@ export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
       </svg>}
       <AbsoluteFill style={{ backgroundColor: '#000', opacity: 0.45 * ramp(f, TEAR, TEAR + 8), pointerEvents: 'none', mixBlendMode: 'multiply' }} />
       {/* explanation card: one part at a time */}
-      {active >= 0 && (() => { const m = MODS[active], o = ramp(f, 106 + active * 14, 109 + active * 14); return (
+      {active >= 0 && (() => { const m = MODS[active], o = ramp(f, 106 + active * CARD, 109 + active * CARD); return (
         <div style={{ position: 'absolute', left: 60, right: 60, top: 190, textAlign: 'center', opacity: o, transform: `translateY(${10 * (1 - o)}px)` }}>
           <div style={{ display: 'inline-block', padding: '20px 30px', borderRadius: 18, background: 'rgba(6,6,12,.86)', border: `3px solid ${m.col}` }}>
             <div style={{ font: `800 58px/1 ${FONT}`, letterSpacing: '0.08em', color: m.col }}>{m.label}</div>

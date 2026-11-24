@@ -41,8 +41,10 @@ const STREAM = Array.from({ length: 150 }, () => [rnd(), rnd()]);
 export const MIR = { glass: 54, face: 96, wide: 150 };
 const STEPS = [{ at: 30, to: MIR.glass, text: '1 · DOTS LEAVE THE PHONE' }, { at: MIR.glass, to: MIR.wide, text: '2 · THE MIRROR REFLECTS THEM ONTO HIS FACE' }, { at: MIR.wide, to: 999, text: '3 · THE CAMERA SEES HIS FACE IN THE MIRROR' }];
 
+// MIR_FROM: the setup is trimmed, the scene starts this many frames in (just before the dots leave the phone)
+export const MIR_FROM = 24;
 export const Mirror: React.FC = () => {
-  const l = useCurrentFrame();
+  const l = useCurrentFrame() + MIR_FROM;
   const s = 1 + 0.25 * ramp(l, 0, 30, 0, 1, (x) => x * x * (3 - 2 * x)) + 0.02 * (l / 222);   // wide enough to keep his reflection in frame   // push in on the phone, mirror and face
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg, overflow: 'hidden' }}>

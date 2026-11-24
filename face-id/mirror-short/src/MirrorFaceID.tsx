@@ -4,10 +4,10 @@ import { Shot } from './Shot';
 import { Watermark } from './Watermark';
 import { DEFAULT_TEST, LEN, Line, NARRATION, RESULT_LINES, SCENES, SFX, STORY_END, TestProps, TOTAL, f } from './script';
 import { CMP, Compare } from './scenes/Compare';
-import { CUE, Scan } from './scenes/Scan';
+import { CUE_A, CUE_B, ScanA, ScanB } from './scenes/Scan';
 import { EndCard } from './scenes/EndCard';
 import { Hook } from './scenes/Hook';
-import { MIR, Mirror } from './scenes/Mirror';
+import { MIR, MIR_FROM, Mirror } from './scenes/Mirror';
 import { Test } from './scenes/Test';
 import { TEAR, TrueDepth } from './scenes/TrueDepth';
 
@@ -24,14 +24,15 @@ export const MirrorFaceID: React.FC<TestProps> = (props) => {
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
       {/* ---- VIDEO ---- */}
       <Sequence name="1 · Mirror hook" {...S('hook')}><Hook /></Sequence>
-      <Sequence name="2 · TrueDepth reveal" {...S('truedepth')}><Shot dur={D('truedepth')} enter={false} snaps={[[TEAR, 1.12]]}><TrueDepth /></Shot></Sequence>
-      <Sequence name="3 · Dots, infrared view and depth web" {...S('scan')}>
-        <Shot dur={D('scan')} snaps={[[CUE.front, 1.3], [CUE.cyan, 1.3], [CUE.depth, 1.25]]}><Scan /></Shot>
+      <Sequence name="2 · Inside the phone" {...S('truedepth')}><Shot dur={D('truedepth')} enter={false} snaps={[[TEAR, 1.12]]}><TrueDepth /></Shot></Sequence>
+      <Sequence name="3 · Red dots and infrared camera view" {...S('scan')}><Shot dur={D('scan')} snaps={[[CUE_A.front, 1.3]]}><ScanA /></Shot></Sequence>
+      <Sequence name="4 · The mirror twist" {...S('mirror')}>
+        <Shot dur={D('mirror')} snaps={[[MIR.glass - MIR_FROM, 1.3], [MIR.face - MIR_FROM, 1.3], [MIR.wide - MIR_FROM, 1.25]]}><Mirror /></Shot>
       </Sequence>
-      <Sequence name="4 · What the iPhone compares" {...S('compare')}><Shot dur={D('compare')} snaps={[[CMP.both, 1.3], [CMP.check, 1.3], [CMP.merge, 1.15]]}><Compare /></Shot></Sequence>
-      <Sequence name="5 · Back to the mirror" {...S('mirror')}><Shot dur={D('mirror')} snaps={[[MIR.glass, 1.3], [MIR.face, 1.3], [MIR.wide, 1.25]]}><Mirror /></Shot></Sequence>
-      <Sequence name="6 · Real mirror test (reveal slot)" {...S('test')}><Shot dur={D('test')}><Test p={p} /></Shot></Sequence>
-      <Sequence name="7 · End card" {...S('end')}><Shot dur={D('end')} exit={false}><EndCard /></Shot></Sequence>
+      <Sequence name="5 · What the phone measures" {...S('measure')}><Shot dur={D('measure')} snaps={[[CUE_B.cyan, 1.3], [CUE_B.depth, 1.25]]}><ScanB /></Shot></Sequence>
+      <Sequence name="6 · Compare the face" {...S('compare')}><Shot dur={D('compare')} snaps={[[CMP.both, 1.3], [CMP.check, 1.3]]}><Compare /></Shot></Sequence>
+      <Sequence name="7 · Real mirror test (reveal slot)" {...S('test')}><Shot dur={D('test')}><Test p={p} /></Shot></Sequence>
+      <Sequence name="8 · End card" {...S('end')}><Shot dur={D('end')} exit={false}><EndCard /></Shot></Sequence>
 
       {/* ---- WATERMARK (hidden on the end card) ---- */}
       <Sequence name="Watermark" from={0} durationInFrames={f(STORY_END)}><Watermark /></Sequence>

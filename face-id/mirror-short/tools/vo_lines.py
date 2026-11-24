@@ -11,18 +11,18 @@ from kokoro_onnx import Kokoro
 M = Path(sys.argv[1])
 OUT = Path(__file__).resolve().parent.parent / "public" / "vo"; OUT.mkdir(parents=True, exist_ok=True)
 LINES = {
-    "n1": "Can a mirror fool Face ID?",
-    "n2": "Every time you glance at your iPhone, the TrueDepth camera wakes up.",
-    "n3a": "The dot projector shines thousands of invisible infrared dots onto your face.",
-    "n3b": "The infrared camera captures the pattern.",
-    "n3c": "Your iPhone uses it to measure the depth of your face. Your nose is closer. Your cheeks are farther away.",
-    "n4": "It also captures an infrared image. Your iPhone uses both to check whether the face matches the one you enrolled.",
-    "n5": "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?",
-    "n6_guess": "So what do you think? Does my reflection unlock it? Comment your guess.",
-    "n6_open": "In my test, my iPhone unlocked using my reflection.",
-    "n6_locked": "In my test, the reflection alone didn't unlock my iPhone.",
+    "n1": "Have you ever wondered if your reflection can unlock an iPhone 18 Pro Max?",
+    "n2": "First, look at what happens up here when I wake the phone.",
+    "n3a": "This tiny projector puts thousands of invisible dots on my face.",
+    "n3b": "And the infrared camera picks up that pattern.",
+    "n5": "Here's the twist. A mirror can bounce that infrared light back, too.",
+    "n3c": "See my nose? It's closer than my cheeks. The phone uses that pattern to map the shape of my face.",
+    "n4": "It also takes an infrared picture. Then it uses both to check if I'm the person who set up Face ID.",
+    "n6q": "So, did it work?",
+    "n6_open": "It actually unlocked.",
+    "n6_locked": "In my test, it stayed locked.",
 }
-SPEED = {"n1": 1.3, "n2": 1.3, "n3a": 1.38, "n3b": 1.2, "n3c": 1.3}
+SPEED = {"n1": 1.2, "n3a": 1.25, "n3b": 1.22, "n3c": 1.22}
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
 ONLY = sys.argv[2:]          # optional: regenerate only these line ids, keep the rest
 L = json.load(open(OUT / "lengths.json")) if ONLY else {}

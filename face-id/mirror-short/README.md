@@ -77,13 +77,22 @@ If you change a narration line, regenerate the audio:
   `Orbit3D.tsx`, `Scan3D.tsx`, `PhoneReveal.tsx`, `Guess.tsx` are earlier versions kept off the timeline.
 - 0:04–0:06 shows a neutral closed padlock in the Dynamic Island; scene 6 is a labelled placeholder until real footage is set.
 
-## Current cut (45 s, 1,350 frames)
+## Current cut (40.8 s, 1,224 frames)
 
-- 0:06–0:20.4 (`src/scenes/Scan.tsx`, cue frames in `CUE`): 3D side profile with the red dots → hard cut on "captures" to the
-  frontal red-dot close-up (INFRARED CAMERA VIEW, held) → cyan point cloud → depth map with the face mesh, CLOSER on "nose",
-  FARTHER on "cheek". No percentage, graph or explainer text.
-- 0:28.6–0:36 mirror setup: light path only (no match ring or percentages), ends on a closed padlock with a question mark.
-- 0:36–0:43 is the reveal slot. With no `testFootage` it shows a marked "REVEAL SLOT" card and no result line plays.
-  Result lines: locked = "In my test, the reflection alone didn't unlock my iPhone." / open = "In my test, my iPhone unlocked
-  using my reflection."
-- `storyboard/` holds a still of every clip of this cut.
+| Time | Scene | Narration |
+|---|---|---|
+| 0:00–0:05 | Mirror hook: side profile, rear view held on the reflected phone, push into the display | "Have you ever wondered if your reflection can unlock an iPhone 18 Pro Max?" |
+| 0:05–0:09 | Inside the phone: Dynamic Island close-up, parts pulled up and explained | "First, look at what happens up here when I wake the phone." |
+| 0:09–0:14.5 | Red-dot projection, 3D side profile | "This tiny projector puts thousands of invisible dots on my face." |
+| 0:14.5–0:16 | Frontal red-dot close-up, INFRARED CAMERA VIEW (cut on "picks up") | "And the infrared camera picks up that pattern." |
+| 0:16–0:20.2 | Mirror: dots leave the phone, bounce off the glass, land on his face | "Here's the twist. A mirror can bounce that infrared light back, too." |
+| 0:20.2–0:26.1 | Frontal red-dot face with CLOSER / FARTHER, cyan point cloud, depth web | "See my nose? It's closer than my cheeks. The phone uses that pattern to map the shape of my face." |
+| 0:26.1–0:32.8 | Infrared image, depth + infrared, comparison ring (ends while still comparing) | "It also takes an infrared picture. Then it uses both to check if I'm the person who set up Face ID." |
+| 0:32.8–0:38.8 | Real mirror test (reveal slot) | "So, did it work?" then, 3.2 s in, the result line once footage is set |
+| 0:38.8–0:40.8 | End card | |
+
+- Result lines: locked = "In my test, it stayed locked." / open = "It actually unlocked." They play only when `testFootage`
+  is set and `result` matches it (`src/script.ts` → `DEFAULT_TEST`).
+- All timings, narration text, caption placement and SFX are in `src/script.ts`; cue frames inside scenes are `CUE_A` / `CUE_B`
+  (`Scan.tsx`), `CMP` (`Compare.tsx`), `MIR` / `MIR_FROM` (`Mirror.tsx`), `TEAR` (`HandPhone.tsx`).
+- Voice: `python tools/vo_lines.py <kokoro models dir> [line ids…]`.
