@@ -74,6 +74,6 @@ export type TestProps = {
   focusX: number; focusY: number; zoom: number;
 };
 export const DEFAULT_TEST: TestProps = {
-  testFootage: '', testStartSec: 0, result: 'none', resultDelaySec: 2.0,
+  testFootage: '', testStartSec: 0, result: 'locked', resultDelaySec: 2.0,   // 'locked' = does not match (set by Harsh); 'open' = match
   focusX: 0.5, focusY: 0.3, zoom: 1.0,
 };

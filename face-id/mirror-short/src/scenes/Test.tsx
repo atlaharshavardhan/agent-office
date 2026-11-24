@@ -1,9 +1,11 @@
 import { AbsoluteFill, OffthreadVideo, staticFile } from 'remotion';
 import { FPS, TestProps } from '../script';
 import { C, FONT } from '../theme';
+import { Result } from './Result';
 
 // Scene 6 (36–43 s). Only REAL footage goes here — nothing in this scene is animated as a result.
 export const Test: React.FC<{ p: TestProps }> = ({ p }) => {
+  if (!p.testFootage && p.result !== 'none') return <Result result={p.result} />;   // the answer, as an illustration
   if (!p.testFootage) {
     return (
       <AbsoluteFill style={{ backgroundColor: '#1a1414', alignItems: 'center', justifyContent: 'center' }}>

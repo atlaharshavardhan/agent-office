@@ -15,7 +15,7 @@ const S = (k: keyof typeof SCENES) => ({ from: f(SCENES[k][0]), durationInFrames
 export const MirrorFaceID: React.FC<TestProps> = (props) => {
   const p = { ...DEFAULT_TEST, ...props };
   // the result line exists only when real footage is in and you have picked the matching line
-  const result: Line[] = p.testFootage && p.result !== 'none'
+  const result: Line[] = p.result !== 'none'
     ? [{ ...RESULT_LINES[p.result], at: SCENES.test[0] + p.resultDelaySec }] : [];
   const lines = [...NARRATION, ...result];
   return (
