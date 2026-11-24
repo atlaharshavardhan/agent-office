@@ -88,7 +88,10 @@ export const Mirror: React.FC = () => {
         <circle cx={RING.x} cy={RING.y} r={RING.r + 22} fill="rgba(6,5,5,.82)" />
         {Array.from({ length: TICKS }, (_, k) => { const a = (k / TICKS) * 2 * Math.PI - Math.PI / 2, on = k / TICKS < scan, r0 = RING.r - 16, r1 = RING.r + (on ? 12 : 8);
           return <line key={k} x1={RING.x + r0 * Math.cos(a)} y1={RING.y + r0 * Math.sin(a)} x2={RING.x + r1 * Math.cos(a)} y2={RING.y + r1 * Math.sin(a)} stroke={on ? C.ir : '#6f6a66'} strokeWidth={on ? 5 : 4} strokeLinecap="round" opacity={on ? 1 : 0.6} />; })}
-        {RING_DOTS.map((d, k) => <circle key={k} cx={RING.x + d[0] + Math.cos(l / 16) * 30 * (d[2] - 0.42)} cy={RING.y + d[1] + Math.sin(l / 16) * 20 * (d[2] - 0.42)} r={1.5} fill="#f4efe9" opacity={0.25 + 0.75 * d[2]} />)}
+        {/* the head keeps rolling in a slow circle (one turn every 2.6 s): dots shift by depth, plus a small tilt */}
+        <g transform={`rotate(${4 * Math.sin(l / 12.5)} ${RING.x} ${RING.y})`}>
+          {RING_DOTS.map((d, k) => <circle key={k} cx={RING.x + d[0] * (1 - 0.06 * Math.abs(Math.cos(l / 12.5))) + Math.cos(l / 12.5) * 52 * (d[2] - 0.42)} cy={RING.y + d[1] + Math.sin(l / 12.5) * 34 * (d[2] - 0.42)} r={1.5} fill="#f4efe9" opacity={0.25 + 0.75 * d[2]} />)}
+        </g>
       </svg>
       <div style={{ position: 'absolute', left: 500, top: 1215, width: 440, opacity: panel }}>
         <div style={{ font: `800 46px/1 ${FONT}`, color: '#fff' }}>{scan < 1 ? 'Matching…' : 'Match?'}</div>
