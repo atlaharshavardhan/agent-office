@@ -3,6 +3,7 @@ import front from '../front.json';
 import mesh from '../mesh_front.json';
 import { C, FONT, Label, ramp } from '../theme';
 import { Head3D, headPoint } from './Head3D';
+import { Orbit3D } from './Orbit3D';
 
 // Scene 3 (6–19 s, 390 frames). s = local frame. Cuts are placed on the voiceover (see script.ts):
 //   0– 24  side profile: the iPhone faces him                      "The dot projector ..."
@@ -45,9 +46,14 @@ const Mark: React.FC<{ x: number; y: number; text: string; left: boolean; o: num
   );
 };
 
+// After the side profile, the 3D dots clip plays for DOTS3D frames: the iPhone fires the red dots and
+// they fly through space onto his head. Everything after it runs DOTS3D frames later.
+export const DOTS3D = 105;
 export const Scan: React.FC = () => {
-  const s = useCurrentFrame();
-  if (s < CUE.toSensor) return <Side s={s} />;
+  const raw = useCurrentFrame();
+  if (raw < CUE.toSensor) return <Side s={raw} />;
+  if (raw < CUE.toSensor + DOTS3D) return <Orbit3D g={raw - CUE.toSensor} />;
+  const s = raw - DOTS3D;
   const captured = s >= CUE.capture, depth = s >= CUE.depth;
   const zoom = captured ? 1.25 : 1 + 0.03 * ((s - CUE.toSensor) / (CUE.capture - CUE.toSensor));
   const az = ramp(s, CUE.turn, 390, 0, -15, (x) => x * x * (3 - 2 * x));       // only the depth map turns
