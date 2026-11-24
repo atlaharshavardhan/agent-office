@@ -7,7 +7,7 @@ import { C, FONT, Label, clamp, ramp } from '../theme';
 //  40–125  red dots leave his phone, hit the glass (ripples) and light up his reflected face
 // 130–240  a scan frame locks onto the reflection; closed padlock with a question mark. No result is shown.
 const K = 1080 / 941;
-const PHONE = [822, 538],   // top edge of the phone he holds (its front faces the mirror), not the back cameras
+const PHONE = [822, 538];   // top edge of the phone he holds (its front faces the mirror), not the back cameras
 const GLASS = [742, 516], FACE = { x: 595, y: 502, rx: 47, ry: 62 };
 const io = (x: number) => x * x * (3 - 2 * x);
 let seed = 23; const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296);
