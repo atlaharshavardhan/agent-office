@@ -21,7 +21,15 @@ NX, NY = F["nose"][0], F["nose"][1]
 from scipy import ndimage
 skin = (raw > 0.10) & (ir > 0.38)
 skin = ndimage.binary_fill_holes(ndimage.binary_closing(skin, iterations=14))          # bridge brows, eyes and stubble
-skin &= (raw > 0.10) & (yy < 868 - 0.0024 * (xx - NX) ** 2)        # stops at the chin and follows the jaw up to the ears
+# the real jaw line, read from the depth image: in each column, the row where the depth drops from the jaw to the neck
+gyd = np.gradient(ndimage.gaussian_filter(raw, 3), axis=0)
+JX = np.arange(NX - 158, NX + 159)
+JY = ndimage.gaussian_filter1d(np.array([770 + gyd[770:900, x].argmin() for x in JX], float), 9) - 4
+jaw = np.full(W, 0.0); jaw[JX] = JY
+for x in range(W):                                   # beyond the jaw corners: rise toward the ear lobes
+    if x < JX[0]: jaw[x] = JY[0] - 1.6 * (JX[0] - x)
+    if x > JX[-1]: jaw[x] = JY[-1] - 1.6 * (x - JX[-1])
+skin &= (raw > 0.10) & (yy < jaw[None, :])           # the web stops exactly on the jaw line and wraps round its corners
 # a regular grid wrapped round the head like lines of latitude and longitude (as in the reference picture):
 # columns bunch up toward the sides and rows bend toward the middle (the lowest rows cup under the chin), so the web reads as a curved surface, with a node at every crossing
 CY, RX, RY, STEP = NY - 60, 262.0, 345.0, 0.088
@@ -54,6 +62,8 @@ def runs(samples):
 FINE = STEP / 5; LINES = []
 for v in vs: LINES += runs([at(u, v) for u in np.arange(us[0], us[-1] + 1e-6, FINE)])
 for u in us: LINES += runs([at(u, v) for v in np.arange(vs[0], vs[-1] + 1e-6, FINE)])
+# the lower edge of the web: one line along the jaw, so the grid closes round the chin and the jaw corners
+LINES += runs([(float(x), float(jaw[x]) - 2) for x in range(int(JX[0]) - 30, int(JX[-1]) + 31, 3)])
 out_pts = [[round(float(x), 1), round(float(y), 1), round(float(dep[int(y), int(x)]), 3)] for x, y in P]
 X0, DX, Y0, DY = 150, 8, 300, 8
 rows = [[round(float(dep[y, x]) if raw[y, x] > 0.1 else 0, 3) for x in range(X0, 610, DX)] for y in range(Y0, F["chin"] + 20, DY)]
