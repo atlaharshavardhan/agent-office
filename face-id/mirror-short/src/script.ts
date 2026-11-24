@@ -22,6 +22,10 @@ export const HOOK_CUTS = [
   { name: 'Hook 3 · push to the phone in his hand (still: hook_closeup.png)', srcStart: 0, dur: 30 },
 ];
 
+// Captions sit at the top, except in these time ranges (seconds), where they move to the bottom so they
+// do not cover the subject. 6.8–12.8 s = the 3D dots clip (red dots, then cyan depth points).
+export const CAPTIONS_AT_BOTTOM: [number, number][] = [[6.8, 12.8]];
+
 export type Line = { id: string; at: number; text: string };
 // Narration = caption text.  `at` is when the voice line starts.
 export const NARRATION: Line[] = [

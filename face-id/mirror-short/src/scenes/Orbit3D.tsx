@@ -191,14 +191,14 @@ export const Orbit3D: React.FC<{ g: number }> = ({ g }) => {
       </ThreeCanvas>
       <Mark x={nose[0]} y={nose[1]} text="CLOSER" sub="nose" dx={-150} o={ramp(g, 205, 209) * (1 - ramp(g, 322, 328))} />
       <Mark x={cheek[0]} y={cheek[1]} text="FARTHER" sub="cheek" dx={170} o={ramp(g, 270, 274) * (1 - ramp(g, 322, 328))} />
-      <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: ramp(g, 44, 48) * (1 - ramp(g, 100, 104)), color: C.ir, font: `800 112px/1 ${FONT}` }}>
+      <div style={{ position: 'absolute', left: 70, width: 870, top: 1456, textAlign: 'center', opacity: ramp(g, 44, 48) * (1 - ramp(g, 100, 104)), color: C.ir, font: `800 112px/1 ${FONT}` }}>
         30,000+ <span style={{ fontSize: 46, letterSpacing: '0.06em' }}>DOTS</span>
       </div>
-      <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: ramp(g, 134, 138) * (1 - ramp(g, 180, 184)), color: CYAN, font: `800 104px/1 ${FONT}` }}>
+      <div style={{ position: 'absolute', left: 70, width: 870, top: 1456, textAlign: 'center', opacity: ramp(g, 134, 138) * (1 - ramp(g, 180, 184)), color: CYAN, font: `800 104px/1 ${FONT}` }}>
         30,000+ <span style={{ fontSize: 42, letterSpacing: '0.06em' }}>DEPTH POINTS</span>
       </div>
       <Label text="DEPTH MAP" x={505} y={1500} o={ramp(g, 197, 201)} align="center" />
-      <div style={{ position: 'absolute', left: 80, top: 1562, opacity: 0.5 * (1 - ramp(g, 185, 197)), font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>3D illustration · dot count: Apple · fewer dots drawn than fired · invisible to the eye</div>
+      <div style={{ position: 'absolute', left: 80, top: 1600, opacity: 0.5 * (1 - ramp(g, 185, 197)), font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>3D illustration · dot count: Apple · fewer dots drawn than fired · invisible to the eye</div>
     </AbsoluteFill>
   );
 };
