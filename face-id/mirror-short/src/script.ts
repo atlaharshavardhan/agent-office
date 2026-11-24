@@ -54,15 +54,9 @@ export const RESULT_LINES = {
 export const LEN: Record<string, number> = lengths as any;
 
 export const SFX = [
-  { name: 'SFX · whoosh (push into the reflected phone, on "unlock")', file: 'whoosh.wav', at: 2.85, vol: 0.35 },
-  { name: 'SFX · whoosh (up to the Dynamic Island)', file: 'whoosh.wav', at: 3.7, vol: 0.28 },
   { name: 'SFX · thump (the parts are explained)', file: 'thump.wav', at: 5.8, vol: 0.3 },
-  { name: 'SFX · whoosh (to the dots)', file: 'whoosh.wav', at: 8.85, vol: 0.22 },
   { name: 'SFX · thump (capture, on "picks up")', file: 'thump.wav', at: 14.45, vol: 0.25 },
-  { name: 'SFX · whoosh (push toward the reflection, on "bounce")', file: 'whoosh.wav', at: 17.7, vol: 0.2 },
-  { name: 'SFX · whoosh (to the comparison)', file: 'whoosh.wav', at: 25.95, vol: 0.22 },
   { name: 'SFX · thump (real test)', file: 'thump.wav', at: 32.8, vol: 0.45 },
-  { name: 'SFX · whoosh (to the end card)', file: 'whoosh.wav', at: 38.65, vol: 0.2 },
 ];
 
 // ---- Real mirror test (scene 6) -------------------------------------------------
