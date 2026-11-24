@@ -50,7 +50,7 @@ export const Mirror: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg, overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, ...(l >= MIR.glass && l < MIR.wide
-        ? (() => { const px = 520 * K, py = 620 * K, sc = 1.5 * (1 + 0.08 * ((l - MIR.glass) / (MIR.wide - MIR.glass)));      // one framing: his face, the phone and the glass together
+        ? (() => { const px = 548 * K, py = 625 * K, sc = 1.36 * (1 + 0.05 * ((l - MIR.glass) / (MIR.wide - MIR.glass)));      // one framing: his face, the phone, the glass and his reflection in it
           return { transformOrigin: '0 0', transform: `translate(${540 - px * sc}px, ${900 - py * sc}px) scale(${sc})` }; })()
         : { transformOrigin: '640px 700px', transform: `scale(${s})` }) }}>
         <Img src={staticFile('bathroom_side.png')} style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1672 * K, filter: `brightness(${1 - 0.25 * ramp(l, 30, 60)})` }} />
@@ -65,7 +65,7 @@ export const Mirror: React.FC = () => {
             {FACE_DOTS.map((f, i) => {
               const m = hit(f), a = len(P, m), b = len(m, f), t0 = launch(f), p = (l - t0) / FLY;
               if (p <= 0) return null;
-              if (p >= 1) { const g = mir(f); return <g key={i}><circle cx={f[0]} cy={f[1]} r={1.25 * (1 + 0.8 * (1 - ramp(l, t0 + FLY, t0 + FLY + 5)))} fill={C.ir} opacity={0.75 + 0.25 * f[2]} />{i % 2 === 0 && <circle cx={g[0]} cy={g[1]} r={1.05} fill={C.ir} opacity={0.7} />}</g>; }
+              if (p >= 1) { const g = mir(f); return <g key={i}><circle cx={f[0]} cy={f[1]} r={1.25 * (1 + 0.8 * (1 - ramp(l, t0 + FLY, t0 + FLY + 5)))} fill={C.ir} opacity={0.75 + 0.25 * f[2]} /><circle cx={g[0]} cy={g[1]} r={1.0} fill={C.ir} opacity={0.75} /></g>; }
               const d = p * (a + b), q = d < a ? [P[0] + (m[0] - P[0]) * d / a, P[1] + (m[1] - P[1]) * d / a] : [m[0] + (f[0] - m[0]) * (d - a) / b, m[1] + (f[1] - m[1]) * (d - a) / b];
               const g = mir(q); return <g key={i}><circle cx={q[0]} cy={q[1]} r={1.7} fill={C.irCore} /><circle cx={g[0]} cy={g[1]} r={1.4} fill={C.irCore} opacity={0.85} /></g>;
             })}
