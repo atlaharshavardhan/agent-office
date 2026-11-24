@@ -1,38 +1,71 @@
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
-import { C, Label, ramp } from '../theme';
-import { Orbit3D } from './Orbit3D';
+import front from '../front.json';
+import { C, FONT, Label, ramp } from '../theme';
+import { Head3D, headPoint } from './Head3D';
 
-// Scene 3 (6–19 s, 390 frames). s = local frame.
-//   0– 60  tight side profile: the phone faces him; quick push to the TrueDepth sensor area
-//  60–180  cut to his face from the phone's viewpoint -> infrared camera view; the dot pattern
-//          appears in one capture and stays pinned to the skin
-// 180–300  capture frozen: nose tip = closer, cheek = farther; dots -> shaded depth map (aligned)
-// 300–390  only the reconstructed depth map turns slightly
-// From 60 on the head is a real 3D relief (Head3D): it turns a few degrees while it is scanned.
+// Scene 3 (6–19 s, 390 frames). s = local frame. Cuts are placed on the voiceover (see script.ts):
+//   0– 24  side profile: the iPhone faces him                      "The dot projector ..."
+//  24–120  PROJECT: tight grayscale view from the phone's front sensor; the whole dot pattern
+//          appears in one beat on "infrared dots" and stays pinned to his face
+// 120–210  CAPTURE: punch in so his face fills the frame, INFRARED CAMERA VIEW, capture held
+//                                                                  "The infrared camera captures the pattern."
+// 210–390  DEPTH MAP: match cut at the same angle, scale and alignment; CLOSER on "nose",
+//          FARTHER on "cheek"; the depth map then turns slightly
+export const CUE = { toSensor: 24, dots: 72, capture: 120, depth: 210, nose: 291, cheek: 351, turn: 356 };
 const VIEW = { x: 180, y: 240, w: 460 }, K = 1080 / VIEW.w;          // crop of bathroom_side.png (941 x 1672)
 const CAM = [(507 - VIEW.x) * K, (603 - VIEW.y) * K];               // top of the phone, facing him
+const pt = (a: number[]) => ({ x: a[0], y: a[1], d: a[2] });
+const NOSE = pt(front.nose), CHEEK = pt(front.cheek);
 
-const Side: React.FC<{ s: number }> = ({ s }) => {
-  const push = ramp(s, 40, 58, 0, 1, (x) => x * x);
-  const z = (1 + 0.03 * (s / 40)) * (1 + 2.4 * push);
+const Side: React.FC<{ s: number }> = ({ s }) => (
+  <AbsoluteFill style={{ backgroundColor: C.bg, overflow: 'hidden' }}>
+    <div style={{ position: 'absolute', inset: 0, transformOrigin: `${CAM[0]}px ${CAM[1]}px`, transform: `scale(${1 + 0.05 * (s / 24)})` }}>
+      <Img src={staticFile('bathroom_side.png')} style={{ position: 'absolute', left: -VIEW.x * K, top: -VIEW.y * K, width: 941 * K, height: 1672 * K }} />
+    </div>
+    <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: ramp(s, 4, 8) }}>
+      <path d={`M ${CAM[0]} ${CAM[1] - 20} V 716`} stroke={C.label} strokeWidth={3} />
+      <circle cx={CAM[0]} cy={CAM[1]} r={9} fill="none" stroke={C.label} strokeWidth={3} />
+    </svg>
+    <Label text="DOT PROJECTOR" x={CAM[0]} y={660} o={ramp(s, 4, 8)} size={28} align="center" color={C.label} />
+  </AbsoluteFill>
+);
+
+const Mark: React.FC<{ x: number; y: number; text: string; left: boolean; o: number }> = ({ x, y, text, left, o }) => {
+  const lx = left ? 70 : 760, ly = y + (left ? 150 : 190);
   return (
-    <AbsoluteFill style={{ backgroundColor: C.bg, overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, transformOrigin: `${CAM[0]}px ${CAM[1]}px`, transform: `translate(${(540 - CAM[0]) * push}px, ${(960 - CAM[1]) * push}px) scale(${z})` }}>
-        <Img src={staticFile('bathroom_side.png')} style={{ position: 'absolute', left: -VIEW.x * K, top: -VIEW.y * K, width: 941 * K, height: 1672 * K }} />
-      </div>
-      <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: ramp(s, 6, 10) * (1 - ramp(s, 38, 42)) }}>
-        <path d={`M ${CAM[0]} ${CAM[1] - 20} V 716`} stroke={C.label} strokeWidth={3} />
-        <circle cx={CAM[0]} cy={CAM[1]} r={9} fill="none" stroke={C.label} strokeWidth={3} />
+    <>
+      <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: o }}>
+        <path d={`M ${left ? lx + 180 : lx + 40} ${ly + 4} L ${x} ${y}`} stroke="#fff" strokeWidth={3} fill="none" />
+        <circle cx={x} cy={y} r={17} fill="none" stroke={C.amber} strokeWidth={4.5} /><circle cx={x} cy={y} r={5.5} fill="#fff" />
       </svg>
-      <Label text="TRUEDEPTH CAMERA" x={CAM[0]} y={660} o={ramp(s, 6, 10) * (1 - ramp(s, 38, 42))} size={28} align="center" color={C.label} />
-    </AbsoluteFill>
+      <div style={{ position: 'absolute', left: lx, top: ly, opacity: o, padding: '14px 22px', borderRadius: 10, background: 'rgba(10,8,7,.78)', border: `2px solid ${C.amber}`, font: `800 38px/1 ${FONT}`, letterSpacing: '0.12em', color: '#fff' }}>{text}</div>
+    </>
   );
 };
 
-// From s = 60 the 3D scan plays (Scan3D): the iPhone fires the dots, they fly through space and land
-// on his head, turn cyan as depth points, and the head becomes a 3D depth map. Its 349-frame
-// timeline is stretched slightly to fill the 330 frames up to 0:19.
 export const Scan: React.FC = () => {
   const s = useCurrentFrame();
-  return s < 60 ? <Side s={s} /> : <Orbit3D g={s - 60} />;
+  if (s < CUE.toSensor) return <Side s={s} />;
+  const captured = s >= CUE.capture, depth = s >= CUE.depth;
+  const zoom = captured ? 1.25 : 1 + 0.03 * ((s - CUE.toSensor) / (CUE.capture - CUE.toSensor));
+  const az = ramp(s, CUE.turn, 390, 0, -15, (x) => x * x * (3 - 2 * x));       // only the depth map turns
+  const dots = depth ? 0 : ramp(s, CUE.dots, CUE.dots + 3);
+  const [nx, ny] = headPoint(NOSE, az, zoom), [cx, cy] = headPoint(CHEEK, az, zoom);
+  const corner = (x: number, y: number, dx: number, dy: number) => `M ${x + dx * 50} ${y} H ${x} V ${y + dy * 50}`;
+  return (
+    <AbsoluteFill>
+      <Head3D az={az} zoom={zoom} irMix={1} depthMix={depth ? 1 : 0} dotO={dots} />
+      {/* capture: a short flash and frame brackets, then the frame is held */}
+      <AbsoluteFill style={{ backgroundColor: '#fff', opacity: 0.25 * ramp(s, CUE.capture, CUE.capture + 1) * (1 - ramp(s, CUE.capture + 1, CUE.capture + 6)) }} />
+      {captured && !depth && <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }} stroke="#fff" strokeWidth={4} fill="none">
+        <path d={corner(90, 470, 1, 1)} /><path d={corner(930, 470, -1, 1)} /><path d={corner(90, 1420, 1, -1)} /><path d={corner(930, 1420, -1, -1)} />
+      </svg>}
+      {!captured && <Label text="DOT PROJECTOR · PATTERN ON HIS FACE" x={505} y={1470} o={ramp(s, CUE.dots, CUE.dots + 4)} size={26} align="center" color={C.label} />}
+      {captured && !depth && <Label text="INFRARED CAMERA VIEW" x={505} y={1470} o={1} size={30} align="center" color={C.label} />}
+      {depth && <Label text="DEPTH MAP" x={505} y={1470} o={1} size={30} align="center" color={C.label} />}
+      <Mark x={nx} y={ny} text="CLOSER" left o={ramp(s, CUE.nose, CUE.nose + 3)} />
+      <Mark x={cx} y={cy} text="FARTHER" left={false} o={ramp(s, CUE.cheek, CUE.cheek + 3)} />
+      <div style={{ position: 'absolute', left: 80, top: 1562, opacity: depth ? 0 : 0.5, font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>Illustration · the real dots are invisible · fewer dots drawn than projected</div>
+    </AbsoluteFill>
+  );
 };

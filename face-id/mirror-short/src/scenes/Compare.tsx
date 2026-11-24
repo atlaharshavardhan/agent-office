@@ -2,7 +2,7 @@ import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame } from 'rem
 import { C, FONT, Label, clamp, ramp } from '../theme';
 
 // Scene 4 (19–28 s, 270 frames). Kept apart from any lock screen: no result is shown.
-const CROP = { x: 110, y: 230, w: 540, h: 720 }; // face region of the 752 x 1344 stills
+const CROP = { x: 106, y: 200, w: 540, h: 720 }; // face region of the 752 x 1344 stills
 
 const Card: React.FC<{ src: string; x: number; y: number; w: number; o: number; filter?: string }> = ({ src, x, y, w, o, filter }) => {
   const k = w / CROP.w, h = CROP.h * k;
@@ -30,8 +30,8 @@ export const Compare: React.FC = () => {
     <AbsoluteFill style={{ backgroundColor: C.bg }}>
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(70% 50% at 50% 40%, #241911 0%, #120d0a 75%)' }} />
       <div style={{ position: 'absolute', inset: 0, transform: 'translateY(215px)' }}>
-      <Card src="face_depth.png" x={lx} y={y} w={w} o={1} filter="contrast(1.18)" />
-      <Card src="face_ir.png" x={rx + (1 - irIn) * 140} y={y} w={w} o={irIn} />
+      <Card src="face_front_depth.png" x={lx} y={y} w={w} o={1} filter="contrast(1.18)" />
+      <Card src="face_front_ir.png" x={rx + (1 - irIn) * 140} y={y} w={w} o={irIn} />
       <Label text="DEPTH MAP" x={lx + w / 2} y={y + w * CROP.h / CROP.w + 22} o={lab} size={30} align="center" />
       <Label text="INFRARED IMAGE" x={rx + w / 2} y={y + w * CROP.h / CROP.w + 22} o={lab * irIn} size={30} align="center" />
       {/* the two captures feed one comparison */}
@@ -47,7 +47,7 @@ export const Compare: React.FC = () => {
       <div style={{ position: 'absolute', left: 0, right: 0, top: scanBottom + 132, textAlign: 'center', opacity: cmp, font: `800 26px/1 ${FONT}`, letterSpacing: '0.14em', color: C.label, transform: 'translateX(-200px)' }}>THIS SCAN</div>
       {/* enrolled face data: a stored template (abstracted), not a picture of the lock screen */}
       <div style={{ position: 'absolute', left: EX, top: EY + (1 - enr) * 40, width: EW, height: EH, opacity: enr, borderRadius: 22, overflow: 'hidden', border: `3px solid ${C.violet}`, background: '#0c0a12' }}>
-        <Img src={staticFile('face_depth.png')} style={{ position: 'absolute', left: -CROP.x * EW / CROP.w, top: -CROP.y * EW / CROP.w, width: 752 * EW / CROP.w, height: 1344 * EW / CROP.w, opacity: 0.55, filter: 'contrast(1.2) sepia(1) hue-rotate(215deg) saturate(1.6)' }} />
+        <Img src={staticFile('face_front_depth.png')} style={{ position: 'absolute', left: -CROP.x * EW / CROP.w, top: -CROP.y * EW / CROP.w, width: 752 * EW / CROP.w, height: 1344 * EW / CROP.w, opacity: 0.55, filter: 'contrast(1.2) sepia(1) hue-rotate(215deg) saturate(1.6)' }} />
         <svg width={EW} height={EH} style={{ position: 'absolute', inset: 0 }}>
           {Array.from({ length: 15 }, (_, i) => <line key={'h' + i} x1={0} x2={EW} y1={(i + 0.5) * EH / 15} y2={(i + 0.5) * EH / 15} stroke={C.violet} strokeWidth={1} opacity={0.28} />)}
           {Array.from({ length: 11 }, (_, i) => <line key={'v' + i} y1={0} y2={EH} x1={(i + 0.5) * EW / 11} x2={(i + 0.5) * EW / 11} stroke={C.violet} strokeWidth={1} opacity={0.28} />)}

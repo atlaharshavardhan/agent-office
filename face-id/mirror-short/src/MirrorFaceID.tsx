@@ -1,7 +1,7 @@
 import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
 import { Captions } from './Captions';
 import { Watermark } from './Watermark';
-import { DEFAULT_TEST, GUESS_LINE, LEN, Line, NARRATION, RESULT_LINES, SCENES, SFX, STORY_END, TestProps, TOTAL, f } from './script';
+import { DEFAULT_TEST, LEN, Line, NARRATION, RESULT_LINES, SCENES, SFX, STORY_END, TestProps, TOTAL, f } from './script';
 import { Compare } from './scenes/Compare';
 import { Scan } from './scenes/Scan';
 import { EndCard } from './scenes/EndCard';
@@ -16,8 +16,7 @@ export const MirrorFaceID: React.FC<TestProps> = (props) => {
   const p = { ...DEFAULT_TEST, ...props };
   // the result line exists only when real footage is in and you have picked the matching line
   const result: Line[] = p.testFootage && p.result !== 'none'
-    ? [{ ...RESULT_LINES[p.result], at: SCENES.test[0] + p.resultDelaySec }]
-    : !p.testFootage ? [{ ...GUESS_LINE, at: SCENES.test[0] + 0.5 }] : [];
+    ? [{ ...RESULT_LINES[p.result], at: SCENES.test[0] + p.resultDelaySec }] : [];
   const lines = [...NARRATION, ...result];
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>

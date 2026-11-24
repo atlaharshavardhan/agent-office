@@ -71,3 +71,8 @@ If you change a narration line, regenerate the audio:
 - 0:01.5–0:06 stays on the phone in his hand (`src/scenes/HandPhone.tsx`, still `public/hook_closeup.png`): the hook's
   push-in lands on it, the camera zooms to its Dynamic Island and the Face ID glyph animation plays there.
   `PhoneReveal.tsx` (separate 3D phone opening) is no longer on the timeline. Hook preview stills are in `hook-stills/`.
+- Current 0:06–0:19 (`src/scenes/Scan.tsx`, cue frames in `CUE`): side profile → grayscale view from the front sensor
+  (straight-on stills `face_front*.png`, relief + dots from `tools/prep_front.py`) with the whole dot pattern appearing
+  at once → INFRARED CAMERA VIEW capture → match cut to the depth map, CLOSER on "nose", FARTHER on "cheek", slight turn.
+  `Orbit3D.tsx`, `Scan3D.tsx`, `PhoneReveal.tsx`, `Guess.tsx` are earlier versions kept off the timeline.
+- 0:04–0:06 shows a neutral closed padlock in the Dynamic Island; scene 6 is a labelled placeholder until real footage is set.
