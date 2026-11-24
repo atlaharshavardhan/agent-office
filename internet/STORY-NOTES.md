@@ -80,3 +80,4 @@ now she moved to London, that's part 1. Part 2: what happens if we need to send 
 - Harsh asked for Part 1 as a true full-screen 16:9 film at 1080p (not the tall video inside a wide frame).
 - How: src/lib/wide.ts + WideWrap.tsx draw the tall layout at 0.72 scale in the middle of 1920 x 1080 and let the world spill to both sides; skies, ground, skyline and vignettes are widened; the first-person shot gets extra neighbour houses; phones are bigger and stand beside the middle column.
 - Compositions WStreet, WCity, WFly. Script: v3/render_part1_wide.sh. Output: internet/video/internet-part1-wide-v1.mp4. Sound is the same as the vertical version 3.
+- 24 Nov 2026: Part 1 16:9 v1 rendered and sent (internet/video/internet-part1-wide-v1.mp4, 90.1 s, 1920 x 1080). Render took about 14 hours of short runs; the plane/globe/end card alone took about 4 hours.
