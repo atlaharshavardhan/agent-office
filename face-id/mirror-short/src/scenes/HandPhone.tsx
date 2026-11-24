@@ -7,7 +7,7 @@ import { FONT, ramp } from '../theme';
 //  30– 50  zoom to the top of that phone
 //  54– 72  second zoom, right into its Dynamic Island; the screen takes on a pixel-grid look
 //  74– 94  the TrueDepth parts inside the island are drawn and named: IR CAMERA, FLOOD ILLUMINATOR, DOT PROJECTOR
-//  94–147  tear-down on the phone: the parts are pulled up out of the island, then explained one at a time
+//  94–190  the parts stay in the island and are explained one at a time; the card points at the active part
 // A closed padlock sits under the island; nothing is unlocked here.
 const K = 1080 / 752, TOP = -5;                        // still is 752 x 1344, shown full-bleed
 const ISL = { x: 377 * K, y: 183 * K + TOP, w: 112 * K, h: 32 * K };   // its Dynamic Island on screen at scale 1
@@ -29,7 +29,8 @@ export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
     { fx: 0.51, label: 'DOT PROJECTOR', ly: 592, at: 86, anchor: 'start' as const, lx: -8 },
   ];
   const r = h * 0.3;
-  const LIFT = 285, CARD = 27, active = f < 106 ? -1 : Math.min(2, Math.floor((f - 106) / CARD));   // each part is explained for 0.9 s
+  const LIFT = 0,       // the parts stay in the island; the card points at the one being explained
+     CARD = 27, active = f < 106 ? -1 : Math.min(2, Math.floor((f - 106) / CARD));   // each part is explained for 0.9 s
   const MODS = [
     { fx: 0.14, k: 1, at: 76, col: TEAL, label: 'IR CAMERA', does: 'reads the dots on your face' },
     { fx: 0.31, k: 0.8, at: 79, col: RED, label: 'FLOOD ILLUMINATOR', does: 'lights your face in infrared' },
@@ -50,11 +51,13 @@ export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
         <rect x={left} y={top} width={w} height={h} rx={h / 2} fill="#04050a" />
         {/* tear-down, on the phone itself: from TEAR the parts are pulled straight up out of the island, leaving their
             sockets behind, and each one is explained in turn */}
-        {MODS.map((m, i) => { const x = part(m.fx), tr = ramp(f, TEAR + i * 2, TEAR + 10 + i * 2, 0, 1, out3), act = active === i, sc = (1 + 0.3 * tr) * (act ? 1.18 + 0.04 * Math.sin(f / 2) : 1), y = cy - LIFT * tr;
+        {MODS.map((m, i) => { const x = part(m.fx), tr = ramp(f, TEAR + i * 2, TEAR + 10 + i * 2, 0, 1, out3), act = active === i, sc = (act ? 1.18 + 0.04 * Math.sin(f / 2) : 1), y = cy - LIFT * tr;
           return (
             <g key={m.label}>
-              {tr > 0 && <><circle cx={x} cy={cy} r={r * m.k * 0.92} fill="#000" stroke="#2a2d3a" strokeWidth={3} />
-                <line x1={x} y1={cy - r * m.k} x2={x} y2={y + r * m.k * sc} stroke={m.col} strokeWidth={2.5} strokeDasharray="6 8" opacity={0.7} /></>}
+              {act && <g opacity={ramp(f, 106 + i * CARD, 110 + i * CARD)}>
+                <path d={`M 540 352 V 470 H ${x} V ${cy - r * m.k * sc - 16}`} fill="none" stroke={m.col} strokeWidth={4} strokeLinejoin="round" />
+                <circle cx={x} cy={cy - r * m.k * sc - 16} r={9} fill={m.col} /><circle cx={x} cy={cy} r={r * m.k * sc + 16} fill="none" stroke={m.col} strokeWidth={4} />
+              </g>}
               <g transform={`translate(${x} ${y}) scale(${sc})`} opacity={ramp(f, m.at, m.at + 4) * (active >= 0 && !act && i < 3 ? 0.45 : 1)}>
                 {i === 0 && <><circle r={r} fill="#0b0d16" stroke={TEAL} strokeWidth={5} strokeDasharray="7 6" /><circle cx={-r * 0.2} cy={-r * 0.2} r={r * 0.16} fill={BLUE} /></>}
                 {i === 1 && <rect x={-r * 0.55} y={-r * 0.55} width={r * 1.1} height={r * 1.1} rx={6} fill="#1a0b10" stroke={RED} strokeWidth={4} strokeDasharray="6 5" />}
@@ -64,8 +67,8 @@ export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
               </g>
               {/* what the active part does, shown with light */}
               {act && i === 0 && [0, 1, 2].map((k) => { const u = ((f / 12) + k / 3) % 1; return <circle key={k} cx={x} cy={y} r={r * sc * (1.9 - 0.9 * u)} fill="none" stroke={TEAL} strokeWidth={3} opacity={0.8 * u} />; })}
-              {act && i === 1 && <path d={`M ${x} ${y} L ${x - 190} ${y - 300} L ${x + 190} ${y - 300} Z`} fill={RED} opacity={0.16 + 0.08 * Math.sin(f / 2)} />}
-              {act && i === 2 && Array.from({ length: 46 }, (_, k) => { const u = ((f - 106 - 2 * CARD) / 12 + hash(k)) % 1, a = (hash(k + 7) - 0.5) * 1.5; return <circle key={k} cx={x + Math.sin(a) * 300 * u} cy={y - r - 300 * u} r={3 + 2 * u} fill={RED} opacity={0.95 * (1 - u)} />; })}
+              {act && i === 1 && <path d={`M ${x} ${y} L ${x - 150} ${y - 240} L ${x + 150} ${y - 240} Z`} fill={RED} opacity={0.16 + 0.08 * Math.sin(f / 2)} />}
+              {act && i === 2 && Array.from({ length: 46 }, (_, k) => { const u = ((f - 106 - 2 * CARD) / 12 + hash(k)) % 1, a = (hash(k + 7) - 0.5) * 1.5; return <circle key={k} cx={x + Math.sin(a) * 300 * u} cy={y - r - 250 * u} r={3 + 2 * u} fill={RED} opacity={0.95 * (1 - u)} />; })}
             </g>); })}
         {/* first pass: the three parts are named while still in the island */}
         {PARTS.map((p) => { const o = ramp(f, p.at, p.at + 4) * (1 - ramp(f, TEAR - 4, TEAR)), x = part(p.fx); return (
