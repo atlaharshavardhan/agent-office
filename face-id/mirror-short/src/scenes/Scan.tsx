@@ -88,11 +88,6 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
               <g clipPath="url(#band-clip)">
                 {(mesh.lines as number[][][]).map((ln, i) => <polyline key={i} points={ln.map((q) => { const [x, y] = rel(q); return `${x.toFixed(1)},${y.toFixed(1)}`; }).join(' ')} fill="none" stroke={SCAN} strokeWidth={3} strokeLinejoin="round" />)}
               </g>
-              <g clipPath="url(#scan-clip)">
-                <polygon points={`${at(pb, -1200)} ${at(pb, 1200)} ${at(pb - 45, 1200)} ${at(pb - 45, -1200)}`} fill={SCAN} opacity={0.16} />
-                <polygon points={`${at(pb, -1200)} ${at(pb, 1200)} ${at(pb - 110, 1200)} ${at(pb - 110, -1200)}`} fill={SCAN} opacity={0.08} />
-                <polyline points={`${at(pb, -1200)} ${at(pb, 1200)}`} stroke={SCAN} strokeWidth={3.5} />
-              </g>
             </g>
             {/* the scan never leaves the web: it is clipped to the web's own triangles, so it follows the face as it moves */}
             <defs><clipPath id="band-clip"><polygon points={`${at(pb + 6, -1200)} ${at(pb + 6, 1200)} ${at(pb - 90, 1200)} ${at(pb - 90, -1200)}`} /></clipPath><clipPath id="scan-clip">{(mesh.tris as number[][]).map(([a, b, c], i) => <polygon key={i} points={`${L[a][0]},${L[a][1]} ${L[b][0]},${L[b][1]} ${L[c][0]},${L[c][1]}`} />)}</clipPath></defs>
