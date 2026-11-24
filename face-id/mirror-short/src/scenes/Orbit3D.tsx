@@ -185,9 +185,9 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; cam: THREE.Persp
       <lineSegments geometry={rays}><lineBasicMaterial color={C.ir} transparent opacity={rayO} blending={THREE.AdditiveBlending} depthWrite={false} /></lineSegments>
       <points geometry={pts.geo} material={pts.mat} frustumCulled={false} />
       {/* reflecting waves on the glass: rings that spread out from where the light bounces, again and again */}
-      {pov !== undefined && pov > 8 && [0, 1, 2, 3].map((k) => { const u = (((pov - 8) / 22) + k / 4) % 1, r = 10 + 130 * u;
-        return <mesh key={k} position={[noseHit[0], noseHit[1], ZG]}><ringGeometry args={[r, r + 2.6 - 1.6 * u, 72]} /><meshBasicMaterial color="#ff8fa0" transparent opacity={0.6 * (1 - u) * ramp(pov, 8, 12)} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} /></mesh>; })}
-      {pov !== undefined && pov > 8 && <mesh position={[noseHit[0], noseHit[1], ZG]}><circleGeometry args={[26, 40]} /><meshBasicMaterial color={C.ir} transparent opacity={0.2 + 0.06 * Math.sin(pov / 2)} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} /></mesh>}
+      {pov !== undefined && pov > 8 && [0, 1, 2].map((k) => { const u = (((pov - 8) / 20) + k / 3) % 1, r = 6 + 58 * u;
+        return <mesh key={k} position={[noseHit[0], noseHit[1], ZG]}><ringGeometry args={[r, r + 2 - 1.2 * u, 64]} /><meshBasicMaterial color="#ff8fa0" transparent opacity={0.6 * (1 - u) * ramp(pov, 8, 12)} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} /></mesh>; })}
+      {pov !== undefined && pov > 8 && <mesh position={[noseHit[0], noseHit[1], ZG]}><circleGeometry args={[14, 32]} /><meshBasicMaterial color={C.ir} transparent opacity={0.2 + 0.06 * Math.sin(pov / 2)} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} /></mesh>}
       <ambientLight intensity={0.5} />
       <directionalLight position={[600, 900, 2200]} intensity={2.2} />
       <pointLight position={[-700, 900, 900]} intensity={3} color="#ffb060" decay={0} />
