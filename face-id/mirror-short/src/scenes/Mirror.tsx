@@ -41,7 +41,8 @@ const STREAM = Array.from({ length: 150 }, () => [rnd(), rnd()]);
 // three shots: wide · one closer framing that holds his face, the phone and the glass together, so the bounce off the
 // mirror and the dots landing on his face are seen in the same frame · wide again (what the camera sees)
 export const MIR = { glass: 54, face: 96, wide: 999, inside: 104 };   // inside: the cut into the mirror view
-const STEPS = [{ at: 30, to: MIR.glass, text: '1 · DOTS LEAVE THE PHONE' }, { at: MIR.glass, to: MIR.wide, text: '2 · THE MIRROR REFLECTS THEM ONTO HIS FACE' }, { at: MIR.wide, to: 999, text: '3 · THE CAMERA SEES HIS FACE IN THE MIRROR' }];
+const RAY0 = 36, RAY1 = 94;                                           // the rays leave the phone / reach the glass (about 2 s: slow motion)
+const STEPS = [{ at: 30, to: MIR.glass, text: '1 · RAYS LEAVE THE PHONE' }, { at: MIR.glass, to: MIR.wide, text: '2 · SLOW MOTION: THEY TRAVEL TO THE MIRROR' }, { at: MIR.wide, to: 999, text: '3 · THE CAMERA SEES HIS FACE IN THE MIRROR' }];
 
 // MIR_FROM: the setup is trimmed, the scene starts this many frames in (just before the dots leave the phone)
 export const MIR_FROM = 24;
@@ -50,7 +51,7 @@ export const Mirror: React.FC = () => {
   if (l >= MIR.inside) return (
     <AbsoluteFill>
       <Orbit3D g={0} pov={l - MIR.inside} />
-      <Label text="3 · SEEN FROM THE MIRROR: THE DOTS COME BACK TO HIS FACE" x={505} y={452} o={ramp(l, MIR.inside + 4, MIR.inside + 8)} size={24} align="center" color={C.ir} />
+      <Label text="3 · FROM THE MIRROR: THEY BOUNCE BACK ONTO HIS FACE" x={505} y={452} o={ramp(l, MIR.inside + 4, MIR.inside + 8)} size={24} align="center" color={C.ir} />
     </AbsoluteFill>
   );
   const s = 1 + 0.25 * ramp(l, 0, 30, 0, 1, (x) => x * x * (3 - 2 * x)) + 0.02 * (l / 222);   // wide enough to keep his reflection in frame   // push in on the phone, mirror and face
@@ -63,33 +64,22 @@ export const Mirror: React.FC = () => {
         <Img src={staticFile('bathroom_side.png')} style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1672 * K, filter: `brightness(${1 - 0.25 * ramp(l, 30, 60)})` }} />
         <svg viewBox="0 0 941 1672" style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1672 * K }}>
           <defs><filter id="mg" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.1" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
-          {/* very fine guide rays, like the 3D dots clip */}
-          <g opacity={0.2 * ramp(l, 40, 60) * (1 - ramp(l, 122, 130))}>
-            {FACE_DOTS.filter((_, i) => i % 14 === 0).map((f, i) => { const m = hit(f); return <path key={i} d={`M ${P[0]} ${P[1]} L ${m[0]} ${m[1]} L ${f[0]} ${f[1]}`} fill="none" stroke={C.ir} strokeWidth={0.5} />; })}
-          </g>
-          {/* every dot flies from the projector to the glass, reflects, and lands on its own spot on his face */}
+          {/* slow motion: the rays leave the dot projector and travel to the glass. They reach it just before the cut to
+              the mirror view, which shows them coming back onto his face. The mirror shows the same rays, mirrored. */}
           <g filter="url(#mg)">
-            {FACE_DOTS.map((f, i) => {
-              const m = hit(f), a = len(P, m), b = len(m, f), t0 = launch(f), p = (l - t0) / FLY;
-              if (p <= 0) return null;
-              if (p >= 1) { const g = mir(f); return <g key={i}><circle cx={f[0]} cy={f[1]} r={1.25 * (1 + 0.8 * (1 - ramp(l, t0 + FLY, t0 + FLY + 5)))} fill={C.ir} opacity={0.75 + 0.25 * f[2]} /><circle cx={g[0]} cy={g[1]} r={1.0} fill={C.ir} opacity={0.75} /></g>; }
-              const d = p * (a + b), q = d < a ? [P[0] + (m[0] - P[0]) * d / a, P[1] + (m[1] - P[1]) * d / a] : [m[0] + (f[0] - m[0]) * (d - a) / b, m[1] + (f[1] - m[1]) * (d - a) / b];
-              const g = mir(q); return <g key={i}><circle cx={q[0]} cy={q[1]} r={1.7} fill={C.irCore} /><circle cx={g[0]} cy={g[1]} r={1.4} fill={C.irCore} opacity={0.85} /></g>;
+            {FACE_DOTS.filter((_, i) => i % 9 === 0).map((f, i) => {
+              const m = hit(f), pr = ramp(l, RAY0 + f[2] * 6, RAY1 + f[2] * 6, 0, 1, (x) => x); if (pr <= 0) return null;
+              const tip = [P[0] + (m[0] - P[0]) * pr, P[1] + (m[1] - P[1]) * pr], g = mir(tip);
+              return (
+                <g key={i}>
+                  <line x1={P[0]} y1={P[1]} x2={tip[0]} y2={tip[1]} stroke={C.ir} strokeWidth={0.5} opacity={0.5} />
+                  <line x1={RC[0]} y1={RC[1]} x2={g[0]} y2={g[1]} stroke={C.ir} strokeWidth={0.45} opacity={0.45} />
+                  {pr < 1 && <><circle cx={tip[0]} cy={tip[1]} r={1.5} fill={C.irCore} /><circle cx={g[0]} cy={g[1]} r={1.2} fill={C.irCore} opacity={0.8} /></>}
+                </g>);
             })}
-            {/* the stream keeps flowing while the camera looks */}
-            {l > 100 && STREAM.map(([k, o], i) => { const f = FACE_DOTS[Math.floor(k * FACE_DOTS.length)], m = hit(f), a = len(P, m), b = len(m, f), u = ((l / 30) + o) % 1, d = u * (a + b);
-              const q = d < a ? [P[0] + (m[0] - P[0]) * d / a, P[1] + (m[1] - P[1]) * d / a] : [m[0] + (f[0] - m[0]) * (d - a) / b, m[1] + (f[1] - m[1]) * (d - a) / b];
-              const g = mir(q); return <g key={'s' + i}><circle cx={q[0]} cy={q[1]} r={1.2} fill={C.ir} opacity={0.8} /><circle cx={g[0]} cy={g[1]} r={1.05} fill={C.ir} opacity={0.7} /></g>; })}
           </g>
-          {/* soft glints where the stream meets the glass */}
-          {[0, 1, 2].map((k) => { const u = ((l - 52) / 26 + k / 3) % 1; return l > 52 ? <ellipse key={k} cx={MX} cy={606} rx={3 + 12 * u} ry={10 + 46 * u} fill="none" stroke={C.irCore} strokeWidth={0.9} opacity={0.5 * (1 - u)} /> : null; })}
-          {/* the reflection rule, shown on the middle ray: dashed normal + equal angles */}
-          {(() => { const { m, f } = RAYS[2], o = ramp(l, 74, 80) * (1 - ramp(l, 122, 128)), r = 34;
-            const ang = (q: number[]) => Math.atan2(q[1] - m[1], q[0] - m[0]), a1 = ang(P), a2 = ang(f);
-            const arc = (from: number, to: number) => `M ${m[0] + r * Math.cos(from)} ${m[1] + r * Math.sin(from)} A ${r} ${r} 0 0 ${to > from ? 1 : 0} ${m[0] + r * Math.cos(to)} ${m[1] + r * Math.sin(to)}`;
-            return <g opacity={o} stroke="#fff" fill="none"><line x1={m[0]} y1={m[1]} x2={m[0] - 70} y2={m[1]} strokeWidth={1.2} strokeDasharray="4 4" /><path d={arc(Math.PI, a1)} strokeWidth={1.6} /><path d={arc(Math.PI, a2)} strokeWidth={1.6} /></g>; })()}
-          {/* return trip: what the camera receives (dashed, moving toward the phone) */}
-          {l >= MIR.wide && [RAYS[1], RAYS[3]].map(({ f, m }, k) => <path key={k} d={`M ${f[0]} ${f[1] + 5} L ${m[0]} ${m[1] + 5} L ${P[0] + 6} ${P[1] + 8}`} fill="none" stroke="#fff" strokeWidth={1.4} strokeDasharray="7 7" strokeDashoffset={-l * 1.4} opacity={0.8 * ramp(l, MIR.wide, MIR.wide + 6)} />)}
+          {/* a small ripple on the glass as the rays arrive */}
+          {[0, 1, 2].map((k) => { const u = ((l - RAY1) / 14 + k / 3) % 1; return l > RAY1 ? <ellipse key={k} cx={MX} cy={606} rx={2 + 7 * u} ry={8 + 26 * u} fill="none" stroke={C.irCore} strokeWidth={0.9} opacity={0.6 * (1 - u)} /> : null; })}
           {/* the same projector, seen in the mirror */}
           <circle cx={RC[0]} cy={RC[1]} r={4.5 + Math.sin(l / 3)} fill={C.ir} opacity={0.9 * ramp(l, 30, 34)} /><circle cx={RC[0]} cy={RC[1]} r={1.8} fill="#fff" opacity={ramp(l, 30, 34)} />
           <circle cx={P[0]} cy={P[1]} r={5} fill={C.ir} opacity={ramp(l, 30, 34)} /><circle cx={P[0]} cy={P[1]} r={2} fill="#fff" opacity={ramp(l, 30, 34)} />
