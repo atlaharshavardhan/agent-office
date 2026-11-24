@@ -43,7 +43,9 @@ void main(){ vec4 r = texture2D(uRelief, vUv); if (r.g < 0.5) discard;
   vec3 c = texture2D(uFace, vUv).rgb;
   vec3 ir = texture2D(uIr, vUv).rgb * 0.58 * vec3(1.04, 1.0, 0.93);          // near-monochrome infrared look
   vec3 d = vec3(clamp((pow(r.b, 0.9) - 0.5) * 1.15 + 0.5, 0.0, 1.0));        // shaded depth map
-  gl_FragColor = vec4(mix(mix(c, ir, uIrMix), d, uDepth), 1.0); }`;
+  vec3 o = mix(mix(c, ir, uIrMix), d, uDepth);
+  o = mix(o, o * vec3(0.72, 0.9, 1.25), min(1.0, uDepth * 2.4));                // cool grade for the depth-mesh look
+  gl_FragColor = vec4(o, 1.0); }`;
 const PVS = `attribute float aB; uniform float uSize; varying float vB;
 void main(){ vB = aB; gl_PointSize = uSize * (0.85 + 0.3 * aB); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
 const PFS = `varying float vB; uniform float uO;

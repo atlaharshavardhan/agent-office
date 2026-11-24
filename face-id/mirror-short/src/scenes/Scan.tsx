@@ -1,5 +1,6 @@
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import front from '../front.json';
+import mesh from '../mesh_front.json';
 import { C, FONT, Label, ramp } from '../theme';
 import { Head3D, headPoint } from './Head3D';
 
@@ -14,6 +15,7 @@ import { Head3D, headPoint } from './Head3D';
 export const CUE = { toSensor: 24, dots: 72, capture: 120, depth: 210, nose: 291, cheek: 351, turn: 356 };
 const VIEW = { x: 180, y: 240, w: 460 }, K = 1080 / VIEW.w;          // crop of bathroom_side.png (941 x 1672)
 const CAM = [(507 - VIEW.x) * K, (603 - VIEW.y) * K];               // top of the phone, facing him
+const MESH = '#dff3ff';
 const pt = (a: number[]) => ({ x: a[0], y: a[1], d: a[2] });
 const NOSE = pt(front.nose), CHEEK = pt(front.cheek);
 
@@ -55,7 +57,7 @@ export const Scan: React.FC = () => {
   const corner = (x: number, y: number, dx: number, dy: number) => `M ${x + dx * 50} ${y} H ${x} V ${y + dy * 50}`;
   return (
     <AbsoluteFill>
-      <Head3D az={az} zoom={zoom} irMix={1} depthMix={toDepth} dotO={dots} />
+      <Head3D az={az} zoom={zoom} irMix={1} depthMix={0.42 * toDepth} dotO={dots} />
       {/* capture: a short flash and frame brackets, then the frame is held */}
       <AbsoluteFill style={{ backgroundColor: '#fff', opacity: 0.25 * ramp(s, CUE.capture, CUE.capture + 1) * (1 - ramp(s, CUE.capture + 1, CUE.capture + 6)) }} />
       {captured && !depth && <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }} stroke="#fff" strokeWidth={4} fill="none">
@@ -63,7 +65,38 @@ export const Scan: React.FC = () => {
       </svg>}
       {!captured && <Label text="DOT PROJECTOR · PATTERN ON HIS FACE" x={505} y={1470} o={ramp(s, CUE.dots, CUE.dots + 4)} size={26} align="center" color={C.label} />}
       {captured && !depth && <Label text="INFRARED CAMERA VIEW" x={505} y={1470} o={1} size={30} align="center" color={C.label} />}
-      {depth && <Label text="DEPTH MAP" x={505} y={1470} o={1} size={30} align="center" color={C.label} />}
+      {depth && <Label text="DEPTH MAP" x={505} y={452} o={1} size={30} align="center" color={C.label} />}
+      {/* depth mesh: points pinned to his face, joined by lines; a bigger, brighter point is closer to the phone */}
+      {depth && (() => {
+        const L = (mesh.pts as number[][]).map((q) => [...headPoint({ x: q[0], y: q[1], d: q[2] }, az, zoom), q[2]]);
+        const E = mesh.edges as number[][], t0 = CUE.depth + 2;
+        return (
+          <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
+            {E.map(([a, b], i) => {
+              const g = ramp(s, t0 + (i / E.length) * 12, t0 + 6 + (i / E.length) * 12);
+              return g > 0 ? <line key={i} x1={L[a][0]} y1={L[a][1]} x2={L[a][0] + (L[b][0] - L[a][0]) * g} y2={L[a][1] + (L[b][1] - L[a][1]) * g} stroke={MESH} strokeWidth={2.4} opacity={0.8} /> : null;
+            })}
+            {L.map(([x, y, d], i) => { const k = ramp(s, t0 + i * 0.25, t0 + 4 + i * 0.25); return <circle key={i} cx={x} cy={y} r={(5 + 9 * d) * k} fill={MESH} opacity={0.55 + 0.45 * d} />; })}
+          </svg>
+        );
+      })()}
+      {/* read-outs, as in the reference: depth mapped so far + a per-point depth strip */}
+      {depth && (() => {
+        const pct = Math.round(100 * ramp(s, CUE.depth + 4, CUE.depth + 70)), o = ramp(s, CUE.depth + 4, CUE.depth + 8), R = 74, C2 = 2 * Math.PI * R;
+        const bars = (mesh.pts as number[][]).filter((_, i) => i % 3 === 0).map((q) => q[2]);
+        return (
+          <AbsoluteFill style={{ opacity: o }}>
+            <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
+              <circle cx={190} cy={1590} r={R} fill="rgba(8,10,16,.55)" stroke={MESH} strokeOpacity={0.25} strokeWidth={4} />
+              <circle cx={190} cy={1590} r={R} fill="none" stroke={MESH} strokeWidth={4} strokeDasharray={`${(C2 * pct) / 100} ${C2}`} transform="rotate(-90 190 1590)" />
+              {bars.map((d, i) => { const h = (14 + 96 * d) * ramp(s, CUE.depth + 8 + i * 2, CUE.depth + 16 + i * 2); return <rect key={i} x={640 + i * 22} y={1650 - h} width={14} height={h} fill={MESH} opacity={0.5 + 0.5 * d} />; })}
+            </svg>
+            <div style={{ position: 'absolute', left: 116, top: 1566, width: 148, textAlign: 'center', font: `800 46px/1 ${FONT}`, color: '#fff' }}>{pct}%</div>
+            <div style={{ position: 'absolute', left: 286, top: 1572, font: `800 24px/1.25 ${FONT}`, letterSpacing: '0.12em', color: MESH }}>DEPTH<br />MAPPED</div>
+            <div style={{ position: 'absolute', left: 640, top: 1664, font: `800 20px/1 ${FONT}`, letterSpacing: '0.12em', color: MESH }}>FAR&nbsp;&nbsp;·&nbsp;&nbsp;NEAR PER POINT</div>
+          </AbsoluteFill>
+        );
+      })()}
       <Mark x={nx} y={ny} text="CLOSER" left o={ramp(s, CUE.nose, CUE.nose + 3)} />
       <Mark x={cx} y={cy} text="FARTHER" left={false} o={ramp(s, CUE.cheek, CUE.cheek + 3)} />
       <div style={{ position: 'absolute', left: 80, top: 1562, opacity: depth ? 0 : 0.5, font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>Illustration · the real dots are invisible · fewer dots drawn than projected</div>
