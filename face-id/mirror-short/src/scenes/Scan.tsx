@@ -11,7 +11,7 @@ import { Orbit3D } from './Orbit3D';
 // 220–268  the same dots as a cyan point cloud                              "Your iPhone uses it to measure"
 // 268–432  DEPTH MAP: face mesh ("the depth of your face"); CLOSER on "nose" (317), FARTHER on "cheeks" (351)
 export const CUE = { front: 147, cyan: 187, depth: 237, nose: 284, cheek: 318, turn: 329, end: 369 };
-const MESH = '#dff3ff', SCAN = '#3dff8f';
+const MESH = '#dff3ff', SCAN = '#4db8ff';
 const pt = (a: number[]) => ({ x: a[0], y: a[1], d: a[2] });
 const NOSE = pt(front.nose), CHEEK = pt(front.cheek);
 
@@ -57,8 +57,13 @@ export const Scan: React.FC = () => {
         const far = Math.max(...P.map((q) => Math.hypot(q[0] - front.nose[0], q[1] - front.nose[1])));
         const when = (k: number) => t0 + (Math.hypot(P[k][0] - front.nose[0], P[k][1] - front.nose[1]) / far) * SPAN;
         const xs = L.map((q) => q[0]), ys = L.map((q) => q[1]), X0 = Math.min(...xs), X1 = Math.max(...xs), Y0 = Math.min(...ys), Y1 = Math.max(...ys);
-        const sweep = s < t0 + SPAN - 6 ? -1 : ((s - (t0 + SPAN - 6)) % 44) / 44, xb = X0 - 40 + (X1 - X0 + 80) * sweep;
-        const band = (x: number) => (sweep < 0 ? 0 : Math.max(0, 1 - Math.abs(x - xb + 30) / 80));
+        // the scan line is slanted (it runs from upper left to lower right) and sweeps across the web from left to right
+        const DX = 0.6, DY = 0.8, NX = 0.8, NY = -0.6, MX = (X0 + X1) / 2, MY = (Y0 + Y1) / 2;
+        const pr = (x: number, y: number) => (x - MX) * NX + (y - MY) * NY;                // distance across the sweep
+        const ext = Math.max(...L.map((q) => Math.abs(pr(q[0], q[1])))) + 40;
+        const sweep = s < t0 + SPAN - 6 ? -1 : ((s - (t0 + SPAN - 6)) % 50) / 50, pb = -ext + 2 * ext * sweep;
+        const band = (x: number, y: number) => (sweep < 0 ? 0 : Math.max(0, 1 - Math.abs(pr(x, y) - pb + 30) / 80));
+        const at = (p: number, t: number) => `${MX + NX * p + DX * t},${MY + NY * p + DY * t}`;
         return (
           <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
             {E.map(([a0, b0], i) => {
@@ -66,16 +71,19 @@ export const Scan: React.FC = () => {
               const g = ramp(s, when(a) + 2, when(b) + 4);
               if (g <= 0) return null;
               const near = (L[a][2] + L[b][2]) / 2;                                // nearer strands are brighter
-              const k = band((L[a][0] + L[b][0]) / 2);                             // inside the green scan band
+              const k = band((L[a][0] + L[b][0]) / 2, (L[a][1] + L[b][1]) / 2);                             // inside the green scan band
               return <line key={i} x1={L[a][0]} y1={L[a][1]} x2={L[a][0] + (L[b][0] - L[a][0]) * g} y2={L[a][1] + (L[b][1] - L[a][1]) * g} stroke={k > 0.02 ? SCAN : MESH} strokeWidth={1.1 + 1.5 * k} opacity={Math.min(1, 0.18 + 0.6 * near + 0.7 * k)} />;
             })}
-            {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); return k > 0 ? <circle key={i} cx={x} cy={y} r={(1.4 + 2.6 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9)))} fill={band(x) > 0.3 ? SCAN : '#fff'} opacity={0.35 + 0.65 * d} /> : null; })}
+            {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); return k > 0 ? <circle key={i} cx={x} cy={y} r={(1.4 + 2.6 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9)))} fill={band(x, y) > 0.3 ? SCAN : '#fff'} opacity={0.35 + 0.65 * d} /> : null; })}
             {/* the scan: a green band sweeps the whole web from left to right, again and again */}
             <g opacity={ramp(s, t0 + SPAN - 6, t0 + SPAN)}>
-              <rect x={xb - 70} y={Y0 - 10} width={70} height={Y1 - Y0 + 20} fill="url(#scan-g)" />
-              <line x1={xb} x2={xb} y1={Y0 - 10} y2={Y1 + 10} stroke={SCAN} strokeWidth={3} />
+              <g clipPath="url(#scan-clip)">
+                <polygon points={`${at(pb, -1200)} ${at(pb, 1200)} ${at(pb - 45, 1200)} ${at(pb - 45, -1200)}`} fill={SCAN} opacity={0.16} />
+                <polygon points={`${at(pb, -1200)} ${at(pb, 1200)} ${at(pb - 110, 1200)} ${at(pb - 110, -1200)}`} fill={SCAN} opacity={0.08} />
+                <polyline points={`${at(pb, -1200)} ${at(pb, 1200)}`} stroke={SCAN} strokeWidth={3.5} />
+              </g>
             </g>
-            <defs><linearGradient id="scan-g" x1="0" x2="1"><stop offset="0" stopColor={SCAN} stopOpacity={0} /><stop offset="1" stopColor={SCAN} stopOpacity={0.22} /></linearGradient></defs>
+            <defs><clipPath id="scan-clip"><rect x={X0 - 14} y={Y0 - 14} width={X1 - X0 + 28} height={Y1 - Y0 + 28} /></clipPath></defs>
           </svg>
         );
       })()}

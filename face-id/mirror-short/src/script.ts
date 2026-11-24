@@ -30,7 +30,7 @@ export const HOOK_CUTS: { name: string; srcStart: number; dur: number; zoom?: Ho
 export const CAPTION_TOP_DEFAULT = 230;
 export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 1.5, to: 3.0, top: 1300 },
-  { from: 4.6, to: 6.2, top: 200 },      // teardown: above the exploded camera
+  { from: 4.6, to: 6.2, top: 1340 },     // tear-down: the parts and their explanation use the top, so the caption goes below the padlock
   { from: 6.2, to: 11.10, top: 185 },
   { from: 12.43, to: 14.12, top: 185 },
   { from: 18.5, to: 26.19, top: 170 },   // comparison: the picture sits lower, the caption stays in the clear band above it
