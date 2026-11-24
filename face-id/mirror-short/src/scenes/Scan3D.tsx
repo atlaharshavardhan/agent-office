@@ -143,7 +143,7 @@ const Inner: React.FC<{ g: number; cam: THREE.PerspectiveCamera; face: THREE.Tex
       <ambientLight intensity={0.5} />
       <directionalLight position={[600, 500, 2200]} intensity={2.2} />
       <pointLight position={[200, 500, 900]} intensity={3} color="#ffb060" decay={0} />
-      <group position={phoneObj.position} quaternion={phoneObj.quaternion} scale={PS} visible={g < 198}>
+      <group position={phoneObj.position} quaternion={phoneObj.quaternion} scale={PS} visible={g < 128}>
         <Phone3D model={phone} />
         <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.2]}><circleGeometry args={[4, 20]} /><meshBasicMaterial color="#ffffff" /></mesh>
         <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.1]}><circleGeometry args={[15, 24]} /><meshBasicMaterial color={C.ir} transparent opacity={0.75 * (1 - ramp(g, 186, 196))} blending={THREE.AdditiveBlending} /></mesh>
@@ -182,8 +182,8 @@ export const Scan3D: React.FC<{ g: number }> = ({ g }) => {
           <path d={`M 260 640 L ${ex} ${ey}`} fill="none" /><circle cx={ex} cy={ey} r={9} />
         </g>
       </svg>
-      <Call title="EYE SOCKET" sub="farther: the pattern shifts less" x={70} y={560} o={early} />
-      <Call title="NOSE" sub="closer: the pattern shifts more" x={70} y={1330} o={early} />
+      <Call title="EYE SOCKET" sub="set back: farther from the phone" x={70} y={560} o={early} />
+      <Call title="NOSE" sub="sticks out: closer to the phone" x={70} y={1330} o={early} />
       <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: dotsStat, color: C.ir, font: `800 112px/1 ${FONT}` }}>
         30,000+ <span style={{ fontSize: 46, letterSpacing: '0.06em' }}>DOTS</span>
       </div>
