@@ -8,9 +8,9 @@ import { Orbit3D } from './Orbit3D';
 // Scene 3 (6–20.4 s, 432 frames). Cuts sit on the voiceover (see script.ts):
 //   0–166  side profile, 3D: the iPhone fires the red dots onto his face    "The dot projector shines ..."
 // 166–220  hard cut on "captures": frontal red-dot close-up, INFRARED CAMERA VIEW, held
-// 220–261  the same dots as a cyan point cloud                              "Your iPhone uses it to map"
-// 261–432  DEPTH MAP: face mesh; CLOSER on "nose" (303), FARTHER on "cheek" (367)
-export const CUE = { front: 166, cyan: 220, depth: 261, nose: 303, cheek: 367, turn: 392, end: 432 };
+// 220–268  the same dots as a cyan point cloud                              "Your iPhone uses it to measure"
+// 268–432  DEPTH MAP: face mesh ("the depth of your face"); CLOSER on "nose" (317), FARTHER on "cheeks" (351)
+export const CUE = { front: 166, cyan: 220, depth: 268, nose: 317, cheek: 351, turn: 392, end: 432 };
 const MESH = '#dff3ff';
 const pt = (a: number[]) => ({ x: a[0], y: a[1], d: a[2] });
 const NOSE = pt(front.nose), CHEEK = pt(front.cheek);

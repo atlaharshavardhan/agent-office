@@ -15,7 +15,7 @@ LINES = {
     "n2": "Every time you glance at your iPhone, the TrueDepth camera wakes up.",
     "n3a": "The dot projector shines thousands of invisible infrared dots onto your face.",
     "n3b": "The infrared camera captures the pattern.",
-    "n3c": "Your iPhone uses it to map what's closer, like your nose, and what's farther away, like your cheek.",
+    "n3c": "Your iPhone uses it to measure the depth of your face. Your nose is closer. Your cheeks are farther away.",
     "n4": "It also captures an infrared image. Your iPhone uses both to check whether the face matches the one you enrolled.",
     "n5": "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?",
     "n6_guess": "So what do you think? Does my reflection unlock it? Comment your guess.",

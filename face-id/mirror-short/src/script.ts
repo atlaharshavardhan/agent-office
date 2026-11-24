@@ -31,7 +31,7 @@ export const CAPTION_TOP_DEFAULT = 230;
 export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 1.5, to: 3.0, top: 1300 },
   { from: 6.0, to: 11.53, top: 185 },
-  { from: 13.33, to: 14.7, top: 185 },
+  { from: 13.33, to: 14.93, top: 185 },
   { from: 20.4, to: 28.6, top: 170 },   // comparison: the picture sits lower, the caption stays in the clear band above it
 ];
 
@@ -43,7 +43,7 @@ export const NARRATION: Line[] = [
   // 0:06–0:19 — the cuts in src/scenes/Scan.tsx (CUE) are placed on these lines
   { id: 'n3a', at: 6.05, text: 'The dot projector shines thousands of invisible infrared dots onto your face.' },
   { id: 'n3b', at: 10.43, text: 'The infrared camera captures the pattern.' },
-  { id: 'n3c', at: 13.35, text: "Your iPhone uses it to map what's closer, like your nose, and what's farther away, like your cheek." },
+  { id: 'n3c', at: 13.35, text: "Your iPhone uses it to measure the depth of your face. Your nose is closer. Your cheeks are farther away." },
   { id: 'n4', at: 20.7, text: 'It also captures an infrared image. Your iPhone uses both to check whether the face matches the one you enrolled.' },
   { id: 'n5', at: 29.0, text: "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?" },
 ];
