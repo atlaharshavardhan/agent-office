@@ -77,9 +77,11 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
               if (g <= 0) return null;
               const near = (L[a][2] + L[b][2]) / 2;                                // nearer strands are brighter
               const k = band((L[a][0] + L[b][0]) / 2, (L[a][1] + L[b][1]) / 2);                             // inside the green scan band
-              return <line key={i} x1={L[a][0]} y1={L[a][1]} x2={L[a][0] + (L[b][0] - L[a][0]) * g} y2={L[a][1] + (L[b][1] - L[a][1]) * g} stroke={k > 0.02 ? SCAN : MESH} strokeWidth={1.1 + 1.5 * k} opacity={Math.min(1, 0.18 + 0.6 * near + 0.7 * k)} />;
+              return <line key={i} x1={L[a][0]} y1={L[a][1]} x2={L[a][0] + (L[b][0] - L[a][0]) * g} y2={L[a][1] + (L[b][1] - L[a][1]) * g} stroke={k > 0.02 ? SCAN : MESH} strokeWidth={1.5 + 1.5 * k} opacity={Math.min(1, 0.3 + 0.55 * near + 0.7 * k)} />;
             })}
-            {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); return k > 0 ? <circle key={i} cx={x} cy={y} r={(1.4 + 2.6 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9)))} fill={band(x, y) > 0.3 ? SCAN : '#fff'} opacity={0.35 + 0.65 * d} /> : null; })}
+            {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); if (k <= 0) return null; const r = (1.8 + 2.4 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9))), c = band(x, y) > 0.3 ? SCAN : '#fff';
+              // a glowing node at every crossing of the grid
+              return <g key={i}><circle cx={x} cy={y} r={r * 2.6} fill={c} opacity={0.13 + 0.12 * d} /><circle cx={x} cy={y} r={r} fill={c} opacity={0.55 + 0.45 * d} /></g>; })}
             {/* the scan: a green band sweeps the whole web from left to right, again and again */}
             <g opacity={ramp(s, t0 + SPAN - 6, t0 + SPAN)}>
               <g clipPath="url(#scan-clip)">
