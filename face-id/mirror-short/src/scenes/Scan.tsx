@@ -63,15 +63,15 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
         const far = Math.max(...P.map((q) => Math.hypot(q[0] - front.nose[0], q[1] - front.nose[1])));
         const when = (k: number) => t0 + (Math.hypot(P[k][0] - front.nose[0], P[k][1] - front.nose[1]) / far) * SPAN;
         const xs = L.map((q) => q[0]), ys = L.map((q) => q[1]), X0 = Math.min(...xs), X1 = Math.max(...xs), Y0 = Math.min(...ys), Y1 = Math.max(...ys);
-        // the scan: a straight blue line sweeps across the web
-        // each pass comes from a different, random direction (not left-to-right in order)
-        const CYC = 34, pass = Math.max(0, Math.floor((s - (t0 + SPAN - 6)) / CYC)), ang = rnd(pass) * Math.PI * 2;
-        const NX = Math.cos(ang), NY = Math.sin(ang), DX = -NY, DY = NX, MX = (X0 + X1) / 2, MY = (Y0 + Y1) / 2;
-        const pr = (x: number, y: number) => (x - MX) * NX + (y - MY) * NY;                // distance across the sweep
-        const ext = Math.max(...L.map((q) => Math.abs(pr(q[0], q[1])))) + 40;
-        const sweep = s < t0 + SPAN - 6 ? -1 : ((s - (t0 + SPAN - 6)) % CYC) / CYC, pb = -ext + 2 * ext * sweep;
-        const band = (x: number, y: number) => (sweep < 0 ? 0 : Math.max(0, 1 - Math.abs(pr(x, y) - pb + 30) / 80));
-        const at = (p: number, t: number) => `${MX + NX * p + DX * t},${MY + NY * p + DY * t}`;
+        // the scan is a wave: a soft round patch of blue that starts on one side of the forehead and travels
+        // diagonally down across the nose to the opposite side of the jaw; each pass starts from the other side
+        const CYC = 44, T0 = t0 + SPAN - 6, pass = Math.max(0, Math.floor((s - T0) / CYC)), sweep = s < T0 ? -1 : ((s - T0) % CYC) / CYC;
+        const MX = (X0 + X1) / 2, WX = X1 - X0, WY = Y1 - Y0, side = pass % 2 ? -1 : 1, e = sweep * sweep * (3 - 2 * sweep), RW = 0.21 * WX;
+        // path: forehead (one side) -> bridge of the nose -> cheek and jaw (other side), as a smooth curve
+        const PA = [MX - side * 0.24 * WX, Y0 + 0.1 * WY], PB = [MX - side * 0.02 * WX, Y0 + 0.5 * WY], PC = [MX + side * 0.3 * WX, Y0 + 0.92 * WY];
+        const wx = (1 - e) * (1 - e) * PA[0] + 2 * e * (1 - e) * PB[0] + e * e * PC[0], wy = (1 - e) * (1 - e) * PA[1] + 2 * e * (1 - e) * PB[1] + e * e * PC[1];
+        const fade = sweep < 0 ? 0 : Math.min(1, sweep * 8, (1 - sweep) * 8);
+        const band = (x: number, y: number) => (sweep < 0 ? 0 : fade * Math.max(0, 1 - Math.hypot(x - wx, y - wy) / RW));
         return (
           <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
             {(mesh.lines as number[][][]).map((ln, i) => {
@@ -83,14 +83,14 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
             {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); if (k <= 0) return null; const r = (1.8 + 2.4 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9))), c = band(x, y) > 0.3 ? SCAN : '#fff';
               // a glowing node at every crossing of the grid
               return <g key={i}><circle cx={x} cy={y} r={r * 2.6} fill={c} opacity={0.13 + 0.12 * d} /><circle cx={x} cy={y} r={r} fill={c} opacity={0.55 + 0.45 * d} /></g>; })}
-            {/* the scan: a green band sweeps the whole web from left to right, again and again */}
+            {/* inside the wave the grid's own lines are redrawn in blue */}
             <g opacity={ramp(s, t0 + SPAN - 6, t0 + SPAN)}>
               <g clipPath="url(#band-clip)">
                 {(mesh.lines as number[][][]).map((ln, i) => <polyline key={i} points={ln.map((q) => { const [x, y] = rel(q); return `${x.toFixed(1)},${y.toFixed(1)}`; }).join(' ')} fill="none" stroke={SCAN} strokeWidth={3} strokeLinejoin="round" />)}
               </g>
             </g>
             {/* the scan never leaves the web: it is clipped to the web's own triangles, so it follows the face as it moves */}
-            <defs><clipPath id="band-clip"><polygon points={`${at(pb + 6, -1200)} ${at(pb + 6, 1200)} ${at(pb - 90, 1200)} ${at(pb - 90, -1200)}`} /></clipPath><clipPath id="scan-clip">{(mesh.tris as number[][]).map(([a, b, c], i) => <polygon key={i} points={`${L[a][0]},${L[a][1]} ${L[b][0]},${L[b][1]} ${L[c][0]},${L[c][1]}`} />)}</clipPath></defs>
+            <defs><clipPath id="band-clip"><circle cx={wx} cy={wy} r={RW * 0.9 * fade} /></clipPath><clipPath id="scan-clip">{(mesh.tris as number[][]).map(([a, b, c], i) => <polygon key={i} points={`${L[a][0]},${L[a][1]} ${L[b][0]},${L[b][1]} ${L[c][0]},${L[c][1]}`} />)}</clipPath></defs>
           </svg>
         );
       })()}
