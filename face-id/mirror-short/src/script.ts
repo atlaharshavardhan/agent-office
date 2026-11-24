@@ -3,13 +3,13 @@
 import lengths from '../public/vo/lengths.json';
 
 export const FPS = 30;
-export const TOTAL = 1350;            // 45 s
-export const STORY_END = 43;          // end card = last 2 s
+export const TOTAL = 1235;            // 41.2 s
+export const STORY_END = 39.17;  // end card = last 2 s
 export const f = (s: number) => Math.round(s * FPS);
 
 export const SCENES = {
-  hook: [0, 2.5], truedepth: [2.5, 6], scan: [6, 20.4], compare: [20.4, 28.6],
-  mirror: [28.6, 36], test: [36, 43], end: [43, 45],
+  hook: [0, 2.5], truedepth: [2.5, 6.2], scan: [6.2, 18.5], compare: [18.5, 26.19],
+  mirror: [26.19, 33.17], test: [33.17, 39.17], end: [39.17, 41.17],
 } as const;
 
 // Hook: excerpts of public/mirror_clip.mp4 (24 fps source), played at normal speed, hard cuts.
@@ -30,9 +30,10 @@ export const HOOK_CUTS: { name: string; srcStart: number; dur: number; zoom?: Ho
 export const CAPTION_TOP_DEFAULT = 230;
 export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 1.5, to: 3.0, top: 1300 },
-  { from: 6.0, to: 11.53, top: 185 },
-  { from: 13.33, to: 14.93, top: 185 },
-  { from: 20.4, to: 28.6, top: 170 },   // comparison: the picture sits lower, the caption stays in the clear band above it
+  { from: 4.6, to: 6.2, top: 200 },      // teardown: above the exploded camera
+  { from: 6.2, to: 11.10, top: 185 },
+  { from: 12.43, to: 14.12, top: 185 },
+  { from: 18.5, to: 26.19, top: 170 },   // comparison: the picture sits lower, the caption stays in the clear band above it
 ];
 
 export type Line = { id: string; at: number; text: string };
@@ -41,11 +42,11 @@ export const NARRATION: Line[] = [
   { id: 'n1', at: 0.05, text: 'Can a mirror fool Face ID?' },
   { id: 'n2', at: 2.05, text: 'Every time you glance at your iPhone, the TrueDepth camera wakes up.' },
   // 0:06–0:19 — the cuts in src/scenes/Scan.tsx (CUE) are placed on these lines
-  { id: 'n3a', at: 6.05, text: 'The dot projector shines thousands of invisible infrared dots onto your face.' },
-  { id: 'n3b', at: 10.43, text: 'The infrared camera captures the pattern.' },
-  { id: 'n3c', at: 13.35, text: "Your iPhone uses it to measure the depth of your face. Your nose is closer. Your cheeks are farther away." },
-  { id: 'n4', at: 20.7, text: 'It also captures an infrared image. Your iPhone uses both to check whether the face matches the one you enrolled.' },
-  { id: 'n5', at: 29.0, text: "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?" },
+  { id: 'n3a', at: 6.3, text: 'The dot projector shines thousands of invisible infrared dots onto your face.' },
+  { id: 'n3b', at: 9.98, text: 'The infrared camera captures the pattern.' },
+  { id: 'n3c', at: 12.45, text: "Your iPhone uses it to measure the depth of your face. Your nose is closer. Your cheeks are farther away." },
+  { id: 'n4', at: 18.65, text: 'It also captures an infrared image. Your iPhone uses both to check whether the face matches the one you enrolled.' },
+  { id: 'n5', at: 26.34, text: "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?" },
 ];
 
 // Used only while there is no real test clip: an open question, no result.
@@ -61,13 +62,15 @@ export const LEN: Record<string, number> = lengths as any;
 export const SFX = [
   { name: 'SFX · whoosh (hook push)', file: 'whoosh.wav', at: 1.55, vol: 0.35 },
   { name: 'SFX · whoosh (into TrueDepth)', file: 'whoosh.wav', at: 2.45, vol: 0.3 },
-  { name: 'SFX · thump (capture)', file: 'thump.wav', at: 11.53, vol: 0.25 },
-  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 36.0, vol: 0.45 },
+  { name: 'SFX · whoosh + thump (teardown)', file: 'whoosh.wav', at: 4.55, vol: 0.35 },
+  { name: 'SFX · thump (teardown)', file: 'thump.wav', at: 4.63, vol: 0.3 },
+  { name: 'SFX · thump (capture)', file: 'thump.wav', at: 11.10, vol: 0.25 },
+  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 33.17, vol: 0.45 },
   // a quiet whoosh on each fast scene change
-  { name: 'SFX · whoosh (to the dots)', file: 'whoosh.wav', at: 5.85, vol: 0.22 },
-  { name: 'SFX · whoosh (to the comparison)', file: 'whoosh.wav', at: 20.25, vol: 0.22 },
-  { name: 'SFX · whoosh (to the mirror)', file: 'whoosh.wav', at: 28.45, vol: 0.22 },
-  { name: 'SFX · whoosh (to the end card)', file: 'whoosh.wav', at: 42.85, vol: 0.2 },
+  { name: 'SFX · whoosh (to the dots)', file: 'whoosh.wav', at: 6.05, vol: 0.22 },
+  { name: 'SFX · whoosh (to the comparison)', file: 'whoosh.wav', at: 18.35, vol: 0.22 },
+  { name: 'SFX · whoosh (to the mirror)', file: 'whoosh.wav', at: 26.04, vol: 0.22 },
+  { name: 'SFX · whoosh (to the end card)', file: 'whoosh.wav', at: 39.02, vol: 0.2 },
 ];
 
 // ---- Real mirror test (scene 6) -------------------------------------------------
@@ -82,6 +85,6 @@ export type TestProps = {
   focusX: number; focusY: number; zoom: number;
 };
 export const DEFAULT_TEST: TestProps = {
-  testFootage: '', testStartSec: 0, result: 'none', resultDelaySec: 2.6,   // no real footage yet: the slot is a marked placeholder and no result is narrated
+  testFootage: '', testStartSec: 0, result: 'none', resultDelaySec: 2.2,   // no real footage yet: the slot is a marked placeholder and no result is narrated
   focusX: 0.5, focusY: 0.3, zoom: 1.0,
 };

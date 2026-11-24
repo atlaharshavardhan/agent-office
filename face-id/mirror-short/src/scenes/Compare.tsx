@@ -8,7 +8,7 @@ import { headDots, turnDot } from './dotHead';
 // 121–210  Comparing…: his face as a white dot cloud in a ring of ticks, turning left / right / up / down
 //                                                                "to check whether the face matches the one you"
 // 210–246  the ring fills: DOES IT MATCH?                       "enrolled."
-export const CMP = { both: 79, check: 121, merge: 210 };
+export const CMP = { both: 74, check: 122, merge: 205 };
 const CROP = { x: 106, y: 200, w: 540, h: 720 };                    // face region of the 752 x 1344 stills
 const CYAN = '#7fe3ea', VIO = '#b9a2ff';
 const DOTS = headDots(1, 2), RING_DOTS = headDots(0.78);

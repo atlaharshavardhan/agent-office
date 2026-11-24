@@ -9,7 +9,7 @@ import { EndCard } from './scenes/EndCard';
 import { Hook } from './scenes/Hook';
 import { MIR, Mirror } from './scenes/Mirror';
 import { Test } from './scenes/Test';
-import { TrueDepth } from './scenes/TrueDepth';
+import { TEAR, TrueDepth } from './scenes/TrueDepth';
 
 const D = (k: keyof typeof SCENES) => f(SCENES[k][1]) - f(SCENES[k][0]);
 const S = (k: keyof typeof SCENES) => ({ from: f(SCENES[k][0]), durationInFrames: f(SCENES[k][1]) - f(SCENES[k][0]) });
@@ -24,7 +24,7 @@ export const MirrorFaceID: React.FC<TestProps> = (props) => {
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
       {/* ---- VIDEO ---- */}
       <Sequence name="1 · Mirror hook" {...S('hook')}><Hook /></Sequence>
-      <Sequence name="2 · TrueDepth reveal" {...S('truedepth')}><Shot dur={D('truedepth')} enter={false}><TrueDepth /></Shot></Sequence>
+      <Sequence name="2 · TrueDepth reveal" {...S('truedepth')}><Shot dur={D('truedepth')} enter={false} snaps={[[TEAR, 1.5]]}><TrueDepth /></Shot></Sequence>
       <Sequence name="3 · Dots, infrared view and depth web" {...S('scan')}>
         <Shot dur={D('scan')} snaps={[[CUE.front, 1.3], [CUE.cyan, 1.3], [CUE.depth, 1.25]]}><Scan /></Shot>
       </Sequence>

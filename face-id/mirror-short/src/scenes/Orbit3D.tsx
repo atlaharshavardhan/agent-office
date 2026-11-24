@@ -82,7 +82,7 @@ const FLIP = false;
 // camera: one continuous move from the left of his head to the right
 // red clip: stays on his side profile (a short arc); cyan clip: near the front, ending straight on
 const camAt = (g: number, head: Head, cyan?: number) => {
-  const u = Math.min(1, Math.max(0, cyan !== undefined ? cyan / 41 : g / 166)), e = u * u * (3 - 2 * u);
+  const u = Math.min(1, Math.max(0, cyan !== undefined ? cyan / 50 : g / 147)), e = u * u * (3 - 2 * u);
   const az = ((cyan !== undefined ? -16 + 16 * e : -64 + 30 * (0.35 * u + 0.65 * e)) * Math.PI) / 180;
   const dist = cyan !== undefined ? 2550 - 150 * e : 3300 - 700 * e;
   const t = new THREE.Vector3(head.nose.x, head.nose.y - 70 - 60 * (1 - ramp(g, 40, 120)), head.nose.z - 60 + 60 * (1 - ramp(g, 60, 170)));

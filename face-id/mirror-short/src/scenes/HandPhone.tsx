@@ -22,9 +22,9 @@ export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
   const on = ramp(f, 68, 74);                           // crisp drawn island replaces the soft photo one
   const part = (fx: number) => left + w * fx;           // x of a part inside the island
   const PARTS = [
-    { fx: 0.14, label: 'IR CAMERA', ly: 640, at: 78, anchor: 'start' as const, lx: -150 },
-    { fx: 0.31, label: 'FLOOD ILLUMINATOR', ly: 545, at: 90, anchor: 'start' as const, lx: -8 },
-    { fx: 0.51, label: 'DOT PROJECTOR', ly: 592, at: 102, anchor: 'start' as const, lx: -8 },
+    { fx: 0.14, label: 'IR CAMERA', ly: 640, at: 76, anchor: 'start' as const, lx: -150 },
+    { fx: 0.31, label: 'FLOOD ILLUMINATOR', ly: 545, at: 81, anchor: 'start' as const, lx: -8 },
+    { fx: 0.51, label: 'DOT PROJECTOR', ly: 592, at: 86, anchor: 'start' as const, lx: -8 },
   ];
   const r = h * 0.3;
   return (
@@ -45,9 +45,9 @@ export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
           <circle cx={part(0.14) - r * 0.2} cy={cy - r * 0.2} r={r * 0.16} fill={BLUE} />
         </g>
         {/* flood illuminator */}
-        <rect x={part(0.31) - r * 0.55} y={cy - r * 0.55} width={r * 1.1} height={r * 1.1} rx={6} fill="#1a0b10" stroke={RED} strokeWidth={4} strokeDasharray="6 5" opacity={ramp(f, 88, 92)} />
+        <rect x={part(0.31) - r * 0.55} y={cy - r * 0.55} width={r * 1.1} height={r * 1.1} rx={6} fill="#1a0b10" stroke={RED} strokeWidth={4} strokeDasharray="6 5" opacity={ramp(f, 79, 83)} />
         {/* dot projector */}
-        <g opacity={ramp(f, 100, 104)}>
+        <g opacity={ramp(f, 84, 88)}>
           <circle cx={part(0.51)} cy={cy} r={r} fill="#2a0c12" stroke={RED} strokeWidth={5} strokeDasharray="7 6" />
           {[-0.45, -0.15, 0.15, 0.45].map((k) => <line key={k} x1={part(0.51) - r * 0.6} x2={part(0.51) + r * 0.6} y1={cy + r * k} y2={cy + r * k} stroke="#ffb3bd" strokeWidth={3.5} strokeDasharray="9 5" />)}
         </g>

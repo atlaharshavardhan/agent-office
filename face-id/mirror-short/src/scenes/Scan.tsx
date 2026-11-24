@@ -10,7 +10,7 @@ import { Orbit3D } from './Orbit3D';
 // 166–220  hard cut on "captures": frontal red-dot close-up, INFRARED CAMERA VIEW, held
 // 220–268  the same dots as a cyan point cloud                              "Your iPhone uses it to measure"
 // 268–432  DEPTH MAP: face mesh ("the depth of your face"); CLOSER on "nose" (317), FARTHER on "cheeks" (351)
-export const CUE = { front: 166, cyan: 220, depth: 268, nose: 317, cheek: 351, turn: 392, end: 432 };
+export const CUE = { front: 147, cyan: 187, depth: 237, nose: 284, cheek: 318, turn: 329, end: 369 };
 const MESH = '#dff3ff';
 const pt = (a: number[]) => ({ x: a[0], y: a[1], d: a[2] });
 const NOSE = pt(front.nose), CHEEK = pt(front.cheek);
