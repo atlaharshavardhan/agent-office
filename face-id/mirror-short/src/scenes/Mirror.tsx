@@ -9,7 +9,7 @@ import { C, FONT, Label, ramp } from '../theme';
 // 126–240  3 · the light returns the same way: the camera sees his face in the mirror. The live panel
 //          shows that (mirrored) infrared view being scanned line by line, with a running percentage.
 // The padlock stays closed with a question mark: no result is shown.
-const K = 1080 / 941, MX = 735;                                    // MX: x of the mirror surface the rays hit
+const K = 1080 / 941, MX = 705;                                    // MX: x of the mirror surface the rays hit
 const P = [516, 604];                                              // dot projector, top of the phone (faces the mirror)
 const TARGETS = [[300, 518], [320, 562], [341, 632], [322, 668], [311, 716]];   // forehead, brow, nose, lips, chin
 // law of reflection for a vertical mirror: the hit point where angle in = angle out
@@ -27,18 +27,22 @@ for (let y = 498; y < 736; y += 5) for (let x = 210; x < 348; x += 5) { const px
 const PAN = { x: 80, y: 1050, w: 380, h: 506 }, CROP = { x: 106, y: 200, w: 540, h: 720 }, PK = PAN.w / CROP.w;
 const PDOTS = (front.dots as number[][]).filter((_, i) => i % 3 === 0).map((d) => [PAN.w - (d[0] - CROP.x) * PK, (d[1] - CROP.y) * PK, d[3]]).filter((d) => d[1] > 0 && d[1] < PAN.h);
 const len = (a: number[], b: number[]) => Math.hypot(b[0] - a[0], b[1] - a[1]);
+// Mirror image of a point, fitted to this picture: his phone (516, 604) appears in the mirror at (763, 626) and his
+// nose (341, 632) at (817, 650). Points on the glass (x = MX) map to themselves, so real and reflected dots meet there.
+const RC = [763, 626];                                                // front camera of the phone in the mirror
+const mir = (q: number[]) => { const x = 922.3 - 0.309 * q[0], w = Math.min(1, Math.max(0, (x - MX) / (RC[0] - MX))); return [x, q[1] + (112.8 - 0.15 * q[1]) * w]; };
 const FLY = 24, launch = (f: number[]) => 34 + ((f[1] - 498) / 238) * 46 + f[2] * 10;      // forehead first, sweeping down
 const STREAM = Array.from({ length: 150 }, () => [rnd(), rnd()]);
 const STEPS = [{ at: 30, to: 62, text: '1 · DOTS LEAVE THE PHONE' }, { at: 62, to: 126, text: '2 · THE MIRROR REFLECTS THEM ONTO HIS FACE' }, { at: 126, to: 999, text: '3 · THE CAMERA SEES HIS FACE IN THE MIRROR' }];
 
 export const Mirror: React.FC = () => {
   const l = useCurrentFrame();
-  const s = 1 + 0.5 * ramp(l, 0, 30, 0, 1, (x) => x * x * (3 - 2 * x)) + 0.04 * (l / 240);   // push in on the phone, mirror and face
+  const s = 1 + 0.25 * ramp(l, 0, 30, 0, 1, (x) => x * x * (3 - 2 * x)) + 0.02 * (l / 240);   // wide enough to keep his reflection in frame   // push in on the phone, mirror and face
   const scan = ramp(l, 140, 212), pct = Math.round(scan * 100), panel = ramp(l, 128, 136);
   const sweepY = scan < 1 ? scan * PAN.h : ((l - 212) % 60) / 60 * PAN.h;
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg, overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, transformOrigin: '600px 690px', transform: `scale(${s})` }}>
+      <div style={{ position: 'absolute', inset: 0, transformOrigin: '640px 700px', transform: `scale(${s})` }}>
         <Img src={staticFile('bathroom_side.png')} style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1672 * K, filter: `brightness(${1 - 0.25 * ramp(l, 30, 60)})` }} />
         <svg viewBox="0 0 941 1672" style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1672 * K }}>
           <defs><filter id="mg" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.1" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
@@ -51,17 +55,17 @@ export const Mirror: React.FC = () => {
             {FACE_DOTS.map((f, i) => {
               const m = hit(f), a = len(P, m), b = len(m, f), t0 = launch(f), p = (l - t0) / FLY;
               if (p <= 0) return null;
-              if (p >= 1) return <circle key={i} cx={f[0]} cy={f[1]} r={1.25 * (1 + 0.8 * (1 - ramp(l, t0 + FLY, t0 + FLY + 5)))} fill={C.ir} opacity={0.75 + 0.25 * f[2]} />;
+              if (p >= 1) { const g = mir(f); return <g key={i}><circle cx={f[0]} cy={f[1]} r={1.25 * (1 + 0.8 * (1 - ramp(l, t0 + FLY, t0 + FLY + 5)))} fill={C.ir} opacity={0.75 + 0.25 * f[2]} />{i % 2 === 0 && <circle cx={g[0]} cy={g[1]} r={1.05} fill={C.ir} opacity={0.7} />}</g>; }
               const d = p * (a + b), q = d < a ? [P[0] + (m[0] - P[0]) * d / a, P[1] + (m[1] - P[1]) * d / a] : [m[0] + (f[0] - m[0]) * (d - a) / b, m[1] + (f[1] - m[1]) * (d - a) / b];
-              return <circle key={i} cx={q[0]} cy={q[1]} r={1.7} fill={C.irCore} />;
+              const g = mir(q); return <g key={i}><circle cx={q[0]} cy={q[1]} r={1.7} fill={C.irCore} /><circle cx={g[0]} cy={g[1]} r={1.4} fill={C.irCore} opacity={0.85} /></g>;
             })}
             {/* the stream keeps flowing while the camera looks */}
             {l > 100 && STREAM.map(([k, o], i) => { const f = FACE_DOTS[Math.floor(k * FACE_DOTS.length)], m = hit(f), a = len(P, m), b = len(m, f), u = ((l / 30) + o) % 1, d = u * (a + b);
               const q = d < a ? [P[0] + (m[0] - P[0]) * d / a, P[1] + (m[1] - P[1]) * d / a] : [m[0] + (f[0] - m[0]) * (d - a) / b, m[1] + (f[1] - m[1]) * (d - a) / b];
-              return <circle key={'s' + i} cx={q[0]} cy={q[1]} r={1.2} fill={C.ir} opacity={0.8} />; })}
+              const g = mir(q); return <g key={'s' + i}><circle cx={q[0]} cy={q[1]} r={1.2} fill={C.ir} opacity={0.8} /><circle cx={g[0]} cy={g[1]} r={1.05} fill={C.ir} opacity={0.7} /></g>; })}
           </g>
           {/* soft glints where the stream meets the glass */}
-          {[0, 1, 2].map((k) => { const u = ((l - 52) / 26 + k / 3) % 1; return l > 52 ? <ellipse key={k} cx={MX} cy={596} rx={3 + 12 * u} ry={10 + 46 * u} fill="none" stroke={C.irCore} strokeWidth={0.9} opacity={0.5 * (1 - u)} /> : null; })}
+          {[0, 1, 2].map((k) => { const u = ((l - 52) / 26 + k / 3) % 1; return l > 52 ? <ellipse key={k} cx={MX} cy={606} rx={3 + 12 * u} ry={10 + 46 * u} fill="none" stroke={C.irCore} strokeWidth={0.9} opacity={0.5 * (1 - u)} /> : null; })}
           {/* the reflection rule, shown on the middle ray: dashed normal + equal angles */}
           {(() => { const { m, f } = RAYS[2], o = ramp(l, 74, 80) * (1 - ramp(l, 122, 128)), r = 34;
             const ang = (q: number[]) => Math.atan2(q[1] - m[1], q[0] - m[0]), a1 = ang(P), a2 = ang(f);
@@ -69,6 +73,8 @@ export const Mirror: React.FC = () => {
             return <g opacity={o} stroke="#fff" fill="none"><line x1={m[0]} y1={m[1]} x2={m[0] - 70} y2={m[1]} strokeWidth={1.2} strokeDasharray="4 4" /><path d={arc(Math.PI, a1)} strokeWidth={1.6} /><path d={arc(Math.PI, a2)} strokeWidth={1.6} /></g>; })()}
           {/* return trip: what the camera receives (dashed, moving toward the phone) */}
           {l >= 126 && [RAYS[1], RAYS[3]].map(({ f, m }, k) => <path key={k} d={`M ${f[0]} ${f[1] + 5} L ${m[0]} ${m[1] + 5} L ${P[0] + 6} ${P[1] + 8}`} fill="none" stroke="#fff" strokeWidth={1.4} strokeDasharray="7 7" strokeDashoffset={-l * 1.4} opacity={0.8 * ramp(l, 126, 132)} />)}
+          {/* the same projector, seen in the mirror */}
+          <circle cx={RC[0]} cy={RC[1]} r={4.5 + Math.sin(l / 3)} fill={C.ir} opacity={0.9 * ramp(l, 30, 34)} /><circle cx={RC[0]} cy={RC[1]} r={1.8} fill="#fff" opacity={ramp(l, 30, 34)} />
           <circle cx={P[0]} cy={P[1]} r={5} fill={C.ir} opacity={ramp(l, 30, 34)} /><circle cx={P[0]} cy={P[1]} r={2} fill="#fff" opacity={ramp(l, 30, 34)} />
         </svg>
       </div>
