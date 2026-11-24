@@ -53,7 +53,8 @@ export const Scan: React.FC = () => {
   const raw = useCurrentFrame();
   if (raw < CUE.toSensor) return <Side s={raw} />;
   if (raw < CUE.toSensor + DOTS3D) return <Orbit3D g={raw - CUE.toSensor} />;
-  const s = raw - DOTS3D;
+  // the grey sensor view and its dot reveal were removed: the 3D clip cuts straight to the infrared camera view
+  const s = raw - (CUE.toSensor + DOTS3D) + CUE.capture;
   const captured = s >= CUE.capture, depth = s >= CUE.depth;
   const zoom = captured ? 1.25 : 1 + 0.03 * ((s - CUE.toSensor) / (CUE.capture - CUE.toSensor));
   const az = ramp(s, CUE.turn, 390, 0, -15, (x) => x * x * (3 - 2 * x));       // only the depth map turns
