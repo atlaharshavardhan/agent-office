@@ -11,6 +11,7 @@ import { Orbit3D } from './Orbit3D';
 // 220–268  the same dots as a cyan point cloud                              "Your iPhone uses it to measure"
 // 268–432  DEPTH MAP: face mesh ("the depth of your face"); CLOSER on "nose" (317), FARTHER on "cheeks" (351)
 export const CUE = { front: 147, cyan: 187, depth: 237, nose: 284, cheek: 318, turn: 329, end: 369 };
+const rnd = (i: number) => { const x = Math.sin((i + 1) * 91.17) * 43758.5453; return x - Math.floor(x); };
 const MESH = '#dff3ff', SCAN = '#4db8ff';
 const pt = (a: number[]) => ({ x: a[0], y: a[1], d: a[2] });
 const NOSE = pt(front.nose), CHEEK = pt(front.cheek);
@@ -57,11 +58,13 @@ export const Scan: React.FC = () => {
         const far = Math.max(...P.map((q) => Math.hypot(q[0] - front.nose[0], q[1] - front.nose[1])));
         const when = (k: number) => t0 + (Math.hypot(P[k][0] - front.nose[0], P[k][1] - front.nose[1]) / far) * SPAN;
         const xs = L.map((q) => q[0]), ys = L.map((q) => q[1]), X0 = Math.min(...xs), X1 = Math.max(...xs), Y0 = Math.min(...ys), Y1 = Math.max(...ys);
-        // the scan line is slanted (it runs from upper left to lower right) and sweeps across the web from left to right
-        const DX = 0.6, DY = 0.8, NX = 0.8, NY = -0.6, MX = (X0 + X1) / 2, MY = (Y0 + Y1) / 2;
+        // the scan: a straight blue line sweeps across the web
+        // each pass comes from a different, random direction (not left-to-right in order)
+        const CYC = 34, pass = Math.max(0, Math.floor((s - (t0 + SPAN - 6)) / CYC)), ang = rnd(pass) * Math.PI * 2;
+        const NX = Math.cos(ang), NY = Math.sin(ang), DX = -NY, DY = NX, MX = (X0 + X1) / 2, MY = (Y0 + Y1) / 2;
         const pr = (x: number, y: number) => (x - MX) * NX + (y - MY) * NY;                // distance across the sweep
         const ext = Math.max(...L.map((q) => Math.abs(pr(q[0], q[1])))) + 40;
-        const sweep = s < t0 + SPAN - 6 ? -1 : ((s - (t0 + SPAN - 6)) % 50) / 50, pb = -ext + 2 * ext * sweep;
+        const sweep = s < t0 + SPAN - 6 ? -1 : ((s - (t0 + SPAN - 6)) % CYC) / CYC, pb = -ext + 2 * ext * sweep;
         const band = (x: number, y: number) => (sweep < 0 ? 0 : Math.max(0, 1 - Math.abs(pr(x, y) - pb + 30) / 80));
         const at = (p: number, t: number) => `${MX + NX * p + DX * t},${MY + NY * p + DY * t}`;
         return (
@@ -89,7 +92,7 @@ export const Scan: React.FC = () => {
         );
       })()}
       {/* the two callouts: both stay inside the frame, below the captions, and hold to the end of the scene */}
-      <Mark x={nx} y={ny} text="CLOSER" lx={90} ly={1250} o={ramp(s, CUE.nose, CUE.nose + 3)} pop={ramp(s, CUE.nose, CUE.nose + 8)} />
+      <Mark x={nx} y={ny} text="CLOSER" lx={120} ly={1250} o={ramp(s, CUE.nose, CUE.nose + 3)} pop={ramp(s, CUE.nose, CUE.nose + 8)} />
       <Mark x={cx} y={cy} text="FARTHER" lx={640} ly={1250} o={ramp(s, CUE.cheek, CUE.cheek + 3)} pop={ramp(s, CUE.cheek, CUE.cheek + 8)} />
       <div style={{ position: 'absolute', left: 80, top: 1562, opacity: depth ? 0 : 0.5, font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>Illustration · the real dots are invisible · fewer dots drawn than projected</div>
     </AbsoluteFill>
