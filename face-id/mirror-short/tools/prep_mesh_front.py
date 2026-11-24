@@ -39,9 +39,24 @@ for (a, b), k in idx.items():
         if q in idx: E.add((min(k, idx[q]), max(k, idx[q])))
     if (a, b + 1) in idx and (a + 1, b) in idx and (a + 1, b + 1) in idx:
         T.append([k, idx[(a, b + 1)], idx[(a + 1, b + 1)]]); T.append([k, idx[(a + 1, b + 1)], idx[(a + 1, b)]])
+# the grid lines themselves, finely sampled with their depth, so they can be drawn as smooth curves that bend with the face
+def at(u, v): return NX + RX * np.sin(u) * (0.72 + 0.28 * np.cos(v)), CY + RY * np.sin(v) + 46 * (1 - np.cos(u)) * np.sin(v) - 14 * (1 - np.cos(u))
+def runs(samples):
+    out, cur = [], []
+    for x, y in samples:
+        ok = 0 <= int(x) < W and 0 <= int(y) < H and skin[int(y), int(x)]
+        if ok: cur.append([round(float(x), 1), round(float(y), 1), round(float(dep[int(y), int(x)]), 3)])
+        else:
+            if len(cur) > 2: out.append(cur)
+            cur = []
+    if len(cur) > 2: out.append(cur)
+    return out
+FINE = STEP / 5; LINES = []
+for v in vs: LINES += runs([at(u, v) for u in np.arange(us[0], us[-1] + 1e-6, FINE)])
+for u in us: LINES += runs([at(u, v) for v in np.arange(vs[0], vs[-1] + 1e-6, FINE)])
 out_pts = [[round(float(x), 1), round(float(y), 1), round(float(dep[int(y), int(x)]), 3)] for x, y in P]
 X0, DX, Y0, DY = 150, 8, 300, 8
 rows = [[round(float(dep[y, x]) if raw[y, x] > 0.1 else 0, 3) for x in range(X0, 610, DX)] for y in range(Y0, F["chin"] + 20, DY)]
-json.dump({"pts": out_pts, "edges": sorted([list(map(int, e)) for e in E]), "tris": T, "prof": {"x0": X0, "dx": DX, "y0": Y0, "dy": DY, "rows": rows}},
+json.dump({"pts": out_pts, "edges": sorted([list(map(int, e)) for e in E]), "tris": T, "lines": LINES, "prof": {"x0": X0, "dx": DX, "y0": Y0, "dy": DY, "rows": rows}},
           open(R / "src/mesh_front.json", "w"), separators=(",", ":"))
 print(len(out_pts), "points", len(E), "edges", len(rows), "profile rows")

@@ -54,7 +54,10 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
       {depth && <Label text="DEPTH MAP" x={505} y={1690} o={1} size={30} align="center" color={C.label} />}
       {/* depth mesh: points pinned to his face, joined by fine lines; a bigger, brighter point is closer to the phone */}
       {depth && (() => {
-        const L = (mesh.pts as number[][]).map((q) => [...headPoint({ x: q[0], y: q[1], d: q[2] }, az, zoom), q[2]]);
+        // relief: every point of the web is lifted by its depth (nearer = higher), so the lines bend over the nose,
+        // brow, lips and chin and the web reads as a curved surface even when the head faces us
+        const rel = (q: number[]) => { const [x, y] = headPoint({ x: q[0], y: q[1], d: q[2] }, az, zoom); return [x + (x - nx) * (q[2] - 0.45) * 0.1, y - (q[2] - 0.45) * 62, q[2]]; };
+        const L = (mesh.pts as number[][]).map(rel);
         const E = mesh.edges as number[][], P = mesh.pts as number[][], t0 = D0 + 2, SPAN = 22;
         // the mesh forms live: it spreads outward from the nose, point by point and line by line (about 1 s)
         const far = Math.max(...P.map((q) => Math.hypot(q[0] - front.nose[0], q[1] - front.nose[1])));
@@ -71,19 +74,20 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
         const at = (p: number, t: number) => `${MX + NX * p + DX * t},${MY + NY * p + DY * t}`;
         return (
           <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
-            {E.map(([a0, b0], i) => {
-              const [a, b] = when(a0) <= when(b0) ? [a0, b0] : [b0, a0];           // grow from the point that appears first
-              const g = ramp(s, when(a) + 2, when(b) + 4);
-              if (g <= 0) return null;
-              const near = (L[a][2] + L[b][2]) / 2;                                // nearer strands are brighter
-              const k = band((L[a][0] + L[b][0]) / 2, (L[a][1] + L[b][1]) / 2);                             // inside the green scan band
-              return <line key={i} x1={L[a][0]} y1={L[a][1]} x2={L[a][0] + (L[b][0] - L[a][0]) * g} y2={L[a][1] + (L[b][1] - L[a][1]) * g} stroke={k > 0.02 ? SCAN : MESH} strokeWidth={1.5 + 1.5 * k} opacity={Math.min(1, 0.3 + 0.55 * near + 0.7 * k)} />;
+            {(mesh.lines as number[][][]).map((ln, i) => {
+              // each grid line is drawn as a smooth curve, growing outward from the nose
+              let d = '', pen = false, near = 0, n = 0;
+              for (const q of ln) { if (t0 + (Math.hypot(q[0] - front.nose[0], q[1] - front.nose[1]) / far) * SPAN > s) { pen = false; continue; } const [x, y] = rel(q); d += `${pen ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`; pen = true; near += q[2]; n++; }
+              return n > 1 ? <path key={i} d={d} fill="none" stroke={MESH} strokeWidth={1.5} strokeLinejoin="round" opacity={0.3 + 0.55 * (near / n)} /> : null;
             })}
             {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); if (k <= 0) return null; const r = (1.8 + 2.4 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9))), c = band(x, y) > 0.3 ? SCAN : '#fff';
               // a glowing node at every crossing of the grid
               return <g key={i}><circle cx={x} cy={y} r={r * 2.6} fill={c} opacity={0.13 + 0.12 * d} /><circle cx={x} cy={y} r={r} fill={c} opacity={0.55 + 0.45 * d} /></g>; })}
             {/* the scan: a green band sweeps the whole web from left to right, again and again */}
             <g opacity={ramp(s, t0 + SPAN - 6, t0 + SPAN)}>
+              <g clipPath="url(#band-clip)">
+                {(mesh.lines as number[][][]).map((ln, i) => <polyline key={i} points={ln.map((q) => { const [x, y] = rel(q); return `${x.toFixed(1)},${y.toFixed(1)}`; }).join(' ')} fill="none" stroke={SCAN} strokeWidth={3} strokeLinejoin="round" />)}
+              </g>
               <g clipPath="url(#scan-clip)">
                 <polygon points={`${at(pb, -1200)} ${at(pb, 1200)} ${at(pb - 45, 1200)} ${at(pb - 45, -1200)}`} fill={SCAN} opacity={0.16} />
                 <polygon points={`${at(pb, -1200)} ${at(pb, 1200)} ${at(pb - 110, 1200)} ${at(pb - 110, -1200)}`} fill={SCAN} opacity={0.08} />
@@ -91,7 +95,7 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
               </g>
             </g>
             {/* the scan never leaves the web: it is clipped to the web's own triangles, so it follows the face as it moves */}
-            <defs><clipPath id="scan-clip">{(mesh.tris as number[][]).map(([a, b, c], i) => <polygon key={i} points={`${L[a][0]},${L[a][1]} ${L[b][0]},${L[b][1]} ${L[c][0]},${L[c][1]}`} />)}</clipPath></defs>
+            <defs><clipPath id="band-clip"><polygon points={`${at(pb + 6, -1200)} ${at(pb + 6, 1200)} ${at(pb - 90, 1200)} ${at(pb - 90, -1200)}`} /></clipPath><clipPath id="scan-clip">{(mesh.tris as number[][]).map(([a, b, c], i) => <polygon key={i} points={`${L[a][0]},${L[a][1]} ${L[b][0]},${L[b][1]} ${L[c][0]},${L[c][1]}`} />)}</clipPath></defs>
           </svg>
         );
       })()}
