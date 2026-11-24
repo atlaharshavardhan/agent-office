@@ -3,13 +3,13 @@
 import lengths from '../public/vo/lengths.json';
 
 export const FPS = 30;
-export const TOTAL = 1434;            // 47.8 s: the 3D dots clip (6 s: red dots, then cyan depth points) follows the side profile
-export const STORY_END = 45.8;        // end card = last 2 s
+export const TOTAL = 1410;            // 47 s: the 3D dots clip (6 s: red dots, then cyan depth points) follows the side profile
+export const STORY_END = 45;          // end card = last 2 s
 export const f = (s: number) => Math.round(s * FPS);
 
 export const SCENES = {
-  hook: [0, 2.5], truedepth: [2.5, 6], scan: [6, 21.8], compare: [21.8, 30.8],
-  mirror: [30.8, 38.8], test: [38.8, 45.8], end: [45.8, 47.8],
+  hook: [0, 2.5], truedepth: [2.5, 6], scan: [6, 21], compare: [21, 30],
+  mirror: [30, 38], test: [38, 45], end: [45, 47],
 } as const;
 
 // Hook: excerpts of public/mirror_clip.mp4 (24 fps source), played at normal speed, hard cuts.
@@ -25,11 +25,11 @@ export const HOOK_CUTS = [
 // Caption placement, decided clip by clip from where the frame has empty space (y of the caption block's top).
 // Default is the top of the frame (230). Ranges are in seconds.
 //  1.5–3.0  phone in his hand: the top of the frame holds the phone's Dynamic Island and clock -> lower, over his hand
-//  6.8–12.8 3D dots clip: the space is above his head -> top, raised so it clears his hair and the dots
+//  6.0–12.0 3D dots clip: the space is above his head -> top, raised so it clears his hair and the dots
 export const CAPTION_TOP_DEFAULT = 230;
 export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 1.5, to: 3.0, top: 1300 },
-  { from: 6.8, to: 12.8, top: 185 },
+  { from: 6.0, to: 12.0, top: 185 },
 ];
 
 export type Line = { id: string; at: number; text: string };
@@ -39,10 +39,10 @@ export const NARRATION: Line[] = [
   { id: 'n2', at: 2.2, text: 'Every time you glance at your iPhone, the TrueDepth camera wakes up.' },
   // 0:06–0:19 — the cuts in src/scenes/Scan.tsx (CUE) are placed on these lines
   { id: 'n3a', at: 6.05, text: 'The dot projector shines thousands of invisible infrared dots onto your face.' },
-  { id: 'n3b', at: 12.83, text: 'The infrared camera captures the pattern.' },
-  { id: 'n3c', at: 15.75, text: "Your iPhone uses it to map what's closer, like your nose, and what's farther away, like your cheek." },
-  { id: 'n4', at: 22.1, text: 'It also captures an infrared image. Your iPhone uses both to check whether the face matches the one you enrolled.' },
-  { id: 'n5', at: 31.2, text: "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?" },
+  { id: 'n3b', at: 12.03, text: 'The infrared camera captures the pattern.' },
+  { id: 'n3c', at: 14.95, text: "Your iPhone uses it to map what's closer, like your nose, and what's farther away, like your cheek." },
+  { id: 'n4', at: 21.3, text: 'It also captures an infrared image. Your iPhone uses both to check whether the face matches the one you enrolled.' },
+  { id: 'n5', at: 30.4, text: "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?" },
 ];
 
 // Used only while there is no real test clip: an open question, no result.
@@ -58,8 +58,8 @@ export const LEN: Record<string, number> = lengths as any;
 export const SFX = [
   { name: 'SFX · whoosh (hook push)', file: 'whoosh.wav', at: 1.55, vol: 0.35 },
   { name: 'SFX · whoosh (into TrueDepth)', file: 'whoosh.wav', at: 2.45, vol: 0.3 },
-  { name: 'SFX · thump (capture)', file: 'thump.wav', at: 12.8, vol: 0.25 },
-  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 38.8, vol: 0.45 },
+  { name: 'SFX · thump (capture)', file: 'thump.wav', at: 12.0, vol: 0.25 },
+  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 38.0, vol: 0.45 },
 ];
 
 // ---- Real mirror test (scene 6) -------------------------------------------------

@@ -13,7 +13,8 @@ import { Orbit3D } from './Orbit3D';
 //                                                                  "The infrared camera captures the pattern."
 // 210–390  DEPTH MAP: the red dots fade into it at the same angle, scale and alignment; CLOSER on "nose",
 //          FARTHER on "cheek"; the depth map then turns slightly
-export const CUE = { toSensor: 24, dots: 72, capture: 120, depth: 210, nose: 291, cheek: 351, turn: 356 };
+// toSensor: 0 = the side-profile 'DOT PROJECTOR' shot was removed; the scene opens on the 3D dots clip
+export const CUE = { toSensor: 0, dots: 72, capture: 120, depth: 210, nose: 291, cheek: 351, turn: 356 };
 const VIEW = { x: 180, y: 240, w: 460 }, K = 1080 / VIEW.w;          // crop of bathroom_side.png (941 x 1672)
 const CAM = [(507 - VIEW.x) * K, (603 - VIEW.y) * K];               // top of the phone, facing him
 const MESH = '#dff3ff';
