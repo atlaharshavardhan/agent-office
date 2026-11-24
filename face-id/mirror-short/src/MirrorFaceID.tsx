@@ -27,7 +27,7 @@ export const MirrorFaceID: React.FC<TestProps> = (props) => {
       <Sequence name="2 · Inside the phone" {...S('truedepth')}><Shot dur={D('truedepth')} enter={false} snaps={[[TEAR, 1.12]]}><TrueDepth /></Shot></Sequence>
       <Sequence name="3 · Red dots and infrared camera view" {...S('scan')}><Shot dur={D('scan')} snaps={[[CUE_A.front, 1.3]]}><ScanA /></Shot></Sequence>
       <Sequence name="4 · The mirror twist" {...S('mirror')}>
-        <Shot dur={D('mirror')} snaps={[[MIR.glass - MIR_FROM, 1.3], [MIR.wide - MIR_FROM, 1.25]]}><Mirror /></Shot>
+        <Shot dur={D('mirror')} snaps={[[MIR.glass - MIR_FROM, 1.3], [MIR.inside - MIR_FROM, 1.2]]}><Mirror /></Shot>
       </Sequence>
       <Sequence name="5 · What the phone measures" {...S('measure')}><Shot dur={D('measure')} snaps={[[CUE_B.cyan, 1.3], [CUE_B.depth, 1.25]]}><ScanB /></Shot></Sequence>
       <Sequence name="6 · Compare the face" {...S('compare')}><Shot dur={D('compare')} snaps={[[CMP.both, 1.3], [CMP.check, 1.3]]}><Compare /></Shot></Sequence>

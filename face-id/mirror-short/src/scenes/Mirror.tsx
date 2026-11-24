@@ -2,6 +2,7 @@ import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import front from '../front.json';
 import { C, FONT, Label, ramp } from '../theme';
 import { headDots, turnDot } from './dotHead';
+import { InsideMirror } from './InsideMirror';
 
 // Scene 5 (8 s, 240 frames): how the infrared light reaches his face by way of the mirror, and what the
 // camera sees. Side view (public/bathroom_side.png, 941 x 1672) + a live "infrared camera" panel.
@@ -39,18 +40,19 @@ const FLY = 24, launch = (f: number[]) => 34 + ((f[1] - 498) / 238) * 46 + f[2] 
 const STREAM = Array.from({ length: 150 }, () => [rnd(), rnd()]);
 // three shots: wide · one closer framing that holds his face, the phone and the glass together, so the bounce off the
 // mirror and the dots landing on his face are seen in the same frame · wide again (what the camera sees)
-export const MIR = { glass: 54, face: 96, wide: 150 };
+export const MIR = { glass: 54, face: 96, wide: 999, inside: 104 };   // inside: the cut into the mirror view
 const STEPS = [{ at: 30, to: MIR.glass, text: '1 · DOTS LEAVE THE PHONE' }, { at: MIR.glass, to: MIR.wide, text: '2 · THE MIRROR REFLECTS THEM ONTO HIS FACE' }, { at: MIR.wide, to: 999, text: '3 · THE CAMERA SEES HIS FACE IN THE MIRROR' }];
 
 // MIR_FROM: the setup is trimmed, the scene starts this many frames in (just before the dots leave the phone)
 export const MIR_FROM = 24;
 export const Mirror: React.FC = () => {
   const l = useCurrentFrame() + MIR_FROM;
+  if (l >= MIR.inside) return <InsideMirror t={l - MIR.inside} />;
   const s = 1 + 0.25 * ramp(l, 0, 30, 0, 1, (x) => x * x * (3 - 2 * x)) + 0.02 * (l / 222);   // wide enough to keep his reflection in frame   // push in on the phone, mirror and face
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg, overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, ...(l >= MIR.glass && l < MIR.wide
-        ? (() => { const px = 548 * K, py = 625 * K, sc = 1.36 * (1 + 0.05 * ((l - MIR.glass) / (MIR.wide - MIR.glass)));      // one framing: his face, the phone, the glass and his reflection in it
+        ? (() => { const px = 548 * K, py = 625 * K, sc = 1.36 * (1 + 0.05 * ((l - MIR.glass) / (MIR.inside - MIR.glass)));      // one framing: his face, the phone, the glass and his reflection in it
           return { transformOrigin: '0 0', transform: `translate(${540 - px * sc}px, ${900 - py * sc}px) scale(${sc})` }; })()
         : { transformOrigin: '640px 700px', transform: `scale(${s})` }) }}>
         <Img src={staticFile('bathroom_side.png')} style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1672 * K, filter: `brightness(${1 - 0.25 * ramp(l, 30, 60)})` }} />
