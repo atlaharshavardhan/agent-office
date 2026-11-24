@@ -65,3 +65,6 @@ If you change a narration line, regenerate the audio:
   `vfx-iphone-device` (`npx hyperframes add vfx-iphone-device`); our own lit screen is mapped onto its front glass.
 - Scene 3 (`src/scenes/Scan.tsx`) uses the host's face stills unchanged (colour, infrared, depth map are the same
   aligned image). `Scan3D.tsx` / `Phone3D.tsx` (Three.js version) are kept but no longer on the timeline.
+- 0:08–0:19 is `src/scenes/Orbit3D.tsx`: a full 3D model of the host's head (`public/models/head.glb` + `head_tex.jpg`,
+  Hunyuan3D v3 on Higgsfield from `face_15.png`, slimmed by `tools/prep_head.py`). The camera travels from the left of
+  his head to the right while the iPhone fires the dots, they turn cyan, and the head becomes a depth map.

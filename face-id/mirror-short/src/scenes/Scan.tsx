@@ -1,6 +1,6 @@
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import { C, Label, ramp } from '../theme';
-import { Scan3D } from './Scan3D';
+import { Orbit3D } from './Orbit3D';
 
 // Scene 3 (6–19 s, 390 frames). s = local frame.
 //   0– 60  tight side profile: the phone faces him; quick push to the TrueDepth sensor area
@@ -34,5 +34,5 @@ const Side: React.FC<{ s: number }> = ({ s }) => {
 // timeline is stretched slightly to fill the 330 frames up to 0:19.
 export const Scan: React.FC = () => {
   const s = useCurrentFrame();
-  return s < 60 ? <Side s={s} /> : <Scan3D g={((s - 60) * 349) / 330} />;
+  return s < 60 ? <Side s={s} /> : <Orbit3D g={s - 60} />;
 };
