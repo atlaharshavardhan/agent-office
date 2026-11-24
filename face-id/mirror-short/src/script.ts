@@ -19,7 +19,7 @@ export const SCENES = {
 export const HOOK_CUTS = [
   { name: 'Hook 1 · side profile', srcStart: 0.0, dur: 26 },
   { name: 'Hook 2 · rear view', srcStart: 1.6, dur: 19 },
-  { name: 'Hook 3 · push to screen', srcStart: 2.7667, dur: 30 },
+  { name: 'Hook 3 · push to the phone in his hand (still: hook_closeup.png)', srcStart: 0, dur: 30 },
 ];
 
 export type Line = { id: string; at: number; text: string };
@@ -46,7 +46,7 @@ export const LEN: Record<string, number> = lengths as any;
 
 export const SFX = [
   { name: 'SFX · whoosh (hook push)', file: 'whoosh.wav', at: 1.55, vol: 0.35 },
-  { name: 'SFX · whoosh (into TrueDepth)', file: 'whoosh.wav', at: 3.85, vol: 0.3 },
+  { name: 'SFX · whoosh (into TrueDepth)', file: 'whoosh.wav', at: 2.45, vol: 0.3 },
   { name: 'SFX · whoosh (to the sensor)', file: 'whoosh.wav', at: 7.35, vol: 0.25 },
   { name: 'SFX · thump (real test)', file: 'thump.wav', at: 36.0, vol: 0.45 },
 ];

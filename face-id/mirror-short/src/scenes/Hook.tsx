@@ -1,6 +1,10 @@
 import { AbsoluteFill, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
 import { FPS, HOOK_CUTS } from '../script';
 import { clamp } from '../theme';
+import { HandPhone } from './HandPhone';
+
+// last hook shot: the phone in his hand with a real lock screen (still), pushed in by code
+const HandShot: React.FC = () => <HandPhone f={useCurrentFrame()} />;
 
 // Digital push on excerpt 3 (keyed to source time) so the generated phone's round camera
 // cutout is pushed out of frame before it becomes the focus; the glow stays centred.
@@ -30,7 +34,7 @@ export const Hook: React.FC = () => {
       {HOOK_CUTS.map((c, i) => {
         const el = (
           <Sequence key={c.name} name={c.name} from={from} durationInFrames={c.dur} layout="none">
-            <Clip srcStart={c.srcStart} push={i === 2} />
+            {i === 2 ? <HandShot /> : <Clip srcStart={c.srcStart} />}
           </Sequence>
         );
         from += c.dur;

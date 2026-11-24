@@ -68,3 +68,6 @@ If you change a narration line, regenerate the audio:
 - 0:08–0:19 is `src/scenes/Orbit3D.tsx`: a full 3D model of the host's head (`public/models/head.glb` + `head_tex.jpg`,
   Hunyuan3D v3 on Higgsfield from `face_15.png`, slimmed by `tools/prep_head.py`). The camera travels from the left of
   his head to the right while the iPhone fires the dots, they turn cyan, and the head becomes a depth map.
+- 0:01.5–0:06 stays on the phone in his hand (`src/scenes/HandPhone.tsx`, still `public/hook_closeup.png`): the hook's
+  push-in lands on it, the camera zooms to its Dynamic Island and the Face ID glyph animation plays there.
+  `PhoneReveal.tsx` (separate 3D phone opening) is no longer on the timeline. Hook preview stills are in `hook-stills/`.
