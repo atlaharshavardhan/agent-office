@@ -81,7 +81,13 @@ const FLIP = false;
 
 // camera: one continuous move from the left of his head to the right
 // red clip: stays on his side profile (a short arc); cyan clip: near the front, ending straight on
-const camAt = (g: number, head: Head, cyan?: number) => {
+const camAt = (g: number, head: Head, cyan?: number, pov?: number) => {
+  if (pov !== undefined) {                 // the mirror's point of view: straight at him, from where the glass is
+    const c = new THREE.PerspectiveCamera(FOV, 1080 / 1920, 10, 9000), e = 1 - Math.pow(1 - Math.min(1, pov / 14), 3);
+    c.position.set(head.nose.x + 60, head.nose.y - 50, head.nose.z + 2450 - 480 * e - 2.5 * pov);
+    c.lookAt(head.nose.x + 60, head.nose.y - 62, head.nose.z); c.updateMatrixWorld(); c.updateProjectionMatrix();
+    return c;
+  }
   const u = Math.min(1, Math.max(0, cyan !== undefined ? cyan / 32 : g / 164)), e = u * u * (3 - 2 * u);
   const az = ((cyan !== undefined ? -16 + 16 * e : -64 + 30 * (0.35 * u + 0.65 * e)) * Math.PI) / 180;
   const dist = cyan !== undefined ? 2550 - 150 * e : 3300 - 700 * e;
@@ -100,7 +106,7 @@ void main(){ float r = length(gl_PointCoord - 0.5) * 2.0; if (r > 1.0) discard; 
   gl_FragColor = vec4(mix(vCol, vec3(1.0), smoothstep(0.5, 0.0, r) * 0.7) * a * uO, a * uO); }`;
 const RED = new THREE.Color(C.ir), CY = new THREE.Color(CYAN);
 
-const Inner: React.FC<{ g: number; cyan?: number; cam: THREE.PerspectiveCamera; head: Head; phone: THREE.Object3D }> = ({ g, cyan, cam, head, phone }) => {
+const Inner: React.FC<{ g: number; cyan?: number; pov?: number; cam: THREE.PerspectiveCamera; head: Head; phone: THREE.Object3D }> = ({ g, cyan, pov, cam, head, phone }) => {
   const gl = useThree((s) => s.gl), scene = useThree((s) => s.scene), advance = useThree((s) => s.advance);
   // the canvas only draws on demand: draw after every commit of this scene so no frame is left blank
   useEffect(() => { advance(performance.now()); });
@@ -114,7 +120,11 @@ const Inner: React.FC<{ g: number; cyan?: number; cam: THREE.PerspectiveCamera; 
     camera.fov = FOV; camera.near = 10; camera.far = 9000; camera.updateProjectionMatrix(); camera.updateMatrixWorld();
   }, [cam, camera]);
 
-  const { dots, rnd, n, proj } = head;
+  const { dots, rnd, n } = head;
+  // mirror view: he holds the phone beside his face with its front toward the mirror (toward us)
+  const povPhone = useMemo(() => { const o = new THREE.Object3D(); o.position.set(head.nose.x + 235, head.nose.y - 150, head.nose.z + 150); o.rotation.set(-0.04, -0.16, 0.04); o.updateMatrixWorld();
+    return { pos: o.position.clone(), quat: o.quaternion.clone(), proj: o.localToWorld(new THREE.Vector3(-13 * PS, ISLAND_Y * PS, (P3.d / 2 + 1.5) * PS)) }; }, [head]);
+  const proj = pov !== undefined ? povPhone.proj : head.proj, ZG = head.nose.z + 900;     // ZG: where the glass is
   const launch = useMemo(() => { const a = new Float32Array(n); let far = 0;
     for (let i = 0; i < n; i++) far = Math.max(far, Math.hypot(dots[i * 3] - proj.x, dots[i * 3 + 1] - proj.y, dots[i * 3 + 2] - proj.z));
     for (let i = 0; i < n; i++) a[i] = 3 + (1 - (dots[i * 3 + 1] - (head.nose.y - 190)) / 420) * 30 + rnd[i] * 6;   // top of the head first, sweeping down
@@ -131,7 +141,16 @@ const Inner: React.FC<{ g: number; cyan?: number; cam: THREE.PerspectiveCamera; 
   const RAYS = 300;
   const rays = useMemo(() => { const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(RAYS * 6), 3)); return geo; }, []);
   const pos = pts.geo.attributes.position.array as Float32Array, size = pts.geo.attributes.aSize.array as Float32Array, col = pts.geo.attributes.aCol.array as Float32Array;
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; pov !== undefined && i < n; i++) {
+    // out to the glass, off it (angle in = angle out), and back onto his face
+    const t0 = 2 + ((launch[i] - 3) / 36) * 17, p1 = Math.min(1, Math.max(0, (pov - t0) / 9)), p2 = Math.min(1, Math.max(0, (pov - t0 - 9) / 9)), e2 = p2 * p2 * (3 - 2 * p2);
+    const tx = dots[i * 3], ty = dots[i * 3 + 1], tz = dots[i * 3 + 2], u = (ZG - proj.z) / (2 * ZG - tz - proj.z);
+    const hx = proj.x + (tx - proj.x) * u, hy = proj.y + (ty - proj.y) * u;
+    pos[i * 3] = p2 > 0 ? hx + (tx - hx) * e2 : proj.x + (hx - proj.x) * p1; pos[i * 3 + 1] = p2 > 0 ? hy + (ty - hy) * e2 : proj.y + (hy - proj.y) * p1; pos[i * 3 + 2] = p2 > 0 ? ZG + (tz - ZG) * e2 : proj.z + (ZG - proj.z) * p1;
+    size[i] = p1 <= 0 ? 0 : p2 >= 1 ? 4.6 * (1 + 0.9 * (1 - ramp(pov, t0 + 18, t0 + 23))) : p1 >= 1 && p2 < 0.2 ? 5.5 : 3.6;
+    col[i * 3] = RED.r; col[i * 3 + 1] = RED.g; col[i * 3 + 2] = RED.b;
+  }
+  for (let i = 0; pov === undefined && i < n; i++) {
     const p = Math.min(1, Math.max(0, (g - launch[i]) / FLIGHT)), e = p * p * (3 - 2 * p);
     pos[i * 3] = proj.x + (dots[i * 3] - proj.x) * e; pos[i * 3 + 1] = proj.y + (dots[i * 3 + 1] - proj.y) * e; pos[i * 3 + 2] = proj.z + (dots[i * 3 + 2] - proj.z) * e;
     const land = ramp(g, launch[i] + FLIGHT, launch[i] + FLIGHT + 5);
@@ -149,17 +168,17 @@ const Inner: React.FC<{ g: number; cyan?: number; cam: THREE.PerspectiveCamera; 
     rp[k * 6 + 3] = on ? dots[i * 3] : proj.x; rp[k * 6 + 4] = on ? dots[i * 3 + 1] : proj.y; rp[k * 6 + 5] = on ? dots[i * 3 + 2] : proj.z;
   }
   rays.attributes.position.needsUpdate = true;
-  const rayO = cyan !== undefined ? 0 : 0.2 * ramp(g, 4, 10);
+  const rayO = cyan !== undefined || pov !== undefined ? 0 : 0.2 * ramp(g, 4, 10);
   return (
     <>
-      {toDepth < 1 && <mesh geometry={head.geo}><meshBasicMaterial map={head.map} color="#7c7c7c" /></mesh>}
+      {toDepth < 1 && <mesh geometry={head.geo}><meshBasicMaterial map={head.map} color={pov !== undefined ? '#c9a184' : '#7c7c7c'} /></mesh>}
       {toDepth > 0 && <mesh geometry={head.geo}><meshBasicMaterial vertexColors transparent opacity={toDepth} /></mesh>}
       <lineSegments geometry={rays}><lineBasicMaterial color={C.ir} transparent opacity={rayO} blending={THREE.AdditiveBlending} depthWrite={false} /></lineSegments>
       <points geometry={pts.geo} material={pts.mat} frustumCulled={false} />
       <ambientLight intensity={0.5} />
       <directionalLight position={[600, 900, 2200]} intensity={2.2} />
       <pointLight position={[-700, 900, 900]} intensity={3} color="#ffb060" decay={0} />
-      <group position={head.phonePos} quaternion={head.phoneQuat} scale={PS}>
+      <group position={pov !== undefined ? povPhone.pos : head.phonePos} quaternion={pov !== undefined ? povPhone.quat : head.phoneQuat} scale={PS}>
         <Phone3D model={phone} />
         <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.2]}><circleGeometry args={[4, 20]} /><meshBasicMaterial color="#ffffff" /></mesh>
         <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.1]}><circleGeometry args={[15, 24]} /><meshBasicMaterial color={C.ir} transparent opacity={cyan !== undefined ? 0 : 0.75} blending={THREE.AdditiveBlending} /></mesh>
@@ -182,18 +201,20 @@ const Mark: React.FC<{ x: number; y: number; text: string; sub: string; dx: numb
 );
 
 // cyan === undefined: the red dots clip (g = its frame). cyan = frame of the point-cloud clip: all dots have landed and turn cyan.
-export const Orbit3D: React.FC<{ g: number; cyan?: number }> = ({ g, cyan }) => {
+// pov = frame of the mirror's-point-of-view clip: we look at him from the mirror; the dots fly at us, hit the glass and go back to his face.
+export const Orbit3D: React.FC<{ g: number; cyan?: number; pov?: number }> = ({ g, cyan, pov }) => {
   const head = useHead(), phone = usePhoneModel();
-  const cam = useMemo(() => (head ? camAt(g, head, cyan) : null), [g, head, cyan]);
+  const cam = useMemo(() => (head ? camAt(g, head, cyan, pov) : null), [g, head, cyan, pov]);
   const nose = head && cam ? toScreen(cam, head.nose) : [0, 0], cheek = head && cam ? toScreen(cam, head.cheek) : [0, 0];
   return (
     <AbsoluteFill style={{ backgroundColor: '#070606' }}>
-      <ThreeCanvas width={1080} height={1920} flat gl={{ antialias: true }} camera={{ fov: FOV, near: 10, far: 9000 }}>
-        {head && phone && cam && <Inner g={g} cyan={cyan} cam={cam} head={head} phone={phone} />}
+      {pov !== undefined && <AbsoluteFill style={{ background: 'radial-gradient(90% 60% at 30% 22%, #6b3d1c 0%, #2a1a10 45%, #0d0907 100%)' }} />}
+      <ThreeCanvas width={1080} height={1920} flat gl={{ antialias: true, alpha: true }} style={{ position: 'absolute', inset: 0 }} camera={{ fov: FOV, near: 10, far: 9000 }}>
+        {head && phone && cam && <Inner g={g} cyan={cyan} pov={pov} cam={cam} head={head} phone={phone} />}
       </ThreeCanvas>
       <Mark x={nose[0]} y={nose[1]} text="CLOSER" sub="nose" dx={-150} o={ramp(g, 205, 209) * (1 - ramp(g, 322, 328))} />
       <Mark x={cheek[0]} y={cheek[1]} text="FARTHER" sub="cheek" dx={170} o={ramp(g, 270, 274) * (1 - ramp(g, 322, 328))} />
-      <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: cyan !== undefined ? 0 : ramp(g, 40, 44), color: C.ir, font: `800 112px/1 ${FONT}` }}>
+      <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: cyan !== undefined || pov !== undefined ? 0 : ramp(g, 40, 44), color: C.ir, font: `800 112px/1 ${FONT}` }}>
         30,000+ <span style={{ fontSize: 46, letterSpacing: '0.06em' }}>DOTS</span>
       </div>
       <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: cyan !== undefined ? ramp(cyan, 8, 12) : 0, color: CYAN, font: `800 104px/1 ${FONT}` }}>

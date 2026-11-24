@@ -2,7 +2,7 @@ import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import front from '../front.json';
 import { C, FONT, Label, ramp } from '../theme';
 import { headDots, turnDot } from './dotHead';
-import { InsideMirror } from './InsideMirror';
+import { Orbit3D } from './Orbit3D';
 
 // Scene 5 (8 s, 240 frames): how the infrared light reaches his face by way of the mirror, and what the
 // camera sees. Side view (public/bathroom_side.png, 941 x 1672) + a live "infrared camera" panel.
@@ -47,7 +47,12 @@ const STEPS = [{ at: 30, to: MIR.glass, text: '1 · DOTS LEAVE THE PHONE' }, { a
 export const MIR_FROM = 24;
 export const Mirror: React.FC = () => {
   const l = useCurrentFrame() + MIR_FROM;
-  if (l >= MIR.inside) return <InsideMirror t={l - MIR.inside} />;
+  if (l >= MIR.inside) return (
+    <AbsoluteFill>
+      <Orbit3D g={0} pov={l - MIR.inside} />
+      <Label text="3 · SEEN FROM THE MIRROR: THE DOTS COME BACK TO HIS FACE" x={505} y={452} o={ramp(l, MIR.inside + 4, MIR.inside + 8)} size={24} align="center" color={C.ir} />
+    </AbsoluteFill>
+  );
   const s = 1 + 0.25 * ramp(l, 0, 30, 0, 1, (x) => x * x * (3 - 2 * x)) + 0.02 * (l / 222);   // wide enough to keep his reflection in frame   // push in on the phone, mirror and face
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg, overflow: 'hidden' }}>
