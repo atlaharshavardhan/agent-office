@@ -3,33 +3,34 @@
 import lengths from '../public/vo/lengths.json';
 
 export const FPS = 30;
-export const TOTAL = 1410;            // 47 s: the 3D dots clip (6 s: red dots, then cyan depth points) follows the side profile
-export const STORY_END = 45;          // end card = last 2 s
+export const TOTAL = 1362;            // 45.4 s: the 3D dots clip (6 s: red dots, then cyan depth points) follows the side profile
+export const STORY_END = 43.4;        // end card = last 2 s
 export const f = (s: number) => Math.round(s * FPS);
 
 export const SCENES = {
-  hook: [0, 2.5], truedepth: [2.5, 6], scan: [6, 21], compare: [21, 30],
-  mirror: [30, 38], test: [38, 45], end: [45, 47],
+  hook: [0, 2.5], truedepth: [2.5, 6], scan: [6, 19.4], compare: [19.4, 28.4],
+  mirror: [28.4, 36.4], test: [36.4, 43.4], end: [43.4, 45.4],
 } as const;
 
 // Hook: excerpts of public/mirror_clip.mp4 (24 fps source), played at normal speed, hard cuts.
 // srcStart is in seconds of the source clip; dur in composition frames (total 75 = 2.5 s).
 // Excerpt 1 ends at 0.867 s (not 1.00 s) because the generated clip already cuts to the rear
 // angle at 0.875 s; excerpt 2 starts at 1.60 s to keep the 2.5 s total.  See README.
-export const HOOK_CUTS = [
-  { name: 'Hook 1 · side profile', srcStart: 0.0, dur: 26 },
-  { name: 'Hook 2 · rear view', srcStart: 1.6, dur: 19 },
+export type HookZoom = { ox: number; oy: number; frames: number[]; scale: number[] };
+export const HOOK_CUTS: { name: string; srcStart: number; dur: number; zoom?: HookZoom }[] = [
+  { name: 'Hook 1 · side profile', srcStart: 0.0, dur: 26, zoom: { ox: 0.62, oy: 0.36, frames: [0, 8, 26], scale: [1.35, 1.05, 1.5] } },
+  { name: 'Hook 2 · rear view', srcStart: 1.6, dur: 19, zoom: { ox: 0.52, oy: 0.33, frames: [0, 7, 19], scale: [1.5, 1.15, 2.0] } },
   { name: 'Hook 3 · push to the phone in his hand (still: hook_closeup.png)', srcStart: 0, dur: 30 },
 ];
 
 // Caption placement, decided clip by clip from where the frame has empty space (y of the caption block's top).
 // Default is the top of the frame (230). Ranges are in seconds.
 //  1.5–3.0  phone in his hand: the top of the frame holds the phone's Dynamic Island and clock -> lower, over his hand
-//  6.0–12.0 3D dots clip: the space is above his head -> top, raised so it clears his hair and the dots
+//  6.0–10.4 3D dots clip: the space is above his head -> top, raised so it clears his hair and the dots
 export const CAPTION_TOP_DEFAULT = 230;
 export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 1.5, to: 3.0, top: 1300 },
-  { from: 6.0, to: 12.0, top: 185 },
+  { from: 6.0, to: 10.4, top: 185 },
 ];
 
 export type Line = { id: string; at: number; text: string };
@@ -39,10 +40,10 @@ export const NARRATION: Line[] = [
   { id: 'n2', at: 2.05, text: 'Every time you glance at your iPhone, the TrueDepth camera wakes up.' },
   // 0:06–0:19 — the cuts in src/scenes/Scan.tsx (CUE) are placed on these lines
   { id: 'n3a', at: 6.05, text: 'The dot projector shines thousands of invisible infrared dots onto your face.' },
-  { id: 'n3b', at: 12.03, text: 'The infrared camera captures the pattern.' },
-  { id: 'n3c', at: 14.95, text: "Your iPhone uses it to map what's closer, like your nose, and what's farther away, like your cheek." },
-  { id: 'n4', at: 21.3, text: 'It also captures an infrared image. Your iPhone uses both to check whether the face matches the one you enrolled.' },
-  { id: 'n5', at: 30.4, text: "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?" },
+  { id: 'n3b', at: 10.43, text: 'The infrared camera captures the pattern.' },
+  { id: 'n3c', at: 13.35, text: "Your iPhone uses it to map what's closer, like your nose, and what's farther away, like your cheek." },
+  { id: 'n4', at: 19.7, text: 'It also captures an infrared image. Your iPhone uses both to check whether the face matches the one you enrolled.' },
+  { id: 'n5', at: 28.8, text: "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?" },
 ];
 
 // Used only while there is no real test clip: an open question, no result.
@@ -58,8 +59,13 @@ export const LEN: Record<string, number> = lengths as any;
 export const SFX = [
   { name: 'SFX · whoosh (hook push)', file: 'whoosh.wav', at: 1.55, vol: 0.35 },
   { name: 'SFX · whoosh (into TrueDepth)', file: 'whoosh.wav', at: 2.45, vol: 0.3 },
-  { name: 'SFX · thump (capture)', file: 'thump.wav', at: 12.0, vol: 0.25 },
-  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 38.0, vol: 0.45 },
+  { name: 'SFX · thump (capture)', file: 'thump.wav', at: 10.4, vol: 0.25 },
+  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 36.4, vol: 0.45 },
+  // a quiet whoosh on each fast scene change
+  { name: 'SFX · whoosh (to the dots)', file: 'whoosh.wav', at: 5.85, vol: 0.22 },
+  { name: 'SFX · whoosh (to the comparison)', file: 'whoosh.wav', at: 19.25, vol: 0.22 },
+  { name: 'SFX · whoosh (to the mirror)', file: 'whoosh.wav', at: 28.25, vol: 0.22 },
+  { name: 'SFX · whoosh (to the end card)', file: 'whoosh.wav', at: 43.25, vol: 0.2 },
 ];
 
 // ---- Real mirror test (scene 6) -------------------------------------------------

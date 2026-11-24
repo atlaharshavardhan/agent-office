@@ -81,7 +81,7 @@ const FLIP = false;
 
 // camera: one continuous move from the left of his head to the right
 const camAt = (g: number, head: Head) => {
-  const u = Math.min(1, Math.max(0, g / 330)), e = u * u * (3 - 2 * u);
+  const u = Math.min(1, Math.max(0, g / 215)), e = u * u * (3 - 2 * u);
   const az = ((-62 + 124 * (0.35 * u + 0.65 * e)) * Math.PI) / 180;
   const dist = 3300 - 900 * Math.sin(Math.PI * Math.min(1, g / 300));
   const t = new THREE.Vector3(head.nose.x, head.nose.y - 70 - 60 * (1 - ramp(g, 40, 120)), head.nose.z - 60 + 60 * (1 - ramp(g, 60, 170)));
@@ -135,7 +135,7 @@ const Inner: React.FC<{ g: number; cam: THREE.PerspectiveCamera; head: Head; pho
     pos[i * 3] = proj.x + (dots[i * 3] - proj.x) * e; pos[i * 3 + 1] = proj.y + (dots[i * 3 + 1] - proj.y) * e; pos[i * 3 + 2] = proj.z + (dots[i * 3 + 2] - proj.z) * e;
     const land = ramp(g, launch[i] + FLIGHT, launch[i] + FLIGHT + 5);
     size[i] = p <= 0 ? 0 : p < 1 ? 6.5 : 4.4 * (1 + 0.9 * (1 - land));
-    const c = g >= 112 + ((dots[i * 3] + 200) / 400) * 16 + rnd[i] * 4 ? CY : RED;
+    const c = g >= 92 + ((dots[i * 3] + 200) / 400) * 14 + rnd[i] * 4 ? CY : RED;
     col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
   }
   pts.geo.attributes.position.needsUpdate = true; pts.geo.attributes.aSize.needsUpdate = true; pts.geo.attributes.aCol.needsUpdate = true;
@@ -148,7 +148,7 @@ const Inner: React.FC<{ g: number; cam: THREE.PerspectiveCamera; head: Head; pho
     rp[k * 6 + 3] = on ? dots[i * 3] : proj.x; rp[k * 6 + 4] = on ? dots[i * 3 + 1] : proj.y; rp[k * 6 + 5] = on ? dots[i * 3 + 2] : proj.z;
   }
   rays.attributes.position.needsUpdate = true;
-  const rayO = 0.2 * ramp(g, 4, 10) * (1 - ramp(g, 104, 116));
+  const rayO = 0.2 * ramp(g, 4, 10) * (1 - ramp(g, 86, 96));
   return (
     <>
       {toDepth < 1 && <mesh geometry={head.geo}><meshBasicMaterial map={head.map} color="#7c7c7c" /></mesh>}
@@ -161,7 +161,7 @@ const Inner: React.FC<{ g: number; cam: THREE.PerspectiveCamera; head: Head; pho
       <group position={head.phonePos} quaternion={head.phoneQuat} scale={PS}>
         <Phone3D model={phone} />
         <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.2]}><circleGeometry args={[4, 20]} /><meshBasicMaterial color="#ffffff" /></mesh>
-        <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.1]}><circleGeometry args={[15, 24]} /><meshBasicMaterial color={C.ir} transparent opacity={0.75 * (1 - ramp(g, 104, 116))} blending={THREE.AdditiveBlending} /></mesh>
+        <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.1]}><circleGeometry args={[15, 24]} /><meshBasicMaterial color={C.ir} transparent opacity={0.75 * (1 - ramp(g, 86, 96))} blending={THREE.AdditiveBlending} /></mesh>
       </group>
     </>
   );
@@ -191,10 +191,10 @@ export const Orbit3D: React.FC<{ g: number }> = ({ g }) => {
       </ThreeCanvas>
       <Mark x={nose[0]} y={nose[1]} text="CLOSER" sub="nose" dx={-150} o={ramp(g, 205, 209) * (1 - ramp(g, 322, 328))} />
       <Mark x={cheek[0]} y={cheek[1]} text="FARTHER" sub="cheek" dx={170} o={ramp(g, 270, 274) * (1 - ramp(g, 322, 328))} />
-      <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: ramp(g, 44, 48) * (1 - ramp(g, 100, 104)), color: C.ir, font: `800 112px/1 ${FONT}` }}>
+      <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: ramp(g, 40, 44) * (1 - ramp(g, 90, 94)), color: C.ir, font: `800 112px/1 ${FONT}` }}>
         30,000+ <span style={{ fontSize: 46, letterSpacing: '0.06em' }}>DOTS</span>
       </div>
-      <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: ramp(g, 134, 138) * (1 - ramp(g, 180, 184)), color: CYAN, font: `800 104px/1 ${FONT}` }}>
+      <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: ramp(g, 106, 110) * (1 - ramp(g, 180, 184)), color: CYAN, font: `800 104px/1 ${FONT}` }}>
         30,000+ <span style={{ fontSize: 42, letterSpacing: '0.06em' }}>DEPTH POINTS</span>
       </div>
       <Label text="DEPTH MAP" x={505} y={1500} o={ramp(g, 197, 201)} align="center" />

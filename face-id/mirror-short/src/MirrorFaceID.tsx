@@ -1,5 +1,6 @@
 import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
 import { Captions } from './Captions';
+import { Shot } from './Shot';
 import { Watermark } from './Watermark';
 import { DEFAULT_TEST, LEN, Line, NARRATION, RESULT_LINES, SCENES, SFX, STORY_END, TestProps, TOTAL, f } from './script';
 import { Compare } from './scenes/Compare';
@@ -10,6 +11,7 @@ import { Mirror } from './scenes/Mirror';
 import { Test } from './scenes/Test';
 import { TrueDepth } from './scenes/TrueDepth';
 
+const D = (k: keyof typeof SCENES) => f(SCENES[k][1]) - f(SCENES[k][0]);
 const S = (k: keyof typeof SCENES) => ({ from: f(SCENES[k][0]), durationInFrames: f(SCENES[k][1]) - f(SCENES[k][0]) });
 
 export const MirrorFaceID: React.FC<TestProps> = (props) => {
@@ -22,12 +24,14 @@ export const MirrorFaceID: React.FC<TestProps> = (props) => {
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
       {/* ---- VIDEO ---- */}
       <Sequence name="1 · Mirror hook" {...S('hook')}><Hook /></Sequence>
-      <Sequence name="2 · TrueDepth reveal" {...S('truedepth')}><TrueDepth /></Sequence>
-      <Sequence name="3 · Infrared scan and depth map" {...S('scan')}><Scan /></Sequence>
-      <Sequence name="4 · What the iPhone compares" {...S('compare')}><Compare /></Sequence>
-      <Sequence name="5 · Back to the mirror" {...S('mirror')}><Mirror /></Sequence>
-      <Sequence name="6 · Real test" {...S('test')}><Test p={p} /></Sequence>
-      <Sequence name="7 · End card" {...S('end')}><EndCard /></Sequence>
+      <Sequence name="2 · TrueDepth reveal" {...S('truedepth')}><Shot dur={D('truedepth')} enter={false}><TrueDepth /></Shot></Sequence>
+      <Sequence name="3 · Dots, infrared view and depth web" {...S('scan')}>
+        <Shot dur={D('scan')} snaps={[[132, 1.4]]} punches={[[303, 356, 1.1, 540, 480], [363, 396, 1.1, 560, 480]]}><Scan /></Shot>
+      </Sequence>
+      <Sequence name="4 · What the iPhone compares" {...S('compare')}><Shot dur={D('compare')} punches={[[14, 92, 1.14, 540, 830], [130, 264, 1.16, 540, 1180]]}><Compare /></Shot></Sequence>
+      <Sequence name="5 · Back to the mirror" {...S('mirror')}><Shot dur={D('mirror')} punches={[[60, 120, 1.1, 520, 480], [150, 234, 1.13, 440, 560]]}><Mirror /></Shot></Sequence>
+      <Sequence name="6 · Result" {...S('test')}><Shot dur={D('test')} snaps={[[62, 1.22]]}><Test p={p} /></Shot></Sequence>
+      <Sequence name="7 · End card" {...S('end')}><Shot dur={D('end')} exit={false}><EndCard /></Shot></Sequence>
 
       {/* ---- WATERMARK (hidden on the end card) ---- */}
       <Sequence name="Watermark" from={0} durationInFrames={f(STORY_END)}><Watermark /></Sequence>

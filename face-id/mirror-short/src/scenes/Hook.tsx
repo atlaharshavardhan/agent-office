@@ -1,5 +1,5 @@
 import { AbsoluteFill, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
-import { FPS, HOOK_CUTS } from '../script';
+import { FPS, HOOK_CUTS, HookZoom } from '../script';
 import { clamp } from '../theme';
 import { HandPhone } from './HandPhone';
 
@@ -10,9 +10,13 @@ const HandShot: React.FC = () => <HandPhone f={useCurrentFrame()} />;
 // cutout is pushed out of frame before it becomes the focus; the glow stays centred.
 const PUSH = { t: [2.77, 3.0, 3.25, 3.5, 3.77], s: [1.0, 1.25, 1.6, 1.85, 2.0], cx: [0.6, 0.61, 0.55, 0.5, 0.5], cy: [0.5, 0.5, 0.57, 0.49, 0.45] };
 
-const Clip: React.FC<{ srcStart: number; push?: boolean }> = ({ srcStart, push }) => {
+const Clip: React.FC<{ srcStart: number; push?: boolean; zoom?: HookZoom }> = ({ srcStart, push, zoom }) => {
   const fr = useCurrentFrame();
   let style: React.CSSProperties = { width: 1080, height: 1920, objectFit: 'cover' };
+  if (zoom) {     // fast camera: lands with a zoom-settle, then rushes toward the phone before the cut
+    const z = interpolate(fr, zoom.frames, zoom.scale, { ...clamp, easing: (x) => x * x * (3 - 2 * x) });
+    style = { ...style, transformOrigin: `${zoom.ox * 1080}px ${zoom.oy * 1920}px`, transform: `scale(${z})`, filter: fr > zoom.frames[zoom.frames.length - 1] - 4 ? `blur(${(fr - (zoom.frames[zoom.frames.length - 1] - 4)) * 2.5}px)` : undefined };
+  }
   if (push) {
     const t = srcStart + fr / FPS;
     const s = interpolate(t, PUSH.t, PUSH.s, clamp);
@@ -34,7 +38,7 @@ export const Hook: React.FC = () => {
       {HOOK_CUTS.map((c, i) => {
         const el = (
           <Sequence key={c.name} name={c.name} from={from} durationInFrames={c.dur} layout="none">
-            {i === 2 ? <HandShot /> : <Clip srcStart={c.srcStart} />}
+            {i === 2 ? <HandShot /> : <Clip srcStart={c.srcStart} zoom={c.zoom} />}
           </Sequence>
         );
         from += c.dur;
