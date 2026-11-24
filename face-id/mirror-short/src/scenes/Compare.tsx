@@ -1,20 +1,17 @@
-import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame } from 'remotion';
 import { C, FONT, Label, ramp } from '../theme';
 import { headDots, turnDot } from './dotHead';
 
 // Scene 4 (20.4–28.6 s, 246 frames). Four short shots, cut on the voiceover; no lock screen and no result.
 //   0– 79  the infrared image, full frame                       "It also captures an infrared image."
 //  79–121  depth point cloud + infrared image, side by side     "Your iPhone uses both"
-// 121–210  this scan vs the enrolled face: two 3D point clouds turning together, compared point by point
-//          and as numbers                                        "to check whether the face matches the one you"
-// 210–246  the two clouds slide over each other                 "enrolled."
+// 121–210  Comparing…: his face as a white dot cloud in a ring of ticks, turning left / right / up / down
+//                                                                "to check whether the face matches the one you"
+// 210–246  the ring fills: DOES IT MATCH?                       "enrolled."
 export const CMP = { both: 79, check: 121, merge: 210 };
 const CROP = { x: 106, y: 200, w: 540, h: 720 };                    // face region of the 752 x 1344 stills
 const CYAN = '#7fe3ea', VIO = '#b9a2ff';
-const DOTS = headDots(1, 2);
-const hash = (i: number) => { const x = Math.sin(i * 12.9898) * 43758.5453; return x - Math.floor(x); };
-const LINKS = Array.from({ length: 12 }, (_, k) => Math.floor(hash(k + 3) * DOTS.length));
-const NUMS = Array.from({ length: 7 }, (_, k) => ((hash(k + 40) * 2.6 - 1.3)).toFixed(3));
+const DOTS = headDots(1, 2), RING_DOTS = headDots(0.78);
 
 const Card: React.FC<{ x: number; y: number; w: number; sweep?: number }> = ({ x, y, w, sweep }) => {
   const k = w / CROP.w, h = CROP.h * k;
@@ -61,30 +58,25 @@ export const Compare: React.FC = () => {
       </AbsoluteFill>
     );
   }
-  // this scan vs the enrolled face
-  const t = l - CMP.check, m = ramp(l, CMP.merge, CMP.merge + 14, 0, 1, (x) => x * x * (3 - 2 * x));
-  const LX = 280 + 260 * m, RX = 800 - 260 * m, CY = 800 + 60 * m, K = 0.92 + 0.5 * m;
+  // comparing: his face as a dense white dot cloud inside a ring of ticks. The head turns left, right, up, down
+  // while a white arc circles the ring; on "enrolled" the ring fills and the question lands. No result is shown.
+  const t = l - CMP.check, done = l >= CMP.merge, R = 330, CX = 540, CY = 900, TICKS = 96, spin = (t / 24) % 1;
+  const io = (x: number) => x * x * (3 - 2 * x), key = (v: number[]) => interpolate(t, [0, 16, 36, 48, 60, 74, 86], v, { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: io });
+  const ry = done ? 10 * Math.cos((l - CMP.merge) / 10) : 26 * key([0, -1, 1, 0, 0, 0, 0]), rp = done ? 8 * Math.sin((l - CMP.merge) / 10) : 18 * key([0, 0, 0, 0, -1, 1, 0]);
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg }}>{bg}
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
-        <Cloud cx={RX} cy={CY} k={K} yaw={yaw} pitch={pitch} color={VIO} r={2 + m} />
-        <Cloud cx={LX} cy={CY} k={K} yaw={yaw} pitch={pitch} color={CYAN} r={2} o={1 - 0.25 * m} />
-        {/* the same point on both faces is checked, one after another */}
-        {m === 0 && LINKS.map((i, k) => { const on = ramp(t, 8 + k * 6, 12 + k * 6); if (on <= 0) return null; const [x, y] = turnDot(DOTS[i], yaw, pitch);
-          return <g key={k} opacity={on * (0.35 + 0.65 * (1 - ramp(t, 20 + k * 6, 40 + k * 6)))}><line x1={LX + x * K} y1={CY + y * K} x2={RX + x * K} y2={CY + y * K} stroke="#fff" strokeWidth={1.6} strokeDasharray="5 6" /><circle cx={LX + x * K} cy={CY + y * K} r={8} fill="none" stroke="#fff" strokeWidth={2.5} /><circle cx={RX + x * K} cy={CY + y * K} r={8} fill="none" stroke="#fff" strokeWidth={2.5} /></g>; })}
+        <g transform={`translate(${CX} ${CY}) scale(${0.9 + 0.1 * ramp(t, 0, 8)})`}>
+          <circle r={R + 36} fill="rgba(4,4,6,.9)" />
+          {Array.from({ length: TICKS }, (_, i) => { const a = (i / TICKS) * 2 * Math.PI - Math.PI / 2, lit = done || ((i / TICKS - spin + 1) % 1) < 0.24;
+            const r0 = R - 26, r1 = R + (lit ? 18 : 12);
+            return <line key={i} x1={r0 * Math.cos(a)} y1={r0 * Math.sin(a)} x2={r1 * Math.cos(a)} y2={r1 * Math.sin(a)} stroke={lit ? '#fff' : '#77726e'} strokeWidth={lit ? 7 : 6} strokeLinecap="round" opacity={lit ? 1 : 0.55} />; })}
+          {RING_DOTS.map((d, i) => { const [x, y] = turnDot(d, ry, rp); return <circle key={i} cx={x} cy={y} r={2.2} fill="#f4efe9" opacity={0.25 + 0.75 * d[3]} />; })}
+        </g>
       </svg>
-      <Label text="THIS SCAN" x={280} y={480} o={1 - m} size={30} align="center" color={CYAN} />
-      <Label text="ENROLLED FACE" x={800} y={480} o={1 - m} size={30} align="center" color={VIO} />
-      {/* the face as numbers: each row is compared in turn */}
-      {[280, 800].map((x, c) => (
-        <div key={c} style={{ position: 'absolute', left: x - 110, top: 1150, width: 220, opacity: ramp(t, 14, 20) * (1 - m), font: `700 34px/1.5 ${FONT}`, fontVariantNumeric: 'tabular-nums', textAlign: 'center' }}>
-          {NUMS.map((n, k) => { const on = ramp(t, 22 + k * 8, 26 + k * 8); return <div key={k} style={{ color: on > 0.5 ? '#fff' : c ? VIO : CYAN, opacity: 0.45 + 0.55 * on }}>{n}</div>; })}
-        </div>
-      ))}
-      <div style={{ position: 'absolute', left: 440, top: 1150, width: 200, opacity: ramp(t, 14, 20) * (1 - m), font: `800 34px/1.5 ${FONT}`, textAlign: 'center', color: '#fff' }}>
-        {NUMS.map((_, k) => <div key={k} style={{ opacity: ramp(t, 22 + k * 8, 26 + k * 8) }}>↔</div>)}
-      </div>
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 1420, textAlign: 'center', opacity: ramp(l, CMP.merge + 8, CMP.merge + 14), font: `800 64px/1 ${FONT}`, color: '#fff', transform: `scale(${1 + 0.04 * Math.sin(l / 4)})` }}>DOES IT MATCH?</div>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 1320, textAlign: 'center', opacity: done ? 0 : ramp(t, 4, 8), font: `800 62px/1 ${FONT}`, color: '#fff' }}>Comparing…</div>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 1400, textAlign: 'center', opacity: done ? 0 : ramp(t, 8, 12), font: `600 32px/1 ${FONT}`, color: '#bdb5ad' }}>this scan vs the enrolled face</div>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 1325, textAlign: 'center', opacity: ramp(l, CMP.merge, CMP.merge + 4), font: `800 70px/1 ${FONT}`, color: '#fff', transform: `scale(${1 + 0.04 * Math.sin(l / 4)})` }}>DOES IT MATCH?</div>
     </AbsoluteFill>
   );
 };
