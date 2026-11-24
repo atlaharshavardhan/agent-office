@@ -31,14 +31,16 @@ for gy in np.arange(300, NECK, S * 0.87):
         if 0 <= int(x) < W and skin[int(y), int(x)] and min(np.hypot(x - px, y - py) for px, py in pts) > 15:
             pts.append((x, y))
 P = np.array(pts)
-E = set()
+E = set(); T = []          # T: triangles with all three sides kept = the area the web covers (the scan is clipped to it)
 for a, b, c in Delaunay(P).simplices:
+    ok = 0
     for i, j in ((a, b), (b, c), (a, c)):
         if np.hypot(*(P[i] - P[j])) < 62:
-            E.add((min(i, j), max(i, j)))
+            E.add((min(i, j), max(i, j))); ok += 1
+    if ok == 3: T.append([int(a), int(b), int(c)])
 out_pts = [[round(float(x), 1), round(float(y), 1), round(float(dep[int(y), int(x)]), 3)] for x, y in P]
 X0, DX, Y0, DY = 150, 8, 300, 8
 rows = [[round(float(dep[y, x]) if raw[y, x] > 0.1 else 0, 3) for x in range(X0, 610, DX)] for y in range(Y0, F["chin"] + 20, DY)]
-json.dump({"pts": out_pts, "edges": sorted([list(map(int, e)) for e in E]), "prof": {"x0": X0, "dx": DX, "y0": Y0, "dy": DY, "rows": rows}},
+json.dump({"pts": out_pts, "edges": sorted([list(map(int, e)) for e in E]), "tris": T, "prof": {"x0": X0, "dx": DX, "y0": Y0, "dy": DY, "rows": rows}},
           open(R / "src/mesh_front.json", "w"), separators=(",", ":"))
 print(len(out_pts), "points", len(E), "edges", len(rows), "profile rows")

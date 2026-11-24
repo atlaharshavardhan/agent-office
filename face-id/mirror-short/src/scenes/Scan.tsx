@@ -83,7 +83,8 @@ export const Scan: React.FC = () => {
                 <polyline points={`${at(pb, -1200)} ${at(pb, 1200)}`} stroke={SCAN} strokeWidth={3.5} />
               </g>
             </g>
-            <defs><clipPath id="scan-clip"><rect x={X0 - 14} y={Y0 - 14} width={X1 - X0 + 28} height={Y1 - Y0 + 28} /></clipPath></defs>
+            {/* the scan never leaves the web: it is clipped to the web's own triangles, so it follows the face as it moves */}
+            <defs><clipPath id="scan-clip">{(mesh.tris as number[][]).map(([a, b, c], i) => <polygon key={i} points={`${L[a][0]},${L[a][1]} ${L[b][0]},${L[b][1]} ${L[c][0]},${L[c][1]}`} />)}</clipPath></defs>
           </svg>
         );
       })()}
