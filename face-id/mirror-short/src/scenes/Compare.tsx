@@ -62,6 +62,9 @@ export const Compare: React.FC = () => {
   // while a white arc circles the ring; on "enrolled" the ring fills and the question lands. No result is shown.
   const t = l - CMP.check, done = l >= CMP.merge, R = 330, CX = 540, CY = 900, TICKS = 96, spin = (t / 24) % 1;
   const io = (x: number) => x * x * (3 - 2 * x), key = (v: number[]) => interpolate(t, [0, 16, 36, 48, 60, 74, 86], v, { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: io });
+  const t0 = t; const lagT = Math.max(0, t0 - 5);
+  const key2 = (v: number[]) => interpolate(lagT, [0, 16, 36, 48, 60, 74, 86], v, { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: io });
+  const ry2 = done ? 10 * Math.cos((l - CMP.merge) / 10) : 26 * key2([0, -1, 1, 0, 0, 0, 0]), rp2 = done ? 8 * Math.sin((l - CMP.merge) / 10) : 18 * key2([0, 0, 0, 0, -1, 1, 0]);
   const ry = done ? 10 * Math.cos((l - CMP.merge) / 10) : 26 * key([0, -1, 1, 0, 0, 0, 0]), rp = done ? 8 * Math.sin((l - CMP.merge) / 10) : 18 * key([0, 0, 0, 0, -1, 1, 0]);
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg }}>{bg}
@@ -70,12 +73,13 @@ export const Compare: React.FC = () => {
           <circle r={R + 36} fill="rgba(4,4,6,.9)" />
           {Array.from({ length: TICKS }, (_, i) => { const a = (i / TICKS) * 2 * Math.PI - Math.PI / 2, lit = done || ((i / TICKS - spin + 1) % 1) < 0.24;
             const r0 = R - 26, r1 = R + (lit ? 18 : 12);
-            return <line key={i} x1={r0 * Math.cos(a)} y1={r0 * Math.sin(a)} x2={r1 * Math.cos(a)} y2={r1 * Math.sin(a)} stroke={lit ? '#fff' : '#77726e'} strokeWidth={lit ? 7 : 6} strokeLinecap="round" opacity={lit ? 1 : 0.55} />; })}
-          {RING_DOTS.map((d, i) => { const [x, y] = turnDot(d, ry, rp); return <circle key={i} cx={x} cy={y} r={2.2} fill="#f4efe9" opacity={0.25 + 0.75 * d[3]} />; })}
+            return <line key={i} x1={r0 * Math.cos(a)} y1={r0 * Math.sin(a)} x2={r1 * Math.cos(a)} y2={r1 * Math.sin(a)} stroke={lit ? (done ? (i % 2 ? VIO : CYAN) : CYAN) : '#5d5a6a'} strokeWidth={lit ? 7 : 6} strokeLinecap="round" opacity={lit ? 1 : 0.55} />; })}
+          {/* enrolled face (violet) and this scan (cyan): the scan follows the stored face a beat behind, then they line up */}
+          {RING_DOTS.map((d, i) => { const e = i % 2 === 0, [x, y] = turnDot(d, e ? ry : ry2, e ? rp : rp2); return <circle key={i} cx={x} cy={y} r={2.2} fill={e ? VIO : CYAN} opacity={0.3 + 0.7 * d[3]} />; })}
         </g>
       </svg>
       <div style={{ position: 'absolute', left: 0, right: 0, top: 1320, textAlign: 'center', opacity: done ? 0 : ramp(t, 4, 8), font: `800 62px/1 ${FONT}`, color: '#fff' }}>Comparing…</div>
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 1400, textAlign: 'center', opacity: done ? 0 : ramp(t, 8, 12), font: `600 32px/1 ${FONT}`, color: '#bdb5ad' }}>this scan vs the enrolled face</div>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 1400, textAlign: 'center', opacity: done ? 0 : ramp(t, 8, 12), font: `600 32px/1 ${FONT}`, color: '#bdb5ad' }}><span style={{ color: CYAN, fontWeight: 800 }}>this scan</span> vs <span style={{ color: VIO, fontWeight: 800 }}>the enrolled face</span></div>
       <div style={{ position: 'absolute', left: 0, right: 0, top: 1325, textAlign: 'center', opacity: ramp(l, CMP.merge, CMP.merge + 4), font: `800 70px/1 ${FONT}`, color: '#fff', transform: `scale(${1 + 0.04 * Math.sin(l / 4)})` }}>DOES IT MATCH?</div>
     </AbsoluteFill>
   );
