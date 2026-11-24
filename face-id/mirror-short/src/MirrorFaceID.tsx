@@ -4,7 +4,7 @@ import { Shot } from './Shot';
 import { Watermark } from './Watermark';
 import { DEFAULT_TEST, LEN, Line, NARRATION, RESULT_LINES, SCENES, SFX, STORY_END, TestProps, TOTAL, f } from './script';
 import { Compare } from './scenes/Compare';
-import { Scan } from './scenes/Scan';
+import { CUE, Scan } from './scenes/Scan';
 import { EndCard } from './scenes/EndCard';
 import { Hook } from './scenes/Hook';
 import { Mirror } from './scenes/Mirror';
@@ -17,7 +17,7 @@ const S = (k: keyof typeof SCENES) => ({ from: f(SCENES[k][0]), durationInFrames
 export const MirrorFaceID: React.FC<TestProps> = (props) => {
   const p = { ...DEFAULT_TEST, ...props };
   // the result line exists only when real footage is in and you have picked the matching line
-  const result: Line[] = p.result !== 'none'
+  const result: Line[] = p.testFootage && p.result !== 'none'
     ? [{ ...RESULT_LINES[p.result], at: SCENES.test[0] + p.resultDelaySec }] : [];
   const lines = [...NARRATION, ...result];
   return (
@@ -26,11 +26,11 @@ export const MirrorFaceID: React.FC<TestProps> = (props) => {
       <Sequence name="1 · Mirror hook" {...S('hook')}><Hook /></Sequence>
       <Sequence name="2 · TrueDepth reveal" {...S('truedepth')}><Shot dur={D('truedepth')} enter={false}><TrueDepth /></Shot></Sequence>
       <Sequence name="3 · Dots, infrared view and depth web" {...S('scan')}>
-        <Shot dur={D('scan')} snaps={[[132, 1.4]]} punches={[[303, 356, 1.1, 540, 480], [363, 396, 1.1, 560, 480]]}><Scan /></Shot>
+        <Shot dur={D('scan')} snaps={[[CUE.front, 1.3], [CUE.cyan, 1.3], [CUE.depth, 1.25]]}><Scan /></Shot>
       </Sequence>
-      <Sequence name="4 · What the iPhone compares" {...S('compare')}><Shot dur={D('compare')} punches={[[14, 92, 1.14, 540, 830], [130, 264, 1.16, 540, 1180]]}><Compare /></Shot></Sequence>
-      <Sequence name="5 · Back to the mirror" {...S('mirror')}><Shot dur={D('mirror')} punches={[[60, 120, 1.1, 520, 480], [150, 234, 1.13, 440, 560]]}><Mirror /></Shot></Sequence>
-      <Sequence name="6 · Result" {...S('test')}><Shot dur={D('test')} snaps={[[62, 1.22]]}><Test p={p} /></Shot></Sequence>
+      <Sequence name="4 · What the iPhone compares" {...S('compare')}><Shot dur={D('compare')} punches={[[14, 92, 1.14, 540, 830], [130, 240, 1.08, 540, 520]]}><Compare /></Shot></Sequence>
+      <Sequence name="5 · Back to the mirror" {...S('mirror')}><Shot dur={D('mirror')} punches={[[60, 120, 1.1, 520, 480], [150, 216, 1.13, 440, 560]]}><Mirror /></Shot></Sequence>
+      <Sequence name="6 · Real mirror test (reveal slot)" {...S('test')}><Shot dur={D('test')}><Test p={p} /></Shot></Sequence>
       <Sequence name="7 · End card" {...S('end')}><Shot dur={D('end')} exit={false}><EndCard /></Shot></Sequence>
 
       {/* ---- WATERMARK (hidden on the end card) ---- */}

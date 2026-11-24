@@ -19,13 +19,15 @@ LINES = {
     "n4": "It also captures an infrared image. Your iPhone uses both to check whether the face matches the one you enrolled.",
     "n5": "Here's the twist. A mirror can reflect infrared light too. So what happens when the phone sees only my reflection?",
     "n6_guess": "So what do you think? Does my reflection unlock it? Comment your guess.",
-    "n6_open": "It unlocked. On my iPhone, the reflection was enough.",
-    "n6_locked": "It stayed locked. My reflection alone didn't unlock it in this test.",
+    "n6_open": "In my test, my iPhone unlocked using my reflection.",
+    "n6_locked": "In my test, the reflection alone didn't unlock my iPhone.",
 }
 SPEED = {"n1": 1.3, "n2": 1.3, "n3a": 1.38, "n3b": 1.2, "n3c": 1.3}
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
-L = {}
+ONLY = sys.argv[2:]          # optional: regenerate only these line ids, keep the rest
+L = json.load(open(OUT / "lengths.json")) if ONLY else {}
 for n, t in LINES.items():
+    if ONLY and n not in ONLY: continue
     a, sr = k.create(t, voice="bm_george", speed=SPEED.get(n, 1.18), lang="en-gb")
     sf.write(OUT / f"{n}.wav", a, sr)
     L[n] = round(len(a) / sr, 3)

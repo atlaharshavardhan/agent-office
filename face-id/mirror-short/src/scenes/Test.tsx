@@ -1,16 +1,14 @@
 import { AbsoluteFill, OffthreadVideo, staticFile } from 'remotion';
 import { FPS, TestProps } from '../script';
 import { C, FONT } from '../theme';
-import { Result } from './Result';
 
 // Scene 6 (36–43 s). Only REAL footage goes here — nothing in this scene is animated as a result.
 export const Test: React.FC<{ p: TestProps }> = ({ p }) => {
-  if (!p.testFootage && p.result !== 'none') return <Result result={p.result} />;   // the answer, as an illustration
   if (!p.testFootage) {
     return (
       <AbsoluteFill style={{ backgroundColor: '#1a1414', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: 820, padding: '60px 50px', border: '6px dashed #e0a040', borderRadius: 28, textAlign: 'center', color: '#ffd9a0', font: `800 58px/1.15 ${FONT}`, transform: 'translateX(-20px)' }}>
-          PLACEHOLDER
+          REVEAL SLOT
           <div style={{ font: `600 40px/1.3 ${FONT}`, marginTop: 28, color: C.text }}>Real mirror-test footage goes here.<br />No result is shown or narrated until it is added.</div>
           <div style={{ font: `600 28px/1.4 ${FONT}`, marginTop: 30, color: '#c9b9a3' }}>Put the clip in public/ and set <b>testFootage</b>, <b>result</b> and the lock-icon framing in src/script.ts (or the Props panel).</div>
         </div>

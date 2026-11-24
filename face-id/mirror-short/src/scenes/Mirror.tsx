@@ -41,9 +41,7 @@ const STEPS = [{ at: 30, to: 62, text: '1 · DOTS LEAVE THE PHONE' }, { at: 62, 
 
 export const Mirror: React.FC = () => {
   const l = useCurrentFrame();
-  const s = 1 + 0.25 * ramp(l, 0, 30, 0, 1, (x) => x * x * (3 - 2 * x)) + 0.02 * (l / 240);   // wide enough to keep his reflection in frame   // push in on the phone, mirror and face
-  const scan = ramp(l, 140, 212), pct = Math.round(scan * 100), panel = ramp(l, 128, 136);
-  const sweepY = scan < 1 ? scan * PAN.h : ((l - 212) % 60) / 60 * PAN.h;
+  const s = 1 + 0.25 * ramp(l, 0, 30, 0, 1, (x) => x * x * (3 - 2 * x)) + 0.02 * (l / 222);   // wide enough to keep his reflection in frame   // push in on the phone, mirror and face
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg, overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, transformOrigin: '640px 700px', transform: `scale(${s})` }}>
@@ -83,24 +81,8 @@ export const Mirror: React.FC = () => {
         </svg>
       </div>
       {STEPS.map((st) => <Label key={st.text} text={st.text} x={505} y={452} o={ramp(l, st.at, st.at + 4) * (1 - ramp(l, st.to - 4, st.to))} size={27} align="center" color={st.at === 126 ? C.label : C.ir} />)}
-      {/* match ring: his face as a rolling dot cloud inside a ring of ticks that fills while the phone compares
-          the reflection with the enrolled face. It ends on a question; no result is shown. */}
-      <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: panel }}>
-        <circle cx={RING.x} cy={RING.y} r={RING.r + 22} fill="rgba(6,5,5,.82)" />
-        {Array.from({ length: TICKS }, (_, k) => { const a = (k / TICKS) * 2 * Math.PI - Math.PI / 2, on = k / TICKS < scan, r0 = RING.r - 16, r1 = RING.r + (on ? 12 : 8);
-          return <line key={k} x1={RING.x + r0 * Math.cos(a)} y1={RING.y + r0 * Math.sin(a)} x2={RING.x + r1 * Math.cos(a)} y2={RING.y + r1 * Math.sin(a)} stroke={on ? C.ir : '#6f6a66'} strokeWidth={on ? 5 : 4} strokeLinecap="round" opacity={on ? 1 : 0.6} />; })}
-        {/* the head keeps rolling in a slow circle (one turn every 2.6 s): dots shift by depth, plus a small tilt */}
-        <g transform={`rotate(${4 * Math.sin(l / 12.5)} ${RING.x} ${RING.y})`}>
-          {RING_DOTS.map((d, k) => { const [x, y] = turnDot(d, 18 * Math.cos(l / 12.5), 12 * Math.sin(l / 12.5)); return <circle key={k} cx={RING.x + x} cy={RING.y + y} r={1.3} fill="#f4efe9" opacity={0.25 + 0.75 * d[3]} />; })}
-        </g>
-      </svg>
-      <div style={{ position: 'absolute', left: 500, top: 1215, width: 440, opacity: panel }}>
-        <div style={{ font: `800 46px/1 ${FONT}`, color: '#fff' }}>{scan < 1 ? 'Matching…' : 'Match?'}</div>
-        <div style={{ font: `600 27px/1.25 ${FONT}`, color: '#bdb5ad', marginTop: 10 }}>his reflection vs<br />the enrolled face</div>
-        <div style={{ font: `800 58px/1 ${FONT}`, color: C.ir, marginTop: 16 }}>{pct}%<span style={{ font: `800 22px/1 ${FONT}`, letterSpacing: '0.1em', color: '#bdb5ad', marginLeft: 12 }}>CHECKED</span></div>
-      </div>
       {/* closed padlock + question mark: the result is saved for the real test */}
-      <div style={{ position: 'absolute', left: 500, top: 1440, opacity: ramp(l, 214, 220), transform: `scale(${1 + 0.05 * Math.sin(l / 5)})`, transformOrigin: 'left center', display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderRadius: 18, background: 'rgba(10,8,7,.85)', border: `3px solid ${C.amber}` }}>
+      <div style={{ position: 'absolute', left: 430, top: 1330, opacity: ramp(l, 176, 182), transform: `scale(${1 + 0.05 * Math.sin(l / 5)})`, transformOrigin: 'left center', display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderRadius: 18, background: 'rgba(10,8,7,.85)', border: `3px solid ${C.amber}` }}>
         <svg width={44} height={56} viewBox="-36 -46 72 92"><path d="M -18 -6 v -14 a 18 18 0 0 1 36 0 v 14" stroke="#fff" strokeWidth={9} strokeLinecap="round" fill="none" /><rect x={-30} y={-6} width={60} height={46} rx={11} fill="#fff" /></svg>
         <span style={{ font: `800 62px/1 ${FONT}`, color: C.amber }}>?</span>
       </div>

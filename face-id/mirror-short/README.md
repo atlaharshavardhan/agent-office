@@ -76,3 +76,14 @@ If you change a narration line, regenerate the audio:
   at once → INFRARED CAMERA VIEW capture → match cut to the depth map, CLOSER on "nose", FARTHER on "cheek", slight turn.
   `Orbit3D.tsx`, `Scan3D.tsx`, `PhoneReveal.tsx`, `Guess.tsx` are earlier versions kept off the timeline.
 - 0:04–0:06 shows a neutral closed padlock in the Dynamic Island; scene 6 is a labelled placeholder until real footage is set.
+
+## Current cut (45 s, 1,350 frames)
+
+- 0:06–0:20.4 (`src/scenes/Scan.tsx`, cue frames in `CUE`): 3D side profile with the red dots → hard cut on "captures" to the
+  frontal red-dot close-up (INFRARED CAMERA VIEW, held) → cyan point cloud → depth map with the face mesh, CLOSER on "nose",
+  FARTHER on "cheek". No percentage, graph or explainer text.
+- 0:28.6–0:36 mirror setup: light path only (no match ring or percentages), ends on a closed padlock with a question mark.
+- 0:36–0:43 is the reveal slot. With no `testFootage` it shows a marked "REVEAL SLOT" card and no result line plays.
+  Result lines: locked = "In my test, the reflection alone didn't unlock my iPhone." / open = "In my test, my iPhone unlocked
+  using my reflection."
+- `storyboard/` holds a still of every clip of this cut.
