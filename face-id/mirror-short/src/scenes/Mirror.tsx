@@ -37,14 +37,19 @@ const RC = [763, 626];                                                // front c
 const mir = (q: number[]) => { const x = 922.3 - 0.309 * q[0], w = Math.min(1, Math.max(0, (x - MX) / (RC[0] - MX))); return [x, q[1] + (112.8 - 0.15 * q[1]) * w]; };
 const FLY = 24, launch = (f: number[]) => 34 + ((f[1] - 498) / 238) * 46 + f[2] * 10;      // forehead first, sweeping down
 const STREAM = Array.from({ length: 150 }, () => [rnd(), rnd()]);
-const STEPS = [{ at: 30, to: 62, text: '1 · DOTS LEAVE THE PHONE' }, { at: 62, to: 126, text: '2 · THE MIRROR REFLECTS THEM ONTO HIS FACE' }, { at: 126, to: 999, text: '3 · THE CAMERA SEES HIS FACE IN THE MIRROR' }];
+// four shots: wide · close on the glass (the dots bounce) · close on his face (they land) · wide again (what the camera sees)
+export const MIR = { glass: 54, face: 96, wide: 150 };
+const STEPS = [{ at: 30, to: MIR.glass, text: '1 · DOTS LEAVE THE PHONE' }, { at: MIR.glass, to: MIR.wide, text: '2 · THE MIRROR REFLECTS THEM ONTO HIS FACE' }, { at: MIR.wide, to: 999, text: '3 · THE CAMERA SEES HIS FACE IN THE MIRROR' }];
 
 export const Mirror: React.FC = () => {
   const l = useCurrentFrame();
   const s = 1 + 0.25 * ramp(l, 0, 30, 0, 1, (x) => x * x * (3 - 2 * x)) + 0.02 * (l / 222);   // wide enough to keep his reflection in frame   // push in on the phone, mirror and face
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg, overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, transformOrigin: '640px 700px', transform: `scale(${s})` }}>
+      <div style={{ position: 'absolute', inset: 0, ...(l >= MIR.glass && l < MIR.wide
+        ? (() => { const g = l < MIR.face, px = (g ? 660 : 300) * K, py = (g ? 610 : 615) * K, sc = (g ? 2.1 : 2.5) * (1 + 0.06 * ((l - (g ? MIR.glass : MIR.face)) / 50));
+          return { transformOrigin: '0 0', transform: `translate(${540 - px * sc}px, ${900 - py * sc}px) scale(${sc})` }; })()
+        : { transformOrigin: '640px 700px', transform: `scale(${s})` }) }}>
         <Img src={staticFile('bathroom_side.png')} style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1672 * K, filter: `brightness(${1 - 0.25 * ramp(l, 30, 60)})` }} />
         <svg viewBox="0 0 941 1672" style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1672 * K }}>
           <defs><filter id="mg" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.1" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
@@ -74,13 +79,13 @@ export const Mirror: React.FC = () => {
             const arc = (from: number, to: number) => `M ${m[0] + r * Math.cos(from)} ${m[1] + r * Math.sin(from)} A ${r} ${r} 0 0 ${to > from ? 1 : 0} ${m[0] + r * Math.cos(to)} ${m[1] + r * Math.sin(to)}`;
             return <g opacity={o} stroke="#fff" fill="none"><line x1={m[0]} y1={m[1]} x2={m[0] - 70} y2={m[1]} strokeWidth={1.2} strokeDasharray="4 4" /><path d={arc(Math.PI, a1)} strokeWidth={1.6} /><path d={arc(Math.PI, a2)} strokeWidth={1.6} /></g>; })()}
           {/* return trip: what the camera receives (dashed, moving toward the phone) */}
-          {l >= 126 && [RAYS[1], RAYS[3]].map(({ f, m }, k) => <path key={k} d={`M ${f[0]} ${f[1] + 5} L ${m[0]} ${m[1] + 5} L ${P[0] + 6} ${P[1] + 8}`} fill="none" stroke="#fff" strokeWidth={1.4} strokeDasharray="7 7" strokeDashoffset={-l * 1.4} opacity={0.8 * ramp(l, 126, 132)} />)}
+          {l >= MIR.wide && [RAYS[1], RAYS[3]].map(({ f, m }, k) => <path key={k} d={`M ${f[0]} ${f[1] + 5} L ${m[0]} ${m[1] + 5} L ${P[0] + 6} ${P[1] + 8}`} fill="none" stroke="#fff" strokeWidth={1.4} strokeDasharray="7 7" strokeDashoffset={-l * 1.4} opacity={0.8 * ramp(l, MIR.wide, MIR.wide + 6)} />)}
           {/* the same projector, seen in the mirror */}
           <circle cx={RC[0]} cy={RC[1]} r={4.5 + Math.sin(l / 3)} fill={C.ir} opacity={0.9 * ramp(l, 30, 34)} /><circle cx={RC[0]} cy={RC[1]} r={1.8} fill="#fff" opacity={ramp(l, 30, 34)} />
           <circle cx={P[0]} cy={P[1]} r={5} fill={C.ir} opacity={ramp(l, 30, 34)} /><circle cx={P[0]} cy={P[1]} r={2} fill="#fff" opacity={ramp(l, 30, 34)} />
         </svg>
       </div>
-      {STEPS.map((st) => <Label key={st.text} text={st.text} x={505} y={452} o={ramp(l, st.at, st.at + 4) * (1 - ramp(l, st.to - 4, st.to))} size={27} align="center" color={st.at === 126 ? C.label : C.ir} />)}
+      {STEPS.map((st) => <Label key={st.text} text={st.text} x={505} y={452} o={ramp(l, st.at, st.at + 4) * (1 - ramp(l, st.to - 4, st.to))} size={27} align="center" color={st.at === MIR.wide ? C.label : C.ir} />)}
       {/* closed padlock + question mark: the result is saved for the real test */}
       <div style={{ position: 'absolute', left: 430, top: 1330, opacity: ramp(l, 176, 182), transform: `scale(${1 + 0.05 * Math.sin(l / 5)})`, transformOrigin: 'left center', display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderRadius: 18, background: 'rgba(10,8,7,.85)', border: `3px solid ${C.amber}` }}>
         <svg width={44} height={56} viewBox="-36 -46 72 92"><path d="M -18 -6 v -14 a 18 18 0 0 1 36 0 v 14" stroke="#fff" strokeWidth={9} strokeLinecap="round" fill="none" /><rect x={-30} y={-6} width={60} height={46} rx={11} fill="#fff" /></svg>

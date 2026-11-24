@@ -3,11 +3,11 @@ import { Captions } from './Captions';
 import { Shot } from './Shot';
 import { Watermark } from './Watermark';
 import { DEFAULT_TEST, LEN, Line, NARRATION, RESULT_LINES, SCENES, SFX, STORY_END, TestProps, TOTAL, f } from './script';
-import { Compare } from './scenes/Compare';
+import { CMP, Compare } from './scenes/Compare';
 import { CUE, Scan } from './scenes/Scan';
 import { EndCard } from './scenes/EndCard';
 import { Hook } from './scenes/Hook';
-import { Mirror } from './scenes/Mirror';
+import { MIR, Mirror } from './scenes/Mirror';
 import { Test } from './scenes/Test';
 import { TrueDepth } from './scenes/TrueDepth';
 
@@ -28,8 +28,8 @@ export const MirrorFaceID: React.FC<TestProps> = (props) => {
       <Sequence name="3 · Dots, infrared view and depth web" {...S('scan')}>
         <Shot dur={D('scan')} snaps={[[CUE.front, 1.3], [CUE.cyan, 1.3], [CUE.depth, 1.25]]}><Scan /></Shot>
       </Sequence>
-      <Sequence name="4 · What the iPhone compares" {...S('compare')}><Shot dur={D('compare')} punches={[[14, 92, 1.14, 540, 830], [130, 240, 1.08, 540, 520]]}><Compare /></Shot></Sequence>
-      <Sequence name="5 · Back to the mirror" {...S('mirror')}><Shot dur={D('mirror')} punches={[[60, 120, 1.1, 520, 480], [150, 216, 1.13, 440, 560]]}><Mirror /></Shot></Sequence>
+      <Sequence name="4 · What the iPhone compares" {...S('compare')}><Shot dur={D('compare')} snaps={[[CMP.both, 1.3], [CMP.check, 1.3], [CMP.merge, 1.15]]}><Compare /></Shot></Sequence>
+      <Sequence name="5 · Back to the mirror" {...S('mirror')}><Shot dur={D('mirror')} snaps={[[MIR.glass, 1.3], [MIR.face, 1.3], [MIR.wide, 1.25]]}><Mirror /></Shot></Sequence>
       <Sequence name="6 · Real mirror test (reveal slot)" {...S('test')}><Shot dur={D('test')}><Test p={p} /></Shot></Sequence>
       <Sequence name="7 · End card" {...S('end')}><Shot dur={D('end')} exit={false}><EndCard /></Shot></Sequence>
 

@@ -32,7 +32,7 @@ export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 1.5, to: 3.0, top: 1300 },
   { from: 6.0, to: 11.53, top: 185 },
   { from: 13.33, to: 14.7, top: 185 },
-  { from: 20.4, to: 28.6, top: 140 },   // comparison: the two cards move up, so the caption sits above them
+  { from: 20.4, to: 28.6, top: 170 },   // comparison: the picture sits lower, the caption stays in the clear band above it
 ];
 
 export type Line = { id: string; at: number; text: string };
