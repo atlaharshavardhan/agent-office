@@ -77,7 +77,7 @@ export const Scan: React.FC = () => {
       {captured && !depth && <Label text="INFRARED CAMERA VIEW" x={505} y={1470} o={1} size={30} align="center" color={C.label} />}
       {depth && <Label text="DEPTH MAP" x={505} y={452} o={1} size={30} align="center" color={C.label} />}
       {/* how the depth is read, in one line */}
-      {depth && <div style={{ position: 'absolute', left: 70, width: 870, top: 516, textAlign: 'center', opacity: ramp(s, CUE.depth + 12, CUE.depth + 18) }}><span style={{ display: 'inline-block', padding: '9px 16px', borderRadius: 10, background: 'rgba(8,10,16,.72)', font: `600 26px/1.2 ${FONT}`, color: '#dfeeff' }}>Nearer skin shifts the dots more. The iPhone measures every shift.</span></div>}
+      {depth && <div style={{ position: 'absolute', left: 70, width: 870, top: 516, textAlign: 'center', opacity: ramp(s, CUE.depth + 12, CUE.depth + 18) }}><span style={{ display: 'inline-block', padding: '12px 22px', borderRadius: 12, background: 'rgba(8,10,16,.72)', font: `700 33px/1.28 ${FONT}`, color: '#eaf3ff' }}>Nearer skin shifts the dots more.<br />The iPhone measures every shift.</span></div>}
       {/* depth mesh: points pinned to his face, joined by lines; a bigger, brighter point is closer to the phone */}
       {depth && (() => {
         const L = (mesh.pts as number[][]).map((q) => [...headPoint({ x: q[0], y: q[1], d: q[2] }, az, zoom), q[2]]);
@@ -100,12 +100,13 @@ export const Scan: React.FC = () => {
               const PR = mesh.prof, o = ramp(s, t0 + SPAN, t0 + SPAN + 6); if (o <= 0) return null;
               const ph = ((s - t0 - SPAN) / 100) % 2, u = ph < 1 ? ph : 2 - ph, rf = 6 + u * (PR.rows.length - 14), r0 = Math.floor(rf), fr = rf - r0;
               const row = PR.rows[r0].map((v: number, k: number) => v * (1 - fr) + PR.rows[r0 + 1][k] * fr), yS = PR.y0 + rf * PR.dy;
-              const on = row.map((v: number, k: number) => ({ v, x: PR.x0 + k * PR.dx })).filter((q: { v: number }) => q.v > 0.14);
+              const near = P.filter((q) => Math.abs(q[1] - yS) < 24).map((q) => q[0]), xa = Math.min(...near) - 4, xb = Math.max(...near) + 4;   // face width here
+              const on = row.map((v: number, k: number) => ({ v, x: PR.x0 + k * PR.dx })).filter((q: { v: number; x: number }) => q.v > 0.14 && q.x >= xa && q.x <= xb);
               if (on.length < 4) return null;
               // lifted by depth so the profile reads even when the head faces us
-              const line = on.map((q: { v: number; x: number }) => { const [x, y] = headPoint({ x: q.x, y: yS, d: q.v }, az, zoom); return `${x},${y - q.v * 46}`; }).join(' ');
+              const line = on.map((q: { v: number; x: number }) => { const [x, y] = headPoint({ x: q.x, y: yS, d: q.v }, az, zoom); return `${x},${y - Math.max(0, q.v - 0.3) * 120}`; }).join(' ');
               const flat = on.map((q: { v: number; x: number }) => headPoint({ x: q.x, y: yS, d: q.v }, az, zoom).join(',')).join(' ');
-              const gx = 610, gw = 330, gy = 1652, graph = on.map((q: { v: number; x: number }, k: number) => `${gx + (k / (on.length - 1)) * gw},${gy - q.v * 120}`).join(' ');
+              const gx = 610, gw = 330, gy = 1652, graph = on.map((q: { v: number; x: number }, k: number) => `${gx + (k / (on.length - 1)) * gw},${gy - Math.min(1, Math.max(0, (q.v - 0.3) / 0.55)) * 132}`).join(' ');
               return (
                 <g opacity={o}>
                   <polyline points={flat} fill="none" stroke={C.amber} strokeWidth={1.2} opacity={0.45} strokeDasharray="5 6" />
