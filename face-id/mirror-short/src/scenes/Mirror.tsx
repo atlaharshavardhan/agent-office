@@ -37,7 +37,8 @@ const RC = [763, 626];                                                // front c
 const mir = (q: number[]) => { const x = 922.3 - 0.309 * q[0], w = Math.min(1, Math.max(0, (x - MX) / (RC[0] - MX))); return [x, q[1] + (112.8 - 0.15 * q[1]) * w]; };
 const FLY = 24, launch = (f: number[]) => 34 + ((f[1] - 498) / 238) * 46 + f[2] * 10;      // forehead first, sweeping down
 const STREAM = Array.from({ length: 150 }, () => [rnd(), rnd()]);
-// four shots: wide · close on the glass (the dots bounce) · close on his face (they land) · wide again (what the camera sees)
+// three shots: wide · one closer framing that holds his face, the phone and the glass together, so the bounce off the
+// mirror and the dots landing on his face are seen in the same frame · wide again (what the camera sees)
 export const MIR = { glass: 54, face: 96, wide: 150 };
 const STEPS = [{ at: 30, to: MIR.glass, text: '1 · DOTS LEAVE THE PHONE' }, { at: MIR.glass, to: MIR.wide, text: '2 · THE MIRROR REFLECTS THEM ONTO HIS FACE' }, { at: MIR.wide, to: 999, text: '3 · THE CAMERA SEES HIS FACE IN THE MIRROR' }];
 
@@ -49,7 +50,7 @@ export const Mirror: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg, overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, ...(l >= MIR.glass && l < MIR.wide
-        ? (() => { const g = l < MIR.face, px = (g ? 660 : 300) * K, py = (g ? 610 : 615) * K, sc = (g ? 2.1 : 2.5) * (1 + 0.06 * ((l - (g ? MIR.glass : MIR.face)) / 50));
+        ? (() => { const px = 520 * K, py = 620 * K, sc = 1.5 * (1 + 0.08 * ((l - MIR.glass) / (MIR.wide - MIR.glass)));      // one framing: his face, the phone and the glass together
           return { transformOrigin: '0 0', transform: `translate(${540 - px * sc}px, ${900 - py * sc}px) scale(${sc})` }; })()
         : { transformOrigin: '640px 700px', transform: `scale(${s})` }) }}>
         <Img src={staticFile('bathroom_side.png')} style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1672 * K, filter: `brightness(${1 - 0.25 * ramp(l, 30, 60)})` }} />
