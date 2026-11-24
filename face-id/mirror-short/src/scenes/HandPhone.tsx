@@ -24,18 +24,18 @@ export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
   const on = ramp(f, 68, 74);                           // crisp drawn island replaces the soft photo one
   const part = (fx: number) => left + w * fx;           // x of a part inside the island
   const PARTS = [
-    { fx: 0.14, label: 'IR CAMERA', ly: 640, at: 76, anchor: 'start' as const, lx: -150 },
-    { fx: 0.31, label: 'FLOOD ILLUMINATOR', ly: 545, at: 81, anchor: 'start' as const, lx: -8 },
-    { fx: 0.51, label: 'DOT PROJECTOR', ly: 592, at: 86, anchor: 'start' as const, lx: -8 },
+    { fx: 0.12, label: 'IR CAMERA', ly: 640, at: 76, anchor: 'start' as const, lx: -150 },
+    { fx: 0.33, label: 'FLOOD ILLUMINATOR', ly: 545, at: 81, anchor: 'start' as const, lx: -8 },
+    { fx: 0.55, label: 'DOT PROJECTOR', ly: 592, at: 86, anchor: 'start' as const, lx: -8 },
   ];
   const r = h * 0.3;
   const LIFT = 0,       // the parts stay in the island; the card points at the one being explained
      CARD = 27, active = f < 106 ? -1 : Math.min(2, Math.floor((f - 106) / CARD));   // each part is explained for 0.9 s
   const MODS = [
-    { fx: 0.14, k: 1, at: 76, col: TEAL, label: 'IR CAMERA', does: 'reads the dots on your face' },
-    { fx: 0.31, k: 0.8, at: 79, col: RED, label: 'FLOOD ILLUMINATOR', does: 'lights your face in infrared' },
-    { fx: 0.51, k: 1, at: 84, col: RED, label: 'DOT PROJECTOR', does: 'fires 30,000+ invisible dots' },
-    { fx: 0.83, k: 1.25, at: 76, col: BLUE, label: 'FRONT CAMERA', does: '' },
+    { fx: 0.12, k: 1, at: 76, col: TEAL, label: 'IR CAMERA', does: 'reads the dots on your face' },
+    { fx: 0.33, k: 0.72, at: 79, col: RED, label: 'FLOOD ILLUMINATOR', does: 'lights your face in infrared' },
+    { fx: 0.55, k: 1, at: 84, col: RED, label: 'DOT PROJECTOR', does: 'fires 30,000+ invisible dots' },
+    { fx: 0.85, k: 1.25, at: 76, col: BLUE, label: 'FRONT CAMERA', does: '' },
   ];
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', overflow: 'hidden' }}>
@@ -51,12 +51,12 @@ export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
         <rect x={left} y={top} width={w} height={h} rx={h / 2} fill="#04050a" />
         {/* tear-down, on the phone itself: from TEAR the parts are pulled straight up out of the island, leaving their
             sockets behind, and each one is explained in turn */}
-        {MODS.map((m, i) => { const x = part(m.fx), tr = ramp(f, TEAR + i * 2, TEAR + 10 + i * 2, 0, 1, out3), act = active === i, sc = (act ? 1.18 + 0.04 * Math.sin(f / 2) : 1), y = cy - LIFT * tr;
+        {MODS.map((m, i) => { const x = part(m.fx), tr = ramp(f, TEAR + i * 2, TEAR + 10 + i * 2, 0, 1, out3), act = active === i, sc = (act ? 1.07 + 0.03 * Math.sin(f / 2) : 1), y = cy - LIFT * tr;
           return (
             <g key={m.label}>
               {act && <g opacity={ramp(f, 106 + i * CARD, 110 + i * CARD)}>
-                <path d={`M 540 352 V 470 H ${x} V ${cy - r * m.k * sc - 16}`} fill="none" stroke={m.col} strokeWidth={4} strokeLinejoin="round" />
-                <circle cx={x} cy={cy - r * m.k * sc - 16} r={9} fill={m.col} /><circle cx={x} cy={cy} r={r * m.k * sc + 16} fill="none" stroke={m.col} strokeWidth={4} />
+                <path d={`M 540 352 V 470 H ${x} V ${cy - r * m.k * sc - 11}`} fill="none" stroke={m.col} strokeWidth={4} strokeLinejoin="round" />
+                <circle cx={x} cy={cy - r * m.k * sc - 11} r={9} fill={m.col} /><circle cx={x} cy={cy} r={r * m.k * sc + 11} fill="none" stroke={m.col} strokeWidth={4} />
               </g>}
               <g transform={`translate(${x} ${y}) scale(${sc})`} opacity={ramp(f, m.at, m.at + 4) * (active >= 0 && !act && i < 3 ? 0.45 : 1)}>
                 {i === 0 && <><circle r={r} fill="#0b0d16" stroke={TEAL} strokeWidth={5} strokeDasharray="7 6" /><circle cx={-r * 0.2} cy={-r * 0.2} r={r * 0.16} fill={BLUE} /></>}
