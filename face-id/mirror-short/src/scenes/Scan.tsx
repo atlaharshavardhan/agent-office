@@ -9,7 +9,7 @@ import { Head3D, headPoint } from './Head3D';
 //          appears in one beat on "infrared dots" and stays pinned to his face
 // 120–210  CAPTURE: punch in so his face fills the frame, INFRARED CAMERA VIEW, capture held
 //                                                                  "The infrared camera captures the pattern."
-// 210–390  DEPTH MAP: match cut at the same angle, scale and alignment; CLOSER on "nose",
+// 210–390  DEPTH MAP: the red dots fade into it at the same angle, scale and alignment; CLOSER on "nose",
 //          FARTHER on "cheek"; the depth map then turns slightly
 export const CUE = { toSensor: 24, dots: 72, capture: 120, depth: 210, nose: 291, cheek: 351, turn: 356 };
 const VIEW = { x: 180, y: 240, w: 460 }, K = 1080 / VIEW.w;          // crop of bathroom_side.png (941 x 1672)
@@ -49,12 +49,13 @@ export const Scan: React.FC = () => {
   const captured = s >= CUE.capture, depth = s >= CUE.depth;
   const zoom = captured ? 1.25 : 1 + 0.03 * ((s - CUE.toSensor) / (CUE.capture - CUE.toSensor));
   const az = ramp(s, CUE.turn, 390, 0, -15, (x) => x * x * (3 - 2 * x));       // only the depth map turns
-  const dots = depth ? 0 : ramp(s, CUE.dots, CUE.dots + 3);
+  const toDepth = ramp(s, CUE.depth, CUE.depth + 10);                          // short transition, face stays aligned
+  const dots = ramp(s, CUE.dots, CUE.dots + 3) * (1 - ramp(s, CUE.depth + 2, CUE.depth + 12));
   const [nx, ny] = headPoint(NOSE, az, zoom), [cx, cy] = headPoint(CHEEK, az, zoom);
   const corner = (x: number, y: number, dx: number, dy: number) => `M ${x + dx * 50} ${y} H ${x} V ${y + dy * 50}`;
   return (
     <AbsoluteFill>
-      <Head3D az={az} zoom={zoom} irMix={1} depthMix={depth ? 1 : 0} dotO={dots} />
+      <Head3D az={az} zoom={zoom} irMix={1} depthMix={toDepth} dotO={dots} />
       {/* capture: a short flash and frame brackets, then the frame is held */}
       <AbsoluteFill style={{ backgroundColor: '#fff', opacity: 0.25 * ramp(s, CUE.capture, CUE.capture + 1) * (1 - ramp(s, CUE.capture + 1, CUE.capture + 6)) }} />
       {captured && !depth && <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }} stroke="#fff" strokeWidth={4} fill="none">
