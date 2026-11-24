@@ -167,14 +167,27 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; cam: THREE.Persp
     rp[k * 6] = proj.x; rp[k * 6 + 1] = proj.y; rp[k * 6 + 2] = proj.z;
     rp[k * 6 + 3] = on ? dots[i * 3] : proj.x; rp[k * 6 + 4] = on ? dots[i * 3 + 1] : proj.y; rp[k * 6 + 5] = on ? dots[i * 3 + 2] : proj.z;
   }
+  // mirror view: the light path is drawn as two legs per ray, phone -> glass and glass -> face
+  const hitOf = (i: number) => { const u = (ZG - proj.z) / (2 * ZG - dots[i * 3 + 2] - proj.z); return [proj.x + (dots[i * 3] - proj.x) * u, proj.y + (dots[i * 3 + 1] - proj.y) * u]; };
+  for (let k = 0; pov !== undefined && k < RAYS; k++) {
+    const i = (Math.floor(k / 2) * stride * 2) % n, [hx, hy] = hitOf(i), out = k % 2 === 0;
+    rp[k * 6] = out ? proj.x : hx; rp[k * 6 + 1] = out ? proj.y : hy; rp[k * 6 + 2] = out ? proj.z : ZG;
+    rp[k * 6 + 3] = out ? hx : dots[i * 3]; rp[k * 6 + 4] = out ? hy : dots[i * 3 + 1]; rp[k * 6 + 5] = out ? ZG : dots[i * 3 + 2];
+  }
   rays.attributes.position.needsUpdate = true;
-  const rayO = cyan !== undefined || pov !== undefined ? 0 : 0.2 * ramp(g, 4, 10);
+  const rayO = cyan !== undefined ? 0 : pov !== undefined ? 0.3 * ramp(pov, 6, 14) : 0.2 * ramp(g, 4, 10);
+  // where the middle of the pattern meets the glass: the reflecting waves spread from here
+  const noseHit = (() => { const u = (ZG - proj.z) / (2 * ZG - head.nose.z - proj.z); return [proj.x + (head.nose.x - proj.x) * u, proj.y + (head.nose.y - 40 - proj.y) * u]; })();
   return (
     <>
       {toDepth < 1 && <mesh geometry={head.geo}><meshBasicMaterial map={head.map} color={pov !== undefined ? '#c9a184' : '#7c7c7c'} /></mesh>}
       {toDepth > 0 && <mesh geometry={head.geo}><meshBasicMaterial vertexColors transparent opacity={toDepth} /></mesh>}
       <lineSegments geometry={rays}><lineBasicMaterial color={C.ir} transparent opacity={rayO} blending={THREE.AdditiveBlending} depthWrite={false} /></lineSegments>
       <points geometry={pts.geo} material={pts.mat} frustumCulled={false} />
+      {/* reflecting waves on the glass: rings that spread out from where the light bounces, again and again */}
+      {pov !== undefined && pov > 8 && [0, 1, 2, 3].map((k) => { const u = (((pov - 8) / 22) + k / 4) % 1, r = 10 + 130 * u;
+        return <mesh key={k} position={[noseHit[0], noseHit[1], ZG]}><ringGeometry args={[r, r + 2.6 - 1.6 * u, 72]} /><meshBasicMaterial color="#ff8fa0" transparent opacity={0.6 * (1 - u) * ramp(pov, 8, 12)} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} /></mesh>; })}
+      {pov !== undefined && pov > 8 && <mesh position={[noseHit[0], noseHit[1], ZG]}><circleGeometry args={[26, 40]} /><meshBasicMaterial color={C.ir} transparent opacity={0.2 + 0.06 * Math.sin(pov / 2)} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} /></mesh>}
       <ambientLight intensity={0.5} />
       <directionalLight position={[600, 900, 2200]} intensity={2.2} />
       <pointLight position={[-700, 900, 900]} intensity={3} color="#ffb060" decay={0} />
