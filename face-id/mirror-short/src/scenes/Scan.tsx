@@ -60,7 +60,7 @@ export const Scan: React.FC = () => {
   const zoom = captured ? 1.25 : 1 + 0.03 * ((s - CUE.toSensor) / (CUE.capture - CUE.toSensor));
   // the head keeps moving while the depth mesh is on: a slow sway, blending into the final turn
   const tt = ramp(s, CUE.turn, 390, 0, 1, (x) => x * x * (3 - 2 * x));
-  const az = (depth ? 8 * Math.sin((s - CUE.depth) / 19) * ramp(s, CUE.depth, CUE.depth + 20) : 0) * (1 - tt) - 15 * tt;       // only the depth map turns
+  const az = (depth ? 12 * Math.sin((s - CUE.depth) / 19) * ramp(s, CUE.depth, CUE.depth + 20) : 0) * (1 - tt) - 15 * tt;       // only the depth map turns
   const toDepth = ramp(s, CUE.depth, CUE.depth + 10);                          // short transition, face stays aligned
   const dots = ramp(s, CUE.dots, CUE.dots + 3) * (1 - ramp(s, CUE.depth + 2, CUE.depth + 12));
   const [nx, ny] = headPoint(NOSE, az, zoom), [cx, cy] = headPoint(CHEEK, az, zoom);
@@ -76,6 +76,8 @@ export const Scan: React.FC = () => {
       {!captured && <Label text="DOT PROJECTOR · PATTERN ON HIS FACE" x={505} y={1470} o={ramp(s, CUE.dots, CUE.dots + 4)} size={26} align="center" color={C.label} />}
       {captured && !depth && <Label text="INFRARED CAMERA VIEW" x={505} y={1470} o={1} size={30} align="center" color={C.label} />}
       {depth && <Label text="DEPTH MAP" x={505} y={452} o={1} size={30} align="center" color={C.label} />}
+      {/* how the depth is read, in one line */}
+      {depth && <div style={{ position: 'absolute', left: 70, width: 870, top: 516, textAlign: 'center', opacity: ramp(s, CUE.depth + 12, CUE.depth + 18) }}><span style={{ display: 'inline-block', padding: '9px 16px', borderRadius: 10, background: 'rgba(8,10,16,.72)', font: `600 26px/1.2 ${FONT}`, color: '#dfeeff' }}>Nearer skin shifts the dots more. The iPhone measures every shift.</span></div>}
       {/* depth mesh: points pinned to his face, joined by lines; a bigger, brighter point is closer to the phone */}
       {depth && (() => {
         const L = (mesh.pts as number[][]).map((q) => [...headPoint({ x: q[0], y: q[1], d: q[2] }, az, zoom), q[2]]);
@@ -89,32 +91,48 @@ export const Scan: React.FC = () => {
               const [a, b] = when(a0) <= when(b0) ? [a0, b0] : [b0, a0];           // grow from the point that appears first
               const g = ramp(s, when(a) + 2, when(b) + 4);
               if (g <= 0) return null;
-              const u = ((s / 22) + i * 0.37) % 1;                                   // a pulse keeps travelling along the line
+              const near = (L[a][2] + L[b][2]) / 2;                                // nearer strands are brighter
+              return <line key={i} x1={L[a][0]} y1={L[a][1]} x2={L[a][0] + (L[b][0] - L[a][0]) * g} y2={L[a][1] + (L[b][1] - L[a][1]) * g} stroke={MESH} strokeWidth={1.1} opacity={0.18 + 0.6 * near} />;
+            })}
+            {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); return k > 0 ? <circle key={i} cx={x} cy={y} r={(1.4 + 2.6 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9)))} fill="#fff" opacity={0.35 + 0.65 * d} /> : null; })}
+            {/* how depth is read: a scan line moves down his face; it bends where the surface is nearer */}
+            {(() => {
+              const PR = mesh.prof, o = ramp(s, t0 + SPAN, t0 + SPAN + 6); if (o <= 0) return null;
+              const ph = ((s - t0 - SPAN) / 100) % 2, u = ph < 1 ? ph : 2 - ph, rf = 6 + u * (PR.rows.length - 14), r0 = Math.floor(rf), fr = rf - r0;
+              const row = PR.rows[r0].map((v: number, k: number) => v * (1 - fr) + PR.rows[r0 + 1][k] * fr), yS = PR.y0 + rf * PR.dy;
+              const on = row.map((v: number, k: number) => ({ v, x: PR.x0 + k * PR.dx })).filter((q: { v: number }) => q.v > 0.14);
+              if (on.length < 4) return null;
+              // lifted by depth so the profile reads even when the head faces us
+              const line = on.map((q: { v: number; x: number }) => { const [x, y] = headPoint({ x: q.x, y: yS, d: q.v }, az, zoom); return `${x},${y - q.v * 46}`; }).join(' ');
+              const flat = on.map((q: { v: number; x: number }) => headPoint({ x: q.x, y: yS, d: q.v }, az, zoom).join(',')).join(' ');
+              const gx = 610, gw = 330, gy = 1652, graph = on.map((q: { v: number; x: number }, k: number) => `${gx + (k / (on.length - 1)) * gw},${gy - q.v * 120}`).join(' ');
               return (
-                <g key={i}>
-                  <line x1={L[a][0]} y1={L[a][1]} x2={L[a][0] + (L[b][0] - L[a][0]) * g} y2={L[a][1] + (L[b][1] - L[a][1]) * g} stroke={MESH} strokeWidth={2.4} opacity={0.8} />
-                  {g >= 1 && i % 3 === 0 && <circle cx={L[a][0] + (L[b][0] - L[a][0]) * u} cy={L[a][1] + (L[b][1] - L[a][1]) * u} r={3.2} fill="#fff" opacity={0.9 * Math.sin(Math.PI * u)} />}
+                <g opacity={o}>
+                  <polyline points={flat} fill="none" stroke={C.amber} strokeWidth={1.2} opacity={0.45} strokeDasharray="5 6" />
+                  <polyline points={line} fill="none" stroke={C.amber} strokeWidth={3} strokeLinejoin="round" />
+                  <rect x={gx - 16} y={gy - 150} width={gw + 32} height={170} rx={12} fill="rgba(8,10,16,.6)" />
+                  <line x1={gx} x2={gx + gw} y1={gy} y2={gy} stroke={MESH} strokeWidth={1.5} opacity={0.5} />
+                  <polyline points={graph} fill="none" stroke={C.amber} strokeWidth={3.5} strokeLinejoin="round" />
                 </g>
               );
-            })}
-            {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); return k > 0 ? <circle key={i} cx={x} cy={y} r={(5 + 9 * d) * k * (1 + 0.9 * (1 - ramp(s, when(i), when(i) + 9))) * (1 + 0.1 * Math.sin(s / 6 + i))} fill={MESH} opacity={0.55 + 0.45 * d} /> : null; })}
+            })()}
           </svg>
         );
       })()}
       {/* read-outs, as in the reference: depth mapped so far + a per-point depth strip */}
       {depth && (() => {
         const pct = Math.round(100 * ramp(s, CUE.depth + 4, CUE.depth + 70)), o = ramp(s, CUE.depth + 4, CUE.depth + 8), R = 74, C2 = 2 * Math.PI * R;
-        const bars = (mesh.pts as number[][]).filter((_, i) => i % 3 === 0).map((q) => q[2]);
+        
         return (
           <AbsoluteFill style={{ opacity: o }}>
             <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
               <circle cx={190} cy={1590} r={R} fill="rgba(8,10,16,.55)" stroke={MESH} strokeOpacity={0.25} strokeWidth={4} />
               <circle cx={190} cy={1590} r={R} fill="none" stroke={MESH} strokeWidth={4} strokeDasharray={`${(C2 * pct) / 100} ${C2}`} transform="rotate(-90 190 1590)" />
-              {bars.map((d, i) => { const h = (14 + 96 * d) * ramp(s, CUE.depth + 8 + i * 2, CUE.depth + 16 + i * 2); return <rect key={i} x={640 + i * 22} y={1650 - h} width={14} height={h} fill={MESH} opacity={0.5 + 0.5 * d} />; })}
             </svg>
             <div style={{ position: 'absolute', left: 116, top: 1566, width: 148, textAlign: 'center', font: `800 46px/1 ${FONT}`, color: '#fff' }}>{pct}%</div>
             <div style={{ position: 'absolute', left: 286, top: 1572, font: `800 24px/1.25 ${FONT}`, letterSpacing: '0.12em', color: MESH }}>DEPTH<br />MAPPED</div>
-            <div style={{ position: 'absolute', left: 640, top: 1664, font: `800 20px/1 ${FONT}`, letterSpacing: '0.12em', color: MESH }}>FAR&nbsp;&nbsp;·&nbsp;&nbsp;NEAR PER POINT</div>
+            <div style={{ position: 'absolute', left: 610, top: 1676, font: `800 20px/1 ${FONT}`, letterSpacing: '0.1em', color: C.amber, opacity: ramp(s, CUE.depth + 50, CUE.depth + 56) }}>DEPTH ALONG THE SCAN LINE</div>
+            <div style={{ position: 'absolute', left: 610, top: 1478, font: `800 18px/1 ${FONT}`, letterSpacing: '0.1em', color: MESH, opacity: ramp(s, CUE.depth + 50, CUE.depth + 56) }}>NEAR ↑</div>
           </AbsoluteFill>
         );
       })()}
