@@ -36,7 +36,7 @@ export type Line = { id: string; at: number; text: string };
 // Narration = caption text.  `at` is when the voice line starts.
 export const NARRATION: Line[] = [
   { id: 'n1', at: 0.05, text: 'Can a mirror fool Face ID?' },
-  { id: 'n2', at: 2.2, text: 'Every time you glance at your iPhone, the TrueDepth camera wakes up.' },
+  { id: 'n2', at: 2.05, text: 'Every time you glance at your iPhone, the TrueDepth camera wakes up.' },
   // 0:06–0:19 — the cuts in src/scenes/Scan.tsx (CUE) are placed on these lines
   { id: 'n3a', at: 6.05, text: 'The dot projector shines thousands of invisible infrared dots onto your face.' },
   { id: 'n3b', at: 12.03, text: 'The infrared camera captures the pattern.' },

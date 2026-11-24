@@ -1,7 +1,7 @@
 import '@fontsource/plus-jakarta-sans/600.css';
 import '@fontsource/plus-jakarta-sans/800.css';
 import { AbsoluteFill, useCurrentFrame } from 'remotion';
-import { CAPTION_PLACEMENT, CAPTION_TOP_DEFAULT, FPS, LEN, Line } from './script';
+import { CAPTION_PLACEMENT, CAPTION_TOP_DEFAULT, FPS, LEN, Line, SCENES } from './script';
 
 // Word-by-word captions (style from the reference): words already spoken are bold white,
 // words still to come are dim grey, and the word being spoken sits in a blue selection box
@@ -49,7 +49,9 @@ const Handle: React.FC<{ style: React.CSSProperties }> = ({ style }) => (
 
 export const Captions: React.FC<{ lines: Line[] }> = ({ lines }) => {
   const t = useCurrentFrame() / FPS;
-  const c = lines.flatMap(chunk).find((k) => t >= k.from && t < k.to);
+  // a caption never lingers into the next line or past a scene cut
+  const cuts = [...lines.map((x) => x.at), ...Object.values(SCENES).map((x) => x[0])];
+  const c = lines.flatMap(chunk).map((k) => ({ ...k, to: Math.min(k.to, ...cuts.filter((x) => x > k.from + 0.05)) })).find((k) => t >= k.from && t < k.to);
   if (!c) return null;
   return (
     <AbsoluteFill>
