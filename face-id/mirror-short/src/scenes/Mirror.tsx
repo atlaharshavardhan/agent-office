@@ -1,6 +1,7 @@
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import front from '../front.json';
 import { C, FONT, Label, ramp } from '../theme';
+import { headDots, turnDot } from './dotHead';
 
 // Scene 5 (8 s, 240 frames): how the infrared light reaches his face by way of the mirror, and what the
 // camera sees. Side view (public/bathroom_side.png, 941 x 1672) + a live "infrared camera" panel.
@@ -28,7 +29,7 @@ const PAN = { x: 80, y: 1050, w: 380, h: 506 }, CROP = { x: 106, y: 200, w: 540,
 const PDOTS = (front.dots as number[][]).filter((_, i) => i % 3 === 0).map((d) => [PAN.w - (d[0] - CROP.x) * PK, (d[1] - CROP.y) * PK, d[3]]).filter((d) => d[1] > 0 && d[1] < PAN.h);
 // match ring (lower left): his straight-on face as dots, mirrored because it is a reflection
 const RING = { x: 270, y: 1320, r: 190 }, TICKS = 84;
-const RING_DOTS = (front.dots as number[][]).filter((_, i) => i % 2 === 0).map((d) => [-(d[0] - 389) * 0.44, (d[1] - 655) * 0.44, d[2]]);
+const RING_DOTS = headDots(0.44);
 const len = (a: number[], b: number[]) => Math.hypot(b[0] - a[0], b[1] - a[1]);
 // Mirror image of a point, fitted to this picture: his phone (516, 604) appears in the mirror at (763, 626) and his
 // nose (341, 632) at (817, 650). Points on the glass (x = MX) map to themselves, so real and reflected dots meet there.
@@ -90,7 +91,7 @@ export const Mirror: React.FC = () => {
           return <line key={k} x1={RING.x + r0 * Math.cos(a)} y1={RING.y + r0 * Math.sin(a)} x2={RING.x + r1 * Math.cos(a)} y2={RING.y + r1 * Math.sin(a)} stroke={on ? C.ir : '#6f6a66'} strokeWidth={on ? 5 : 4} strokeLinecap="round" opacity={on ? 1 : 0.6} />; })}
         {/* the head keeps rolling in a slow circle (one turn every 2.6 s): dots shift by depth, plus a small tilt */}
         <g transform={`rotate(${4 * Math.sin(l / 12.5)} ${RING.x} ${RING.y})`}>
-          {RING_DOTS.map((d, k) => <circle key={k} cx={RING.x + d[0] * (1 - 0.06 * Math.abs(Math.cos(l / 12.5))) + Math.cos(l / 12.5) * 52 * (d[2] - 0.42)} cy={RING.y + d[1] + Math.sin(l / 12.5) * 34 * (d[2] - 0.42)} r={1.5} fill="#f4efe9" opacity={0.25 + 0.75 * d[2]} />)}
+          {RING_DOTS.map((d, k) => { const [x, y] = turnDot(d, 18 * Math.cos(l / 12.5), 12 * Math.sin(l / 12.5)); return <circle key={k} cx={RING.x + x} cy={RING.y + y} r={1.3} fill="#f4efe9" opacity={0.25 + 0.75 * d[3]} />; })}
         </g>
       </svg>
       <div style={{ position: 'absolute', left: 500, top: 1215, width: 440, opacity: panel }}>

@@ -1,5 +1,5 @@
 import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame } from 'remotion';
-import front from '../front.json';
+import { headDots, turnDot } from './dotHead';
 import { C, FONT, clamp, ramp } from '../theme';
 
 // Scene 6 without real footage: the answer, shown on the match ring (an illustration, not test footage).
@@ -12,7 +12,7 @@ const TICKS = 96, GREEN = '#59d98a', HIT = 62;
 // head turn while comparing: [frame, yaw, pitch]  (yaw -1 = left, +1 = right; pitch -1 = up, +1 = down)
 const TURN = [[14, 0, 0], [24, -1, 0], [37, 1, 0], [44, 0, 0], [50, 0, -1], [58, 0, 1], [62, 0, 0]];
 const turn = (l: number, c: 1 | 2) => interpolate(l, TURN.map((t) => t[0]), TURN.map((t) => t[c]), { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: (x) => x * x * (3 - 2 * x) });
-const DOTS = (front.dots as number[][]).filter((_, i) => i % 2 === 0).map((d) => [-(d[0] - 389) * 0.7, (d[1] - 655) * 0.7, d[2]]);
+const DOTS = headDots(0.7);
 const io = (x: number) => x * x * (3 - 2 * x);
 
 export const Result: React.FC<{ result: 'locked' | 'open' }> = ({ result }) => {
@@ -37,7 +37,7 @@ export const Result: React.FC<{ result: 'locked' | 'open' }> = ({ result }) => {
             return <line key={i} x1={r0 * Math.cos(a)} y1={r0 * Math.sin(a)} x2={r1 * Math.cos(a)} y2={r1 * Math.sin(a)} stroke={done ? col : lit ? '#fff' : '#6f6a66'} strokeWidth={done ? 8 : 6} strokeLinecap="round" opacity={done || lit ? 1 : 0.55} />; })}
           {/* his face as a dot cloud: turns left, right, up, down while comparing */}
           <g>
-            {DOTS.map((d, i) => <circle key={i} cx={d[0] * (1 - 0.1 * Math.abs(yaw)) + yaw * 88 * (d[2] - 0.42) + yaw * 16} cy={d[1] * (1 - 0.06 * Math.abs(pitch)) + pitch * 66 * (d[2] - 0.42) + pitch * 14} r={2.3} fill={done && bad ? '#ffd9de' : '#f4efe9'} opacity={0.25 + 0.75 * d[2]} />)}
+            {DOTS.map((d, i) => { const [x, y] = turnDot(d, yaw * 24, pitch * 18); return <circle key={i} cx={x} cy={y} r={2.1} fill={done && bad ? '#ffd9de' : '#f4efe9'} opacity={0.25 + 0.75 * d[3]} />; })}
           </g>
           {/* result badge */}
           <g transform={`translate(${R * 0.72} ${R * 0.72}) scale(${hit * (1 + 0.25 * (1 - ramp(l, HIT + 4, HIT + 12)))})`}>
