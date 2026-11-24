@@ -9,7 +9,7 @@ import { ramp } from '../theme';
 //          the green face glyph draws itself (no checkmark: the result is never shown here)
 const K = 1080 / 752, TOP = -5;                        // still is 752 x 1344, shown full-bleed
 const ISL = { x: 377 * K, y: 183 * K + TOP, w: 112 * K, h: 32 * K };   // its Dynamic Island on screen at scale 1
-const TARGET = { x: 540, y: 640 };                     // where the island sits after the zoom
+const TARGET = { x: 540, y: 490 };                     // where the island sits after the zoom
 const GREEN = '#8ff58a';
 const out3 = (x: number) => 1 - Math.pow(1 - x, 3), io = (x: number) => x * x * (3 - 2 * x);
 
