@@ -11,6 +11,7 @@ import { Orbit3D } from './Orbit3D';
 // ScanB (20.2–26.1 s)  0– 71  back on the frontal red-dot face: CLOSER on "nose" (15), FARTHER on "cheeks" (58)
 //                     71–103  the same dots as a cyan point cloud                 "The phone uses"
 //                    103–177  DEPTH MAP: the web forms and is scanned; both labels stay  "that pattern to map the shape of my face"
+export const FZ = 1.15;      // framing of the frontal face; the mirror view and the cyan point cloud are lined up with it
 export const CUE_A = { front: 164, end: 209 };
 export const CUE_B = { nose: 15, cheek: 58, cyan: 71, depth: 103, end: 177 };
 const rnd = (i: number) => { const x = Math.sin((i + 1) * 91.17) * 43758.5453; return x - Math.floor(x); };
@@ -35,10 +36,11 @@ const Mark: React.FC<{ x: number; y: number; text: string; lx: number; ly: numbe
 // flash: frame of the capture flash (null = none); nose / cheek: frames the two labels appear (null = no labels).
 const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | null; nose: number | null; cheek: number | null; end: number }> = ({ s, depth0, flash, nose, cheek, end }) => {
   const D0 = depth0 ?? 1e9, FL = flash ?? -1e9, NO = nose ?? 1e9, CH = cheek ?? 1e9;
-  const depth = s >= D0, zoom = 1.25;
+  const depth = s >= D0, zoom = FZ;
   // the head keeps moving while the depth mesh is on: a slow sway, blending into the final turn
-  const tt = ramp(s, (end - 30), end, 0, 1, (x) => x * x * (3 - 2 * x));
-  const az = (depth ? 10 * Math.sin((s - D0) / 19) * ramp(s, D0, D0 + 20) : 0) * (1 - tt) - 10 * tt;
+  // the head faces us (aligned with the shots before it) while the web forms, then makes one small three-quarter turn
+  // and holds, so the nose is seen sitting forward of the cheek
+  const az = depth ? -20 * ramp(s, D0 + 32, D0 + 54, 0, 1, (x) => x * x * (3 - 2 * x)) : 0;
   const toDepth = ramp(s, D0, D0 + 8);
   const [nx, ny] = headPoint(NOSE, az, zoom), [cx, cy] = headPoint(CHEEK, az, zoom);
   const corner = (x: number, y: number, dx: number, dy: number) => `M ${x + dx * 50} ${y} H ${x} V ${y + dy * 50}`;
@@ -103,11 +105,17 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
 
 export const ScanA: React.FC = () => {
   const s = useCurrentFrame();
-  return s < CUE_A.front ? <Orbit3D g={s} /> : <FaceView s={s} depth0={null} flash={CUE_A.front} nose={null} cheek={null} end={CUE_A.end} />;
+  return s < CUE_A.front ? <Orbit3D g={s} /> : <FaceView s={s} depth0={null} flash={null} nose={null} cheek={null} end={CUE_A.end} />;
 };
 
 export const ScanB: React.FC = () => {
   const s = useCurrentFrame();
-  if (s >= CUE_B.cyan && s < CUE_B.depth) return <Orbit3D g={150} cyan={s - CUE_B.cyan} />;
-  return <FaceView s={s} depth0={CUE_B.depth} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.end} />;
+  // the cyan point cloud is the same head, lined up with the frontal face; it dissolves in and out so eyes and nose stay put
+  const o = ramp(s, CUE_B.cyan, CUE_B.cyan + 5) * (1 - ramp(s, CUE_B.depth, CUE_B.depth + 6));
+  return (
+    <AbsoluteFill>
+      <FaceView s={s} depth0={CUE_B.depth} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.end} />
+      {s >= CUE_B.cyan - 1 && s < CUE_B.depth + 6 && <AbsoluteFill style={{ opacity: o }}><Orbit3D g={150} cyan={s - CUE_B.cyan} align /></AbsoluteFill>}
+    </AbsoluteFill>
+  );
 };

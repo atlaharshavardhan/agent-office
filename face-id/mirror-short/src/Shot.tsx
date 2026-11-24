@@ -10,11 +10,11 @@ import { ramp } from './theme';
 const out3 = (x: number) => 1 - Math.pow(1 - x, 3), io = (x: number) => x * x * (3 - 2 * x);
 export type Punch = [number, number, number, number, number];
 
-export const Shot: React.FC<{ dur: number; enter?: boolean; exit?: boolean; punches?: Punch[]; snaps?: [number, number][]; children: React.ReactNode }> =
-  ({ dur, enter = true, exit = true, punches = [], snaps = [], children }) => {
+export const Shot: React.FC<{ dur: number; enter?: boolean; exit?: boolean; drift?: number; punches?: Punch[]; snaps?: [number, number][]; children: React.ReactNode }> =
+  ({ dur, enter = true, exit = true, drift = 0.05, punches = [], snaps = [], children }) => {
     const fr = useCurrentFrame();
     const e = enter ? 1 - ramp(fr, 0, 7, 0, 1, out3) : 0, x = exit ? ramp(fr, dur - 5, dur, 0, 1, (v) => v * v) : 0;
-    let s = (1 + 0.05 * (fr / dur)) * (1 + 0.45 * e) * (1 + 0.7 * x), blur = 10 * e + 12 * x;
+    let s = (1 + drift * (fr / dur)) * (1 + 0.45 * e) * (1 + 0.7 * x), blur = 10 * e + 12 * x;
     for (const [f, sc] of snaps) if (fr >= f) { const k = 1 - ramp(fr, f, f + 7, 0, 1, out3); s *= 1 + (sc - 1) * k; blur += 8 * k; }
     let inner: React.ReactNode = children;
     for (const [a, b, sc, ox, oy] of punches) {

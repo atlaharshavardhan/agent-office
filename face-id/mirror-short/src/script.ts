@@ -14,25 +14,21 @@ export const SCENES = {
   compare: [26.1, 32.8], test: [32.8, 38.8], end: [38.8, 40.8],
 } as const;
 
-// Hook: excerpts of public/mirror_clip.mp4 (24 fps source, 5.04 s), played at normal speed, hard cuts.
-// srcStart is in seconds of the source clip; dur in composition frames (total 150 = 5 s).
-// The source cuts from the side profile to the rear angle at 0.875 s, so excerpt 1 ends at 0.867 s.
-// Excerpt 2 holds on the phone in the mirror, then rushes toward it; excerpt 3 is the still of the phone in his hand.
-export type HookZoom = { ox: number; oy: number; frames: number[]; scale: number[] };
-export const HOOK_CUTS: { name: string; srcStart: number; dur: number; zoom?: HookZoom }[] = [
-  { name: 'Hook 1 · side profile', srcStart: 0.0, dur: 26, zoom: { ox: 0.62, oy: 0.36, frames: [0, 8, 26], scale: [1.35, 1.05, 1.5] } },
-  { name: 'Hook 2 · rear view, hold on the reflected phone', srcStart: 0.95, dur: 54, zoom: { ox: 0.52, oy: 0.33, frames: [0, 8, 40, 54], scale: [1.5, 1.12, 1.25, 1.9] } },   // ends before the source's own push-in (2.77 s)
-  { name: 'Hook 3 · push to the phone in his hand (still: hook_closeup.png)', srcStart: 0, dur: 70 },   // push to the phone, then into its Dynamic Island as the question ends
-];
+// Hook: one continuous take of public/mirror_clip.mp4 (24 fps source, 5.04 s) from the rear mirror angle, at normal speed.
+// The source cuts to this angle at 0.875 s and then pushes toward the reflection by itself; from about 3.0 s it rushes
+// into the reflected phone, which fills the frame by 3.75 s. To land that rush on the word "unlock" (2.99 s) the first
+// frame is held for `freeze` frames, then the take plays. At `cut` it match-cuts to the still of the phone in his hand
+// (HandPhone), entered at `handF`, where its screen sits at the same place and size; that shot carries the push on
+// to the Dynamic Island.
+export const HOOK = { srcStart: 0.95, freeze: 22, cut: 107, handF: 26 };
 
 // Caption placement, decided clip by clip from where the frame has empty space (y of the caption block's top).
 // Default is the top of the frame (230). Ranges are in seconds.
 export const CAPTION_TOP_DEFAULT = 230;
 export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
-  { from: 2.67, to: 4.4, top: 1300 },    // phone in his hand: the top holds its Dynamic Island and clock -> lower, over his hand
-  { from: 5.8, to: 9.0, top: 1340 },      // tear-down: the parts and their explanation use the top -> below the padlock
+  { from: 1.9, to: 4.4, top: 1300 },      // the push toward his reflection, then the phone: his face / the island fill the top -> lower
+  { from: 5.8, to: 9.0, top: 1340 },      // the parts and their explanation use the top -> below the padlock
   { from: 9.0, to: 14.45, top: 185 },     // 3D red dots clip: raised to clear his hair and the dots
-  { from: 22.55, to: 23.63, top: 185 },   // cyan point cloud
   { from: 26.1, to: 32.8, top: 170 },     // comparison
 ];
 
@@ -58,15 +54,12 @@ export const RESULT_LINES = {
 export const LEN: Record<string, number> = lengths as any;
 
 export const SFX = [
-  { name: 'SFX · whoosh (hook: to the rear view)', file: 'whoosh.wav', at: 0.8, vol: 0.25 },
-  { name: 'SFX · whoosh (hook push to the phone)', file: 'whoosh.wav', at: 2.6, vol: 0.35 },
-  { name: 'SFX · whoosh (into the Dynamic Island)', file: 'whoosh.wav', at: 3.6, vol: 0.3 },
-  { name: 'SFX · whoosh (tear-down)', file: 'whoosh.wav', at: 5.72, vol: 0.35 },
-  { name: 'SFX · thump (tear-down)', file: 'thump.wav', at: 5.8, vol: 0.3 },
+  { name: 'SFX · whoosh (push into the reflected phone, on "unlock")', file: 'whoosh.wav', at: 2.85, vol: 0.35 },
+  { name: 'SFX · whoosh (up to the Dynamic Island)', file: 'whoosh.wav', at: 3.7, vol: 0.28 },
+  { name: 'SFX · thump (the parts are explained)', file: 'thump.wav', at: 5.8, vol: 0.3 },
   { name: 'SFX · whoosh (to the dots)', file: 'whoosh.wav', at: 8.85, vol: 0.22 },
-  { name: 'SFX · thump (capture)', file: 'thump.wav', at: 14.45, vol: 0.25 },
-  { name: 'SFX · whoosh (to the mirror)', file: 'whoosh.wav', at: 15.8, vol: 0.22 },
-  { name: 'SFX · whoosh (to the depth map)', file: 'whoosh.wav', at: 20.05, vol: 0.22 },
+  { name: 'SFX · thump (capture, on "picks up")', file: 'thump.wav', at: 14.45, vol: 0.25 },
+  { name: 'SFX · whoosh (push toward the reflection, on "bounce")', file: 'whoosh.wav', at: 17.7, vol: 0.2 },
   { name: 'SFX · whoosh (to the comparison)', file: 'whoosh.wav', at: 25.95, vol: 0.22 },
   { name: 'SFX · thump (real test)', file: 'thump.wav', at: 32.8, vol: 0.45 },
   { name: 'SFX · whoosh (to the end card)', file: 'whoosh.wav', at: 38.65, vol: 0.2 },

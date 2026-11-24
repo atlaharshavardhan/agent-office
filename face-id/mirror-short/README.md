@@ -96,3 +96,15 @@ If you change a narration line, regenerate the audio:
 - All timings, narration text, caption placement and SFX are in `src/script.ts`; cue frames inside scenes are `CUE_A` / `CUE_B`
   (`Scan.tsx`), `CMP` (`Compare.tsx`), `MIR` / `MIR_FROM` (`Mirror.tsx`), `TEAR` (`HandPhone.tsx`).
 - Voice: `python tools/vo_lines.py <kokoro models dir> [line ids…]`.
+
+## Camera and transitions (current)
+
+- Hook: one rear-mirror take (first frame held 22 frames so the source's own rush into the reflected phone lands on "unlock"),
+  match cut at frame 107 to the phone still with its screen at the same place and size, push on to the Dynamic Island. `HOOK` in `src/script.ts`.
+- "picks up": plain hard cut to the frontal infrared view, no flash or zoom; the face is held steady.
+- "Here's the twist": plain cut to the wide side view; short push toward the glass on "bounce" (`PUSH` in `Mirror.tsx`); then the
+  view from the mirror, which settles on the framing of the frontal scan (`ALIGN` in `Orbit3D.tsx`, `FZ` in `Scan.tsx`).
+- "See my nose?": cut to the frontal red-dot face with eyes and nose in the same place; the cyan point cloud dissolves in and out
+  on that same framing; the depth map makes one small three-quarter turn and holds.
+- "So, did it work?": hard cut to the reveal slot; no camera move.
+- `Shot` props per scene (`enter`, `exit`, `drift`) are set in `src/MirrorFaceID.tsx`.
