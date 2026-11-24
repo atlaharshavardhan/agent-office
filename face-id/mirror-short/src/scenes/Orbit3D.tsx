@@ -138,16 +138,16 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; cam: THREE.Persp
     const mat = new THREE.ShaderMaterial({ vertexShader: PVS, fragmentShader: PFS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, uniforms: { uScale: { value: 1 }, uO: { value: 1 } } });
     return { geo, mat };
   }, [n]);
-  const RAYS = 300;
+  const RAYS = 520;
   const rays = useMemo(() => { const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(RAYS * 6), 3)); return geo; }, []);
   const pos = pts.geo.attributes.position.array as Float32Array, size = pts.geo.attributes.aSize.array as Float32Array, col = pts.geo.attributes.aCol.array as Float32Array;
+  // mirror view: no flying dots. Rays go from the phone to the glass and back to his face; they sweep across his face
+  // from left to right, and a dot appears wherever a ray lands.
+  const povAt = (i: number) => 3 + Math.min(1, Math.max(0, (dots[i * 3] + 190) / 380)) * 24 + rnd[i] * 2;
   for (let i = 0; pov !== undefined && i < n; i++) {
-    // out to the glass, off it (angle in = angle out), and back onto his face
-    const t0 = 2 + ((launch[i] - 3) / 36) * 17, p1 = Math.min(1, Math.max(0, (pov - t0) / 9)), p2 = Math.min(1, Math.max(0, (pov - t0 - 9) / 9)), e2 = p2 * p2 * (3 - 2 * p2);
-    const tx = dots[i * 3], ty = dots[i * 3 + 1], tz = dots[i * 3 + 2], u = (ZG - proj.z) / (2 * ZG - tz - proj.z);
-    const hx = proj.x + (tx - proj.x) * u, hy = proj.y + (ty - proj.y) * u;
-    pos[i * 3] = p2 > 0 ? hx + (tx - hx) * e2 : proj.x + (hx - proj.x) * p1; pos[i * 3 + 1] = p2 > 0 ? hy + (ty - hy) * e2 : proj.y + (hy - proj.y) * p1; pos[i * 3 + 2] = p2 > 0 ? ZG + (tz - ZG) * e2 : proj.z + (ZG - proj.z) * p1;
-    size[i] = p1 <= 0 ? 0 : p2 >= 1 ? 4.6 * (1 + 0.9 * (1 - ramp(pov, t0 + 18, t0 + 23))) : p1 >= 1 && p2 < 0.2 ? 5.5 : 3.6;
+    const t0 = povAt(i) + 3, on = pov >= t0;
+    pos[i * 3] = dots[i * 3]; pos[i * 3 + 1] = dots[i * 3 + 1]; pos[i * 3 + 2] = dots[i * 3 + 2];
+    size[i] = on ? 4.6 * (1 + 1.3 * (1 - ramp(pov, t0, t0 + 6))) : 0;
     col[i * 3] = RED.r; col[i * 3 + 1] = RED.g; col[i * 3 + 2] = RED.b;
   }
   for (let i = 0; pov === undefined && i < n; i++) {
@@ -170,12 +170,14 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; cam: THREE.Persp
   // mirror view: the light path is drawn as two legs per ray, phone -> glass and glass -> face
   const hitOf = (i: number) => { const u = (ZG - proj.z) / (2 * ZG - dots[i * 3 + 2] - proj.z); return [proj.x + (dots[i * 3] - proj.x) * u, proj.y + (dots[i * 3 + 1] - proj.y) * u]; };
   for (let k = 0; pov !== undefined && k < RAYS; k++) {
-    const i = (Math.floor(k / 2) * stride * 2) % n, [hx, hy] = hitOf(i), out = k % 2 === 0;
+    const i = (Math.floor(k / 2) * stride * 2) % n, [hx, hy] = hitOf(i), out = k % 2 === 0, t0 = povAt(i);
+    // a ray is drawn while it is the one landing (the fan sweeps left to right); every sixth ray stays on afterwards
+    const show = pov >= t0 && (pov < t0 + 9 || Math.floor(k / 2) % 6 === 0);
     rp[k * 6] = out ? proj.x : hx; rp[k * 6 + 1] = out ? proj.y : hy; rp[k * 6 + 2] = out ? proj.z : ZG;
-    rp[k * 6 + 3] = out ? hx : dots[i * 3]; rp[k * 6 + 4] = out ? hy : dots[i * 3 + 1]; rp[k * 6 + 5] = out ? ZG : dots[i * 3 + 2];
+    rp[k * 6 + 3] = !show ? rp[k * 6] : out ? hx : dots[i * 3]; rp[k * 6 + 4] = !show ? rp[k * 6 + 1] : out ? hy : dots[i * 3 + 1]; rp[k * 6 + 5] = !show ? rp[k * 6 + 2] : out ? ZG : dots[i * 3 + 2];
   }
   rays.attributes.position.needsUpdate = true;
-  const rayO = cyan !== undefined ? 0 : pov !== undefined ? 0.3 * ramp(pov, 6, 14) : 0.2 * ramp(g, 4, 10);
+  const rayO = cyan !== undefined ? 0 : pov !== undefined ? 0.5 : 0.2 * ramp(g, 4, 10);
   // where the middle of the pattern meets the glass: the reflecting waves spread from here
   const noseHit = (() => { const u = (ZG - proj.z) / (2 * ZG - head.nose.z - proj.z); return [proj.x + (head.nose.x - proj.x) * u, proj.y + (head.nose.y - 40 - proj.y) * u]; })();
   return (
