@@ -26,6 +26,9 @@ for (let y = 498; y < 736; y += 5) for (let x = 210; x < 348; x += 5) { const px
 // live panel: the straight-on infrared still, flipped left-right (it is a mirror image)
 const PAN = { x: 80, y: 1050, w: 380, h: 506 }, CROP = { x: 106, y: 200, w: 540, h: 720 }, PK = PAN.w / CROP.w;
 const PDOTS = (front.dots as number[][]).filter((_, i) => i % 3 === 0).map((d) => [PAN.w - (d[0] - CROP.x) * PK, (d[1] - CROP.y) * PK, d[3]]).filter((d) => d[1] > 0 && d[1] < PAN.h);
+// match ring (lower left): his straight-on face as dots, mirrored because it is a reflection
+const RING = { x: 270, y: 1320, r: 190 }, TICKS = 84;
+const RING_DOTS = (front.dots as number[][]).filter((_, i) => i % 2 === 0).map((d) => [-(d[0] - 389) * 0.44, (d[1] - 655) * 0.44, d[2]]);
 const len = (a: number[], b: number[]) => Math.hypot(b[0] - a[0], b[1] - a[1]);
 // Mirror image of a point, fitted to this picture: his phone (516, 604) appears in the mirror at (763, 626) and his
 // nose (341, 632) at (817, 650). Points on the glass (x = MX) map to themselves, so real and reflected dots meet there.
@@ -79,27 +82,25 @@ export const Mirror: React.FC = () => {
         </svg>
       </div>
       {STEPS.map((st) => <Label key={st.text} text={st.text} x={505} y={452} o={ramp(l, st.at, st.at + 4) * (1 - ramp(l, st.to - 4, st.to))} size={27} align="center" color={st.at === 126 ? C.label : C.ir} />)}
-      {/* live infrared camera panel */}
-      <div style={{ position: 'absolute', left: PAN.x, top: PAN.y + (1 - panel) * 40, width: PAN.w, height: PAN.h, opacity: panel, borderRadius: 18, overflow: 'hidden', border: '3px solid #fff', background: '#000', boxShadow: '0 16px 50px rgba(0,0,0,.7)' }}>
-        <Img src={staticFile('face_front_ir.png')} style={{ position: 'absolute', left: -(752 - CROP.x - CROP.w) * PK, top: -CROP.y * PK, width: 752 * PK, height: 1344 * PK, transform: 'scaleX(-1)', filter: 'brightness(0.62)' }} />
-        <svg width={PAN.w} height={PAN.h} style={{ position: 'absolute', inset: 0 }}>
-          {PDOTS.map((d, i) => (d[1] <= (scan < 1 ? sweepY : PAN.h) ? <circle key={i} cx={d[0]} cy={d[1]} r={1.7} fill={C.ir} opacity={0.75 + 0.25 * d[2]} /> : null))}
-          <rect x={0} y={sweepY - 22} width={PAN.w} height={22} fill="url(#sw)" /><line x1={0} x2={PAN.w} y1={sweepY} y2={sweepY} stroke="#fff" strokeWidth={3} />
-          <defs><linearGradient id="sw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#fff" stopOpacity="0.35" /></linearGradient></defs>
-        </svg>
-        <div style={{ position: 'absolute', left: 14, top: 12, display: 'flex', alignItems: 'center', gap: 8, font: `800 20px/1 ${FONT}`, letterSpacing: '0.1em', color: '#fff' }}>
-          <span style={{ width: 12, height: 12, borderRadius: 6, background: C.ir, opacity: Math.floor(l / 10) % 2 ? 1 : 0.25 }} />LIVE · INFRARED CAMERA
-        </div>
-        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '10px 14px', background: 'rgba(0,0,0,.7)', display: 'flex', justifyContent: 'space-between', font: `800 22px/1 ${FONT}`, letterSpacing: '0.08em', color: '#fff' }}>
-          <span>{scan < 1 ? 'SCANNING REFLECTION' : 'REFLECTION SCANNED'}</span><span>{pct}%</span>
-        </div>
+      {/* match ring: his face as a rolling dot cloud inside a ring of ticks that fills while the phone compares
+          the reflection with the enrolled face. It ends on a question; no result is shown. */}
+      <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: panel }}>
+        <circle cx={RING.x} cy={RING.y} r={RING.r + 22} fill="rgba(6,5,5,.82)" />
+        {Array.from({ length: TICKS }, (_, k) => { const a = (k / TICKS) * 2 * Math.PI - Math.PI / 2, on = k / TICKS < scan, r0 = RING.r - 16, r1 = RING.r + (on ? 12 : 8);
+          return <line key={k} x1={RING.x + r0 * Math.cos(a)} y1={RING.y + r0 * Math.sin(a)} x2={RING.x + r1 * Math.cos(a)} y2={RING.y + r1 * Math.sin(a)} stroke={on ? C.ir : '#6f6a66'} strokeWidth={on ? 5 : 4} strokeLinecap="round" opacity={on ? 1 : 0.6} />; })}
+        {RING_DOTS.map((d, k) => <circle key={k} cx={RING.x + d[0] + Math.cos(l / 16) * 30 * (d[2] - 0.42)} cy={RING.y + d[1] + Math.sin(l / 16) * 20 * (d[2] - 0.42)} r={1.5} fill="#f4efe9" opacity={0.25 + 0.75 * d[2]} />)}
+      </svg>
+      <div style={{ position: 'absolute', left: 500, top: 1215, width: 440, opacity: panel }}>
+        <div style={{ font: `800 46px/1 ${FONT}`, color: '#fff' }}>{scan < 1 ? 'Matching…' : 'Match?'}</div>
+        <div style={{ font: `600 27px/1.25 ${FONT}`, color: '#bdb5ad', marginTop: 10 }}>his reflection vs<br />the enrolled face</div>
+        <div style={{ font: `800 58px/1 ${FONT}`, color: C.ir, marginTop: 16 }}>{pct}%<span style={{ font: `800 22px/1 ${FONT}`, letterSpacing: '0.1em', color: '#bdb5ad', marginLeft: 12 }}>CHECKED</span></div>
       </div>
       {/* closed padlock + question mark: the result is saved for the real test */}
-      <div style={{ position: 'absolute', left: PAN.x + PAN.w + 24, top: PAN.y + 190, opacity: ramp(l, 214, 220), transform: `scale(${1 + 0.05 * Math.sin(l / 5)})`, display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderRadius: 18, background: 'rgba(10,8,7,.85)', border: `3px solid ${C.amber}` }}>
+      <div style={{ position: 'absolute', left: 500, top: 1440, opacity: ramp(l, 214, 220), transform: `scale(${1 + 0.05 * Math.sin(l / 5)})`, transformOrigin: 'left center', display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderRadius: 18, background: 'rgba(10,8,7,.85)', border: `3px solid ${C.amber}` }}>
         <svg width={44} height={56} viewBox="-36 -46 72 92"><path d="M -18 -6 v -14 a 18 18 0 0 1 36 0 v 14" stroke="#fff" strokeWidth={9} strokeLinecap="round" fill="none" /><rect x={-30} y={-6} width={60} height={46} rx={11} fill="#fff" /></svg>
         <span style={{ font: `800 62px/1 ${FONT}`, color: C.amber }}>?</span>
       </div>
-      <div style={{ position: 'absolute', left: 500, top: 1500, width: 440, opacity: 0.5 * ramp(l, 30, 34), font: `600 21px/1.3 ${FONT}`, color: '#b5ada5' }}>Illustration · simplified light path · the real dots are invisible</div>
+      <div style={{ position: 'absolute', left: 80, top: 1590, width: 860, opacity: 0.5 * ramp(l, 30, 34), font: `600 21px/1.3 ${FONT}`, color: '#b5ada5' }}>Illustration · simplified light path · the real dots are invisible</div>
     </AbsoluteFill>
   );
 };
