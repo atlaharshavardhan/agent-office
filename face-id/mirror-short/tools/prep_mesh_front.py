@@ -21,15 +21,15 @@ NX, NY = F["nose"][0], F["nose"][1]
 from scipy import ndimage
 skin = (raw > 0.10) & (ir > 0.38)
 skin = ndimage.binary_fill_holes(ndimage.binary_closing(skin, iterations=14))          # bridge brows, eyes and stubble
-skin &= (raw > 0.10) & (yy < 902 - 0.0019 * (xx - NX) ** 2)
+skin &= (raw > 0.10) & (yy < 868 - 0.0024 * (xx - NX) ** 2)        # stops at the chin and follows the jaw up to the ears
 # a regular grid wrapped round the head like lines of latitude and longitude (as in the reference picture):
-# columns bunch up toward the sides and rows bend, so the web reads as a curved surface, with a node at every crossing
+# columns bunch up toward the sides and rows bend toward the middle (the lowest rows cup under the chin), so the web reads as a curved surface, with a node at every crossing
 CY, RX, RY, STEP = NY - 60, 262.0, 345.0, 0.088
 us = np.arange(-1.45, 1.451, STEP); vs = np.arange(-1.2, 1.201, STEP)
 idx = {}; pts = []
 for a, v in enumerate(vs):
     for b, u in enumerate(us):
-        x = NX + RX * np.sin(u) * (0.72 + 0.28 * np.cos(v)); y = CY + RY * np.sin(v) + 46 * (1 - np.cos(u)) * np.sin(v) - 14 * (1 - np.cos(u))
+        x = NX + RX * np.sin(u) * (0.72 + 0.28 * np.cos(v)); y = CY + RY * np.sin(v) - 95 * (1 - np.cos(u)) * np.sin(v) - 10 * (1 - np.cos(u))
         if 0 <= int(x) < W and 0 <= int(y) < H and skin[int(y), int(x)]:
             idx[(a, b)] = len(pts); pts.append((x, y))
 P = np.array(pts)
@@ -40,7 +40,7 @@ for (a, b), k in idx.items():
     if (a, b + 1) in idx and (a + 1, b) in idx and (a + 1, b + 1) in idx:
         T.append([k, idx[(a, b + 1)], idx[(a + 1, b + 1)]]); T.append([k, idx[(a + 1, b + 1)], idx[(a + 1, b)]])
 # the grid lines themselves, finely sampled with their depth, so they can be drawn as smooth curves that bend with the face
-def at(u, v): return NX + RX * np.sin(u) * (0.72 + 0.28 * np.cos(v)), CY + RY * np.sin(v) + 46 * (1 - np.cos(u)) * np.sin(v) - 14 * (1 - np.cos(u))
+def at(u, v): return NX + RX * np.sin(u) * (0.72 + 0.28 * np.cos(v)), CY + RY * np.sin(v) - 95 * (1 - np.cos(u)) * np.sin(v) - 10 * (1 - np.cos(u))
 def runs(samples):
     out, cur = [], []
     for x, y in samples:
