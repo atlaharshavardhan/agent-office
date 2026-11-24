@@ -48,7 +48,7 @@ const Mark: React.FC<{ x: number; y: number; text: string; left: boolean; o: num
 
 // After the side profile, the 3D dots clip plays for DOTS3D frames: the iPhone fires the red dots and
 // they fly through space onto his head. Everything after it runs DOTS3D frames later.
-export const DOTS3D = 105;
+export const DOTS3D = 180;   // 0–105 red dots fly and land · 112–180 they turn cyan: 30,000+ DEPTH POINTS
 export const Scan: React.FC = () => {
   const raw = useCurrentFrame();
   if (raw < CUE.toSensor) return <Side s={raw} />;
