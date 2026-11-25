@@ -1,7 +1,6 @@
 import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame } from 'remotion';
 import { C, FONT, Label, ramp } from '../theme';
 import { headDots, turnDot } from './dotHead';
-import { Orbit3D } from './Orbit3D';
 
 // Scene 4 (20.4–28.6 s, 246 frames). Four short shots, cut on the voiceover; no lock screen and no result.
 //   0– 79  the infrared image, full frame                       "It also captures an infrared image."
@@ -18,9 +17,7 @@ const Card: React.FC<{ x: number; y: number; w: number; sweep?: number }> = ({ x
   const k = w / CROP.w, h = CROP.h * k;
   return (
     <div style={{ position: 'absolute', left: x, top: y, width: w, height: h, overflow: 'hidden', borderRadius: 22, border: `3px solid ${C.violetDim}`, background: '#000', boxShadow: '0 20px 60px rgba(0,0,0,.6)' }}>
-      <div style={{ position: 'absolute', left: w / 2 - 540 * (w / 760), top: h / 2 - 900 * (w / 760), width: 1080, height: 1920, transformOrigin: '0 0', transform: `scale(${w / 760})` }}>
-        <Orbit3D g={150} ex={{ view: { az: 0, dist: 2250 }, tone: 'ir', dotO: 0, bg: '#0b0a0d' }} />
-      </div>
+      <Img src={staticFile('face_front_ir.png')} style={{ position: 'absolute', left: -CROP.x * k, top: -CROP.y * k, width: 752 * k, height: 1344 * k }} />
       {sweep !== undefined && <div style={{ position: 'absolute', left: 0, right: 0, top: sweep * h - 60, height: 60, background: 'linear-gradient(rgba(255,90,90,0), rgba(255,90,90,.35))', borderBottom: '3px solid #ff6a6a' }} />}
     </div>
   );
