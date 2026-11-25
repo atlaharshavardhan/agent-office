@@ -10,9 +10,10 @@ import { IN, PhoneParts } from './PhoneParts';
 //  74– 94  the TrueDepth parts inside the island are drawn and named: IR CAMERA, FLOOD ILLUMINATOR, DOT PROJECTOR
 //  94–190  the parts stay in the island and are explained one at a time; the card points at the active part
 // A closed padlock sits under the island; nothing is unlocked here.
+// The phone in the still is the 3D iPhone Pro Max model laid into his hand (tools/hand_phone3d.py -> public/hook_last3d.png).
 // The still is the hook footage's own frame at the end of its rush (public/hook_last.png, 1080 x 1920: the reflected phone in
 // his hand with the lock screen), so the shot carries on from the footage on the very same phone, with no cut to another phone.
-const ISL = { x: 358.4 * 1.5, y: 188.1 * 1.5, w: 120.6 * 1.5, h: 35.3 * 1.5 };   // its Dynamic Island on screen at scale 1
+const ISL = { x: 538, y: 260, w: 196, h: 56 };   // its Dynamic Island on screen at scale 1
 const out3 = (x: number) => 1 - Math.pow(1 - x, 3), io = (x: number) => x * x * (3 - 2 * x);
 const RED = '#ff4d63', BLUE = '#6fa8ff', TEAL = '#63d6c9';
 export const TEAR = 94;                                 // f at which the parts are pulled up out of the island
@@ -42,7 +43,7 @@ export const HandPhone: React.FC<{ f: number }> = ({ f }) => {
   return (
     <AbsoluteFill style={{ backgroundColor: '#261912', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, transformOrigin: `${ISL.x}px ${ISL.y}px`, transform: `translate(${cx - ISL.x}px, ${cy - ISL.y}px) scale(${s})` }}>
-        <Img src={staticFile('hook_last.png')} style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1920 }} />
+        <Img src={staticFile('hook_last3d.png')} style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1920 }} />
       </div>
       {/* macro look: the display's red / green / blue sub-pixels */}
       <AbsoluteFill style={{ opacity: 0, mixBlendMode: 'multiply',

@@ -17,7 +17,7 @@ const CY = 520, S = 190;                                   // cards: centre y an
 
 export const PhoneParts: React.FC<{ f: number }> = ({ f }) => {
   const m = ramp(f, IN + 2, IN + 18, 0, 1, io);            // island settles from the photo's island to the diagram's
-  const iw = 288, ih = 84, icy = 905;                       // the real phone's own Dynamic Island (HandPhone settles it here)
+  const iw = 312, ih = 89, icy = 905;                       // the real phone's own Dynamic Island (HandPhone settles it here)
   // tear-down: each part is pushed up out of the island along its own line and becomes its card
   const lift = (i: number) => ramp(f, IN + 8 + i * 3, IN + 22 + i * 3, 0, 1, out3);
   const active = f < EXPLAIN ? -1 : Math.min(2, Math.floor((f - EXPLAIN) / CARD));

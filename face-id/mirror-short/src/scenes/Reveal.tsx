@@ -21,7 +21,7 @@ const Stage: React.FC<{ phone: THREE.Object3D }> = ({ phone }) => {
   useEffect(() => { const pm = new THREE.PMREMGenerator(gl); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.7; return () => pm.dispose(); }, [gl, scene]);
   return (<><ambientLight intensity={0.6} /><directionalLight position={[300, 500, 900]} intensity={2} /><pointLight position={[-500, 300, 500]} intensity={3} color="#ffb060" decay={0} /><Phone3D model={phone} /></>);
 };
-const Layer: React.FC<{ phone: THREE.Object3D | null; o?: number }> = ({ phone, o = 1 }) => (
+export const Layer: React.FC<{ phone: THREE.Object3D | null; o?: number }> = ({ phone, o = 1 }) => (
   <AbsoluteFill style={{ opacity: o }}>
     <ThreeCanvas width={1080} height={1920} flat gl={{ antialias: true, alpha: true }} camera={{ fov: 30, near: 10, far: 4000, position: [0, 0, 927] }}>
       {phone && <Stage phone={phone} />}
@@ -64,3 +64,8 @@ export const Reveal: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+// The lock-screen phone alone on a transparent frame, placed where the phone sits in his hand in the hook's last frame.
+// tools/hand_phone3d.py lays it over that frame (under his fingers) to make public/hook_last3d.png.
+export const PhoneStill: React.FC = () => { const lock = usePhoneModel(true);
+  return <AbsoluteFill><div style={{ position: 'absolute', inset: 0, transformOrigin: '540px 960px', transform: 'translate(-2px, -40px) scale(1.118)' }}><Layer phone={lock} /></div></AbsoluteFill>; };
