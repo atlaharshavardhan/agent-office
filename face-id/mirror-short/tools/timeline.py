@@ -68,7 +68,7 @@ def V(t0,v): return round(v*(0.5 if any(t0 < at[k]+L[k] and t0+0.7 > at[k] for k
 S=[('the projector fires its dots','fire.wav',td1-0.05,0.14),('the infrared camera reads the pattern','scan.wav',td1+(front+cam)/30,0.09),
    ('the dots come back off the mirror','fire.wav',sc1+3.9,0.11),('the face is mapped','scan.wav',m0+0.25,0.08),
    ('no match, stays locked','deny.wav',m1+cmp_['no']/30,0.16),('match, unlocks','ok.wav',m1+cmp_['match']/30,0.14),
-   ('Face ID scans','scan.wav',c1+0.45,0.09),('unlocked','unlock.wav',unlockT,0.18)]
+   ('Face ID scans','scan.wav',c1+0.5,0.12),('Face ID processing','ok.wav',c1+(F(unlockT-c1)-14)/30,0.06),('unlocked','unlock.wav',unlockT,0.2)]
 block("export const SFX = [","];","export const SFX = [\n"+"".join("  { name: 'SFX · %s', file: '%s', at: %.2f, vol: %s },\n"%(n,f_,t0,V(t0,v)) for n,f_,t0,v in S)+"];")
 s=re.sub(r"resultDelaySec: [\d.]+,","resultDelaySec: %s,"%R(0.1+L['n6q']+0.5),s)
 s=re.sub(r'export const UNLOCK_AT = \d+;','export const UNLOCK_AT = %d;'%F(unlockT-c1),s)

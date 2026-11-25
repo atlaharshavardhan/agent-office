@@ -70,8 +70,9 @@ export const SFX = [
   { name: 'SFX · the face is mapped', file: 'scan.wav', at: 15.27, vol: 0.04 },
   { name: 'SFX · no match, stays locked', file: 'deny.wav', at: 28.72, vol: 0.08 },
   { name: 'SFX · match, unlocks', file: 'ok.wav', at: 30.55, vol: 0.07 },
-  { name: 'SFX · Face ID scans', file: 'scan.wav', at: 32.76, vol: 0.045 },
-  { name: 'SFX · unlocked', file: 'unlock.wav', at: 33.74, vol: 0.09 },
+  { name: 'SFX · Face ID scans', file: 'scan.wav', at: 32.81, vol: 0.06 },
+  { name: 'SFX · Face ID processing', file: 'ok.wav', at: 33.28, vol: 0.03 },
+  { name: 'SFX · unlocked', file: 'unlock.wav', at: 33.74, vol: 0.1 },
 ];
 
 // ---- Real mirror test (scene 6) -------------------------------------------------
