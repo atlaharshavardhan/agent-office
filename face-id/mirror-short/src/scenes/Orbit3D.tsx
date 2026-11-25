@@ -86,20 +86,21 @@ const useHead = (): Head | null => {
       }
       const FCX = nose.x - 40, FCY = nose.y + 16;                                          // middle of his face (the head is turned a little)
       const face = (x: number, y: number): number | null => {
-        const dx = (x - FCX) / 152, dy = (y - FCY) / 200; if (dx * dx + dy * dy > 1) return null;
+        // squarer at the top so the whole forehead is inside, up to the hairline (the hair itself is excluded below)
+        const dx = Math.abs(x - FCX) / 156, dy = Math.abs(y - FCY) / (y > FCY ? 262 : 200), e = y > FCY ? 3.2 : 2; if (Math.pow(dx, e) + Math.pow(dy, e) > 1) return null;
         let best: number[] | null = null;
         for (let a = -1; a <= 1 && !best; a++) for (let b = -1; b <= 1 && !best; b++) best = zmap.get(`${Math.round(x / CELL) + a},${Math.round(y / CELL) + b}`) ?? null;
-        if (!best || (y - nose.y > 150 && best[1] < 200)) return null;                      // no surface here, or hair above the forehead
+        if (!best || (y - nose.y > 150 && best[1] < 230)) return null;                      // no surface here, or hair above the forehead
         return best[0];
       };
       const lpts: number[][] = [], runs: number[][] = [], idx = new Map<string, number>(), US: number[] = [], STEP = 0.092;
       for (let u = -1.38; u <= 1.381; u += STEP) US.push(u);
-      const at = (u: number, v: number) => [FCX + 160 * Math.sin(u) * (0.74 + 0.26 * Math.cos(v)), FCY + 208 * Math.sin(v) - 52 * (1 - Math.cos(u)) * Math.sin(v)];
+      const at = (u: number, v: number) => [FCX + 160 * Math.sin(u) * (0.74 + 0.26 * Math.cos(v)), FCY + (v > 0 ? 262 : 208) * Math.sin(v) - (v > 0 ? 30 : 52) * (1 - Math.cos(u)) * Math.sin(v)];
       US.forEach((v, a) => US.forEach((u, b) => { const [x, y] = at(u, v), z = face(x, y); if (z !== null) { idx.set(`${a},${b}`, lpts.length); lpts.push([x, y, z]); } }));
       const collect = (key: (i: number, j: number) => string) => US.forEach((_, i) => { let cur: number[] = []; US.forEach((_, j) => { const k = idx.get(key(i, j)); if (k !== undefined) cur.push(k); else { if (cur.length > 1) runs.push(cur); cur = []; } }); if (cur.length > 1) runs.push(cur); });
       collect((i, j) => `${i},${j}`); collect((i, j) => `${j},${i}`);
       const grid: number[][] = [];
-      for (let y = FCY - 232; y <= FCY + 232; y += 11) for (let x = FCX - 176; x <= FCX + 176; x += 11) { const z = face(x, y); grid.push([x, y, z ?? 0, z === null ? 0 : 1]); }
+      for (let y = FCY - 232; y <= FCY + 265; y += 11) for (let x = FCX - 176; x <= FCX + 176; x += 11) { const z = face(x, y); grid.push([x, y, z ?? 0, z === null ? 0 : 1]); }
       // grey copy of the texture (infrared look)
       for (let i = 0; i < px.data.length; i += 4) { const v = 0.3 * px.data[i] + 0.55 * px.data[i + 1] + 0.15 * px.data[i + 2]; px.data[i] = px.data[i + 1] = px.data[i + 2] = Math.min(255, v * 1.25); }
       cx2.putImageData(px, 0, 0); const mapIr = new THREE.CanvasTexture(cv); mapIr.flipY = false; mapIr.colorSpace = THREE.SRGBColorSpace; mapIr.anisotropy = 8;
