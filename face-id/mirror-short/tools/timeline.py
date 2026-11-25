@@ -63,16 +63,13 @@ block("export const CAPTION_PLACEMENT","];","""export const CAPTION_PLACEMENT: {
   { from: %s, to: %s, top: 96 },     // reveal: the phone fills the frame -> caption above it
 ];"""%(max(0,rush-0.6),rush+1.4,rush+1.4,at['n2']-0.02,at['n2']-0.02,td1,td1,td1+front/30,sc1+28/30,sc1+106/30,m0,m0+cue['cyan']/30,at['n3d'],m1,m1,c1,c1,t1))
 block("export const NARRATION: Line[] = [","];","export const NARRATION: Line[] = [\n"+"".join("  { id: '%s', at: %s, text: %s },\n"%(k,at[k],json.dumps(T[k])) for k in ORDER)+"];")
-block("export const SFX = [","];","""export const SFX = [
-  { name: 'SFX · the projector fires its dots', file: 'fire.wav', at: %.2f, vol: 0.5 },
-  { name: 'SFX · the infrared camera reads the pattern', file: 'scan.wav', at: %.2f, vol: 0.32 },
-  { name: 'SFX · the dots come back off the mirror', file: 'fire.wav', at: %.2f, vol: 0.38 },
-  { name: 'SFX · the face is mapped', file: 'scan.wav', at: %.2f, vol: 0.26 },
-  { name: 'SFX · no match, stays locked', file: 'deny.wav', at: %.2f, vol: 0.5 },
-  { name: 'SFX · match, unlocks', file: 'ok.wav', at: %.2f, vol: 0.45 },
-  { name: 'SFX · Face ID scans', file: 'scan.wav', at: %.2f, vol: 0.3 },
-  { name: 'SFX · unlocked', file: 'unlock.wav', at: %.2f, vol: 0.6 },
-];"""%(td1-0.05,td1+(front+cam)/30,sc1+3.9,m0+0.25,m1+cmp_['no']/30,m1+cmp_['match']/30,c1+0.45,unlockT))
+# Sound effects sit well under the voice: quiet to begin with, and ducked to half of that whenever one lands on a spoken line.
+def V(t0,v): return round(v*(0.5 if any(t0 < at[k]+L[k] and t0+0.7 > at[k] for k in ORDER) else 1),3)
+S=[('the projector fires its dots','fire.wav',td1-0.05,0.14),('the infrared camera reads the pattern','scan.wav',td1+(front+cam)/30,0.09),
+   ('the dots come back off the mirror','fire.wav',sc1+3.9,0.11),('the face is mapped','scan.wav',m0+0.25,0.08),
+   ('no match, stays locked','deny.wav',m1+cmp_['no']/30,0.16),('match, unlocks','ok.wav',m1+cmp_['match']/30,0.14),
+   ('Face ID scans','scan.wav',c1+0.45,0.09),('unlocked','unlock.wav',unlockT,0.18)]
+block("export const SFX = [","];","export const SFX = [\n"+"".join("  { name: 'SFX · %s', file: '%s', at: %.2f, vol: %s },\n"%(n,f_,t0,V(t0,v)) for n,f_,t0,v in S)+"];")
 s=re.sub(r"resultDelaySec: [\d.]+,","resultDelaySec: %s,"%R(0.1+L['n6q']+0.5),s)
 s=re.sub(r'export const UNLOCK_AT = \d+;','export const UNLOCK_AT = %d;'%F(unlockT-c1),s)
 open(p,'w').write(s)

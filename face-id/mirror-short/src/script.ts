@@ -64,14 +64,14 @@ export const UNLOCK_AT = 43;
 export const LEN: Record<string, number> = lengths as any;
 
 export const SFX = [
-  { name: 'SFX · the projector fires its dots', file: 'fire.wav', at: 5.43, vol: 0.5 },
-  { name: 'SFX · the infrared camera reads the pattern', file: 'scan.wav', at: 8.58, vol: 0.32 },
-  { name: 'SFX · the dots come back off the mirror', file: 'fire.wav', at: 13.82, vol: 0.38 },
-  { name: 'SFX · the face is mapped', file: 'scan.wav', at: 15.27, vol: 0.26 },
-  { name: 'SFX · no match, stays locked', file: 'deny.wav', at: 28.72, vol: 0.5 },
-  { name: 'SFX · match, unlocks', file: 'ok.wav', at: 30.55, vol: 0.45 },
-  { name: 'SFX · Face ID scans', file: 'scan.wav', at: 32.76, vol: 0.3 },
-  { name: 'SFX · unlocked', file: 'unlock.wav', at: 33.74, vol: 0.6 },
+  { name: 'SFX · the projector fires its dots', file: 'fire.wav', at: 5.43, vol: 0.07 },
+  { name: 'SFX · the infrared camera reads the pattern', file: 'scan.wav', at: 8.58, vol: 0.045 },
+  { name: 'SFX · the dots come back off the mirror', file: 'fire.wav', at: 13.82, vol: 0.055 },
+  { name: 'SFX · the face is mapped', file: 'scan.wav', at: 15.27, vol: 0.04 },
+  { name: 'SFX · no match, stays locked', file: 'deny.wav', at: 28.72, vol: 0.08 },
+  { name: 'SFX · match, unlocks', file: 'ok.wav', at: 30.55, vol: 0.07 },
+  { name: 'SFX · Face ID scans', file: 'scan.wav', at: 32.76, vol: 0.045 },
+  { name: 'SFX · unlocked', file: 'unlock.wav', at: 33.74, vol: 0.09 },
 ];
 
 // ---- Real mirror test (scene 6) -------------------------------------------------
