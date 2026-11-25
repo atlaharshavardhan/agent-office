@@ -11,7 +11,7 @@ from kokoro_onnx import Kokoro
 M = Path(sys.argv[1])
 OUT = Path(__file__).resolve().parent.parent / "public" / "vo"; OUT.mkdir(parents=True, exist_ok=True)
 LINES = {
-    "n1": "Ever wondered if you could unlock an iPhone 18 Pro with just your mirror reflection?",
+    "n1": "Have you ever wondered if you can open your iPhone with your mirror reflection?",
     "n2": "This camera up top projects over thirty thousand invisible dots.",
     "n3a": "When I wake my phone, they land on my face, and the infrared camera picks up the pattern.",
     "n5": "But here's the twist: a mirror bounces that light straight back onto my face.",
