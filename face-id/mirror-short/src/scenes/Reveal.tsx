@@ -81,7 +81,7 @@ export const Reveal: React.FC = () => {
       <div style={{ position: 'absolute', left: 0, right: 0, top: 1250, textAlign: 'center', opacity: ramp(fr, U + 12, U + 18) * (1 - ask), transform: `scale(${1.2 - 0.2 * ramp(fr, U + 12, U + 20, 0, 1, out3)})` }}>
         <span style={{ display: 'inline-block', padding: '16px 30px', borderRadius: 16, background: 'rgba(8,10,8,.85)', border: '3px solid #3ddc84', font: `800 54px/1 ${FONT}`, letterSpacing: '0.06em', color: '#3ddc84' }}>UNLOCKED</span>
       </div>
-      <div style={{ position: 'absolute', left: 60, right: 180, top: 1240, textAlign: 'center', opacity: ask, transform: `translateY(${20 * (1 - ask)}px)` }}>
+      <div style={{ position: 'absolute', left: 60, right: 60, top: 1240, textAlign: 'center', opacity: ask, transform: `translateY(${20 * (1 - ask)}px)` }}>
         <span style={{ display: 'inline-block', padding: '20px 30px', borderRadius: 18, background: '#0a0810', border: '3px solid #fff', font: `800 46px/1.2 ${FONT}`, color: '#fff' }}>Did yours unlock?<br /><span style={{ color: '#ffd60a' }}>Comment YES or NO</span></span>
       </div>
     </AbsoluteFill>
