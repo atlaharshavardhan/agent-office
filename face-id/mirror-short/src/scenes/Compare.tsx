@@ -65,7 +65,7 @@ export const Compare: React.FC = () => {
   const st = l >= CMP.no ? 2 : l >= CMP.match ? 1 : 0, tm = l - (st === 2 ? CMP.no : CMP.match), col = st === 1 ? GREEN : st === 2 ? BAD : null;
   const pop = st ? ramp(tm, 0, 6, 0, 1, o3) : 1, shake = st === 2 ? 12 * Math.sin(tm * 2.4) * (1 - ramp(tm, 0, 10)) : 0;
   const EN = ['0.647', '-0.329', '1.412', '0.081', '-0.908', '0.531', '-0.270'], OK = ['0.651', '-0.332', '1.406', '0.078', '-0.915', '0.537', '-0.264'], NO = ['0.214', '0.871', '-0.530', '1.302', '0.119', '-0.746', '0.958'];
-  const SC = st === 2 ? NO : OK, Y0 = 800, DY = 92, XL = 410, XR = 830, FS = 66, N = EN.length, R = 118, TICKS = 48, spin = (t / 26) % 1, YH = 490, YK = 1530;
+  const SC = st === 2 ? NO : OK, Y0 = 800, DY = 92, XL = 410, XR = 830, FS = 66, N = EN.length, R = 118, TICKS = 48, spin = (t / 26) % 1, YH = 512, YK = 1530;
   const NUM = (k: number) => (0.11 + 0.88 * (Math.sin(k * 12.9898) * 43758.5453 % 1 + 1) % 1).toFixed(2);
   const rowAt = (i: number) => (st ? (st === 2 ? i * 1.5 : -99) : 12 + i * (Math.max(20, CMP.match - CMP.check - 22) / N));       // when row i is checked
   return (
@@ -102,8 +102,8 @@ export const Compare: React.FC = () => {
           <rect x={-48} y={-8} width={96} height={74} rx={16} fill={col ?? '#7fe3ea'} />
         </g>
       </svg>
-      <Label text="THIS SCAN" x={290} y={YH + 152} o={ramp(t, 3, 8)} size={26} align="center" color={st === 2 ? BAD : CYAN} />
-      <Label text="ENROLLED" x={710} y={YH + 152} o={ramp(t, 3, 8)} size={26} align="center" color={VIO} />
+      <Label text="THIS SCAN" x={290} y={YH + 140} o={ramp(t, 3, 8)} size={26} align="center" color={st === 2 ? BAD : CYAN} />
+      <Label text="ENROLLED" x={710} y={YH + 140} o={ramp(t, 3, 8)} size={26} align="center" color={VIO} />
       <div style={{ position: 'absolute', left: 0, right: 0, top: 1668, textAlign: 'center', opacity: st ? 1 : ramp(t, 8, 14), transform: `scale(${1.25 - 0.25 * pop})`, font: `800 ${st === 2 ? 50 : 58}px/1 ${FONT}`, color: col ?? '#fff' }}>{st === 1 ? '✓ MATCH · UNLOCKS' : st === 2 ? '✕ NO MATCH · STAYS LOCKED' : 'Comparing…'}</div>
       <div style={{ position: 'absolute', left: 80, top: 1790, font: `600 24px/1 ${FONT}`, color: '#8f8aa3' }}>Values illustrative</div>
     </AbsoluteFill>
