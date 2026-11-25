@@ -1,0 +1,112 @@
+1
+00:00:00,100 --> 00:00:00,913
+Have you ever wondered
+
+2
+00:00:00,933 --> 00:00:01,927
+if you can open your iPhone
+
+3
+00:00:01,947 --> 00:00:03,260
+with your mirror reflection?
+
+4
+00:00:03,280 --> 00:00:04,498
+When the phone is awake,
+
+5
+00:00:04,518 --> 00:00:05,470
+these cameras fire
+
+6
+00:00:05,490 --> 00:00:06,601
+over thirty thousand dots
+
+7
+00:00:06,621 --> 00:00:07,645
+straight onto the face,
+
+8
+00:00:07,665 --> 00:00:08,689
+and the infrared camera
+
+9
+00:00:08,709 --> 00:00:09,950
+picks up the pattern.
+
+10
+00:00:09,970 --> 00:00:11,219
+But here's the twist:
+
+11
+00:00:11,239 --> 00:00:12,834
+a mirror bounces that light
+
+12
+00:00:12,854 --> 00:00:14,769
+straight back onto my face.
+
+13
+00:00:15,070 --> 00:00:16,907
+So what's the phone really reading?
+
+14
+00:00:16,927 --> 00:00:18,558
+My nose bends the dots one way,
+
+15
+00:00:18,578 --> 00:00:19,539
+my cheeks another,
+
+16
+00:00:19,559 --> 00:00:20,674
+and from those bends,
+
+17
+00:00:20,694 --> 00:00:21,750
+it maps my face.
+
+18
+00:00:21,770 --> 00:00:23,385
+That's why a flat photo fails.
+
+19
+00:00:23,405 --> 00:00:24,496
+Nothing bends.
+
+20
+00:00:24,600 --> 00:00:26,377
+It also grabs an infrared picture,
+
+21
+00:00:26,397 --> 00:00:27,250
+then checks both
+
+22
+00:00:27,270 --> 00:00:28,720
+against the face I set up.
+
+23
+00:00:28,740 --> 00:00:30,601
+No match, it stays locked.
+
+24
+00:00:30,621 --> 00:00:32,314
+A match unlocks it.
+
+25
+00:00:32,410 --> 00:00:33,791
+So, did it work?
+
+26
+00:00:34,190 --> 00:00:35,091
+It unlocked for me!
+
+27
+00:00:35,111 --> 00:00:35,598
+Did yours?
+
+28
+00:00:35,618 --> 00:00:37,069
+Tell me in the comments.
+
