@@ -27,8 +27,8 @@ export const HOOK = { srcStart: 2.2, freeze: 11, cut: 64, handF: 22 };   // cut:
 export const CAPTION_TOP_DEFAULT = 230;
 export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 0.56, to: 2.56, top: 1300 },      // the rush into the reflected phone, then the phone: lower, over his hand
-  { from: 2.56, to: 3.26, top: 1560 },      // the push to the top of the phone: caption under the clock
-  { from: 3.26, to: 6.38, top: 1160 },      // the parts use the top -> caption between the island and the clock
+  { from: 2.56, to: 4.02, top: 1560 },      // the push to the top of the phone: caption under the clock
+  { from: 4.02, to: 6.38, top: 1160 },      // the parts use the top -> caption between the island and the clock
   { from: 6.38, to: 8.68, top: 185 },     // 3D red dots clip: raised to clear his hair and the dots
   { from: 12.35, to: 14.95, top: 1540 },      // top-down mirror diagram: the top holds the face behind the glass -> caption below his head
   { from: 16.52, to: 21.32, top: 170 },      // the 3D dotted head
