@@ -208,24 +208,32 @@ const Bend3D: React.FC<{ s: number }> = ({ s }) => {
   const B = CUE_B, io = (x: number) => x * x * (3 - 2 * x);
   const az = 22 * ramp(s, B.nose - 4, B.nose + 18, 0, 1, io) - 44 * ramp(s, B.cheek - 6, B.cheek + 18, 0, 1, io) + 22 * ramp(s, B.cyan - 16, B.cyan - 2, 0, 1, io);
   const overlay = ({ S, head }: HeadApi) => {
-    const { nose, cheek, centre, dots, n } = head, mirX = 2 * centre[0] - cheek.x;
+    const { nose, dots, n } = head, CH = [[nose.x + 86, nose.y - 4], [nose.x - 90, nose.y - 4]], NC = '#ffd27a', CC = '#7fe3ea';
     const kn = ramp(s, B.nose, B.nose + 14, 0, 1, io), kc = ramp(s, B.cheek, B.cheek + 14, 0, 1, io), out: React.ReactNode[] = [];
+    // the dots that sit on his nose / cheeks keep their size and place in the pattern: they change colour and slide a
+    // little (nose one way, cheeks the other), so the pattern is seen bending instead of being covered by a blob
     for (let i = 0; i < n; i++) {
       const x = dots[i * 3], y = dots[i * 3 + 1], z = dots[i * 3 + 2];
-      const isN = kn > 0 && Math.hypot(x - nose.x, y - nose.y + 8) < 40 && z > nose.z - 70;
-      const isC = !isN && kc > 0 && z > nose.z - 150 && (Math.hypot(x - cheek.x, y - cheek.y) < 38 || Math.hypot(x - mirX, y - cheek.y) < 38);
+      const isN = kn > 0 && Math.hypot((x - nose.x) / 30, (y - nose.y + 14) / 44) < 1 && z > nose.z - 62;
+      const isC = !isN && kc > 0 && z > nose.z - 150 && CH.some(([hx, hy]) => Math.hypot((x - hx) / 34, (y - hy) / 30) < 1);
       if (!isN && !isC) continue;
-      const [px, py] = S(x, y, z), dx = isN ? 18 * kn : -18 * kc, col = isN ? C.amber : '#ffe9a8';
-      out.push(<g key={i}><line x1={px} y1={py} x2={px + dx} y2={py} stroke={col} strokeWidth={1.6} opacity={0.55} /><circle cx={px + dx} cy={py} r={4.6} fill={col} /></g>);
+      const [px, py] = S(x, y, z), k = isN ? kn : kc, dx = (isN ? 9 : -9) * k;
+      if (isN && i % 2) continue;                                   // the nose is dense with dots: every second one keeps it a pattern, not a blob
+      out.push(<circle key={i} cx={px + dx} cy={py} r={isN ? 2.5 : 3} fill={isN ? NC : CC} opacity={0.35 + 0.65 * k} />);
     }
-    const [nx, ny] = S(nose.x, nose.y, nose.z), ca = S(cheek.x, cheek.y, cheek.z), cb = S(mirX, cheek.y, cheek.z), [cx, cy] = ca[0] > cb[0] ? ca : cb;   // the cheek on the label's side
-    const arrow = (x: number, y: number, dir: number, o: number, col: string) => <g opacity={o} stroke={col} strokeWidth={6} strokeLinecap="round" strokeLinejoin="round" fill="none"><path d={`M ${x} ${y} h ${70 * dir} m ${-18 * dir} -16 l ${18 * dir} 16 l ${-18 * dir} 16`} /></g>;
+    const [nx, ny] = S(nose.x, nose.y, nose.z), pc = CH.map(([hx, hy]) => S(hx, hy, nose.z - 78)), [cx, cy] = pc[0][0] > pc[1][0] ? pc[0] : pc[1];
+    const fade = 1 - ramp(s, B.cyan - 8, B.cyan);
+    const arrow = (x: number, y: number, dir: number, o: number, col: string) => <g opacity={o} stroke={col} strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" fill="none"><path d={`M ${x - 46 * dir} ${y} h ${92 * dir} m ${-22 * dir} -20 l ${22 * dir} 20 l ${-22 * dir} 20`} /></g>;
     return (
       <>
         <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
-          {out}
-          {arrow(nx - 20, ny - 120, 1, kn * (1 - ramp(s, B.cyan - 8, B.cyan)), C.amber)}
-          {arrow(cx + 20, cy + 110, -1, kc * (1 - ramp(s, B.cyan - 8, B.cyan)), '#ffe9a8')}
+          <defs><filter id="bend-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
+          <g filter="url(#bend-glow)">{out}</g>
+          {/* a thin outline round each area, and an arrow showing which way its dots moved */}
+          <ellipse cx={nx} cy={ny - 22} rx={64} ry={92} fill="none" stroke={NC} strokeWidth={2.5} strokeDasharray="7 8" opacity={0.85 * kn * fade} />
+          {pc.map(([x, y], i) => <ellipse key={i} cx={x} cy={y} rx={66} ry={58} fill="none" stroke={CC} strokeWidth={2.5} strokeDasharray="7 8" opacity={0.85 * kc * fade} />)}
+          {arrow(nx + 118, ny - 30, 1, kn * fade, NC)}
+          {pc.map(([x, y], i) => <g key={i}>{arrow(x, y + 92, -1, kc * fade, CC)}</g>)}
         </svg>
         <Label text="ON A FACE: THE PATTERN BENDS" x={505} y={1470} o={ramp(s, B.face + 2, B.face + 10)} size={30} align="center" color={C.label} />
         <Mark x={nx} y={ny} text="NOSE" lx={120} ly={1250} o={ramp(s, B.nose, B.nose + 3)} pop={ramp(s, B.nose, B.nose + 8)} />
