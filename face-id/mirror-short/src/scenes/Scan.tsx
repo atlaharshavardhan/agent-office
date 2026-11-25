@@ -184,6 +184,21 @@ const SeeBadge: React.FC<{ ir: boolean; o: number }> = ({ ir, o }) => (
     <div style={{ marginTop: 18, font: `600 32px/1.2 ${FONT}`, color: '#d6cfc7' }}>{ir ? 'the dot pattern, in infrared' : 'nothing: the dots are invisible'}</div>
   </div>
 );
+// What the camera sees is its own shot, not the side view again: we look out of the phone's infrared camera, straight at
+// his face, in grey, with the dot pattern on it. A viewfinder frame, a sweep line and a slow push keep it moving.
+const CamView: React.FC<{ c: number }> = ({ c }) => {
+  const io = (x: number) => x * x * (3 - 2 * x), push = ramp(c, 0, 90, 0, 1, io), L = 34, y = 460 + ((c * 9) % 870);
+  const overlay = () => (
+    <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
+      <g stroke={C.ir} strokeWidth={6} fill="none" opacity={0.9}>
+        {[[150, 450, 1, 1], [930, 450, -1, 1], [150, 1340, 1, -1], [930, 1340, -1, -1]].map(([x, yy, dx, dy], k) => <path key={k} d={`M ${x + dx * 70 - dx * L * (1 - ramp(c, 6, 16))} ${yy} H ${x} V ${yy + dy * 70}`} />)}
+      </g>
+      <rect x={150} y={y} width={780} height={3} fill={C.ir} opacity={0.55} />
+      <rect x={150} y={y - 60} width={780} height={60} fill={C.ir} opacity={0.07} />
+    </svg>
+  );
+  return <Orbit3D g={150} ex={{ view: { az: 10 - 20 * push, dist: 2150 - 260 * push }, tone: 'ir', tint: '#8a8a8a', dotO: 1, bg: '#050506', overlay }} />;
+};
 export const ScanA: React.FC = () => {
   const s = useCurrentFrame(), t = s - CUE_A.front;
   if (t < 0) return <Orbit3D g={s} />;
@@ -194,7 +209,7 @@ export const ScanA: React.FC = () => {
     <AbsoluteFill>
       {w1 < 1 && <Orbit3D g={G} />}
       {w1 > 0 && w2 < 1 && <AbsoluteFill style={clip(w1)}><Orbit3D g={G} look="eye" /></AbsoluteFill>}
-      {w2 > 0 && <AbsoluteFill style={clip(w2)}><Orbit3D g={G} look="cam" /></AbsoluteFill>}
+      {w2 > 0 && <AbsoluteFill style={clip(w2)}><CamView c={t - CUE_A.cam} /></AbsoluteFill>}
       {[w1, w2].map((w, k) => w > 0 && w < 1 ? <div key={k} style={{ position: 'absolute', left: 1080 * w - 3, top: 0, width: 6, height: 1920, background: '#fff', boxShadow: '0 0 30px 8px rgba(255,255,255,.55)' }} /> : null)}
       <SeeBadge ir={false} o={ramp(t, 8, 13) * (1 - ramp(t, CUE_A.cam, CUE_A.cam + 5))} />
       <SeeBadge ir o={ramp(t, CUE_A.cam + 7, CUE_A.cam + 12)} />
