@@ -46,6 +46,8 @@ export const Reveal: React.FC = () => {
   const look = Math.sin(fr / 3.2) * 4;                                           // the face glyph's eyes and nose glance side to side while scanning
   return (
     <AbsoluteFill style={{ backgroundColor: '#120d0a', overflow: 'hidden' }}>
+      {/* when the question comes up, the phone and the room behind it blur and dim so the card is all you read */}
+      <AbsoluteFill style={{ filter: ask > 0 ? `blur(${18 * ask}px) brightness(${1 - 0.55 * ask})` : undefined, transform: ask > 0 ? `scale(${1 + 0.04 * ask})` : undefined }}>
       <Img src={staticFile('bathroom_rear.png')} style={{ position: 'absolute', left: -220, top: -120, width: 1520, height: 2700, filter: 'blur(22px) brightness(0.42)' }} />
       <div style={{ position: 'absolute', inset: 0, transform: 'translateY(170px)' }}><div style={{ position: 'absolute', inset: 0, ...cam }}>
         <div style={{ position: 'absolute', inset: 0, opacity: (1 - mo) * (1 - home) }}><Layer phone={lock} /></div>
@@ -77,12 +79,22 @@ export const Reveal: React.FC = () => {
       </div></div>
       {mo > 0 && <AbsoluteFill style={{ opacity: mo, transformOrigin: '771px 618px', transform: `translate(${(540 - 771) * mz}px, ${(960 - 618) * mz}px) scale(${1 + 6.2 * mz})` }}><Img src={staticFile('hook_first.png')} style={{ width: 1080, height: 1920 }} /></AbsoluteFill>}
       <AbsoluteFill style={{ backgroundColor: '#fff', opacity: 0.25 * ramp(fr, U + 2, U + 4) * (1 - ramp(fr, U + 4, U + 11)) }} />
+      </AbsoluteFill>
       {/* the result, then the question for the viewer */}
       <div style={{ position: 'absolute', left: 0, right: 0, top: 1250, textAlign: 'center', opacity: ramp(fr, U + 12, U + 18) * (1 - ask), transform: `scale(${1.2 - 0.2 * ramp(fr, U + 12, U + 20, 0, 1, out3)})` }}>
         <span style={{ display: 'inline-block', padding: '16px 30px', borderRadius: 16, background: 'rgba(8,10,8,.85)', border: '3px solid #3ddc84', font: `800 54px/1 ${FONT}`, letterSpacing: '0.06em', color: '#3ddc84' }}>UNLOCKED</span>
       </div>
-      <div style={{ position: 'absolute', left: 60, right: 60, top: 1240, textAlign: 'center', opacity: ask, transform: `translateY(${20 * (1 - ask)}px)` }}>
-        <span style={{ display: 'inline-block', padding: '20px 30px', borderRadius: 18, background: '#0a0810', border: '3px solid #fff', font: `800 46px/1.2 ${FONT}`, color: '#fff' }}>Did yours unlock?<br /><span style={{ color: '#ffd60a' }}>Comment YES or NO</span></span>
+      {/* the question: one clean card in the middle of the screen */}
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 520, display: 'flex', justifyContent: 'center', opacity: ask, transform: `translateY(${30 * (1 - ask)}px) scale(${0.94 + 0.06 * ask})` }}>
+        <div style={{ width: 660, padding: '44px 40px 46px', borderRadius: 36, background: 'rgba(14,12,20,.82)', border: '2px solid rgba(255,255,255,.18)', boxShadow: '0 30px 80px rgba(0,0,0,.55)', textAlign: 'center' }}>
+          <div style={{ font: `700 26px/1 ${FONT}`, letterSpacing: '0.22em', color: '#a9a3c2' }}>YOUR TURN</div>
+          <div style={{ marginTop: 22, font: `800 64px/1.1 ${FONT}`, color: '#fff' }}>Did yours unlock?</div>
+          <div style={{ marginTop: 34, display: 'flex', justifyContent: 'center', gap: 26 }}>
+            <span style={{ padding: '18px 54px', borderRadius: 999, background: '#1f3d2b', border: '3px solid #3ddc84', font: `800 44px/1 ${FONT}`, color: '#3ddc84' }}>YES</span>
+            <span style={{ padding: '18px 54px', borderRadius: 999, background: '#3d1f24', border: '3px solid #ff4d63', font: `800 44px/1 ${FONT}`, color: '#ff6b7d' }}>NO</span>
+          </div>
+          <div style={{ marginTop: 30, font: `600 32px/1 ${FONT}`, color: '#d6d0e6' }}>Comment below</div>
+        </div>
       </div>
     </AbsoluteFill>
   );
