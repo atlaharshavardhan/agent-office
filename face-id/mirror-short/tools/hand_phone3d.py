@@ -7,7 +7,7 @@ base = Image.open('public/hook_last.png').convert('RGB'); a = np.asarray(base).a
 r, g, b = a[..., 0], a[..., 1], a[..., 2]
 yy, xx = np.mgrid[0:1920, 0:1080]
 skin = (r > 95) & (b < 0.56 * r) & (g < 0.76 * r) & (yy > 1010) & (xx > 300)          # fingers and hand (the screen glow is above 1010)
-m = Image.fromarray((skin * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(5)).filter(ImageFilter.MinFilter(7)).filter(ImageFilter.MaxFilter(5)).filter(ImageFilter.GaussianBlur(1.6))
+m = Image.fromarray((skin * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(5)).filter(ImageFilter.MinFilter(9)).filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.GaussianBlur(2.4))
 # the old phone's bottom edge shows below the new one: paint that strip with the wall just under it
 out = np.asarray(base).copy()
 for y in range(1650, 1716):

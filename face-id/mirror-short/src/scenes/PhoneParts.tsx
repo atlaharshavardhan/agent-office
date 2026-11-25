@@ -5,7 +5,7 @@ import { FONT, ramp } from '../theme';
 // and a card for each part above it, joined to its dot by a dashed line. The parts stay in the island; each card is
 // highlighted and explained in turn. f = HandPhone's frame; the diagram fades in over the photo at IN and its island
 // starts at the photo island's size and place, so the push carries straight into it.
-export const IN = 68, EXPLAIN = 137, CARD = 999;
+export const IN = 68, EXPLAIN = 110, CARD = 999;
 const RED = '#ff4d63', PINK = '#ff8fa3', BLUE = '#6fa8ff';
 const io = (x: number) => x * x * (3 - 2 * x), out3 = (x: number) => 1 - Math.pow(1 - x, 3);
 const PARTS = [
@@ -55,7 +55,7 @@ export const PhoneParts: React.FC<{ f: number }> = ({ f }) => {
       </svg>
       {/* what the highlighted part does */}
       {active >= 0 && (() => { const p = PARTS[active], o = ramp(f, EXPLAIN + active * CARD, EXPLAIN + active * CARD + 4);
-        return <div style={{ position: 'absolute', left: 0, right: 0, top: 1000, textAlign: 'center', opacity: o, transform: `translateY(${12 * (1 - o)}px)` }}><span style={{ display: 'inline-block', padding: '30px 34px', borderRadius: 18, background: 'rgba(8,6,12,.92)', border: `3px solid ${p.col}`, font: `800 48px/1.15 ${FONT}`, color: '#fff' }}>{p.does}</span></div>; })()}
+        return <div style={{ position: 'absolute', left: 0, right: 0, top: 1000, textAlign: 'center', opacity: o, transform: `translateY(${12 * (1 - o)}px)` }}><span style={{ display: 'inline-block', padding: '30px 34px', borderRadius: 18, background: '#0a0810', border: `3px solid ${p.col}`, font: `800 48px/1.15 ${FONT}`, color: '#fff' }}>{p.does}</span></div>; })()}
     </AbsoluteFill>
   );
 };

@@ -8,7 +8,7 @@ import { headDots, turnDot } from './dotHead';
 // 121–210  Comparing…: his face as a white dot cloud in a ring of ticks, turning left / right / up / down
 //                                                                "to check whether the face matches the one you"
 // 210–246  the ring fills: DOES IT MATCH?                       "enrolled."
-export const CMP = { both: 57, check: 85, match: 133, no: 166 };
+export const CMP = { both: 53, check: 80, match: 180, no: 125 };
 const CROP = { x: 106, y: 200, w: 540, h: 720 };                    // face region of the 752 x 1344 stills
 const CYAN = '#7fe3ea', VIO = '#b9a2ff', GREEN = '#59d98a', BAD = '#ff2d46';
 const DOTS = headDots(1, 2), RING_DOTS = headDots(0.78);
@@ -67,7 +67,7 @@ export const Compare: React.FC = () => {
   // then the two outcomes, one after the other and fast: a match (everything goes green, the lock opens) and no match
   // (a different face on top, everything goes red, the lock stays shut). This is how the check works in general,
   // not the result of the mirror test.
-  const st = l >= CMP.no ? 2 : l >= CMP.match ? 1 : 0, tm = l - (st === 2 ? CMP.no : CMP.match), col = st === 1 ? GREEN : st === 2 ? BAD : null;
+  const st = l < Math.min(CMP.no, CMP.match) ? 0 : (l >= CMP.no && (CMP.no > CMP.match || l < CMP.match)) ? 2 : 1, tm = l - (st === 2 ? CMP.no : CMP.match), col = st === 1 ? GREEN : st === 2 ? BAD : null;
   const pop = st ? ramp(tm, 0, 6, 0, 1, (x) => 1 - Math.pow(1 - x, 3)) : 1, shake = st === 2 ? 12 * Math.sin(tm * 2.4) * (1 - ramp(tm, 0, 10)) : 0;
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg }}>{bg}
@@ -110,6 +110,7 @@ export const Compare: React.FC = () => {
                 <span style={{ width: 26, color: col ?? '#8a86a8', font: `800 26px/1 ${FONT}` }}>{st === 1 ? '✓' : st === 2 ? '✕' : '·'}</span></div>); })}
             <div style={{ height: 12, borderRadius: 6, background: '#26243a', overflow: 'hidden', marginTop: 4 }}><div style={{ width: `${score}%`, height: '100%', background: col ?? VIO }} /></div>
             <div style={{ marginTop: 10, font: `800 22px/1 ${FONT}`, letterSpacing: '0.08em', color: col ?? '#e9e2ff' }}>MATCH SCORE {score}%</div>
+            <div style={{ marginTop: 8, font: `600 15px/1 ${FONT}`, color: '#8f8aa3' }}>illustrative values</div>
           </div>); })()}
       <Label text="THIS SCAN" x={850} y={YS - 26} o={ramp(t, 4, 10)} size={27} align="center" color={CYAN} />
       <Label text="SECURE ENCLAVE" x={195} y={YC - 24} o={ramp(t, 8, 14)} size={23} align="center" color="#7fe3ea" />

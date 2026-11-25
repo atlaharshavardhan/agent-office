@@ -1,0 +1,26 @@
+{
+ "order": [
+  "n1",
+  "n2",
+  "n3a",
+  "n5",
+  "n3c",
+  "n3d",
+  "n4",
+  "n4b",
+  "n6q",
+  "n6r"
+ ],
+ "text": {
+  "n1": "Have you ever wondered if you can open your iPhone with your mirror reflection?",
+  "n2": "When the phone is awake, these cameras fire over thirty thousand dots",
+  "n3a": "straight onto the face, and the infrared camera picks up the pattern.",
+  "n5": "But here's the twist: a mirror bounces that light straight back onto my face.",
+  "n3c": "So what's the phone really reading? My nose bends the dots one way, my cheeks another, and from those bends, it maps my face.",
+  "n3d": "That's why a flat photo fails. Nothing bends.",
+  "n4": "It also grabs an infrared picture, then checks both against the face I set up.",
+  "n4b": "No match, it stays locked. A match unlocks it.",
+  "n6q": "So, did it work?",
+  "n6r": "It unlocked for me! Did yours? Tell me in the comments."
+ }
+}

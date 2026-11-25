@@ -17,19 +17,18 @@ const lockTexture = () => {
   g.fillStyle = '#050505'; g.fillRect(0, 0, W, H);
   const m = 17;
   g.save(); g.beginPath(); g.roundRect(m, m, W - 2 * m, H - 2 * m, 92); g.clip();
-  const bg = g.createLinearGradient(0, 0, W * 0.6, H); bg.addColorStop(0, '#1a1430'); bg.addColorStop(0.45, '#4a2f5e'); bg.addColorStop(0.8, '#b0603a'); bg.addColorStop(1, '#2a1612');
+  const bg = g.createLinearGradient(0, 0, W * 0.6, H); bg.addColorStop(0, '#6c5a92'); bg.addColorStop(0.45, '#8a6a9c'); bg.addColorStop(0.8, '#7a5a8c'); bg.addColorStop(1, '#5a4474');
   g.fillStyle = bg; g.fillRect(0, 0, W, H);
-  const glow = g.createRadialGradient(W * 0.5, H * 0.72, 20, W * 0.5, H * 0.72, W * 0.9);
-  glow.addColorStop(0, 'rgba(255,190,120,.55)'); glow.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = glow; g.fillRect(0, 0, W, H);
+  const glow = g.createRadialGradient(W * 0.5, H * 0.52, 20, W * 0.5, H * 0.52, W * 0.85);
+  glow.addColorStop(0, 'rgba(255,214,160,.9)'); glow.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = glow; g.fillRect(0, 0, W, H);
   g.fillStyle = '#030303'; g.beginPath(); g.roundRect(W / 2 - 100, 48, 200, 58, 29); g.fill();   // Dynamic Island
   g.fillStyle = '#141a2a'; g.beginPath(); g.arc(W / 2 + 66, 77, 13, 0, 7); g.fill();
   // closed padlock
   g.fillStyle = '#fff'; g.strokeStyle = '#fff'; g.lineWidth = 7; g.lineCap = 'round';
-  g.beginPath(); g.roundRect(W / 2 - 22, 176, 44, 36, 8); g.fill();
-  g.beginPath(); g.arc(W / 2, 176, 14, Math.PI, 0); g.stroke();
+  // (no padlock: the lock screen matches the one in the mirror footage)
   g.textAlign = 'center';
   g.font = '600 40px Inter, system-ui, sans-serif'; g.fillStyle = 'rgba(255,255,255,.92)'; g.fillText('Tue, Sep 9', W / 2, 410);
-  g.font = '800 190px Inter, system-ui, sans-serif'; g.fillStyle = '#fff'; g.fillText('9:41', W / 2, 590);
+  g.font = '500 190px Inter, system-ui, sans-serif'; g.fillStyle = '#fff'; g.fillText('9:41', W / 2, 590);
   for (const x of [112, W - 112]) { g.fillStyle = 'rgba(40,36,48,.72)'; g.beginPath(); g.arc(x, H - 150, 50, 0, 7); g.fill(); }
   g.fillStyle = '#fff'; g.beginPath(); g.roundRect(100, H - 172, 24, 46, 6); g.fill(); g.beginPath(); g.roundRect(94, H - 180, 36, 14, 4); g.fill();   // flashlight
   g.beginPath(); g.roundRect(W - 138, H - 166, 52, 36, 8); g.fill(); g.fillStyle = 'rgba(40,36,48,.9)'; g.beginPath(); g.arc(W - 112, H - 148, 10, 0, 7); g.fill();   // camera
