@@ -3,15 +3,15 @@
 import lengths from '../public/vo/lengths.json';
 
 export const FPS = 30;
-export const TOTAL = 1135;            // 37.8 s
-export const STORY_END = 36.34;       // end card = last 2 s
+export const TOTAL = 1200;            // 40.0 s
+export const STORY_END = 39.07;       // end card = last 2 s
 export const f = (s: number) => Math.round(s * FPS);
 
 // Scene order: hook → inside the phone → red dots + infrared view → the mirror twist → what the phone measures
 // → comparison → real mirror test → end card. Every scene ends right after its voice line.
 export const SCENES = {
   hook: [0, 3.4], truedepth: [3.4, 7.45], scan: [7.45, 11.19], mirror: [11.19, 16.29], measure: [16.29, 26.41],
-  compare: [26.41, 31.11], test: [31.11, 36.34], end: [36.34, 37.84],
+  compare: [26.41, 33.84], test: [33.84, 39.07], end: [39.07, 40.0],
 } as const;
 
 // Hook: one continuous take of public/mirror_clip.mp4 (24 fps source, 5.04 s) from the rear mirror angle, at normal speed.
@@ -33,8 +33,8 @@ export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 12.12, to: 14.72, top: 1540 },      // top-down mirror diagram: the top holds the face behind the glass -> caption below his head
   { from: 16.29, to: 21.09, top: 170 },      // the 3D dotted head
   { from: 23.41, to: 26.41, top: 170 },      // the photo
-  { from: 26.41, to: 31.11, top: 170 },     // comparison
-  { from: 31.11, to: 36.34, top: 96 },     // reveal: the phone fills the frame -> caption above it
+  { from: 26.41, to: 33.84, top: 170 },     // comparison
+  { from: 33.84, to: 39.07, top: 96 },     // reveal: the phone fills the frame -> caption above it
 ];
 
 export type Line = { id: string; at: number; text: string };
@@ -47,8 +47,9 @@ export const NARRATION: Line[] = [
   { id: 'n3c', at: 16.34, text: "So what's the phone really reading? My nose bends the dots one way, my cheeks another, and from those bends, it maps my face." },
   { id: 'n3d', at: 23.41, text: "That's why a flat photo fails. Nothing bends." },
   { id: 'n4', at: 26.46, text: "It also grabs an infrared picture, then checks both against the face I set up." },
-  { id: 'n6q', at: 31.21, text: "So, did it work?" },
-  { id: 'n6r', at: 33.02, text: "It unlocked for me! Did yours? Tell me in the comments." },
+  { id: 'n4b', at: 30.89, text: "A match unlocks it. No match, it stays locked." },
+  { id: 'n6q', at: 33.94, text: "So, did it work?" },
+  { id: 'n6r', at: 35.75, text: "It unlocked for me! Did yours? Tell me in the comments." },
 ];
 
 // Played only when real test footage is in and `result` is set to match it.
@@ -65,7 +66,7 @@ export const LEN: Record<string, number> = lengths as any;
 export const SFX = [
   { name: 'SFX · thump (the parts are named)', file: 'thump.wav', at: 5.97, vol: 0.3 },
   { name: 'SFX · thump (what the camera sees)', file: 'thump.wav', at: 9.72, vol: 0.25 },
-  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 31.11, vol: 0.45 },
+  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 33.84, vol: 0.45 },
 ];
 
 // ---- Real mirror test (scene 6) -------------------------------------------------

@@ -18,6 +18,7 @@ LINES = {
     "n3c": "So what's the phone really reading? My nose bends the dots one way, my cheeks another, and from those bends, it maps my face.",
     "n3d": "That's why a flat photo fails. Nothing bends.",
     "n4": "It also grabs an infrared picture, then checks both against the face I set up.",
+    "n4b": "A match unlocks it. No match, it stays locked.",
     "n6q": "So, did it work?",
     "n6r": "It unlocked for me! Did yours? Tell me in the comments.",
     "n6_open": "It actually unlocked.",

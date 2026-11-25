@@ -5,7 +5,7 @@ import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 // through the middle so it can't be cropped off. Not shown on the end card.
 export const Watermark: React.FC = () => {
   const fr = useCurrentFrame();
-  const k = fr / 1090;
+  const k = fr / 1172;
   return (
     <AbsoluteFill style={{ pointerEvents: 'none' }}>
       <Img src={staticFile('watermark-clear.png')} style={{ position: 'absolute', right: 34, top: 965,   // moved up while the phone is held there
