@@ -1,9 +1,10 @@
 import { ThreeCanvas } from '@remotion/three';
 import { useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
-import { AbsoluteFill, Img, staticFile } from 'remotion';
+import { AbsoluteFill } from 'remotion';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { Orbit3D } from './Orbit3D';
 import { Phone3D, usePhoneModel } from './Phone3D';
 import { C, FONT, ramp } from '../theme';
 
@@ -43,7 +44,9 @@ export const PhotoFlat: React.FC<{ t: number }> = ({ t }) => {
       {/* the print */}
       <div style={{ position: 'absolute', left: 540 - PW / 2, top: 372, width: PW, height: PH, borderRadius: 10, background: 'linear-gradient(135deg, #f4f1ea, #cfcac0)', boxShadow: '0 30px 80px rgba(0,0,0,.6)', transform: `translateY(${-60 * (1 - a)}px) rotate(${-4 + 1.2 * Math.sin(t / 16)}deg)`, opacity: a }}>
         <div style={{ position: 'absolute', left: (PW - IW) / 2, top: 40, width: IW, height: IH, overflow: 'hidden', background: '#2a2018' }}>
-          <Img src={staticFile('face_front.png')} style={{ position: 'absolute', left: -134, top: -210, width: 699, height: 1249 }} />
+          <div style={{ position: 'absolute', left: IW / 2 - 540 * 0.62, top: IH / 2 - 905 * 0.62, width: 1080, height: 1920, transformOrigin: '0 0', transform: 'scale(0.62)' }}>
+            <Orbit3D g={150} ex={{ view: { az: 0, dist: 2250 }, tone: 'colour', dotO: 0, bg: '#2a2018' }} />
+          </div>
           <svg width={IW} height={IH} style={{ position: 'absolute', inset: 0 }}>
             {DOTS.map(([x, y], i) => { const o = ramp(t, 12 + (y / IH) * 12, 16 + (y / IH) * 12); return o > 0 ? <circle key={i} cx={x} cy={y} r={4.4} fill={C.ir} opacity={0.85 * o} /> : null; })}
           </svg>

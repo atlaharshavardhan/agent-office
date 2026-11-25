@@ -1,29 +1,24 @@
 import { AbsoluteFill, useCurrentFrame } from 'remotion';
-import front from '../front.json';
-import mesh from '../mesh_front.json';
 import { C, FONT, Label, ramp } from '../theme';
-import { Head3D, headPoint } from './Head3D';
-import { Orbit3D } from './Orbit3D';
+import { HeadApi, Orbit3D } from './Orbit3D';
 import { PhotoFlat } from './PhotoFlat';
 
-// The scan is two sequences, with the mirror scene between them (cuts sit on the voiceover, see script.ts):
-// ScanA (9–15.95 s)   0–164  side profile, 3D: the iPhone fires the red dots onto his face  "This tiny projector ..."
-//                   164–209  hard cut on "picks up": frontal red-dot close-up, INFRARED CAMERA VIEW, held
-// ScanB (20.2–26.1 s)  0– 71  back on the frontal red-dot face: CLOSER on "nose" (15), FARTHER on "cheeks" (58)
-//                     71–103  the same dots as a cyan point cloud                 "The phone uses"
-//                    103–177  DEPTH MAP: the web forms and is scanned; both labels stay  "that pattern to map the shape of my face"
-export const FZ = 1.15;      // framing of the frontal face; the mirror view and the cyan point cloud are lined up with it
+// Every explainer here runs on the same 3D head as the red-dots clip (Orbit3D in explainer mode), so the face never
+// changes and the camera can turn round it. Cuts sit on the voiceover (see script.ts):
+// ScanA (9–15.95 s)   0–164  side profile: the iPhone fires the red dots onto his face       "This tiny projector ..."
+//                   164–209  hard cut on "picks up": side by side, what you see / what the infrared camera sees
+// ScanB             0–face   a flat wall with the neat dot grid
+//                   face–    the same grid on his face; from `bend` it bends with his face. NOSE on "nose", CHEEKS on "cheeks"
+//                   cyan–    the dots as a cyan point cloud                                 "The phone reads"
+//                   depth–   depth web forms on his face, then stands alone as a 3D map, coloured far to near, and turns
+//                   photo–   "That's why a photo won't work" (PhotoFlat)
 export const CUE_A = { front: 164, end: 209 };
-// ScanB now: 0–face a flat wall with the neat dot grid · face: the same grid on his face · bend: the grid bends with his
-// face (nose one way, cheeks the other), NOSE on "nose", CHEEKS on "cheeks" · cyan point cloud on "The phone" · depth map
 export const CUE_B = { face: 79, bend: 86, nose: 90, cheek: 146, cyan: 188, depth: 218, photo: 288, end: 421 };
+const MESH = '#dff3ff', SCAN = '#4db8ff', DIST = 2250;
+const io = (x: number) => x * x * (3 - 2 * x);
 // depth colour: far = blue, through cyan and yellow, to near = orange
 const HEAT = [[59, 91, 219], [79, 195, 247], [255, 209, 102], [255, 122, 61]];
-const heat = (d: number) => { const t = Math.min(0.999, Math.max(0, (d - 0.2) / 0.62)) * 3, i = Math.floor(t), f = t - i, a = HEAT[i], b = HEAT[i + 1]; return `rgb(${Math.round(a[0] + (b[0] - a[0]) * f)},${Math.round(a[1] + (b[1] - a[1]) * f)},${Math.round(a[2] + (b[2] - a[2]) * f)})`; };
-const rnd = (i: number) => { const x = Math.sin((i + 1) * 91.17) * 43758.5453; return x - Math.floor(x); };
-const MESH = '#dff3ff', SCAN = '#4db8ff';
-const pt = (a: number[]) => ({ x: a[0], y: a[1], d: a[2] });
-const NOSE = pt(front.nose), CHEEK = pt(front.cheek);
+const heat = (d: number) => { const t = Math.min(0.999, Math.max(0, d)) * 3, i = Math.floor(t), f = t - i, a = HEAT[i], b = HEAT[i + 1]; return `rgb(${Math.round(a[0] + (b[0] - a[0]) * f)},${Math.round(a[1] + (b[1] - a[1]) * f)},${Math.round(a[2] + (b[2] - a[2]) * f)})`; };
 
 const Mark: React.FC<{ x: number; y: number; text: string; lx: number; ly: number; o: number; pop: number }> = ({ x, y, text, lx, ly, o, pop }) => {
   const w = text.length * 37 + 56;                                   // label width
@@ -38,122 +33,12 @@ const Mark: React.FC<{ x: number; y: number; text: string; lx: number; ly: numbe
   );
 };
 
-// Frontal view of his face. depth0: frame the depth web starts (null = stays the infrared red-dot view);
-// flash: frame of the capture flash (null = none); nose / cheek: frames the two labels appear (null = no labels).
-// depth of his face at a point of the source image (from the profile rows of mesh_front.json), and whether it is skin
-const PR = mesh.prof as { x0: number; dx: number; y0: number; dy: number; rows: number[][] };
-const depthAt = (x: number, y: number) => { const r = PR.rows[Math.round((y - PR.y0) / PR.dy)]; return r ? r[Math.round((x - PR.x0) / PR.dx)] ?? 0 : 0; };
-const SKIN = new Set((front.dots as number[][]).map((d) => `${Math.round(d[0] / 14)},${Math.round(d[1] / 14)}`));
-// the projector's pattern as a regular grid (source px). On a flat wall it stays a neat grid; on his face each dot is
-// shifted sideways by how near that bit of the face is, so the grid bends: the nose one way, the cheeks the other.
-const GRID: number[][] = [];
-for (let y = 392; y <= 962; y += 13) for (let x = 164; x <= 606; x += 13) GRID.push([x, y, depthAt(x, y), SKIN.has(`${Math.round(x / 14)},${Math.round(y / 14)}`) ? 1 : 0]);
-const BEND = 62, FLAT = 0.45;
-const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | null; nose: number | null; cheek: number | null; end: number; grid?: { face: number; bend: number; out: number } }> = ({ s, depth0, flash, nose, cheek, end, grid }) => {
-  const D0 = depth0 ?? 1e9, FL = flash ?? -1e9, NO = nose ?? 1e9, CH = cheek ?? 1e9;
-  const depth = s >= D0, zoom = FZ;
-  // the head keeps moving while the depth mesh is on: a slow sway, blending into the final turn
-  // the head faces us (aligned with the shots before it) while the web forms, then makes one small three-quarter turn
-  // and holds, so the nose is seen sitting forward of the cheek
-  // then the face drops away and the web is left on its own as a 3D map, turned to a three-quarter view (it keeps drifting)
-  const cm = depth ? ramp(s, D0 + 28, D0 + 42) : 0;                       // 0 = web on his face, 1 = the 3D map on its own, coloured by depth
-  const az = depth ? -34 * ramp(s, D0 + 28, D0 + 52, 0, 1, (x) => x * x * (3 - 2 * x)) - 6 * ramp(s, D0 + 52, D0 + 110) : 0;
-  const toDepth = ramp(s, D0, D0 + 8);
-  const [nx, ny] = headPoint(NOSE, az, zoom), [cx, cy] = headPoint(CHEEK, az, zoom);
-  const corner = (x: number, y: number, dx: number, dy: number) => `M ${x + dx * 50} ${y} H ${x} V ${y + dy * 50}`;
-  return (
-    <AbsoluteFill>
-      <Head3D az={az} zoom={zoom} irMix={1} depthMix={0.42 * toDepth} dotO={depth || grid ? 0 : 1} />
-      {depth && <AbsoluteFill style={{ background: 'radial-gradient(80% 50% at 50% 46%, #1c1740 0%, #0d0b1c 60%, #08070f 100%)', opacity: 0.96 * cm }} />}
-      {/* capture: a short flash and frame brackets, then the frame is held */}
-      <AbsoluteFill style={{ backgroundColor: '#fff', opacity: 0.25 * ramp(s, FL, FL + 1) * (1 - ramp(s, FL + 1, FL + 6)) }} />
-      {!depth && !grid && <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }} stroke="#fff" strokeWidth={4} fill="none">
-        <path d={corner(90, 470, 1, 1)} /><path d={corner(930, 470, -1, 1)} /><path d={corner(90, 1420, 1, -1)} /><path d={corner(930, 1420, -1, -1)} />
-      </svg>}
-      {!depth && !grid && <Label text="INFRARED CAMERA VIEW" x={505} y={1470} o={1} size={30} align="center" color={C.label} />}
-      {grid && s < grid.out + 8 && (() => {
-        const wall = 1 - ramp(s, grid.face - 4, grid.face + 6), b = ramp(s, grid.bend, grid.bend + 16, 0, 1, (x) => x * x * (3 - 2 * x)), o = 1 - ramp(s, grid.out, grid.out + 6);
-        const [wx0, wy0] = headPoint({ x: 150, y: 378, d: FLAT }, 0, zoom), [wx1, wy1] = headPoint({ x: 620, y: 976, d: FLAT }, 0, zoom);
-        const mirX = 2 * front.nose[0] - front.cheek[0];
-        return (
-          <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: o }}>
-            <rect x={wx0} y={wy0} width={wx1 - wx0} height={wy1 - wy0} rx={28} fill="#cfcbe6" stroke="#f1eeff" strokeWidth={3} opacity={wall} />
-            {GRID.map(([x, y, d, skin], i) => {
-              const vis = skin ? 1 : wall; if (vis <= 0.01) return null;
-              const [px, py] = headPoint({ x: x + (skin ? b * BEND * (d - FLAT) : 0), y, d: skin ? FLAT + (d - FLAT) * (1 - wall) : FLAT }, 0, zoom);
-              const nN = Math.hypot(x - front.nose[0], y - front.nose[1]) < 52 && s >= NO, nC = (Math.hypot(x - front.cheek[0], y - front.cheek[1]) < 46 || Math.hypot(x - mirX, y - front.cheek[1]) < 46) && s >= CH;
-              return <circle key={i} cx={px} cy={py} r={nN || nC ? 6.2 : 4.6} fill={nN ? C.amber : nC ? '#ffe9a8' : C.ir} opacity={vis * (0.9 - 0.25 * wall)} />;
-            })}
-          </svg>
-        );
-      })()}
-      {grid && s < grid.face && <Label text="FLAT WALL: A NEAT PATTERN" x={505} y={1470} o={1 - ramp(s, grid.face - 5, grid.face)} size={30} align="center" color={C.label} />}
-      {grid && s >= grid.face && s < grid.out && <Label text="ON A FACE: THE PATTERN BENDS" x={505} y={1470} o={ramp(s, grid.face + 2, grid.face + 7)} size={30} align="center" color={C.label} />}
-      {depth && <Label text="DEPTH MAP" x={505} y={1690} o={1 - cm} size={30} align="center" color={C.label} />}
-      {depth && <div style={{ position: 'absolute', left: 0, right: 0, top: 1500, opacity: cm, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 26, font: `800 30px/1 ${FONT}`, letterSpacing: '0.14em', color: '#e9e2ff' }}>
-        FAR<div style={{ width: 520, height: 16, borderRadius: 8, background: 'linear-gradient(90deg, rgb(59,91,219), rgb(79,195,247), rgb(255,209,102), rgb(255,122,61))' }} />NEAR
-      </div>}
-      {depth && <Label text="3D MAP OF HIS FACE" x={505} y={1580} o={cm} size={28} align="center" color={C.label} />}
-      {/* depth mesh: points pinned to his face, joined by fine lines; a bigger, brighter point is closer to the phone */}
-      {depth && (() => {
-        // relief: every point of the web is lifted by its depth (nearer = higher), so the lines bend over the nose,
-        // brow, lips and chin and the web reads as a curved surface even when the head faces us
-        const rel = (q: number[]) => { const [x, y] = headPoint({ x: q[0], y: q[1], d: q[2] }, az, zoom); return [x + (x - nx) * (q[2] - 0.45) * 0.1 * (1 - cm), y - (q[2] - 0.45) * 62 * (1 - cm), q[2]]; };
-        const L = (mesh.pts as number[][]).map(rel);
-        const E = mesh.edges as number[][], P = mesh.pts as number[][], t0 = D0 + 2, SPAN = 22;
-        // the mesh forms live: it spreads outward from the nose, point by point and line by line (about 1 s)
-        const far = Math.max(...P.map((q) => Math.hypot(q[0] - front.nose[0], q[1] - front.nose[1])));
-        const when = (k: number) => t0 + (Math.hypot(P[k][0] - front.nose[0], P[k][1] - front.nose[1]) / far) * SPAN;
-        const xs = L.map((q) => q[0]), ys = L.map((q) => q[1]), X0 = Math.min(...xs), X1 = Math.max(...xs), Y0 = Math.min(...ys), Y1 = Math.max(...ys);
-        // the scan is a wave: a wide band of blue, lying across the whole face, that travels diagonally from the upper
-        // left of the forehead down over the nose to the lower right of the jaw, so every part of the web is covered
-        const CYC = 40, T0 = t0 + SPAN - 6, sweep = s < T0 ? -1 : ((s - T0) % CYC) / CYC;
-        const MX = (X0 + X1) / 2, MY = (Y0 + Y1) / 2, DX = 0.6, DY = 0.8, HW = 85;      // (DX, DY): direction of travel
-        const along = (x: number, y: number) => (x - MX) * DX + (y - MY) * DY;
-        const ext = Math.max(...L.map((q) => Math.abs(along(q[0], q[1])))) + HW, pos = -ext + 2 * ext * sweep;
-        const band = (x: number, y: number) => (sweep < 0 ? 0 : Math.max(0, 1 - Math.abs(along(x, y) - pos) / HW));
-        const at = (a: number, t: number) => `${MX + DX * a - DY * t},${MY + DY * a + DX * t}`;
-        return (
-          <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
-            {(mesh.lines as number[][][]).map((ln, i) => {
-              // each grid line is drawn as a smooth curve, growing outward from the nose
-              let d = '', pen = false, near = 0, n = 0;
-              for (const q of ln) { if (t0 + (Math.hypot(q[0] - front.nose[0], q[1] - front.nose[1]) / far) * SPAN > s) { pen = false; continue; } const [x, y] = rel(q); d += `${pen ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`; pen = true; near += q[2]; n++; }
-              return n > 1 ? <path key={i} d={d} fill="none" stroke={MESH} strokeWidth={1.5} strokeLinejoin="round" opacity={(0.3 + 0.55 * (near / n)) * (1 - cm)} /> : null;
-            })}
-            {/* the 3D map: the same grid, each piece coloured by how near it is (blue = far, orange = near) */}
-            {cm > 0 && (mesh.lines as number[][][]).map((ln, i) => Array.from({ length: Math.ceil((ln.length - 1) / 5) }, (_, c) => {
-              const seg = ln.slice(c * 5, c * 5 + 6); if (seg.length < 2) return null;
-              return <polyline key={`${i}-${c}`} points={seg.map((q) => { const [x, y] = rel(q); return `${x.toFixed(1)},${y.toFixed(1)}`; }).join(' ')} fill="none" stroke={heat(seg[Math.floor(seg.length / 2)][2])} strokeWidth={2.2} strokeLinecap="round" opacity={cm} />;
-            }))}
-            {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); if (k <= 0) return null; const r = (1.8 + 2.4 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9))), c = cm > 0.5 ? heat(d) : band(x, y) > 0.3 ? SCAN : '#fff';
-              // a glowing node at every crossing of the grid
-              return <g key={i}><circle cx={x} cy={y} r={r * 2.6} fill={c} opacity={0.13 + 0.12 * d} /><circle cx={x} cy={y} r={r} fill={c} opacity={0.55 + 0.45 * d} /></g>; })}
-            {/* inside the wave the grid's own lines are redrawn in blue */}
-            <g opacity={ramp(s, t0 + SPAN - 6, t0 + SPAN) * (1 - cm)}>
-              <g clipPath="url(#band-clip)">
-                {(mesh.lines as number[][][]).map((ln, i) => <polyline key={i} points={ln.map((q) => { const [x, y] = rel(q); return `${x.toFixed(1)},${y.toFixed(1)}`; }).join(' ')} fill="none" stroke={SCAN} strokeWidth={3} strokeLinejoin="round" />)}
-              </g>
-            </g>
-            {/* the scan never leaves the web: it is clipped to the web's own triangles, so it follows the face as it moves */}
-            <defs><clipPath id="band-clip"><polygon points={`${at(pos - HW * 0.8, -1200)} ${at(pos - HW * 0.8, 1200)} ${at(pos + HW * 0.8, 1200)} ${at(pos + HW * 0.8, -1200)}`} /></clipPath><clipPath id="scan-clip">{(mesh.tris as number[][]).map(([a, b, c], i) => <polygon key={i} points={`${L[a][0]},${L[a][1]} ${L[b][0]},${L[b][1]} ${L[c][0]},${L[c][1]}`} />)}</clipPath></defs>
-          </svg>
-        );
-      })()}
-      {/* the two callouts: both stay inside the frame, below the captions, and hold to the end of the scene */}
-      <Mark x={nx} y={ny} text={grid && !depth ? 'NOSE' : 'CLOSER'} lx={120} ly={1250} o={ramp(s, NO, NO + 3)} pop={ramp(s, NO, NO + 8)} />
-      <Mark x={cx} y={cy} text={grid && !depth ? 'CHEEKS' : 'FARTHER'} lx={640} ly={1250} o={ramp(s, CH, CH + 3)} pop={ramp(s, CH, CH + 8)} />
-      <div style={{ position: 'absolute', left: 80, top: 1562, opacity: depth ? 0 : 0.5, font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>Illustration · the real dots are invisible · fewer dots drawn than projected</div>
-    </AbsoluteFill>
-  );
-};
-
-// "And the infrared camera picks up that pattern": the same face, side by side. Left: what you see (the dots are
+// "And the infrared camera picks up that pattern": the same head, side by side. Left: what you see (the dots are
 // invisible). Right: what the infrared camera sees (the dot pattern on his face).
 const Half: React.FC<{ left: number; ir: boolean }> = ({ left, ir }) => (
-  <div style={{ position: 'absolute', left, top: 0, width: 540, height: 1920, overflow: 'hidden', background: ir ? '#0b0a0d' : '#120d0a' }}>
-    <div style={{ position: 'absolute', left: -296, top: 0, width: 1080, height: 1920 }}>
-      <Head3D az={0} zoom={FZ * 0.74} irMix={ir ? 1 : 0} depthMix={0} dotO={ir ? 1 : 0} />
+  <div style={{ position: 'absolute', left, top: 0, width: 540, height: 1920, overflow: 'hidden' }}>
+    <div style={{ position: 'absolute', left: -270, top: 0, width: 1080, height: 1920 }}>
+      <Orbit3D g={150} ex={{ view: { az: ir ? 6 : -6, dist: 2700 }, tone: ir ? 'ir' : 'colour', dotO: ir ? 1 : 0, bg: ir ? '#0b0a0d' : '#1a120c' }} />
     </div>
     <div style={{ position: 'absolute', left: 0, right: 0, top: 1330, textAlign: 'center' }}>
       <span style={{ display: 'inline-block', padding: '14px 18px', borderRadius: 10, background: 'rgba(10,8,7,.8)', border: `2px solid ${ir ? C.ir : '#8d877f'}`, font: `800 27px/1 ${FONT}`, letterSpacing: '0.12em', color: '#fff' }}>{ir ? 'WHAT THE CAMERA SEES' : 'WHAT YOU SEE'}</span>
@@ -174,14 +59,71 @@ export const ScanA: React.FC = () => {
 };
 
 export const ScanB: React.FC = () => {
-  const s = useCurrentFrame();
-  // the cyan point cloud is the same head, lined up with the frontal face; it dissolves in and out so eyes and nose stay put
-  if (s >= CUE_B.photo) return <PhotoFlat t={s - CUE_B.photo} />;      // "That's why a photo won't work"
-  const o = ramp(s, CUE_B.cyan, CUE_B.cyan + 5) * (1 - ramp(s, CUE_B.depth, CUE_B.depth + 6));
+  const s = useCurrentFrame(), B = CUE_B;
+  if (s >= B.photo) return <PhotoFlat t={s - B.photo} />;      // "That's why a photo won't work"
+  const depth = s >= B.depth, D0 = B.depth;
+  const wall = 1 - ramp(s, B.face - 4, B.face + 6), bend = ramp(s, B.bend, B.bend + 16, 0, 1, io);
+  const gridO = 1 - ramp(s, B.cyan, B.cyan + 6);                                   // the red grid hands over to the cyan cloud
+  const cloud = ramp(s, B.cyan, B.cyan + 6) * (1 - ramp(s, D0, D0 + 8));
+  const cm = depth ? ramp(s, D0 + 26, D0 + 40) : 0;                                // 0 = web on his face, 1 = the 3D map on its own
+  // the camera: a slow drift while the grid bends (so the bend reads in 3D), back to the front for the web, then a turn for the map
+  const az = depth ? -26 * ramp(s, D0 + 26, D0 + 52, 0, 1, io) - 6 * ramp(s, D0 + 52, D0 + 100)
+    : 14 * ramp(s, B.bend + 6, B.cheek + 20, 0, 1, io) * (1 - ramp(s, B.cyan - 14, B.cyan, 0, 1, io));
+  const overlay = ({ S, head }: HeadApi) => {
+    const { nose, cheek, centre, grid, lattice } = head, [FCX, , ZF] = centre, ZR = 150;
+    const [nx, ny] = S(nose.x, nose.y, nose.z), mirX = 2 * FCX - cheek.x, [cx, cy] = cm > 0.5 ? S(mirX, cheek.y, cheek.z) : S(cheek.x, cheek.y, cheek.z);   // on the turned map the cheek facing us is marked
+    const dn = (z: number) => Math.min(1, Math.max(0, (z - (nose.z - ZR)) / ZR));    // 0 = far, 1 = as near as the nose
+    // ---- the wall and the dot grid ----
+    const gx = grid.map((q) => q[0]), gy = grid.map((q) => q[1]);
+    const W = [[Math.min(...gx) - 14, Math.max(...gy) + 14], [Math.max(...gx) + 14, Math.max(...gy) + 14], [Math.max(...gx) + 14, Math.min(...gy) - 14], [Math.min(...gx) - 14, Math.min(...gy) - 14]].map(([x, y]) => S(x, y, ZF).join(',')).join(' ');
+    // ---- the web ----
+    const L = lattice.pts.map(([x, y, z]) => [...S(x, y, z), dn(z), x, y]);
+    const t0 = D0 + 2, SPAN = 22, far = Math.max(...lattice.pts.map((q) => Math.hypot(q[0] - nose.x, q[1] - nose.y)));
+    const when = (k: number) => t0 + (Math.hypot(lattice.pts[k][0] - nose.x, lattice.pts[k][1] - nose.y) / far) * SPAN;
+    // the scan wave: a wide band lying across his face that travels diagonally from the forehead to the jaw
+    const T0 = t0 + SPAN - 6, sweep = s < T0 ? -1 : ((s - T0) % 40) / 40, along = (x: number, y: number) => (x - FCX) * 0.6 - (y - centre[1]) * 0.8;
+    const pos = -330 + 660 * sweep, band = (x: number, y: number) => (sweep < 0 ? 0 : Math.max(0, 1 - Math.abs(along(x, y) - pos) / 62)) * (1 - cm);
+    return (
+      <>
+        {depth && <AbsoluteFill style={{ background: 'radial-gradient(80% 50% at 50% 46%, #1c1740 0%, #0d0b1c 60%, #08070f 100%)', opacity: 0.97 * cm }} />}
+        <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
+          {!depth && gridO > 0 && <g opacity={gridO}>
+            <polygon points={W} fill="#cfcbe6" stroke="#f1eeff" strokeWidth={3} strokeLinejoin="round" opacity={wall} />
+            {grid.map(([x, y, z, on], i) => {
+              const vis = on ? 1 : wall; if (vis <= 0.01) return null;
+              // on the wall every dot sits on the flat plane; on his face it lands on the skin and is shifted sideways by how near that skin is
+              const [px, py] = on ? S(x + bend * 0.42 * (z - ZF), y, ZF + (z - ZF) * (1 - wall)) : S(x, y, ZF);
+              const nN = on && Math.hypot(x - nose.x, y - nose.y) < 40 && s >= B.nose, nC = on && (Math.hypot(x - cheek.x, y - cheek.y) < 36 || Math.hypot(x - mirX, y - cheek.y) < 36) && s >= B.cheek;
+              return <circle key={i} cx={px} cy={py} r={nN || nC ? 6.4 : 4.7} fill={nN ? C.amber : nC ? '#ffe9a8' : C.ir} opacity={vis * (0.92 - 0.25 * wall)} />;
+            })}
+          </g>}
+          {depth && lattice.runs.map((run, i) => {
+            // each line of the web grows outward from his nose; nearer strands are brighter. As the 3D map it is coloured by depth.
+            const segs: React.ReactNode[] = [];
+            for (let k = 0; k + 1 < run.length; k++) { const a = run[k], b = run[k + 1], g = ramp(s, Math.min(when(a), when(b)) + 2, Math.max(when(a), when(b)) + 4); if (g <= 0) continue;
+              const near = (L[a][2] + L[b][2]) / 2, bd = band((L[a][3] + L[b][3]) / 2, (L[a][4] + L[b][4]) / 2);
+              segs.push(<line key={k} x1={L[a][0]} y1={L[a][1]} x2={L[a][0] + (L[b][0] - L[a][0]) * g} y2={L[a][1] + (L[b][1] - L[a][1]) * g} stroke={cm > 0.5 ? heat(near) : bd > 0.05 ? SCAN : MESH} strokeWidth={cm > 0.5 ? 2.4 : 1.6 + 1.4 * bd} strokeLinecap="round" opacity={cm > 0.5 ? 1 : Math.min(1, 0.32 + 0.5 * near + 0.6 * bd)} />); }
+            return <g key={i}>{segs}</g>;
+          })}
+          {depth && L.map(([x, y, d, wx, wy], i) => { const k = ramp(s, when(i), when(i) + 4); if (k <= 0) return null; const r = (1.8 + 2.2 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9))), c = cm > 0.5 ? heat(d) : band(wx, wy) > 0.3 ? SCAN : '#fff';
+            return <g key={i}><circle cx={x} cy={y} r={r * 2.5} fill={c} opacity={0.12 + 0.12 * d} /><circle cx={x} cy={y} r={r} fill={c} opacity={0.55 + 0.45 * d} /></g>; })}
+        </svg>
+        {s < B.face && <Label text="FLAT WALL: A NEAT PATTERN" x={505} y={1470} o={1 - ramp(s, B.face - 5, B.face)} size={30} align="center" color={C.label} />}
+        {s >= B.face && s < B.cyan && <Label text="ON A FACE: THE PATTERN BENDS" x={505} y={1470} o={ramp(s, B.face + 2, B.face + 7)} size={30} align="center" color={C.label} />}
+        {depth && <Label text="DEPTH MAP" x={505} y={1690} o={1 - cm} size={30} align="center" color={C.label} />}
+        {depth && <div style={{ position: 'absolute', left: 0, right: 0, top: 1500, opacity: cm, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 26, font: `800 30px/1 ${FONT}`, letterSpacing: '0.14em', color: '#e9e2ff' }}>
+          FAR<div style={{ width: 520, height: 16, borderRadius: 8, background: 'linear-gradient(90deg, rgb(59,91,219), rgb(79,195,247), rgb(255,209,102), rgb(255,122,61))' }} />NEAR
+        </div>}
+        {depth && <Label text="3D MAP OF HIS FACE" x={505} y={1580} o={cm} size={28} align="center" color={C.label} />}
+        {(s < B.cyan + 6 || depth) && <>
+          <Mark x={nx} y={ny} text={depth ? 'CLOSER' : 'NOSE'} lx={120} ly={1250} o={(depth ? ramp(s, D0 + 6, D0 + 10) : ramp(s, B.nose, B.nose + 3) * gridO)} pop={ramp(s, depth ? D0 + 6 : B.nose, (depth ? D0 + 6 : B.nose) + 8)} />
+          <Mark x={cx} y={cy} text={depth ? 'FARTHER' : 'CHEEKS'} lx={640} ly={1250} o={(depth ? ramp(s, D0 + 12, D0 + 16) : ramp(s, B.cheek, B.cheek + 3) * gridO)} pop={ramp(s, depth ? D0 + 12 : B.cheek, (depth ? D0 + 12 : B.cheek) + 8)} />
+        </>}
+      </>
+    );
+  };
   return (
-    <AbsoluteFill>
-      <FaceView s={s} depth0={CUE_B.depth} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.photo} grid={{ face: CUE_B.face, bend: CUE_B.bend, out: CUE_B.cyan }} />
-      {s >= CUE_B.cyan - 1 && s < CUE_B.depth + 6 && <AbsoluteFill style={{ opacity: o }}><Orbit3D g={150} cyan={s - CUE_B.cyan} align /></AbsoluteFill>}
-    </AbsoluteFill>
+    <Orbit3D g={150} cyan={s >= B.cyan ? s - B.cyan : undefined}
+      ex={{ view: { az, dist: DIST }, tone: 'ir', depth: depth ? 0.55 * ramp(s, D0, D0 + 8) : 0, dotO: cloud, bg: '#08080b', overlay }} />
   );
 };
