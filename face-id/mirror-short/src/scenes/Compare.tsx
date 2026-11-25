@@ -58,31 +58,38 @@ export const Compare: React.FC = () => {
       </AbsoluteFill>
     );
   }
-  // comparing: his face as a dense white dot cloud inside a ring of ticks. The head turns left, right, up, down
-  // while a white arc circles the ring; on "enrolled" the ring fills and the question lands. No result is shown.
-  const t = l - CMP.check, done = l >= CMP.merge, yes = l >= CMP.match && l < CMP.no, no = l >= CMP.no && !done, R = 330, CX = 540, CY = 900, TICKS = 96, spin = (t / 24) % 1;
-  const io = (x: number) => x * x * (3 - 2 * x), key = (v: number[]) => interpolate(t, [0, 16, 36, 48, 60, 74, 86], v, { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: io });
-  const t0 = t; const lagT = Math.max(0, t0 - 5);
-  const key2 = (v: number[]) => interpolate(lagT, [0, 16, 36, 48, 60, 74, 86], v, { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: io });
-  const ry2 = done ? 10 * Math.cos((l - CMP.merge) / 10) : 26 * key2([0, -1, 1, 0, 0, 0, 0]), rp2 = done ? 8 * Math.sin((l - CMP.merge) / 10) : 18 * key2([0, 0, 0, 0, -1, 1, 0]);
-  const ry = done ? 10 * Math.cos((l - CMP.merge) / 10) : 26 * key([0, -1, 1, 0, 0, 0, 0]), rp = done ? 8 * Math.sin((l - CMP.merge) / 10) : 18 * key([0, 0, 0, 0, -1, 1, 0]);
+  // matching: this scan (cyan) and the enrolled face (violet) are turned into numbers and sent into the secure chip, which
+  // compares them. It ends while still comparing: no result is shown.
+  const t = l - CMP.check, CYc = 800, HK = 0.4, CH = 250;
+  const NUM = (k: number) => (0.11 + 0.88 * (Math.sin(k * 12.9898) * 43758.5453 % 1 + 1) % 1).toFixed(2);
+  const io = (x: number) => x * x * (3 - 2 * x);
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg }}>{bg}
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
-        <g transform={`translate(${CX} ${CY}) scale(${0.9 + 0.1 * ramp(t, 0, 8)})`}>
-          <circle r={R + 36} fill="rgba(4,4,6,.9)" />
-          {Array.from({ length: TICKS }, (_, i) => { const a = (i / TICKS) * 2 * Math.PI - Math.PI / 2, lit = done || yes || no || ((i / TICKS - spin + 1) % 1) < 0.24;
-            const r0 = R - 26, r1 = R + (lit ? 18 : 12);
-            return <line key={i} x1={r0 * Math.cos(a)} y1={r0 * Math.sin(a)} x2={r1 * Math.cos(a)} y2={r1 * Math.sin(a)} stroke={yes ? GREEN : no ? BAD : done ? (i < TICKS / 2 ? GREEN : BAD) : lit ? CYAN : '#5d5a6a'} strokeWidth={lit ? 7 : 6} strokeLinecap="round" opacity={lit ? 1 : 0.55} />; })}
-          {/* enrolled face (violet) and this scan (cyan): the scan follows the stored face a beat behind, then they line up */}
-          {RING_DOTS.map((d, i) => { const e = i % 2 === 0, [x, y] = turnDot(d, e ? ry : ry2, e ? rp : rp2); return <circle key={i} cx={x} cy={y} r={2.2} fill={e ? VIO : CYAN} opacity={0.3 + 0.7 * d[3]} />; })}
+        <defs><linearGradient id="chip" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#3b3760" /><stop offset="1" stopColor="#15132a" /></linearGradient></defs>
+        <Cloud cx={170} cy={CYc} k={HK} yaw={yaw} pitch={pitch} color={CYAN} r={1.5} o={ramp(t, 0, 8)} />
+        <Cloud cx={910} cy={CYc} k={HK} yaw={yaw} pitch={pitch} color={VIO} r={1.5} o={ramp(t, 4, 12)} />
+        {/* the chip */}
+        <g transform={`translate(540 ${CYc}) scale(${0.8 + 0.2 * ramp(t, 2, 12, 0, 1, io)})`} opacity={ramp(t, 2, 10)}>
+          {Array.from({ length: 7 }, (_, k) => { const o = -105 + k * 35; return <g key={k} stroke="#a79fe0" strokeWidth={7} strokeLinecap="round"><line x1={o} y1={-CH / 2 - 44} x2={o} y2={-CH / 2} /><line x1={o} y1={CH / 2} x2={o} y2={CH / 2 + 44} /><line x1={-CH / 2 - 44} y1={o} x2={-CH / 2} y2={o} /><line x1={CH / 2} y1={o} x2={CH / 2 + 44} y2={o} /></g>; })}
+          <rect x={-CH / 2} y={-CH / 2} width={CH} height={CH} rx={34} fill="url(#chip)" stroke="#c9c0ff" strokeWidth={4} />
+          <circle r={96 + 6 * Math.sin(l / 4)} fill="#7fe3ea" opacity={0.1} />
+          <g transform={`scale(${1 + 0.05 * Math.sin(l / 4)})`}>
+            <path d="M -30 -8 v -24 a 30 30 0 0 1 60 0 v 24" stroke="#7fe3ea" strokeWidth={15} strokeLinecap="round" fill="none" />
+            <rect x={-48} y={-8} width={96} height={74} rx={16} fill="#7fe3ea" />
+          </g>
         </g>
+        {/* numbers travel from each face into the chip */}
+        {[0, 1].map((side) => Array.from({ length: 3 }, (_, r) => Array.from({ length: 2 }, (_, c) => {
+          const u = ((t / 26) + r * 0.31 + c * 0.5) % 1, x0 = side ? 810 : 270, x1 = side ? 745 : 335, x = x0 + (x1 - x0) * u, o = ramp(t, 10, 16) * Math.min(1, u * 5) * (1 - Math.max(0, (u - 0.7) / 0.3));
+          return <text key={`${side}${r}${c}`} x={x} y={CYc - 60 + r * 62} textAnchor="middle" fill={side ? VIO : CYAN} opacity={o} style={{ font: `700 30px ui-monospace, Menlo, monospace` }}>{NUM(side * 50 + r * 7 + c * 3 + Math.floor(t / 26 + r * 0.31 + c * 0.5))}</text>;
+        })))}
       </svg>
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 1320, textAlign: 'center', opacity: l >= CMP.match ? 0 : ramp(t, 4, 8), font: `800 62px/1 ${FONT}`, color: '#fff' }}>Comparing…</div>
-      {yes && <div style={{ position: 'absolute', left: 0, right: 0, top: 1320, textAlign: 'center', font: `800 76px/1 ${FONT}`, color: GREEN, transform: `scale(${1.15 - 0.15 * ramp(l, CMP.match, CMP.match + 5)})` }}>✓ MATCH</div>}
-      {no && <div style={{ position: 'absolute', left: 0, right: 0, top: 1320, textAlign: 'center', font: `800 76px/1 ${FONT}`, color: BAD, transform: `scale(${1.15 - 0.15 * ramp(l, CMP.no, CMP.no + 5)})` }}>✕ NO MATCH</div>}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 1400, textAlign: 'center', opacity: l >= CMP.match ? 0 : ramp(t, 8, 12), font: `600 32px/1 ${FONT}`, color: '#bdb5ad' }}><span style={{ color: CYAN, fontWeight: 800 }}>this scan</span> vs <span style={{ color: VIO, fontWeight: 800 }}>the enrolled face</span></div>
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 1325, textAlign: 'center', opacity: ramp(l, CMP.merge, CMP.merge + 4), font: `800 70px/1 ${FONT}`, color: '#fff', transform: `scale(${1 + 0.04 * Math.sin(l / 4)})` }}>DOES IT MATCH?</div>
+      <Label text="THIS SCAN" x={170} y={CYc + 200} o={ramp(t, 4, 10)} size={25} align="center" color={CYAN} />
+      <Label text="ENROLLED" x={910} y={CYc + 200} o={ramp(t, 8, 14)} size={25} align="center" color={VIO} />
+      <Label text="SECURE ENCLAVE" x={540} y={CYc + 215} o={ramp(t, 8, 14)} size={27} align="center" color="#7fe3ea" />
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 1250, textAlign: 'center', opacity: ramp(t, 12, 18), font: `800 62px/1 ${FONT}`, color: '#fff' }}>Comparing…</div>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 1335, textAlign: 'center', opacity: ramp(t, 16, 22), font: `600 32px/1.3 ${FONT}`, color: '#bdb5ad' }}>the two sets of numbers are checked<br />inside the chip, never as a photo</div>
     </AbsoluteFill>
   );
 };
