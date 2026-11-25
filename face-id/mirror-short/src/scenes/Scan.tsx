@@ -73,23 +73,33 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
       </svg>}
       {!depth && !grid && <Label text="INFRARED CAMERA VIEW" x={505} y={1470} o={1} size={30} align="center" color={C.label} />}
       {grid && s < grid.out + 8 && (() => {
-        const wall = 1 - ramp(s, grid.face - 4, grid.face + 6), b = ramp(s, grid.bend, grid.bend + 16, 0, 1, (x) => x * x * (3 - 2 * x)), o = 1 - ramp(s, grid.out, grid.out + 6);
-        const [wx0, wy0] = headPoint({ x: 150, y: 378, d: FLAT }, 0, zoom), [wx1, wy1] = headPoint({ x: 620, y: 976, d: FLAT }, 0, zoom);
+        // wall: 1 while the flat wall is shown on its own, 0 once the face has faded in
+        const wall = 1 - ramp(s, grid.face - 8, grid.face + 8), b = ramp(s, grid.bend, grid.bend + 16, 0, 1, (x) => x * x * (3 - 2 * x)), o = 1 - ramp(s, grid.out, grid.out + 6);
         const mirX = 2 * front.nose[0] - front.cheek[0];
+        // the wall: a small dark panel on a plain background (no face behind it); its dots arrive one by one, row by row
+        const COLS = 15, ROWS = 19, GAP = 30, PW = COLS * GAP + 26, PH = ROWS * GAP + 26, PX = 505 - PW / 2, PY = 620, N = COLS * ROWS, T1 = grid.face - 22;
         return (
-          <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: o }}>
-            <rect x={wx0} y={wy0} width={wx1 - wx0} height={wy1 - wy0} rx={28} fill="#cfcbe6" stroke="#f1eeff" strokeWidth={3} opacity={wall} />
-            {GRID.map(([x, y, d, skin], i) => {
-              const vis = skin ? 1 : wall; if (vis <= 0.01) return null;
-              const [px, py] = headPoint({ x: x + (skin ? b * BEND * (d - FLAT) : 0), y, d: skin ? FLAT + (d - FLAT) * (1 - wall) : FLAT }, 0, zoom);
-              const nN = Math.hypot(x - front.nose[0], y - front.nose[1]) < 52 && s >= NO, nC = (Math.hypot(x - front.cheek[0], y - front.cheek[1]) < 46 || Math.hypot(x - mirX, y - front.cheek[1]) < 46) && s >= CH;
-              return <circle key={i} cx={px} cy={py} r={nN || nC ? 6.2 : 4.6} fill={nN ? C.amber : nC ? '#ffe9a8' : C.ir} opacity={vis * (0.9 - 0.25 * wall)} />;
-            })}
-          </svg>
+          <>
+            <AbsoluteFill style={{ backgroundColor: '#08080b', opacity: wall }} />
+            <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: wall }}>
+              <rect x={PX} y={PY} width={PW} height={PH} rx={26} fill="#161d3a" stroke="#6f86ff" strokeWidth={3} />
+              {Array.from({ length: N }, (_, i) => { const t0 = 4 + (i / N) * (T1 - 4), k = ramp(s, t0, t0 + 4); if (k <= 0) return null;
+                return <circle key={i} cx={PX + 28 + (i % COLS) * GAP} cy={PY + 28 + Math.floor(i / COLS) * GAP} r={5.2 * k * (1 + 1.3 * (1 - ramp(s, t0, t0 + 7)))} fill={C.ir} opacity={0.95} />; })}
+            </svg>
+            <Label text="FLAT WALL: A NEAT PATTERN" x={505} y={PY + PH + 34} o={wall * ramp(s, 2, 8)} size={30} align="center" color={C.label} />
+            {/* the same pattern on his face: fades in as the wall fades out */}
+            <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: o * (1 - wall) }}>
+              {GRID.map(([x, y, d, skin], i) => {
+                if (!skin) return null;
+                const [px, py] = headPoint({ x: x + b * BEND * (d - FLAT), y, d }, 0, zoom);
+                const nN = Math.hypot(x - front.nose[0], y - front.nose[1]) < 52 && s >= NO, nC = (Math.hypot(x - front.cheek[0], y - front.cheek[1]) < 46 || Math.hypot(x - mirX, y - front.cheek[1]) < 46) && s >= CH;
+                return <circle key={i} cx={px} cy={py} r={nN || nC ? 6.2 : 4.6} fill={nN ? C.amber : nC ? '#ffe9a8' : C.ir} opacity={0.9} />;
+              })}
+            </svg>
+          </>
         );
       })()}
-      {grid && s < grid.face && <Label text="FLAT WALL: A NEAT PATTERN" x={505} y={1470} o={1 - ramp(s, grid.face - 5, grid.face)} size={30} align="center" color={C.label} />}
-      {grid && s >= grid.face && s < grid.out && <Label text="ON A FACE: THE PATTERN BENDS" x={505} y={1470} o={ramp(s, grid.face + 2, grid.face + 7)} size={30} align="center" color={C.label} />}
+      {grid && s >= grid.face && s < grid.out && <Label text="ON A FACE: THE PATTERN BENDS" x={505} y={1470} o={ramp(s, grid.face + 2, grid.face + 10)} size={30} align="center" color={C.label} />}
       {depth && <Label text="DEPTH MAP" x={505} y={1690} o={1 - cm} size={30} align="center" color={C.label} />}
       {depth && <div style={{ position: 'absolute', left: 0, right: 0, top: 1500, opacity: cm, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 26, font: `800 30px/1 ${FONT}`, letterSpacing: '0.14em', color: '#e9e2ff' }}>
         FAR<div style={{ width: 520, height: 16, borderRadius: 8, background: 'linear-gradient(90deg, rgb(59,91,219), rgb(79,195,247), rgb(255,209,102), rgb(255,122,61))' }} />NEAR
