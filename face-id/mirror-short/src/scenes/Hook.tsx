@@ -6,8 +6,8 @@ import { HandPhone } from './HandPhone';
 const Take: React.FC<{ k: number }> = ({ k }) => (
   <AbsoluteFill style={{ backgroundColor: '#000', overflow: 'hidden' }}>
     <OffthreadVideo src={staticFile('mirror_clip_lock.mp4')} trimBefore={Math.round(HOOK.srcStart * FPS)} muted
-      style={{ width: 1080, height: 1920, objectFit: 'cover', transform: `scale(${1 + 0.03 * Math.min(1, k / HOOK.freeze)})`,
-        filter: k > HOOK.cut - 4 ? `blur(${(k - (HOOK.cut - 4)) * 2}px)` : undefined }} />
+      style={{ width: 1080, height: 1920, objectFit: 'cover', 
+ }} />
   </AbsoluteFill>
 );
 const Playing: React.FC = () => <Take k={HOOK.freeze + useCurrentFrame()} />;

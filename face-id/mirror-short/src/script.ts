@@ -20,7 +20,7 @@ export const SCENES = {
 // frame is held for `freeze` frames, then the take plays. At `cut` it match-cuts to the still of the phone in his hand
 // (HandPhone), entered at `handF`, where its screen sits at the same place and size; that shot carries the push on
 // to the Dynamic Island.
-export const HOOK = { srcStart: 0.95, freeze: 22, cut: 107, handF: 26 };
+export const HOOK = { srcStart: 0.95, freeze: 22, cut: 112, handF: 22 };   // cut: where the take hands over to its own last frame (same phone, no cut)
 
 // Caption placement, decided clip by clip from where the frame has empty space (y of the caption block's top).
 // Default is the top of the frame (230). Ranges are in seconds.
