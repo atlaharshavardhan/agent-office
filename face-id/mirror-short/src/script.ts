@@ -3,7 +3,7 @@
 import lengths from '../public/vo/lengths.json';
 
 export const FPS = 30;
-export const TOTAL = 1198;            // 39.9 s
+export const TOTAL = 1200;            // 40.0 s
 export const STORY_END = 38.84;       // end card = last 2 s
 export const f = (s: number) => Math.round(s * FPS);
 
@@ -11,7 +11,7 @@ export const f = (s: number) => Math.round(s * FPS);
 // → comparison → real mirror test → end card. Every scene ends right after its voice line.
 export const SCENES = {
   hook: [0, 3.8], truedepth: [3.8, 8.65], scan: [8.65, 13.69], mirror: [13.69, 18.79], measure: [18.79, 28.91],
-  compare: [28.91, 33.61], test: [33.61, 38.84], end: [38.84, 39.94],
+  compare: [28.91, 33.61], test: [33.61, 38.84], end: [38.84, 40],
 } as const;
 
 // Hook: one continuous take of public/mirror_clip.mp4 (24 fps source, 5.04 s) from the rear mirror angle, at normal speed.
