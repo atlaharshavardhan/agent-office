@@ -57,7 +57,7 @@ export const Captions: React.FC<{ lines: Line[] }> = ({ lines }) => {
     <AbsoluteFill>
       {/* top of the frame, inside the Shorts safe area (like the reference) */}
       <div style={{ position: 'absolute', left: 60, width: 840, top: CAPTION_PLACEMENT.find((r) => t >= r.from && t < r.to)?.top ?? CAPTION_TOP_DEFAULT, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-        <div style={{ position: 'absolute', inset: '-30px -10px', background: 'radial-gradient(closest-side, rgba(8,6,5,.78), rgba(8,6,5,0))' }} />
+        <div style={{ position: 'absolute', inset: '-30px -10px', background: 'radial-gradient(closest-side, rgba(8,6,5,.86), rgba(8,6,5,0))' }} />
         {c.lines.map((ln, i) => (
           <div key={i} style={{ position: 'relative', display: 'flex', gap: 20, font: `800 66px/1.12 ${CAP_FONT}` }}>
             {ln.map((w, j) => {
@@ -65,8 +65,8 @@ export const Captions: React.FC<{ lines: Line[] }> = ({ lines }) => {
               return (
                 <span key={j} style={{
                   position: 'relative', padding: '0 12px', margin: '0 -12px',
-                  color: now || done ? '#ffffff' : 'rgba(205,205,205,0.55)', fontWeight: now || done ? 800 : 600,
-                  textShadow: '0 4px 16px rgba(0,0,0,.85)',
+                  color: now || done ? '#ffffff' : '#c9c9cf', fontWeight: now || done ? 800 : 700,
+                  textShadow: '0 2px 3px rgba(0,0,0,.95), 0 0 2px rgba(0,0,0,.9), 0 4px 18px rgba(0,0,0,.85)',
                   outline: now ? `3px solid ${BLUE}` : 'none', background: now ? 'rgba(25,40,90,.55)' : 'transparent',
                 }}>
                   {w.w}

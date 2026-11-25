@@ -11,7 +11,7 @@ const rnd = (i: number) => { const x = Math.sin((i + 1) * 78.233) * 43758.5453; 
 // The shot does not just cut to the dots: in its last third of a second the projector fires, a burst of red dots flies out
 // of the island toward us and fills the frame, and the dots clip picks them up in mid-air. One action across the cut.
 export const TrueDepth: React.FC = () => {
-  const fr = useCurrentFrame(), t = fr - (DUR - 11), k = Math.max(0, t) / 11;
+  const fr = useCurrentFrame(), t = fr - (DUR - 15), k = Math.max(0, t) / 15;
   return (
     <AbsoluteFill>
       <HandPhone f={LEAD + fr} />
