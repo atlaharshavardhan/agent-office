@@ -23,7 +23,7 @@ LINES = {
     "n6_open": "It actually unlocked.",
     "n6_locked": "In my test, it stayed locked.",
 }
-VOICE, LANG, RATE = "am_michael", "en-us", 1.22      # narrator (was bm_george, en-gb, 1.18)
+VOICE, LANG, RATE = "am_michael", "en-us", 1.26      # narrator (was bm_george, en-gb, 1.18)
 SPEED = {}        # one speed for every line, so the pace never jumps between lines
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
 ONLY = sys.argv[2:]          # optional: regenerate only these line ids, keep the rest
