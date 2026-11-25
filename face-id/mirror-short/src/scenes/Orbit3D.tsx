@@ -157,7 +157,7 @@ void main(){ float r = length(gl_PointCoord - 0.5) * 2.0; if (r > 1.0) discard; 
   gl_FragColor = vec4(mix(vCol, vec3(1.0), smoothstep(0.5, 0.0, r) * 0.7) * a * uO, a * uO); }`;
 const RED = new THREE.Color(C.ir), CY = new THREE.Color(CYAN);
 
-const Inner: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean; cam: THREE.PerspectiveCamera; head: Head; phone: THREE.Object3D; ex?: Explain }> = ({ g, cyan, pov, align, cam, head, phone, ex }) => {
+const Inner: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean; cam: THREE.PerspectiveCamera; head: Head; phone: THREE.Object3D; ex?: Explain; look?: Look }> = ({ g, cyan, pov, align, cam, head, phone, ex, look }) => {
   const gl = useThree((s) => s.gl), scene = useThree((s) => s.scene), advance = useThree((s) => s.advance);
   // the canvas only draws on demand: draw after every commit of this scene so no frame is left blank
   useEffect(() => { advance(performance.now()); });
@@ -212,7 +212,7 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean;
   }
   pts.geo.attributes.position.needsUpdate = true; pts.geo.attributes.aSize.needsUpdate = true; pts.geo.attributes.aCol.needsUpdate = true;
   pts.mat.uniforms.uScale.value = gl.domElement.height / (2 * Math.tan((FOV * Math.PI) / 360));
-  pts.mat.uniforms.uO.value = ex ? ex.dotO ?? 0 : 1 - ramp(g, 190, 202);
+  pts.mat.uniforms.uO.value = ex ? ex.dotO ?? 0 : look === 'eye' ? 0 : 1 - ramp(g, 190, 202);
   const rp = rays.attributes.position.array as Float32Array, stride = Math.max(1, Math.floor(n / RAYS)), off = Math.floor(g / 2) % stride;
   for (let k = 0; k < RAYS; k++) {
     const i = (k * stride + off) % n, on = g >= launch[i] + FL;
@@ -229,12 +229,12 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean;
     rp[k * 6 + 3] = !show ? rp[k * 6] : out ? hx : dots[i * 3]; rp[k * 6 + 4] = !show ? rp[k * 6 + 1] : out ? hy : dots[i * 3 + 1]; rp[k * 6 + 5] = !show ? rp[k * 6 + 2] : out ? ZG : dots[i * 3 + 2];
   }
   rays.attributes.position.needsUpdate = true;
-  const rayO = cyan !== undefined || ex ? 0 : pov !== undefined ? 0.5 : 0.2 * ramp(g, 4, 10);
+  const rayO = cyan !== undefined || ex || look ? 0 : pov !== undefined ? 0.5 : 0.2 * ramp(g, 4, 10);
   // where the middle of the pattern meets the glass: the reflecting waves spread from here
   const noseHit = (() => { const u = (ZG - proj.z) / (2 * ZG - head.nose.z - proj.z); return [proj.x + (head.nose.x - proj.x) * u, proj.y + (head.nose.y - 40 - proj.y) * u]; })();
   return (
     <>
-      {toDepth < 1 && <mesh geometry={head.geo}><meshBasicMaterial map={ex?.tone === 'ir' ? head.mapIr : head.map} color={ex ? (ex.tone === 'ir' ? '#8e8e8e' : '#d9b79c') : pov !== undefined ? '#c9a184' : '#7c7c7c'} /></mesh>}
+      {toDepth < 1 && <mesh geometry={head.geo}><meshBasicMaterial map={ex?.tone === 'ir' || look === 'cam' ? head.mapIr : head.map} color={ex ? (ex.tone === 'ir' ? '#8e8e8e' : '#d9b79c') : look === 'eye' ? '#d9b79c' : look === 'cam' ? '#8e8e8e' : pov !== undefined ? '#c9a184' : '#7c7c7c'} /></mesh>}
       {toDepth > 0 && <mesh geometry={head.geo}><meshBasicMaterial vertexColors color={ex ? '#8fb2ff' : '#ffffff'} transparent opacity={toDepth} /></mesh>}
       <lineSegments geometry={rays}><lineBasicMaterial color={C.ir} transparent opacity={rayO} blending={THREE.AdditiveBlending} depthWrite={false} /></lineSegments>
       <points geometry={pts.geo} material={pts.mat} frustumCulled={false} />
@@ -248,7 +248,7 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean;
       <group visible={!align && !ex} position={pov !== undefined ? povPhone.pos : head.phonePos} quaternion={pov !== undefined ? povPhone.quat : head.phoneQuat} scale={PS}>
         <Phone3D model={phone} />
         <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.2]}><circleGeometry args={[4, 20]} /><meshBasicMaterial color="#ffffff" /></mesh>
-        <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.1]}><circleGeometry args={[15, 24]} /><meshBasicMaterial color={C.ir} transparent opacity={cyan !== undefined ? 0 : 0.75} blending={THREE.AdditiveBlending} /></mesh>
+        <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.1]}><circleGeometry args={[15, 24]} /><meshBasicMaterial color={C.ir} transparent opacity={cyan !== undefined || look ? 0 : 0.75} blending={THREE.AdditiveBlending} /></mesh>
       </group>
     </>
   );
@@ -271,7 +271,10 @@ const Mark: React.FC<{ x: number; y: number; text: string; sub: string; dx: numb
 // pov = frame of the mirror's-point-of-view clip: we look at him from the mirror; the dots fly at us, hit the glass and go back to his face.
 // ex = explainer mode: the same head with a chosen camera, look and overlay (no phone, no captions of its own).
 export type Explain = { view: View; tone?: 'colour' | 'ir'; depth?: number; dotO?: number; bg?: string; overlay?: (api: HeadApi) => React.ReactNode };
-export const Orbit3D: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean; ex?: Explain }> = ({ g, cyan, pov, align, ex }) => {
+// look: the same shot shown two ways, with nothing else changed. 'eye' = what you see (colour, no dots: they are invisible);
+// 'cam' = what the infrared camera sees (grey, with the dot pattern).
+export type Look = 'eye' | 'cam';
+export const Orbit3D: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean; ex?: Explain; look?: Look }> = ({ g, cyan, pov, align, ex, look }) => {
   const head = useHead(), phone = usePhoneModel();
   const cam = useMemo(() => (head ? camAt(g, head, cyan, pov, align, ex?.view) : null), [g, head, cyan, pov, align, ex?.view.az, ex?.view.dist]);
   const nose = head && cam ? toScreen(cam, head.nose) : [0, 0], cheek = head && cam ? toScreen(cam, head.cheek) : [0, 0];
@@ -279,19 +282,19 @@ export const Orbit3D: React.FC<{ g: number; cyan?: number; pov?: number; align?:
     <AbsoluteFill style={{ backgroundColor: ex?.bg ?? '#070606' }}>
       {pov !== undefined && <AbsoluteFill style={{ background: 'radial-gradient(90% 60% at 30% 22%, #6b3d1c 0%, #2a1a10 45%, #0d0907 100%)' }} />}
       <ThreeCanvas width={1080} height={1920} flat gl={{ antialias: true, alpha: true }} style={{ position: 'absolute', inset: 0 }} camera={{ fov: FOV, near: 10, far: 9000 }}>
-        {head && phone && cam && <Inner g={g} cyan={cyan} pov={pov} align={align} cam={cam} head={head} phone={phone} ex={ex} />}
+        {head && phone && cam && <Inner g={g} cyan={cyan} pov={pov} align={align} cam={cam} head={head} phone={phone} ex={ex} look={look} />}
       </ThreeCanvas>
       {ex && head && cam && ex.overlay && (() => { const v = new THREE.Vector3(); return <AbsoluteFill>{ex.overlay({ head, S: (x, y, z) => { v.set(x, y, z).project(cam); return [(v.x + 1) * 540, (1 - v.y) * 960]; } })}</AbsoluteFill>; })()}
       <Mark x={nose[0]} y={nose[1]} text="CLOSER" sub="nose" dx={-150} o={ramp(g, 205, 209) * (1 - ramp(g, 322, 328))} />
       <Mark x={cheek[0]} y={cheek[1]} text="FARTHER" sub="cheek" dx={170} o={ramp(g, 270, 274) * (1 - ramp(g, 322, 328))} />
-      <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: cyan !== undefined || pov !== undefined || ex ? 0 : ramp(g, 40, 44), color: C.ir, font: `800 112px/1 ${FONT}` }}>
+      <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: cyan !== undefined || pov !== undefined || ex || look ? 0 : ramp(g, 40, 44), color: C.ir, font: `800 112px/1 ${FONT}` }}>
         30,000+ <span style={{ fontSize: 46, letterSpacing: '0.06em' }}>DOTS</span>
       </div>
       <div style={{ position: 'absolute', left: 70, width: 870, top: 1425, textAlign: 'center', opacity: cyan !== undefined && !ex ? ramp(cyan, 8, 12) : 0, color: CYAN, font: `800 104px/1 ${FONT}` }}>
         30,000+ <span style={{ fontSize: 42, letterSpacing: '0.06em' }}>DEPTH POINTS</span>
       </div>
       <Label text="DEPTH MAP" x={505} y={1500} o={ramp(g, 197, 201)} align="center" />
-      <div style={{ position: 'absolute', left: 80, top: 1562, opacity: ex ? 0 : 0.5 * (1 - ramp(g, 185, 197)), font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>3D illustration · dot count: Apple · fewer dots drawn than fired · invisible to the eye</div>
+      <div style={{ position: 'absolute', left: 80, top: 1562, opacity: ex || look ? 0 : 0.5 * (1 - ramp(g, 185, 197)), font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>3D illustration · dot count: Apple · fewer dots drawn than fired · invisible to the eye</div>
     </AbsoluteFill>
   );
 };

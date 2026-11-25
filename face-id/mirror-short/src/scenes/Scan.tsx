@@ -169,9 +169,31 @@ const Split: React.FC = () => (
   </AbsoluteFill>
 );
 
+// "And the infrared camera picks up that pattern": the shot does not change. On the same 3D head, from the same angle, a
+// line wipes across and switches what is shown: first what you see (no dots: they are invisible), then what the infrared
+// camera sees (the dot pattern on his face).
+const SeeBadge: React.FC<{ ir: boolean; o: number }> = ({ ir, o }) => (
+  <div style={{ position: 'absolute', left: 0, right: 0, top: 1400, textAlign: 'center', opacity: o }}>
+    <span style={{ display: 'inline-block', padding: '18px 26px', borderRadius: 12, background: 'rgba(10,8,7,.85)', border: `3px solid ${ir ? C.ir : '#b9b2a8'}`, font: `800 40px/1 ${FONT}`, letterSpacing: '0.12em', color: '#fff' }}>{ir ? 'WHAT THE CAMERA SEES' : 'WHAT YOU SEE'}</span>
+    <div style={{ marginTop: 18, font: `600 32px/1.2 ${FONT}`, color: '#d6cfc7' }}>{ir ? 'the dot pattern, in infrared' : 'nothing: the dots are invisible'}</div>
+  </div>
+);
 export const ScanA: React.FC = () => {
-  const s = useCurrentFrame();
-  return s < CUE_A.front ? <Orbit3D g={s} /> : <Split />;
+  const s = useCurrentFrame(), t = s - CUE_A.front;
+  if (t < 0) return <Orbit3D g={s} />;
+  const io = (x: number) => x * x * (3 - 2 * x), w1 = ramp(t, 1, 13, 0, 1, io), w2 = ramp(t, 22, 34, 0, 1, io);
+  const G = Math.min(s, 180);                       // hold the dots clip on its last pose (later frames of it are an old depth-map look)
+  const clip = (w: number) => ({ clipPath: `inset(0 ${(1 - w) * 100}% 0 0)` });
+  return (
+    <AbsoluteFill>
+      {w1 < 1 && <Orbit3D g={G} />}
+      {w1 > 0 && w2 < 1 && <AbsoluteFill style={clip(w1)}><Orbit3D g={G} look="eye" /></AbsoluteFill>}
+      {w2 > 0 && <AbsoluteFill style={clip(w2)}><Orbit3D g={G} look="cam" /></AbsoluteFill>}
+      {[w1, w2].map((w, k) => w > 0 && w < 1 ? <div key={k} style={{ position: 'absolute', left: 1080 * w - 3, top: 0, width: 6, height: 1920, background: '#fff', boxShadow: '0 0 30px 8px rgba(255,255,255,.55)' }} /> : null)}
+      <SeeBadge ir={false} o={ramp(t, 8, 13) * (1 - ramp(t, 22, 27))} />
+      <SeeBadge ir o={ramp(t, 29, 34)} />
+    </AbsoluteFill>
+  );
 };
 
 export const ScanB: React.FC = () => {
