@@ -11,15 +11,15 @@ from kokoro_onnx import Kokoro
 M = Path(sys.argv[1])
 OUT = Path(__file__).resolve().parent.parent / "public" / "vo"; OUT.mkdir(parents=True, exist_ok=True)
 LINES = {
-    "n1": "Ever wondered: can you unlock an iPhone 18 Pro with your mirror reflection?",
-    "n2": "This camera up here projects more than thirty thousand invisible dots.",
-    "n3a": "When I wake the phone, they land on my face, and the infrared camera picks up the pattern.",
-    "n5": "But here's the twist: a mirror can bounce that light right back onto my face.",
-    "n3c": "So what is the phone actually reading? My nose bends the dots one way, my cheeks another, and from those bends it maps my face.",
+    "n1": "Ever wondered if you could unlock an iPhone 18 Pro with just your mirror reflection?",
+    "n2": "This camera up top projects over thirty thousand invisible dots.",
+    "n3a": "When I wake my phone, they land on my face, and the infrared camera picks up the pattern.",
+    "n5": "But here's the twist: a mirror bounces that light straight back onto my face.",
+    "n3c": "So what's the phone really reading? My nose bends the dots one way, my cheeks another, and from those bends, it maps my face.",
     "n3d": "That's why a flat photo fails. Nothing bends.",
-    "n4": "It also takes an infrared picture, then checks both against the face I set up.",
+    "n4": "It also grabs an infrared picture, then checks both against the face I set up.",
     "n6q": "So, did it work?",
-    "n6r": "It unlocked for me. Did yours? Tell me in the comments.",
+    "n6r": "It unlocked for me! Did yours? Tell me in the comments.",
     "n6_open": "It actually unlocked.",
     "n6_locked": "In my test, it stayed locked.",
 }
