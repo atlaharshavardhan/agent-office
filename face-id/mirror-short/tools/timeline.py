@@ -39,7 +39,7 @@ at['n3c']=R(mir1+0.05); m0=mir1
 cue=dict(face=-20,nose=F(at['n3c']+wt('n3c','nose')-m0),cheek=F(at['n3c']+wt('n3c','cheeks')-m0),cyan=F(at['n3c']+wt('n3c','and')-m0)); cue['bend']=cue['nose']-4; cue['depth']=cue['cyan']+18
 at['n3d']=R(at['n3c']+L['n3c']+0.2); cue['photo']=F(at['n3d']-0.05-m0); m1=R(at['n3d']+L['n3d']+0.35); cue['end']=F(m1)-F(m0)
 at['n4']=R(m1+0.05); cmp_=dict(both=F(at['n4']+wt('n4','then')-m1)-2,check=F(at['n4']+wt('n4','against')-m1)-2); at['n4b']=R(at['n4']+L['n4']+GAP); cmp_['no']=F(at['n4b']-m1)-1; cmp_['match']=F(at['n4b']+wt('n4b','a')-m1)-2; c1=R(at['n4b']+L['n4b']+0.3)
-at['n6q']=R(c1+0.1); unlockT=R(at['n6q']+L['n6q']+0.25); at['n6r']=R(unlockT+0.45); t1=R(at['n6r']+L['n6r']+0.4); e1=R(t1+1.5)
+at['n6q']=R(c1+0.1); unlockT=R(at['n6q']+L['n6q']+0.25); at['n6r']=R(unlockT+0.45); t1=R(at['n6r']+L['n6r']+0.7); e1=R(max(t1+2.5,40.0))      # question card held a little longer; end card 2.5 s; 40 s in all
 print({k:(at[k],L[k]) for k in ORDER}); print('hook',freeze,cut,hookEnd,'explain',explain,card,'front',front,cam,'cue',cue,'cmp',cmp_,'ends',td1,sc1,mir1,m1,c1,t1,e1)
 # ---- script.ts ----
 p='src/script.ts'; s=open(p).read()

@@ -3,15 +3,15 @@
 import lengths from '../public/vo/lengths.json';
 
 export const FPS = 30;
-export const TOTAL = 1160;            // 38.7 s
-export const STORY_END = 37.17;       // end card = last 2 s
+export const TOTAL = 1200;            // 40.0 s
+export const STORY_END = 37.47;       // end card = last 2 s
 export const f = (s: number) => Math.round(s * FPS);
 
 // Scene order: hook → inside the phone → red dots + infrared view → the mirror twist → what the phone measures
 // → comparison → real mirror test → end card. Every scene ends right after its voice line.
 export const SCENES = {
   hook: [0, 3.23], truedepth: [3.23, 5.48], scan: [5.48, 9.92], mirror: [9.92, 15.02], measure: [15.02, 24.55],
-  compare: [24.55, 32.31], test: [32.31, 37.17], end: [37.17, 38.67],
+  compare: [24.55, 32.31], test: [32.31, 37.47], end: [37.47, 40.0],
 } as const;
 
 // Hook: one continuous take of public/mirror_clip.mp4 (24 fps source, 5.04 s) from the rear mirror angle, at normal speed.
@@ -34,7 +34,7 @@ export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 15.02, to: 19.55, top: 230 },      // the 3D dotted head
   { from: 21.77, to: 24.55, top: 230 },      // the photo
   { from: 24.55, to: 32.31, top: 230 },     // comparison
-  { from: 32.31, to: 37.17, top: 230 },     // reveal: the phone fills the frame -> caption above it
+  { from: 32.31, to: 37.47, top: 230 },     // reveal: the phone fills the frame -> caption above it
 ];
 
 export type Line = { id: string; at: number; text: string };
