@@ -45,15 +45,13 @@ const STREAM = Array.from({ length: 150 }, () => [rnd(), rnd()]);
 export const MIR = { glass: 54, face: 96, wide: 999, inside: 9999, diagram: 52, live: 130, end: 186 };   // inside: the cut into the mirror view
 const PUSH = 79;                                                       // the word bounce
 const RAY0 = 36, RAY1 = 94;                                           // the rays leave the phone / reach the glass (about 2 s: slow motion)
-const STEPS = [{ at: 30, to: MIR.glass, text: 'RAYS LEAVE THE PHONE' }, { at: MIR.glass, to: MIR.wide, text: '2 · SLOW MOTION: THEY TRAVEL TO THE MIRROR' }, { at: MIR.live, to: 999, text: 'IN REAL LIFE: OFF THE GLASS, ONTO HIS FACE' }];
+const STEPS = [{ at: 30, to: MIR.glass, text: '1 · RAYS LEAVE THE PHONE' }, { at: MIR.glass, to: MIR.wide, text: '2 · SLOW MOTION: THEY TRAVEL TO THE MIRROR' }, { at: MIR.live, to: 999, text: '3 · IN REAL LIFE: OFF THE GLASS, ONTO HIS FACE' }];
 
 // MIR_FROM: the setup is trimmed, the scene starts this many frames in (just before the dots leave the phone)
 export const MIR_FROM = 24;
 export const Mirror: React.FC = () => {
-  // order: the wide shot, then the real-life bounce (LV frames), then the top-down diagram explains it
-  const fr0 = useCurrentFrame(), W = MIR.diagram - MIR_FROM, LV = 47;
-  if (fr0 >= W + LV) return <MirrorTop t={fr0 - W - LV} />;
-  const l = fr0 < W ? fr0 + MIR_FROM : MIR.live + (fr0 - W);
+  const l = useCurrentFrame() + MIR_FROM;
+  if (l >= MIR.diagram && l < MIR.live) return <MirrorTop t={l - MIR.diagram} />;
   const lv = l - MIR.live;                                              // >= 0: the real-life bounce      // after the wide shot: the bounce, explained from above
   if (l >= MIR.inside) return (
     <AbsoluteFill>

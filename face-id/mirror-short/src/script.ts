@@ -30,7 +30,7 @@ export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 2.28, to: 3.26, top: 1680 },      // the push to the top of the phone: caption under the clock
   { from: 3.26, to: 5.48, top: 1160 },      // the parts use the top -> caption between the island and the clock
   { from: 5.48, to: 7.61, top: 185 },     // 3D red dots clip: raised to clear his hair and the dots
-  { from: 12.42, to: 15.02, top: 1540 },      // top-down mirror diagram: the top holds the face behind the glass -> caption below his head
+  { from: 10.85, to: 13.45, top: 1540 },      // top-down mirror diagram: the top holds the face behind the glass -> caption below his head
   { from: 15.02, to: 19.55, top: 170 },      // the 3D dotted head
   { from: 21.77, to: 24.55, top: 170 },      // the photo
   { from: 24.55, to: 32.31, top: 170 },     // comparison
@@ -66,7 +66,7 @@ export const LEN: Record<string, number> = lengths as any;
 export const SFX = [
   { name: 'SFX · the projector fires its dots', file: 'fire.wav', at: 5.43, vol: 0.07 },
   { name: 'SFX · the infrared camera reads the pattern', file: 'scan.wav', at: 8.58, vol: 0.045 },
-  { name: 'SFX · the dots come back off the mirror', file: 'fire.wav', at: 11.22, vol: 0.055 },
+  { name: 'SFX · the dots come back off the mirror', file: 'fire.wav', at: 13.82, vol: 0.055 },
   { name: 'SFX · the face is mapped', file: 'scan.wav', at: 15.27, vol: 0.04 },
   { name: 'SFX · no match, stays locked', file: 'deny.wav', at: 28.72, vol: 0.08 },
   { name: 'SFX · match, unlocks', file: 'ok.wav', at: 30.55, vol: 0.07 },
