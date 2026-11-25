@@ -1,4 +1,6 @@
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
+import { SCENES, UNLOCK_AT, f } from './script';
+import { ramp } from './theme';
 
 // Channel rule 15/22: logo + @TheInvisiTech on every Short. A clear one at the right edge,
 // vertical centre (clear of the like/comment column), softly blended; plus a faint one drifting
@@ -6,8 +8,9 @@ import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 export const Watermark: React.FC = () => {
   const fr = useCurrentFrame();
   const k = fr / 1124;
+  const ASK = f(SCENES.test[0]) + UNLOCK_AT + 34, hide = 1 - ramp(fr, ASK - 4, ASK + 4);
   return (
-    <AbsoluteFill style={{ pointerEvents: 'none' }}>
+    <AbsoluteFill style={{ pointerEvents: 'none', opacity: hide }}>
       <Img src={staticFile('watermark-clear.png')} style={{ position: 'absolute', right: 190, top: 965,   // moved up while the phone is held there
         height: 50, opacity: 0.42, mixBlendMode: 'screen', filter: 'saturate(0.85)' }} />
       <Img src={staticFile('watermark-clear.png')} style={{ position: 'absolute', left: 160 + 220 * k, top: 760 + 260 * Math.sin(k * Math.PI), height: 64, opacity: 0.07, mixBlendMode: 'screen' }} />
