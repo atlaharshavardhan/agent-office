@@ -11,7 +11,7 @@ from kokoro_onnx import Kokoro
 M = Path(sys.argv[1])
 OUT = Path(__file__).resolve().parent.parent / "public" / "vo"; OUT.mkdir(parents=True, exist_ok=True)
 LINES = {
-    "n1": "Can my mirror reflection unlock an iPhone 18 Pro?",
+    "n1": "Ever wondered: can you unlock an iPhone 18 Pro with your mirror reflection?",
     "n2": "This camera up here projects more than thirty thousand invisible dots.",
     "n3a": "When I wake the phone, they land on my face, and the infrared camera picks up the pattern.",
     "n5": "But here's the twist: a mirror can bounce that light right back onto my face.",
@@ -23,7 +23,7 @@ LINES = {
     "n6_open": "It actually unlocked.",
     "n6_locked": "In my test, it stayed locked.",
 }
-VOICE, LANG, RATE = "am_michael", "en-us", 1.26      # narrator (was bm_george, en-gb, 1.18)
+VOICE, LANG, RATE = "am_michael", "en-us", 1.28      # narrator (was bm_george, en-gb, 1.18)
 SPEED = {}        # one speed for every line, so the pace never jumps between lines
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
 ONLY = sys.argv[2:]          # optional: regenerate only these line ids, keep the rest
