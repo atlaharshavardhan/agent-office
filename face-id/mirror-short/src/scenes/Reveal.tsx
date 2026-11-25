@@ -33,13 +33,14 @@ export const Reveal: React.FC = () => {
   const fr = useCurrentFrame(), U = UNLOCK_AT;
   const lock = usePhoneModel(true), homeM = usePhoneModel('home');
   const s = 0.9 + 0.06 * ramp(fr, 0, 14, 0, 1, out3) + 0.04 * (fr / 150) + 0.05 * ramp(fr, U, U + 8, 0, 1, out3);
-  const e = ramp(fr, 4, 14, 0, 1, io) * (1 - ramp(fr, U + 6, U + 16, 0, 1, io)), bh = ISL.h + (ISL.w * 0.94 - ISL.h) * e, top = ISL.y - ISL.h / 2;
+  const mz = ramp(fr, 0, 15, 0, 1, (x) => x * x * x), mo = 1 - ramp(fr, 10, 16);      // the mirror shot: rush into the reflected phone, then give way to it
+  const e = ramp(fr, 15, 23, 0, 1, io) * (1 - ramp(fr, U + 6, U + 16, 0, 1, io)), bh = ISL.h + (ISL.w * 0.94 - ISL.h) * e, top = ISL.y - ISL.h / 2;
   const open = ramp(fr, U, U + 6, 0, 1, out3), home = ramp(fr, U + 8, U + 20, 0, 1, io), ask = ramp(fr, U + 34, U + 42, 0, 1, out3);
   return (
     <AbsoluteFill style={{ backgroundColor: '#120d0a', overflow: 'hidden' }}>
       <Img src={staticFile('bathroom_rear.png')} style={{ position: 'absolute', left: -220, top: -120, width: 1520, height: 2700, filter: 'blur(22px) brightness(0.42)' }} />
       <div style={{ position: 'absolute', inset: 0, transformOrigin: '540px 960px', transform: `scale(${s})` }}>
-        <Layer phone={lock} />
+        <div style={{ position: 'absolute', inset: 0, opacity: 1 - mo }}><Layer phone={lock} /></div>
         {home > 0 && <Layer phone={homeM} o={home} />}
         <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
           {/* Face ID in the island: scanning, then a green tick */}
@@ -53,6 +54,7 @@ export const Reveal: React.FC = () => {
           </g>
         </svg>
       </div>
+      {mo > 0 && <AbsoluteFill style={{ opacity: mo, transformOrigin: '771px 618px', transform: `translate(${(540 - 771) * mz}px, ${(960 - 618) * mz}px) scale(${1 + 6.2 * mz})` }}><Img src={staticFile('hook_first.png')} style={{ width: 1080, height: 1920 }} /></AbsoluteFill>}
       <AbsoluteFill style={{ backgroundColor: '#fff', opacity: 0.2 * ramp(fr, U, U + 2) * (1 - ramp(fr, U + 2, U + 10)) }} />
       {/* the result, then the question for the viewer */}
       <div style={{ position: 'absolute', left: 0, right: 0, top: 1690, textAlign: 'center', opacity: ramp(fr, U + 10, U + 16) * (1 - ask), transform: `scale(${1.2 - 0.2 * ramp(fr, U + 10, U + 18, 0, 1, out3)})` }}>

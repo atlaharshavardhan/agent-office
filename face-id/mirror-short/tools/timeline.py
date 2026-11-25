@@ -31,8 +31,8 @@ at['n2']=R(max(hookEnd+0.05, at['n1']+L['n1']+GAP))
 LEAD=22+F(hookEnd)-cut
 fOf=lambda t: LEAD+(t-hookEnd)*30
 explain=9999; card=999      # the phone shot ends on 'fire': the parts lift out and light up, nothing more; card=999
-td1=R(at['n2']+L['n2']+GAP)
-at['n3a']=R(td1+0.05); front=F(at['n3a']+wt('n3a','and')-td1)-2; cam=max(20,F(at['n3a']+wt('n3a','picks')-td1)-front-4)
+td1=R(at['n2']+L['n2']+0.02)      # the two halves of one sentence: no breath between them
+at['n3a']=R(td1+0.01); front=F(at['n3a']+wt('n3a','and')-td1)-2; cam=max(20,F(at['n3a']+wt('n3a','picks')-td1)-front-4)
 sc1=R(at['n3a']+L['n3a']+0.25)
 at['n5']=R(sc1+0.05); mir1=R(sc1+max(L['n5']+0.35,153/30))
 at['n3c']=R(mir1+0.05); m0=mir1
@@ -64,10 +64,15 @@ block("export const CAPTION_PLACEMENT","];","""export const CAPTION_PLACEMENT: {
 ];"""%(max(0,rush-0.6),rush+1.4,rush+1.4,at['n2']-0.02,at['n2']-0.02,td1,td1,td1+front/30,sc1+28/30,sc1+106/30,m0,m0+cue['cyan']/30,at['n3d'],m1,m1,c1,c1,t1))
 block("export const NARRATION: Line[] = [","];","export const NARRATION: Line[] = [\n"+"".join("  { id: '%s', at: %s, text: %s },\n"%(k,at[k],json.dumps(T[k])) for k in ORDER)+"];")
 block("export const SFX = [","];","""export const SFX = [
-  { name: 'SFX · thump (the parts are named)', file: 'thump.wav', at: %.2f, vol: 0.3 },
-  { name: 'SFX · thump (what the camera sees)', file: 'thump.wav', at: %.2f, vol: 0.25 },
-  { name: 'SFX · thump (real test)', file: 'thump.wav', at: %s, vol: 0.45 },
-];"""%(hookEnd+(explain-LEAD)/30,td1+(front+cam)/30,c1))
+  { name: 'SFX · the projector fires its dots', file: 'fire.wav', at: %.2f, vol: 0.5 },
+  { name: 'SFX · the infrared camera reads the pattern', file: 'scan.wav', at: %.2f, vol: 0.32 },
+  { name: 'SFX · the dots come back off the mirror', file: 'fire.wav', at: %.2f, vol: 0.38 },
+  { name: 'SFX · the face is mapped', file: 'scan.wav', at: %.2f, vol: 0.26 },
+  { name: 'SFX · no match, stays locked', file: 'deny.wav', at: %.2f, vol: 0.5 },
+  { name: 'SFX · match, unlocks', file: 'ok.wav', at: %.2f, vol: 0.45 },
+  { name: 'SFX · Face ID scans', file: 'scan.wav', at: %.2f, vol: 0.3 },
+  { name: 'SFX · unlocked', file: 'unlock.wav', at: %.2f, vol: 0.6 },
+];"""%(td1-0.05,td1+(front+cam)/30,sc1+3.9,m0+0.25,m1+cmp_['no']/30,m1+cmp_['match']/30,c1+0.45,unlockT))
 s=re.sub(r"resultDelaySec: [\d.]+,","resultDelaySec: %s,"%R(0.1+L['n6q']+0.5),s)
 s=re.sub(r'export const UNLOCK_AT = \d+;','export const UNLOCK_AT = %d;'%F(unlockT-c1),s)
 open(p,'w').write(s)
