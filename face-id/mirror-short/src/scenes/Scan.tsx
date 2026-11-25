@@ -3,7 +3,7 @@ import front from '../front.json';
 import mesh from '../mesh_front.json';
 import { C, FONT, Label, ramp } from '../theme';
 import { Head3D, headPoint } from './Head3D';
-import { Orbit3D } from './Orbit3D';
+import { HeadApi, Orbit3D } from './Orbit3D';
 import { Map3D } from './Map3D';
 import { PhotoFlat } from './PhotoFlat';
 
@@ -87,19 +87,10 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
                 return <circle key={i} cx={PX + 28 + (i % COLS) * GAP} cy={PY + 28 + Math.floor(i / COLS) * GAP} r={5.2 * k * (1 + 1.3 * (1 - ramp(s, t0, t0 + 7)))} fill={C.ir} opacity={0.95} />; })}
             </svg>
             <Label text="FLAT WALL: A NEAT PATTERN" x={505} y={PY + PH + 34} o={wall * ramp(s, 2, 8)} size={30} align="center" color={C.label} />
-            {/* the same pattern on his face: fades in as the wall fades out */}
-            <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: o * (1 - wall) }}>
-              {GRID.map(([x, y, d, skin], i) => {
-                if (!skin) return null;
-                const [px, py] = headPoint({ x: x + b * BEND * (d - FLAT), y, d }, 0, zoom);
-                const nN = Math.hypot(x - front.nose[0], y - front.nose[1]) < 52 && s >= NO, nC = (Math.hypot(x - front.cheek[0], y - front.cheek[1]) < 46 || Math.hypot(x - mirX, y - front.cheek[1]) < 46) && s >= CH;
-                return <circle key={i} cx={px} cy={py} r={nN || nC ? 6.2 : 4.6} fill={nN ? C.amber : nC ? '#ffe9a8' : C.ir} opacity={0.9} />;
-              })}
-            </svg>
           </>
         );
       })()}
-      {grid && s >= grid.face && s < grid.out && <Label text="ON A FACE: THE PATTERN BENDS" x={505} y={1470} o={ramp(s, grid.face + 2, grid.face + 10)} size={30} align="center" color={C.label} />}
+      {false && grid && s >= grid.face && s < grid.out && <Label text="ON A FACE: THE PATTERN BENDS" x={505} y={1470} o={ramp(s, grid.face + 2, grid.face + 10)} size={30} align="center" color={C.label} />}
       {depth && <Label text="DEPTH MAP" x={505} y={1690} o={1 - cm} size={30} align="center" color={C.label} />}
       {depth && <div style={{ position: 'absolute', left: 0, right: 0, top: 1500, opacity: cm, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 26, font: `800 30px/1 ${FONT}`, letterSpacing: '0.14em', color: '#e9e2ff' }}>
         FAR<div style={{ width: 520, height: 16, borderRadius: 8, background: 'linear-gradient(90deg, rgb(59,91,219), rgb(79,195,247), rgb(255,209,102), rgb(255,122,61))' }} />NEAR
@@ -206,6 +197,40 @@ export const ScanA: React.FC = () => {
   );
 };
 
+// "Your nose bends them one way, and your cheeks bend them another", on the 3D dotted head. The head turns a little each
+// way so the nose is seen standing out; the dots on the nose light up and slide one way, the dots on the cheeks the other.
+const Bend3D: React.FC<{ s: number }> = ({ s }) => {
+  const B = CUE_B, io = (x: number) => x * x * (3 - 2 * x);
+  const az = 22 * ramp(s, B.nose - 4, B.nose + 18, 0, 1, io) - 44 * ramp(s, B.cheek - 6, B.cheek + 18, 0, 1, io) + 22 * ramp(s, B.cyan - 16, B.cyan - 2, 0, 1, io);
+  const overlay = ({ S, head }: HeadApi) => {
+    const { nose, cheek, centre, dots, n } = head, mirX = 2 * centre[0] - cheek.x;
+    const kn = ramp(s, B.nose, B.nose + 14, 0, 1, io), kc = ramp(s, B.cheek, B.cheek + 14, 0, 1, io), out: React.ReactNode[] = [];
+    for (let i = 0; i < n; i++) {
+      const x = dots[i * 3], y = dots[i * 3 + 1], z = dots[i * 3 + 2];
+      const isN = kn > 0 && Math.hypot(x - nose.x, y - nose.y + 8) < 40 && z > nose.z - 70;
+      const isC = !isN && kc > 0 && z > nose.z - 150 && (Math.hypot(x - cheek.x, y - cheek.y) < 38 || Math.hypot(x - mirX, y - cheek.y) < 38);
+      if (!isN && !isC) continue;
+      const [px, py] = S(x, y, z), dx = isN ? 18 * kn : -18 * kc, col = isN ? C.amber : '#ffe9a8';
+      out.push(<g key={i}><line x1={px} y1={py} x2={px + dx} y2={py} stroke={col} strokeWidth={1.6} opacity={0.55} /><circle cx={px + dx} cy={py} r={4.6} fill={col} /></g>);
+    }
+    const [nx, ny] = S(nose.x, nose.y, nose.z), ca = S(cheek.x, cheek.y, cheek.z), cb = S(mirX, cheek.y, cheek.z), [cx, cy] = ca[0] > cb[0] ? ca : cb;   // the cheek on the label's side
+    const arrow = (x: number, y: number, dir: number, o: number, col: string) => <g opacity={o} stroke={col} strokeWidth={6} strokeLinecap="round" strokeLinejoin="round" fill="none"><path d={`M ${x} ${y} h ${70 * dir} m ${-18 * dir} -16 l ${18 * dir} 16 l ${-18 * dir} 16`} /></g>;
+    return (
+      <>
+        <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
+          {out}
+          {arrow(nx - 20, ny - 120, 1, kn * (1 - ramp(s, B.cyan - 8, B.cyan)), C.amber)}
+          {arrow(cx + 20, cy + 110, -1, kc * (1 - ramp(s, B.cyan - 8, B.cyan)), '#ffe9a8')}
+        </svg>
+        <Label text="ON A FACE: THE PATTERN BENDS" x={505} y={1470} o={ramp(s, B.face + 2, B.face + 10)} size={30} align="center" color={C.label} />
+        <Mark x={nx} y={ny} text="NOSE" lx={120} ly={1250} o={ramp(s, B.nose, B.nose + 3)} pop={ramp(s, B.nose, B.nose + 8)} />
+        <Mark x={cx} y={cy} text="CHEEKS" lx={640} ly={1250} o={ramp(s, B.cheek, B.cheek + 3)} pop={ramp(s, B.cheek, B.cheek + 8)} />
+      </>
+    );
+  };
+  return <Orbit3D g={150} ex={{ view: { az }, tone: 'colour', tint: '#7c7c7c', dotO: 1, bg: '#070606', overlay }} />;
+};
+
 export const ScanB: React.FC = () => {
   const s = useCurrentFrame();
   // the cyan point cloud is the same head, lined up with the frontal face; it dissolves in and out so eyes and nose stay put
@@ -213,7 +238,9 @@ export const ScanB: React.FC = () => {
   const o = ramp(s, CUE_B.cyan, CUE_B.cyan + 5) * (1 - ramp(s, CUE_B.depth, CUE_B.depth + 6));
   return (
     <AbsoluteFill>
-      <FaceView s={s} depth0={CUE_B.depth} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.photo} grid={{ face: CUE_B.face, bend: CUE_B.bend, out: CUE_B.cyan }} />
+      <FaceView s={s} depth0={CUE_B.depth} flash={null} nose={CUE_B.depth + 6} cheek={CUE_B.depth + 12} end={CUE_B.photo} grid={{ face: CUE_B.face, bend: CUE_B.bend, out: CUE_B.cyan }} />
+      {/* nose and cheeks are explained on the 3D dotted head (it fades in as the wall fades out) */}
+      {s >= CUE_B.face - 8 && s < CUE_B.cyan + 6 && <AbsoluteFill style={{ opacity: ramp(s, CUE_B.face - 8, CUE_B.face + 8) * (1 - ramp(s, CUE_B.cyan, CUE_B.cyan + 6)) }}><Bend3D s={s} /></AbsoluteFill>}
       {s >= CUE_B.cyan - 1 && s < CUE_B.depth + 6 && <AbsoluteFill style={{ opacity: o }}><Orbit3D g={150} cyan={s - CUE_B.cyan} align /></AbsoluteFill>}
       {/* the turning 3D map is the 3D head; everything static above is the photo */}
       {s >= CUE_B.depth + 26 && <AbsoluteFill style={{ opacity: ramp(s, CUE_B.depth + 26, CUE_B.depth + 38) }}><Map3D t={s - CUE_B.depth - 26} /></AbsoluteFill>}

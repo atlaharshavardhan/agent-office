@@ -234,7 +234,7 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean;
   const noseHit = (() => { const u = (ZG - proj.z) / (2 * ZG - head.nose.z - proj.z); return [proj.x + (head.nose.x - proj.x) * u, proj.y + (head.nose.y - 40 - proj.y) * u]; })();
   return (
     <>
-      {toDepth < 1 && <mesh geometry={head.geo}><meshBasicMaterial map={ex?.tone === 'ir' || look === 'cam' ? head.mapIr : head.map} color={ex ? (ex.tone === 'ir' ? '#8e8e8e' : '#d9b79c') : look === 'eye' ? '#d9b79c' : look === 'cam' ? '#8e8e8e' : pov !== undefined ? '#c9a184' : '#7c7c7c'} /></mesh>}
+      {toDepth < 1 && <mesh geometry={head.geo}><meshBasicMaterial map={ex?.tone === 'ir' || look === 'cam' ? head.mapIr : head.map} color={ex ? ex.tint ?? (ex.tone === 'ir' ? '#8e8e8e' : '#d9b79c') : look === 'eye' ? '#d9b79c' : look === 'cam' ? '#8e8e8e' : pov !== undefined ? '#c9a184' : '#7c7c7c'} /></mesh>}
       {toDepth > 0 && <mesh geometry={head.geo}><meshBasicMaterial vertexColors color={ex ? '#8fb2ff' : '#ffffff'} transparent opacity={toDepth} /></mesh>}
       <lineSegments geometry={rays}><lineBasicMaterial color={C.ir} transparent opacity={rayO} blending={THREE.AdditiveBlending} depthWrite={false} /></lineSegments>
       <points geometry={pts.geo} material={pts.mat} frustumCulled={false} />
@@ -270,7 +270,7 @@ const Mark: React.FC<{ x: number; y: number; text: string; sub: string; dx: numb
 // cyan === undefined: the red dots clip (g = its frame). cyan = frame of the point-cloud clip: all dots have landed and turn cyan.
 // pov = frame of the mirror's-point-of-view clip: we look at him from the mirror; the dots fly at us, hit the glass and go back to his face.
 // ex = explainer mode: the same head with a chosen camera, look and overlay (no phone, no captions of its own).
-export type Explain = { view: View; tone?: 'colour' | 'ir'; depth?: number; dotO?: number; bg?: string; overlay?: (api: HeadApi) => React.ReactNode };
+export type Explain = { view: View; tone?: 'colour' | 'ir'; tint?: string; depth?: number; dotO?: number; bg?: string; overlay?: (api: HeadApi) => React.ReactNode };
 // look: the same shot shown two ways, with nothing else changed. 'eye' = what you see (colour, no dots: they are invisible);
 // 'cam' = what the infrared camera sees (grey, with the dot pattern).
 export type Look = 'eye' | 'cam';
