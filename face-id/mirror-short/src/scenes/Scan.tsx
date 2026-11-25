@@ -116,8 +116,8 @@ export const ScanB: React.FC = () => {
         </div>}
         {depth && <Label text="3D MAP OF HIS FACE" x={505} y={1580} o={cm} size={28} align="center" color={C.label} />}
         {(s < B.cyan + 6 || depth) && <>
-          <Mark x={nx} y={ny} text={depth ? 'CLOSER' : 'NOSE'} lx={120} ly={1250} o={(depth ? ramp(s, D0 + 6, D0 + 10) : ramp(s, B.nose, B.nose + 3) * gridO)} pop={ramp(s, depth ? D0 + 6 : B.nose, (depth ? D0 + 6 : B.nose) + 8)} />
-          <Mark x={cx} y={cy} text={depth ? 'FARTHER' : 'CHEEKS'} lx={640} ly={1250} o={(depth ? ramp(s, D0 + 12, D0 + 16) : ramp(s, B.cheek, B.cheek + 3) * gridO)} pop={ramp(s, depth ? D0 + 12 : B.cheek, (depth ? D0 + 12 : B.cheek) + 8)} />
+          <Mark x={nx} y={ny} text={depth ? 'CLOSER' : 'NOSE'} lx={cm > 0.5 ? 660 : 120} ly={1250} o={(depth ? ramp(s, D0 + 6, D0 + 10) * Math.abs(2 * cm - 1) : ramp(s, B.nose, B.nose + 3) * gridO)} pop={ramp(s, depth ? D0 + 6 : B.nose, (depth ? D0 + 6 : B.nose) + 8)} />
+          <Mark x={cx} y={cy} text={depth ? 'FARTHER' : 'CHEEKS'} lx={cm > 0.5 ? 100 : 640} ly={1250} o={(depth ? ramp(s, D0 + 12, D0 + 16) * Math.abs(2 * cm - 1) : ramp(s, B.cheek, B.cheek + 3) * gridO)} pop={ramp(s, depth ? D0 + 12 : B.cheek, (depth ? D0 + 12 : B.cheek) + 8)} />
         </>}
       </>
     );
