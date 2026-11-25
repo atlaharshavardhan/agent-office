@@ -221,7 +221,9 @@ export const ScanA: React.FC = () => {
 // way so the nose is seen standing out; the dots on the nose light up and slide one way, the dots on the cheeks the other.
 const Bend3D: React.FC<{ s: number }> = ({ s }) => {
   const B = CUE_B, io = (x: number) => x * x * (3 - 2 * x);
-  const az = 32 * ramp(s, B.nose - 8, B.nose + 22, 0, 1, io) - 64 * ramp(s, B.cheek - 8, B.cheek + 22, 0, 1, io) + 32 * ramp(s, B.cyan - 16, B.cyan - 2, 0, 1, io);
+  // never held still: it opens turned away and far back, swings round to face us while the camera pushes in, and keeps a slow sway
+  const open = ramp(s, 0, B.nose - 10, 0, 1, (x) => 1 - Math.pow(1 - x, 3)), dist = 2500 - 700 * open - 60 * ramp(s, B.nose, B.cyan);
+  const az = -38 * (1 - open) + 3 * Math.sin(s / 8) + 32 * ramp(s, B.nose - 8, B.nose + 22, 0, 1, io) - 64 * ramp(s, B.cheek - 8, B.cheek + 22, 0, 1, io) + 32 * ramp(s, B.cyan - 16, B.cyan - 2, 0, 1, io);
   const overlay = ({ S, head }: HeadApi) => {
     // No recolouring of the pattern. Three straight columns of the dot pattern are picked out in white: on a wall
     // they would be straight lines; on his face the middle one bulges out over the nose and the outer ones follow the cheeks. As the head
@@ -252,7 +254,7 @@ const Bend3D: React.FC<{ s: number }> = ({ s }) => {
       </>
     );
   };
-  return <Orbit3D g={150} ex={{ view: { az }, tone: 'colour', tint: '#7c7c7c', dotO: 1, bg: '#070606', overlay }} />;
+  return <Orbit3D g={150} ex={{ view: { az, dist }, tone: 'colour', tint: '#7c7c7c', dotO: 1, bg: '#070606', overlay }} />;
 };
 
 export const ScanB: React.FC = () => {
