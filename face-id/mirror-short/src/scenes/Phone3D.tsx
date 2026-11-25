@@ -28,7 +28,7 @@ const lockTexture = () => {
   g.beginPath(); g.roundRect(W / 2 - 22, 176, 44, 36, 8); g.fill();
   g.beginPath(); g.arc(W / 2, 176, 14, Math.PI, 0); g.stroke();
   g.textAlign = 'center';
-  g.font = '600 40px Inter, system-ui, sans-serif'; g.fillStyle = 'rgba(255,255,255,.92)'; g.fillText('Monday 9 June', W / 2, 410);
+  g.font = '600 40px Inter, system-ui, sans-serif'; g.fillStyle = 'rgba(255,255,255,.92)'; g.fillText('Tue, Sep 9', W / 2, 410);
   g.font = '800 190px Inter, system-ui, sans-serif'; g.fillStyle = '#fff'; g.fillText('9:41', W / 2, 590);
   for (const x of [112, W - 112]) { g.fillStyle = 'rgba(40,36,48,.72)'; g.beginPath(); g.arc(x, H - 150, 50, 0, 7); g.fill(); }
   g.fillStyle = '#fff'; g.beginPath(); g.roundRect(100, H - 172, 24, 46, 6); g.fill(); g.beginPath(); g.roundRect(94, H - 180, 36, 14, 4); g.fill();   // flashlight
