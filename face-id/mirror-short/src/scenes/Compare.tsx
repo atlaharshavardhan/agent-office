@@ -80,7 +80,7 @@ export const Compare: React.FC = () => {
           </g>
         </g>
         {/* numbers travel from each face into the chip */}
-        {[0, 1].map((side) => Array.from({ length: 3 }, (_, r) => Array.from({ length: 2 }, (_, c) => {
+        {[0, 1].map((side) => Array.from({ length: 3 }, (_, r) => Array.from({ length: 1 }, (_, c) => {
           const u = ((t / 26) + r * 0.31 + c * 0.5) % 1, x0 = side ? 810 : 270, x1 = side ? 745 : 335, x = x0 + (x1 - x0) * u, o = ramp(t, 10, 16) * Math.min(1, u * 5) * (1 - Math.max(0, (u - 0.7) / 0.3));
           return <text key={`${side}${r}${c}`} x={x} y={CYc - 60 + r * 62} textAnchor="middle" fill={side ? VIO : CYAN} opacity={o} style={{ font: `700 30px ui-monospace, Menlo, monospace` }}>{NUM(side * 50 + r * 7 + c * 3 + Math.floor(t / 26 + r * 0.31 + c * 0.5))}</text>;
         })))}
