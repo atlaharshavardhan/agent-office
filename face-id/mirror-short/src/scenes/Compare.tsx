@@ -97,6 +97,20 @@ export const Compare: React.FC = () => {
         {[0, 1].map((side) => [0, 1, 2].map((c) => { const u = ((t / 26) + c * 0.33) % 1, y0 = side ? YE - R - 30 : YS + 205, y1 = side ? YC + CH / 2 + 62 : YC - CH / 2 - 44, o = (st ? 0 : 1) * ramp(t, 10, 16) * Math.min(1, u * 5) * (1 - Math.max(0, (u - 0.7) / 0.3));
           return <text key={`${side}${c}`} x={420 + c * 120} y={y0 + (y1 - y0) * u} textAnchor="middle" fill={side ? VIO : CYAN} opacity={o} style={{ font: `700 32px ui-monospace, Menlo, monospace` }}>{NUM(side * 50 + c * 7 + Math.floor(t / 26 + c * 0.33))}</text>; }))}
       </svg>
+      {/* the calculation, kept simple: three numbers of this scan beside the same three of the enrolled face. Close
+          numbers get a tick, far ones a cross, and the score under them decides. Illustrative numbers. */}
+      {(() => { const SC = st === 2 ? ['0.31', '0.92', '0.14'] : ['0.80', '0.40', '0.58'], EN = ['0.81', '0.38', '0.57'], X = 26, Y = YC + 46;      // on the left under SECURE ENCLAVE, clear of the watermark
+        const score = st === 1 ? 98 : st === 2 ? 12 : Math.round(40 + 50 * ((Math.sin(l * 1.7) + 1) / 2));
+        return (
+          <div style={{ position: 'absolute', left: X, top: Y, width: 330, opacity: ramp(t, 10, 16), transform: `translateX(${shake}px)`, padding: '16px 18px', borderRadius: 16, background: 'rgba(8,8,14,.88)', border: `3px solid ${col ?? '#5d5a8a'}`, font: '700 28px/1 ui-monospace, Menlo, monospace' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', font: `800 17px/1 ${FONT}`, letterSpacing: '0.1em', marginBottom: 12 }}><span style={{ color: CYAN }}>SCAN</span><span style={{ color: VIO }}>ENROLLED</span><span style={{ width: 26 }} /></div>
+            {SC.map((v, i) => { const on = ramp(t, 12 + i * 5, 16 + i * 5), live = !st && t < 30 + i * 6;
+              return (<div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, opacity: on }}>
+                <span style={{ color: st === 2 ? BAD : CYAN }}>{live ? NUM(i * 9 + Math.floor(l / 2)) : v}</span><span style={{ color: '#8a86a8' }}>{st === 2 ? '≠' : '≈'}</span><span style={{ color: VIO }}>{EN[i]}</span>
+                <span style={{ width: 26, color: col ?? '#8a86a8', font: `800 26px/1 ${FONT}` }}>{st === 1 ? '✓' : st === 2 ? '✕' : '·'}</span></div>); })}
+            <div style={{ height: 12, borderRadius: 6, background: '#26243a', overflow: 'hidden', marginTop: 4 }}><div style={{ width: `${score}%`, height: '100%', background: col ?? VIO }} /></div>
+            <div style={{ marginTop: 10, font: `800 22px/1 ${FONT}`, letterSpacing: '0.08em', color: col ?? '#e9e2ff' }}>MATCH SCORE {score}%</div>
+          </div>); })()}
       <Label text="THIS SCAN" x={850} y={YS - 26} o={ramp(t, 4, 10)} size={27} align="center" color={CYAN} />
       <Label text="SECURE ENCLAVE" x={195} y={YC - 24} o={ramp(t, 8, 14)} size={23} align="center" color="#7fe3ea" />
       <Label text="ENROLLED" x={880} y={YE - 26} o={ramp(t, 8, 14)} size={27} align="center" color={VIO} />
