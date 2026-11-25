@@ -217,7 +217,8 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean;
     const p = Math.min(1, Math.max(0, (g - launch[i]) / FL)), e = p < 0.22 ? 0.8 * (p / 0.22) : 0.8 + 0.2 * ((p - 0.22) / 0.78);
     pos[i * 3] = proj.x + (dots[i * 3] - proj.x) * e; pos[i * 3 + 1] = proj.y + (dots[i * 3 + 1] - proj.y) * e; pos[i * 3 + 2] = proj.z + (dots[i * 3 + 2] - proj.z) * e;
     const land = ramp(g, launch[i] + FL, launch[i] + FL + 5);
-    size[i] = p <= 0 ? 0 : p < 1 ? (p > 0.22 ? 7.5 : 6.5) : 4.4 * (1 + 0.9 * (1 - land));
+    const tw = look === 'cam' ? 1 + 0.45 * Math.max(0, Math.sin(g / 3 - (dots[i * 3 + 1] - head.nose.y) / 60)) : 1;      // camera view: a wave of brightness runs down the pattern
+    size[i] = tw * (p <= 0 ? 0 : p < 1 ? (p > 0.22 ? 7.5 : 6.5) : 4.4 * (1 + 0.9 * (1 - land)));
     const c = cyan !== undefined && cyan >= ((dots[i * 3] + 200) / 400) * 12 + rnd[i] * 4 ? CY : RED;
     col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
   }
@@ -240,7 +241,7 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean;
     rp[k * 6 + 3] = !show ? rp[k * 6] : out ? hx : dots[i * 3]; rp[k * 6 + 4] = !show ? rp[k * 6 + 1] : out ? hy : dots[i * 3 + 1]; rp[k * 6 + 5] = !show ? rp[k * 6 + 2] : out ? ZG : dots[i * 3 + 2];
   }
   rays.attributes.position.needsUpdate = true;
-  const rayO = cyan !== undefined || ex || look ? 0 : pov !== undefined ? 0.5 : 0.2 * ramp(g, 4, 10);
+  const rayO = look === 'cam' ? 0.2 + 0.12 * Math.sin(g / 2.2) : cyan !== undefined || ex || look ? 0 : pov !== undefined ? 0.5 : 0.2 * ramp(g, 4, 10);
   // where the middle of the pattern meets the glass: the reflecting waves spread from here
   const noseHit = (() => { const u = (ZG - proj.z) / (2 * ZG - head.nose.z - proj.z); return [proj.x + (head.nose.x - proj.x) * u, proj.y + (head.nose.y - 40 - proj.y) * u]; })();
   return (
@@ -259,7 +260,7 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean;
       <group visible={!align && !ex} position={pov !== undefined ? povPhone.pos : head.phonePos} quaternion={pov !== undefined ? povPhone.quat : head.phoneQuat} scale={PS}>
         <Phone3D model={phone} />
         <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.2]}><circleGeometry args={[4, 20]} /><meshBasicMaterial color="#ffffff" /></mesh>
-        <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.1]}><circleGeometry args={[15, 24]} /><meshBasicMaterial color={C.ir} transparent opacity={cyan !== undefined || look ? 0 : 0.75} blending={THREE.AdditiveBlending} /></mesh>
+        <mesh position={[-13, ISLAND_Y, P3.d / 2 + 1.1]}><circleGeometry args={[15, 24]} /><meshBasicMaterial color={C.ir} transparent opacity={look === 'cam' ? 0.6 + 0.3 * Math.sin(g / 2.2) : cyan !== undefined || look ? 0 : 0.75} blending={THREE.AdditiveBlending} /></mesh>
       </group>
     </>
   );

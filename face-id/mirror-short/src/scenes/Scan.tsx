@@ -188,7 +188,7 @@ export const ScanA: React.FC = () => {
   const s = useCurrentFrame(), t = s - CUE_A.front;
   if (t < 0) return <Orbit3D g={s} />;
   const io = (x: number) => x * x * (3 - 2 * x), w1 = ramp(t, 1, 13, 0, 1, io), w2 = ramp(t, CUE_A.cam, CUE_A.cam + 12, 0, 1, io);
-  const G = Math.min(s, CUE_A.front + 16);                       // hold the dots clip on its last pose (later frames of it are an old depth-map look)
+  const G = Math.min(s, 180);                         // the camera keeps drifting through the switch, so the shot never sits still                       // hold the dots clip on its last pose (later frames of it are an old depth-map look)
   const clip = (w: number) => ({ clipPath: `inset(0 ${(1 - w) * 100}% 0 0)` });
   return (
     <AbsoluteFill>
