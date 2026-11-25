@@ -27,14 +27,14 @@ export const HOOK = { srcStart: 2.2, freeze: 6, cut: 59, handF: 22 };   // cut: 
 export const CAPTION_TOP_DEFAULT = 230;
 export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 0.28, to: 2.28, top: 1300 },      // the rush into the reflected phone, then the phone: lower, over his hand
-  { from: 2.28, to: 3.26, top: 1680 },      // the push to the top of the phone: caption under the clock
+  { from: 2.28, to: 3.26, top: 230 },      // the push to the top of the phone: caption above the Face ID box
   { from: 3.26, to: 5.48, top: 1160 },      // the parts use the top -> caption between the island and the clock
-  { from: 5.48, to: 7.61, top: 185 },     // 3D red dots clip: raised to clear his hair and the dots
-  { from: 10.85, to: 13.45, top: 1540 },      // top-down mirror diagram: the top holds the face behind the glass -> caption below his head
-  { from: 15.02, to: 19.55, top: 170 },      // the 3D dotted head
-  { from: 21.77, to: 24.55, top: 170 },      // the photo
-  { from: 24.55, to: 32.31, top: 170 },     // comparison
-  { from: 32.31, to: 37.17, top: 96 },     // reveal: the phone fills the frame -> caption above it
+  { from: 5.48, to: 7.61, top: 230 },     // 3D red dots clip: raised to clear his hair and the dots
+  { from: 10.85, to: 13.45, top: 1310 },      // top-down mirror diagram (scaled into the safe zone): caption under it
+  { from: 15.02, to: 19.55, top: 230 },      // the 3D dotted head
+  { from: 21.77, to: 24.55, top: 230 },      // the photo
+  { from: 24.55, to: 32.31, top: 230 },     // comparison
+  { from: 32.31, to: 37.17, top: 230 },     // reveal: the phone fills the frame -> caption above it
 ];
 
 export type Line = { id: string; at: number; text: string };

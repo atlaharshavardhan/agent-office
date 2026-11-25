@@ -1,3 +1,4 @@
+import { Fit } from '../Fit';
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import front from '../front.json';
 import { C, FONT, Label, ramp } from '../theme';
@@ -51,7 +52,7 @@ const STEPS = [{ at: 30, to: MIR.glass, text: '1 · RAYS LEAVE THE PHONE' }, { a
 export const MIR_FROM = 24;
 export const Mirror: React.FC = () => {
   const l = useCurrentFrame() + MIR_FROM;
-  if (l >= MIR.diagram && l < MIR.live) return <MirrorTop t={l - MIR.diagram} />;
+  if (l >= MIR.diagram && l < MIR.live) return <Fit s={0.78} oy={360} bg="#0b090d"><MirrorTop t={l - MIR.diagram} /></Fit>;
   const lv = l - MIR.live;                                              // >= 0: the real-life bounce      // after the wide shot: the bounce, explained from above
   if (l >= MIR.inside) return (
     <AbsoluteFill>
@@ -109,7 +110,7 @@ export const Mirror: React.FC = () => {
         <svg width={44} height={56} viewBox="-36 -46 72 92"><path d="M -18 -6 v -14 a 18 18 0 0 1 36 0 v 14" stroke="#fff" strokeWidth={9} strokeLinecap="round" fill="none" /><rect x={-30} y={-6} width={60} height={46} rx={11} fill="#fff" /></svg>
         <span style={{ font: `800 62px/1 ${FONT}`, color: C.amber }}>?</span>
       </div>
-      <div style={{ position: 'absolute', left: 80, top: 1590, width: 860, opacity: 0.5 * ramp(l, 30, 34), font: `600 21px/1.3 ${FONT}`, color: '#b5ada5' }}>Illustration · simplified light path · the real dots are invisible</div>
+      <div style={{ position: 'absolute', left: 80, top: 1440, width: 800, opacity: 0.5 * ramp(l, 30, 34), font: `600 21px/1.3 ${FONT}`, color: '#b5ada5' }}>Illustration · simplified light path · the real dots are invisible</div>
     </AbsoluteFill>
   );
 };

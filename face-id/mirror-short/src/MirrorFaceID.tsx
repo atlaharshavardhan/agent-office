@@ -3,6 +3,7 @@ import { Captions } from './Captions';
 import { Shot } from './Shot';
 import { Watermark } from './Watermark';
 import { Guides } from './Guides';
+import { Fit } from './Fit';
 import { DEFAULT_TEST, LEN, Line, NARRATION, RESULT_LINES, SCENES, SFX, STORY_END, TestProps, TOTAL, f } from './script';
 import { CMP, Compare } from './scenes/Compare';
 import { ScanA, ScanB } from './scenes/Scan';
@@ -31,7 +32,7 @@ export const MirrorFaceID: React.FC<TestProps> = (props) => {
       {/* the camera moves are inside the scene; it ends on the framing the next scene starts on (eyes and nose aligned) */}
       <Sequence name="4 · The mirror twist" {...S('mirror')}><Shot dur={D('mirror')} enter={false} exit={false} drift={0}><Mirror /></Shot></Sequence>
       <Sequence name="5 · What the phone measures" {...S('measure')}><Shot dur={D('measure')} enter={false} drift={0}><ScanB /></Shot></Sequence>
-      <Sequence name="6 · Compare the face" {...S('compare')}><Shot dur={D('compare')} exit={false} snaps={[[CMP.both, 1.3], [CMP.check, 1.3]]}><Compare /></Shot></Sequence>
+      <Sequence name="6 · Compare the face" {...S('compare')}><Shot dur={D('compare')} exit={false} snaps={[[CMP.both, 1.3], [CMP.check, 1.3]]}><Fit s={0.8} oy={420} dy={-10} bg="#0b090d"><Compare /></Fit></Shot></Sequence>
       {/* hard cut on "So, did it work?"; the camera stays still on the footage */}
       <Sequence name="7 · Real mirror test (reveal slot)" {...S('test')}><Shot dur={D('test')} enter={false} drift={0}><Test p={p} /></Shot></Sequence>
       <Sequence name="8 · End card" {...S('end')}><Shot dur={D('end')} exit={false}><EndCard /></Shot></Sequence>

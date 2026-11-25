@@ -9,9 +9,9 @@ export const IN = 68, EXPLAIN = 9999, CARD = 999;
 const RED = '#ff4d63', PINK = '#ff8fa3', BLUE = '#6fa8ff';
 const io = (x: number) => x * x * (3 - 2 * x), out3 = (x: number) => 1 - Math.pow(1 - x, 3);
 const PARTS = [
-  { x: 180, dx: 452, col: RED, label: 'DOT PROJECTOR', does: '30,000+ invisible dots' },
-  { x: 540, dx: 540, col: PINK, label: 'FLOOD ILLUMINATOR', does: 'lights your face in infrared' },
-  { x: 900, dx: 628, col: BLUE, label: 'IR CAMERA', does: 'reads the dots on your face' },
+  { x: 200, dx: 452, col: RED, label: 'DOT PROJECTOR', does: '30,000+ invisible dots' },
+  { x: 515, dx: 540, col: PINK, label: 'FLOOD ILLUMINATOR', does: 'lights your face in infrared' },
+  { x: 795, dx: 628, col: BLUE, label: 'IR CAMERA', does: 'reads the dots on your face' },
 ];
 const CY = 520, S = 190;                                   // cards: centre y and size
 

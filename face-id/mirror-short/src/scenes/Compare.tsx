@@ -40,7 +40,7 @@ export const Compare: React.FC = () => {
         <div style={{ position: 'absolute', inset: 0, transformOrigin: '540px 1000px', transform: `scale(${s})` }}>
           <Card x={150} y={480} w={780} sweep={((l + 10) % 50) / 50} />
         </div>
-        <Label text="INFRARED IMAGE" x={540} y={1590} o={ramp(l, 4, 8)} size={32} align="center" />
+        <Label text="INFRARED IMAGE" x={540} y={1530} o={ramp(l, 4, 8)} size={32} align="center" />
       </AbsoluteFill>
     );
   }

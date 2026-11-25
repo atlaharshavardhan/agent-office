@@ -56,10 +56,10 @@ export const Captions: React.FC<{ lines: Line[] }> = ({ lines }) => {
   return (
     <AbsoluteFill>
       {/* top of the frame, inside the Shorts safe area (like the reference) */}
-      <div style={{ position: 'absolute', left: 70, width: 870, top: CAPTION_PLACEMENT.find((r) => t >= r.from && t < r.to)?.top ?? CAPTION_TOP_DEFAULT, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <div style={{ position: 'absolute', left: 60, width: 840, top: CAPTION_PLACEMENT.find((r) => t >= r.from && t < r.to)?.top ?? CAPTION_TOP_DEFAULT, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
         <div style={{ position: 'absolute', inset: '-30px -10px', background: 'radial-gradient(closest-side, rgba(8,6,5,.78), rgba(8,6,5,0))' }} />
         {c.lines.map((ln, i) => (
-          <div key={i} style={{ position: 'relative', display: 'flex', gap: 20, font: `800 76px/1.12 ${CAP_FONT}` }}>
+          <div key={i} style={{ position: 'relative', display: 'flex', gap: 20, font: `800 66px/1.12 ${CAP_FONT}` }}>
             {ln.map((w, j) => {
               const now = t >= w.from && t < w.to, done = t >= w.to;
               return (

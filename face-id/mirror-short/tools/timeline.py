@@ -53,14 +53,14 @@ s=re.sub(r"export const HOOK = \{[^}]*\};","export const HOOK = { srcStart: %s, 
 rush=unlock-0.05
 block("export const CAPTION_PLACEMENT","];","""export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: %.2f, to: %.2f, top: 1300 },      // the rush into the reflected phone, then the phone: lower, over his hand
-  { from: %.2f, to: %.2f, top: 1680 },      // the push to the top of the phone: caption under the clock
+  { from: %.2f, to: %.2f, top: 230 },      // the push to the top of the phone: caption above the Face ID box
   { from: %.2f, to: %s, top: 1160 },      // the parts use the top -> caption between the island and the clock
-  { from: %s, to: %.2f, top: 185 },     // 3D red dots clip: raised to clear his hair and the dots
-  { from: %.2f, to: %.2f, top: 1540 },      // top-down mirror diagram: the top holds the face behind the glass -> caption below his head
-  { from: %s, to: %.2f, top: 170 },      // the 3D dotted head
-  { from: %s, to: %s, top: 170 },      // the photo
-  { from: %s, to: %s, top: 170 },     // comparison
-  { from: %s, to: %s, top: 96 },     // reveal: the phone fills the frame -> caption above it
+  { from: %s, to: %.2f, top: 230 },     // 3D red dots clip: raised to clear his hair and the dots
+  { from: %.2f, to: %.2f, top: 1310 },      // top-down mirror diagram (scaled into the safe zone): caption under it
+  { from: %s, to: %.2f, top: 230 },      // the 3D dotted head
+  { from: %s, to: %s, top: 230 },      // the photo
+  { from: %s, to: %s, top: 230 },     // comparison
+  { from: %s, to: %s, top: 230 },     // reveal: the phone fills the frame -> caption above it
 ];"""%(max(0,rush-0.6),rush+1.4,rush+1.4,at['n2']-0.02,at['n2']-0.02,td1,td1,td1+front/30,sc1+28/30,sc1+106/30,m0,m0+cue['cyan']/30,at['n3d'],m1,m1,c1,c1,t1))
 block("export const NARRATION: Line[] = [","];","export const NARRATION: Line[] = [\n"+"".join("  { id: '%s', at: %s, text: %s },\n"%(k,at[k],json.dumps(T[k])) for k in ORDER)+"];")
 # Sound effects sit well under the voice: quiet to begin with, and ducked to half of that whenever one lands on a spoken line.

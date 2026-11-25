@@ -39,7 +39,7 @@ export const Reveal: React.FC = () => {
   // close-up on the island: in with the rush, a slow push while scanning, a quick punch-in on processing, then a fast pull-out on unlock
   const k = ramp(fr, 8, 16, 0, 1, o3) * (1 - ramp(fr, U + 3, U + 11, 0, 1, o3));
   const Z = 1 + k * (2.3 + 0.25 * ramp(fr, 16, P) + 0.35 * ramp(fr, P, P + 4, 0, 1, o3));
-  const cam = { transformOrigin: `${ISL.x}px ${ISL.y}px`, transform: `translate(${(540 - ISL.x) * k}px, ${(600 - ISL.y) * k}px) scale(${Z})` };
+  const cam = { transformOrigin: `${ISL.x}px ${ISL.y}px`, transform: `translate(${(540 - ISL.x) * k}px, ${(470 - ISL.y) * k}px) scale(${Z})` };
   const e = ramp(fr, 14, 20, 0, 1, o3) * (1 - ramp(fr, U + 10, U + 16, 0, 1, io)), bh = ISL.h + (ISL.w * 0.94 - ISL.h) * e, top = ISL.y + ISL.h / 2 + 10;      // the Face ID box sits just below the Dynamic Island, not touching it
   const scanO = 1 - ramp(fr, P - 2, P + 2), procO = ramp(fr, P - 2, P + 2) * (1 - ramp(fr, U - 2, U + 1)), okO = ramp(fr, U - 1, U + 2), tick = ramp(fr, U, U + 7, 0, 1, o3);
   const home = ramp(fr, U + 4, U + 13, 0, 1, io), apps = 1.18 - 0.18 * ramp(fr, U + 4, U + 16, 0, 1, o3), ask = ramp(fr, U + 34, U + 42, 0, 1, out3);
@@ -47,7 +47,7 @@ export const Reveal: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: '#120d0a', overflow: 'hidden' }}>
       <Img src={staticFile('bathroom_rear.png')} style={{ position: 'absolute', left: -220, top: -120, width: 1520, height: 2700, filter: 'blur(22px) brightness(0.42)' }} />
-      <div style={{ position: 'absolute', inset: 0, ...cam }}>
+      <div style={{ position: 'absolute', inset: 0, transform: 'translateY(170px)' }}><div style={{ position: 'absolute', inset: 0, ...cam }}>
         <div style={{ position: 'absolute', inset: 0, opacity: (1 - mo) * (1 - home) }}><Layer phone={lock} /></div>
         {home > 0 && <div style={{ position: 'absolute', inset: 0, transformOrigin: '540px 960px', transform: `scale(${apps})` }}><Layer phone={homeM} o={home} /></div>}
         <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
@@ -74,14 +74,14 @@ export const Reveal: React.FC = () => {
             </g>
           </g>
         </svg>
-      </div>
+      </div></div>
       {mo > 0 && <AbsoluteFill style={{ opacity: mo, transformOrigin: '771px 618px', transform: `translate(${(540 - 771) * mz}px, ${(960 - 618) * mz}px) scale(${1 + 6.2 * mz})` }}><Img src={staticFile('hook_first.png')} style={{ width: 1080, height: 1920 }} /></AbsoluteFill>}
       <AbsoluteFill style={{ backgroundColor: '#fff', opacity: 0.25 * ramp(fr, U + 2, U + 4) * (1 - ramp(fr, U + 4, U + 11)) }} />
       {/* the result, then the question for the viewer */}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 1690, textAlign: 'center', opacity: ramp(fr, U + 12, U + 18) * (1 - ask), transform: `scale(${1.2 - 0.2 * ramp(fr, U + 12, U + 20, 0, 1, out3)})` }}>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 1250, textAlign: 'center', opacity: ramp(fr, U + 12, U + 18) * (1 - ask), transform: `scale(${1.2 - 0.2 * ramp(fr, U + 12, U + 20, 0, 1, out3)})` }}>
         <span style={{ display: 'inline-block', padding: '16px 30px', borderRadius: 16, background: 'rgba(8,10,8,.85)', border: '3px solid #3ddc84', font: `800 54px/1 ${FONT}`, letterSpacing: '0.06em', color: '#3ddc84' }}>UNLOCKED</span>
       </div>
-      <div style={{ position: 'absolute', left: 60, right: 60, top: 1660, textAlign: 'center', opacity: ask, transform: `translateY(${20 * (1 - ask)}px)` }}>
+      <div style={{ position: 'absolute', left: 60, right: 180, top: 1240, textAlign: 'center', opacity: ask, transform: `translateY(${20 * (1 - ask)}px)` }}>
         <span style={{ display: 'inline-block', padding: '20px 30px', borderRadius: 18, background: '#0a0810', border: '3px solid #fff', font: `800 46px/1.2 ${FONT}`, color: '#fff' }}>Did yours unlock?<br /><span style={{ color: '#ffd60a' }}>Comment YES or NO</span></span>
       </div>
     </AbsoluteFill>

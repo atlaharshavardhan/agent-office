@@ -1,3 +1,4 @@
+import { Fit } from '../Fit';
 import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import front from '../front.json';
 import mesh from '../mesh_front.json';
@@ -14,7 +15,7 @@ import { HalfPhone, PhotoFlat } from './PhotoFlat';
 //                     71–103  the same dots as a cyan point cloud                 "The phone uses"
 //                    103–177  DEPTH MAP: the web forms and is scanned; both labels stay  "that pattern to map the shape of my face"
 export const FZ = 1.15;      // framing of the frontal face; the mirror view and the cyan point cloud are lined up with it
-export const CUE_A = { front: 64, cam: 29, end: 134 };   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees
+export const CUE_A = { front: 64, cam: 29, end: 134 };   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees   // front: the switch starts (what you see); cam: frames later, what the camera sees
 // ScanB now: 0–face a flat wall with the neat dot grid · face: the same grid on his face · bend: the grid bends with his
 // face (nose one way, cheeks the other), NOSE on "nose", CHEEKS on "cheeks" · cyan point cloud on "The phone" · depth map
 // face: -20 = the flat-wall shot is not shown; the scene opens on the 3D dotted head
@@ -99,11 +100,11 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
         );
       })()}
       {false && grid && s >= grid.face && s < grid.out && <Label text="ON A FACE: THE PATTERN BENDS" x={505} y={1470} o={ramp(s, grid.face + 2, grid.face + 10)} size={30} align="center" color={C.label} />}
-      {depth && mapAt === undefined && <Label text="DEPTH MAP" x={505} y={1690} o={1 - cm} size={30} align="center" color={C.label} />}
-      {depth && <div style={{ position: 'absolute', left: 0, right: 0, top: 1500, opacity: cm, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 26, font: `800 30px/1 ${FONT}`, letterSpacing: '0.14em', color: '#e9e2ff' }}>
+      {depth && mapAt === undefined && <Label text="DEPTH MAP" x={505} y={1420} o={1 - cm} size={30} align="center" color={C.label} />}
+      {depth && <div style={{ position: 'absolute', left: 0, right: 0, top: 1350, opacity: cm, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 26, font: `800 30px/1 ${FONT}`, letterSpacing: '0.14em', color: '#e9e2ff' }}>
         FAR<div style={{ width: 520, height: 16, borderRadius: 8, background: 'linear-gradient(90deg, rgb(59,91,219), rgb(79,195,247), rgb(255,209,102), rgb(255,122,61))' }} />NEAR
       </div>}
-      {depth && <Label text="3D MAP OF HIS FACE" x={505} y={1580} o={cm} size={28} align="center" color={C.label} />}
+      {depth && <Label text="3D MAP OF HIS FACE" x={505} y={1420} o={cm} size={28} align="center" color={C.label} />}
       {/* depth mesh: points pinned to his face, joined by fine lines; a bigger, brighter point is closer to the phone */}
       {depth && (() => {
         // relief: every point of the web is lifted by its depth (nearer = higher), so the lines bend over the nose,
@@ -152,7 +153,7 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
       })()}
       {/* the two callouts: both stay inside the frame, below the captions, and hold to the end of the scene */}
       <Mark x={nx} y={ny} text="NOSE" sub={depth ? 'CLOSER' : undefined} lx={150} ly={1250} o={ramp(s, NO, NO + 3) * (1 - cm)} pop={ramp(s, NO, NO + 8)} />
-      <Mark x={cx} y={cy} text="CHEEKS" sub={depth ? 'FARTHER' : undefined} lx={640} ly={1250} o={ramp(s, CH, CH + 3) * (1 - cm)} pop={ramp(s, CH, CH + 8)} />
+      <Mark x={cx} y={cy} text="CHEEKS" sub={depth ? 'FARTHER' : undefined} lx={600} ly={1250} o={ramp(s, CH, CH + 3) * (1 - cm)} pop={ramp(s, CH, CH + 8)} />
       <div style={{ position: 'absolute', left: 80, top: 1562, opacity: depth || grid ? 0 : 0.5, font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>Illustration · the real dots are invisible · fewer dots drawn than projected</div>
     </AbsoluteFill>
   );
@@ -182,7 +183,7 @@ const Split: React.FC = () => (
 // line wipes across and switches what is shown: first what you see (no dots: they are invisible), then what the infrared
 // camera sees (the dot pattern on his face).
 const SeeBadge: React.FC<{ ir: boolean; o: number }> = ({ ir, o }) => (
-  <div style={{ position: 'absolute', left: 0, right: 0, top: 1400, textAlign: 'center', opacity: o }}>
+  <div style={{ position: 'absolute', left: 0, right: 0, top: 1300, textAlign: 'center', opacity: o }}>
     <span style={{ display: 'inline-block', padding: '18px 26px', borderRadius: 12, background: 'rgba(10,8,7,.85)', border: `3px solid ${ir ? C.ir : '#b9b2a8'}`, font: `800 40px/1 ${FONT}`, letterSpacing: '0.12em', color: '#fff' }}>{ir ? 'WHAT THE CAMERA SEES' : 'WHAT YOU SEE'}</span>
     <div style={{ marginTop: 18, font: `600 32px/1.2 ${FONT}`, color: '#d6cfc7' }}>{ir ? 'the dot pattern, in infrared' : 'nothing: the dots are invisible'}</div>
   </div>
@@ -255,7 +256,7 @@ const Bend3D: React.FC<{ s: number }> = ({ s }) => {
 export const ScanB: React.FC = () => {
   const s = useCurrentFrame();
   // the cyan point cloud is the same head, lined up with the frontal face; it dissolves in and out so eyes and nose stay put
-  if (s >= CUE_B.photo) return <PhotoFlat t={s - CUE_B.photo} />;      // "That's why a photo won't work"
+  if (s >= CUE_B.photo) return <Fit s={0.78} oy={400} bg="#0a0812"><PhotoFlat t={s - CUE_B.photo} /></Fit>;      // "That's why a photo won't work"
   const o = ramp(s, CUE_B.cyan, CUE_B.cyan + 5) * (1 - ramp(s, CUE_B.depth, CUE_B.depth + 6));
   return (
     <AbsoluteFill>
@@ -269,7 +270,7 @@ export const ScanB: React.FC = () => {
         <FaceView s={s} depth0={0} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.photo} mapAt={CUE_B.depth} warmTo={CUE_B.nose - 4} />
       </AbsoluteFill>
       {/* the turning 3D map is the 3D head; everything static above is the photo */}
-      <Label text="DEPTH MAP" x={505} y={1690} o={ramp(s, CUE_B.nose - 2, CUE_B.nose + 4) * (1 - ramp(s, CUE_B.depth - 4, CUE_B.depth + 2))} size={30} align="center" color={C.label} />
+      <Label text="DEPTH MAP" x={505} y={1420} o={ramp(s, CUE_B.nose - 2, CUE_B.nose + 4) * (1 - ramp(s, CUE_B.depth - 4, CUE_B.depth + 2))} size={30} align="center" color={C.label} />
       {/* one web all the way: the web on his face lifts off and the same web turns to a three-quarter view (no second map) */}
     </AbsoluteFill>
   );
