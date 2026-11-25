@@ -6,8 +6,9 @@ import { HandPhone } from './HandPhone';
 const Take: React.FC<{ k: number }> = ({ k }) => (
   <AbsoluteFill style={{ backgroundColor: '#000', overflow: 'hidden' }}>
     <OffthreadVideo src={staticFile('mirror_clip_lock.mp4')} trimBefore={Math.round(HOOK.srcStart * FPS)} muted
-      style={{ width: 1080, height: 1920, objectFit: 'cover', 
- }} />
+      style={{ width: 1080, height: 1920, objectFit: 'cover', transformOrigin: '62% 36%',
+        // a slow push while the first frame is held, eased back out during the take's own rush so it ends at the footage's own framing
+        transform: `scale(${1 + 0.12 * Math.min(1, k / HOOK.freeze) * (1 - Math.min(1, Math.max(0, (k - HOOK.freeze - 20) / 22)))})` }} />
   </AbsoluteFill>
 );
 const Playing: React.FC = () => <Take k={HOOK.freeze + useCurrentFrame()} />;
