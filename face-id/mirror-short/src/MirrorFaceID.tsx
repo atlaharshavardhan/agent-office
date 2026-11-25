@@ -2,6 +2,7 @@ import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
 import { Captions } from './Captions';
 import { Shot } from './Shot';
 import { Watermark } from './Watermark';
+import { Guides } from './Guides';
 import { DEFAULT_TEST, LEN, Line, NARRATION, RESULT_LINES, SCENES, SFX, STORY_END, TestProps, TOTAL, f } from './script';
 import { CMP, Compare } from './scenes/Compare';
 import { ScanA, ScanB } from './scenes/Scan';
@@ -40,6 +41,8 @@ export const MirrorFaceID: React.FC<TestProps> = (props) => {
 
       {/* ---- CAPTIONS (story only, never over the end card) ---- */}
       <Sequence name="Captions" from={0} durationInFrames={f(STORY_END)}><Captions lines={lines} /></Sequence>
+
+      {p.guides && <Guides />}
 
       {/* ---- NARRATION ---- */}
       {lines.map((l) => (

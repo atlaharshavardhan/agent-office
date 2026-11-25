@@ -85,6 +85,7 @@ export type TestProps = {
   result: 'none' | 'open' | 'locked';
   resultDelaySec: number;   // let viewers see the lock icon before the line plays
   focusX: number; focusY: number; zoom: number;
+  guides?: boolean;         // preview only: draw the Reels / Shorts safe-zone guides (never on in the export)
 };
 export const DEFAULT_TEST: TestProps = {
   testFootage: '', testStartSec: 0, result: 'none', resultDelaySec: 1.68,   // no real footage yet: the slot is a marked placeholder and no result is narrated
