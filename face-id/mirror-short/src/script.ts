@@ -3,15 +3,15 @@
 import lengths from '../public/vo/lengths.json';
 
 export const FPS = 30;
-export const TOTAL = 1142;            // 38.1 s
-export const STORY_END = 36.57;       // end card = last 2 s
+export const TOTAL = 1135;            // 37.8 s
+export const STORY_END = 36.34;       // end card = last 2 s
 export const f = (s: number) => Math.round(s * FPS);
 
 // Scene order: hook → inside the phone → red dots + infrared view → the mirror twist → what the phone measures
 // → comparison → real mirror test → end card. Every scene ends right after its voice line.
 export const SCENES = {
-  hook: [0, 3.4], truedepth: [3.4, 6.38], scan: [6.38, 11.42], mirror: [11.42, 16.52], measure: [16.52, 26.64],
-  compare: [26.64, 31.34], test: [31.34, 36.57], end: [36.57, 38.07],
+  hook: [0, 3.4], truedepth: [3.4, 7.45], scan: [7.45, 11.19], mirror: [11.19, 16.29], measure: [16.29, 26.41],
+  compare: [26.41, 31.11], test: [31.11, 36.34], end: [36.34, 37.84],
 } as const;
 
 // Hook: one continuous take of public/mirror_clip.mp4 (24 fps source, 5.04 s) from the rear mirror angle, at normal speed.
@@ -28,27 +28,27 @@ export const CAPTION_TOP_DEFAULT = 230;
 export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 0.56, to: 2.56, top: 1300 },      // the rush into the reflected phone, then the phone: lower, over his hand
   { from: 2.56, to: 4.02, top: 1680 },      // the push to the top of the phone: caption under the clock
-  { from: 4.02, to: 6.38, top: 1160 },      // the parts use the top -> caption between the island and the clock
-  { from: 6.38, to: 8.68, top: 185 },     // 3D red dots clip: raised to clear his hair and the dots
-  { from: 12.35, to: 14.95, top: 1540 },      // top-down mirror diagram: the top holds the face behind the glass -> caption below his head
-  { from: 16.52, to: 21.32, top: 170 },      // the 3D dotted head
-  { from: 23.64, to: 26.64, top: 170 },      // the photo
-  { from: 26.64, to: 31.34, top: 170 },     // comparison
-  { from: 31.34, to: 36.57, top: 96 },     // reveal: the phone fills the frame -> caption above it
+  { from: 4.02, to: 7.45, top: 1160 },      // the parts use the top -> caption between the island and the clock
+  { from: 7.45, to: 8.58, top: 185 },     // 3D red dots clip: raised to clear his hair and the dots
+  { from: 12.12, to: 14.72, top: 1540 },      // top-down mirror diagram: the top holds the face behind the glass -> caption below his head
+  { from: 16.29, to: 21.09, top: 170 },      // the 3D dotted head
+  { from: 23.41, to: 26.41, top: 170 },      // the photo
+  { from: 26.41, to: 31.11, top: 170 },     // comparison
+  { from: 31.11, to: 36.34, top: 96 },     // reveal: the phone fills the frame -> caption above it
 ];
 
 export type Line = { id: string; at: number; text: string };
 // Narration = caption text.  `at` is when the voice line starts.
 export const NARRATION: Line[] = [
   { id: 'n1', at: 0.1, text: "Have you ever wondered if you can open your iPhone with your mirror reflection?" },
-  { id: 'n2', at: 4.04, text: "It projects thirty thousand invisible dots." },
-  { id: 'n3a', at: 6.43, text: "When I wake my phone, they land on my face, and the infrared camera picks up the pattern." },
-  { id: 'n5', at: 11.47, text: "But here's the twist: a mirror bounces that light straight back onto my face." },
-  { id: 'n3c', at: 16.57, text: "So what's the phone really reading? My nose bends the dots one way, my cheeks another, and from those bends, it maps my face." },
-  { id: 'n3d', at: 23.64, text: "That's why a flat photo fails. Nothing bends." },
-  { id: 'n4', at: 26.69, text: "It also grabs an infrared picture, then checks both against the face I set up." },
-  { id: 'n6q', at: 31.44, text: "So, did it work?" },
-  { id: 'n6r', at: 33.25, text: "It unlocked for me! Did yours? Tell me in the comments." },
+  { id: 'n2', at: 4.04, text: "When the phone is awake, these cameras fire thirty thousand dots" },
+  { id: 'n3a', at: 7.5, text: "straight onto my face, and the infrared camera picks up the pattern." },
+  { id: 'n5', at: 11.24, text: "But here's the twist: a mirror bounces that light straight back onto my face." },
+  { id: 'n3c', at: 16.34, text: "So what's the phone really reading? My nose bends the dots one way, my cheeks another, and from those bends, it maps my face." },
+  { id: 'n3d', at: 23.41, text: "That's why a flat photo fails. Nothing bends." },
+  { id: 'n4', at: 26.46, text: "It also grabs an infrared picture, then checks both against the face I set up." },
+  { id: 'n6q', at: 31.21, text: "So, did it work?" },
+  { id: 'n6r', at: 33.02, text: "It unlocked for me! Did yours? Tell me in the comments." },
 ];
 
 // Played only when real test footage is in and `result` is set to match it.
@@ -63,9 +63,9 @@ export const UNLOCK_AT = 44;
 export const LEN: Record<string, number> = lengths as any;
 
 export const SFX = [
-  { name: 'SFX · thump (the parts are named)', file: 'thump.wav', at: 4.73, vol: 0.3 },
-  { name: 'SFX · thump (what the camera sees)', file: 'thump.wav', at: 9.88, vol: 0.25 },
-  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 31.34, vol: 0.45 },
+  { name: 'SFX · thump (the parts are named)', file: 'thump.wav', at: 5.97, vol: 0.3 },
+  { name: 'SFX · thump (what the camera sees)', file: 'thump.wav', at: 9.72, vol: 0.25 },
+  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 31.11, vol: 0.45 },
 ];
 
 // ---- Real mirror test (scene 6) -------------------------------------------------
