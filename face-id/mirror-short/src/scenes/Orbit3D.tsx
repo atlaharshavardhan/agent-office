@@ -302,8 +302,8 @@ export const Orbit3D: React.FC<{ g: number; cyan?: number; pov?: number; align?:
       <div style={{ position: 'absolute', left: 70, width: 800, top: 1310, textAlign: 'center', opacity: cyan !== undefined || pov !== undefined || ex || look ? 0 : ramp(g, 40, 44), color: C.ir, font: `800 112px/1 ${FONT}` }}>
         30,000+ <span style={{ fontSize: 46, letterSpacing: '0.06em' }}>DOTS</span>
       </div>
-      <div style={{ position: 'absolute', left: 70, width: 800, top: 1310, textAlign: 'center', opacity: cyan !== undefined && !ex ? ramp(cyan, 8, 12) : 0, color: CYAN, font: `800 104px/1 ${FONT}` }}>
-        30,000+ <span style={{ fontSize: 42, letterSpacing: '0.06em' }}>DEPTH POINTS</span>
+      <div style={{ position: 'absolute', left: 70, width: 800, top: 1310, textAlign: 'center', opacity: cyan !== undefined && !ex ? ramp(cyan, 8, 12) : 0, color: CYAN, font: `800 92px/1 ${FONT}`, whiteSpace: 'nowrap' }}>
+        30,000+ <span style={{ fontSize: 36, letterSpacing: '0.04em' }}>DEPTH POINTS</span>
       </div>
       <Label text="DEPTH MAP" x={505} y={1420} o={ramp(g, 197, 201)} align="center" />
       <div style={{ position: 'absolute', left: 80, top: 1440, opacity: ex || look ? 0 : 0.5 * (1 - ramp(g, 185, 197)), font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>3D illustration · dot count: Apple · fewer dots drawn than fired · invisible to the eye</div>
