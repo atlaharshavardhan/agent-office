@@ -42,7 +42,8 @@ export const MirrorTop: React.FC<{ t: number }> = ({ t }) => {
           {/* the phone, held up facing the glass */}
           <rect x={590} y={1104} width={270} height={36} rx={14} fill="#5a1626" stroke="#ff8fa3" strokeWidth={2.5} />
           <rect x={PROJ[0] - 15} y={1096} width={30} height={16} rx={4} fill={C.ir} /><rect x={CAM[0] - 15} y={1096} width={30} height={16} rx={4} fill="#63d6c9" />
-          <Tag x={600} y={1186} text="DOT PROJECTOR" o={1} size={22} anchor="start" col={C.ir} /><Tag x={600} y={1222} text="INFRARED CAMERA" o={1} size={22} anchor="start" col="#63d6c9" />
+          <Tag x={600} y={1190} text="PHONE" o={1} size={30} anchor="start" col="#fff" /><Tag x={600} y={1226} text="DOT PROJECTOR" o={1} size={20} anchor="start" col={C.ir} /><Tag x={600} y={1258} text="INFRARED CAMERA" o={1} size={20} anchor="start" col="#63d6c9" />
+          <Tag x={HEAD[0]} y={HEAD[1] + 22} text="FACE" o={1} size={30} col="#fff" />
         </g>
         {/* out to the glass, then back onto his face */}
         {TARGETS.map((q, i) => { const h = hit(PROJ, q), p1 = lerp(PROJ, h, out), p2 = lerp(h, q, back);
