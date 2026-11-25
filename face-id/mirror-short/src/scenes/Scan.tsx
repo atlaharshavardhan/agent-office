@@ -33,9 +33,9 @@ const Mark: React.FC<{ x: number; y: number; text: string; lx: number; ly: numbe
     <>
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: o }}>
         <path d={`M ${lx + w / 2} ${ly} L ${x} ${y}`} stroke="#fff" strokeWidth={3} fill="none" />
-        <circle cx={x} cy={y} r={17 + 26 * (1 - pop)} fill="none" stroke={C.amber} strokeWidth={4.5} /><circle cx={x} cy={y} r={6} fill="#fff" />
+        <circle cx={x} cy={y} r={17 + 26 * (1 - pop)} fill="none" stroke="#fff" strokeWidth={4.5} /><circle cx={x} cy={y} r={6} fill="#fff" />
       </svg>
-      <div style={{ position: 'absolute', left: lx, top: ly, width: w, boxSizing: 'border-box', textAlign: 'center', opacity: o, padding: '18px 0', borderRadius: 12, background: 'rgba(10,8,7,.82)', border: `3px solid ${C.amber}`, font: `800 46px/1 ${FONT}`, letterSpacing: '0.12em', color: '#fff' }}>{text}</div>
+      <div style={{ position: 'absolute', left: lx, top: ly, width: w, boxSizing: 'border-box', textAlign: 'center', opacity: o, padding: '18px 0', borderRadius: 12, background: 'rgba(10,8,7,.82)', border: '3px solid #fff', font: `800 46px/1 ${FONT}`, letterSpacing: '0.12em', color: '#fff' }}>{text}</div>
     </>
   );
 };
@@ -206,34 +206,30 @@ export const ScanA: React.FC = () => {
 // way so the nose is seen standing out; the dots on the nose light up and slide one way, the dots on the cheeks the other.
 const Bend3D: React.FC<{ s: number }> = ({ s }) => {
   const B = CUE_B, io = (x: number) => x * x * (3 - 2 * x);
-  const az = 22 * ramp(s, B.nose - 4, B.nose + 18, 0, 1, io) - 44 * ramp(s, B.cheek - 6, B.cheek + 18, 0, 1, io) + 22 * ramp(s, B.cyan - 16, B.cyan - 2, 0, 1, io);
+  const az = 32 * ramp(s, B.nose - 8, B.nose + 22, 0, 1, io) - 64 * ramp(s, B.cheek - 8, B.cheek + 22, 0, 1, io) + 32 * ramp(s, B.cyan - 16, B.cyan - 2, 0, 1, io);
   const overlay = ({ S, head }: HeadApi) => {
-    const { nose, dots, n } = head, CH = [[nose.x + 86, nose.y - 4], [nose.x - 90, nose.y - 4]], NC = '#ffd27a', CC = '#7fe3ea';
-    const kn = ramp(s, B.nose, B.nose + 14, 0, 1, io), kc = ramp(s, B.cheek, B.cheek + 14, 0, 1, io), out: React.ReactNode[] = [];
-    // the dots that sit on his nose / cheeks keep their size and place in the pattern: they change colour and slide a
-    // little (nose one way, cheeks the other), so the pattern is seen bending instead of being covered by a blob
-    for (let i = 0; i < n; i++) {
-      const x = dots[i * 3], y = dots[i * 3 + 1], z = dots[i * 3 + 2];
-      const isN = kn > 0 && Math.hypot((x - nose.x) / 30, (y - nose.y + 14) / 44) < 1 && z > nose.z - 62;
-      const isC = !isN && kc > 0 && z > nose.z - 150 && CH.some(([hx, hy]) => Math.hypot((x - hx) / 34, (y - hy) / 30) < 1);
-      if (!isN && !isC) continue;
-      const [px, py] = S(x, y, z), k = isN ? kn : kc, dx = (isN ? 9 : -9) * k;
-      if (isN && i % 2) continue;                                   // the nose is dense with dots: every second one keeps it a pattern, not a blob
-      out.push(<circle key={i} cx={px + dx} cy={py} r={isN ? 2.5 : 3} fill={isN ? NC : CC} opacity={0.35 + 0.65 * k} />);
-    }
-    const [nx, ny] = S(nose.x, nose.y, nose.z), pc = CH.map(([hx, hy]) => S(hx, hy, nose.z - 78)), [cx, cy] = pc[0][0] > pc[1][0] ? pc[0] : pc[1];
-    const fade = 1 - ramp(s, B.cyan - 8, B.cyan);
-    const arrow = (x: number, y: number, dir: number, o: number, col: string) => <g opacity={o} stroke={col} strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" fill="none"><path d={`M ${x - 46 * dir} ${y} h ${92 * dir} m ${-22 * dir} -20 l ${22 * dir} 20 l ${-22 * dir} 20`} /></g>;
+    // No recolouring of the pattern. Three straight columns of the dot pattern are picked out in white: on a wall
+    // they would be straight lines; on his face the middle one bulges out over the nose and the outer ones follow the cheeks. As the head
+    // turns, that bend is plain to see. The nose part lights up on "nose", the cheek parts on "cheeks".
+    const { nose, grid } = head, CHX = [nose.x + 86, nose.x - 90];
+    const kn = ramp(s, B.nose, B.nose + 10, 0, 1, io), kc = ramp(s, B.cheek, B.cheek + 10, 0, 1, io), draw = ramp(s, B.nose - 30, B.nose - 6, 0, 1, io), fade = 1 - ramp(s, B.cyan - 8, B.cyan);
+    // columns, not rows: the head turns left and right, and a line running down the face shows its profile as it turns
+    const xs = [...new Set(grid.map((q) => q[0]))], near = (t: number) => xs.reduce((a, x) => (Math.abs(x - t) < Math.abs(a - t) ? x : a), xs[0]);
+    const rows = [CHX[1], nose.x, CHX[0]].map((t) => { const x = near(t); return grid.filter((q) => q[3] && q[0] === x).sort((a, b) => b[1] - a[1]); });
+    const [nx, ny] = S(nose.x, nose.y, nose.z), pc = CHX.map((hx) => S(hx, nose.y - 4, nose.z - 78)), [cx, cy] = pc[0][0] > pc[1][0] ? pc[0] : pc[1];
     return (
       <>
-        <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
-          <defs><filter id="bend-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
-          <g filter="url(#bend-glow)">{out}</g>
-          {/* a thin outline round each area, and an arrow showing which way its dots moved */}
-          <ellipse cx={nx} cy={ny - 22} rx={64} ry={92} fill="none" stroke={NC} strokeWidth={2.5} strokeDasharray="7 8" opacity={0.85 * kn * fade} />
-          {pc.map(([x, y], i) => <ellipse key={i} cx={x} cy={y} rx={66} ry={58} fill="none" stroke={CC} strokeWidth={2.5} strokeDasharray="7 8" opacity={0.85 * kc * fade} />)}
-          {arrow(nx + 118, ny - 30, 1, kn * fade, NC)}
-          {pc.map(([x, y], i) => <g key={i}>{arrow(x, y + 92, -1, kc * fade, CC)}</g>)}
+        <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: fade }}>
+          <defs><filter id="bend-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
+          <g filter="url(#bend-glow)">
+            {rows.map((row, r) => { const shown = row.slice(0, Math.ceil(row.length * draw)); if (shown.length < 2) return null;
+              const P = shown.map((q) => ({ p: S(q[0], q[1], q[2] + 2), y: q[1] }));
+              return (<g key={r}>
+                <polyline points={P.map((q) => q.p.join(',')).join(' ')} fill="none" stroke="#fff" strokeWidth={2.2} strokeLinejoin="round" opacity={0.75} />
+                {P.map((q, i) => { const onN = r === 1 && Math.abs(q.y - nose.y + 14) < 46, onC = r !== 1 && Math.abs(q.y - nose.y + 4) < 36, k = onN ? kn : onC ? kc : 0;
+                  return <circle key={i} cx={q.p[0]} cy={q.p[1]} r={3.6 + 3.2 * k * (0.75 + 0.25 * Math.sin(s / 3))} fill="#fff" opacity={0.85} />; })}
+              </g>); })}
+          </g>
         </svg>
         <Label text="ON A FACE: THE PATTERN BENDS" x={505} y={1470} o={ramp(s, B.face + 2, B.face + 10)} size={30} align="center" color={C.label} />
         <Mark x={nx} y={ny} text="NOSE" lx={120} ly={1250} o={ramp(s, B.nose, B.nose + 3)} pop={ramp(s, B.nose, B.nose + 8)} />
