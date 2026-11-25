@@ -50,7 +50,7 @@ const Handle: React.FC<{ style: React.CSSProperties }> = ({ style }) => (
 export const Captions: React.FC<{ lines: Line[] }> = ({ lines }) => {
   const t = useCurrentFrame() / FPS;
   // a caption never lingers into the next line or past a scene cut
-  const cuts = [...lines.map((x) => x.at), ...Object.values(SCENES).map((x) => x[0])];
+  const cuts = [...lines.map((x) => x.at), ...Object.entries(SCENES).filter(([k]) => k !== 'truedepth').map(([, x]) => x[0])];   // hook -> phone is one continuous shot, not a cut
   const c = lines.flatMap(chunk).map((k) => ({ ...k, to: Math.min(k.to, ...cuts.filter((x) => x > k.from + 0.05)) })).find((k) => t >= k.from && t < k.to);
   if (!c) return null;
   return (
