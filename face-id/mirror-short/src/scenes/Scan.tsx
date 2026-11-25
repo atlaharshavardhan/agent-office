@@ -51,15 +51,16 @@ const SKIN = new Set((front.dots as number[][]).map((d) => `${Math.round(d[0] / 
 const GRID: number[][] = [];
 for (let y = 392; y <= 962; y += 13) for (let x = 164; x <= 606; x += 13) GRID.push([x, y, depthAt(x, y), SKIN.has(`${Math.round(x / 14)},${Math.round(y / 14)}`) ? 1 : 0]);
 const BEND = 62, FLAT = 0.45;
-const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | null; nose: number | null; cheek: number | null; end: number; grid?: { face: number; bend: number; out: number } }> = ({ s, depth0, flash, nose, cheek, end, grid }) => {
+const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | null; nose: number | null; cheek: number | null; end: number; grid?: { face: number; bend: number; out: number }; mapAt?: number }> = ({ s, depth0, flash, nose, cheek, end, grid, mapAt }) => {
   const D0 = depth0 ?? 1e9, FL = flash ?? -1e9, NO = nose ?? 1e9, CH = cheek ?? 1e9;
   const depth = s >= D0, zoom = FZ;
   // the head keeps moving while the depth mesh is on: a slow sway, blending into the final turn
   // the head faces us (aligned with the shots before it) while the web forms, then makes one small three-quarter turn
   // and holds, so the nose is seen sitting forward of the cheek
   // then the face drops away and the web is left on its own as a 3D map, turned to a three-quarter view (it keeps drifting)
-  const cm = depth ? ramp(s, D0 + 28, D0 + 42) : 0;                       // 0 = web on his face, 1 = the 3D map on its own, coloured by depth
-  const az = depth ? -34 * ramp(s, D0 + 28, D0 + 52, 0, 1, (x) => x * x * (3 - 2 * x)) - 6 * ramp(s, D0 + 52, D0 + 110) : 0;
+  const M0 = mapAt ?? D0 + 28;                                          // when the web leaves his face to become the 3D map
+  const cm = depth ? ramp(s, M0, M0 + 14) : 0;                       // 0 = web on his face, 1 = the 3D map on its own, coloured by depth
+  const az = depth ? -34 * ramp(s, M0, M0 + 24, 0, 1, (x) => x * x * (3 - 2 * x)) - 6 * ramp(s, M0 + 24, M0 + 82) : 0;
   const toDepth = ramp(s, D0, D0 + 8);
   const [nx, ny] = headPoint(NOSE, az, zoom), [cx, cy] = headPoint(CHEEK, az, zoom);
   const corner = (x: number, y: number, dx: number, dy: number) => `M ${x + dx * 50} ${y} H ${x} V ${y + dy * 50}`;
@@ -255,10 +256,11 @@ export const ScanB: React.FC = () => {
   const o = ramp(s, CUE_B.cyan, CUE_B.cyan + 5) * (1 - ramp(s, CUE_B.depth, CUE_B.depth + 6));
   return (
     <AbsoluteFill>
-      <FaceView s={s} depth0={CUE_B.depth} flash={null} nose={CUE_B.depth + 6} cheek={CUE_B.depth + 12} end={CUE_B.photo} grid={{ face: CUE_B.face, bend: CUE_B.bend, out: CUE_B.cyan }} />
-      {/* nose and cheeks are explained on the 3D dotted head (it fades in as the wall fades out) */}
-      {s >= CUE_B.face - 8 && s < CUE_B.cyan + 6 && <AbsoluteFill style={{ opacity: ramp(s, CUE_B.face - 8, CUE_B.face + 8) * (1 - ramp(s, CUE_B.cyan, CUE_B.cyan + 6)) }}><Bend3D s={s} /></AbsoluteFill>}
-      {s >= CUE_B.cyan - 1 && s < CUE_B.depth + 6 && <AbsoluteFill style={{ opacity: o }}><Orbit3D g={150} cyan={s - CUE_B.cyan} align /></AbsoluteFill>}
+      {/* web theme from the first frame: the depth web forms on his face and is scanned while the camera pushes in;
+          CLOSER lands on "nose", FARTHER on "cheeks"; on "and from those bends" it becomes the turning 3D map */}
+      <AbsoluteFill style={{ transformOrigin: '540px 1000px', transform: `scale(${1 + 0.08 * ramp(s, 0, CUE_B.depth)})` }}>
+        <FaceView s={s} depth0={0} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.photo} mapAt={CUE_B.depth} />
+      </AbsoluteFill>
       {/* the turning 3D map is the 3D head; everything static above is the photo */}
       {s >= CUE_B.depth + 20 && <AbsoluteFill style={{ opacity: ramp(s, CUE_B.depth + 20, CUE_B.depth + 30) }}><Map3D t={s - CUE_B.depth - 26} /></AbsoluteFill>}
     </AbsoluteFill>
