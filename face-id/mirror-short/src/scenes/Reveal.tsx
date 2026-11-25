@@ -1,27 +1,49 @@
+import { ThreeCanvas } from '@remotion/three';
+import { useThree } from '@react-three/fiber';
+import { useEffect } from 'react';
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { UNLOCK_AT } from '../script';
 import { FONT, ramp } from '../theme';
+import { Phone3D, usePhoneModel } from './Phone3D';
 
-// The reveal, on the same phone in his hand as the hook (public/hook_last.png): Face ID scans in the Dynamic Island, a green
-// tick lands, and the lock screen gives way to the home screen with its apps (public/hook_home.png, tools/make_home.py).
+// The reveal, on the 3D iPhone Pro Max (the same model as the dots clip), facing us in the amber bathroom: Face ID scans in
+// the Dynamic Island, a green tick lands, and the lock screen gives way to a dark-mode home screen with its apps.
 // A recreation of Harsh's own result (it unlocked for him), not test footage. Then the question goes to the viewer.
-const ISL = { x: 537.6, y: 282, w: 181, h: 53 };
+const PX = 1920 / (2 * 927 * Math.tan((15 * Math.PI) / 180));          // screen px per scene unit at the phone
+const ISL = { x: 540, y: 960 - 150 * PX, w: 46 * PX, h: 13.3 * PX };
 const io = (x: number) => x * x * (3 - 2 * x), out3 = (x: number) => 1 - Math.pow(1 - x, 3);
+
+const Stage: React.FC<{ phone: THREE.Object3D }> = ({ phone }) => {
+  const gl = useThree((x) => x.gl), scene = useThree((x) => x.scene), advance = useThree((x) => x.advance);
+  useEffect(() => { advance(performance.now()); });                       // the canvas draws on demand
+  useEffect(() => { const pm = new THREE.PMREMGenerator(gl); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.7; return () => pm.dispose(); }, [gl, scene]);
+  return (<><ambientLight intensity={0.6} /><directionalLight position={[300, 500, 900]} intensity={2} /><pointLight position={[-500, 300, 500]} intensity={3} color="#ffb060" decay={0} /><Phone3D model={phone} /></>);
+};
+const Layer: React.FC<{ phone: THREE.Object3D | null; o?: number }> = ({ phone, o = 1 }) => (
+  <AbsoluteFill style={{ opacity: o }}>
+    <ThreeCanvas width={1080} height={1920} flat gl={{ antialias: true, alpha: true }} camera={{ fov: 30, near: 10, far: 4000, position: [0, 0, 927] }}>
+      {phone && <Stage phone={phone} />}
+    </ThreeCanvas>
+  </AbsoluteFill>
+);
 
 export const Reveal: React.FC = () => {
   const fr = useCurrentFrame(), U = UNLOCK_AT;
-  const s = 1.02 + 0.05 * (fr / 150) + 0.05 * ramp(fr, U, U + 8, 0, 1, out3);
-  const e = ramp(fr, 4, 14, 0, 1, io) * (1 - ramp(fr, U + 4, U + 14, 0, 1, io)), bh = ISL.h + (ISL.w * 0.94 - ISL.h) * e, top = ISL.y - ISL.h / 2;
+  const lock = usePhoneModel(true), homeM = usePhoneModel('home');
+  const s = 0.9 + 0.06 * ramp(fr, 0, 14, 0, 1, out3) + 0.04 * (fr / 150) + 0.05 * ramp(fr, U, U + 8, 0, 1, out3);
+  const e = ramp(fr, 4, 14, 0, 1, io) * (1 - ramp(fr, U + 6, U + 16, 0, 1, io)), bh = ISL.h + (ISL.w * 0.94 - ISL.h) * e, top = ISL.y - ISL.h / 2;
   const open = ramp(fr, U, U + 6, 0, 1, out3), home = ramp(fr, U + 8, U + 20, 0, 1, io), ask = ramp(fr, U + 34, U + 42, 0, 1, out3);
   return (
-    <AbsoluteFill style={{ backgroundColor: '#261912', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, transformOrigin: '540px 860px', transform: `scale(${s})` }}>
-        <Img src={staticFile('hook_last.png')} style={{ position: 'absolute', inset: 0, width: 1080, height: 1920 }} />
-        {/* the home screen arrives: it fades in while growing slightly, like apps flying into place */}
-        <Img src={staticFile('hook_home.png')} style={{ position: 'absolute', inset: 0, width: 1080, height: 1920, opacity: home }} />
+    <AbsoluteFill style={{ backgroundColor: '#120d0a', overflow: 'hidden' }}>
+      <Img src={staticFile('bathroom_rear.png')} style={{ position: 'absolute', left: -220, top: -120, width: 1520, height: 2700, filter: 'blur(22px) brightness(0.42)' }} />
+      <div style={{ position: 'absolute', inset: 0, transformOrigin: '540px 960px', transform: `scale(${s})` }}>
+        <Layer phone={lock} />
+        {home > 0 && <Layer phone={homeM} o={home} />}
         <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
           {/* Face ID in the island: scanning, then a green tick */}
-          <rect x={ISL.x - ISL.w / 2} y={top} width={ISL.w} height={bh} rx={ISL.h / 2 + (ISL.w * 0.24 - ISL.h / 2) * e} fill="#04050a" />
+          <rect x={ISL.x - ISL.w / 2} y={top} width={ISL.w} height={bh} rx={ISL.h / 2 + (ISL.w * 0.24 - ISL.h / 2) * e} fill="#030303" opacity={e > 0 ? 1 : 0} />
           <g transform={`translate(${ISL.x} ${top + bh / 2}) scale(${(ISL.w / 215) * e})`} fill="none" strokeLinecap="round" opacity={e}>
             <g stroke={open > 0.5 ? '#3ddc84' : '#fff'} strokeWidth={7}>
               <path d="M -46 -22 V -34 a 12 12 0 0 1 12 -12 H -22 M 22 -46 H 34 a 12 12 0 0 1 12 12 V -22 M 46 22 V 34 a 12 12 0 0 1 -12 12 H 22 M -22 46 H -34 a 12 12 0 0 1 -12 -12 V 22" />
@@ -31,12 +53,12 @@ export const Reveal: React.FC = () => {
           </g>
         </svg>
       </div>
-      <AbsoluteFill style={{ backgroundColor: '#fff', opacity: 0.22 * ramp(fr, U, U + 2) * (1 - ramp(fr, U + 2, U + 10)) }} />
+      <AbsoluteFill style={{ backgroundColor: '#fff', opacity: 0.2 * ramp(fr, U, U + 2) * (1 - ramp(fr, U + 2, U + 10)) }} />
       {/* the result, then the question for the viewer */}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 26, textAlign: 'center', opacity: ramp(fr, U + 10, U + 16), transform: `scale(${1.2 - 0.2 * ramp(fr, U + 10, U + 18, 0, 1, out3)})` }}>
-        <span style={{ display: 'inline-block', padding: '16px 30px', borderRadius: 16, background: 'rgba(8,10,8,.82)', border: '3px solid #3ddc84', font: `800 48px/1 ${FONT}`, letterSpacing: '0.06em', color: '#3ddc84' }}>UNLOCKED</span>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 1690, textAlign: 'center', opacity: ramp(fr, U + 10, U + 16) * (1 - ask), transform: `scale(${1.2 - 0.2 * ramp(fr, U + 10, U + 18, 0, 1, out3)})` }}>
+        <span style={{ display: 'inline-block', padding: '16px 30px', borderRadius: 16, background: 'rgba(8,10,8,.85)', border: '3px solid #3ddc84', font: `800 54px/1 ${FONT}`, letterSpacing: '0.06em', color: '#3ddc84' }}>UNLOCKED</span>
       </div>
-      <div style={{ position: 'absolute', left: 60, right: 60, top: 1640, textAlign: 'center', opacity: ask, transform: `translateY(${20 * (1 - ask)}px)` }}>
+      <div style={{ position: 'absolute', left: 60, right: 60, top: 1660, textAlign: 'center', opacity: ask, transform: `translateY(${20 * (1 - ask)}px)` }}>
         <span style={{ display: 'inline-block', padding: '20px 30px', borderRadius: 18, background: 'rgba(8,6,12,.88)', border: '3px solid #fff', font: `800 46px/1.2 ${FONT}`, color: '#fff' }}>Did yours unlock?<br /><span style={{ color: '#ffd60a' }}>Comment YES or NO</span></span>
       </div>
     </AbsoluteFill>

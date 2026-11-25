@@ -33,7 +33,7 @@ export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 18.22, to: 23.52, top: 170 },      // the 3D dotted head
   { from: 25.91, to: 28.93, top: 170 },      // the photo
   { from: 28.93, to: 33.78, top: 170 },     // comparison
-  { from: 33.78, to: 39.12, top: 1180 },     // reveal: the phone fills the frame -> caption over his hand
+  { from: 33.78, to: 39.12, top: 96 },     // reveal: the phone fills the frame -> caption over his hand
 ];
 
 export type Line = { id: string; at: number; text: string };
