@@ -53,6 +53,8 @@ export const Reveal: React.FC = () => {
         <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
           <rect x={ISL.x - ISL.w / 2} y={top} width={ISL.w} height={bh} rx={ISL.h / 2 + (ISL.w * 0.24 - ISL.h / 2) * e} fill="#030303" opacity={e} />
           <g transform={`translate(${ISL.x} ${top + bh / 2}) scale(${(ISL.w / 215) * e})`} fill="none" strokeLinecap="round" strokeLinejoin="round">
+            <text y={80} textAnchor="middle" fill={fr >= U ? '#3ddc84' : '#fff'} stroke="none" opacity={ramp(fr, 16, 20)} style={{ font: `800 15px ${FONT}`, letterSpacing: '0.16em' }}>{fr >= U ? 'UNLOCKED' : fr >= P ? 'PROCESSING' : 'SCANNING'}</text>
+            <g transform="translate(0 -14) scale(0.92)">
             {/* 1 · scanning: the Face ID glyph */}
             <g opacity={scanO} stroke="#fff" strokeWidth={7} transform={`scale(${1 + 0.04 * Math.sin(fr / 2)})`}>
               <path d="M -46 -22 V -34 a 12 12 0 0 1 12 -12 H -22 M 22 -46 H 34 a 12 12 0 0 1 12 12 V -22 M 46 22 V 34 a 12 12 0 0 1 -12 12 H 22 M -22 46 H -34 a 12 12 0 0 1 -12 -12 V 22" />
@@ -69,14 +71,11 @@ export const Reveal: React.FC = () => {
               <circle r={44} strokeWidth={7} strokeDasharray={277} strokeDashoffset={277 * (1 - ramp(fr, U - 1, U + 5, 0, 1, o3))} transform="rotate(-90)" />
               <path d="M -20 2 L -6 16 L 22 -14" strokeWidth={9} strokeDasharray={60} strokeDashoffset={60 * (1 - tick)} />
             </g>
+            </g>
           </g>
         </svg>
       </div>
       {mo > 0 && <AbsoluteFill style={{ opacity: mo, transformOrigin: '771px 618px', transform: `translate(${(540 - 771) * mz}px, ${(960 - 618) * mz}px) scale(${1 + 6.2 * mz})` }}><Img src={staticFile('hook_first.png')} style={{ width: 1080, height: 1920 }} /></AbsoluteFill>}
-      {/* state name under the close-up, like the reference: SCANNING / PROCESSING / UNLOCKED */}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 1430, textAlign: 'center', opacity: ramp(fr, 16, 20) * (1 - ramp(fr, U + 4, U + 8)), font: `800 46px/1 ${FONT}`, letterSpacing: '0.16em', color: fr >= U ? '#3ddc84' : '#fff' }}>
-        {fr >= U ? 'UNLOCKED' : fr >= P ? 'PROCESSING' : 'SCANNING'}
-      </div>
       <AbsoluteFill style={{ backgroundColor: '#fff', opacity: 0.25 * ramp(fr, U + 2, U + 4) * (1 - ramp(fr, U + 4, U + 11)) }} />
       {/* the result, then the question for the viewer */}
       <div style={{ position: 'absolute', left: 0, right: 0, top: 1690, textAlign: 'center', opacity: ramp(fr, U + 12, U + 18) * (1 - ask), transform: `scale(${1.2 - 0.2 * ramp(fr, U + 12, U + 20, 0, 1, out3)})` }}>
