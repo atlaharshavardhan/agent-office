@@ -17,6 +17,7 @@ LINES = {
     "n3b": "And the infrared camera picks up that pattern.",
     "n5": "Here's the twist. A mirror can bounce that infrared light back, too.",
     "n3c": "On a flat wall, the dots land in a neat pattern. Your nose bends them one way, and your cheeks bend them another. The phone reads those bends to map the shape of your face.",
+    "n3d": "That's why a photo won't work. It's flat, so the dots never bend.",
     "n4": "It also takes an infrared picture. Then it uses both to check if I'm the person who set up Face ID.",
     "n6q": "So, did it work?",
     "n6_open": "It actually unlocked.",

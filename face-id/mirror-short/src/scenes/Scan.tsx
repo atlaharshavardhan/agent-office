@@ -4,6 +4,7 @@ import mesh from '../mesh_front.json';
 import { C, FONT, Label, ramp } from '../theme';
 import { Head3D, headPoint } from './Head3D';
 import { Orbit3D } from './Orbit3D';
+import { PhotoFlat } from './PhotoFlat';
 
 // The scan is two sequences, with the mirror scene between them (cuts sit on the voiceover, see script.ts):
 // ScanA (9–15.95 s)   0–164  side profile, 3D: the iPhone fires the red dots onto his face  "This tiny projector ..."
@@ -15,7 +16,7 @@ export const FZ = 1.15;      // framing of the frontal face; the mirror view and
 export const CUE_A = { front: 164, end: 209 };
 // ScanB now: 0–face a flat wall with the neat dot grid · face: the same grid on his face · bend: the grid bends with his
 // face (nose one way, cheeks the other), NOSE on "nose", CHEEKS on "cheeks" · cyan point cloud on "The phone" · depth map
-export const CUE_B = { face: 79, bend: 86, nose: 90, cheek: 146, cyan: 188, depth: 218, end: 294 };
+export const CUE_B = { face: 79, bend: 86, nose: 90, cheek: 146, cyan: 188, depth: 218, photo: 288, end: 421 };
 const rnd = (i: number) => { const x = Math.sin((i + 1) * 91.17) * 43758.5453; return x - Math.floor(x); };
 const MESH = '#dff3ff', SCAN = '#4db8ff';
 const pt = (a: number[]) => ({ x: a[0], y: a[1], d: a[2] });
@@ -132,18 +133,39 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
   );
 };
 
+// "And the infrared camera picks up that pattern": the same face, side by side. Left: what you see (the dots are
+// invisible). Right: what the infrared camera sees (the dot pattern on his face).
+const Half: React.FC<{ left: number; ir: boolean }> = ({ left, ir }) => (
+  <div style={{ position: 'absolute', left, top: 0, width: 540, height: 1920, overflow: 'hidden', background: ir ? '#0b0a0d' : '#120d0a' }}>
+    <div style={{ position: 'absolute', left: -296, top: 0, width: 1080, height: 1920 }}>
+      <Head3D az={0} zoom={FZ * 0.74} irMix={ir ? 1 : 0} depthMix={0} dotO={ir ? 1 : 0} />
+    </div>
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 1330, textAlign: 'center' }}>
+      <span style={{ display: 'inline-block', padding: '14px 18px', borderRadius: 10, background: 'rgba(10,8,7,.8)', border: `2px solid ${ir ? C.ir : '#8d877f'}`, font: `800 27px/1 ${FONT}`, letterSpacing: '0.12em', color: '#fff' }}>{ir ? 'WHAT THE CAMERA SEES' : 'WHAT YOU SEE'}</span>
+      <div style={{ marginTop: 16, font: `600 26px/1.2 ${FONT}`, color: '#c9c2bb' }}>{ir ? 'the dot pattern, in infrared' : 'nothing: the dots are invisible'}</div>
+    </div>
+  </div>
+);
+const Split: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: '#000' }}>
+    <Half left={0} ir={false} /><Half left={540} ir />
+    <div style={{ position: 'absolute', left: 538, top: 0, width: 4, height: 1920, background: '#f1eeff' }} />
+  </AbsoluteFill>
+);
+
 export const ScanA: React.FC = () => {
   const s = useCurrentFrame();
-  return s < CUE_A.front ? <Orbit3D g={s} /> : <FaceView s={s} depth0={null} flash={null} nose={null} cheek={null} end={CUE_A.end} />;
+  return s < CUE_A.front ? <Orbit3D g={s} /> : <Split />;
 };
 
 export const ScanB: React.FC = () => {
   const s = useCurrentFrame();
   // the cyan point cloud is the same head, lined up with the frontal face; it dissolves in and out so eyes and nose stay put
+  if (s >= CUE_B.photo) return <PhotoFlat t={s - CUE_B.photo} />;      // "That's why a photo won't work"
   const o = ramp(s, CUE_B.cyan, CUE_B.cyan + 5) * (1 - ramp(s, CUE_B.depth, CUE_B.depth + 6));
   return (
     <AbsoluteFill>
-      <FaceView s={s} depth0={CUE_B.depth} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.end} grid={{ face: CUE_B.face, bend: CUE_B.bend, out: CUE_B.cyan }} />
+      <FaceView s={s} depth0={CUE_B.depth} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.photo} grid={{ face: CUE_B.face, bend: CUE_B.bend, out: CUE_B.cyan }} />
       {s >= CUE_B.cyan - 1 && s < CUE_B.depth + 6 && <AbsoluteFill style={{ opacity: o }}><Orbit3D g={150} cyan={s - CUE_B.cyan} align /></AbsoluteFill>}
     </AbsoluteFill>
   );

@@ -3,15 +3,15 @@
 import lengths from '../public/vo/lengths.json';
 
 export const FPS = 30;
-export const TOTAL = 1341;            // 44.7 s
-export const STORY_END = 42.69;       // end card = last 2 s
+export const TOTAL = 1468;            // 48.9 s
+export const STORY_END = 46.94;       // end card = last 2 s
 export const f = (s: number) => Math.round(s * FPS);
 
 // Scene order: hook → inside the phone → red dots + infrared view → the mirror twist → what the phone measures
 // → comparison → real mirror test → end card. Every scene ends right after its voice line.
 export const SCENES = {
-  hook: [0, 5], truedepth: [5, 9], scan: [9, 15.95], mirror: [15.95, 20.2], measure: [20.2, 29.99],
-  compare: [29.99, 36.69], test: [36.69, 42.69], end: [42.69, 44.69],
+  hook: [0, 5], truedepth: [5, 9], scan: [9, 15.95], mirror: [15.95, 20.2], measure: [20.2, 34.24],
+  compare: [34.24, 40.94], test: [40.94, 46.94], end: [46.94, 48.94],
 } as const;
 
 // Hook: one continuous take of public/mirror_clip.mp4 (24 fps source, 5.04 s) from the rear mirror angle, at normal speed.
@@ -30,7 +30,8 @@ export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 5.8, to: 9.0, top: 1340 },      // the parts and their explanation use the top -> below the padlock
   { from: 9.0, to: 14.45, top: 185 },     // 3D red dots clip: raised to clear his hair and the dots
   { from: 20.2, to: 26.47, top: 170 },      // flat wall and the bending dots: above the panel and his hair
-  { from: 29.99, to: 36.69, top: 170 },     // comparison
+  { from: 29.84, to: 34.24, top: 170 },      // the photo: above the phone
+  { from: 34.24, to: 40.94, top: 170 },     // comparison
 ];
 
 export type Line = { id: string; at: number; text: string };
@@ -42,8 +43,9 @@ export const NARRATION: Line[] = [
   { id: 'n3b', at: 13.2, text: 'And the infrared camera picks up that pattern.' },
   { id: 'n5', at: 16.05, text: "Here's the twist. A mirror can bounce that infrared light back, too." },
   { id: 'n3c', at: 20.3, text: "On a flat wall, the dots land in a neat pattern. Your nose bends them one way, and your cheeks bend them another. The phone reads those bends to map the shape of your face." },
-  { id: 'n4', at: 30.09, text: "It also takes an infrared picture. Then it uses both to check if I'm the person who set up Face ID." },
-  { id: 'n6q', at: 36.84, text: 'So, did it work?' },
+  { id: 'n3d', at: 29.84, text: "That's why a photo won't work. It's flat, so the dots never bend." },
+  { id: 'n4', at: 34.34, text: "It also takes an infrared picture. Then it uses both to check if I'm the person who set up Face ID." },
+  { id: 'n6q', at: 41.09, text: 'So, did it work?' },
 ];
 
 // Played only when real test footage is in and `result` is set to match it.
@@ -57,7 +59,7 @@ export const LEN: Record<string, number> = lengths as any;
 export const SFX = [
   { name: 'SFX · thump (the parts are explained)', file: 'thump.wav', at: 5.8, vol: 0.3 },
   { name: 'SFX · thump (capture, on "picks up")', file: 'thump.wav', at: 14.45, vol: 0.25 },
-  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 36.69, vol: 0.45 },
+  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 40.94, vol: 0.45 },
 ];
 
 // ---- Real mirror test (scene 6) -------------------------------------------------
