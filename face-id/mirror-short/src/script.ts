@@ -27,7 +27,7 @@ export const HOOK = { srcStart: 0.95, freeze: 22, cut: 107, handF: 26 };
 export const CAPTION_TOP_DEFAULT = 230;
 export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 1.9, to: 4.4, top: 1300 },      // the push toward his reflection, then the phone: his face / the island fill the top -> lower
-  { from: 5.8, to: 9.0, top: 1340 },      // the parts and their explanation use the top -> below the padlock
+  { from: 4.4, to: 9.0, top: 1420 },      // the parts and their explanation use the top -> below the padlock
   { from: 9.0, to: 14.45, top: 185 },     // 3D red dots clip: raised to clear his hair and the dots
   { from: 20.2, to: 26.47, top: 170 },      // flat wall and the bending dots: above the panel and his hair
   { from: 29.84, to: 34.24, top: 170 },      // the photo: above the phone
