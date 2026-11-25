@@ -96,7 +96,18 @@ const useHead = (): Head | null => {
       const lpts: number[][] = [], runs: number[][] = [], idx = new Map<string, number>(), US: number[] = [], STEP = 0.092;
       for (let u = -1.38; u <= 1.381; u += STEP) US.push(u);
       const at = (u: number, v: number) => [FCX + 160 * Math.sin(u) * (v > 0 ? 0.9 + 0.1 * Math.cos(v) : 0.74 + 0.26 * Math.cos(v)), FCY + (v > 0 ? 262 : 208) * Math.sin(v) - (v > 0 ? 30 : 52) * (1 - Math.cos(u)) * Math.sin(v)];
-      US.forEach((v, a) => US.forEach((u, b) => { const [x, y] = at(u, v), z = face(x, y); if (z !== null) { idx.set(`${a},${b}`, lpts.length); lpts.push([x, y, z]); } }));
+      // depth at every crossing; small holes inside the face (an eye socket, a nostril) are filled from the crossings either side
+      const Z: (number | null)[][] = US.map((v) => US.map((u) => { const [x, y] = at(u, v); return face(x, y); }));
+      for (let pass = 0; pass < 2; pass++) US.forEach((_, a) => US.forEach((_, b) => {
+        if (Z[a][b] !== null) return;
+        for (const [da, db] of [[0, 1], [1, 0]]) {
+          let p = 0, q = 0;
+          for (let k = 1; k <= 3 && !p; k++) if (Z[a - da * k]?.[b - db * k] != null) p = k;
+          for (let k = 1; k <= 3 && !q; k++) if (Z[a + da * k]?.[b + db * k] != null) q = k;
+          if (p && q) { Z[a][b] = (Z[a - da * p][b - db * p]! * q + Z[a + da * q][b + db * q]! * p) / (p + q); return; }
+        }
+      }));
+      US.forEach((v, a) => US.forEach((u, b) => { const [x, y] = at(u, v), z = Z[a][b]; if (z !== null) { idx.set(`${a},${b}`, lpts.length); lpts.push([x, y, z]); } }));
       const collect = (key: (i: number, j: number) => string) => US.forEach((_, i) => { let cur: number[] = []; US.forEach((_, j) => { const k = idx.get(key(i, j)); if (k !== undefined) cur.push(k); else { if (cur.length > 1) runs.push(cur); cur = []; } }); if (cur.length > 1) runs.push(cur); });
       collect((i, j) => `${i},${j}`); collect((i, j) => `${j},${i}`);
       const grid: number[][] = [];
