@@ -62,7 +62,7 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
   // then the face drops away and the web is left on its own as a 3D map, turned to a three-quarter view (it keeps drifting)
   const M0 = mapAt ?? D0 + 28;                                          // when the web leaves his face to become the 3D map
   const cm = depth ? ramp(s, M0, M0 + 14) : 0;                       // 0 = web on his face, 1 = the 3D map on its own, coloured by depth
-  const az = depth ? -34 * ramp(s, M0, M0 + 24, 0, 1, (x) => x * x * (3 - 2 * x)) - 6 * ramp(s, M0 + 24, M0 + 82) : 0;
+  const az = depth ? -34 * ramp(s, M0, M0 + 24, 0, 1, (x) => x * x * (3 - 2 * x)) - 12 * ramp(s, M0 + 24, M0 + 70) : 0;
   const toDepth = ramp(s, D0, D0 + 8);
   const [nx, ny] = headPoint(NOSE, az, zoom), [cx, cy] = headPoint(CHEEK, az, zoom);
   const corner = (x: number, y: number, dx: number, dy: number) => `M ${x + dx * 50} ${y} H ${x} V ${y + dy * 50}`;
@@ -269,7 +269,7 @@ export const ScanB: React.FC = () => {
         <FaceView s={s} depth0={0} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.photo} mapAt={CUE_B.depth} warmTo={CUE_B.nose - 4} />
       </AbsoluteFill>
       {/* the turning 3D map is the 3D head; everything static above is the photo */}
-      {s >= CUE_B.depth + 20 && <AbsoluteFill style={{ opacity: ramp(s, CUE_B.depth + 20, CUE_B.depth + 30) }}><Map3D t={s - CUE_B.depth - 26} /></AbsoluteFill>}
+      {/* one web all the way: the web on his face lifts off and the same web turns to a three-quarter view (no second map) */}
     </AbsoluteFill>
   );
 };
