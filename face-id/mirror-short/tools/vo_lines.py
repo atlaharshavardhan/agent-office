@@ -12,8 +12,8 @@ M = Path(sys.argv[1])
 OUT = Path(__file__).resolve().parent.parent / "public" / "vo"; OUT.mkdir(parents=True, exist_ok=True)
 LINES = {
     "n1": "Can my mirror reflection unlock an iPhone 18 Pro?",
-    "n2": "Hidden up here are three parts: a dot projector, a flood illuminator, and an infrared camera.",
-    "n3a": "When I wake the phone, the projector throws thousands of invisible dots onto my face, and the infrared camera picks up that pattern.",
+    "n2": "This camera up here projects more than thirty thousand invisible dots.",
+    "n3a": "When I wake the phone, they land on my face, and the infrared camera picks up the pattern.",
     "n5": "But here's the twist: a mirror can bounce that light right back onto my face.",
     "n3c": "So what is the phone actually reading? My nose bends the dots one way, my cheeks another, and from those bends it maps my face.",
     "n3d": "That's why a flat photo fails. Nothing bends.",

@@ -5,11 +5,11 @@ import { FONT, ramp } from '../theme';
 // and a card for each part above it, joined to its dot by a dashed line. The parts stay in the island; each card is
 // highlighted and explained in turn. f = HandPhone's frame; the diagram fades in over the photo at IN and its island
 // starts at the photo island's size and place, so the push carries straight into it.
-export const IN = 68, EXPLAIN = 117, CARD = 38;
+export const IN = 68, EXPLAIN = 100, CARD = 999;
 const RED = '#ff4d63', PINK = '#ff8fa3', BLUE = '#6fa8ff';
 const io = (x: number) => x * x * (3 - 2 * x), out3 = (x: number) => 1 - Math.pow(1 - x, 3);
 const PARTS = [
-  { x: 180, dx: 452, col: RED, label: 'DOT PROJECTOR', does: 'fires 30,000+ invisible dots' },
+  { x: 180, dx: 452, col: RED, label: 'DOT PROJECTOR', does: 'projects 30,000+ invisible dots' },
   { x: 540, dx: 540, col: PINK, label: 'FLOOD ILLUMINATOR', does: 'lights your face in infrared' },
   { x: 900, dx: 628, col: BLUE, label: 'IR CAMERA', does: 'reads the dots on your face' },
 ];
@@ -19,7 +19,7 @@ export const PhoneParts: React.FC<{ f: number }> = ({ f }) => {
   const m = ramp(f, IN + 2, IN + 18, 0, 1, io);            // island settles from the photo's island to the diagram's
   const iw = 288, ih = 84, icy = 905;                       // the real phone's own Dynamic Island (HandPhone settles it here)
   // tear-down: each part is pushed up out of the island along its own line and becomes its card
-  const lift = (i: number) => ramp(f, IN + 14 + i * 4, IN + 30 + i * 4, 0, 1, out3);
+  const lift = (i: number) => ramp(f, IN + 8 + i * 3, IN + 22 + i * 3, 0, 1, out3);
   const active = f < EXPLAIN ? -1 : Math.min(2, Math.floor((f - EXPLAIN) / CARD));
   return (
     <AbsoluteFill style={{ opacity: ramp(f, IN, IN + 8), background: 'linear-gradient(180deg, rgba(8,6,12,.86) 0%, rgba(8,6,12,.8) 36%, rgba(8,6,12,.25) 44%, rgba(8,6,12,.3) 100%)', overflow: 'hidden' }}>
