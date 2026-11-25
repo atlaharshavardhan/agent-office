@@ -1,4 +1,4 @@
-"""Mirror Face ID Short narration: George (Kokoro bm_george, en-gb), channel speed 1.18.
+"""Mirror Face ID Short narration: Kokoro voice set by VOICE below.
 One WAV per line + public/vo/lengths.json.  Usage: python tools/vo_lines.py <kokoro models dir>
 The two result lines (n6_open / n6_locked) are generated but NOT placed on the timeline
 until the real mirror-test footage is in and the matching line is chosen in src/script.ts.
@@ -22,13 +22,14 @@ LINES = {
     "n6_open": "It actually unlocked.",
     "n6_locked": "In my test, it stayed locked.",
 }
-SPEED = {}        # one speed (1.18) for every line, so the pace never jumps between lines
+VOICE, LANG, RATE = "am_michael", "en-us", 1.22      # narrator (was bm_george, en-gb, 1.18)
+SPEED = {}        # one speed for every line, so the pace never jumps between lines
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
 ONLY = sys.argv[2:]          # optional: regenerate only these line ids, keep the rest
 L = json.load(open(OUT / "lengths.json")) if ONLY else {}
 for n, t in LINES.items():
     if ONLY and n not in ONLY: continue
-    a, sr = k.create(t, voice="bm_george", speed=SPEED.get(n, 1.18), lang="en-gb")
+    a, sr = k.create(t, voice=VOICE, speed=SPEED.get(n, RATE), lang=LANG)
     sf.write(OUT / f"{n}.wav", a, sr)
     L[n] = round(len(a) / sr, 3)
     print(n, L[n])

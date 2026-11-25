@@ -5,7 +5,7 @@ import { FONT, ramp } from '../theme';
 // and a card for each part above it, joined to its dot by a dashed line. The parts stay in the island; each card is
 // highlighted and explained in turn. f = HandPhone's frame; the diagram fades in over the photo at IN and its island
 // starts at the photo island's size and place, so the push carries straight into it.
-export const IN = 68, EXPLAIN = 119, CARD = 39;
+export const IN = 68, EXPLAIN = 117, CARD = 38;
 const RED = '#ff4d63', PINK = '#ff8fa3', BLUE = '#6fa8ff';
 const io = (x: number) => x * x * (3 - 2 * x), out3 = (x: number) => 1 - Math.pow(1 - x, 3);
 const PARTS = [
