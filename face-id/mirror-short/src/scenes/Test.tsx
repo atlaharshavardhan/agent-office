@@ -1,9 +1,11 @@
 import { AbsoluteFill, OffthreadVideo, staticFile } from 'remotion';
 import { FPS, TestProps } from '../script';
 import { C, FONT } from '../theme';
+import { Reveal } from './Reveal';
 
 // Scene 6 (36–43 s). Only REAL footage goes here — nothing in this scene is animated as a result.
 export const Test: React.FC<{ p: TestProps }> = ({ p }) => {
+  if (!p.testFootage) return <Reveal />;      // the animated reveal on the hook's phone
   if (!p.testFootage) {
     return (
       <AbsoluteFill style={{ backgroundColor: '#1a1414', alignItems: 'center', justifyContent: 'center' }}>
