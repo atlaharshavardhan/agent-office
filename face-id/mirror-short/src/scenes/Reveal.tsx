@@ -85,15 +85,15 @@ export const Reveal: React.FC = () => {
         <span style={{ display: 'inline-block', padding: '16px 30px', borderRadius: 16, background: 'rgba(8,10,8,.85)', border: '3px solid #3ddc84', font: `800 54px/1 ${FONT}`, letterSpacing: '0.06em', color: '#3ddc84' }}>UNLOCKED</span>
       </div>
       {/* the question: one clean card in the middle of the screen */}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 520, display: 'flex', justifyContent: 'center', opacity: ask, transform: `translateY(${30 * (1 - ask)}px) scale(${0.94 + 0.06 * ask})` }}>
-        <div style={{ width: 660, padding: '44px 40px 46px', borderRadius: 36, background: 'rgba(14,12,20,.82)', border: '2px solid rgba(255,255,255,.18)', boxShadow: '0 30px 80px rgba(0,0,0,.55)', textAlign: 'center' }}>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 420, display: 'flex', justifyContent: 'center', opacity: ask, transform: `translateY(${30 * (1 - ask)}px) scale(${0.94 + 0.06 * ask})` }}>
+        <div style={{ width: 660, padding: '80px 40px 84px', borderRadius: 44, background: 'rgba(14,12,20,.82)', border: '2px solid rgba(255,255,255,.18)', boxShadow: '0 30px 80px rgba(0,0,0,.55)', textAlign: 'center' }}>
           <div style={{ font: `700 26px/1 ${FONT}`, letterSpacing: '0.22em', color: '#a9a3c2' }}>YOUR TURN</div>
-          <div style={{ marginTop: 22, font: `800 64px/1.1 ${FONT}`, color: '#fff' }}>Did yours unlock?</div>
-          <div style={{ marginTop: 34, display: 'flex', justifyContent: 'center', gap: 26 }}>
+          <div style={{ marginTop: 34, font: `800 64px/1.1 ${FONT}`, color: '#fff' }}>Did yours unlock?</div>
+          <div style={{ marginTop: 58, display: 'flex', justifyContent: 'center', gap: 26 }}>
             <span style={{ padding: '18px 54px', borderRadius: 999, background: '#1f3d2b', border: '3px solid #3ddc84', font: `800 44px/1 ${FONT}`, color: '#3ddc84' }}>YES</span>
             <span style={{ padding: '18px 54px', borderRadius: 999, background: '#3d1f24', border: '3px solid #ff4d63', font: `800 44px/1 ${FONT}`, color: '#ff6b7d' }}>NO</span>
           </div>
-          <div style={{ marginTop: 30, font: `600 32px/1 ${FONT}`, color: '#d6d0e6' }}>Comment below</div>
+          <div style={{ marginTop: 56, font: `600 32px/1 ${FONT}`, color: '#d6d0e6' }}>Comment below</div>
         </div>
       </div>
     </AbsoluteFill>
