@@ -15,7 +15,7 @@ LINES = {
     "n2": "First, look at what happens up here when I wake the phone.",
     "n3a": "This tiny projector puts thousands of invisible dots on my face.",
     "n3b": "And the infrared camera picks up that pattern.",
-    "n5": "Here's the twist. A mirror can bounce that infrared light back, too.",
+    "n5": "Here's the twist. A mirror can bounce that infrared light back onto my face, too.",
     "n3c": "Your nose bends the dots one way, and your cheeks bend them another. The phone reads those bends to map your face.",
     "n3d": "That's why a flat surface doesn't work. So a photo won't work.",
     "n4": "It also takes an infrared picture. Then it uses both to check if I'm the person who set up Face ID.",

@@ -21,13 +21,17 @@ const Head: React.FC<{ cx: number; cy: number; flip?: boolean; ghost?: boolean }
 const Tag: React.FC<{ x: number; y: number; text: string; o: number; col?: string; size?: number; anchor?: 'start' | 'middle' | 'end' }> = ({ x, y, text, o, col = '#fff', size = 27, anchor = 'middle' }) =>
   <text x={x} y={y} textAnchor={anchor} fill={col} opacity={o} style={{ font: `800 ${size}px ${FONT}`, letterSpacing: '0.12em' }}>{text}</text>;
 
+export const B2 = 42;                                                    // frame the second beat starts
 export const MirrorTop: React.FC<{ t: number }> = ({ t }) => {
-  const a = ramp(t, 0, 10), out = ramp(t, 10, 32, 0, 1, (x) => x), back = ramp(t, 32, 54, 0, 1, (x) => x), ret = ramp(t, 54, 74, 0, 1, (x) => x), virt = ramp(t, 66, 80);
+  const a = ramp(t, 0, 6), out = ramp(t, 5, 21, 0, 1, (x) => x), back = ramp(t, 21, 37, 0, 1, (x) => x), ret = ramp(t, B2 + 2, B2 + 16, 0, 1, (x) => x), virt = ramp(t, B2 + 10, B2 + 22);
+  // beat 1 is framed close on the phone, the glass and his face; beat 2 snaps out to take in the space behind the glass
+  const z = t < B2 ? 1.22 + 0.04 * (t / B2) : 1 + 0.22 * (1 - ramp(t, B2, B2 + 7, 0, 1, (x) => 1 - Math.pow(1 - x, 3)));
   const GH = [HEAD[0], 2 * MY - HEAD[1]];
   const total = len(PROJ, hit(PROJ, TARGETS[1])) + len(hit(PROJ, TARGETS[1]), TARGETS[1]), k = 60 / total;      // drawn so the nose path reads 60 cm
   const cm = (len(PROJ, hit(PROJ, TARGETS[1])) * out + len(hit(PROJ, TARGETS[1]), TARGETS[1]) * back) * k;
   return (
     <AbsoluteFill style={{ background: 'radial-gradient(90% 55% at 50% 50%, #17131c 0%, #0b090d 75%)' }}>
+      <div style={{ position: 'absolute', inset: 0, transformOrigin: '540px 1080px', transform: `scale(${z})` }}>
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
         <defs><linearGradient id="mt-head" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#2c2a33" /><stop offset="1" stopColor="#6d6a78" /></linearGradient></defs>
         <g opacity={a}>
@@ -50,7 +54,7 @@ export const MirrorTop: React.FC<{ t: number }> = ({ t }) => {
             {out >= 1 && <circle cx={h[0]} cy={h[1]} r={8 + 10 * ((t / 14 + i / 3) % 1)} stroke="#fff" strokeWidth={2} opacity={1 - ((t / 14 + i / 3) % 1)} />}
             {back >= 1 && <circle cx={q[0]} cy={q[1]} r={9} fill="#fff" stroke={C.ir} strokeWidth={4} />}
           </g>); })}
-        {back >= 1 && Array.from({ length: 13 }, (_, i) => { const u = i / 12, x = 330 + 200 * u, y = 1250 - 56 * Math.sin(Math.PI * u) - (Math.abs(u - 0.5) < 0.1 ? 22 : 0); return <circle key={i} cx={x} cy={y} r={5} fill={C.ir} opacity={ramp(t, 54 + i, 58 + i)} />; })}
+        {back >= 1 && Array.from({ length: 13 }, (_, i) => { const u = i / 12, x = 330 + 200 * u, y = 1250 - 56 * Math.sin(Math.PI * u) - (Math.abs(u - 0.5) < 0.1 ? 22 : 0); return <circle key={i} cx={x} cy={y} r={5} fill={C.ir} opacity={ramp(t, 36 + i * 0.5, 40 + i * 0.5)} />; })}
         {/* back to the camera */}
         {ret > 0 && [TARGETS[1]].map((q, i) => { const h = hit(CAM, q), d1 = len(q, h), d2 = len(h, CAM), d = ret * (d1 + d2), p = d < d1 ? lerp(q, h, d / d1) : lerp(h, CAM, (d - d1) / d2);
           return <g key={i}><path d={`M ${q[0]} ${q[1]} L ${d < d1 ? p[0] : h[0]} ${d < d1 ? p[1] : h[1]} ${d >= d1 ? `L ${p[0]} ${p[1]}` : ''}`} fill="none" stroke="#63d6c9" strokeWidth={4} strokeDasharray="10 9" /><circle cx={p[0]} cy={p[1]} r={8} fill="#63d6c9" /></g>; })}
@@ -61,9 +65,13 @@ export const MirrorTop: React.FC<{ t: number }> = ({ t }) => {
           <Tag x={600} y={250} text="TO THE PHONE, YOUR FACE" o={1} size={24} anchor="start" col="#e9e2ff" /><Tag x={600} y={288} text="IS BACK HERE" o={1} size={24} anchor="start" col="#e9e2ff" />
         </g>
       </svg>
+      </div>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 452, textAlign: 'center', font: `800 27px/1 ${FONT}`, letterSpacing: '0.12em', color: '#e9e2ff' }}>
+        <span style={{ display: 'inline-block', padding: '12px 18px', borderRadius: 10, border: `2px solid ${t < B2 ? C.ir : '#63d6c9'}`, background: 'rgba(18,13,10,.7)' }}>{t < B2 ? '1 · THE DOTS BOUNCE OFF THE GLASS' : '2 · WHAT THE PHONE MAKES OF IT'}</span>
+      </div>
       {/* how far the light has travelled */}
-      <div style={{ position: 'absolute', left: 70, top: 900, opacity: ramp(t, 12, 18) }}>
-        <div style={{ font: `800 92px/1 ${FONT}`, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>{cm.toFixed(0)} <span style={{ fontSize: 50 }}>cm</span></div>
+      <div style={{ position: 'absolute', left: 60, top: 545, opacity: ramp(t, 8, 14) }}>
+        <div style={{ font: `800 80px/1 ${FONT}`, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>{cm.toFixed(0)} <span style={{ fontSize: 50 }}>cm</span></div>
         <div style={{ font: `600 26px/1.25 ${FONT}`, color: '#c9c2bb', marginTop: 8 }}>the light's path:<br />phone → mirror → face</div>
       </div>
       <div style={{ position: 'absolute', left: 80, top: 1750, width: 860, opacity: 0.5 * a, font: `600 21px/1.3 ${FONT}`, color: '#b5ada5' }}>Top-down illustration · distances are examples · the real dots are invisible</div>

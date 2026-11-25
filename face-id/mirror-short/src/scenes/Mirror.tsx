@@ -41,16 +41,18 @@ const FLY = 24, launch = (f: number[]) => 34 + ((f[1] - 498) / 238) * 46 + f[2] 
 const STREAM = Array.from({ length: 150 }, () => [rnd(), rnd()]);
 // three shots: wide · one closer framing that holds his face, the phone and the glass together, so the bounce off the
 // mirror and the dots landing on his face are seen in the same frame · wide again (what the camera sees)
-export const MIR = { glass: 54, face: 96, wide: 999, inside: 104, diagram: 52 };   // inside: the cut into the mirror view
+// wide shot · top-down diagram in two beats (diagram..live) · the same bounce in real life, in the bathroom (live..)
+export const MIR = { glass: 54, face: 96, wide: 999, inside: 9999, diagram: 52, live: 130, end: 186 };   // inside: the cut into the mirror view
 const PUSH = 79;                                                       // the word bounce
 const RAY0 = 36, RAY1 = 94;                                           // the rays leave the phone / reach the glass (about 2 s: slow motion)
-const STEPS = [{ at: 30, to: MIR.glass, text: '1 · RAYS LEAVE THE PHONE' }, { at: MIR.glass, to: MIR.wide, text: '2 · SLOW MOTION: THEY TRAVEL TO THE MIRROR' }, { at: MIR.wide, to: 999, text: '3 · THE CAMERA SEES HIS FACE IN THE MIRROR' }];
+const STEPS = [{ at: 30, to: MIR.glass, text: '1 · RAYS LEAVE THE PHONE' }, { at: MIR.glass, to: MIR.wide, text: '2 · SLOW MOTION: THEY TRAVEL TO THE MIRROR' }, { at: MIR.live, to: 999, text: '3 · IN REAL LIFE: OFF THE GLASS, ONTO HIS FACE' }];
 
 // MIR_FROM: the setup is trimmed, the scene starts this many frames in (just before the dots leave the phone)
 export const MIR_FROM = 24;
 export const Mirror: React.FC = () => {
   const l = useCurrentFrame() + MIR_FROM;
-  if (l >= MIR.diagram) return <MirrorTop t={l - MIR.diagram} />;      // after the wide shot: the bounce, explained from above
+  if (l >= MIR.diagram && l < MIR.live) return <MirrorTop t={l - MIR.diagram} />;
+  const lv = l - MIR.live;                                              // >= 0: the real-life bounce      // after the wide shot: the bounce, explained from above
   if (l >= MIR.inside) return (
     <AbsoluteFill>
       <Orbit3D g={0} pov={l - MIR.inside} />
@@ -73,16 +75,23 @@ export const Mirror: React.FC = () => {
               the mirror view, which shows them coming back onto his face. The mirror shows the same rays, mirrored. */}
           <g filter="url(#mg)">
             {FACE_DOTS.filter((_, i) => i % 9 === 0).map((f, i) => {
-              const m = hit(f), pr = ramp(l, RAY0 + f[2] * 6, RAY1 + f[2] * 6, 0, 1, (x) => x); if (pr <= 0) return null;
+              const m = hit(f), pr = lv >= 0 ? ramp(lv, f[2] * 3, 12 + f[2] * 3, 0, 1, (x) => x) : ramp(l, RAY0 + f[2] * 6, RAY1 + f[2] * 6, 0, 1, (x) => x); if (pr <= 0) return null;
+              const pb = lv >= 0 ? ramp(lv, 12 + f[2] * 3, 26 + f[2] * 3, 0, 1, (x) => x) : 0, tb = [m[0] + (f[0] - m[0]) * pb, m[1] + (f[1] - m[1]) * pb], gb = mir(tb);
               const tip = [P[0] + (m[0] - P[0]) * pr, P[1] + (m[1] - P[1]) * pr], g = mir(tip);
               return (
                 <g key={i}>
                   <line x1={P[0]} y1={P[1]} x2={tip[0]} y2={tip[1]} stroke={C.ir} strokeWidth={0.5} opacity={0.5} />
                   <line x1={RC[0]} y1={RC[1]} x2={g[0]} y2={g[1]} stroke={C.ir} strokeWidth={0.45} opacity={0.45} />
                   {pr < 1 && <><circle cx={tip[0]} cy={tip[1]} r={1.5} fill={C.irCore} /><circle cx={g[0]} cy={g[1]} r={1.2} fill={C.irCore} opacity={0.8} /></>}
+                  {/* real life: off the glass and onto his face (and the same thing in the mirror) */}
+                  {pb > 0 && <><line x1={m[0]} y1={m[1]} x2={tb[0]} y2={tb[1]} stroke={C.ir} strokeWidth={0.5} opacity={0.5} /><line x1={m[0]} y1={m[1]} x2={gb[0]} y2={gb[1]} stroke={C.ir} strokeWidth={0.45} opacity={0.4} />
+                    {pb < 1 && <><circle cx={tb[0]} cy={tb[1]} r={1.5} fill={C.irCore} /><circle cx={gb[0]} cy={gb[1]} r={1.2} fill={C.irCore} opacity={0.8} /></>}</>}
                 </g>);
             })}
           </g>
+          {/* the dots land on his face, forehead first, and show on his reflection too */}
+          {lv >= 0 && <g filter="url(#mg)">{FACE_DOTS.map((f, i) => { const t0 = 26 + ((f[1] - 498) / 238) * 14 + f[2] * 3, k = ramp(lv, t0, t0 + 3); if (k <= 0) return null; const g = mir(f);
+            return <g key={i}><circle cx={f[0]} cy={f[1]} r={1.25 * k * (1 + 0.9 * (1 - ramp(lv, t0, t0 + 7)))} fill={C.ir} opacity={0.9} /><circle cx={g[0]} cy={g[1]} r={1.0 * k} fill={C.ir} opacity={0.75} /></g>; })}</g>}
           {/* a small ripple on the glass as the rays arrive */}
           {[0, 1, 2].map((k) => { const u = ((l - RAY1) / 14 + k / 3) % 1; return l > RAY1 ? <ellipse key={k} cx={MX} cy={606} rx={2 + 7 * u} ry={8 + 26 * u} fill="none" stroke={C.irCore} strokeWidth={0.9} opacity={0.6 * (1 - u)} /> : null; })}
           {/* the same projector, seen in the mirror */}
