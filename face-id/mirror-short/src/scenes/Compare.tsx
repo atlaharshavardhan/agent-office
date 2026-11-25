@@ -75,7 +75,7 @@ export const Compare: React.FC = () => {
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, transformOrigin: '540px 1000px', transform: `translateX(${shake}px) scale(${1.07 - 0.07 * pop})` }}>
         <defs><linearGradient id="chip" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#3b3760" /><stop offset="1" stopColor="#15132a" /></linearGradient></defs>
         {/* this scan */}
-        <g transform={st === 2 ? `translate(540 ${YS}) scale(1.38 0.78) translate(-540 ${-YS})` : undefined}><Cloud cx={540} cy={YS} k={0.56} yaw={st === 2 ? yaw + 40 : yaw} pitch={pitch} color={col ?? CYAN} r={1.7} o={ramp(t, 0, 8)} /></g>
+        <g><Cloud cx={540} cy={YS} k={0.56} yaw={st === 2 ? yaw + 40 : yaw} pitch={pitch} color={col ?? CYAN} r={1.7} o={ramp(t, 0, 8)} /></g>
         {/* enrolled face, in the ring */}
         <g transform={`translate(540 ${YE})`} opacity={ramp(t, 4, 12)}>
           <circle r={R + 26} fill="rgba(4,4,6,.9)" />
