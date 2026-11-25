@@ -67,6 +67,10 @@ export const Mirror: React.FC = () => {
       <div style={{ position: 'absolute', inset: 0, transformOrigin: '0 0', ...(() => {
         const e = ramp(l, PUSH, PUSH + 10, 0, 1, (x) => 1 - Math.pow(1 - x, 3)), sc = s + (1.38 - s) * e;
         const tx = 640 * (1 - s) * (1 - e) + (540 - 548 * K * 1.38) * e, ty = 700 * (1 - s) * (1 - e) + (900 - 625 * K * 1.38) * e;
+        // real-life beat: as the rays come off the glass the camera pushes in on his real face, so the mirror (and the
+        // rough reflection in it) slides out of frame before anyone looks at it
+        if (lv >= 0) { const z = ramp(lv, 8, 24, 0, 1, (x) => x * x * (3 - 2 * x)), s2 = 1.38 + 0.72 * z + 0.06 * (lv / 50), cx = 548 - 150 * z;
+          return { transform: `translate(${540 - cx * K * s2}px, ${900 - 625 * K * s2}px) scale(${s2})` }; }
         return { transform: `translate(${tx}px, ${ty}px) scale(${sc})` }; })() }}>
         <Img src={staticFile('bathroom_side.png')} style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1672 * K, filter: `brightness(${1 - 0.25 * ramp(l, 30, 60)})` }} />
         <svg viewBox="0 0 941 1672" style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1672 * K }}>
