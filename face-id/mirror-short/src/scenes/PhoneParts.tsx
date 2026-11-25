@@ -9,11 +9,11 @@ export const IN = 68, EXPLAIN = 106, CARD = 27;
 const RED = '#ff4d63', PINK = '#ff8fa3', BLUE = '#6fa8ff';
 const io = (x: number) => x * x * (3 - 2 * x), out3 = (x: number) => 1 - Math.pow(1 - x, 3);
 const PARTS = [
-  { x: 200, dx: 370, col: RED, label: 'DOT PROJECTOR', does: 'fires 30,000+ invisible dots' },
+  { x: 180, dx: 370, col: RED, label: 'DOT PROJECTOR', does: 'fires 30,000+ invisible dots' },
   { x: 540, dx: 540, col: PINK, label: 'FLOOD ILLUMINATOR', does: 'lights your face in infrared' },
-  { x: 880, dx: 710, col: BLUE, label: 'IR CAMERA', does: 'reads the dots on your face' },
+  { x: 900, dx: 710, col: BLUE, label: 'IR CAMERA', does: 'reads the dots on your face' },
 ];
-const CY = 440, S = 190;                                   // cards: centre y and size
+const CY = 520, S = 190;                                   // cards: centre y and size
 
 export const PhoneParts: React.FC<{ f: number }> = ({ f }) => {
   const m = ramp(f, IN + 2, IN + 18, 0, 1, io);            // island settles from the photo's island to the diagram's
@@ -52,7 +52,7 @@ export const PhoneParts: React.FC<{ f: number }> = ({ f }) => {
               {i === 2 && <><circle r={62} fill="#0b1026" /><circle r={46} fill="#17214d" /><circle r={28} fill="#0a0f24" /><circle cx={-13} cy={-15} r={9} fill="#cfdcff" /></>}
             </g>) : null; })}
         {PARTS.map((p, i) => { const t = ramp(f, IN + 30 + i * 5, IN + 38 + i * 5), act = active === i, dim = active >= 0 && !act;
-          return <text key={p.label} x={p.x} y={CY - S / 2 - 44} textAnchor="middle" fill={p.col} opacity={t * (dim ? 0.35 : 1)} style={{ font: `800 ${act ? 31 : 28}px ${FONT}`, letterSpacing: '0.1em' }}>{p.label}</text>; })}
+          return <text key={p.label} x={p.x} y={CY - S / 2 - 40} textAnchor="middle" fill={p.col} opacity={t * (dim ? 0.35 : 1)} style={{ font: `800 ${act ? 27 : 24}px ${FONT}`, letterSpacing: '0.08em' }}>{p.label}</text>; })}
       </svg>
       {/* what the highlighted part does */}
       {active >= 0 && (() => { const p = PARTS[active], o = ramp(f, EXPLAIN + active * CARD, EXPLAIN + active * CARD + 4);
