@@ -5,7 +5,7 @@ import { C, FONT, Label, ramp } from '../theme';
 import { Head3D, headPoint } from './Head3D';
 import { HeadApi, Orbit3D } from './Orbit3D';
 import { Map3D } from './Map3D';
-import { PhotoFlat } from './PhotoFlat';
+import { HalfPhone, PhotoFlat } from './PhotoFlat';
 
 // The scan is two sequences, with the mirror scene between them (cuts sit on the voiceover, see script.ts):
 // ScanA (9–15.95 s)   0–164  side profile, 3D: the iPhone fires the red dots onto his face  "This tiny projector ..."
@@ -77,16 +77,20 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
         const wall = 1 - ramp(s, grid.face - 8, grid.face + 8), b = ramp(s, grid.bend, grid.bend + 16, 0, 1, (x) => x * x * (3 - 2 * x)), o = 1 - ramp(s, grid.out, grid.out + 6);
         const mirX = 2 * front.nose[0] - front.cheek[0];
         // the wall: a small dark panel on a plain background (no face behind it); its dots arrive one by one, row by row
-        const COLS = 15, ROWS = 19, GAP = 30, PW = COLS * GAP + 26, PH = ROWS * GAP + 26, PX = 505 - PW / 2, PY = 620, N = COLS * ROWS, T1 = grid.face - 22;
+        const COLS = 15, ROWS = 19, GAP = 30, PW = COLS * GAP + 26, PH = ROWS * GAP + 26, PX = 505 - PW / 2, PY = 520, PHX = 505, PHY = 1330, N = COLS * ROWS, T1 = grid.face - 22;
         return (
           <>
             <AbsoluteFill style={{ backgroundColor: '#08080b', opacity: wall }} />
             <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: wall }}>
+              {/* the phone below throws its light up onto the wall */}
+              <polygon points={`${PHX},${PHY - 6} ${PX + 6},${PY + PH} ${PX + PW - 6},${PY + PH} ${PHX + 24},${PHY - 6}`} fill={C.ir} opacity={(0.16 + 0.05 * Math.sin(s / 3)) * ramp(s, 2, 8)} />
               <rect x={PX} y={PY} width={PW} height={PH} rx={26} fill="#161d3a" stroke="#6f86ff" strokeWidth={3} />
               {Array.from({ length: N }, (_, i) => { const t0 = 4 + (i / N) * (T1 - 4), k = ramp(s, t0, t0 + 4); if (k <= 0) return null;
                 return <circle key={i} cx={PX + 28 + (i % COLS) * GAP} cy={PY + 28 + Math.floor(i / COLS) * GAP} r={5.2 * k * (1 + 1.3 * (1 - ramp(s, t0, t0 + 7)))} fill={C.ir} opacity={0.95} />; })}
             </svg>
-            <Label text="FLAT WALL: A NEAT PATTERN" x={505} y={PY + PH + 34} o={wall * ramp(s, 2, 8)} size={30} align="center" color={C.label} />
+            <Label text="FLAT WALL: A NEAT PATTERN" x={505} y={PY - 78} o={wall * ramp(s, 2, 8)} size={30} align="center" color={C.label} />
+            <HalfPhone top={PHY} cx={PHX + 13 * 1.5} o={wall} />
+            <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, opacity: wall * ramp(s, 2, 8) }}><circle cx={PHX + 12} cy={PHY - 6} r={9 + 2 * Math.sin(s / 2)} fill={C.ir} /><circle cx={PHX + 12} cy={PHY - 6} r={3.5} fill="#fff" /></svg>
           </>
         );
       })()}
@@ -145,7 +149,7 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
       {/* the two callouts: both stay inside the frame, below the captions, and hold to the end of the scene */}
       <Mark x={nx} y={ny} text={grid && !depth ? 'NOSE' : 'CLOSER'} lx={120} ly={1250} o={ramp(s, NO, NO + 3) * (1 - cm)} pop={ramp(s, NO, NO + 8)} />
       <Mark x={cx} y={cy} text={grid && !depth ? 'CHEEKS' : 'FARTHER'} lx={640} ly={1250} o={ramp(s, CH, CH + 3) * (1 - cm)} pop={ramp(s, CH, CH + 8)} />
-      <div style={{ position: 'absolute', left: 80, top: 1562, opacity: depth ? 0 : 0.5, font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>Illustration · the real dots are invisible · fewer dots drawn than projected</div>
+      <div style={{ position: 'absolute', left: 80, top: 1562, opacity: depth || grid ? 0 : 0.5, font: `600 22px/1 ${FONT}`, color: '#b5ada5' }}>Illustration · the real dots are invisible · fewer dots drawn than projected</div>
     </AbsoluteFill>
   );
 };

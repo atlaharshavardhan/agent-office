@@ -26,6 +26,20 @@ const PhoneAbove: React.FC<{ phone: THREE.Object3D }> = ({ phone }) => {
   );
 };
 
+// The top half of the same iPhone, rising from the bottom of the frame (its lower half fades out), for shots where it
+// throws its light upward. `top` = y of the phone's top edge, `cx` = its centre x, `scale` = size.
+export const HalfPhone: React.FC<{ top: number; cx: number; scale?: number; o?: number }> = ({ top, cx, scale = 1.5, o = 1 }) => {
+  const phone = usePhoneModel(true);
+  return (
+    <div style={{ position: 'absolute', left: cx - 540, top: top - 138, width: 1080, height: 560, opacity: o, transformOrigin: '540px 138px', transform: `scale(${scale})`,
+      WebkitMaskImage: 'linear-gradient(#000 0%, #000 44%, transparent 60%)', maskImage: 'linear-gradient(#000 0%, #000 44%, transparent 60%)' }}>
+      <ThreeCanvas width={1080} height={560} flat gl={{ antialias: true, alpha: true }} camera={{ fov: 30, near: 10, far: 4000, position: [0, 0, 929] }}>
+        {phone && <PhoneAbove phone={phone} />}
+      </ThreeCanvas>
+    </div>
+  );
+};
+
 export const PhotoFlat: React.FC<{ t: number }> = ({ t }) => {
   const phone = usePhoneModel(true);
   const a = ramp(t, 0, 10, 0, 1, out3), fire = ramp(t, 10, 16), no = ramp(t, 44, 50, 0, 1, out3);
