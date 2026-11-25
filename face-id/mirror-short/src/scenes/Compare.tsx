@@ -75,7 +75,7 @@ export const Compare: React.FC = () => {
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0, transformOrigin: '540px 1000px', transform: `translateX(${shake}px) scale(${1.07 - 0.07 * pop})` }}>
         <defs><linearGradient id="chip" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#3b3760" /><stop offset="1" stopColor="#15132a" /></linearGradient></defs>
         {/* this scan */}
-        <g transform={st === 2 ? `translate(540 ${YS}) scale(1.22 0.86) translate(-540 ${-YS})` : undefined}><Cloud cx={540} cy={YS} k={0.56} yaw={st === 2 ? yaw + 40 : yaw} pitch={pitch} color={col ?? CYAN} r={1.7} o={ramp(t, 0, 8)} /></g>
+        <g transform={st === 2 ? `translate(540 ${YS}) scale(1.38 0.78) translate(-540 ${-YS})` : undefined}><Cloud cx={540} cy={YS} k={0.56} yaw={st === 2 ? yaw + 40 : yaw} pitch={pitch} color={col ?? CYAN} r={1.7} o={ramp(t, 0, 8)} /></g>
         {/* enrolled face, in the ring */}
         <g transform={`translate(540 ${YE})`} opacity={ramp(t, 4, 12)}>
           <circle r={R + 26} fill="rgba(4,4,6,.9)" />
@@ -93,8 +93,17 @@ export const Compare: React.FC = () => {
             <rect x={-48} y={-8} width={96} height={74} rx={16} fill={col ?? '#7fe3ea'} />
           </g>
         </g>
+        {/* data beams: dots stream from this scan down into the chip and from the enrolled face up into it */}
+        {[[YS + 175, YC - 160, CYAN], [YE - R - 32, YC + 160, VIO]].map(([y0, y1, c0], b) => (
+          <g key={b} opacity={ramp(t, 6, 12)}>
+            <line x1={540} y1={y0 as number} x2={540} y2={y1 as number} stroke={col ?? (c0 as string)} strokeWidth={3} opacity={0.25} />
+            {Array.from({ length: 6 }, (_, i) => { const u = ((t / 14) + i / 6) % 1, y = (y0 as number) + ((y1 as number) - (y0 as number)) * u;
+              return <circle key={i} cx={540} cy={y} r={7} fill={col ?? (c0 as string)} opacity={Math.sin(Math.PI * u)} />; })}
+          </g>))}
+        {/* the moment of the result: a ring bursts out from the chip */}
+        {st > 0 && <circle cx={540} cy={YC} r={150 + 330 * ramp(tm, 0, 14, 0, 1, (x) => 1 - Math.pow(1 - x, 3))} fill="none" stroke={col!} strokeWidth={8} opacity={0.7 * (1 - ramp(tm, 2, 14))} />}
         {/* numbers travel into the chip: down from the scan, up from the enrolled face */}
-        {[0, 1].map((side) => [0, 1, 2].map((c) => { const u = ((t / 26) + c * 0.33) % 1, y0 = side ? YE - R - 30 : YS + 205, y1 = side ? YC + CH / 2 + 62 : YC - CH / 2 - 44, o = (st ? 0 : 1) * ramp(t, 10, 16) * Math.min(1, u * 5) * (1 - Math.max(0, (u - 0.7) / 0.3));
+        {[0, 1].map((side) => [0, 1, 2].map((c) => { const u = ((t / 26) + c * 0.33) % 1, y0 = side ? YE - R - 30 : YS + 205, y1 = side ? YC + CH / 2 + 62 : YC - CH / 2 - 44, o = 0 * ramp(t, 10, 16) * Math.min(1, u * 5) * (1 - Math.max(0, (u - 0.7) / 0.3));
           return <text key={`${side}${c}`} x={420 + c * 120} y={y0 + (y1 - y0) * u} textAnchor="middle" fill={side ? VIO : CYAN} opacity={o} style={{ font: `700 32px ui-monospace, Menlo, monospace` }}>{NUM(side * 50 + c * 7 + Math.floor(t / 26 + c * 0.33))}</text>; }))}
       </svg>
       {/* the calculation, kept simple: three numbers of this scan beside the same three of the enrolled face. Close
@@ -102,19 +111,19 @@ export const Compare: React.FC = () => {
       {(() => { const SC = st === 2 ? ['0.31', '0.92', '0.14'] : ['0.80', '0.40', '0.58'], EN = ['0.81', '0.38', '0.57'], X = 26, Y = YC + 46;      // on the left under SECURE ENCLAVE, clear of the watermark
         const score = st === 1 ? 98 : st === 2 ? 12 : Math.round(40 + 50 * ((Math.sin(l * 1.7) + 1) / 2));
         return (
-          <div style={{ position: 'absolute', left: X, top: Y, width: 330, opacity: ramp(t, 10, 16), transform: `translateX(${shake}px)`, padding: '16px 18px', borderRadius: 16, background: 'rgba(8,8,14,.88)', border: `3px solid ${col ?? '#5d5a8a'}`, font: '700 28px/1 ui-monospace, Menlo, monospace' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', font: `800 17px/1 ${FONT}`, letterSpacing: '0.1em', marginBottom: 12 }}><span style={{ color: CYAN }}>SCAN</span><span style={{ color: VIO }}>ENROLLED</span><span style={{ width: 26 }} /></div>
+          <div style={{ position: 'absolute', left: X, top: Y, width: 372, opacity: ramp(t, 10, 16), transform: `translateX(${shake}px)`, padding: '16px 18px', borderRadius: 16, background: 'rgba(8,8,14,.88)', border: `3px solid ${col ?? '#5d5a8a'}`, font: '700 34px/1 ui-monospace, Menlo, monospace' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', font: `800 21px/1 ${FONT}`, letterSpacing: '0.1em', marginBottom: 14 }}><span style={{ color: CYAN }}>SCAN</span><span style={{ color: VIO }}>ENROLLED</span><span style={{ width: 26 }} /></div>
             {SC.map((v, i) => { const on = ramp(t, 12 + i * 5, 16 + i * 5), live = !st && t < 30 + i * 6;
               return (<div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, opacity: on }}>
                 <span style={{ color: st === 2 ? BAD : CYAN }}>{live ? NUM(i * 9 + Math.floor(l / 2)) : v}</span><span style={{ color: '#8a86a8' }}>{st === 2 ? '≠' : '≈'}</span><span style={{ color: VIO }}>{EN[i]}</span>
                 <span style={{ width: 26, color: col ?? '#8a86a8', font: `800 26px/1 ${FONT}` }}>{st === 1 ? '✓' : st === 2 ? '✕' : '·'}</span></div>); })}
             <div style={{ height: 12, borderRadius: 6, background: '#26243a', overflow: 'hidden', marginTop: 4 }}><div style={{ width: `${score}%`, height: '100%', background: col ?? VIO }} /></div>
-            <div style={{ marginTop: 10, font: `800 22px/1 ${FONT}`, letterSpacing: '0.08em', color: col ?? '#e9e2ff' }}>MATCH SCORE {score}%</div>
-            <div style={{ marginTop: 8, font: `600 15px/1 ${FONT}`, color: '#8f8aa3' }}>illustrative values</div>
+            <div style={{ marginTop: 12, font: `800 27px/1 ${FONT}`, letterSpacing: '0.08em', color: col ?? '#e9e2ff' }}>MATCH SCORE {score}%</div>
+            <div style={{ marginTop: 8, font: `600 19px/1 ${FONT}`, color: '#8f8aa3' }}>illustrative values</div>
           </div>); })()}
-      <Label text="THIS SCAN" x={850} y={YS - 26} o={ramp(t, 4, 10)} size={27} align="center" color={CYAN} />
-      <Label text="SECURE ENCLAVE" x={195} y={YC - 24} o={ramp(t, 8, 14)} size={23} align="center" color="#7fe3ea" />
-      <Label text="ENROLLED" x={880} y={YE - 26} o={ramp(t, 8, 14)} size={27} align="center" color={VIO} />
+      <Label text={st === 2 ? "SOMEONE ELSE" : "THIS SCAN"} x={850} y={YS - 30} o={ramp(t, 4, 10)} size={32} align="center" color={st === 2 ? BAD : CYAN} />
+      <Label text="SECURE ENCLAVE" x={205} y={YC - 44} o={ramp(t, 8, 14)} size={27} align="center" color="#7fe3ea" />
+      <Label text="ENROLLED" x={880} y={YE - 30} o={ramp(t, 8, 14)} size={32} align="center" color={VIO} />
       <div style={{ position: 'absolute', left: 0, right: 0, top: 1668, textAlign: 'center', opacity: st ? 1 : ramp(t, 12, 18), transform: `scale(${1.25 - 0.25 * pop})`, font: `800 ${st === 2 ? 50 : 58}px/1 ${FONT}`, color: col ?? '#fff' }}>{st === 1 ? '✓ MATCH · UNLOCKS' : st === 2 ? '✕ NO MATCH · STAYS LOCKED' : 'Comparing…'}</div>
     </AbsoluteFill>
   );
