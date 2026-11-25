@@ -53,7 +53,7 @@ for (let y = 392; y <= 962; y += 13) for (let x = 164; x <= 606; x += 13) GRID.p
 const BEND = 62, FLAT = 0.45;
 const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | null; nose: number | null; cheek: number | null; end: number; grid?: { face: number; bend: number; out: number }; mapAt?: number; warmTo?: number }> = ({ s, depth0, flash, nose, cheek, end, grid, mapAt, warmTo }) => {
   // warm: 1 = his face in colour with the web in red (the dot pattern), 0 = the blue depth look with the white web
-  const warm = warmTo === undefined ? 0 : 1 - ramp(s, warmTo - 8, warmTo + 4), hot = warm > 0.5, MESH = hot ? '#ff5a6e' : '#dff3ff', SCAN = hot ? '#ffd0d6' : '#4db8ff';
+  const warm = warmTo === undefined ? 0 : 1 - ramp(s, warmTo - 3, warmTo + 2), hot = warm > 0.5, MESH = hot ? '#ff5a6e' : '#dff3ff', SCAN = hot ? '#ffd0d6' : '#4db8ff';
   const D0 = depth0 ?? 1e9, FL = flash ?? -1e9, NO = nose ?? 1e9, CH = cheek ?? 1e9;
   const depth = s >= D0, zoom = FZ;
   // the head keeps moving while the depth mesh is on: a slow sway, blending into the final turn
@@ -260,7 +260,11 @@ export const ScanB: React.FC = () => {
     <AbsoluteFill>
       {/* web theme from the first frame: the depth web forms on his face and is scanned while the camera pushes in;
           CLOSER lands on "nose", FARTHER on "cheeks"; on "and from those bends" it becomes the turning 3D map */}
-      <AbsoluteFill style={{ transformOrigin: '540px 1000px', transform: `scale(${1 + 0.08 * ramp(s, 0, CUE_B.depth)})` }}>
+      {/* focus zooms, fast: snap in on the nose on "nose", whip across to the cheek on "cheeks", snap back out for the map */}
+      <AbsoluteFill style={(() => { const o3 = (x: number) => 1 - Math.pow(1 - x, 3), B = CUE_B;
+        const zn = ramp(s, B.nose - 3, B.nose + 4, 0, 1, o3), zc = ramp(s, B.cheek - 3, B.cheek + 4, 0, 1, o3), out = ramp(s, B.depth - 9, B.depth - 2, 0, 1, o3);
+        const k = zn * (1 - out), fx = 480 + 140 * zc, z = 1 + 0.07 * ramp(s, 0, B.nose) + k * (0.42 - 0.19 * zc) + 0.03 * k * ramp(s, B.nose, B.depth);
+        return { transformOrigin: `${540 + (fx - 540) * k}px ${1000 + 170 * k}px`, transform: `translate(${(540 - fx) * 0.45 * k * (1 - zc)}px, ${-70 * k}px) scale(${z})` }; })()}>
         <FaceView s={s} depth0={0} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.photo} mapAt={CUE_B.depth} warmTo={CUE_B.nose - 4} />
       </AbsoluteFill>
       {/* the turning 3D map is the 3D head; everything static above is the photo */}
