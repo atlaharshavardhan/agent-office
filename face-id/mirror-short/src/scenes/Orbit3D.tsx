@@ -15,7 +15,7 @@ import { ISLAND_Y, P3, Phone3D, usePhoneModel } from './Phone3D';
 // 112–132  the infrared camera reads the pattern: dots turn cyan (depth points)
 // 185–197  the head becomes a shaded depth map (near = bright)
 // 205–325  CLOSER (nose) and FARTHER (cheek) are marked on the depth map
-const CYAN = '#7fe3ea', FOV = 30, UNIT = 1000, FLIGHT = 11;
+const CYAN = '#7fe3ea', FOV = 30, UNIT = 1000, FLIGHT = 11, FL = 34;   // FL: flight of a dot in the red clip, in frames (fast start, slow-motion landing)
 const hash = (i: number) => { const x = Math.sin(i * 12.9898) * 43758.5453; return x - Math.floor(x); };
 
 type Head = { geo: THREE.BufferGeometry; map: THREE.Texture; dots: Float32Array; rnd: Float32Array; n: number;
@@ -159,11 +159,12 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean;
     size[i] = on ? 4.6 * (1 + 1.3 * (1 - ramp(pov, t0, t0 + 6))) : 0;
     col[i * 3] = RED.r; col[i * 3 + 1] = RED.g; col[i * 3 + 2] = RED.b;
   }
+  // each dot leaves the phone fast, then goes into slow motion for the last stretch just before it lands on his face
   for (let i = 0; pov === undefined && i < n; i++) {
-    const p = Math.min(1, Math.max(0, (g - launch[i]) / FLIGHT)), e = p * p * (3 - 2 * p);
+    const p = Math.min(1, Math.max(0, (g - launch[i]) / FL)), e = p < 0.22 ? 0.8 * (p / 0.22) : 0.8 + 0.2 * ((p - 0.22) / 0.78);
     pos[i * 3] = proj.x + (dots[i * 3] - proj.x) * e; pos[i * 3 + 1] = proj.y + (dots[i * 3 + 1] - proj.y) * e; pos[i * 3 + 2] = proj.z + (dots[i * 3 + 2] - proj.z) * e;
-    const land = ramp(g, launch[i] + FLIGHT, launch[i] + FLIGHT + 5);
-    size[i] = p <= 0 ? 0 : p < 1 ? 6.5 : 4.4 * (1 + 0.9 * (1 - land));
+    const land = ramp(g, launch[i] + FL, launch[i] + FL + 5);
+    size[i] = p <= 0 ? 0 : p < 1 ? (p > 0.22 ? 7.5 : 6.5) : 4.4 * (1 + 0.9 * (1 - land));
     const c = cyan !== undefined && cyan >= ((dots[i * 3] + 200) / 400) * 12 + rnd[i] * 4 ? CY : RED;
     col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
   }
@@ -172,7 +173,7 @@ const Inner: React.FC<{ g: number; cyan?: number; pov?: number; align?: boolean;
   pts.mat.uniforms.uO.value = 1 - ramp(g, 190, 202);
   const rp = rays.attributes.position.array as Float32Array, stride = Math.max(1, Math.floor(n / RAYS)), off = Math.floor(g / 2) % stride;
   for (let k = 0; k < RAYS; k++) {
-    const i = (k * stride + off) % n, on = g >= launch[i] + FLIGHT;
+    const i = (k * stride + off) % n, on = g >= launch[i] + FL;
     rp[k * 6] = proj.x; rp[k * 6 + 1] = proj.y; rp[k * 6 + 2] = proj.z;
     rp[k * 6 + 3] = on ? dots[i * 3] : proj.x; rp[k * 6 + 4] = on ? dots[i * 3 + 1] : proj.y; rp[k * 6 + 5] = on ? dots[i * 3 + 2] : proj.z;
   }
