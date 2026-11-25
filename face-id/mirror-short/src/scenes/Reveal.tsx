@@ -39,8 +39,8 @@ export const Reveal: React.FC = () => {
   // close-up on the island: in with the rush, a slow push while scanning, a quick punch-in on processing, then a fast pull-out on unlock
   const k = ramp(fr, 8, 16, 0, 1, o3) * (1 - ramp(fr, U + 3, U + 11, 0, 1, o3));
   const Z = 1 + k * (2.3 + 0.25 * ramp(fr, 16, P) + 0.35 * ramp(fr, P, P + 4, 0, 1, o3));
-  const cam = { transformOrigin: `${ISL.x}px ${ISL.y}px`, transform: `translate(${(540 - ISL.x) * k}px, ${(820 - ISL.y) * k}px) scale(${Z})` };
-  const e = ramp(fr, 14, 20, 0, 1, o3) * (1 - ramp(fr, U + 10, U + 16, 0, 1, io)), bh = ISL.h + (ISL.w * 0.94 - ISL.h) * e, top = ISL.y - ISL.h / 2;
+  const cam = { transformOrigin: `${ISL.x}px ${ISL.y}px`, transform: `translate(${(540 - ISL.x) * k}px, ${(600 - ISL.y) * k}px) scale(${Z})` };
+  const e = ramp(fr, 14, 20, 0, 1, o3) * (1 - ramp(fr, U + 10, U + 16, 0, 1, io)), bh = ISL.h + (ISL.w * 0.94 - ISL.h) * e, top = ISL.y + ISL.h / 2 + 10;      // the Face ID box sits just below the Dynamic Island, not touching it
   const scanO = 1 - ramp(fr, P - 2, P + 2), procO = ramp(fr, P - 2, P + 2) * (1 - ramp(fr, U - 2, U + 1)), okO = ramp(fr, U - 1, U + 2), tick = ramp(fr, U, U + 7, 0, 1, o3);
   const home = ramp(fr, U + 4, U + 13, 0, 1, io), apps = 1.18 - 0.18 * ramp(fr, U + 4, U + 16, 0, 1, o3), ask = ramp(fr, U + 34, U + 42, 0, 1, out3);
   const look = Math.sin(fr / 3.2) * 4;                                           // the face glyph's eyes and nose glance side to side while scanning
@@ -51,7 +51,7 @@ export const Reveal: React.FC = () => {
         <div style={{ position: 'absolute', inset: 0, opacity: (1 - mo) * (1 - home) }}><Layer phone={lock} /></div>
         {home > 0 && <div style={{ position: 'absolute', inset: 0, transformOrigin: '540px 960px', transform: `scale(${apps})` }}><Layer phone={homeM} o={home} /></div>}
         <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}>
-          <rect x={ISL.x - ISL.w / 2} y={top} width={ISL.w} height={bh} rx={ISL.h / 2 + (ISL.w * 0.24 - ISL.h / 2) * e} fill="#030303" opacity={e > 0 ? 1 : 0} />
+          <rect x={ISL.x - ISL.w / 2} y={top} width={ISL.w} height={bh} rx={ISL.h / 2 + (ISL.w * 0.24 - ISL.h / 2) * e} fill="#030303" opacity={e} />
           <g transform={`translate(${ISL.x} ${top + bh / 2}) scale(${(ISL.w / 215) * e})`} fill="none" strokeLinecap="round" strokeLinejoin="round">
             {/* 1 · scanning: the Face ID glyph */}
             <g opacity={scanO} stroke="#fff" strokeWidth={7} transform={`scale(${1 + 0.04 * Math.sin(fr / 2)})`}>
