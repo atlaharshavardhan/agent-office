@@ -1,0 +1,7 @@
+{
+  "name": "invisitech-vacuum-teardown",
+  "private": true,
+  "type": "module",
+  "scripts": { "render": "remotion render src/index.ts VacuumTeardown out/vacuum-teardown.mp4" },
+  "dependencies": "same as ../face-id/mirror-short (node_modules is a link to it)"
+}
