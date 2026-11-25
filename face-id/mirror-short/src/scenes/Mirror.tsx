@@ -101,7 +101,7 @@ export const Mirror: React.FC = () => {
       </div>
       {STEPS.map((st) => <Label key={st.text} text={st.text} x={505} y={452} o={ramp(l, st.at, st.at + 4) * (1 - ramp(l, st.to - 4, st.to))} size={27} align="center" color={st.at === MIR.wide ? C.label : C.ir} />)}
       {/* closed padlock + question mark: the result is saved for the real test */}
-      <div style={{ position: 'absolute', left: 430, top: 1330, opacity: ramp(l, 176, 182), transform: `scale(${1 + 0.05 * Math.sin(l / 5)})`, transformOrigin: 'left center', display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderRadius: 18, background: 'rgba(10,8,7,.85)', border: `3px solid ${C.amber}` }}>
+      <div style={{ position: 'absolute', left: 430, top: 1330, opacity: 0, transform: `scale(${1 + 0.05 * Math.sin(l / 5)})`, transformOrigin: 'left center', display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderRadius: 18, background: 'rgba(10,8,7,.85)', border: `3px solid ${C.amber}` }}>
         <svg width={44} height={56} viewBox="-36 -46 72 92"><path d="M -18 -6 v -14 a 18 18 0 0 1 36 0 v 14" stroke="#fff" strokeWidth={9} strokeLinecap="round" fill="none" /><rect x={-30} y={-6} width={60} height={46} rx={11} fill="#fff" /></svg>
         <span style={{ font: `800 62px/1 ${FONT}`, color: C.amber }}>?</span>
       </div>

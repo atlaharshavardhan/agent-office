@@ -11,19 +11,18 @@ from kokoro_onnx import Kokoro
 M = Path(sys.argv[1])
 OUT = Path(__file__).resolve().parent.parent / "public" / "vo"; OUT.mkdir(parents=True, exist_ok=True)
 LINES = {
-    "n1": "Have you ever wondered if your mirror reflection can unlock an iPhone 18 Pro Max?",
-    "n2": "First, look at what happens up here when I wake the phone.",
-    "n3a": "This tiny projector puts thousands of invisible dots on my face.",
-    "n3b": "And the infrared camera picks up that pattern.",
-    "n5": "Here's the twist. A mirror can bounce that infrared light back onto my face, too.",
-    "n3c": "Your nose bends the dots one way, and your cheeks bend them another. The phone reads those bends to map your face.",
-    "n3d": "That's why a flat surface doesn't work. So a photo won't work.",
-    "n4": "It also takes an infrared picture. Then it uses both to check if I'm the person who set up Face ID.",
-    "n6q": "So, did it work?",
+    "n1": "Can my mirror reflection unlock an iPhone 18 Pro Max?",
+    "n2": "Hidden up here are three parts: a dot projector, a flood illuminator, and an infrared camera.",
+    "n3a": "When I wake the phone, the projector throws thousands of invisible dots onto my face, and the infrared camera picks up that pattern.",
+    "n5": "But here's the twist: a mirror can bounce that light right back onto my face.",
+    "n3c": "So what is the phone actually reading? My nose bends the dots one way, my cheeks another, and from those bends it maps my face.",
+    "n3d": "That's why a flat photo fails. Nothing bends.",
+    "n4": "It also takes an infrared picture, then checks both against the face I set up.",
+    "n6q": "So, with only my reflection, did it work?",
     "n6_open": "It actually unlocked.",
     "n6_locked": "In my test, it stayed locked.",
 }
-SPEED = {"n1": 1.2, "n3a": 1.25, "n3b": 1.22, "n3c": 1.22}
+SPEED = {}        # one speed (1.18) for every line, so the pace never jumps between lines
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin"))
 ONLY = sys.argv[2:]          # optional: regenerate only these line ids, keep the rest
 L = json.load(open(OUT / "lengths.json")) if ONLY else {}

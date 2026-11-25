@@ -14,11 +14,11 @@ import { HalfPhone, PhotoFlat } from './PhotoFlat';
 //                     71–103  the same dots as a cyan point cloud                 "The phone uses"
 //                    103–177  DEPTH MAP: the web forms and is scanned; both labels stay  "that pattern to map the shape of my face"
 export const FZ = 1.15;      // framing of the frontal face; the mirror view and the cyan point cloud are lined up with it
-export const CUE_A = { front: 164, end: 209 };
+export const CUE_A = { front: 146, cam: 39, end: 235 };   // front: the switch starts (what you see); cam: frames later, what the camera sees
 // ScanB now: 0–face a flat wall with the neat dot grid · face: the same grid on his face · bend: the grid bends with his
 // face (nose one way, cheeks the other), NOSE on "nose", CHEEKS on "cheeks" · cyan point cloud on "The phone" · depth map
 // face: -20 = the flat-wall shot is not shown; the scene opens on the 3D dotted head
-export const CUE_B = { face: -20, bend: 7, nose: 11, cheek: 74, cyan: 116, depth: 140, photo: 196, end: 321 };
+export const CUE_B = { face: -20, bend: 74, nose: 78, cheek: 136, cyan: 165, depth: 183, photo: 239, end: 339 };
 // depth colour: far = blue, through cyan and yellow, to near = orange
 const HEAT = [[59, 91, 219], [79, 195, 247], [255, 209, 102], [255, 122, 61]];
 const heat = (d: number) => { const t = Math.min(0.999, Math.max(0, (d - 0.2) / 0.62)) * 3, i = Math.floor(t), f = t - i, a = HEAT[i], b = HEAT[i + 1]; return `rgb(${Math.round(a[0] + (b[0] - a[0]) * f)},${Math.round(a[1] + (b[1] - a[1]) * f)},${Math.round(a[2] + (b[2] - a[2]) * f)})`; };
@@ -187,8 +187,8 @@ const SeeBadge: React.FC<{ ir: boolean; o: number }> = ({ ir, o }) => (
 export const ScanA: React.FC = () => {
   const s = useCurrentFrame(), t = s - CUE_A.front;
   if (t < 0) return <Orbit3D g={s} />;
-  const io = (x: number) => x * x * (3 - 2 * x), w1 = ramp(t, 1, 13, 0, 1, io), w2 = ramp(t, 22, 34, 0, 1, io);
-  const G = Math.min(s, 180);                       // hold the dots clip on its last pose (later frames of it are an old depth-map look)
+  const io = (x: number) => x * x * (3 - 2 * x), w1 = ramp(t, 1, 13, 0, 1, io), w2 = ramp(t, CUE_A.cam, CUE_A.cam + 12, 0, 1, io);
+  const G = Math.min(s, CUE_A.front + 16);                       // hold the dots clip on its last pose (later frames of it are an old depth-map look)
   const clip = (w: number) => ({ clipPath: `inset(0 ${(1 - w) * 100}% 0 0)` });
   return (
     <AbsoluteFill>
@@ -196,8 +196,8 @@ export const ScanA: React.FC = () => {
       {w1 > 0 && w2 < 1 && <AbsoluteFill style={clip(w1)}><Orbit3D g={G} look="eye" /></AbsoluteFill>}
       {w2 > 0 && <AbsoluteFill style={clip(w2)}><Orbit3D g={G} look="cam" /></AbsoluteFill>}
       {[w1, w2].map((w, k) => w > 0 && w < 1 ? <div key={k} style={{ position: 'absolute', left: 1080 * w - 3, top: 0, width: 6, height: 1920, background: '#fff', boxShadow: '0 0 30px 8px rgba(255,255,255,.55)' }} /> : null)}
-      <SeeBadge ir={false} o={ramp(t, 8, 13) * (1 - ramp(t, 22, 27))} />
-      <SeeBadge ir o={ramp(t, 29, 34)} />
+      <SeeBadge ir={false} o={ramp(t, 8, 13) * (1 - ramp(t, CUE_A.cam, CUE_A.cam + 5))} />
+      <SeeBadge ir o={ramp(t, CUE_A.cam + 7, CUE_A.cam + 12)} />
     </AbsoluteFill>
   );
 };
