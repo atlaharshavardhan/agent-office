@@ -100,11 +100,11 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
         );
       })()}
       {false && grid && s >= grid.face && s < grid.out && <Label text="ON A FACE: THE PATTERN BENDS" x={505} y={1470} o={ramp(s, grid.face + 2, grid.face + 10)} size={30} align="center" color={C.label} />}
-      {depth && mapAt === undefined && <Label text="DEPTH MAP" x={505} y={1420} o={1 - cm} size={30} align="center" color={C.label} />}
-      {depth && <div style={{ position: 'absolute', left: 0, right: 0, top: 1350, opacity: cm, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 26, font: `800 30px/1 ${FONT}`, letterSpacing: '0.14em', color: '#e9e2ff' }}>
+      {depth && mapAt === undefined && <Label text="DEPTH MAP" x={540} y={1420} o={1 - cm} size={30} align="center" color={C.label} />}
+      {depth && mapAt === undefined && <div style={{ position: 'absolute', left: 0, right: 0, top: 1362, opacity: cm, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 26, font: `800 30px/1 ${FONT}`, letterSpacing: '0.14em', color: '#e9e2ff' }}>
         FAR<div style={{ width: 520, height: 16, borderRadius: 8, background: 'linear-gradient(90deg, rgb(59,91,219), rgb(79,195,247), rgb(255,209,102), rgb(255,122,61))' }} />NEAR
       </div>}
-      {depth && <Label text="3D MAP OF HIS FACE" x={505} y={1420} o={cm} size={28} align="center" color={C.label} />}
+      {depth && mapAt === undefined && <Label text="3D MAP OF HIS FACE" x={540} y={1410} o={cm} size={28} align="center" color={C.label} />}
       {/* depth mesh: points pinned to his face, joined by fine lines; a bigger, brighter point is closer to the phone */}
       {depth && (() => {
         // relief: every point of the web is lifted by its depth (nearer = higher), so the lines bend over the nose,
@@ -266,11 +266,19 @@ export const ScanB: React.FC = () => {
       <AbsoluteFill style={(() => { const o3 = (x: number) => 1 - Math.pow(1 - x, 3), B = CUE_B;
         const zn = ramp(s, B.nose - 3, B.nose + 4, 0, 1, o3), zc = ramp(s, B.cheek - 3, B.cheek + 4, 0, 1, o3), out = ramp(s, B.depth - 9, B.depth - 2, 0, 1, o3);
         const k = zn * (1 - out), fx = 480 + 140 * zc, z = 1 + 0.07 * ramp(s, 0, B.nose) + k * (0.42 - 0.19 * zc) + 0.03 * k * ramp(s, B.nose, B.depth);
-        return { transformOrigin: `${540 + (fx - 540) * k}px ${1000 + 170 * k}px`, transform: `translate(${(540 - fx) * 0.45 * k * (1 - zc)}px, ${-70 * k}px) scale(${z})` }; })()}>
+        const mp = ramp(s, B.depth, B.depth + 14, 0, 1, o3);
+        return { transformOrigin: `${540 + (fx - 540) * k}px ${1000 + 170 * k}px`, transform: `translate(${(540 - fx) * 0.45 * k * (1 - zc)}px, ${-70 * k - 170 * mp}px) scale(${z * (1 - 0.14 * mp)})` }; })()}>
         <FaceView s={s} depth0={0} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.photo} mapAt={CUE_B.depth} warmTo={CUE_B.nose - 4} />
       </AbsoluteFill>
       {/* the turning 3D map is the 3D head; everything static above is the photo */}
-      <Label text="DEPTH MAP" x={505} y={1420} o={ramp(s, CUE_B.nose - 2, CUE_B.nose + 4) * (1 - ramp(s, CUE_B.depth - 4, CUE_B.depth + 2))} size={30} align="center" color={C.label} />
+      <Label text="DEPTH MAP" x={540} y={1420} o={ramp(s, CUE_B.nose - 2, CUE_B.nose + 4) * (1 - ramp(s, CUE_B.depth - 4, CUE_B.depth + 2))} size={30} align="center" color={C.label} />
+      {/* the map's legend sits on the frame, not inside the zooming map: bar and label centred, with a clear gap under the chin */}
+      {(() => { const lg = ramp(s, CUE_B.depth + 4, CUE_B.depth + 14); return lg > 0 && s < CUE_B.photo ? (<>
+        <div style={{ position: 'absolute', left: 0, right: 0, top: 1340, opacity: lg, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 22, font: `800 30px/1 ${FONT}`, letterSpacing: '0.14em', color: '#e9e2ff' }}>
+          FAR<div style={{ width: 440, height: 16, borderRadius: 8, background: 'linear-gradient(90deg, rgb(59,91,219), rgb(79,195,247), rgb(255,209,102), rgb(255,122,61))' }} />NEAR
+        </div>
+        <Label text="3D MAP OF HIS FACE" x={540} y={1394} o={lg} size={28} align="center" color={C.label} />
+      </>) : null; })()}
       {/* one web all the way: the web on his face lifts off and the same web turns to a three-quarter view (no second map) */}
     </AbsoluteFill>
   );
