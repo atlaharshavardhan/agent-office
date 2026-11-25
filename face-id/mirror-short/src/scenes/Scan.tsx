@@ -51,7 +51,9 @@ const SKIN = new Set((front.dots as number[][]).map((d) => `${Math.round(d[0] / 
 const GRID: number[][] = [];
 for (let y = 392; y <= 962; y += 13) for (let x = 164; x <= 606; x += 13) GRID.push([x, y, depthAt(x, y), SKIN.has(`${Math.round(x / 14)},${Math.round(y / 14)}`) ? 1 : 0]);
 const BEND = 62, FLAT = 0.45;
-const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | null; nose: number | null; cheek: number | null; end: number; grid?: { face: number; bend: number; out: number }; mapAt?: number }> = ({ s, depth0, flash, nose, cheek, end, grid, mapAt }) => {
+const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | null; nose: number | null; cheek: number | null; end: number; grid?: { face: number; bend: number; out: number }; mapAt?: number; warmTo?: number }> = ({ s, depth0, flash, nose, cheek, end, grid, mapAt, warmTo }) => {
+  // warm: 1 = his face in colour with the web in red (the dot pattern), 0 = the blue depth look with the white web
+  const warm = warmTo === undefined ? 0 : 1 - ramp(s, warmTo - 8, warmTo + 4), hot = warm > 0.5, MESH = hot ? '#ff5a6e' : '#dff3ff', SCAN = hot ? '#ffd0d6' : '#4db8ff';
   const D0 = depth0 ?? 1e9, FL = flash ?? -1e9, NO = nose ?? 1e9, CH = cheek ?? 1e9;
   const depth = s >= D0, zoom = FZ;
   // the head keeps moving while the depth mesh is on: a slow sway, blending into the final turn
@@ -66,7 +68,7 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
   const corner = (x: number, y: number, dx: number, dy: number) => `M ${x + dx * 50} ${y} H ${x} V ${y + dy * 50}`;
   return (
     <AbsoluteFill>
-      <Head3D az={az} zoom={zoom} irMix={1} depthMix={0.42 * toDepth} dotO={depth || grid ? 0 : 1} />
+      <Head3D az={az} zoom={zoom} irMix={1 - warm} depthMix={0.42 * toDepth * (1 - warm)} dotO={depth || grid ? 0 : 1} />
       {depth && <AbsoluteFill style={{ background: 'radial-gradient(80% 50% at 50% 46%, #1c1740 0%, #0d0b1c 60%, #08070f 100%)', opacity: 0.96 * cm }} />}
       {/* capture: a short flash and frame brackets, then the frame is held */}
       <AbsoluteFill style={{ backgroundColor: '#fff', opacity: 0.25 * ramp(s, FL, FL + 1) * (1 - ramp(s, FL + 1, FL + 6)) }} />
@@ -134,7 +136,7 @@ const FaceView: React.FC<{ s: number; depth0: number | null; flash: number | nul
               const seg = ln.slice(c * 5, c * 5 + 6); if (seg.length < 2) return null;
               return <polyline key={`${i}-${c}`} points={seg.map((q) => { const [x, y] = rel(q); return `${x.toFixed(1)},${y.toFixed(1)}`; }).join(' ')} fill="none" stroke={heat(seg[Math.floor(seg.length / 2)][2])} strokeWidth={2.2} strokeLinecap="round" opacity={cm} />;
             }))}
-            {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); if (k <= 0) return null; const r = (1.8 + 2.4 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9))), c = cm > 0.5 ? heat(d) : band(x, y) > 0.3 ? SCAN : '#fff';
+            {L.map(([x, y, d], i) => { const k = ramp(s, when(i), when(i) + 4); if (k <= 0) return null; const r = (1.8 + 2.4 * d) * k * (1 + 1.2 * (1 - ramp(s, when(i), when(i) + 9))), c = cm > 0.5 ? heat(d) : band(x, y) > 0.3 ? SCAN : hot ? '#ff6b7d' : '#fff';
               // a glowing node at every crossing of the grid
               return <g key={i}><circle cx={x} cy={y} r={r * 2.6} fill={c} opacity={0.13 + 0.12 * d} /><circle cx={x} cy={y} r={r} fill={c} opacity={0.55 + 0.45 * d} /></g>; })}
             {/* inside the wave the grid's own lines are redrawn in blue */}
@@ -259,7 +261,7 @@ export const ScanB: React.FC = () => {
       {/* web theme from the first frame: the depth web forms on his face and is scanned while the camera pushes in;
           CLOSER lands on "nose", FARTHER on "cheeks"; on "and from those bends" it becomes the turning 3D map */}
       <AbsoluteFill style={{ transformOrigin: '540px 1000px', transform: `scale(${1 + 0.08 * ramp(s, 0, CUE_B.depth)})` }}>
-        <FaceView s={s} depth0={0} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.photo} mapAt={CUE_B.depth} />
+        <FaceView s={s} depth0={0} flash={null} nose={CUE_B.nose} cheek={CUE_B.cheek} end={CUE_B.photo} mapAt={CUE_B.depth} warmTo={CUE_B.nose - 4} />
       </AbsoluteFill>
       {/* the turning 3D map is the 3D head; everything static above is the photo */}
       {s >= CUE_B.depth + 20 && <AbsoluteFill style={{ opacity: ramp(s, CUE_B.depth + 20, CUE_B.depth + 30) }}><Map3D t={s - CUE_B.depth - 26} /></AbsoluteFill>}
