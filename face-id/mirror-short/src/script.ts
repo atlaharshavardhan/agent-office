@@ -29,7 +29,7 @@ export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 0.56, to: 2.56, top: 1300 },      // the rush into the reflected phone, then the phone: lower, over his hand
   { from: 2.56, to: 4.02, top: 1680 },      // the push to the top of the phone: caption under the clock
   { from: 4.02, to: 7.45, top: 1160 },      // the parts use the top -> caption between the island and the clock
-  { from: 7.45, to: 8.58, top: 185 },     // 3D red dots clip: raised to clear his hair and the dots
+  { from: 7.45, to: 8.62, top: 185 },     // 3D red dots clip: raised to clear his hair and the dots
   { from: 12.12, to: 14.72, top: 1540 },      // top-down mirror diagram: the top holds the face behind the glass -> caption below his head
   { from: 16.29, to: 21.09, top: 170 },      // the 3D dotted head
   { from: 23.41, to: 26.41, top: 170 },      // the photo
@@ -42,7 +42,7 @@ export type Line = { id: string; at: number; text: string };
 export const NARRATION: Line[] = [
   { id: 'n1', at: 0.1, text: "Have you ever wondered if you can open your iPhone with your mirror reflection?" },
   { id: 'n2', at: 4.04, text: "When the phone is awake, these cameras fire thirty thousand dots" },
-  { id: 'n3a', at: 7.5, text: "straight onto my face, and the infrared camera picks up the pattern." },
+  { id: 'n3a', at: 7.5, text: "straight onto the face, and the infrared camera picks up the pattern." },
   { id: 'n5', at: 11.24, text: "But here's the twist: a mirror bounces that light straight back onto my face." },
   { id: 'n3c', at: 16.34, text: "So what's the phone really reading? My nose bends the dots one way, my cheeks another, and from those bends, it maps my face." },
   { id: 'n3d', at: 23.41, text: "That's why a flat photo fails. Nothing bends." },
