@@ -3,6 +3,7 @@ import front from '../front.json';
 import { C, FONT, Label, ramp } from '../theme';
 import { headDots, turnDot } from './dotHead';
 import { Orbit3D } from './Orbit3D';
+import { MirrorTop } from './MirrorTop';
 
 // Scene 5 (8 s, 240 frames): how the infrared light reaches his face by way of the mirror, and what the
 // camera sees. Side view (public/bathroom_side.png, 941 x 1672) + a live "infrared camera" panel.
@@ -40,7 +41,7 @@ const FLY = 24, launch = (f: number[]) => 34 + ((f[1] - 498) / 238) * 46 + f[2] 
 const STREAM = Array.from({ length: 150 }, () => [rnd(), rnd()]);
 // three shots: wide · one closer framing that holds his face, the phone and the glass together, so the bounce off the
 // mirror and the dots landing on his face are seen in the same frame · wide again (what the camera sees)
-export const MIR = { glass: 54, face: 96, wide: 999, inside: 104 };   // inside: the cut into the mirror view
+export const MIR = { glass: 54, face: 96, wide: 999, inside: 104, diagram: 52 };   // inside: the cut into the mirror view
 const PUSH = 79;                                                       // the word bounce
 const RAY0 = 36, RAY1 = 94;                                           // the rays leave the phone / reach the glass (about 2 s: slow motion)
 const STEPS = [{ at: 30, to: MIR.glass, text: '1 · RAYS LEAVE THE PHONE' }, { at: MIR.glass, to: MIR.wide, text: '2 · SLOW MOTION: THEY TRAVEL TO THE MIRROR' }, { at: MIR.wide, to: 999, text: '3 · THE CAMERA SEES HIS FACE IN THE MIRROR' }];
@@ -49,6 +50,7 @@ const STEPS = [{ at: 30, to: MIR.glass, text: '1 · RAYS LEAVE THE PHONE' }, { a
 export const MIR_FROM = 24;
 export const Mirror: React.FC = () => {
   const l = useCurrentFrame() + MIR_FROM;
+  if (l >= MIR.diagram) return <MirrorTop t={l - MIR.diagram} />;      // after the wide shot: the bounce, explained from above
   if (l >= MIR.inside) return (
     <AbsoluteFill>
       <Orbit3D g={0} pov={l - MIR.inside} />

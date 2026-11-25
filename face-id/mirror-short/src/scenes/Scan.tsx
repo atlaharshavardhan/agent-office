@@ -17,7 +17,7 @@ export const FZ = 1.15;      // framing of the frontal face; the mirror view and
 export const CUE_A = { front: 164, end: 209 };
 // ScanB now: 0–face a flat wall with the neat dot grid · face: the same grid on his face · bend: the grid bends with his
 // face (nose one way, cheeks the other), NOSE on "nose", CHEEKS on "cheeks" · cyan point cloud on "The phone" · depth map
-export const CUE_B = { face: 79, bend: 86, nose: 90, cheek: 146, cyan: 188, depth: 218, photo: 288, end: 421 };
+export const CUE_B = { face: 79, bend: 86, nose: 90, cheek: 145, cyan: 187, depth: 211, photo: 266, end: 351 };
 // depth colour: far = blue, through cyan and yellow, to near = orange
 const HEAT = [[59, 91, 219], [79, 195, 247], [255, 209, 102], [255, 122, 61]];
 const heat = (d: number) => { const t = Math.min(0.999, Math.max(0, (d - 0.2) / 0.62)) * 3, i = Math.floor(t), f = t - i, a = HEAT[i], b = HEAT[i + 1]; return `rgb(${Math.round(a[0] + (b[0] - a[0]) * f)},${Math.round(a[1] + (b[1] - a[1]) * f)},${Math.round(a[2] + (b[2] - a[2]) * f)})`; };
@@ -243,7 +243,7 @@ export const ScanB: React.FC = () => {
       {s >= CUE_B.face - 8 && s < CUE_B.cyan + 6 && <AbsoluteFill style={{ opacity: ramp(s, CUE_B.face - 8, CUE_B.face + 8) * (1 - ramp(s, CUE_B.cyan, CUE_B.cyan + 6)) }}><Bend3D s={s} /></AbsoluteFill>}
       {s >= CUE_B.cyan - 1 && s < CUE_B.depth + 6 && <AbsoluteFill style={{ opacity: o }}><Orbit3D g={150} cyan={s - CUE_B.cyan} align /></AbsoluteFill>}
       {/* the turning 3D map is the 3D head; everything static above is the photo */}
-      {s >= CUE_B.depth + 26 && <AbsoluteFill style={{ opacity: ramp(s, CUE_B.depth + 26, CUE_B.depth + 38) }}><Map3D t={s - CUE_B.depth - 26} /></AbsoluteFill>}
+      {s >= CUE_B.depth + 20 && <AbsoluteFill style={{ opacity: ramp(s, CUE_B.depth + 20, CUE_B.depth + 30) }}><Map3D t={s - CUE_B.depth - 26} /></AbsoluteFill>}
     </AbsoluteFill>
   );
 };

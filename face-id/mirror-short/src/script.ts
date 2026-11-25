@@ -3,15 +3,15 @@
 import lengths from '../public/vo/lengths.json';
 
 export const FPS = 30;
-export const TOTAL = 1487;            // 49.6 s
-export const STORY_END = 47.57;       // end card = last 2 s
+export const TOTAL = 1345;            // 44.8 s
+export const STORY_END = 42.83;       // end card = last 2 s
 export const f = (s: number) => Math.round(s * FPS);
 
 // Scene order: hook → inside the phone → red dots + infrared view → the mirror twist → what the phone measures
 // → comparison → real mirror test → end card. Every scene ends right after its voice line.
 export const SCENES = {
-  hook: [0, 5.63], truedepth: [5.63, 9.63], scan: [9.63, 16.58], mirror: [16.58, 20.83], measure: [20.83, 34.87],
-  compare: [34.87, 41.57], test: [41.57, 47.57], end: [47.57, 49.57],
+  hook: [0, 5.63], truedepth: [5.63, 9.63], scan: [9.63, 16.58], mirror: [16.58, 20.83], measure: [20.83, 32.53],
+  compare: [32.53, 39.23], test: [39.23, 42.83], end: [42.83, 44.83],
 } as const;
 
 // Hook: one continuous take of public/mirror_clip.mp4 (24 fps source, 5.04 s) from the rear mirror angle, at normal speed.
@@ -29,9 +29,11 @@ export const CAPTION_PLACEMENT: { from: number; to: number; top: number }[] = [
   { from: 2.80, to: 4.80, top: 1300 },      // the rush into the reflected phone, then the phone: lower, over his hand
   { from: 4.80, to: 9.63, top: 1420 },      // the parts and their explanation use the top -> below the padlock
   { from: 9.63, to: 15.08, top: 185 },     // 3D red dots clip: raised to clear his hair and the dots
-  { from: 20.83, to: 27.1, top: 170 },      // flat wall and the bending dots: above the panel and his hair
-  { from: 30.47, to: 34.87, top: 170 },      // the photo: above the phone
-  { from: 34.87, to: 41.57, top: 170 },     // comparison
+
+  { from: 17.51, to: 20.83, top: 1540 },      // top-down mirror diagram: the top holds the face behind the glass -> caption below his head
+  { from: 20.83, to: 27.06, top: 170 },      // flat wall, then the 3D dotted head
+  { from: 29.73, to: 32.53, top: 170 },      // the photo
+  { from: 32.53, to: 39.23, top: 170 },     // comparison
 ];
 
 export type Line = { id: string; at: number; text: string };
@@ -42,10 +44,10 @@ export const NARRATION: Line[] = [
   { id: 'n3a', at: 9.73, text: 'This tiny projector puts thousands of invisible dots on my face.' },
   { id: 'n3b', at: 13.83, text: 'And the infrared camera picks up that pattern.' },
   { id: 'n5', at: 16.68, text: "Here's the twist. A mirror can bounce that infrared light back, too." },
-  { id: 'n3c', at: 20.93, text: "On a flat wall, the dots land in a neat pattern. Your nose bends them one way, and your cheeks bend them another. The phone reads those bends to map the shape of your face." },
-  { id: 'n3d', at: 30.47, text: "That's why a photo won't work. It's flat, so the dots never bend." },
-  { id: 'n4', at: 34.97, text: "It also takes an infrared picture. Then it uses both to check if I'm the person who set up Face ID." },
-  { id: 'n6q', at: 41.72, text: 'So, did it work?' },
+  { id: 'n3c', at: 20.93, text: "On a flat wall, the dots land in a neat pattern. Your nose bends them one way, and your cheeks bend them another. The phone reads those bends to map your face." },
+  { id: 'n3d', at: 29.73, text: "That's why a flat photo won't work." },
+  { id: 'n4', at: 32.63, text: "It also takes an infrared picture. Then it uses both to check if I'm the person who set up Face ID." },
+  { id: 'n6q', at: 39.38, text: 'So, did it work?' },
 ];
 
 // Played only when real test footage is in and `result` is set to match it.
@@ -59,7 +61,7 @@ export const LEN: Record<string, number> = lengths as any;
 export const SFX = [
   { name: 'SFX · thump (the parts are explained)', file: 'thump.wav', at: 6.43, vol: 0.3 },
   { name: 'SFX · thump (capture, on "picks up")', file: 'thump.wav', at: 15.08, vol: 0.25 },
-  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 41.57, vol: 0.45 },
+  { name: 'SFX · thump (real test)', file: 'thump.wav', at: 39.23, vol: 0.45 },
 ];
 
 // ---- Real mirror test (scene 6) -------------------------------------------------
@@ -74,6 +76,6 @@ export type TestProps = {
   focusX: number; focusY: number; zoom: number;
 };
 export const DEFAULT_TEST: TestProps = {
-  testFootage: '', testStartSec: 0, result: 'none', resultDelaySec: 3.2,   // no real footage yet: the slot is a marked placeholder and no result is narrated
+  testFootage: '', testStartSec: 0, result: 'none', resultDelaySec: 1.7,   // no real footage yet: the slot is a marked placeholder and no result is narrated
   focusX: 0.5, focusY: 0.3, zoom: 1.0,
 };
