@@ -3,7 +3,7 @@
 // Light: ceiling lamp on (warm) only in 01A. After the cut: cool dusk from the window + warm local light (candle, bulb).
 // Every editable piece (hands, wires, bulbs, switch, reflector, light) sits in its own <g id="...">.
 import React from 'react';
-import { AbsoluteFill, Img, staticFile } from 'remotion';
+import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import {
   INK, W, H, P, Svg, Person, STU, FRD, HANDS, Hand, PlaceHand, HandSpec, LEGS_STAND, toHand, unlean, anchorHand,
   Tag, MiniBulb, Socket, Pack, PushSwitch, Wire, Candle, BowlTop, ToyCar, FoilSheet, WindowFrame, ChalkSketches, Pose,
@@ -161,7 +161,7 @@ const Room: React.FC<{ lit: boolean }> = ({ lit }) => {
       <Place x={S.x} y={S.y} s={S.s} flip>
         {/* re-draw only the fingers over the lever so they wrap it */}
         <g transform={`rotate(${lean} 100 560)`}>
-          <PlaceHand at={wrN} toward={unlean(grip, lean)} s={0.82}><Hand h={HANDS.fist} pal={STU} only={['f0', 'f1', 'f2', 'f3', 't']} /></PlaceHand>
+          <PlaceHand at={wrN} toward={unlean(grip, lean)} s={0.64}><Hand h={HANDS.fist} pal={STU} only={['f0', 'f1', 'f2', 'f3', 't']} /></PlaceHand>
         </g>
       </Place>
 
@@ -369,7 +369,7 @@ const SMOOTH: HandSpec = { f: [{ a: 12, b: -4, c: -4 }, { a: 4, b: -2, c: -4 }, 
 
 const SOCK: P = [540, 1060], SS = 2.3;
 const term = (side: -1 | 1): P => [SOCK[0] + side * 52 * SS, SOCK[1] + 12 * SS];
-const HS = 2.7;
+const HS = 2.25;
 
 const BulbSetup04: React.FC<{ after: boolean }> = ({ after }) => {
   // left hand steadies the socket: index on the far side of the black collar, thumb on the near side
@@ -504,7 +504,7 @@ export const S06: React.FC = () => {
       </g>
       {/* his forearm rests on the bench top */}
       <Place x={S.x} y={S.y} s={S.s} filter="cool"><g transform={`rotate(${lean} 100 560)`}>
-        <PlaceHand at={pose.near.wr} toward={pose.near.toward!} s={0.82}><Hand h={HANDS.relaxed} pal={STU} /></PlaceHand>
+        <PlaceHand at={pose.near.wr} toward={pose.near.toward!} s={0.64}><Hand h={HANDS.relaxed} pal={STU} /></PlaceHand>
       </g></Place>
       <g id="bulb-rig">
         <g transform="translate(700 1060) scale(0.3)"><Pack cells={2} /></g>
@@ -528,6 +528,7 @@ export const S06: React.FC = () => {
 
 // ================================================================== 07 · what light does inside the metal (side-on cross-section)
 export const S07: React.FC = () => {
+  const fr = useCurrentFrame(), ph = -fr * 0.22, wig = Math.sin(fr * 0.45) * 9;
   const SURF = 980, HIT: P = [540, SURF];
   const inc = (t: number): P => [HIT[0] - (1 - t) * 520, HIT[1] - (1 - t) * 640];
   const ref = (t: number): P => [HIT[0] + t * 520, HIT[1] - t * 640];
@@ -560,18 +561,18 @@ export const S07: React.FC = () => {
       {/* incoming amber wave from the upper left, reflected wave to the upper right */}
       <g id="wave-in">
         <path d={`M ${inc(0)[0]} ${inc(0)[1]} L ${HIT[0]} ${HIT[1]}`} stroke="#ffb54d" strokeWidth={3} opacity={0.35} strokeDasharray="6 10" />
-        <path d={wave(inc, 0)} stroke="#ffb54d" strokeWidth={8} fill="none" strokeLinecap="round" />
+        <path d={wave(inc, ph)} stroke="#ffb54d" strokeWidth={8} fill="none" strokeLinecap="round" />
         <path d={`M ${inc(0.86)[0] - 26} ${inc(0.86)[1] - 2} L ${inc(0.86)[0] + 2} ${inc(0.86)[1] + 26} L ${inc(0.86)[0] + 12} ${inc(0.86)[1] - 12} Z`} fill="#ffb54d" />
       </g>
       <g id="wave-out">
         <path d={`M ${HIT[0]} ${HIT[1]} L ${ref(1)[0]} ${ref(1)[1]}`} stroke="#ffcf7a" strokeWidth={3} opacity={0.35} strokeDasharray="6 10" />
-        <path d={wave(ref, Math.PI)} stroke="#ffcf7a" strokeWidth={8} fill="none" strokeLinecap="round" />
+        <path d={wave(ref, Math.PI + ph)} stroke="#ffcf7a" strokeWidth={8} fill="none" strokeLinecap="round" />
         <path d={`M ${ref(0.96)[0] - 24} ${ref(0.96)[1] - 6} L ${ref(0.96)[0] + 14} ${ref(0.96)[1] - 22} L ${ref(0.96)[0] + 4} ${ref(0.96)[1] + 18} Z`} fill="#ffcf7a" />
       </g>
       <Glow x={HIT[0]} y={SURF} r={160} ry={60} o={0.5} />
       {/* electrons just inside the surface, wiggling back and forth */}
       <g id="electrons">
-        {electrons.map(([x, y], i) => <g key={i}><circle cx={x} cy={y} r={20} fill="#3ee6ff" opacity={0.25} filter="url(#blur6)" /><circle cx={x} cy={y} r={11} fill="#5eeaff" stroke="#0c6e80" strokeWidth={2.4} /></g>)}
+        {electrons.map(([x0, y], i) => { const x = x0 + wig * (i % 2 ? -1 : 1); return <g key={i}><circle cx={x} cy={y} r={20} fill="#3ee6ff" opacity={0.25} filter="url(#blur6)" /><circle cx={x} cy={y} r={11} fill="#5eeaff" stroke="#0c6e80" strokeWidth={2.4} /></g>; })}
       </g>
       <g id="electron-arrows" stroke="#bff6ff" strokeWidth={3.4} fill="none" strokeLinecap="round" strokeLinejoin="round">
         {electrons.map(([x, y], i) => <g key={i}><path d={`M ${x - 30} ${y} H ${x + 30}`} /><path d={`M ${x - 22} ${y - 7} L ${x - 30} ${y} L ${x - 22} ${y + 7} M ${x + 22} ${y - 7} L ${x + 30} ${y} L ${x + 22} ${y + 7}`} /></g>)}
@@ -616,15 +617,15 @@ export const S08A: React.FC = () => {
 };
 
 // ================================================================== 08B · side-on cutaway: bowl reflector, bulb, test wall
-export const S08B: React.FC = () => {
+export const S08B: React.FC<{ t?: number }> = ({ t = 1 }) => {
   const Y0 = 900, F = 104, X0 = 110, RIM = 290;
   const xOf = (dy: number) => X0 + (dy * dy) / (4 * F);
   const curve = (off: number) => Array.from({ length: 41 }, (_, i) => { const dy = -RIM + (i / 40) * 2 * RIM; return `${i ? 'L' : 'M'} ${(xOf(dy) - off).toFixed(1)} ${(Y0 + dy).toFixed(1)}`; }).join(' ');
-  const FX = X0 + F + 10; // bulb a little in front of the focus: the spot tightens but stays a little uneven
+  const FX = X0 + F + 10 - (1 - t) * 40; // bulb a little in front of the focus: the spot tightens but stays a little uneven
   const WALL = 870;
   const rays = [-260, -195, -130, -70, 70, 130, 195, 260].map((dy) => {
     const hx = xOf(dy), hy = Y0 + dy;
-    const yy = Y0 + dy * 0.36 + (Math.abs(dy) > 150 ? (dy > 0 ? 10 : -6) : 0);
+    const yy = Y0 + dy * (0.36 + (1 - t) * 0.5) + (Math.abs(dy) > 150 ? (dy > 0 ? 10 : -6) : 0);
     return { d: `M ${FX} ${Y0} L ${hx} ${hy} L ${WALL} ${yy}`, hy };
   });
   return (
@@ -663,7 +664,7 @@ export const S08B: React.FC = () => {
       <Wire d={`M ${FX} 1230 C ${FX + 60} 1230 ${FX + 120} 1236 ${FX + 220} 1236`} c="#c8322a" w={6} />
       <g id="bulb-glow"><Glow x={FX} y={Y0} r={130} o={0.9} /><Glow x={FX} y={Y0} r={30} o={1} /></g>
       {/* the bright, slightly uneven spot on the wall */}
-      <g id="wall-glow">
+      <g id="wall-glow" transform={`translate(0 ${Y0}) scale(1 ${1 + (1 - t) * 1.6}) translate(0 ${-Y0})`} opacity={0.55 + 0.45 * t}>
         <path d={`M ${WALL + 6} ${Y0 - 62} C ${WALL + 40} ${Y0 - 70} ${WALL + 48} ${Y0 - 20} ${WALL + 44} ${Y0 + 10} C ${WALL + 50} ${Y0 + 50} ${WALL + 34} ${Y0 + 78} ${WALL + 6} ${Y0 + 66} C ${WALL - 4} ${Y0 + 30} ${WALL - 2} ${Y0 - 30} ${WALL + 6} ${Y0 - 62} Z`} fill="url(#c8-spot)" filter="url(#blur6)" />
         <Glow x={WALL + 24} y={Y0 + 6} r={110} ry={150} o={0.6} />
       </g>
@@ -672,7 +673,7 @@ export const S08B: React.FC = () => {
 };
 
 // ================================================================== 09 · two flashes: he stops and looks up
-export const S09: React.FC = () => {
+export const S09: React.FC<{ flash?: number; turned?: boolean }> = ({ flash = 1, turned = true }) => {
   const torch: P = [340, 590];
   const patch: P = [770, 1420];
   const lean = 8, tilt = 14;
@@ -700,14 +701,16 @@ export const S09: React.FC = () => {
         </g>
       </Street>
       {/* the beam: separate so it can flash */}
-      <g id="beam" style={{ mixBlendMode: 'screen' }} opacity={0.5}>
+      <g id="beam" style={{ mixBlendMode: 'screen' }} opacity={0.5 * flash}>
         <path d={`M ${torch[0] + 2} ${torch[1] + 30} L ${torch[0] + 30} ${torch[1] - 4} L ${patch[0] + 140} ${patch[1]} L ${patch[0] - 150} ${patch[1]} Z`} fill="#ffcf73" opacity={0.28} filter="url(#blur14)" />
       </g>
-      <g id="torch-glow"><Glow x={torch[0] + 14} y={torch[1] + 14} r={80} o={0.9} /><Glow x={torch[0] + 12} y={torch[1] + 12} r={22} o={1} /></g>
+      <g id="torch-glow" opacity={0.25 + 0.75 * flash}><Glow x={torch[0] + 14} y={torch[1] + 14} r={80} o={0.9} /><Glow x={torch[0] + 12} y={torch[1] + 12} r={22} o={1} /></g>
       {/* the friend: stopped mid-step, turned back toward the window, looking up */}
-      <Place x={610} y={FRIEND_Y} s={0.9} flip id="friend" filter="cool"><Person who="friend" pal={FRD} pose={fturn} /></Place>
+      {turned
+        ? <Place x={610} y={FRIEND_Y} s={0.9} flip id="friend" filter="cool"><Person who="friend" pal={FRD} pose={fturn} /></Place>
+        : <Place x={420} y={FRIEND_Y} s={0.9} id="friend" filter="cool"><Person who="friend" pal={FRD} pose={friendWalk} /></Place>}
       {/* the warm patch on the pavement just ahead of him (separate layer: it flashes twice) */}
-      <g id="pavement-glow">
+      <g id="pavement-glow" opacity={flash}>
         <ellipse cx={patch[0]} cy={patch[1]} rx={150} ry={40} fill="url(#warmGlow)" style={{ mixBlendMode: 'screen' }} />
         <ellipse cx={patch[0]} cy={patch[1]} rx={70} ry={18} fill="#fff1c4" opacity={0.6} filter="url(#blur6)" />
       </g>

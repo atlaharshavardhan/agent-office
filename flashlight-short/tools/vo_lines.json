@@ -1,0 +1,15 @@
+{
+ "order": ["s01", "s02a", "s02b", "s03", "s04", "s05", "s06", "s07", "s08", "s09"],
+ "text": {
+  "s01": "You're locked in your room. Your friend's outside. Then the power cuts.",
+  "s02a": "Hey! Look up!",
+  "s02b": "He's got his earbuds in.",
+  "s03": "You try a candle. From down there, it's barely a glow.",
+  "s04": "You find a tiny bulb and borrow the toy car's batteries. One flash. Then it's dead.",
+  "s05": "Six volts for a three-volt bulb. You grab the spare, match the voltage, and add a switch.",
+  "s06": "It lights up your desk. How do you aim it? Then you spot your physics notes.",
+  "s07": "Light's electric field makes electrons in the metal wiggle. Together, they produce the reflected wave.",
+  "s08": "You line a bowl with foil. Move the bulb a little... and the spot tightens.",
+  "s09": "Two flashes. He stops. Looks up."
+ }
+}

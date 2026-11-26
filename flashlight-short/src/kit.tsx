@@ -82,7 +82,7 @@ const SBASE = [
   { x: -24, y: 59, a: -6, l: [24, 15, 13], w: 16 },
 ];
 export const handGeom = (h: HandSpec) => {
-  const Wd = h.palmW ?? 64, Lp = h.palmL ?? 66;
+  const Wd = h.palmW ?? 58, Lp = h.palmL ?? 62;
   const fingers = h.side
     ? SBASE.map((b, i) => ({ k: `f${i}`, w: b.w, ...chain([b.x, b.y], b.a, h.f[i], b.l), n: h.f[i].n ?? true }))
     : FBASE.map((b, i) => ({ k: `f${i}`, w: b.w, ...chain([b.x * Wd, Lp + b.y], b.a, h.f[i], b.l), n: h.f[i].n ?? h.nails ?? true }));
@@ -278,7 +278,7 @@ const ArmDraw: React.FC<{ a: ArmP; pal: Pal; dark?: boolean; sh: P }> = ({ a, pa
         <Body segs={[{ p: [lerp(a.el, a.wr, 0.86), a.wr], w: 40 }]} fill={dark ? '#6e1a18' : pal.topSh} />
       </>}
       {a.behind}
-      <PlaceHand at={a.wr} toward={a.toward ?? [a.wr[0] + (a.wr[0] - a.el[0]), a.wr[1] + (a.wr[1] - a.el[1])]} s={a.hs ?? 0.82} mirror={a.mirror}>
+      <PlaceHand at={a.wr} toward={a.toward ?? [a.wr[0] + (a.wr[0] - a.el[0]), a.wr[1] + (a.wr[1] - a.el[1])]} s={a.hs ?? 0.64} mirror={a.mirror}>
         <Hand h={a.hand} pal={handPal} only={a.handOnly} />
       </PlaceHand>
     </g>
