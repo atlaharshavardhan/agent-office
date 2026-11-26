@@ -6,10 +6,17 @@ import { DURATION, FPS, FlashlightShort } from './video';
 import { S1Room, S2Shout, S3Bulbs, S4Cutaway, S5LooksUp } from './scenes';
 import { BOARD } from './storyboard';
 import { WalkTest } from './dev/WalkTest';
+import { SHEET, StudentSheet } from './review/Sheet';
+import { FoilBuild } from './review/Desk';
+import { Exterior } from './review/Street';
 
 export const Root: React.FC = () => (
   <>
     <Composition id="FlashlightShort" component={FlashlightShort} durationInFrames={DURATION} fps={FPS} width={1080} height={1920} />
+    {/* review pass: three stills for approval */}
+    <Still id="review-1-student-sheet" component={StudentSheet} width={SHEET.w} height={SHEET.h} />
+    <Still id="review-2-foil-build" component={FoilBuild} width={1080} height={1920} />
+    <Still id="review-3-exterior" component={Exterior} width={1080} height={1920} />
     <Still id="dev-walk" component={WalkTest} width={1080} height={1920} />
     {/* storyboard pass 2: one still per scene beat */}
     {BOARD.map(([id, C]) => <Still key={id} id={`sb-${id}`} component={C} width={1080} height={1920} />)}
