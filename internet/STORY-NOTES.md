@@ -101,3 +101,18 @@ now she moved to London, that's part 1. Part 2: what happens if we need to send 
 - 26 Nov 2026: Harsh said "wait, do not render, just note it". ALL RENDERING STOPPED. Do not render version 6 or 7 until he says so.
   Ready and saved, waiting for his go: Liam voice files for every line (voice/liam/), the approved hook, the nine simpler lines, updated captions in the scene code, rebuilt sound mixes, and the scripts v3/render_part1_v6.sh and v3/render_part1_v7.sh.
   When he says render: run render_part1_v6.sh first (it only needs to finish the six hook pieces; ignore its joined file), then render_part1_v7.sh (about 2 to 2.5 hours). Latest delivered file is still internet-part1-v5.mp4 (old voice).
+
+## Part 1 review, 27 Nov 2026 (NOT FIXED YET: Harsh wants the list first, more notes coming, no rendering)
+Harsh's points: (1) street router scene: the router itself cannot be seen (hidden under the ROUTER label and the 192.168.1.3 tag), and tags sit behind the captions (192.168.1.5); (2) the phone takes too much space, wants another plan; (3) needs camera zooms.
+My review of version 5, frame by frame every 2 s:
+- Photo lesson (55-83 s) is one fixed wide shot for 28 s; counters, LINE HELD, packet numbers are tiny; lower 40% of the frame is empty.
+- Watermark sits on the action in several places (his balcony 0-3 s, home router area 56-66 s, "only #1597 sent again" label at 78 s) and jumps between spots.
+- Caption line breaks leave one word alone on the second line ("too.", "box:", "city.", "far.", "way.", "wire.").
+- 42.6 s: his and her face pins overlap, HOME ROUTER label cut; HYDERABAD plate half hidden; 44.6 s PUNE plate cut at the edge; 52.5 s "hop 2" label cut at the edge; 86 s MUMBAI label cut at the edge.
+- 50.5 s: phone covers the PUNE plate and a router; map shows through the phone while it pops in.
+- 54.5 s: after "Hello" arrives the screen is mostly empty and dark.
+- Title card "This torch explains the internet" stays up while the caption says something different (two texts at once).
+- 20.8 s card: small text "torch: ~40 s · wire: 0.00000004 s" is unreadable on a phone.
+- Flight: the plane is on screen for about 1.5 s only since the shot was cut to 4 s.
+- Liam speaks faster, so several lines leave longer pauses (version 7, not rendered).
+- Fact simplification: 192.168.1.x are addresses inside one home network; the scene uses them as house numbers on a street.
