@@ -115,7 +115,7 @@ export const Student: React.FC<{ light: Light; pose: 'door' | 'shout'; idp: stri
       <path d="M 86 182 L 100 226 L 92 236 Z M 128 184 L 120 230 L 130 236 Z" fill={STU.shirtHi} stroke="#140f12" strokeWidth={2.4} />
       <path d="M 50 380 L 84 380 L 84 420 L 50 420 Z" fill="none" stroke={STU.shirtSh} strokeWidth={3} />
       {/* head */}
-      <g transform="translate(36 -4) scale(0.78)"><ProfileHead skin={STU.skin} skinSh={STU.skinSh} hair={STU.hair} hairStyle="short" pencil mouth={pose === 'shout' ? 'shout' : 'closed'} brow={pose === 'shout' ? 5 : 0} /></g>
+      <g transform="translate(36 -4) scale(0.78)"><ProfileHead skin={STU.skin} skinSh={STU.skinSh} hair={STU.hair} hairStyle="short" mouth={pose === 'shout' ? 'shout' : 'closed'} brow={pose === 'shout' ? 5 : 0} /></g>
       {/* near arm in front */}
       <g transform="translate(96 212)">{arm(near)}</g>
     </g>

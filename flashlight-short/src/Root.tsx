@@ -9,10 +9,13 @@ import { WalkTest } from './dev/WalkTest';
 import { SHEET, StudentSheet } from './review/Sheet';
 import { FoilBuild } from './review/Desk';
 import { Exterior } from './review/Street';
+import { FACE_REVIEW, FaceReview } from './review/FaceReview';
 
 export const Root: React.FC = () => (
   <>
     <Composition id="FlashlightShort" component={FlashlightShort} durationInFrames={DURATION} fps={FPS} width={1080} height={1920} />
+    {/* face review */}
+    <Still id="review-4-face" component={FaceReview} width={FACE_REVIEW.w} height={FACE_REVIEW.h} />
     {/* review pass: three stills for approval */}
     <Still id="review-1-student-sheet" component={StudentSheet} width={SHEET.w} height={SHEET.h} />
     <Still id="review-2-foil-build" component={FoilBuild} width={1080} height={1920} />

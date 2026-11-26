@@ -332,7 +332,7 @@ export const Person: React.FC<{ pal: Pal; pose: Pose; who: 'stu' | 'friend'; ext
         </>}
         {/* head */}
         <g transform={`rotate(${tilt} 96 196)`}>
-          <g transform="translate(38 -6) scale(0.8)"><Head pal={pal} {...pose.head} hairStyle={isStu ? 'wavy' : 'curly'} pencil={isStu && pose.head.pencil !== false} bud={!isStu} /></g>
+          <g transform="translate(38 -6) scale(0.8)"><Head pal={pal} {...pose.head} hairStyle={isStu ? 'wavy' : 'curly'} bud={!isStu} /></g>
         </g>
         {extraFront}
         <ArmDraw a={pose.near} pal={pal} sh={shN} />
