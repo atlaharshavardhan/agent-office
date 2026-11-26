@@ -27,7 +27,10 @@ x = t(0.9); put(env(np.sin(2 * np.pi * 1318 * x) + 0.5 * np.sin(2 * np.pi * 1976
 # ---- step 2 (starts 7.4 s into this part): three moves, a wire each, neighbours, router, door numbers ----
 import json
 M = 7.4
-for n, at in json.load(open('voice/step2_starts.json')): voice('liam/' + n, M + at)
+CUT_A, CUT_B = 4.733, 6.633   # 27 Nov 2026: the third house move ("Then another!", new flat) is cut out of the picture and the sound
+for n, at in json.load(open('voice/step2_starts.json')):
+    if n == 'n3': continue
+    voice('liam/' + n, M + (2.85 if n == 'n2' else at))
 for i in range(6): x = t(0.06); put(env(np.sin(2 * np.pi * (90 + 20 * (i % 2)) * x) + 0.3 * rng.standard_normal(len(x)), r=7) * 0.16, M + 0.8 + i * 0.17)
 pass   # sweep removed
 for sh in (2.2, 3.8, 5.3):
@@ -43,6 +46,9 @@ for i in range(9): x = t(0.07); put(env(np.sin(2 * np.pi * (1500 + 120 * (i % 4)
 for i in range(9): x = t(0.05); put(env(np.sin(2 * np.pi * 2000 * x), r=5) * 0.04, M + 12.75 + i * 0.03)
 pass   # data chirp removed (26 Nov 2026)
 x = t(0.9); put(env(np.sin(2 * np.pi * 1318 * x) + 0.5 * np.sin(2 * np.pi * 1976 * x), r=6) * 0.2, M + 15.1)
+ca, cb, cf = int((M + CUT_A) * SR), int((M + CUT_B) * SR), int(0.03 * SR)
+seam = out[ca - cf:ca] * np.linspace(1, 0, cf)[:, None] + out[cb - cf:cb] * np.linspace(0, 1, cf)[:, None]
+out = np.concatenate([out[:ca - cf], seam, out[cb:]])
 out[-int(0.35 * SR):] *= np.linspace(1, 0, int(0.35 * SR))[:, None]
 hook, _ = sf.read('v3/public/hook-mix.wav')
 ab = np.abs(out); out = np.where(ab > 0.75, np.sign(out) * (0.75 + 0.15 * np.tanh((ab - 0.75) / 0.15)), out)   # soft limiter

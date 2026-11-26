@@ -130,3 +130,14 @@ Done in code:
 Not changed: the 192.168.1.x simplification; Liam's shorter lines still leave some pauses.
 16:9: the wide layout has not been adapted to these cameras and phone positions yet.
 Render: v3/render_part1_v8.sh (full re-render, about 5 to 6 hours). Preview stills: v3/stills/v8/.
+
+## Part 1 version 9 (vertical 9:16 ONLY), 27 Nov 2026: Harsh's list, built and sent as stills, render started
+Harsh: do NOT render or make images for 16:9 now. Only 9:16.
+- Names: he is Arjun (Hyderabad), she is Meera (Mumbai). Names chosen by me, Harsh did not give any. Shown on the phone headers and on the packet tag ("To: Meera's phone"). Narration still says she/her.
+- Only two city plates remain: HYDERABAD and MUMBAI. Village names (Solapur, Pune) removed. Plates also fade out before the frame edge and stay out of the bottom margin (y over 1450).
+- Third house move (new flat, "Then another!") cut out: street frames 832-888 and the same 1.9 s of sound. Her line "Then a friend's place. Another wire." now starts at 2.85 s. Video is 85.7 s.
+- Watermark: middle-left (x 24, y 926), horizontal, 30% see-through, not on the end card (render_part1_v8.sh, MARK_X/MARK_Y/MARK_ALPHA).
+- Captions: word by word (Kar and capAt in dusk/Extras.tsx): spoken words white, the word being said in a highlight box, the rest dim, accent words amber. Balanced line breaks. Caption zone y 1260-1450, right margin 150 (Instagram and YouTube Shorts safe area). Nothing important below y 1500 or right of x 940 below y 1100.
+- Cards: heading card ("WITHOUT/WITH PACKETS") is one compact centred card; packet tag is a two-line card with its text inside; the "why" for 40 blinks ("Hello" = 5 letters x 8 blinks = 40) now shows on the first-person card (my reading of "this scene is missing why": Harsh may have meant something else).
+- End card (Part 1 version only, EndCard p2): smaller logo and handle under the globe, not touching it; "PART 2 coming soon" card; torch small; everything above y 1480.
+- Render: v3/render_part1_v8.sh fresh, short runs under 28 min. Estimated 8 to 10 hours (my earlier 5 to 6 hour guess was too low).

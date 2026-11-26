@@ -7,7 +7,7 @@ import { DUSK, StickPose } from './Dusk';
 import { Adult, Heart, A_SHOULDER, A_UPPER, A_FORE, A_TIP } from './Adult';
 import { Audio, Img, Sequence, staticFile } from 'remotion';
 import { Pov, POV_A, POV_B } from './Pov';
-import { FiberCut, RouterCut, FIB_A, FIB_B, RT_A } from './Extras';
+import { FiberCut, RouterCut, FIB_A, FIB_B, RT_A, Kar, capAt } from './Extras';
 import { prog, pulse, clamp01, easeOut, easeInOut } from '../lib/anim';
 import { FONT, TECH } from '../lib/palette';
 import '@fontsource/manrope/700.css'; import '@fontsource/manrope/800.css'; import '@fontsource/ibm-plex-mono/600.css';
@@ -242,7 +242,7 @@ const MOVE_KEYS: Key[] = [[0, 600, 880, 1.34], [0.4, 600, 880, 1.34], [1.6, 770,
   [9.2, 860, 790, 1.0], [11.5, 860, 790, 1.03],     // the router
   [12.3, 880, 800, 0.84], [15.9, 880, 800, 0.86],   // door numbers
   [16.7, 960, 760, 0.66], [18.5, 960, 760, 0.675]]; // the delivery, him to her
-const MVO: [number, React.ReactNode][] = [[0.2, <>Then she moves to a <em>hostel.</em> New wire.</>], [3.2, <>Then a friend's place. <em>Another wire.</em></>], [5.63, <>Then <em>another!</em></>], [6.71, <>Now the neighbours want to <em>join</em> too.</>], [8.41, <>So every house plugs into <em>one box:</em></>], [10.69, <>the <em>router.</em></>], [11.62, <>Every house gets a number, like a <em>door number.</em></>], [14.47, <>That's its <em>IP address.</em></>], [16.11, <>The router reads the number and <em>delivers</em> the message.</>]];
+const MVO: [number, React.ReactNode][] = [[0.2, <>Then she moves to a <em>hostel.</em> New wire.</>], [2.85, <>Then a friend's place. <em>Another wire.</em></>], [4.7, null], [6.71, <>Now the neighbours want to <em>join</em> too.</>], [8.41, <>So every house plugs into <em>one box:</em></>], [10.69, <>the <em>router.</em></>], [11.62, <>Every house gets a number, like a <em>door number.</em></>], [14.47, <>That's its <em>IP address.</em></>], [16.11, <>The router reads the number and <em>delivers</em> the message.</>]];
 const SHOTS = [2.2, 3.8, 5.3], AIMS: [number, number][] = [[90, 93], [60, 57], [103, 104]], ARR = [-9, 2.0, 3.5, 5.0], LEAVE = [0.6, 3.0, 4.6, 99];
 const MESH_ON = false;
 export const IsoMove: React.FC = () => <IsoStreet move />;
@@ -642,14 +642,14 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
       {hook && <HookOverlays f={f} t={t} macro={macro} mute={mute} />}
       {wire && <WireOverlays f={f} t={t} />}
       {net && <NetOverlays f={f} t={t} />}
-      {move && (() => { let line: React.ReactNode = null; for (const [a, txt] of MVO) if (t >= a) line = txt; return line ? <><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div><style>{'.sub{text-wrap:balance}.sub em{font-style:normal;color:#ffd38a}'}</style><div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}><Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span></div></> : null; })()}
+      {move && (() => { const cp = capAt(MVO, t); const line = cp ? <Kar node={cp.node} p={cp.p} /> : null; return line ? <><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div><style>{'.sub{text-wrap:balance}.sub em{font-style:normal;color:#ffd38a}'}</style><div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}><Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span></div></> : null; })()}
       {concept && <><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{CSUB[concept]}</div></div><style>{'.sub{text-wrap:balance}.sub em{font-style:normal;color:#ffd38a}'}</style></>}
     </AbsoluteFill>
   );
 };
 
 const HookOverlays: React.FC<{ f: number; t: number; macro: number; mute?: boolean }> = ({ f, t, macro, mute }) => {
-  let line: React.ReactNode = null; for (const [a, txt] of VO) if (t >= a) line = txt;
+  const cpV = capAt(VO, t); const line = cpV ? <Kar node={cpV.node} p={cpV.p} /> : null;
   const SK = '#d6a481', SKS = '#b47f5a';
   return (
     <>
@@ -716,7 +716,7 @@ const HookOverlays: React.FC<{ f: number; t: number; macro: number; mute?: boole
 };
 
 const WireOverlays: React.FC<{ f: number; t: number }> = ({ f, t }) => {
-  let line: React.ReactNode = null; for (const [a, txt] of WVO) if (t >= a) line = txt;
+  const cpW = capAt(WVO, t); const line = cpW ? <Kar node={cpW.node} p={cpW.p} /> : null;
   const n = Math.round(1e9 * clamp01((t - 2.4) / 1.2) ** 3);
   return (
     <>
@@ -750,7 +750,7 @@ const WireOverlays: React.FC<{ f: number; t: number }> = ({ f, t }) => {
 };
 
 const NetOverlays: React.FC<{ f: number; t: number }> = ({ f, t }) => {
-  let line: React.ReactNode = null; for (const [a, txt] of NVO) if (t >= a) line = txt;
+  const cpN = capAt(NVO, t); const line = cpN ? <Kar node={cpN.node} p={cpN.p} /> : null;
   const n = Math.min(45, Math.max(0, Math.round((t - 1.9) / 0.035)));
   return (
     <>

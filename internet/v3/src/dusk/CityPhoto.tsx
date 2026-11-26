@@ -77,13 +77,13 @@ export const PhotoWorld: React.FC<{ te: number; RT: Pt[] }> = ({ te, RT }) => {
     {PK.map((p) => { const lost = p.i === LOST; const runs: [number, number, boolean][] = lost ? [[p.dep, 2.6, true], [RESEND, 2.6, false]] : [[p.dep, p.dur, false]];
       return runs.map(([dep, dur, dies], ri) => { const u = (te - dep) / dur; if (u <= 0 || u >= 1 || (dies && u > 0.5)) return null; const q = along(RT, p.alt ? ALT : MAIN, easeInOut(u) * 3, p.alt ? 20 : 26), hero = lost && !dies;
         return <g key={p.i + '-' + ri} transform={`translate(${q[0]} ${q[1]})`}>{hero && <circle r={46} fill="url(#cPk)" />}<rect x={-17} y={-17} width={34} height={34} rx={7} fill={tileCol(p.i)} stroke={hero ? '#fff' : '#0b1030'} strokeWidth={hero ? 4 : 2.5} />
-          {p.i === HERO && !lost && <g transform="translate(0 -66)"><rect x={-62} y={-17} width={124} height={30} rx={8} fill="#ffe08a" stroke="#fff" strokeWidth={2} /><text y={5} textAnchor="middle" fill="#3a2a05" style={{ font: `700 17px ${FONT.mono}` }}>To: her phone</text></g>}
-          {(p.i % 6 === 0 || lost) && <g transform="translate(0 -34)"><rect x={-40} y={-15} width={80} height={28} rx={8} fill="#0e1430" stroke={hero ? '#fff' : '#5fe3ff'} strokeWidth={2} /><text y={6} textAnchor="middle" fill="#eef1ff" style={{ font: `600 17px ${FONT.mono}` }}>{num(p.i)}</text></g>}</g>; }); })}
+          {p.i === HERO && !lost && <g transform="translate(0 -78)"><rect x={-96} y={-32} width={192} height={62} rx={14} fill="#0e1430" stroke="#ffe08a" strokeWidth={2.5} /><text y={-8} textAnchor="middle" fill="#ffe08a" style={{ font: `700 18px ${FONT.mono}` }}>To: Meera's phone</text><text y={19} textAnchor="middle" fill="#fff" style={{ font: `700 20px ${FONT.mono}` }}>{num(p.i)}</text></g>}
+          {(p.i % 6 === 0 || lost) && p.i !== HERO && <g transform="translate(0 -34)"><rect x={-40} y={-15} width={80} height={28} rx={8} fill="#0e1430" stroke={hero ? '#fff' : '#5fe3ff'} strokeWidth={2} /><text y={6} textAnchor="middle" fill="#eef1ff" style={{ font: `600 17px ${FONT.mono}` }}>{num(p.i)}</text></g>}</g>; }); })}
     {/* the lost one */}
     {(() => { const tl = PK[LOST].dep + 1.3, u = seg(te, tl, tl + 0.4), o = u * (1 - seg(te, RESEND - 0.2, RESEND + 0.4)); if (o <= 0) return null; const q = along(RT, MAIN, 1.5);
       return <g opacity={o} transform={`translate(${q[0]} ${q[1]})`}><circle r={30 + (1 - u) * 30} fill="none" stroke="#ff6a5a" strokeWidth={5} /><path d="M-13 -13 L13 13 M13 -13 L-13 13" stroke="#ff6a5a" strokeWidth={7} strokeLinecap="round" />
         <g transform="translate(-150 -6)"><rect x={-108} y={-22} width={216} height={44} rx={12} fill="#3a0f14" stroke="#ff6a5a" strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#ffc9c2" style={{ font: `800 20px ${FONT.ui}` }}>{num(LOST)} lost</text></g></g>; })()}
-    {te > RESEND - 0.3 && te < RESEND + 2.0 && (() => { const p = RT[0]; return <g opacity={seg(te, RESEND - 0.3, RESEND) * (1 - seg(te, RESEND + 1.5, RESEND + 2.0))} transform={`translate(${p[0] + 190} ${p[1] + 66})`}><rect x={-128} y={-22} width={256} height={44} rx={12} fill="#0e1430" stroke="#fff" strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 20px ${FONT.ui}` }}>only {num(LOST)} sent again</text></g>; })()}
+    {te > RESEND - 0.3 && te < RESEND + 2.0 && (() => { const p = RT[0]; return <g opacity={seg(te, RESEND - 0.3, RESEND) * (1 - seg(te, RESEND + 1.5, RESEND + 2.0))} transform={`translate(${p[0] + 190} ${p[1] + 66})`}><rect x={-150} y={-24} width={300} height={48} rx={14} fill="#0e1430" stroke="#fff" strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 21px ${FONT.ui}` }}>only {num(LOST)} sent again</text></g>; })()}
   </g>; };
 
 /* ---- drawn on the screen: small iPhones that appear only while sending or receiving, and the heading ---- */
@@ -102,9 +102,10 @@ export const PhotoUI: React.FC<{ te: number; RT: Pt[]; scr: Scr }> = ({ te, RT, 
   const W = isWide(), Z = W ? 1.5 : 1.05, ZR = W ? 1.5 : 1.25, PHIS = W ? { x: -340, y: 330 } : { x: 650, y: 470 }, PHER = W ? { x: 1050, y: 440 } : { x: 600, y: 560 };   // wide film: bigger phones, beside the middle column
   const home = scr(RT[0]), cityR = scr(RT[3]);
   const head = te < B_END + 0.2 ? seg(te, B0 - 0.6, B0 - 0.2) : 0, head2 = seg(te, 12.0, 12.4);
-  const chip = (txt: string, sub: string, col: string, a: number) => a > 0 ? <div style={{ position: 'absolute', left: 372, top: 250, width: 400, opacity: a, transform: `translateY(${(1 - a) * -16}px)`, textAlign: 'left' }}>
-    <div style={{ display: 'inline-block', padding: '10px 22px', borderRadius: 18, background: 'rgba(10,14,36,.9)', border: `3px solid ${col}`, font: `800 33px ${FONT.ui}`, color: '#fff', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>{txt}</div>
-    <div style={{ font: `600 22px ${FONT.mono}`, color: col, marginTop: 8, textShadow: '0 2px 6px rgba(0,0,0,.9)' }}>{sub}</div></div> : null;
+  const chip = (txt: string, sub: string, col: string, a: number) => a > 0 ? <div style={{ position: 'absolute', left: 0, right: 0, top: 236, display: 'flex', justifyContent: 'center', opacity: a, transform: `translateY(${(1 - a) * -16}px)` }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '14px 34px 16px', borderRadius: 28, background: 'rgba(10,14,36,.9)', border: `3px solid ${col}`, boxShadow: '0 16px 44px rgba(0,0,0,.5)', textAlign: 'center' }}>
+      <div style={{ font: `800 44px/1.05 ${FONT.ui}`, color: '#fff', letterSpacing: '0.03em', whiteSpace: 'nowrap' }}>{txt}</div>
+      <div style={{ font: `600 27px/1.15 ${FONT.mono}`, color: col, whiteSpace: 'nowrap' }}>{sub}</div></div></div> : null;
   /* 1) one big block: he taps send, the whole photo jumps out to his router, the phone is gone */
   const o1 = easeOut(seg(te, 0.9, 1.3)) * (1 - seg(te, 3.5, 3.85)), tap1 = te > 3.02 && te < 3.2, sent1 = te >= 3.15, j1 = easeInOut(seg(te, 3.15, 3.65));
   /* 2) packets: the photo is cut into squares in his phone, he taps send, they all jump out and queue above his router */
@@ -117,19 +118,19 @@ export const PhotoUI: React.FC<{ te: number; RT: Pt[]; scr: Scr }> = ({ te, RT, 
   return <>
     {chip('WITHOUT PACKETS', 'the photo as one big piece', '#ffb020', head)}
     {chip('WITH PACKETS', 'what the internet really does', '#5fe3ff', head2)}
-    {o1 > 0 && <IPhone left={PHIS.x} top={PHIS.y} o={o1} k={Z} name="Her" avatar="#ff8672">
+    {o1 > 0 && <IPhone left={PHIS.x} top={PHIS.y} o={o1} k={Z} name="Meera" avatar="#ff8672">
       <div style={{ paddingTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}><div style={{ opacity: sent1 ? 0.15 : 1 }}><Pic id="pa" s={TH} tiles={Array(36).fill(true)} grid={0} /></div><Note c="#ffd27a">{sent1 ? 'sending as 1 block…' : 'photo.jpg · 3 MB'}</Note></div>
       <Compose bottom={18} ready={!sent1} press={tap1} text={<span style={{ color: '#6b6b70' }}>{sent1 ? 'iMessage' : '1 photo'}</span>} />
     </IPhone>}
     {sent1 && j1 < 1 && (() => { const q = arc([PHIS.x + Z * (THX + TH / 2), PHIS.y + Z * (THY + TH / 2)], [home[0], home[1] - 34], j1, 120), sz = lerp(TH * Z, 112, j1); return <div style={{ position: 'absolute', left: q[0] - sz / 2, top: q[1] - sz / 2, boxShadow: '0 0 34px rgba(255,180,94,.9)', borderRadius: 10 }}><Pic id="pj" s={sz} tiles={Array(36).fill(true)} grid={0} /></div>; })()}
-    {o2 > 0 && <IPhone left={PHIS.x} top={PHIS.y} o={o2} k={Z} name="Her" avatar="#ff8672">
+    {o2 > 0 && <IPhone left={PHIS.x} top={PHIS.y} o={o2} k={Z} name="Meera" avatar="#ff8672">
       <div style={{ paddingTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}><Pic id="pc" s={TH} tiles={PK.map((p) => bst(p.i) <= 0)} grid={grid} /><Note>{grid > 0 ? 'about 2,000 packets' : 'photo.jpg · 3 MB'}</Note></div>
       <Compose bottom={18} ready={te < 13.35} press={tap2} text={<span style={{ color: '#6b6b70' }}>{te < 13.35 ? '1 photo' : 'iMessage'}</span>} />
     </IPhone>}
     {/* the squares in flight from his phone, then waiting above his router until their turn */}
     {te > 13.3 && PK.map((p) => { const u = bst(p.i); if (u <= 0 || te >= p.dep) return null; const q = arc(thumb(p.i), mos(p.i), easeInOut(u), 60 + (p.i % 6) * 8); return <Tile key={'m' + p.i} i={p.i} s={lerp(Z * TH / 6, MC - 1, u)} x={q[0]} y={q[1]} />; })}
     {mosO > 0 && <div style={{ position: 'absolute', left: home[0] - 78, top: home[1] - 226, width: 220, opacity: mosO, textAlign: 'center' }}><span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: 12, background: 'rgba(10,14,36,.92)', border: '2px solid #5fe3ff', font: `600 18px ${FONT.mono}`, color: '#eef1ff', whiteSpace: 'nowrap' }}>sent {Math.round((sentN / N) * 2000).toLocaleString('en-US')} of 2,000</span></div>}
-    {o3 > 0 && <IPhone left={PHER.x} top={PHER.y} o={o3} k={ZR} name="Him" avatar="#3fb8a8">
+    {o3 > 0 && <IPhone left={PHER.x} top={PHER.y} o={o3} k={ZR} name="Arjun" avatar="#3fb8a8">
       <div style={{ position: 'absolute', left: GRX - SCR.x, top: GRY - SCR.y - 96, width: GR, height: GR, borderRadius: 10, background: '#111318', boxShadow: glow > 0 ? `0 0 ${30 * glow}px 4px #5fe3ff` : 'inset 0 0 0 1px #2c2c2e' }} />
       <div style={{ position: 'absolute', left: 0, right: 0, top: GRY - SCR.y - 96 + GR + 10 }}>{sorted ? <><Note c="#7dffb0">✓ photo received</Note><Note c="#eef1ff">back in order</Note></> : te >= REORD ? <><Note>sorting by number…</Note><Note c="#eef1ff">1, 2, 3, 4 …</Note></> : <><Note>receiving packets</Note><Note c="#eef1ff">{Math.round((landed / N) * 2000).toLocaleString('en-US')} of 2,000</Note></>}</div>
       <Compose bottom={18} text={<span style={{ color: '#6b6b70' }}>iMessage</span>} />

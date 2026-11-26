@@ -8,6 +8,30 @@ import { Adult, A_SHOULDER, A_UPPER, A_FORE } from './Adult';
 import type { StickPose } from './Dusk';
 
 /* Three cutaway shots that drop into the existing film. Each runs on the clock of the scene it interrupts, so the narration stays in sync. */
+/* ---- word-by-word captions: spoken words white, the word being said in a highlight box, the rest dim ---- */
+type CW = { s: string; em: boolean };
+/* words of a caption; punctuation written right after a word stays glued to it */
+const flat = (n: React.ReactNode, em = false, out: CW[] = [], st = { sp: true }): CW[] => {
+  if (n === null || n === undefined || typeof n === 'boolean') return out;
+  if (typeof n === 'string' || typeof n === 'number') {
+    const str = String(n); str.split(/(\s+)/).forEach((tok) => { if (!tok) return; if (/^\s+$/.test(tok)) { st.sp = true; return; }
+      if (!st.sp && out.length) out[out.length - 1].s += tok; else out.push({ s: tok, em }); st.sp = false; });
+    return out; }
+  if (Array.isArray(n)) { n.forEach((c) => flat(c, em, out, st)); return out; }
+  const el = n as React.ReactElement<{ children?: React.ReactNode }>;
+  if (el && el.props) flat(el.props.children, em || el.type === 'em', out, st);
+  return out; };
+export const Kar: React.FC<{ node: React.ReactNode; p: number }> = ({ node, p }) => {
+  const ws = flat(node), tot = ws.reduce((a, w) => a + w.s.length + 1, 0); let acc = 0, cur = ws.length;
+  const ends = ws.map((w) => (acc += w.s.length + 1) / tot); for (let i = 0; i < ws.length; i++) if (p <= ends[i]) { cur = i; break; }
+  if (p >= 1) cur = ws.length;
+  return <>{ws.map((w, i) => { const on = i === cur, done = i < cur;
+    return <React.Fragment key={i}><span style={{ color: w.em && (done || on) ? '#ffd38a' : done || on ? '#fff' : 'rgba(255,255,255,.52)', background: on ? 'rgba(46,70,160,.62)' : 'none', boxShadow: on ? '0 0 0 3px rgba(130,170,255,.85)' : 'none', borderRadius: 12, padding: '0 .12em', margin: '0 -.12em', WebkitBoxDecorationBreak: 'clone' }}>{w.s}</span>{i < ws.length - 1 ? ' ' : ''}</React.Fragment>; })}</>; };
+/* the caption that belongs at time t in a list of [start, text] pairs, and how far through its speech we are (0 to 1) */
+export const capAt = (list: [number, React.ReactNode][], t: number, cps = 16) => {
+  let k = -1; list.forEach(([a], i) => { if (t >= a) k = i; }); if (k < 0 || list[k][1] === null) return null;
+  const [a, node] = list[k], next = k + 1 < list.length ? list[k + 1][0] : a + 3, len = flat(node).reduce((x, w) => x + w.s.length + 1, 0), dur = Math.max(0.5, Math.min(next - a, len / cps));
+  return { node, p: (t - a) / dur }; };
 export const Sub: React.FC<{ children: React.ReactNode }> = ({ children }) => (<><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{children}</div></div><style>{'.sub{text-wrap:balance}.sub em{font-style:normal;color:#ffd38a}'}</style></>);
 export const Mark: React.FC = () => (<div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}><Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span></div>);
 export const Panel: React.FC<{ o?: number; children: React.ReactNode }> = ({ o = 1, children }) => (<div style={{ position: 'absolute', top: 226, left: 70, right: 70, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.86)', border: '1px solid rgba(160,176,255,.25)', boxShadow: '0 20px 60px rgba(0,0,0,.45)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: o }}>{children}</div>);

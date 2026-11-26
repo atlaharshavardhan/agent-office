@@ -1,6 +1,7 @@
 import React from 'react';
 import { fx, fw, isWide } from '../lib/wide';
 import { MARK_O } from '../lib/mark';
+import { Kar, capAt } from './Extras';
 import { AbsoluteFill, Audio, Img, staticFile, useCurrentFrame } from 'remotion';
 import '@fontsource/manrope/700.css'; import '@fontsource/manrope/800.css'; import '@fontsource/ibm-plex-mono/600.css';
 import { FPS, hash, lerp, prog, clamp01, easeOut, easeInOut } from '../lib/anim';
@@ -112,15 +113,15 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
   /* phones: in the wide film they are bigger and stand beside the middle column instead of on it */
   const KP = isWide() ? 1.6 : 1.0, HIS = isWide() ? { x: 1030, y: 330 } : { x: 720, y: 440 }, HER = isWide() ? { x: 1010, y: 330 } : { x: 690, y: 500 };
   const scr = (p: readonly number[]) => [540 + cam.z * (p[0] - cam.x), 960 + cam.z * (p[1] - cam.y)] as const;
-  const edge = (wx: number, half: number) => { const sx = 540 + cam.z * (wx - cam.x), h = half * cam.z; return isWide() ? 1 : clamp01((Math.min(sx - h, 1080 - sx - h) + 6) / 30); };   // 0 when a label would be cut by the frame edge
-  let line: React.ReactNode = null; for (const [a, txt] of VO) if (t >= a) line = txt;
-  if (X && te >= 0) { line = null; for (const [a, b, x] of plan1.subs as [number, number, string][]) if (te >= a && te < b) line = x.split('*').map((p, i) => (i % 2 ? <em key={i}>{p}</em> : <React.Fragment key={i}>{p}</React.Fragment>)); }
+  const edge = (wx: number, half: number) => { const sx = 540 + cam.z * (wx - cam.x), h = half * cam.z; return isWide() ? 1 : clamp01((Math.min(sx - h, 1080 - sx - h) - 14) / 30); };   // 0 when a label would be cut by the frame edge
+  const cpC = capAt(VO, t); let line: React.ReactNode = cpC ? <Kar node={cpC.node} p={cpC.p} /> : null;
+  if (X && te >= 0) { line = null; for (const [a, b, x] of plan1.subs as [number, number, string][]) if (te >= a && te < b) line = <Kar node={x.split('*').map((p, i) => (i % 2 ? <em key={i}>{p}</em> : <React.Fragment key={i}>{p}</React.Fragment>))} p={(te - a) / (b - a - 0.1)} />; }
   const router = (i: number, a: number, name: string) => { const on = onR(i), rt = i < 4; return a > 0 ? <g key={'r' + i} opacity={a * (rt ? 1 : lerp(1, 0.45, webA))}>
     <line x1={RB[i][0]} y1={RB[i][1]} x2={RT[i][0]} y2={RT[i][1] + (1 - a) * 60} stroke="#2b2e3a" strokeWidth={7} strokeLinecap="round" />
     <g transform={`translate(${RT[i][0]} ${RT[i][1] + (1 - a) * 60})`}><circle r={60} fill="url(#cDot)" />{on > 0 && <circle r={120} fill="url(#cPk)" opacity={on * (0.75 + 0.25 * Math.sin(t * 6))} />}
       {rt && [0, 0.28].map((d) => { const u = (t - TA[i] - d) / 0.95; return u > 0 && u < 1 ? <circle key={d} r={42 + u * 135} fill="none" stroke="#7fe9ff" strokeWidth={6 * (1 - u) + 1} opacity={(1 - u) * 0.8} /> : null; })}
       <line x1={-20} y1={-10} x2={-27} y2={-42} stroke={on > 0.5 ? '#bff4ff' : '#d9d6cf'} strokeWidth={4} strokeLinecap="round" /><line x1={20} y1={-10} x2={27} y2={-42} stroke={on > 0.5 ? '#bff4ff' : '#d9d6cf'} strokeWidth={4} strokeLinecap="round" /><rect x={-36} y={-15} width={72} height={30} rx={8} fill="#f3f0ea" stroke="#5fe3ff" strokeWidth={5 * on} />{[0, 1, 2, 3].map((k) => <circle key={k} cx={-21 + k * 14} cy={0} r={3.6 + on * 0.8} fill={on > 0.5 ? '#19c8f0' : Math.sin(t * 9 + k * 1.7 + i) > 0 ? '#3ddc97' : '#1f6a4c'} />)}
-      {name && <text y={44} textAnchor="middle" style={{ font: `800 22px ${FONT.ui}` }} fill="#dffbff" stroke="#0a0e24" strokeWidth={6} paintOrder="stroke">{name}</text>}</g></g> : null; };
+      {name && <text y={44} textAnchor="middle" opacity={edge(RT[i][0], 78)} style={{ font: `800 22px ${FONT.ui}` }} fill="#dffbff" stroke="#0a0e24" strokeWidth={6} paintOrder="stroke">{name}</text>}</g></g> : null; };
   const FC = ['#16303f', '#1a3644', '#14293a', '#1d3a3f', '#182f48'];
   return (
     <AbsoluteFill style={{ backgroundColor: '#0d1830' }}>
@@ -192,7 +193,7 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
           
           
           {/* city name plates, on the front edge of each border */}
-          {CT.slice(0, 4).map((q, i) => { const c = g(i), r = (q.r + 2.0) * S * 0.92, hero = i === 0 || i === 3, w = NAMES[i].length * (hero ? 23 : 18) + 44; const sy = 960 + cam.z * (c[1] + r * 0.58 + 4 - cam.y); return <g key={'nm' + i} opacity={clamp01((Math.abs(sy - 1345) - 140) / 50) * edge(c[0], w / 2)} transform={`translate(${c[0]} ${c[1] + r * 0.58 + 4})`}><rect x={-w / 2} y={-24} width={w} height={hero ? 52 : 42} rx={14} fill={hero ? (i ? '#ff6f91' : '#2f9c95') : '#1a2250'} stroke={hero ? '#fff' : '#aab6ee'} strokeWidth={hero ? 3 : 2} /><text y={hero ? 13 : 6} textAnchor="middle" style={{ font: `800 ${hero ? 34 : 26}px ${FONT.ui}`, letterSpacing: '0.04em' }} fill="#fff">{NAMES[i]}</text></g>; })}
+          {CT.slice(0, 4).map((q, i) => { if (i === 1 || i === 2) return null; const c = g(i), r = (q.r + 2.0) * S * 0.92, hero = i === 0 || i === 3, w = NAMES[i].length * (hero ? 23 : 18) + 44; const sy = 960 + cam.z * (c[1] + r * 0.58 + 4 - cam.y); return <g key={'nm' + i} opacity={clamp01((Math.abs(sy - 1345) - 140) / 50) * clamp01((1450 - sy) / 25) * clamp01((sy - 240) / 25) * edge(c[0], w / 2)} transform={`translate(${c[0]} ${c[1] + r * 0.58 + 4})`}><rect x={-w / 2} y={-24} width={w} height={hero ? 52 : 42} rx={14} fill={hero ? (i ? '#ff6f91' : '#2f9c95') : '#1a2250'} stroke={hero ? '#fff' : '#aab6ee'} strokeWidth={hero ? 3 : 2} /><text y={hero ? 13 : 6} textAnchor="middle" style={{ font: `800 ${hero ? 34 : 26}px ${FONT.ui}`, letterSpacing: '0.04em' }} fill="#fff">{NAMES[i]}</text></g>; })}
         </g>
       </svg>
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}><rect x={fx()} width={fw()} height={1920} fill="url(#cHaze)" style={{ mixBlendMode: 'screen' }} /><rect x={fx()} width={fw()} height={1920} fill="url(#cVig)" /><rect x={fx()} width={fw()} height={1920} filter="url(#cGrain)" opacity={0.1} style={{ mixBlendMode: 'overlay' }} /></svg>
@@ -203,7 +204,7 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
       {/* his small iPhone: he types Hello and taps send, the message jumps out to the home router, and the phone is gone */}
       {t > 7.4 && t < 9.2 && (() => { const o = prog(f, 7.4, 7.8, easeOut) * (1 - prog(f, 8.85, 9.15)), n = Math.max(0, Math.min(5, Math.floor((t - 7.9) / 0.12))), typed = 'Hello'.slice(0, n), sent = t >= 8.7, press = t > 8.58 && t < 8.76;
         const hit = !sent && t >= 7.9 && n < 5 && (t - 7.9) % 0.12 < 0.085 ? 'hello'[n] : undefined;
-        return <IPhone left={HIS.x} top={HIS.y} o={o} k={KP} name="Her" avatar="#ff8672">
+        return <IPhone left={HIS.x} top={HIS.y} o={o} k={KP} name="Meera" avatar="#ff8672">
           <Compose bottom={148} press={press} ready={n > 0 && !sent} text={sent ? <span style={{ color: '#6b6b70' }}>iMessage</span> : n === 0 ? <><span style={{ opacity: Math.sin(t * 10) > 0 ? 1 : 0, color: '#0a84ff' }}>|</span><span style={{ color: '#6b6b70' }}>iMessage</span></> : <>{typed}<span style={{ opacity: Math.sin(t * 10) > 0 ? 1 : 0, color: '#0a84ff' }}>|</span></>} />
           <Keyboard hit={hit} />
         </IPhone>; })()}
@@ -212,7 +213,7 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
           {[0.25, 0.5, 0.75].map((k) => <div key={k} style={{ position: 'absolute', left: lerp(sx, q[0], u * k), top: lerp(sy, q[1], u * k) - 110 * Math.sin(Math.PI * u * k), width: 10, height: 10, borderRadius: 5, background: '#9fe9ff', opacity: 0.7 * k, transform: 'translate(-50%,-50%)' }} />)}</>; })()}
       {/* her small iPhone pops up only when the message arrives */}
       {t > H0 + 2.35 && te < 0.4 && (() => { const o = prog(f, H0 + 2.35, H0 + 2.7, easeOut) * (1 - clamp01(te / 0.35)), inn = prog(f, H0 + 2.75, H0 + 3.0, easeOut), reply = prog(f, H0 + 3.25, H0 + 3.55, easeOut), q = scr(RT[3]), u = prog(f, H0 + 2.45, H0 + 2.8);
-        return <><IPhone left={HER.x} top={HER.y} o={o} k={KP} name="Him" avatar="#3fb8a8">
+        return <><IPhone left={HER.x} top={HER.y} o={o} k={KP} name="Arjun" avatar="#3fb8a8">
           <div style={{ padding: '16px 10px 0' }}>
             {inn > 0 && <Bubble style={{ opacity: inn, transform: `scale(${0.6 + 0.4 * inn})`, transformOrigin: 'left bottom', boxShadow: `0 0 ${22 * (1 - prog(f, H0 + 3.0, H0 + 3.5))}px rgba(95,227,255,.9)` }}>Hello</Bubble>}
             {reply > 0 && <Bubble mine style={{ marginTop: 10, opacity: Math.min(1, reply * 2), transform: `translateY(${(1 - reply) * 18}px) scale(${0.5 + 0.5 * reply + 0.2 * Math.sin(Math.PI * reply)})`, transformOrigin: 'right bottom' }}>Hi! ❤️</Bubble>}
