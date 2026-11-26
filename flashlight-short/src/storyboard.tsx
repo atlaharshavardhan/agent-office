@@ -4,9 +4,10 @@
 // Every editable piece (hands, wires, bulbs, switch, reflector, light) sits in its own <g id="...">.
 import React from 'react';
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
+import { step as stepK } from './kit';
 import {
   INK, W, H, P, Svg, Person, STU, FRD, HANDS, Hand, PlaceHand, HandSpec, LEGS_STAND, toHand, unlean, anchorHand,
-  Tag, MiniBulb, Socket, Pack, PushSwitch, Wire, Candle, BowlTop, ToyCar, FoilSheet, WindowFrame, ChalkSketches, Pose,
+  Tag, MiniBulb, Socket, HeadP, Pack, PushSwitch, Wire, Candle, BowlTop, ToyCar, FoilSheet, WindowFrame, ChalkSketches, Pose,
 } from './kit';
 
 // ------------------------------------------------------------------ shared defs
@@ -45,6 +46,27 @@ const figToWorld = (S: { x: number; y: number; s: number }, flip: boolean, lean:
 const MOUTH: P = [38 + 0.8 * 184, -6 + 0.8 * 158];
 const worldToArm = (S: { x: number; y: number; s: number }, lean: number, w: P, flip = false): P => unlean(toFig(S.x, S.y, S.s, flip, w), lean);
 
+// ---- a walk cycle for a figure facing right; ph in cycles (0..1 = one full stride of both legs)
+export const walkPose = (ph: number, head: HeadP = { eye: 'fwd', mouth: 'flat' }): Pose => {
+  const a = Math.sin(ph * 2 * Math.PI);            // +1: near leg forward
+  const lift = (x: number) => Math.max(0, Math.sin(ph * 2 * Math.PI + x));
+  const leg = (hip: P, sgn: number, off: number) => {
+    const th = 26 * sgn * a;                         // thigh angle from vertical, + = forward
+    const flex = 6 + 34 * lift(off);                 // the knee bends on the swing forward
+    const kn = stepK(hip, th, 214), an = stepK(kn, th - flex, 196);
+    return { kn, an, toe: -th * 0.5 + flex * 0.4 };
+  };
+  const hipN: P = [96, 556], hipF: P = [112, 556];
+  const arm = (sh: P, sgn: number) => { const t = -22 * sgn * a; const el = stepK(sh, t, 166); return { el, wr: stepK(el, t + 16, 146) }; };
+  const aN = arm([96, 236], 1), aF = arm([116, 232], -1);
+  return {
+    head, lean: 3,
+    near: { ...aN, hand: HANDS.relaxed }, far: { ...aF, hand: HANDS.relaxed },
+    legN: leg(hipN, 1, Math.PI / 2 + Math.PI), legF: leg(hipF, -1, Math.PI / 2),
+  };
+};
+const walkBob = (ph: number) => -7 * Math.abs(Math.cos(ph * 2 * Math.PI));
+
 // ================================================================== 01 · the room (wide three-quarter view)
 // perspective: back wall x 300..1080, y 260..1240; left wall recedes from x 0 to 300.
 const wallTop = (x: number) => 60 + (x / 300) * 200;
@@ -53,7 +75,7 @@ const onLeftWall = (x: number, f: number) => wallBot(x) - f * (wallBot(x) - wall
 const DOOR = { x0: 52, x1: 252, top: 0.73 };
 const HANDLE: P = [222, onLeftWall(222, 0.36)];
 
-const Room: React.FC<{ lit: boolean }> = ({ lit }) => {
+const Room: React.FC<{ lit: boolean; pull?: number; fx?: number; fph?: number }> = ({ lit, pull = 0.45, fx = 0, fph = 0.3 }) => {
   const dq = (x: number, f: number): P => [x, onLeftWall(x, f)];
   const door = [dq(DOOR.x0, 0), dq(DOOR.x0, DOOR.top), dq(DOOR.x1, DOOR.top), dq(DOOR.x1, 0)];
   const frame = [dq(DOOR.x0 - 18, -0.005), dq(DOOR.x0 - 18, DOOR.top + 0.03), dq(DOOR.x1 + 14, DOOR.top + 0.03), dq(DOOR.x1 + 14, -0.005)];
@@ -61,12 +83,12 @@ const Room: React.FC<{ lit: boolean }> = ({ lit }) => {
   const panel = (x0: number, x1: number, f0: number, f1: number) => poly([dq(x0, f0), dq(x0, f1), dq(x1, f1), dq(x1, f0)]);
   // student at the door: faces LEFT, leans back, near hand grips the lever, far hand braces on the frame
   const S = { x: 520, y: 700, s: 0.86 };
-  const lean = -9;
+  const lean = -5 - 9 * pull;
   const grip = toFig(S.x, S.y, S.s, true, [HANDLE[0] - 4, HANDLE[1] + 2]);
   const brace = toFig(S.x, S.y, S.s, true, [HANDLE[0] - 22, HANDLE[1] + 5]);
   const wrN = unlean([grip[0] - 50, grip[1] + 8], lean), wrF = unlean([brace[0] - 50, brace[1] + 2], lean);
   const pose: Pose = {
-    lean, head: { mouth: 'grit', brow: -2, browTilt: 5, eye: 'fwd' }, headTilt: 4,
+    lean, head: { mouth: 'grit', brow: -2, browTilt: 5, eye: 'fwd' }, headTilt: 2 + 5 * pull,
     near: { el: [210, 345], wr: wrN, hand: HANDS.fist, toward: unlean(grip, lean) },
     far: { el: [190, 370], wr: wrF, hand: HANDS.fist, toward: unlean(brace, lean) },
     legN: { kn: [60, 770], an: [10, 960], toe: -6 }, legF: { kn: [140, 770], an: [150, 962] },
@@ -94,7 +116,7 @@ const Room: React.FC<{ lit: boolean }> = ({ lit }) => {
       <line x1={300} y1={260} x2={300} y2={1240} stroke="#3a2215" strokeWidth={4} />
 
       {/* LEFT: the door, FULLY CLOSED and flush in its frame */}
-      <g id="door">
+      <g id="door" transform={`translate(${(pull - 0.45) * 3} 0)`}>
         <polygon points={poly(frame)} fill="#5a3620" stroke={INK} strokeWidth={3} />
         <polygon points={poly(door)} fill="url(#r-door)" stroke={INK} strokeWidth={3} />
         <polygon points={panel(DOOR.x0 + 26, DOOR.x1 - 26, 0.08, 0.33)} fill="none" stroke="#5e3a20" strokeWidth={5} />
@@ -123,7 +145,7 @@ const Room: React.FC<{ lit: boolean }> = ({ lit }) => {
           {[0, 1, 2].map((i) => [0, 1].map((j) => <rect key={`${i}${j}`} x={12 + i * 34} y={150 + j * 60} width={20} height={30} fill={lit ? '#f7c66c' : '#262c48'} opacity={0.9} />))}
           <rect x={0} y={330} width={180} height={140} fill={lit ? '#5a5f7a' : '#2a3050'} />
           <rect x={0} y={330} width={180} height={10} fill={lit ? '#8a8ea4' : '#4a5274'} />
-          <g id="friend-in-window" transform="translate(60 286) scale(0.13)" filter={lit ? undefined : 'url(#cool)'}><Person who="friend" pal={FRD} pose={{ head: {}, near: { el: [80, 400], wr: [70, 540], hand: HANDS.fist }, far: { el: [140, 400], wr: [180, 530], hand: HANDS.fist }, legN: { kn: [150, 770], an: [180, 960] }, legF: { kn: [80, 770], an: [40, 950], toe: 20 } }} /></g>
+          <g id="friend-in-window" transform={`translate(${60 + fx} ${286 + walkBob(fph) * 0.13}) scale(0.13)`} filter={lit ? undefined : 'url(#cool)'}><Person who="friend" pal={FRD} pose={walkPose(fph)} /></g>
         </g>} />
       </g>
 
@@ -178,17 +200,19 @@ const Room: React.FC<{ lit: boolean }> = ({ lit }) => {
     </g>
   );
 };
-export const S01A: React.FC = () => <Frame bg="#2a1a12"><Room lit /></Frame>;
-export const S01B: React.FC = () => <Frame bg="#0e1328"><Room lit={false} /></Frame>;
+type RoomM = { pull?: number; fx?: number; fph?: number };
+export const S01A: React.FC<RoomM> = (m) => <Frame bg="#2a1a12"><Room lit {...m} /></Frame>;
+export const S01B: React.FC<RoomM> = (m) => <Frame bg="#0e1328"><Room lit={false} {...m} /></Frame>;
 
 // ================================================================== 02A · calling from the open window (interior, side profile)
-export const S02A: React.FC = () => {
+export const S02A: React.FC<{ wave?: number; push?: number }> = ({ wave = 0.25, push = 0 }) => {
   const S = { x: 236, y: 440, s: 1.45 };
-  const lean = 22, tilt = -10;
+  const lean = 22 + 4 * push, tilt = -10 - 3 * push;
+  const wv: P = [900 + 46 * Math.sin(wave * 2 * Math.PI), 540 + 26 * Math.cos(wave * 4 * Math.PI)];
   const pose: Pose = {
     lean, head: { mouth: 'shout', brow: 9, browTilt: -3, eye: 'fwd' }, headTilt: tilt,
     near: { el: worldToArm(S, lean, [560, 1010]), wr: worldToArm(S, lean, [650, 1150]), hand: HANDS.flat, toward: worldToArm(S, lean, [800, 1176]) },
-    far: { el: worldToArm(S, lean, [790, 720]), wr: worldToArm(S, lean, [900, 540]), hand: HANDS.spread, toward: worldToArm(S, lean, [930, 420]) },
+    far: { el: worldToArm(S, lean, [790 + (wv[0] - 900) * 0.35, 720]), wr: worldToArm(S, lean, wv), hand: HANDS.spread, toward: worldToArm(S, lean, [wv[0] + 30 + (wv[0] - 900) * 0.8, wv[1] - 120]) },
     ...LEGS_STAND,
   };
   const m = figToWorld(S, false, lean, tilt, MOUTH, true);
@@ -221,7 +245,7 @@ export const S02A: React.FC = () => {
       </g>
       <Place x={S.x} y={S.y} s={S.s} id="student" filter="cool"><Person who="stu" pal={STU} pose={pose} /></Place>
       {/* his shout carries out of the window: sound arcs only, no words */}
-      <g id="shout-arcs" stroke="#e8eeff" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.9}>
+      <g id="shout-arcs" stroke="#e8eeff" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.35 + 0.6 * push}>
         {[0, 1, 2].map((i) => { const x = m[0] + 34 + i * 30, r = 26 + i * 18; return <path key={i} d={`M ${x} ${m[1] - r} Q ${x + r * 0.7} ${m[1]} ${x} ${m[1] + r}`} />; })}
       </g>
       <Glow x={820} y={600} r={460} o={0.35} grad="coolSoft" />
@@ -278,17 +302,20 @@ const friendWalk: Pose = {
   legN: { kn: [150, 770], an: [188, 962] }, legF: { kn: [86, 776], an: [30, 948], toe: 22 },
 };
 
-export const S02B: React.FC = () => (
+export const S02B: React.FC<{ x?: number; ph?: number }> = ({ x, ph }) => (
   <Frame bg="#0b1330">
     <Street state="empty" />
-    <Place x={420} y={FRIEND_Y} s={0.9} id="friend" filter="cool"><Person who="friend" pal={FRD} pose={friendWalk} /></Place>
+    {x === undefined
+      ? <Place x={420} y={FRIEND_Y} s={0.9} id="friend" filter="cool"><Person who="friend" pal={FRD} pose={friendWalk} /></Place>
+      : <Place x={x} y={FRIEND_Y + walkBob(ph!) * 0.9} s={0.9} id="friend" filter="cool"><Person who="friend" pal={FRD} pose={walkPose(ph!)} /></Place>}
   </Frame>
 );
 
 // ================================================================== 03 · the candle, from the street
 const WS = { x: 140, y: 352, s: 0.62 }; // the student framed in his window (03 and 09)
-export const S03: React.FC = () => {
+export const S03: React.FC<{ x?: number; ph?: number; flick?: number }> = ({ x, ph, flick = 0 }) => {
   const lean = 8, tilt = 12;
+  const fl = 1 + 0.08 * Math.sin(flick * 7.1) + 0.05 * Math.sin(flick * 12.7);
   const candleAt: P = [336, 600];
   const pose: Pose = {
     lean, head: { eye: 'downfwd', mouth: 'flat', brow: 2 }, headTilt: tilt,
@@ -302,11 +329,13 @@ export const S03: React.FC = () => {
         <Place x={WS.x} y={WS.y} s={WS.s} id="student" filter="dusk"><Person who="stu" pal={STU} pose={pose} /></Place>
         <g id="candle" transform={`translate(${candleAt[0]} ${candleAt[1]}) scale(0.34)`}><Candle id="c3" glow={0} /></g>
         {/* the candle lights only the front of his face */}
-        <Glow x={candleAt[0] - 10} y={candleAt[1] - 70} r={90} o={0.85} />
+        <Glow x={candleAt[0] - 10} y={candleAt[1] - 70} r={90 * fl} o={0.85} />
       </Street>
       {/* from the pavement it is only a small warm point */}
-      <g id="candle-glow"><Glow x={candleAt[0]} y={candleAt[1] - 62} r={40} o={0.7} /></g>
-      <Place x={560} y={FRIEND_Y} s={0.9} id="friend" filter="cool"><Person who="friend" pal={FRD} pose={{ ...friendWalk, legN: friendWalk.legF, legF: friendWalk.legN, near: friendWalk.far, far: friendWalk.near }} /></Place>
+      <g id="candle-glow"><Glow x={candleAt[0]} y={candleAt[1] - 62} r={40 * fl} o={0.7} /></g>
+      {x === undefined
+        ? <Place x={560} y={FRIEND_Y} s={0.9} id="friend" filter="cool"><Person who="friend" pal={FRD} pose={{ ...friendWalk, legN: friendWalk.legF, legF: friendWalk.legN, near: friendWalk.far, far: friendWalk.near }} /></Place>
+        : <Place x={x} y={FRIEND_Y + walkBob(ph!) * 0.9} s={0.9} id="friend" filter="cool"><Person who="friend" pal={FRD} pose={walkPose(ph!)} /></Place>}
     </Frame>
   );
 };
@@ -371,14 +400,17 @@ const SOCK: P = [540, 1060], SS = 2.3;
 const term = (side: -1 | 1): P => [SOCK[0] + side * 52 * SS, SOCK[1] + 12 * SS];
 const HS = 2.25;
 
-const BulbSetup04: React.FC<{ after: boolean }> = ({ after }) => {
+export type M04 = { tip: P; ldir: number; hdir: number; bulb: 'off' | 'lit' | 'burnt'; smoke: number };
+const M04A: M04 = { tip: [20, 4], ldir: 196, hdir: -110, bulb: 'off', smoke: 0 };
+const M04B: M04 = { tip: [70, 46], ldir: 205, hdir: -100, bulb: 'burnt', smoke: 1 };
+const BulbSetup04: React.FC<{ m: M04 }> = ({ m }) => {
   // left hand steadies the socket: index on the far side of the black collar, thumb on the near side
   const L = fpHand(STEADY, 'f0', [SOCK[0] - 30, SOCK[1] - 84], -58, HS, true, [SOCK[0] - 50, SOCK[1] - 6]);
   // right hand pinches the red lead; the bare tip stops just short of the right terminal (before), then has jerked away (after)
-  const tipEnd: P = after ? [term(1)[0] + 70, term(1)[1] + 46] : [term(1)[0] + 20, term(1)[1] + 4];
-  const ldir = after ? 205 : 196; // direction from the pinch toward the tip
+  const tipEnd: P = [term(1)[0] + m.tip[0], term(1)[1] + m.tip[1]];
+  const ldir = m.ldir; // direction from the pinch toward the tip
   const pinch: P = [tipEnd[0] - Math.cos((ldir * Math.PI) / 180) * 110, tipEnd[1] - Math.sin((ldir * Math.PI) / 180) * 110];
-  const R = fpHand(PINCH, 'f0', pinch, after ? -100 : -110, HS);
+  const R = fpHand(PINCH, 'f0', pinch, m.hdir, HS);
   const leadBack: P = [pinch[0] - Math.cos((ldir * Math.PI) / 180) * 60, pinch[1] - Math.sin((ldir * Math.PI) / 180) * 60];
   return (
     <g>
@@ -397,10 +429,10 @@ const BulbSetup04: React.FC<{ after: boolean }> = ({ after }) => {
       <g id="wire-black"><Wire d={`M 300 730 C 380 700 400 860 380 960 C 370 1040 380 1090 ${term(-1)[0]} ${term(-1)[1]}`} c="#1d1d22" w={11} /></g>
       {/* socket and the bulb */}
       <g id="socket" transform={`translate(${SOCK[0]} ${SOCK[1]}) scale(${SS})`}><Socket /></g>
-      <g id="bulb" transform={`translate(${SOCK[0]} ${SOCK[1] - 34 * SS}) scale(${SS})`}><MiniBulb state={after ? 'burnt' : 'off'} id={after ? 'b4b' : 'b4a'} /></g>
+      <g id="bulb" transform={`translate(${SOCK[0]} ${SOCK[1] - 34 * SS}) scale(${SS})`}><MiniBulb state={m.bulb} id={`b4${m.bulb}`} /></g>
       <Tag x={SOCK[0] + 210} y={SOCK[1] - 270} t="3 V" s={1.15} rot={6} />
       <path d={`M ${SOCK[0] + 166} ${SOCK[1] - 256} C ${SOCK[0] + 120} ${SOCK[1] - 200} ${SOCK[0] + 70} ${SOCK[1] - 110} ${SOCK[0] + 40} ${SOCK[1] - 96}`} stroke="#e8e2d4" strokeWidth={2.4} fill="none" />
-      {after && <g id="smoke" opacity={0.6}><path d={`M ${SOCK[0] + 6} ${SOCK[1] - 290} c -20 -30 20 -50 0 -80 c -16 -26 14 -44 6 -64`} stroke="#c9cbd2" strokeWidth={7} fill="none" strokeLinecap="round" filter="url(#blur6)" /></g>}
+      {m.smoke > 0 && <g id="smoke" opacity={0.6 * Math.min(1, m.smoke * 2) * Math.min(1, (2.2 - m.smoke))}><path d={`M ${SOCK[0] + 6 + 10 * Math.sin(m.smoke * 5)} ${SOCK[1] - 250 - 60 * m.smoke} c -20 -30 20 -50 0 -80 c -16 -26 14 -44 6 -64`} stroke="#c9cbd2" strokeWidth={7} fill="none" strokeLinecap="round" filter="url(#blur6)" /></g>}
       {/* left hand */}
       <g id="hand-left"><FPArm a={L} /></g>
       {/* right hand: thumb under the lead, the lead, then the index on top */}
@@ -425,13 +457,23 @@ const BenchLight04: React.FC = () => (
     <Glow x={540} y={1000} r={640} o={0.18} grad="coolSoft" />
   </g>
 );
-export const S04A: React.FC = () => <Frame bg="#1d2747"><Bench id="b4a" /><BulbSetup04 after={false} /><BenchLight04 /></Frame>;
-export const S04B: React.FC = () => <Frame bg="#1d2747"><Bench id="b4b" /><BulbSetup04 after /><BenchLight04 /></Frame>;
+export const S04A: React.FC = () => <Frame bg="#1d2747"><Bench id="b4a" /><BulbSetup04 m={M04A} /><BenchLight04 /></Frame>;
+export const S04B: React.FC = () => <Frame bg="#1d2747"><Bench id="b4b" /><BulbSetup04 m={M04B} /><BenchLight04 /></Frame>;
+// animated: k = 0 hand back .. 1 tip touching the terminal; r = recoil after the flash (0..1)
+export const S04M: React.FC<{ k: number; r: number; bulb: M04['bulb']; smoke: number }> = ({ k, r, bulb, smoke }) => {
+  const mix = (a: number, b: number, t: number) => a + (b - a) * t;
+  const far: M04 = { tip: [120, 60], ldir: 200, hdir: -104, bulb, smoke };
+  const touch: M04 = { tip: [0, 0], ldir: 196, hdir: -110, bulb, smoke };
+  const A = r > 0 ? touch : far, Bm = r > 0 ? M04B : touch, t = r > 0 ? r : k;
+  const m: M04 = { tip: [mix(A.tip[0], Bm.tip[0], t), mix(A.tip[1], Bm.tip[1], t)], ldir: mix(A.ldir, Bm.ldir, t), hdir: mix(A.hdir, Bm.hdir, t), bulb, smoke };
+  return <Frame bg="#1d2747"><Bench id="b4m" /><BulbSetup04 m={m} /><BenchLight04 /></Frame>;
+};
 
 // ================================================================== 05 · 3 V pack, switch, steady glow
-export const S05: React.FC = () => {
+export const S05: React.FC<{ press?: number; light?: number }> = ({ press = 1, light = 1 }) => {
   const SW: P = [700, 1250], SWS = 1.9;
-  const R = fpHand(PRESS, 't', [SW[0] + 2, SW[1] + 4 * SWS], -100, HS);
+  const down = press > 0.85;
+  const R = fpHand(PRESS, 't', [SW[0] + 2 + (1 - press) * 30, SW[1] + 4 * SWS - (1 - press) * 70 - (down ? 0 : 14)], -100 - (1 - press) * 6, HS);
   const sw = (side: -1 | 1): P => [SW[0] + side * 38 * SWS, SW[1] + 10 * SWS];
   return (
     <Frame bg="#1d2747">
@@ -448,32 +490,32 @@ export const S05: React.FC = () => {
         <Wire d={`M ${sw(1)[0]} ${sw(1)[1]} C 900 1250 900 1080 ${term(1)[0] + 60} ${term(1)[1] + 10} L ${term(1)[0]} ${term(1)[1]}`} c="#c8322a" w={11} />
       </g>
       <g id="socket" transform={`translate(${SOCK[0]} ${SOCK[1]}) scale(${SS})`}><Socket /></g>
-      <g id="bulb" transform={`translate(${SOCK[0]} ${SOCK[1] - 34 * SS}) scale(${SS})`}><MiniBulb state="lit" id="b5" /></g>
+      <g id="bulb" transform={`translate(${SOCK[0]} ${SOCK[1] - 34 * SS}) scale(${SS})`}><MiniBulb state={light > 0.05 ? 'lit' : 'off'} id={light > 0.05 ? 'b5' : 'b5o'} /></g>
       <Tag x={SOCK[0] - 200} y={SOCK[1] - 280} t="3 V" s={1.15} rot={-6} />
       <path d={`M ${SOCK[0] - 156} ${SOCK[1] - 266} C ${SOCK[0] - 110} ${SOCK[1] - 200} ${SOCK[0] - 70} ${SOCK[1] - 120} ${SOCK[0] - 40} ${SOCK[1] - 100}`} stroke="#e8e2d4" strokeWidth={2.4} fill="none" />
-      <g id="switch" transform={`translate(${SW[0]} ${SW[1]}) scale(${SWS})`}><PushSwitch down /></g>
+      <g id="switch" transform={`translate(${SW[0]} ${SW[1]}) scale(${SWS})`}><PushSwitch down={down} /></g>
       <g id="hand-right"><FPArm a={R} /></g>
       {/* light: cool room, a warm pool from the bulb over the desk, the fingers and the wall */}
       <g id="light">
-        <rect width={W} height={H} fill="#1a2650" opacity={0.5} style={{ mixBlendMode: 'multiply' }} />
-        <Glow x={SOCK[0]} y={SOCK[1] - 160} r={760} o={0.55} grad="warmSoft" />
-        <Glow x={SOCK[0]} y={SOCK[1] - 150} r={300} o={0.85} />
-        <Glow x={SOCK[0]} y={SOCK[1] - 150} r={90} o={1} />
-        <Glow x={SOCK[0] + 20} y={430} r={520} ry={220} o={0.45} grad="warmSoft" />
+        <rect width={W} height={H} fill="#1a2650" opacity={0.5 + 0.2 * (1 - light)} style={{ mixBlendMode: 'multiply' }} />
+        <Glow x={SOCK[0]} y={SOCK[1] - 160} r={760} o={0.55 * light} grad="warmSoft" />
+        <Glow x={SOCK[0]} y={SOCK[1] - 150} r={300} o={0.85 * light} />
+        <Glow x={SOCK[0]} y={SOCK[1] - 150} r={90} o={light} />
+        <Glow x={SOCK[0] + 20} y={430} r={520} ry={220} o={0.45 * light} grad="warmSoft" />
       </g>
-      <g id="hand-light" style={{ mixBlendMode: 'screen' }} opacity={0.3}><PlaceHand at={R.at} toward={R.toward} s={R.s}><Hand h={R.h} pal={{ ...STU, skin: '#ffb860', skinSh: '#ffb860', nail: '#ffb860' }} o={0} /></PlaceHand></g>
+      <g id="hand-light" style={{ mixBlendMode: 'screen' }} opacity={0.3 * light}><PlaceHand at={R.at} toward={R.toward} s={R.s}><Hand h={R.h} pal={{ ...STU, skin: '#ffb860', skinSh: '#ffb860', nail: '#ffb860' }} o={0} /></PlaceHand></g>
     </Frame>
   );
 };
 
 // ================================================================== 06 · slumped, the physics board gives him an idea
-export const S06: React.FC = () => {
+export const S06: React.FC<{ look?: number; breath?: number }> = ({ look = 1, breath = 0 }) => {
   const S = { x: 150, y: 520, s: 1.3 };
-  const lean = -16, tilt = 14;
+  const lean = -16 + 1.5 * Math.sin(breath * 2 * Math.PI), tilt = -10 + 24 * look;
   const bulb: P = [640, 1000];
   const bowl: P = [900, 1092];
   const pose: Pose = {
-    lean, head: { eye: 'downfwd', brow: 10, browTilt: -3, mouth: 'o' }, headTilt: tilt,
+    lean, head: { eye: look < 0.45 ? 'up' : 'downfwd', brow: 2 + 8 * look, browTilt: -3 * look, mouth: look < 0.6 ? 'flat' : 'o' }, headTilt: tilt,
     near: { el: worldToArm(S, lean, [470, 1060]), wr: worldToArm(S, lean, [560, 1080]), hand: HANDS.relaxed, toward: worldToArm(S, lean, [640, 1086]) },
     far: { el: worldToArm(S, lean, [250, 1060]), wr: worldToArm(S, lean, [250, 1230]), hand: HANDS.relaxed },
     legN: { kn: [330, 590], an: [320, 850] }, legF: { kn: [340, 584], an: [356, 846] },
@@ -582,10 +624,11 @@ export const S07: React.FC = () => {
 };
 
 // ================================================================== 08A · pressing foil into the bowl
-export const S08A: React.FC = () => {
+export const S08A: React.FC<{ rub?: number }> = ({ rub = 0 }) => {
+  const ru = rub * 2 * Math.PI;
   const B: P = [540, 1090], RX = 380, RY = 170;
-  const Lh = fpHand(SMOOTH, 'f1', [B[0] - 170, B[1] - 70], -60, HS, true);
-  const Rh = fpHand(SMOOTH, 'f1', [B[0] + 160, B[1] - 60], -120, HS);
+  const Lh = fpHand(SMOOTH, 'f1', [B[0] - 170 + 26 * Math.sin(ru), B[1] - 70 + 14 * Math.cos(ru)], -60 + 5 * Math.sin(ru), HS, true);
+  const Rh = fpHand(SMOOTH, 'f1', [B[0] + 160 - 26 * Math.sin(ru + 1.3), B[1] - 60 + 14 * Math.cos(ru + 1.3)], -120 - 5 * Math.sin(ru + 1.3), HS);
   const lit: P = [860, 760];
   return (
     <Frame bg="#1d2747">
@@ -673,7 +716,7 @@ export const S08B: React.FC<{ t?: number }> = ({ t = 1 }) => {
 };
 
 // ================================================================== 09 · two flashes: he stops and looks up
-export const S09: React.FC<{ flash?: number; turned?: boolean }> = ({ flash = 1, turned = true }) => {
+export const S09: React.FC<{ flash?: number; turned?: boolean; x?: number; ph?: number; up?: number }> = ({ flash = 1, turned = true, x = 420, ph, up = 1 }) => {
   const torch: P = [340, 590];
   const patch: P = [770, 1420];
   const lean = 8, tilt = 14;
@@ -683,7 +726,7 @@ export const S09: React.FC<{ flash?: number; turned?: boolean }> = ({ flash = 1,
     far: { el: worldToArm(WS, lean, [210, 650]), wr: worldToArm(WS, lean, [torch[0] - 56, torch[1] + 30]), hand: HANDS.fist, toward: worldToArm(WS, lean, [torch[0], torch[1] + 30]) }, ...LEGS_STAND,
   };
   const fturn: Pose = {
-    head: { eye: 'up', mouth: 'o', brow: 8 }, headTilt: -24, lean: -3,
+    head: { eye: up > 0.3 ? 'up' : 'fwd', mouth: up > 0.5 ? 'o' : 'flat', brow: 8 * up }, headTilt: -24 * up, lean: -3,
     near: { el: [80, 404], wr: [70, 548], hand: HANDS.relaxed }, far: { el: [140, 402], wr: [160, 540], hand: HANDS.relaxed },
     legN: { kn: [112, 774], an: [100, 962] }, legF: { kn: [40, 770], an: [-20, 950], toe: 16 },
   };
@@ -708,7 +751,7 @@ export const S09: React.FC<{ flash?: number; turned?: boolean }> = ({ flash = 1,
       {/* the friend: stopped mid-step, turned back toward the window, looking up */}
       {turned
         ? <Place x={610} y={FRIEND_Y} s={0.9} flip id="friend" filter="cool"><Person who="friend" pal={FRD} pose={fturn} /></Place>
-        : <Place x={420} y={FRIEND_Y} s={0.9} id="friend" filter="cool"><Person who="friend" pal={FRD} pose={friendWalk} /></Place>}
+        : <Place x={x} y={FRIEND_Y + (ph === undefined ? 0 : walkBob(ph) * 0.9)} s={0.9} id="friend" filter="cool"><Person who="friend" pal={FRD} pose={ph === undefined ? friendWalk : walkPose(ph)} /></Place>}
       {/* the warm patch on the pavement just ahead of him (separate layer: it flashes twice) */}
       <g id="pavement-glow" opacity={flash}>
         <ellipse cx={patch[0]} cy={patch[1]} rx={150} ry={40} fill="url(#warmGlow)" style={{ mixBlendMode: 'screen' }} />

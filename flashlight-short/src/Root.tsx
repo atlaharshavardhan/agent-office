@@ -5,10 +5,12 @@ import { Composition, Still } from 'remotion';
 import { DURATION, FPS, FlashlightShort } from './video';
 import { S1Room, S2Shout, S3Bulbs, S4Cutaway, S5LooksUp } from './scenes';
 import { BOARD } from './storyboard';
+import { WalkTest } from './dev/WalkTest';
 
 export const Root: React.FC = () => (
   <>
     <Composition id="FlashlightShort" component={FlashlightShort} durationInFrames={DURATION} fps={FPS} width={1080} height={1920} />
+    <Still id="dev-walk" component={WalkTest} width={1080} height={1920} />
     {/* storyboard pass 2: one still per scene beat */}
     {BOARD.map(([id, C]) => <Still key={id} id={`sb-${id}`} component={C} width={1080} height={1920} />)}
     {/* pass 1 art-direction samples (kept for reference) */}
