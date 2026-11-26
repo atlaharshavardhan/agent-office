@@ -2,6 +2,21 @@
   "name": "invisitech-flashlight-short",
   "private": true,
   "type": "module",
-  "scripts": { "stills": "for id in 01-room-before-blackout 02-shout-at-the-window 03-two-bulb-test 04-curved-foil-cutaway 05-friend-looks-up; do remotion still src/index.ts $id out/$id.png; done" },
-  "dependencies": "same as ../face-id/mirror-short (node_modules is a link to it)"
+  "scripts": {
+    "stills": "node tools/stills.mjs",
+    "sheet": "python3 tools/sheet.py"
+  },
+  "dependencies": {
+    "@fontsource/inter": "5.2.6",
+    "@remotion/cli": "4.0.538",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.538",
+    "@remotion/bundler": "4.0.538",
+    "@remotion/renderer": "4.0.538"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.8",
+    "typescript": "5.8.3"
+  }
 }
