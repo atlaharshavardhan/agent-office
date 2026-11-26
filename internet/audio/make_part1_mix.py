@@ -50,26 +50,26 @@ def whoosh(at, d=0.5, g=0.4, k=24): pass   # whooshes removed at Harsh's request
 def ding(at, f0=1318, g=0.18): x = t(0.9); put(fx(np.sin(2 * np.pi * f0 * x) + 0.5 * np.sin(2 * np.pi * f0 * 1.5 * x), r=6), at, g)
 def blip(at, f0, g=0.07, d=0.05): x = t(d); put(fx(np.sin(2 * np.pi * f0 * x), r=5), at, g)
 whoosh(0.3, 1.2, 0.3, 40)                                                                                    # camera pulls back
-x = t(0.5); put(np.sin(2 * np.pi * (160 + 120 * x) * x) * np.sin(np.pi * x / 0.5), 3.6, 0.16)                 # the line is taken
+pass   # sweep removed (26 Nov 2026: no movement sounds)
 blip(3.1, 1500, 0.1, 0.07); blip(13.3, 1500, 0.1, 0.07)                                                        # he taps send
-x = t(4.0); put(np.sin(2 * np.pi * 70 * x) * (0.6 + 0.4 * np.sin(2 * np.pi * 3 * x)) * np.minimum(1, x / 0.3) * np.clip((4.0 - x) / 0.2, 0, 1), 3.7, 0.16)   # the heavy block crawling
-for i in range(14): blip(4.3 + i * 0.42, 520 - 12 * i, 0.05, 0.09)                                             # others piling up
-x = t(0.5); put(fx(rng.standard_normal(len(x)), a=0.001, r=12) * 0.5 + fx(np.sin(2 * np.pi * (90 * np.exp(-x * 8) + 45) * x), r=5) * 0.8, 7.7)   # the glitch
-x = t(0.5); put(np.sin(2 * np.pi * (600 - 380 * x / 0.5) * x) * np.sin(np.pi * x / 0.5) * 0.14, 7.75)
-x = t(0.4); put(np.sin(2 * np.pi * (300 + 300 * x / 0.4) * x) * np.sin(np.pi * x / 0.4) * 0.1, 8.7)           # start again
-x = t(1.5); put(np.sin(2 * np.pi * 70 * x) * (0.6 + 0.4 * np.sin(2 * np.pi * 3 * x)) * np.minimum(1, x / 0.3) * np.clip((1.5 - x) / 0.3, 0, 1), 9.1, 0.14)
+pass   # crawl hum removed
+pass   # queue ticks removed
+x = t(0.5); put(fx(np.sin(2 * np.pi * (90 * np.exp(-x * 8) + 45) * x), r=5) * 0.8, 7.7)   # the glitch
+pass   # sweep removed
+pass   # sweep removed
+pass   # crawl hum removed
 whoosh(10.6, 0.8, 0.35)                                                                                      # the line is freed
 for k_ in range(6): blip(12.0 + k_ * 0.15, 1400 + 120 * k_, 0.07, 0.04)                                       # the photo is sliced
-for i in range(36): blip(14.3 + i * 0.2, 1500 + 140 * (i % 6), 0.045, 0.035)                                  # packets leaving
-for i in range(36): blip(25.85 if i == 28 else 14.3 + i * 0.2 + (3.4 if i % 3 == 1 else 2.6) + 0.35, 2100 + 90 * (i % 6), 0.03, 0.03)   # tiles landing
-x = t(0.3); put(np.sin(2 * np.pi * (500 - 300 * x / 0.3) * x) * np.sin(np.pi * x / 0.3), 21.2, 0.14)   # one is lost
+pass   # packet ticks removed
+pass   # landing ticks removed
+pass   # sweep removed
 blip(22.9, 1800, 0.09, 0.08)
-for i in range(12): blip(26.1 + i * 0.07, 900 + 70 * i, 0.04, 0.04)                                              # her phone sorts them by number
+pass   # sorting ticks removed
 ding(27.1, 1568, 0.16); ding(27.25, 2093, 0.1)                                   # sent again; photo complete
 F0 = PHOTO; whoosh(F0 + 1.55, 0.6, 0.35)   # the plane
-for i in range(3): blip(F0 + (3.4 + i * 0.12) / FLYK, 880 + 220 * i, 0.06, 0.08)
-x = t(1.1); put(np.sin(2 * np.pi * (220 + 380 * (x / 1.1) ** 2) * x) * np.sin(np.pi * x / 1.1) * 0.1, F0 + 4.25 / FLYK)   # the cable draws across the globe
-for i in range(20): blip(F0 + (4.3 + (i % 14) * 0.1) / FLYK, 1800 + rng.uniform(0, 2400), 0.035)
+pass   # blips removed
+pass   # cable sweep removed
+pass   # sparkle removed
 whoosh(F0 + 6.35, 0.9, 0.5, 60); whoosh(F0 + FLY - 0.1, 0.6, 0.35)
 out[:int(0.4 * SR)] *= np.linspace(0, 1, int(0.4 * SR))[:, None]; out[-int(1.2 * SR):] *= np.linspace(1, 0, int(1.2 * SR))[:, None]
 ab = np.abs(out); out = np.where(ab > 0.75, np.sign(out) * (0.75 + 0.15 * np.tanh((ab - 0.75) / 0.15)), out)
