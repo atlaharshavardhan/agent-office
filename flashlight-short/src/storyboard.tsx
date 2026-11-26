@@ -5,6 +5,7 @@
 import React from 'react';
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
 import { step as stepK } from './kit';
+import { HeroDoorPull } from './char/hero';
 import {
   INK, W, H, P, Svg, Person, STU, FRD, HANDS, Hand, PlaceHand, HandSpec, LEGS_STAND, toHand, unlean, anchorHand,
   Tag, MiniBulb, Socket, HeadP, Pack, PushSwitch, Wire, Candle, BowlTop, ToyCar, FoilSheet, WindowFrame, ChalkSketches, Pose,
@@ -75,7 +76,7 @@ const onLeftWall = (x: number, f: number) => wallBot(x) - f * (wallBot(x) - wall
 const DOOR = { x0: 52, x1: 252, top: 0.73 };
 const HANDLE: P = [222, onLeftWall(222, 0.36)];
 
-const Room: React.FC<{ lit: boolean; pull?: number; fx?: number; fph?: number }> = ({ lit, pull = 0.45, fx = 0, fph = 0.3 }) => {
+const Room: React.FC<{ lit: boolean; pull?: number; fx?: number; fph?: number; hero?: boolean }> = ({ lit, pull = 0.45, fx = 0, fph = 0.3, hero = true }) => {
   const dq = (x: number, f: number): P => [x, onLeftWall(x, f)];
   const door = [dq(DOOR.x0, 0), dq(DOOR.x0, DOOR.top), dq(DOOR.x1, DOOR.top), dq(DOOR.x1, 0)];
   const frame = [dq(DOOR.x0 - 18, -0.005), dq(DOOR.x0 - 18, DOOR.top + 0.03), dq(DOOR.x1 + 14, DOOR.top + 0.03), dq(DOOR.x1 + 14, -0.005)];
@@ -171,7 +172,8 @@ const Room: React.FC<{ lit: boolean; pull?: number; fx?: number; fph?: number }>
         <g transform="translate(848 990) scale(0.3)"><PushSwitch /></g>
       </g>
 
-      {/* the student pulling the stuck door */}
+      {/* the student pulling the stuck door (v3 character: src/char/hero.tsx) */}
+      {hero ? <HeroDoorPull handle={HANDLE} leverTip={[HANDLE[0] - 44, HANDLE[1] + 6]} brace={[262, onLeftWall(262, 0.27)]} /> : <>
       <Place x={S.x} y={S.y} s={S.s} flip id="student">
         <Person who="stu" pal={STU} pose={{ ...pose, near: { ...pose.near, behind: undefined } }} />
       </Place>
@@ -186,6 +188,8 @@ const Room: React.FC<{ lit: boolean; pull?: number; fx?: number; fph?: number }>
           <PlaceHand at={wrN} toward={unlean(grip, lean)} s={0.64}><Hand h={HANDS.fist} pal={STU} only={['f0', 'f1', 'f2', 'f3', 't']} /></PlaceHand>
         </g>
       </Place>
+
+      </>}
 
       {/* light */}
       {lit
