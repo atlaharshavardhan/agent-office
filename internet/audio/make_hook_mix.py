@@ -2,7 +2,7 @@
 Music bed + effects without the camera whooshes + narration. Writes v3/public/hook-mix.wav. Run from internet/."""
 import numpy as np, soundfile as sf
 SR = 48000; N = int(15.6 * SR)
-bed, _ = sf.read('audio/bed.wav'); sfx, _ = sf.read('audio/sfx-quiet.wav'); out = bed[:N] * 0.56 + sfx[:N] * 1.25
+bed, _ = sf.read('audio/bed-soft.wav'); sfx, _ = sf.read('audio/sfx-quiet.wav'); out = bed[:N] * 0.56 + sfx[:N] * 1.25
 V = [('v3/g1', 0.25), ('v3/h1b', 3.4), ('h2', 5.8), ('p1', 8.4), ('p2', 10.5), ('p3', 12.45), ('p4', 14.3)]
 for name, at in V:
     a, sr = sf.read(f'voice/{name}.wav'); a = np.interp(np.arange(len(a) * 2) / 2, np.arange(len(a)), a)

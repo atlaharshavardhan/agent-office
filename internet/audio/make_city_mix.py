@@ -17,7 +17,7 @@ for j in range(int(DUR / 2.5) + 1):
         place(tone * np.minimum(1, tt / 0.6) * np.minimum(1, (2.8 - tt) / 0.5).clip(0), j * 2.5, 0.045, (k - 1.5) * 0.4)
 motif = [69, 76, 72, 76, 69, 76, 74, 76, 65, 72, 69, 72, 65, 72, 71, 72]
 for i in range(int(DUR / (beat / 2))):
-    L = int(0.5 * SR); tt = np.arange(L) / SR; f = midi(motif[i % 16] + 12); place((np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(4 * np.pi * f * tt)) * env(L, 0.002, 0.35, 5), i * beat / 2, 0.05, 0.35 if i % 2 else -0.35)
+    L = int(0.5 * SR); tt = np.arange(L) / SR; f = midi(motif[i % 16] + 12); place((np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(4 * np.pi * f * tt)) * env(L, 0.002, 0.35, 5), i * beat / 2, 0.011, 0.35 if i % 2 else -0.35)
 for q in range(int(DUR / beat)):
     L = int(0.4 * SR); tt = np.arange(L) / SR; place(np.sin(2 * np.pi * (42 + 70 * np.exp(-tt * 28)) * tt) * env(L, 0.002, 0.3, 6), q * beat, 0.32)
 out *= 0.5
