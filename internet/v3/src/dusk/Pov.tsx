@@ -144,7 +144,7 @@ export const Pov: React.FC<{ hi?: boolean }> = ({ hi }) => {
               <div style={{ display: 'flex', width: 848, font: `800 64px/1 ${FONT.ui}`, color: '#ffd38a' }}>{[0, 1].map((j) => <div key={j} style={{ width: j ? 410 : 438, textAlign: 'center', opacity: prog(F, HB0 + (j * 8 + 7) * HBD + 0.05, HB0 + (j * 8 + 7) * HBD + 0.2), color: '#ffd38a' }}>{'Hi'[j]}</div>)}</div></>}
           </div>
           {line && <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div>}
-          <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style></>; })()}
+          <style>{'.sub{text-wrap:balance}.sub em{font-style:normal;color:#ffd38a}'}</style></>; })()}
       <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}>
         <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>
       </div>

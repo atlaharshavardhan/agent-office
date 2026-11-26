@@ -6,7 +6,7 @@ import '@fontsource/manrope/700.css'; import '@fontsource/manrope/800.css'; impo
 import { FPS, hash, lerp, prog, clamp01, easeOut, easeInOut } from '../lib/anim';
 import { FONT } from '../lib/palette';
 import { Adult } from './Adult';
-import { PhotoWorld, PhotoUI } from './CityPhoto';
+import { PhotoWorld, PhotoUI, photoKeys } from './CityPhoto';
 import { IPhone, Bubble, Compose, Keyboard } from './Phone';
 
 import plan1 from './part1-plan.json';
@@ -101,17 +101,18 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
   const fadeTo = (i: number) => lerp(1, 0.45, clamp01((t - TA[i] - 1.0) / 0.5));
   const litOf = (i: number) => i === 0 ? (t < H0 ? 1 : fadeTo(0)) : i === 3 ? lerp(0.7, 1, onR(3)) : i < 3 ? onR(i) * fadeTo(i) : 0;
   const bump = Math.max(Math.exp(-(((t - TA[1]) / 0.22) ** 2)), Math.exp(-(((t - TA[2]) / 0.22) ** 2)));
-  const herHome = g(3, -1.9, -0.4, 4.6), herXY = bus < 1 ? [busP[0], busP[1] - 110] : [herHome[0], herHome[1] - got * 8];
+  const herHome = g(3, -1.9, -0.4, 4.6), herXY = bus < 1 ? [busP[0] + 175 * (1 - clamp01(bus * 5)), busP[1] - 110 - 30 * (1 - clamp01(bus * 5))] : [herHome[0], herHome[1] - got * 8];
   const himXY = g(0, -1.3, 0.4, 2.6);
   // camera: close on home, ride with the bus, pull back to the whole region, then follow the message hop by hop
   const all = { x: 540, y: 950, z: 0.9 }, home = { x: g(0)[0], y: g(0)[1] - 70, z: 1.55 }, city = { x: g(3)[0], y: g(3)[1] - 150, z: 1.4 };
-  const keys: [number, { x: number; y: number; z: number }][] = [[0, home], [0.5, home], [1.2, { x: busP[0], y: busP[1] - 60, z: 1.35 }], [2.6, { x: busP[0], y: busP[1] - 60, z: 1.35 }], [3.2, city], [3.5, city], [4.6, all], [5.3, all], [5.9, { x: RT[0][0], y: RT[0][1] + 70, z: 2.0 }], [6.4, { x: RT[0][0], y: RT[0][1] + 70, z: 2.0 }], [7.1, all], [7.5, all], [8.3, { x: g(0)[0] + 230, y: g(0)[1] - 120, z: 1.25 }], [8.7, { x: g(0)[0] + 230, y: g(0)[1] - 120, z: 1.25 }], [9.15, { x: RT[0][0] + 150, y: RT[0][1] + 40, z: 1.9 }], [9.5, { x: hp[0] + 170, y: hp[1] + 30, z: 1.5 + 0.3 * bump }], [11.45, { x: hp[0] + 170, y: hp[1] + 30, z: 1.5 + 0.3 * bump }], [12.0, { x: RT[3][0] + 310 / 1.5, y: RT[3][1] + 200 / 1.5, z: 1.5 }], [13, { x: RT[3][0] + 310 / 1.58, y: RT[3][1] + 200 / 1.58, z: 1.58 }], ...(X ? [[14.6, { x: 540, y: 921, z: 0.95 }], [60, { x: 540, y: 921, z: 0.95 }]] as [number, { x: number; y: number; z: number }][] : [])];
+  const keys: [number, { x: number; y: number; z: number }][] = [[0, home], [0.5, home], [1.2, { x: busP[0], y: busP[1] - 60, z: 1.35 }], [2.6, { x: busP[0], y: busP[1] - 60, z: 1.35 }], [3.2, city], [3.5, city], [4.6, all], [5.3, all], [5.9, { x: RT[0][0], y: RT[0][1] + 70, z: 2.0 }], [6.4, { x: RT[0][0], y: RT[0][1] + 70, z: 2.0 }], [7.1, all], [7.5, all], [8.3, { x: g(0)[0] + 230, y: g(0)[1] - 120, z: 1.25 }], [8.7, { x: g(0)[0] + 230, y: g(0)[1] - 120, z: 1.25 }], [9.15, { x: RT[0][0] + 150, y: RT[0][1] + 40, z: 1.9 }], [9.5, { x: hp[0] + 170, y: hp[1] + 30, z: 1.5 + 0.3 * bump }], [11.45, { x: hp[0] + 170, y: hp[1] + 30, z: 1.5 + 0.3 * bump }], [12.0, { x: RT[3][0] + 310 / 1.5, y: RT[3][1] + 200 / 1.5, z: 1.5 }], [13, { x: RT[3][0] + 310 / 1.58, y: RT[3][1] + 200 / 1.58, z: 1.58 }], ...(X ? photoKeys(te, RT) : [])];
   let ki = 0; while (ki < keys.length - 2 && t > keys[ki + 1][0]) ki++;
   const ka = keys[ki], kb = keys[ki + 1], ku = easeInOut(clamp01((t - ka[0]) / (kb[0] - ka[0])));
   const cam = { x: lerp(ka[1].x, kb[1].x, ku), y: lerp(ka[1].y, kb[1].y, ku), z: Math.exp(lerp(Math.log(ka[1].z), Math.log(kb[1].z), ku)) };
   /* phones: in the wide film they are bigger and stand beside the middle column instead of on it */
-  const KP = isWide() ? 1.6 : 1.2, HIS = isWide() ? { x: 1030, y: 330 } : { x: 676, y: 400 }, HER = isWide() ? { x: 1010, y: 330 } : { x: 640, y: 470 };
+  const KP = isWide() ? 1.6 : 1.0, HIS = isWide() ? { x: 1030, y: 330 } : { x: 720, y: 440 }, HER = isWide() ? { x: 1010, y: 330 } : { x: 690, y: 500 };
   const scr = (p: readonly number[]) => [540 + cam.z * (p[0] - cam.x), 960 + cam.z * (p[1] - cam.y)] as const;
+  const edge = (wx: number, half: number) => { const sx = 540 + cam.z * (wx - cam.x), h = half * cam.z; return isWide() ? 1 : clamp01((Math.min(sx - h, 1080 - sx - h) + 6) / 30); };   // 0 when a label would be cut by the frame edge
   let line: React.ReactNode = null; for (const [a, txt] of VO) if (t >= a) line = txt;
   if (X && te >= 0) { line = null; for (const [a, b, x] of plan1.subs as [number, number, string][]) if (te >= a && te < b) line = x.split('*').map((p, i) => (i % 2 ? <em key={i}>{p}</em> : <React.Fragment key={i}>{p}</React.Fragment>)); }
   const router = (i: number, a: number, name: string) => { const on = onR(i), rt = i < 4; return a > 0 ? <g key={'r' + i} opacity={a * (rt ? 1 : lerp(1, 0.45, webA))}>
@@ -180,7 +181,7 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
             </g>; })()}
           {CT.map((_, i) => router(i, i === 0 ? 1 : prog(f, 5.3 + (i % 6) * 0.1, 5.7 + (i % 6) * 0.1, easeOut), i === 0 ? 'HOME ROUTER' : i === 3 ? 'CITY ROUTER' : ''))}
           {/* hop counters and the travelling HELLO */}
-          {[0, 1, 2].map((i) => { const a = prog(f, H0 + i * 0.8 + 0.6, H0 + i * 0.8 + 0.8, easeOut) * (1 - clamp01(te / 0.6)); return a > 0 ? <g key={'h' + i} opacity={a} transform={`translate(${(RT[i][0] + RT[i + 1][0]) / 2 - 80} ${(RT[i][1] + RT[i + 1][1]) / 2 - 24}) scale(${0.62 + 0.16 * a})`}><rect x={-58} y={-24} width={116} height={46} rx={14} fill="#ffe08a" /><text y={9} textAnchor="middle" style={{ font: `800 28px ${FONT.ui}` }} fill="#3a2a05">hop {i + 1}</text></g> : null; })}
+          {[0, 1, 2].map((i) => { const a = prog(f, H0 + i * 0.8 + 0.6, H0 + i * 0.8 + 0.8, easeOut) * (1 - clamp01(te / 0.6)) * edge((RT[i][0] + RT[i + 1][0]) / 2 - 80, 60); return a > 0 ? <g key={'h' + i} opacity={a} transform={`translate(${(RT[i][0] + RT[i + 1][0]) / 2 - 80} ${(RT[i][1] + RT[i + 1][1]) / 2 - 24}) scale(${0.62 + 0.16 * a})`}><rect x={-58} y={-24} width={116} height={46} rx={14} fill="#ffe08a" /><text y={9} textAnchor="middle" style={{ font: `800 28px ${FONT.ui}` }} fill="#3a2a05">hop {i + 1}</text></g> : null; })}
           {t > H0 && t < H0 + 2.55 && <g>{[1, 2, 3, 4, 5, 6, 7, 8].map((k) => { const q = hpos(hop - k * 0.045); return <circle key={k} cx={q[0]} cy={q[1]} r={11 - k} fill="#9fefff" opacity={0.7 - k * 0.075} />; })}
             <g transform={`translate(${hp[0]} ${hp[1]})`}><circle r={95} fill="url(#cPk)" /><g transform={`scale(${1.25 + 0.08 * Math.sin(t * 14)})`}><rect x={-27} y={-18} width={54} height={36} rx={8} fill="#f2fdff" stroke="#22c4ee" strokeWidth={3.5} /><path d="M -22 -13 L 0 5 L 22 -13" stroke="#1a8fb0" strokeWidth={4} fill="none" strokeLinecap="round" /></g></g></g>}
           {t > 8.7 && t < 9.2 && [0, 1, 2].map((i) => { const u = clamp01((t - 8.7 - i * 0.08) / 0.3); return u > 0 && u < 1 ? <circle key={'wf' + i} cx={himXY[0]} cy={himXY[1] - 60} r={50 + u * 90} fill="none" stroke="#9fe9ff" strokeWidth={5} opacity={1 - u} /> : null; })}
@@ -191,7 +192,7 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
           
           
           {/* city name plates, on the front edge of each border */}
-          {CT.slice(0, 4).map((q, i) => { const c = g(i), r = (q.r + 2.0) * S * 0.92, hero = i === 0 || i === 3, w = NAMES[i].length * (hero ? 23 : 18) + 44; const sy = 960 + cam.z * (c[1] + r * 0.58 + 4 - cam.y); return <g key={'nm' + i} opacity={clamp01((Math.abs(sy - 1345) - 140) / 50) * (i === 3 ? 1 - clamp01((te - 16.2) / 0.4) : 1)} transform={`translate(${c[0]} ${c[1] + r * 0.58 + 4})`}><rect x={-w / 2} y={-24} width={w} height={hero ? 52 : 42} rx={14} fill={hero ? (i ? '#ff6f91' : '#2f9c95') : '#1a2250'} stroke={hero ? '#fff' : '#aab6ee'} strokeWidth={hero ? 3 : 2} /><text y={hero ? 13 : 6} textAnchor="middle" style={{ font: `800 ${hero ? 34 : 26}px ${FONT.ui}`, letterSpacing: '0.04em' }} fill="#fff">{NAMES[i]}</text></g>; })}
+          {CT.slice(0, 4).map((q, i) => { const c = g(i), r = (q.r + 2.0) * S * 0.92, hero = i === 0 || i === 3, w = NAMES[i].length * (hero ? 23 : 18) + 44; const sy = 960 + cam.z * (c[1] + r * 0.58 + 4 - cam.y); return <g key={'nm' + i} opacity={clamp01((Math.abs(sy - 1345) - 140) / 50) * edge(c[0], w / 2)} transform={`translate(${c[0]} ${c[1] + r * 0.58 + 4})`}><rect x={-w / 2} y={-24} width={w} height={hero ? 52 : 42} rx={14} fill={hero ? (i ? '#ff6f91' : '#2f9c95') : '#1a2250'} stroke={hero ? '#fff' : '#aab6ee'} strokeWidth={hero ? 3 : 2} /><text y={hero ? 13 : 6} textAnchor="middle" style={{ font: `800 ${hero ? 34 : 26}px ${FONT.ui}`, letterSpacing: '0.04em' }} fill="#fff">{NAMES[i]}</text></g>; })}
         </g>
       </svg>
       <svg width={1080} height={1920} style={{ position: 'absolute', inset: 0 }}><rect x={fx()} width={fw()} height={1920} fill="url(#cHaze)" style={{ mixBlendMode: 'screen' }} /><rect x={fx()} width={fw()} height={1920} fill="url(#cVig)" /><rect x={fx()} width={fw()} height={1920} filter="url(#cGrain)" opacity={0.1} style={{ mixBlendMode: 'overlay' }} /></svg>
@@ -220,7 +221,7 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
         </IPhone>
           {u > 0 && u < 1 && <div style={{ position: 'absolute', left: lerp(q[0], HER.x + 60 * KP, u), top: lerp(q[1], HER.y + 135 * KP, u) - 70 * Math.sin(Math.PI * u), width: 44, height: 30, borderRadius: 7, background: '#f2fdff', border: '3px solid #22c4ee', transform: `translate(-50%,-50%) scale(${1.2 - 0.5 * u})`, boxShadow: '0 0 26px rgba(95,227,255,.9)' }} />}</>; })()}
       {line && <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div>}
-      <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
+      <style>{'.sub{text-wrap:balance}.sub em{font-style:normal;color:#ffd38a}'}</style>
       <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}>
         <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>
       </div>

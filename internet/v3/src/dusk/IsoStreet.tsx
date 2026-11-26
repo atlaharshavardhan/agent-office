@@ -187,15 +187,14 @@ const NEAR: H[] = [
 /* hook timeline (0 - 15.6 s), same beats and voice mix as the approved hook */
 const BLINKS: [number, number][] = [[0.45, 0.8], [1.15, 1.45], [2.0, 2.95], [3.75, 8.2], [8.95, 9.5]];
 const HBITS = [0, 1, 0, 0, 1, 0, 0, 0], BIT0 = 10.55, BITD = 0.14, FLY = 0.6;
-const BOYC = { x: 335, y: 1040 }, GIRLC = { x: 872, y: 615 }, WIDE = { x: 540, y: 960 };
+const BOYC = { x: 335, y: 1040 }, GIRLC = { x: 872, y: 615 }, WIDE = { x: 540, y: 960 }, TWO = { x: 600, y: 850, z: 1.34 };   // TWO: both balconies, close
 type Key = [number, number, number, number];
 const HOOK_KEYS: Key[] = [
-  [0.0, BOYC.x + 40, BOYC.y - 30, 1.75], [0.55, BOYC.x + 40, BOYC.y - 30, 1.8],   // open on him, torch already up
-  [1.9, WIDE.x, WIDE.y, 1.0], [3.4, WIDE.x, WIDE.y, 1.0],             // slow pull back: both balconies and the beam
+  [0.0, TWO.x, TWO.y, TWO.z], [3.4, TWO.x, TWO.y, TWO.z + 0.05],   // open close on the two of them, torch already flashing             // slow pull back: both balconies and the beam
   [4.5, 400, 1010, 1.9], [4.8, 400, 1010, 1.92],                      // ease in on the torch
   [6.2, GIRLC.x, GIRLC.y, 2.0], [6.7, GIRLC.x, GIRLC.y, 2.03],        // glide along the beam to her
-  [7.9, WIDE.x, WIDE.y, 1.0], [10.6, WIDE.x, WIDE.y, 1.0],            // back to the street (title, then the torch close-up covers)
-  [11.5, 600, 850, 1.18], [12.5, 600, 850, 1.2],                      // bits fly across
+  [7.9, TWO.x, TWO.y, TWO.z], [10.6, TWO.x, TWO.y, TWO.z],            // back to the street (title, then the torch close-up covers)
+  [11.5, 600, 850, 1.3], [12.5, 600, 850, 1.32],                      // bits fly across
   [13.4, WIDE.x, WIDE.y, 1.0], [14.2, WIDE.x, WIDE.y, 1.0],           // HELLO
   [15.3, GIRLC.x, GIRLC.y, 2.2], [15.6, GIRLC.x, GIRLC.y, 2.22],      // too slow
 ];
@@ -210,7 +209,7 @@ const VO: [number, React.ReactNode][] = [
 ];
 
 /* wire scene (local time 0 - 7 s): he lowers the torch, a wire links the two balconies, pulses race, HELLO arrives at once */
-const WIRE_KEYS: Key[] = [[0, BOYC.x + 60, BOYC.y - 20, 1.9], [0.7, BOYC.x + 60, BOYC.y - 20, 1.9], [1.5, WIDE.x, WIDE.y, 1.0], [2.2, WIDE.x, WIDE.y, 1.0], [3.2, 590, 900, 1.12], [7, 590, 900, 1.15]];
+const WIRE_KEYS: Key[] = [[0, BOYC.x + 60, BOYC.y - 20, 1.9], [0.7, BOYC.x + 60, BOYC.y - 20, 1.9], [1.5, TWO.x, TWO.y, 1.2], [2.2, TWO.x, TWO.y, 1.2], [3.2, 600, 880, 1.3], [7, 600, 880, 1.34]];
 const WVO: [number, React.ReactNode][] = [[0.2, <>So we use a <em>wire.</em></>], [2.3, <>Now it's a <em>billion</em> blinks,</>], [3.75, <>every <em>second.</em></>], [4.95, <><em>"Hello"</em> arrives before you blink.</>]];
 export const IsoHook: React.FC = () => <IsoStreet hook />;
 export const IsoFull: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire /></Sequence><Sequence from={690} durationInFrames={555}><IsoStreet move /></Sequence></AbsoluteFill>);
@@ -237,7 +236,12 @@ const NODES: [number, number, number][] = [[-2.0, 3.3, 3.5], [-2.9, -4.3, 3.5], 
 const PAIRS: [number, number][] = []; for (let i = 0; i < 10; i++) for (let j = i + 1; j < 10; j++) PAIRS.push([i, j]);
 export const IsoNet: React.FC = () => <IsoStreet net />;
 /* step 2 (local 0 - 10 s): she moves to a hostel down the street, the old wire is useless, a new wire per place cannot go on -> the router */
-const MOVE_KEYS: Key[] = [[0, 590, 900, 1.12], [0.5, 590, 900, 1.12], [2.0, 1000, 1040, 0.63], [16.8, 1000, 1040, 0.655]];
+const MOVE_KEYS: Key[] = [[0, 600, 880, 1.34], [0.4, 600, 880, 1.34], [1.6, 770, 860, 0.88], [3.1, 770, 860, 0.9],   // him and the hostel
+  [3.9, 640, 1040, 1.1], [5.5, 640, 1040, 1.12],   // the friend's place
+  [6.3, 930, 800, 0.7], [8.3, 930, 800, 0.71],     // another, and the neighbours
+  [9.2, 860, 790, 1.0], [11.5, 860, 790, 1.03],     // the router
+  [12.3, 880, 800, 0.84], [15.9, 880, 800, 0.86],   // door numbers
+  [16.7, 960, 760, 0.66], [18.5, 960, 760, 0.675]]; // the delivery, him to her
 const MVO: [number, React.ReactNode][] = [[0.2, <>Then she moves to a <em>hostel.</em> New wire.</>], [3.2, <>Then a friend's place. <em>Another wire.</em></>], [5.63, <>Then <em>another!</em></>], [6.71, <>Now the neighbours want to <em>join</em> too.</>], [8.41, <>So every house plugs into <em>one box:</em></>], [10.69, <>the <em>router.</em></>], [11.62, <>Every house gets a number, like a <em>door number.</em></>], [14.47, <>That's its <em>IP address.</em></>], [16.11, <>The router reads the number and <em>delivers</em> the message.</>]];
 const SHOTS = [2.2, 3.8, 5.3], AIMS: [number, number][] = [[90, 93], [60, 57], [103, 104]], ARR = [-9, 2.0, 3.5, 5.0], LEAVE = [0.6, 3.0, 4.6, 99];
 const MESH_ON = false;
@@ -584,17 +588,17 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
                     return <g key={'tr' + i} opacity={o}><circle cx={lerp(pts[far][0], pts[near][0], k)} cy={lerp(pts[far][1], pts[near][1], k)} r={11} fill="#8fb4ff" opacity={0.6} filter="url(#iB)" /><circle cx={lerp(pts[far][0], pts[near][0], k)} cy={lerp(pts[far][1], pts[near][1], k)} r={4.5} fill="#fff" /></g>; })}
                   {pts.map((q, i) => { const o = vis(q), tw = 0.75 + 0.25 * Math.sin(t * 3 + i * 1.3); return o > 0 ? <g key={'n' + i} opacity={o}><circle cx={q[0]} cy={q[1]} r={26} fill="#8fb4ff" opacity={0.6 * tw} filter="url(#iB)" /><circle cx={q[0]} cy={q[1]} r={i < 10 ? 9 : 6.5} fill="#fff" /></g> : null; })}
                 </g>; })()}
-              <g transform={`translate(${RT[0]} ${RT[1] + (1 - rise) * 120}) scale(0.85)`}>
+              <g transform={`translate(${RT[0]} ${RT[1] + (1 - rise) * 120}) scale(1.15)`}>
                 <circle r={80} fill="#5fe3ff" opacity={0.22} filter="url(#iB2)" />
                 <line x1={-34} y1={-20} x2={-46} y2={-70} stroke="#d9d6cf" strokeWidth={6} strokeLinecap="round" /><line x1={34} y1={-20} x2={46} y2={-70} stroke="#d9d6cf" strokeWidth={6} strokeLinecap="round" />
                 <rect x={-62} y={-26} width={124} height={52} rx={14} fill="#f3f0ea" /><rect x={-62} y={8} width={124} height={18} rx={9} fill="#cfd3de" />
                 {[0, 1, 2, 3].map((i) => <circle key={i} cx={-36 + i * 24} cy={-6} r={6} fill={Math.sin(t * 9 + i * 1.7) > 0 ? '#3ddc97' : '#1f6a4c'} />)}
-                <text y={-92} textAnchor="middle" style={{ font: `800 70px ${FONT.ui}` }} fill="#fff" stroke="#0a0e24" strokeWidth={12} paintOrder="stroke" opacity={prog(f, 8.9, 9.2)}>ROUTER</text>
+                <text y={-88} textAnchor="middle" style={{ font: `800 54px ${FONT.ui}` }} fill="#fff" stroke="#0a0e24" strokeWidth={11} paintOrder="stroke" opacity={prog(f, 8.9, 9.2)}>ROUTER</text>
               </g>
             </g>}
             {/* door numbers: every house gets its own address */}
             {star.map(([q, n], i) => { const a = prog(f, 10.0 + i * 0.12, 10.25 + i * 0.12, easeOut); if (a <= 0) return null; const her = n === 7, hi = her && t > 14.4 ? 1 : 0, full = prog(f, 12.75, 13.05);
-              return <g key={'ip' + i} opacity={a} transform={`translate(${q[0] + (i < 5 ? 10 : 0)} ${q[1] + (i < 5 ? 56 : -48)}) scale(${(1.8 + 0.3 * hi) * (0.7 + 0.3 * a)})`}>
+              return <g key={'ip' + i} opacity={a} transform={`translate(${q[0] + (i < 5 ? 10 : 0) + (n === 3 ? -215 : 0)} ${q[1] + (i < 5 ? 56 : -48) + (n === 3 ? -150 : 0)}) scale(${(1.8 + 0.3 * hi) * (0.7 + 0.3 * a)})`}>
                 <rect x={-20 - 62 * full} y={-19} width={40 + 124 * full} height={38} rx={10} fill={her ? '#ffe08a' : '#0e1430'} stroke={her ? '#fff' : '#5fe3ff'} strokeWidth={2.5} />
                 <text y={8} textAnchor="middle" style={{ font: `600 ${full > 0.5 ? 20 : 24}px ${FONT.mono}` }} fill={her ? '#3a2a05' : '#dffbff'}>{full > 0.5 ? `192.168.1.${n}` : n}</text></g>; })}
             {/* HELLO goes from him, through the router, to wherever she is now */}
@@ -638,8 +642,8 @@ export const IsoStreet: React.FC<{ hook?: boolean; wire?: boolean; net?: boolean
       {hook && <HookOverlays f={f} t={t} macro={macro} mute={mute} />}
       {wire && <WireOverlays f={f} t={t} />}
       {net && <NetOverlays f={f} t={t} />}
-      {move && (() => { let line: React.ReactNode = null; for (const [a, txt] of MVO) if (t >= a) line = txt; return line ? <><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div><style>{'.sub em{font-style:normal;color:#ffd38a}'}</style><div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}><Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span></div></> : null; })()}
-      {concept && <><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{CSUB[concept]}</div></div><style>{'.sub em{font-style:normal;color:#ffd38a}'}</style></>}
+      {move && (() => { let line: React.ReactNode = null; for (const [a, txt] of MVO) if (t >= a) line = txt; return line ? <><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div><style>{'.sub{text-wrap:balance}.sub em{font-style:normal;color:#ffd38a}'}</style><div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}><Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} /><span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span></div></> : null; })()}
+      {concept && <><div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{CSUB[concept]}</div></div><style>{'.sub{text-wrap:balance}.sub em{font-style:normal;color:#ffd38a}'}</style></>}
     </AbsoluteFill>
   );
 };
@@ -691,7 +695,7 @@ const HookOverlays: React.FC<{ f: number; t: number; macro: number; mute?: boole
           )}
         </div>
       )}
-      <div style={{ position: 'absolute', top: 236, left: 90, right: 90, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 62px/1.12 ${FONT.ui}`, color: TECH.text, opacity: prog(f, 0.1, 0.35) * (1 - prog(f, 3.0, 3.3)) }}>
+      <div style={{ position: 'absolute', top: 236, left: 90, right: 90, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 62px/1.12 ${FONT.ui}`, color: TECH.text, opacity: 0 }}>
         <div>This <span style={{ color: '#ffd38a' }}>torch</span> explains<br />the <span style={{ color: '#9fe9ff' }}>internet.</span></div>
       </div>
       <div style={{ position: 'absolute', top: 236, left: 90, right: 90, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 62px/1.12 ${FONT.ui}`, color: TECH.text, opacity: prog(f, 7.1, 7.4) * (1 - prog(f, 8.2, 8.4)) }}>
@@ -702,7 +706,7 @@ const HookOverlays: React.FC<{ f: number; t: number; macro: number; mute?: boole
           <div className="sub">{line}</div>
         </div>
       )}
-      <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
+      <style>{'.sub{text-wrap:balance}.sub em{font-style:normal;color:#ffd38a}'}</style>
       <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}>
         <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} />
         <span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>
@@ -726,7 +730,7 @@ const WireOverlays: React.FC<{ f: number; t: number }> = ({ f, t }) => {
           ) : (
             <>
               <div style={{ font: `800 60px ${FONT.ui}`, color: TECH.text }}>"HELLO" = <span style={{ color: '#ffe08a' }}>40</span> blinks</div>
-              <div style={{ font: `600 28px ${FONT.mono}`, color: '#a9b4dd' }}>torch: <span style={{ color: '#ffb38a' }}>~40 s</span> · wire: <span style={{ color: '#9fe9ff' }}>0.00000004 s</span></div>
+              <div style={{ font: `600 36px ${FONT.mono}`, color: '#a9b4dd' }}>torch: <span style={{ color: '#ffb38a' }}>~40 s</span> · wire: <span style={{ color: '#9fe9ff' }}>0.00000004 s</span></div>
             </>
           )}
         </div>
@@ -736,7 +740,7 @@ const WireOverlays: React.FC<{ f: number; t: number }> = ({ f, t }) => {
           <div className="sub">{line}</div>
         </div>
       )}
-      <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
+      <style>{'.sub{text-wrap:balance}.sub em{font-style:normal;color:#ffd38a}'}</style>
       <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}>
         <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} />
         <span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>
@@ -766,7 +770,7 @@ const NetOverlays: React.FC<{ f: number; t: number }> = ({ f, t }) => {
           <div className="sub">{line}</div>
         </div>
       )}
-      <style>{'.sub em{font-style:normal;color:#ffd38a}'}</style>
+      <style>{'.sub{text-wrap:balance}.sub em{font-style:normal;color:#ffd38a}'}</style>
       <div style={{ position: 'absolute', right: 18, top: 960, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: MARK_O }}>
         <Img src={staticFile('logo.png')} style={{ width: 70, height: 70, borderRadius: 35 }} />
         <span style={{ writingMode: 'vertical-rl', font: `700 26px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>@TheInvisiTech</span>

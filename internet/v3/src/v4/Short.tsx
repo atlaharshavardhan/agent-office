@@ -34,4 +34,5 @@ export const Part1Fly: React.FC = () => {
   const t = useCurrentFrame() / FPS; let line: string | null = null; for (const [a, b, x] of plan1.flysubs as [number, number, string][]) if (t >= a && t < b) line = x;
   return <AbsoluteFill style={{ backgroundColor: '#070a22' }}><Shot from={plan1.fly} to={plan1.fly + plan1.end} fade={0}><EndCard /></Shot><Shot from={0} to={plan1.fly}><Fast k={plan1.flyk}><World /></Fast></Shot>{line && <Sub>{em(line)}</Sub>}{t < plan1.fly && <Mark />}</AbsoluteFill>; };
 /* plays its children k times faster */
-const Fast: React.FC<{ k: number; children: React.ReactNode }> = ({ k, children }) => <Freeze frame={useCurrentFrame() * k}>{children}</Freeze>;
+/* the plane keeps its natural speed for the first 1.9 s; the globe part then runs fast enough to finish on time */
+const Fast: React.FC<{ k: number; children: React.ReactNode }> = ({ k, children }) => { const f = useCurrentFrame(), P = 57, total = plan1.fly * 30, end = total * k; return <Freeze frame={f < P ? f : P + (f - P) * (end - P) / (total - P)}>{children}</Freeze>; };

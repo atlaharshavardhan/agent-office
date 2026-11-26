@@ -116,3 +116,17 @@ My review of version 5, frame by frame every 2 s:
 - Flight: the plane is on screen for about 1.5 s only since the shot was cut to 4 s.
 - Liam speaks faster, so several lines leave longer pauses (version 7, not rendered).
 - Fact simplification: 192.168.1.x are addresses inside one home network; the scene uses them as house numbers on a street.
+
+## Part 1 version 8 plan, 27 Nov 2026 (built in code, preview stills sent, NOT rendered: waiting for Harsh's "render")
+Harsh: "fix all", and his rule: FOCUS ON THE AREA BEING EXPLAINED. Close shots by default; go wide only when the whole picture is needed. For the hook: a closer shot with both of them on screen.
+Done in code:
+- Hook opens on a close two-shot (both balconies). Title card removed (it showed a second text over the caption).
+- Wire scene stays on the two of them. House moves: the camera follows each move (hostel, friend's place), goes wide for "another" and the neighbours, close on the router, medium for the door numbers, wide for the delivery.
+- Router drawn bigger with its name above; the 192.168.1.3 tag moved off it.
+- Cities: faces no longer overlap at the start; city plates and hop labels fade out before the frame edge cuts them; phones are smaller (scale 1.0) and stand beside the person.
+- Photo lesson: new camera (photoKeys in CityPhoto.tsx): close on him and his phone, follow the block, wide for "everyone waits", close on the error, close on him for the packets, follow one packet with a big "To: her phone / #0685" tag, wide for sharing wires and another path, close on the lost packet, close on the resend, close on her router and phone for the sorting. Her phone appears only in that last shot.
+- Captions use balanced line breaks. "HELLO = 40 blinks" small line enlarged. Flight: the plane keeps normal speed for 1.9 s, the globe runs faster.
+- Watermark: one fixed spot, top centre (x 330, y 156), 42% see-through.
+Not changed: the 192.168.1.x simplification; Liam's shorter lines still leave some pauses.
+16:9: the wide layout has not been adapted to these cameras and phone positions yet.
+Render: v3/render_part1_v8.sh (full re-render, about 5 to 6 hours). Preview stills: v3/stills/v8/.

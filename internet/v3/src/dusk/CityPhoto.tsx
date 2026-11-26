@@ -38,6 +38,18 @@ const Pic: React.FC<{ id: string; s: number; tiles: boolean[]; grid: number }> =
     {grid > 0 && Array.from({ length: 5 }).map((_, k) => <g key={k} opacity={grid}><line x1={k + 1} y1={0} x2={k + 1} y2={6} stroke="#0b1030" strokeWidth={0.09} /><line x1={0} y1={k + 1} x2={6} y2={k + 1} stroke="#0b1030" strokeWidth={0.09} /></g>)}
   </svg>);
 
+/* ---- the camera: stay close on whatever is being explained, go wide only when the whole route matters ---- */
+type Cam = { x: number; y: number; z: number };
+const HERO = 12;   // the packet the camera follows for "her address and a number"
+const pkPos = (RT: Pt[], i: number, te: number) => { const p = PK[i]; return along(RT, p.alt ? ALT : MAIN, easeInOut(clamp01((te - p.dep) / p.dur)) * 3, p.alt ? 20 : 26); };
+export const photoKeys = (te: number, RT: Pt[]): [number, Cam][] => {
+  const shot = (p: readonly number[], sx: number, sy: number, z: number): Cam => ({ x: p[0] - (sx - 540) / z, y: p[1] - (sy - 960) / z, z });   // put world point p at screen (sx, sy)
+  const ALLV: Cam = { x: 540, y: 921, z: 0.95 }, HIM = shot(RT[0], 300, 1010, 1.7), FOL = shot(along(RT, MAIN, blockV(te)), 540, 900, 1.5), ERR = shot(along(RT, MAIN, 1.9), 540, 880, 1.7);
+  const MID = shot([(RT[0][0] + RT[1][0]) / 2, (RT[0][1] + RT[1][1]) / 2], 540, 940, 1.25), PACK = shot(pkPos(RT, HERO, te), 540, 860, 1.9), LOSTC = shot(along(RT, MAIN, 1.5), 620, 900, 1.6), HOMEC = shot(RT[0], 330, 900, 1.45), HER = shot(RT[3], 300, 660, 1.6);
+  const K: [number, Cam][] = [[1.0, HIM], [3.5, HIM], [3.95, FOL], [6.1, FOL], [6.8, ALLV], [7.5, ALLV], [7.75, ERR], [8.6, ERR], [9.0, FOL], [10.5, FOL], [11.0, HIM], [14.2, HIM], [14.9, MID], [16.4, MID],
+    [16.9, PACK], [18.4, PACK], [18.9, ALLV], [21.0, ALLV], [21.3, LOSTC], [22.6, LOSTC], [22.95, HOMEC], [23.8, HOMEC], [24.6, HER], [60, HER]];
+  return K.map(([a, c]) => [13 + a, c]); };
+
 /* ---- drawn on the map (inside the camera) ---- */
 export const PhotoWorld: React.FC<{ te: number; RT: Pt[] }> = ({ te, RT }) => {
   if (te < 0) return null;
@@ -65,6 +77,7 @@ export const PhotoWorld: React.FC<{ te: number; RT: Pt[] }> = ({ te, RT }) => {
     {PK.map((p) => { const lost = p.i === LOST; const runs: [number, number, boolean][] = lost ? [[p.dep, 2.6, true], [RESEND, 2.6, false]] : [[p.dep, p.dur, false]];
       return runs.map(([dep, dur, dies], ri) => { const u = (te - dep) / dur; if (u <= 0 || u >= 1 || (dies && u > 0.5)) return null; const q = along(RT, p.alt ? ALT : MAIN, easeInOut(u) * 3, p.alt ? 20 : 26), hero = lost && !dies;
         return <g key={p.i + '-' + ri} transform={`translate(${q[0]} ${q[1]})`}>{hero && <circle r={46} fill="url(#cPk)" />}<rect x={-17} y={-17} width={34} height={34} rx={7} fill={tileCol(p.i)} stroke={hero ? '#fff' : '#0b1030'} strokeWidth={hero ? 4 : 2.5} />
+          {p.i === HERO && !lost && <g transform="translate(0 -66)"><rect x={-62} y={-17} width={124} height={30} rx={8} fill="#ffe08a" stroke="#fff" strokeWidth={2} /><text y={5} textAnchor="middle" fill="#3a2a05" style={{ font: `700 17px ${FONT.mono}` }}>To: her phone</text></g>}
           {(p.i % 6 === 0 || lost) && <g transform="translate(0 -34)"><rect x={-40} y={-15} width={80} height={28} rx={8} fill="#0e1430" stroke={hero ? '#fff' : '#5fe3ff'} strokeWidth={2} /><text y={6} textAnchor="middle" fill="#eef1ff" style={{ font: `600 17px ${FONT.mono}` }}>{num(p.i)}</text></g>}</g>; }); })}
     {/* the lost one */}
     {(() => { const tl = PK[LOST].dep + 1.3, u = seg(te, tl, tl + 0.4), o = u * (1 - seg(te, RESEND - 0.2, RESEND + 0.4)); if (o <= 0) return null; const q = along(RT, MAIN, 1.5);
@@ -86,20 +99,20 @@ const Note: React.FC<{ c?: string; children: React.ReactNode }> = ({ c = '#9fe9f
 const arc = (a: readonly number[], b: readonly number[], u: number, h: number) => [lerp(a[0], b[0], u), lerp(a[1], b[1], u) - h * Math.sin(Math.PI * u)] as const;
 export const PhotoUI: React.FC<{ te: number; RT: Pt[]; scr: Scr }> = ({ te, RT, scr }) => {
   if (te < 0) return null;
-  const Z = isWide() ? 1.5 : 1, PHIS = isWide() ? { x: -340, y: 330 } : { x: 60, y: 290 }, PHER = isWide() ? { x: 1050, y: 440 } : { x: 690, y: 786 };   // wide film: bigger phones, beside the middle column
+  const W = isWide(), Z = W ? 1.5 : 1.05, ZR = W ? 1.5 : 1.25, PHIS = W ? { x: -340, y: 330 } : { x: 650, y: 470 }, PHER = W ? { x: 1050, y: 440 } : { x: 600, y: 560 };   // wide film: bigger phones, beside the middle column
   const home = scr(RT[0]), cityR = scr(RT[3]);
   const head = te < B_END + 0.2 ? seg(te, B0 - 0.6, B0 - 0.2) : 0, head2 = seg(te, 12.0, 12.4);
   const chip = (txt: string, sub: string, col: string, a: number) => a > 0 ? <div style={{ position: 'absolute', left: 372, top: 250, width: 400, opacity: a, transform: `translateY(${(1 - a) * -16}px)`, textAlign: 'left' }}>
     <div style={{ display: 'inline-block', padding: '10px 22px', borderRadius: 18, background: 'rgba(10,14,36,.9)', border: `3px solid ${col}`, font: `800 33px ${FONT.ui}`, color: '#fff', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>{txt}</div>
     <div style={{ font: `600 22px ${FONT.mono}`, color: col, marginTop: 8, textShadow: '0 2px 6px rgba(0,0,0,.9)' }}>{sub}</div></div> : null;
   /* 1) one big block: he taps send, the whole photo jumps out to his router, the phone is gone */
-  const o1 = easeOut(seg(te, 0.5, 0.9)) * (1 - seg(te, 3.5, 3.85)), tap1 = te > 3.02 && te < 3.2, sent1 = te >= 3.15, j1 = easeInOut(seg(te, 3.15, 3.65));
+  const o1 = easeOut(seg(te, 0.9, 1.3)) * (1 - seg(te, 3.5, 3.85)), tap1 = te > 3.02 && te < 3.2, sent1 = te >= 3.15, j1 = easeInOut(seg(te, 3.15, 3.65));
   /* 2) packets: the photo is cut into squares in his phone, he taps send, they all jump out and queue above his router */
   const o2 = easeOut(seg(te, 11.0, 11.4)) * (1 - seg(te, 13.95, 14.3)), grid = seg(te, 12.0, 12.9), tap2 = te > 13.22 && te < 13.4;
   const bst = (i: number) => seg(te, 13.35 + i * 0.012, 13.75 + i * 0.012), mos = (i: number) => [home[0] - 6 + (i % 6) * MC, home[1] - 172 + Math.floor(i / 6) * MC] as const, thumb = (i: number) => [PHIS.x + Z * (THX + (i % 6 + 0.5) * (TH / 6)), PHIS.y + Z * (THY + (Math.floor(i / 6) + 0.5) * (TH / 6))] as const;
   const sentN = PK.filter((p) => te >= p.dep).length, mosO = seg(te, 13.4, 13.8) * (1 - seg(te, PK[N - 1].dep + 0.2, PK[N - 1].dep + 0.8));
   /* 3) her phone shows up only when the first packets are about to arrive; they land in arrival order, then sort by number */
-  const o3 = easeOut(seg(te, 16.3, 16.7)), slot = (k: number) => [PHER.x + Z * (GRX + (k % 6 + 0.5) * CELL), PHER.y + Z * (GRY + (Math.floor(k / 6) + 0.5) * CELL)] as const;
+  const o3 = easeOut(seg(te, W ? 16.3 : 24.5, W ? 16.7 : 24.9)), slot = (k: number) => [PHER.x + ZR * (GRX + (k % 6 + 0.5) * CELL), PHER.y + ZR * (GRY + (Math.floor(k / 6) + 0.5) * CELL)] as const;
   const landed = PK.filter((p) => te >= p.arr + HOP).length, sorted = te >= DONE, glow = sorted ? 1 - seg(te, DONE + 0.1, DONE + 1.2) : 0;
   return <>
     {chip('WITHOUT PACKETS', 'the photo as one big piece', '#ffb020', head)}
@@ -116,14 +129,14 @@ export const PhotoUI: React.FC<{ te: number; RT: Pt[]; scr: Scr }> = ({ te, RT, 
     {/* the squares in flight from his phone, then waiting above his router until their turn */}
     {te > 13.3 && PK.map((p) => { const u = bst(p.i); if (u <= 0 || te >= p.dep) return null; const q = arc(thumb(p.i), mos(p.i), easeInOut(u), 60 + (p.i % 6) * 8); return <Tile key={'m' + p.i} i={p.i} s={lerp(Z * TH / 6, MC - 1, u)} x={q[0]} y={q[1]} />; })}
     {mosO > 0 && <div style={{ position: 'absolute', left: home[0] - 78, top: home[1] - 226, width: 220, opacity: mosO, textAlign: 'center' }}><span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: 12, background: 'rgba(10,14,36,.92)', border: '2px solid #5fe3ff', font: `600 18px ${FONT.mono}`, color: '#eef1ff', whiteSpace: 'nowrap' }}>sent {Math.round((sentN / N) * 2000).toLocaleString('en-US')} of 2,000</span></div>}
-    {o3 > 0 && <IPhone left={PHER.x} top={PHER.y} o={o3} k={Z} name="Him" avatar="#3fb8a8">
+    {o3 > 0 && <IPhone left={PHER.x} top={PHER.y} o={o3} k={ZR} name="Him" avatar="#3fb8a8">
       <div style={{ position: 'absolute', left: GRX - SCR.x, top: GRY - SCR.y - 96, width: GR, height: GR, borderRadius: 10, background: '#111318', boxShadow: glow > 0 ? `0 0 ${30 * glow}px 4px #5fe3ff` : 'inset 0 0 0 1px #2c2c2e' }} />
       <div style={{ position: 'absolute', left: 0, right: 0, top: GRY - SCR.y - 96 + GR + 10 }}>{sorted ? <><Note c="#7dffb0">✓ photo received</Note><Note c="#eef1ff">back in order</Note></> : te >= REORD ? <><Note>sorting by number…</Note><Note c="#eef1ff">1, 2, 3, 4 …</Note></> : <><Note>receiving packets</Note><Note c="#eef1ff">{Math.round((landed / N) * 2000).toLocaleString('en-US')} of 2,000</Note></>}</div>
       <Compose bottom={18} text={<span style={{ color: '#6b6b70' }}>iMessage</span>} />
     </IPhone>}
     {/* each packet hops from her city router into the next free slot; at the end every square slides to its own number */}
     {o3 > 0 && PK.map((p) => { const u = (te - p.arr) / HOP; if (u <= 0) return null; const k = SLOT[p.i];
-      if (u < 1) { const q = arc(cityR, slot(k), easeInOut(u), 50); return <Tile key={'h' + p.i} i={p.i} s={lerp(30, Z * CELL - 1, u)} x={q[0]} y={q[1]} glow label={1} />; }
+      if (u < 1) { const q = arc(cityR, slot(k), easeInOut(u), 50); return <Tile key={'h' + p.i} i={p.i} s={lerp(30, ZR * CELL - 1, u)} x={q[0]} y={q[1]} glow label={1} />; }
       const r = easeInOut(seg(te, REORD + (p.i % 6) * 0.03, REORD + 0.75 + (p.i % 6) * 0.03)), a = slot(k), b = slot(p.i);
-      return <Tile key={'s' + p.i} i={p.i} s={Z * CELL - (sorted ? 0 : 1)} x={lerp(a[0], b[0], r)} y={lerp(a[1], b[1], r) - 16 * Math.sin(Math.PI * r) * (k === p.i ? 0 : 1)} label={(1 - seg(te, DONE, DONE + 0.4)) * o3} glow={u < 1.6} />; })}
+      return <Tile key={'s' + p.i} i={p.i} s={ZR * CELL - (sorted ? 0 : 1)} x={lerp(a[0], b[0], r)} y={lerp(a[1], b[1], r) - 16 * Math.sin(Math.PI * r) * (k === p.i ? 0 : 1)} label={(1 - seg(te, DONE, DONE + 0.4)) * o3} glow={u < 1.6} />; })}
   </>; };
