@@ -3,7 +3,7 @@
 // carton, thumb and index pinch the foil edge, the empty bowl beside him. Warm desk bulb, cool window light.
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { C, HeadFQ } from './student';
+import { C, HeadFQ , StudentDefs } from './student';
 import { MiniBulb, Socket, Pack, Wire } from '../kit';
 
 const W = 1080, H = 1920;
@@ -87,6 +87,7 @@ export const FoilBuild: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: '#121a30' }}>
       <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+        <StudentDefs />
         <defs>
           <linearGradient id="d-wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#1b2444" /><stop offset="1" stopColor="#141b33" /></linearGradient>
           <linearGradient id="d-desk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8a5a36" /><stop offset="1" stopColor="#5a3820" /></linearGradient>
@@ -127,7 +128,7 @@ export const FoilBuild: React.FC = () => {
           <path d="M 300 1040 C 290 940 300 860 340 820 C 360 806 380 798 400 792 C 360 840 340 940 350 1040 Z" fill={C.hoodSh} opacity={0.6} />
           <path d="M 660 830 C 700 860 712 930 708 1030" fill="none" stroke="#9fb4ff" strokeWidth={10} strokeLinecap="round" opacity={0.25} />
           {/* head, tilted down toward the sheet */}
-          <g transform="translate(508 570) rotate(10 0 180) scale(1.55)"><HeadFQ turn={0.45} ex="dawn" look={[0.4, 1.9]} /></g>
+          <g transform="translate(508 570) rotate(10 0 180) scale(1.55)"><HeadFQ turn={0.45} ex="dawn" look={[0.5, 2.6]} /></g>
           {/* hood around the neck */}
           {S('M 400 800 C 396 760 432 738 462 752 L 506 800 L 548 752 C 580 740 616 760 610 802 C 582 826 546 834 506 834 C 466 834 424 826 400 800 Z', C.hood)}
           {S('M 462 754 L 506 802 L 548 754 C 536 770 520 778 506 778 C 492 778 474 770 462 754 Z', C.hoodDeep, 2.6)}

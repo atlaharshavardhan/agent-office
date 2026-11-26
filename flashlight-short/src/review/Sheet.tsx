@@ -1,7 +1,7 @@
 // Review 1 · Student character sheet: front, three-quarter and side; three expressions; two hand studies.
 import React from 'react';
 import { AbsoluteFill, Img, staticFile } from 'remotion';
-import { C, Expr, FrontFigure, HandBulb, HandFoil, HeadFQ, SideFigure, ThreeQFigure } from './student';
+import { C, Expr, FrontFigure, HandBulb, HandFoil, HeadFQ, SideFigure, ThreeQFigure , StudentDefs } from './student';
 
 export const SHEET = { w: 2400, h: 1350 };
 const INK = '#2a2622';
@@ -25,6 +25,7 @@ const Panel: React.FC<{ x: number; y: number; w: number; h: number }> = ({ x, y,
 export const StudentSheet: React.FC = () => (
   <AbsoluteFill style={{ background: '#e7e2d8' }}>
     <svg width={SHEET.w} height={SHEET.h} viewBox={`0 0 ${SHEET.w} ${SHEET.h}`}>
+        <StudentDefs />
       <text x={60} y={78} style={{ font: '800 40px Inter, sans-serif' }} fill={INK}>InvisiTech · How You'd Invent a Flashlight · Student</text>
       <text x={60} y={116} style={{ font: '500 24px Inter, sans-serif' }} fill="#6d665b">Character sheet for review · no pencil · swept dark hair, yellow hoodie, dark jeans, navy canvas sneakers</text>
 
