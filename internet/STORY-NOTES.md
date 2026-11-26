@@ -84,3 +84,11 @@ now she moved to London, that's part 1. Part 2: what happens if we need to send 
 - 26 Nov 2026: Harsh: no whoosh or movement sound at all, including while messages travel. Version 4 = version 3 picture with a new sound mix: removed every sweep, riser, noise burst, hum, data chirp and the ticking while messages/packets move. Kept: voice, music, torch clicks, bit beeps, wire thump and clink, typing taps, send tap, arrival and "photo complete" dings, the error thump. City sound rebuilt from scratch (audio/make_city_mix.py). RULE for all future parts: no movement sounds.
 - Decision (26 Nov): Part 1 goes out first as the 9:16 Short; the 16:9 film will be Part 1 + Part 2 in one video.
 - 26 Nov 2026: Harsh heard 'continuous car horns'. Cause: the music's pluck motif (a note twice per beat). Turned down from 0.05 to 0.011 in every mix (audio/bed-soft.wav for hook and wire; make_city_mix.py; make_part1_mix.py). Result: internet/video/internet-part1-v5.mp4. RULE: keep the pluck layer at this faint level.
+- 26 Nov 2026, NOTED, NOT DONE (Harsh said "note it"): ways to shorten Part 1 (now 90 s). Do none of these until he asks.
+  A. Speed the whole video up 5%, voice pitch kept: saves about 4.5 s, no re-render.
+  B. End card 3.6 s to 2.4 s: saves 1.2 s, no re-render.
+  C. Photo lesson: drop the "starts all over again" replay after the error: about 3 s, re-render about 3 h.
+  D. Street: two house moves instead of three: about 2.5 s, re-render about 1 h plus a new voice line.
+  E. Cities: drop "One router can't reach that far": about 2 s, re-render about 1 h.
+  My pick was A + B (about 84 s). All five: about 77 s.
+- Current files: vertical internet-part1-v5.mp4 (latest sound). Wide internet-part1-wide-v1.mp4 still has the OLD sound (v3 mix); give it the v5 sound when Part 2 is joined.
