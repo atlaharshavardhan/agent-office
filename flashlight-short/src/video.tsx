@@ -3,6 +3,7 @@
 import React from 'react';
 import { AbsoluteFill, Audio, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
 import { FoilBuild } from './idea/IdeaToFoil';
+import { DoorShot } from './door/DoorShot';
 import vo from '../public/vo/vo.json';
 import { S01A, S01B, S02A, S02B, S03, S04M, S05, S06, S07, S08A, S08B, S09, S10 } from './storyboard';
 
@@ -168,13 +169,8 @@ export const FlashlightShort: React.FC = () => {
   const len = (k: keyof typeof SC) => f(SC[k].to - SC[k].from) + FADE;
   return (
     <AbsoluteFill style={{ background: '#0b0f1e' }}>
-      {/* 01 · locked in: he tugs at the stuck door; the power cuts */}
-      <Scene sc={SC.s1} first>
-        <Cam len={len('s1')} z={1.04} ox={260} oy={900}>
-          <At s={0} e={CUT_POWER}><Shot01 lit /></At>
-          <At s={CUT_POWER}><Shot01 lit={false} t0={CUT_POWER} /><PowerFlicker /></At>
-        </Cam>
-      </Scene>
+      {/* 01 · locked in: one tug on the stuck door (supplied art, layered), then the power cuts to dim blue */}
+      <Scene sc={SC.s1} first><DoorShot tugAt={0.7} cutAt={CUT_POWER} /></Scene>
       {/* 02 · he shouts and waves; the friend walks on with his earbuds in */}
       <Scene sc={SC.s2}>
         <At s={0} e={2.0}><Cam len={f(2.2)} z={1.03} ox={700} oy={700}><Shot02A /></Cam></At>
@@ -217,7 +213,6 @@ export const FlashlightShort: React.FC = () => {
         </Sequence>
       )))}
       {/* sound effects */}
-      <Sequence from={f(CUT_POWER) - 8}><Audio src={staticFile('sfx/powercut.wav')} volume={0.5} /></Sequence>
       <Sequence from={f(SC.s4.from + FLASH_04)}><Audio src={staticFile('sfx/pop.wav')} volume={0.45} /></Sequence>
       <Sequence from={f(SC.s5.from + CLICK_05)}><Audio src={staticFile('sfx/click.wav')} volume={0.5} /></Sequence>
       {[['flap', 0.9, 0.35], ['rustle_pull', 2.2, 0.4], ['tear', 4.1, 0.55], ['rustle_press', 6.0, 0.4]].map(([n, at, v]) => (

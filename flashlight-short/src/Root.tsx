@@ -11,10 +11,13 @@ import { FoilBuild } from './review/Desk';
 import { Exterior } from './review/Street';
 import { FACE_REVIEW, FaceReview } from './review/FaceReview';
 import { IDEA_FPS, IDEA_FRAMES, IdeaToFoil } from './idea/IdeaToFoil';
+import { DOOR_FPS, DOOR_FRAMES, DoorShot } from './door/DoorShot';
 
 export const Root: React.FC = () => (
   <>
     <Composition id="FlashlightShort" component={FlashlightShort} durationInFrames={DURATION} fps={FPS} width={1080} height={1920} />
+    {/* opening door shot: one tug, then the power cut */}
+    <Composition id="DoorShot" component={DoorShot} durationInFrames={DOOR_FRAMES} fps={DOOR_FPS} width={1080} height={1920} />
     {/* 10 s preview: Higgsfield reach -> match cut -> foil build */}
     <Composition id="IdeaToFoil" component={IdeaToFoil} durationInFrames={IDEA_FRAMES} fps={IDEA_FPS} width={1080} height={1920} />
     {/* face review */}
