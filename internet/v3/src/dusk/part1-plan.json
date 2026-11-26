@@ -16,13 +16,13 @@
   ],
   [
    3.08,
-   4.21,
-   "Send it as *one big block,*"
+   4.28,
+   "Send it as *one big piece,*"
   ],
   [
-   4.21,
-   5.67,
-   "and it holds the *whole line.*"
+   4.28,
+   5.88,
+   "and it *blocks* the whole line."
   ],
   [
    6.4,
@@ -31,23 +31,28 @@
   ],
   [
    8.3,
-   10.23,
-   "One glitch, and it *starts all over* again."
+   10.9,
+   "One small error, and it has to *start again.*"
   ],
   [
    10.8,
-   12.66,
-   "So the internet *never* sends it whole."
+   13.01,
+   "So the internet *never* sends it in one piece."
   ],
   [
    13.1,
-   14.4,
+   14.17,
    "It cuts the photo into"
   ],
   [
-   14.4,
-   16.14,
-   "about *2,000* small packets,"
+   14.17,
+   15.39,
+   "about *2,000* small pieces,"
+  ],
+  [
+   15.39,
+   16.31,
+   "called *packets,*"
   ],
   [
    16.4,
@@ -56,17 +61,17 @@
   ],
   [
    18.5,
-   20.49,
-   "They *share the lines* with everyone else."
+   20.4,
+   "They *share the wires* with everyone else."
   ],
   [
    20.7,
-   22.82,
-   "Busy road? Some go *another way.*"
+   22.65,
+   "Wire busy? Some take *another path.*"
   ],
   [
-   22.72,
-   25.06,
+   22.7,
+   25.03,
    "One lost? Only *that one* is sent again."
   ],
   [

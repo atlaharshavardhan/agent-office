@@ -102,7 +102,7 @@ export const PhotoUI: React.FC<{ te: number; RT: Pt[]; scr: Scr }> = ({ te, RT, 
   const o3 = easeOut(seg(te, 16.3, 16.7)), slot = (k: number) => [PHER.x + Z * (GRX + (k % 6 + 0.5) * CELL), PHER.y + Z * (GRY + (Math.floor(k / 6) + 0.5) * CELL)] as const;
   const landed = PK.filter((p) => te >= p.arr + HOP).length, sorted = te >= DONE, glow = sorted ? 1 - seg(te, DONE + 0.1, DONE + 1.2) : 0;
   return <>
-    {chip('WITHOUT PACKETS', 'the photo as one big block', '#ffb020', head)}
+    {chip('WITHOUT PACKETS', 'the photo as one big piece', '#ffb020', head)}
     {chip('WITH PACKETS', 'what the internet really does', '#5fe3ff', head2)}
     {o1 > 0 && <IPhone left={PHIS.x} top={PHIS.y} o={o1} k={Z} name="Her" avatar="#ff8672">
       <div style={{ paddingTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}><div style={{ opacity: sent1 ? 0.15 : 1 }}><Pic id="pa" s={TH} tiles={Array(36).fill(true)} grid={0} /></div><Note c="#ffd27a">{sent1 ? 'sending as 1 block…' : 'photo.jpg · 3 MB'}</Note></div>

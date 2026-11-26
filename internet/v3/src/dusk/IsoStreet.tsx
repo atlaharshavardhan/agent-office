@@ -211,7 +211,7 @@ const VO: [number, React.ReactNode][] = [
 
 /* wire scene (local time 0 - 7 s): he lowers the torch, a wire links the two balconies, pulses race, HELLO arrives at once */
 const WIRE_KEYS: Key[] = [[0, BOYC.x + 60, BOYC.y - 20, 1.9], [0.7, BOYC.x + 60, BOYC.y - 20, 1.9], [1.5, WIDE.x, WIDE.y, 1.0], [2.2, WIDE.x, WIDE.y, 1.0], [3.2, 590, 900, 1.12], [7, 590, 900, 1.15]];
-const WVO: [number, React.ReactNode][] = [[0.2, <>So we use a <em>LAN cable.</em></>], [2.3, <>Now it's a <em>billion</em> blinks,</>], [3.75, <>every <em>second.</em></>], [4.95, <><em>"Hello"</em> arrives before you blink.</>]];
+const WVO: [number, React.ReactNode][] = [[0.2, <>So we use a <em>wire.</em></>], [2.3, <>Now it's a <em>billion</em> blinks,</>], [3.75, <>every <em>second.</em></>], [4.95, <><em>"Hello"</em> arrives before you blink.</>]];
 export const IsoHook: React.FC = () => <IsoStreet hook />;
 export const IsoFull: React.FC = () => (<AbsoluteFill><Audio src={staticFile('full-mix.wav')} /><Sequence durationInFrames={468}><IsoStreet hook mute /></Sequence><Sequence from={468} durationInFrames={222}><IsoStreet wire /></Sequence><Sequence from={690} durationInFrames={555}><IsoStreet move /></Sequence></AbsoluteFill>);
 export const IsoHookCine: React.FC = () => <IsoStreet hook cine />;
@@ -238,7 +238,7 @@ const PAIRS: [number, number][] = []; for (let i = 0; i < 10; i++) for (let j = 
 export const IsoNet: React.FC = () => <IsoStreet net />;
 /* step 2 (local 0 - 10 s): she moves to a hostel down the street, the old wire is useless, a new wire per place cannot go on -> the router */
 const MOVE_KEYS: Key[] = [[0, 590, 900, 1.12], [0.5, 590, 900, 1.12], [2.0, 1000, 1040, 0.63], [16.8, 1000, 1040, 0.655]];
-const MVO: [number, React.ReactNode][] = [[0.2, <>Then she moves to a <em>hostel.</em> New wire.</>], [3.2, <>Then a friend's place. <em>Another wire.</em></>], [5.63, <>Then <em>another!</em></>], [6.71, <>Now the neighbours want in <em>too.</em></>], [8.41, <>So every house plugs into <em>one box:</em></>], [10.69, <>the <em>router.</em></>], [11.62, <>Every house gets a number, like a <em>door number.</em></>], [14.47, <>That's its <em>IP address.</em></>], [16.11, <>The router reads it and <em>delivers.</em></>]];
+const MVO: [number, React.ReactNode][] = [[0.2, <>Then she moves to a <em>hostel.</em> New wire.</>], [3.2, <>Then a friend's place. <em>Another wire.</em></>], [5.63, <>Then <em>another!</em></>], [6.71, <>Now the neighbours want to <em>join</em> too.</>], [8.41, <>So every house plugs into <em>one box:</em></>], [10.69, <>the <em>router.</em></>], [11.62, <>Every house gets a number, like a <em>door number.</em></>], [14.47, <>That's its <em>IP address.</em></>], [16.11, <>The router reads the number and <em>delivers</em> the message.</>]];
 const SHOTS = [2.2, 3.8, 5.3], AIMS: [number, number][] = [[90, 93], [60, 57], [103, 104]], ARR = [-9, 2.0, 3.5, 5.0], LEAVE = [0.6, 3.0, 4.6, 99];
 const MESH_ON = false;
 export const IsoMove: React.FC = () => <IsoStreet move />;

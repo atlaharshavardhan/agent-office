@@ -8,13 +8,13 @@ OUT = Path(__file__).parent / "liam"; OUT.mkdir(exist_ok=True)
 VOICE = "TX3LPaxmHKxFdv7VOQHJ"; SET = {"stability": 0.3, "similarity_boost": 0.8, "style": 0.55, "use_speaker_boost": True}
 L = [  # name, text, slot in seconds
  ("p1", "On is one. Off is zero.", 2.1), ("p2", "Eight blinks make one letter.", 1.95), ("p3", "But hello takes forty blinks.", 1.85), ("p4", "Too slow.", 1.5),
- ("p5c", "So we use a LAN cable.", 2.1), ("p6", "Now it's a billion blinks, every second.", 2.65), ("p6b", "Hello arrives before you blink.", 2.65),
- ("n1", "Then she moves to a hostel. New wire.", 3.0), ("n2", "Then a friend's place. Another wire.", 2.43), ("n3", "Then another!", 1.08), ("n4", "Now the neighbours want in too.", 1.7),
- ("n5", "So every house plugs into one box:", 2.28), ("m4", "the router.", 0.93), ("m5", "Every house gets a number, like a door number.", 2.85), ("m6", "That's its IP address.", 1.64), ("m7", "The router reads it and delivers.", 2.6),
+ ("p5c", "So we use a wire.", 2.1), ("p6", "Now it's a billion blinks, every second.", 2.65), ("p6b", "Hello arrives before you blink.", 2.65),
+ ("n1", "Then she moves to a hostel. New wire.", 3.0), ("n2", "Then a friend's place. Another wire.", 2.43), ("n3", "Then another!", 1.08), ("n4", "Now the neighbours want to join too.", 1.7),
+ ("n5", "So every house plugs into one box:", 2.28), ("m4", "the router.", 0.93), ("m5", "Every house gets a number, like a door number.", 2.85), ("m6", "That's its IP address.", 1.64), ("m7", "The router reads the number and delivers the message.", 2.6),
  ("c1", "Then she moves to another city.", 3.1), ("c2", "One router can't reach that far.", 2.0), ("c3", "So routers connect to other routers,", 2.7), ("c4", "and pass the message along, hop by hop.", 5.0),
- ("a1", "A text is tiny. But what about a photo?", 2.85), ("b1", "Send it as one big block, and it holds the whole line.", 3.35), ("b2", "Everyone else has to wait.", 1.9), ("b3", "One glitch, and it starts all over again.", 2.5),
- ("c1p", "So the internet never sends it whole.", 2.3), ("d1", "It cuts the photo into about two thousand small packets,", 3.3), ("d2", "each with her address and a number.", 2.1), ("d3", "They share the lines with everyone else.", 2.2),
- ("d4", "Busy road? Some go another way.", 2.0), ("d5", "One lost? Only that one is sent again.", 2.6), ("d6", "And her phone puts them back in order.", 2.8),
+ ("a1", "A text is tiny. But what about a photo?", 2.85), ("b1", "Send it as one big piece, and it blocks the whole line.", 3.35), ("b2", "Everyone else has to wait.", 1.9), ("b3", "One small error, and it has to start again.", 2.5),
+ ("c1p", "So the internet never sends it in one piece.", 2.3), ("d1", "It cuts the photo into about two thousand small pieces, called packets,", 3.3), ("d2", "each with her address and a number.", 2.1), ("d3", "They share the wires with everyone else.", 2.2),
+ ("d4", "Wire busy? Some take another path.", 2.0), ("d5", "One lost? Only that one is sent again.", 2.6), ("d6", "And her phone puts them back in order.", 2.8),
  ("t3", "Then she flies to London.", 1.65), ("z2", "Next: how a photo crosses an ocean.", 2.6), ("t10", "Follow InvisiTech for more.", 3.0)]
 def say(text, prev, nxt, speed):
     body = {"text": text, "model_id": "eleven_multilingual_v2", "voice_settings": {**SET, "speed": speed}, "previous_text": prev, "next_text": nxt}
