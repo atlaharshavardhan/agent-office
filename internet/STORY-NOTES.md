@@ -92,3 +92,4 @@ now she moved to London, that's part 1. Part 2: what happens if we need to send 
   E. Cities: drop "One router can't reach that far": about 2 s, re-render about 1 h.
   My pick was A + B (about 84 s). All five: about 77 s.
 - Current files: vertical internet-part1-v5.mp4 (latest sound). Wide internet-part1-wide-v1.mp4 still has the OLD sound (v3 mix); give it the v5 sound when Part 2 is joined.
+- 26 Nov 2026: Harsh wants the hook very straight and fast with an expressive voice, like the Face ID Short (George, Kokoro bm_george, speed 1.18). Samples of a new hook line in four voices are in internet/voice/samples/. Line tried: "Flash a torch at your friend, and you've just built the internet. Seriously! That's all it is: light, blinking on and off." Waiting for his pick of voice and wording; nothing re-recorded or rendered yet.
