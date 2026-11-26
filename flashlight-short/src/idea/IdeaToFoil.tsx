@@ -135,8 +135,8 @@ const FoilSheet: React.FC<{ pts: Poly; wob: number; creases: P[]; under?: boolea
 );
 
 // ---------------------------------------------------------------- the animated desk (local time t in seconds, 0..8)
-const Desk: React.FC = () => {
-  const fr = useCurrentFrame(), t = fr / IDEA_FPS;
+export const FoilBuild: React.FC<{ speed?: number }> = ({ speed = 1 }) => {
+  const fr = useCurrentFrame(), t = (fr / IDEA_FPS) * speed;
   // lid: thumb lifts it 0.9-1.8 s, the left hand presses it shut on the sheet 3.6-4.0 s
   const open = kf(t, [[0.9, 0], [1.8, 1], [3.6, 1], [4.0, 0]]);
   const depth = BOX.front - BOX.hinge, freeY = BOX.hinge + depth * Math.cos((open * 118 * Math.PI) / 180);
@@ -268,7 +268,7 @@ export const IdeaToFoil: React.FC = () => (
     </Sequence>
     {/* 2-10 s: match cut to the overhead desk */}
     <Sequence from={CUT} durationInFrames={IDEA_FRAMES - CUT}>
-      <Desk />
+      <FoilBuild />
       <Sequence from={27}><Audio src={staticFile('sfx/flap.wav')} volume={0.35} /></Sequence>
       <Sequence from={66}><Audio src={staticFile('sfx/rustle_pull.wav')} volume={0.4} /></Sequence>
       <Sequence from={123}><Audio src={staticFile('sfx/tear.wav')} volume={0.55} /></Sequence>

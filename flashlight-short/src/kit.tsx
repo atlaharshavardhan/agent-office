@@ -22,11 +22,11 @@ export type Pal = {
   top: string; topSh: string; topHi: string; under: string; pants: string; pantsSh: string; shoe: string; sole: string;
   rolled: boolean;
 };
-// the student: 19, short dark wavy hair, mustard overshirt (sleeves rolled) over a charcoal tee, dark jeans, pencil behind the ear
+// the student: 19, dark wavy hair, yellow hoodie, dark jeans, navy canvas sneakers (matches the reference and the Higgsfield clip)
 export const STU: Pal = {
   skin: '#b97a50', skinSh: '#8a5236', skinHi: '#d9a074', nail: '#e2b49a', hair: '#1b171d',
-  top: '#c8962c', topSh: '#93691c', topHi: '#e2b54e', under: '#34363d', pants: '#2c3650', pantsSh: '#1f273b', shoe: '#2a2a2e', sole: '#d9d4c8',
-  rolled: true,
+  top: '#f2b014', topSh: '#c9850a', topHi: '#ffd04d', under: '#f2b014', pants: '#2b3350', pantsSh: '#1f2640', shoe: '#4c5a7c', sole: '#efece4',
+  rolled: false,
 };
 // the friend: red jacket, dark trousers, black backpack, white wireless earbuds
 export const FRD: Pal = {
@@ -315,13 +315,15 @@ export const Person: React.FC<{ pal: Pal; pose: Pose; who: 'stu' | 'friend'; ext
         <path d="M 46 190 C 70 172 136 170 158 188 L 168 330 C 172 420 166 520 162 572 L 44 572 C 36 480 32 380 38 300 Z" fill={pal.top} stroke={INK} strokeWidth={3.2} strokeLinejoin="round" />
         <path d="M 46 190 C 40 260 36 380 38 480 L 44 572 L 78 572 C 70 460 70 300 82 196 Z" fill={pal.topSh} opacity={0.5} />
         {isStu ? <>
-          {/* open overshirt: charcoal tee shows down the front edge */}
-          <path d="M 134 186 L 158 188 L 168 330 C 172 420 166 520 162 572 L 144 572 C 148 480 150 380 146 300 Z" fill={pal.under} stroke={INK} strokeWidth={2.4} />
-          <path d="M 134 186 C 142 250 150 380 144 572" stroke={pal.topSh} strokeWidth={5} fill="none" />
-          <path d="M 98 186 L 136 184 L 128 232 Z" fill={pal.topHi} stroke={INK} strokeWidth={2.4} strokeLinejoin="round" />
-          <path d="M 104 300 L 136 300 L 136 342 L 104 342 Z" fill={pal.top} stroke={pal.topSh} strokeWidth={3} />
-          <path d="M 104 300 L 136 300 L 136 310 L 104 310 Z" fill={pal.topSh} opacity={0.6} />
-          {Array.from({ length: 4 }, (_, i) => <circle key={i} cx={140 + i * 1.5} cy={250 + i * 80} r={3.4} fill="#e9e2cf" stroke={INK} strokeWidth={1} />)}
+          {/* hoodie: hood bunched behind the neck, drawstrings, kangaroo pocket bulge at the front, ribbed hem */}
+          <path d="M 40 196 C 20 176 26 140 56 132 C 76 128 92 144 92 164 C 84 184 64 196 40 196 Z" fill={pal.top} stroke={INK} strokeWidth={2.6} />
+          <path d="M 50 182 C 44 168 50 152 64 150" fill="none" stroke={pal.topSh} strokeWidth={4} strokeLinecap="round" />
+          <path d="M 142 196 C 150 240 152 280 150 300" stroke={INK} strokeWidth={6} fill="none" strokeLinecap="round" />
+          <path d="M 142 196 C 150 240 152 280 150 300" stroke="#f8d26a" strokeWidth={3} fill="none" strokeLinecap="round" />
+          <rect x={146} y={298} width={7} height={14} rx={2} fill="#8d8f96" stroke={INK} strokeWidth={1.2} />
+          <path d="M 134 400 C 160 404 172 424 170 452 L 168 500 L 140 500 C 146 470 146 430 134 400 Z" fill={pal.top} stroke={INK} strokeWidth={2.4} />
+          <path d="M 44 540 L 162 540 L 162 572 L 44 572 Z" fill={pal.topSh} stroke={INK} strokeWidth={2.4} />
+          {Array.from({ length: 8 }, (_, i) => <path key={i} d={`M ${54 + i * 14} 544 L ${54 + i * 14} 568`} stroke={pal.top} strokeWidth={2} />)}
         </> : <>
           {/* zipped jacket */}
           <path d="M 152 194 C 158 260 164 380 158 560" stroke="#5a1210" strokeWidth={3} fill="none" />

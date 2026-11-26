@@ -374,12 +374,10 @@ const Forearm: React.FC<{ a: FPA }> = ({ a }) => {
   const shade = a.mirror ? 1 : -1;
   return (
     <g>
-      <polygon points={quad(c1 - 4, 92 * s, 1200, 104 * s)} fill={STU.top} stroke={INK} strokeWidth={3.4} strokeLinejoin="round" />
-      <polygon points={quad(c1 + 30 * s, 40 * s, 1200, 40 * s)} fill={STU.topSh} opacity={0.4} transform={`translate(${px * shade * 22 * s} ${py * shade * 22 * s})`} />
-      <polygon points={quad(-6, 50 * s, c0 + 6, 66 * s)} fill={STU.skin} stroke={INK} strokeWidth={3.4} strokeLinejoin="round" />
-      <polygon points={quad(-6, 16 * s, c0, 22 * s)} fill={STU.skinSh} opacity={0.35} transform={`translate(${px * shade * 16 * s} ${py * shade * 16 * s})`} />
-      <polygon points={quad(c0 - 4, 84 * s, c1, 90 * s)} fill={STU.topHi} stroke={INK} strokeWidth={3.4} strokeLinejoin="round" />
-      <polyline points={`${at(c0 + 18 * s, 80 * s, 1)} ${at(c0 + 18 * s, 80 * s, -1)}`} stroke={STU.topSh} strokeWidth={3} />
+      <polygon points={quad(28 * s, 74 * s, 1400, 108 * s)} fill={STU.top} stroke={INK} strokeWidth={3.4} strokeLinejoin="round" />
+      <polygon points={quad(40 * s, 24 * s, 1400, 34 * s)} fill={STU.topSh} opacity={0.45} transform={`translate(${px * shade * 20 * s} ${py * shade * 20 * s})`} />
+      <polygon points={quad(-6, 56 * s, 32 * s, 64 * s)} fill={STU.topHi} stroke={INK} strokeWidth={3.4} strokeLinejoin="round" />
+      {[0.25, 0.5, 0.75].map((k) => <polyline key={k} points={`${at(k * 30 * s, 60 * s, 1)} ${at(k * 30 * s, 60 * s, -1)}`} stroke={STU.topSh} strokeWidth={2.4} />)}
     </g>
   );
 };

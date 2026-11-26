@@ -1,7 +1,8 @@
 // "How You'd Invent a Flashlight": the 50 s Short. The storyboard stills are cut to George's narration
 // (public/vo, made by tools/vo_george.py) with slow camera pushes, a few in-shot effects and word-by-word captions.
 import React from 'react';
-import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, Audio, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
+import { FoilBuild } from './idea/IdeaToFoil';
 import vo from '../public/vo/vo.json';
 import { S01A, S01B, S02A, S02B, S03, S04M, S05, S06, S07, S08A, S08B, S09, S10 } from './storyboard';
 
@@ -17,10 +18,10 @@ const SC = {
   s3: { from: 8, to: 12, lines: [['s03', 0.2]] },
   s4: { from: 12, to: 18, lines: [['s04', 0.2]] },
   s5: { from: 18, to: 24, lines: [['s05', 0.25]] },
-  s6: { from: 24, to: 30, lines: [['s06', 0.3]] },
-  s7: { from: 30, to: 37, lines: [['s07', 0.3]] },
-  s8: { from: 37, to: 43, lines: [['s08', 0.2]] },
-  s9: { from: 43, to: 48, lines: [['s09', 0.35]] },
+  s6: { from: 24, to: 29.4, lines: [['s06', 0.3]] },
+  s7: { from: 29.4, to: 35.7, lines: [['s07', 0.3]] },
+  s8: { from: 35.7, to: 44, lines: [['s08', 3.3]] },
+  s9: { from: 44, to: 48, lines: [['s09', 0.35]] },
   s10: { from: 48, to: 50, lines: [] },
 } as const;
 export const DURATION = f(50);
@@ -30,8 +31,10 @@ const FADE = 8;
 const CUT_POWER = 0.15 + wordAt('s01', 'cuts') + 0.12;
 const FLASH_04 = 0.2 + wordAt('s04', 'flash');
 const CLICK_05 = 0.25 + wordAt('s05', 'switch');
-const MOVE_08 = 0.2 + wordAt('s08', 'move');
-const TIGHT_08 = 0.2 + vo.s08.words[vo.s08.words.length - 1].e;
+const FOIL_SPEED = 1.6;                       // the 8 s foil build plays at 1.6x (5 s)
+const MOVE_08 = 3.3 + wordAt('s08', 'move');
+const TIGHT_08 = 3.3 + vo.s08.words[vo.s08.words.length - 1].e;
+const CLIP_06 = 3.0;                           // the Higgsfield reach takes over here in scene 06
 const STOP_09 = 0.35 + wordAt('s09', 'stops');
 
 // a slow push-in: scale 1 -> z around (ox, oy) across the shot
@@ -104,9 +107,8 @@ const Shot05: React.FC = () => {
 };
 const Shot06: React.FC = () => {
   const t = useT();
-  const spot = 0.3 + wordAt('s06', 'spot'), end = 0.3 + vo.s06.len;
-  // looking down at the bulb -> up to the board on "spot" -> down to the bowl (the idea)
-  const look = 1 - ramp(t, spot - 0.2, spot + 0.4) + ramp(t, end + 0.1, end + 0.7);
+  // looking down at the bulb ("How do you aim it?"), then up at the board; the clip carries the realization
+  const look = 1 - ramp(t, 1.7, 2.4);
   return <S06 look={look} breath={t * 0.3} />;
 };
 const Shot08A: React.FC = () => { const t = useT(); return <S08A rub={t * 1.1} />; };
@@ -190,12 +192,16 @@ export const FlashlightShort: React.FC = () => {
       {/* 05 · the thumb presses the switch, the bulb comes on */}
       <Scene sc={SC.s5}><Cam len={len('s5')} z={1.04} ox={560} oy={1000}><Shot05 /></Cam></Scene>
       {/* 06 · he looks up at the board, then at the bowl */}
-      <Scene sc={SC.s6}><Cam len={len('s6')} z={1.05} ox={760} oy={500}><Shot06 /></Cam></Scene>
+      <Scene sc={SC.s6}>
+        <At s={0} e={CLIP_06}><Cam len={f(CLIP_06)} z={1.05} ox={760} oy={500}><Shot06 /></Cam></At>
+        {/* the Higgsfield reach (source frames 43-101 at 24 fps), ending as his fingertips touch the carton */}
+        <At s={CLIP_06}><OffthreadVideo src={staticFile('clips/higgsfield-reach.mp4')} startFrom={54} endAt={126} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></At>
+      </Scene>
       {/* 07 · electrons in the metal (waves travel, electrons wiggle) */}
       <Scene sc={SC.s7}><Cam len={len('s7')} z={1.03} ox={540} oy={980}><S07 /></Cam></Scene>
       {/* 08 · smoothing the foil, then the spot tightens */}
       <Scene sc={SC.s8}>
-        <At s={0} e={MOVE_08}><Shot08A /></At>
+        <At s={0} e={MOVE_08}><FoilBuild speed={FOIL_SPEED} /></At>
         <At s={MOVE_08}><Shot08B len={f(TIGHT_08 - MOVE_08)} /></At>
       </Scene>
       {/* 09 · two flashes, he stops, turns, looks up */}
@@ -214,6 +220,9 @@ export const FlashlightShort: React.FC = () => {
       <Sequence from={f(CUT_POWER) - 8}><Audio src={staticFile('sfx/powercut.wav')} volume={0.5} /></Sequence>
       <Sequence from={f(SC.s4.from + FLASH_04)}><Audio src={staticFile('sfx/pop.wav')} volume={0.45} /></Sequence>
       <Sequence from={f(SC.s5.from + CLICK_05)}><Audio src={staticFile('sfx/click.wav')} volume={0.5} /></Sequence>
+      {[['flap', 0.9, 0.35], ['rustle_pull', 2.2, 0.4], ['tear', 4.1, 0.55], ['rustle_press', 6.0, 0.4]].map(([n, at, v]) => (
+        <Sequence key={n as string} from={f(SC.s8.from + (at as number) / FOIL_SPEED)}><Audio src={staticFile(`sfx/${n}.wav`)} volume={v as number} /></Sequence>
+      ))}
       <Sequence from={f(SC.s9.from + 0.3)}><Audio src={staticFile('sfx/click.wav')} volume={0.35} /></Sequence>
       <Sequence from={f(SC.s9.from + 0.75)}><Audio src={staticFile('sfx/click.wav')} volume={0.35} /></Sequence>
     </AbsoluteFill>
