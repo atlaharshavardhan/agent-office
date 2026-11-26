@@ -10,10 +10,13 @@ import { SHEET, StudentSheet } from './review/Sheet';
 import { FoilBuild } from './review/Desk';
 import { Exterior } from './review/Street';
 import { FACE_REVIEW, FaceReview } from './review/FaceReview';
+import { IDEA_FPS, IDEA_FRAMES, IdeaToFoil } from './idea/IdeaToFoil';
 
 export const Root: React.FC = () => (
   <>
     <Composition id="FlashlightShort" component={FlashlightShort} durationInFrames={DURATION} fps={FPS} width={1080} height={1920} />
+    {/* 10 s preview: Higgsfield reach -> match cut -> foil build */}
+    <Composition id="IdeaToFoil" component={IdeaToFoil} durationInFrames={IDEA_FRAMES} fps={IDEA_FPS} width={1080} height={1920} />
     {/* face review */}
     <Still id="review-4-face" component={FaceReview} width={FACE_REVIEW.w} height={FACE_REVIEW.h} />
     {/* review pass: three stills for approval */}
