@@ -12,7 +12,7 @@ def voice(name, at):
     i = int(at * SR); bedpart = bed[int(15.6 * SR) + i:int(15.6 * SR) + i + len(a)] * 0.56; out[i:i + len(bedpart)] -= bedpart[:max(0, N - i)] * 0.45   # duck the music under the voice
 def t(d): return np.arange(int(d * SR)) / SR
 def env(x, a=0.004, r=4.0): n = len(x); e = np.minimum(1, np.arange(n) / (a * SR)) * np.exp(-r * np.arange(n) / n); return x * e
-voice('v3/p5c', 0.2); voice('p6', 2.3); voice('p6b', 4.95)
+voice('liam/p5c', 0.2); voice('liam/p6', 2.3); voice('liam/p6b', 4.95)
 # launcher: thump + air burst, then the line whizzing out
 x = t(0.25); put(env(np.sin(2 * np.pi * (140 * np.exp(-x * 18) + 45) * x), r=6) * 0.9, 0.75)
 x = t(0.65); w = rng.standard_normal(len(x)); w = np.convolve(w, np.ones(24) / 24, 'same'); pass   # line-whizz air sound removed at Harsh's request (17 Nov 2026)
@@ -27,7 +27,7 @@ x = t(0.9); put(env(np.sin(2 * np.pi * 1318 * x) + 0.5 * np.sin(2 * np.pi * 1976
 # ---- step 2 (starts 7.4 s into this part): three moves, a wire each, neighbours, router, door numbers ----
 import json
 M = 7.4
-for n, at in json.load(open('voice/step2_starts.json')): voice(n, M + at)
+for n, at in json.load(open('voice/step2_starts.json')): voice('liam/' + n, M + at)
 for i in range(6): x = t(0.06); put(env(np.sin(2 * np.pi * (90 + 20 * (i % 2)) * x) + 0.3 * rng.standard_normal(len(x)), r=7) * 0.16, M + 0.8 + i * 0.17)
 pass   # sweep removed
 for sh in (2.2, 3.8, 5.3):

@@ -21,7 +21,7 @@ for i in range(int(DUR / (beat / 2))):
 for q in range(int(DUR / beat)):
     L = int(0.4 * SR); tt = np.arange(L) / SR; place(np.sin(2 * np.pi * (42 + 70 * np.exp(-tt * 28)) * tt) * env(L, 0.002, 0.3, 6), q * beat, 0.32)
 out *= 0.5
-for name, at in [("c1", 0.2), ("c2", 3.3), ("c3", 5.3), ("c4", 8.0)]:
+for name, at in [("liam/c1", 0.2), ("liam/c2", 3.3), ("liam/c3", 5.3), ("liam/c4", 8.0)]:
     a, sr = sf.read(f"voice/{name}.wav"); a = np.interp(np.arange(len(a) * 2) / 2, np.arange(len(a)), a)
     i = int(at * SR); n = min(len(a), N - i); pad = int(0.12 * SR); lo, hi = max(0, i - pad), min(N, i + n + pad)
     duck = np.full(hi - lo, 0.5); k = min(pad, (hi - lo) // 2); duck[:k] = np.linspace(1, 0.5, k); duck[-k:] = np.linspace(0.5, 1, k); out[lo:hi] *= duck[:, None]

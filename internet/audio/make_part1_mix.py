@@ -2,11 +2,11 @@
 Writes v3/public/part1-mix.wav and v3/src/dusk/part1-plan.json (captions, read by the scene). Run from internet/."""
 import json, numpy as np, soundfile as sf
 SR = 48000; rng = np.random.default_rng(31); PHOTO = 28.0; FLY = 4.0; FLYK = 7.1 / 4.0; END = 3.6; DUR = PHOTO + FLY + END; N = int(DUR * SR)   # the flight shot plays FLYK times faster than drawn
-V = [("part1/a1", 0.2, ["A text is tiny.", "But what about a *photo?*"]), ("part1/b1", 3.05, ["Send it as *one big block,*", "and it holds the *whole line.*"]), ("part1/b2", 6.4, ["Everyone else has to *wait.*"]),
-     ("part1/b3", 8.3, ["One glitch, and it *starts all over* again."]), ("part1/c1", 10.8, ["So the internet *never* sends it whole."]),
-     ("part1/d1", 13.1, ["It cuts the photo into", "about *2,000* small packets,"]), ("part1/d2", 16.4, ["each with her *address* and a *number.*"]), ("part1/d3", 18.5, ["They *share the lines* with everyone else."]),
-     ("part1/d4", 20.7, ["Busy road? Some go *another way.*"]), ("part1/d5", 22.7, ["One lost? Only *that one* is sent again."]), ("part1/d6", 25.3, ["And her phone puts them *back in order.*"]),
-     ("t3", PHOTO + 0.1, ["Then she flies to *London.*"]), ("v3/z2", PHOTO + 1.75, ["Next: how a photo *crosses an ocean.*"]), ("t10", PHOTO + FLY + 0.5, [])]
+V = [("liam/a1", 0.2, ["A text is tiny.", "But what about a *photo?*"]), ("liam/b1", 3.05, ["Send it as *one big block,*", "and it holds the *whole line.*"]), ("liam/b2", 6.4, ["Everyone else has to *wait.*"]),
+     ("liam/b3", 8.3, ["One glitch, and it *starts all over* again."]), ("liam/c1p", 10.8, ["So the internet *never* sends it whole."]),
+     ("liam/d1", 13.1, ["It cuts the photo into", "about *2,000* small packets,"]), ("liam/d2", 16.4, ["each with her *address* and a *number.*"]), ("liam/d3", 18.5, ["They *share the lines* with everyone else."]),
+     ("liam/d4", 20.7, ["Busy road? Some go *another way.*"]), ("liam/d5", 22.7, ["One lost? Only *that one* is sent again."]), ("liam/d6", 25.3, ["And her phone puts them *back in order.*"]),
+     ("liam/t3", PHOTO + 0.1, ["Then she flies to *London.*"]), ("liam/z2", PHOTO + 1.75, ["Next: how a photo *crosses an ocean.*"]), ("liam/t10", PHOTO + FLY + 0.5, [])]
 midi = lambda m: 440 * 2 ** ((m - 69) / 12); beat = 60 / 96
 def env(n, a=0.005, r=0.2, shape=4.0): t = np.arange(n) / SR; return np.minimum(1, t / max(a, 1e-4)) * np.exp(-shape * t / max(r, 1e-4))
 out = np.zeros((N, 2))

@@ -6,84 +6,84 @@
  "subs": [
   [
    0.2,
-   1.29,
+   1.3,
    "A text is tiny."
   ],
   [
-   1.29,
-   3.17,
+   1.3,
+   3.18,
    "But what about a *photo?*"
   ],
   [
-   3.07,
-   4.61,
+   3.08,
+   4.21,
    "Send it as *one big block,*"
   ],
   [
-   4.61,
-   6.54,
+   4.21,
+   5.67,
    "and it holds the *whole line.*"
   ],
   [
-   6.44,
-   8.43,
+   6.4,
+   8.15,
    "Everyone else has to *wait.*"
   ],
   [
-   8.33,
-   10.9,
+   8.3,
+   10.23,
    "One glitch, and it *starts all over* again."
   ],
   [
    10.8,
-   13.18,
+   12.66,
    "So the internet *never* sends it whole."
   ],
   [
    13.1,
-   14.59,
+   14.4,
    "It cuts the photo into"
   ],
   [
-   14.59,
-   16.54,
+   14.4,
+   16.14,
    "about *2,000* small packets,"
   ],
   [
-   16.44,
-   18.63,
+   16.4,
+   18.04,
    "each with her *address* and a *number.*"
   ],
   [
-   18.53,
-   20.86,
+   18.5,
+   20.49,
    "They *share the lines* with everyone else."
   ],
   [
-   20.76,
-   22.88,
+   20.7,
+   22.82,
    "Busy road? Some go *another way.*"
   ],
   [
-   22.78,
-   25.45,
+   22.72,
+   25.06,
    "One lost? Only *that one* is sent again."
   ],
   [
-   25.35,
-   27.5,
+   25.3,
+   26.99,
    "And her phone puts them *back in order.*"
   ]
  ],
  "flysubs": [
   [
    0.1,
-   1.88,
+   1.9,
    "Then she flies to *London.*"
   ],
   [
-   1.78,
-   4.11,
+   1.8,
+   3.97,
    "Next: how a photo *crosses an ocean.*"
   ]
  ]

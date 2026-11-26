@@ -205,8 +205,7 @@ const camAt = (t: number, KEYS: Key[] = HOOK_KEYS) => {
   return { fx: lerp(a[1], b[1], u), fy: lerp(a[2], b[2], u), z: Math.exp(lerp(Math.log(a[3]), Math.log(b[3]), u)) };
 };
 const VO: [number, React.ReactNode][] = [
-  [0.25, <>You can build the <em>internet</em></>], [1.5, <>with a <em>torch.</em></>], [2.45, <><em>Seriously.</em></>],
-  [3.4, <>Flash it at your <em>friend</em></>], [4.4, <>across the <em>street,</em></>], [5.85, <>and you've basically built</>], [6.95, <>the <em>internet.</em></>],
+  [0.15, <>Flash a torch at your <em>friend,</em></>], [1.45, <>and you've just built the <em>internet!</em></>], [3.29, <>That's all it is:</>], [4.2, <><em>light,</em> blinking on and off.</>],
   [8.4, <>On is <em>one</em>. Off is <em>zero</em>.</>], [10.5, <>Eight blinks make <em>one letter</em>.</>], [12.45, <>But <em>"hello"</em> takes forty blinks.</>], [14.3, <>Too <em>slow.</em></>],
 ];
 
@@ -698,7 +697,7 @@ const HookOverlays: React.FC<{ f: number; t: number; macro: number; mute?: boole
       <div style={{ position: 'absolute', top: 236, left: 90, right: 90, height: 200, borderRadius: 40, background: 'rgba(10,14,36,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 62px/1.12 ${FONT.ui}`, color: TECH.text, opacity: prog(f, 7.1, 7.4) * (1 - prog(f, 8.2, 8.4)) }}>
         <div>How does the <span style={{ color: '#ffd38a' }}>internet</span><br />reach you?</div>
       </div>
-      {line && t >= 0.25 && (
+      {line && t >= 0.15 && (
         <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}>
           <div className="sub">{line}</div>
         </div>
