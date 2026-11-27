@@ -14,7 +14,7 @@ import { winTex } from './Packets';
    The camera follows the amber light down the sand and under the water, ready to cut to the seabed. */
 
 export const SHORE_FRAMES = 285;
-export const COAST_NAME = 'Mumbai coast';
+export const COAST_NAME = 'UK coast';
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
 /* the beach: rises gently inland, slopes down under the water (water level is y = 0, the shoreline is near z = -10) */
@@ -42,17 +42,11 @@ const Beach: React.FC = () => { const geo = useMemo(() => { const g = new THREE.
 const Sea: React.FC<{ t: number; under: number }> = ({ t, under }) => { const geo = useMemo(() => { const g = new THREE.PlaneGeometry(420, 260, 110, 70); g.rotateX(-Math.PI / 2); g.translate(0, 0, -135); return g; }, []);
   const p = geo.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i); p.setY(i, 0.09 * Math.sin(x * 0.35 + t * 1.3) + 0.07 * Math.sin(z * 0.5 - t * 1.7 + x * 0.1) + 0.04 * Math.sin((x + z) * 0.9 + t * 2.2)); } p.needsUpdate = true; geo.computeVertexNormals();
   return <mesh geometry={geo}><meshStandardMaterial color="#2a44c8" emissive="#10206a" emissiveIntensity={0.6} roughness={0.18} metalness={0.35} transparent opacity={lerp(0.62, 0.4, under)} side={THREE.DoubleSide} /></mesh>; };
-/* the city across the bay, with a cable-stayed sea bridge in front of it */
+/* a low British seaside town across the bay */
 const Skyline: React.FC = () => { const tex = useMemo(() => [0, 1, 2, 3].map(winTex), []);
   return <group position={[0, 0, -150]}>
-    {Array.from({ length: 44 }).map((_, i) => { const x = -150 + i * 7 + hash(i) * 3, w = 5 + hash(i + 3) * 4, h = 9 + hash(i + 5) ** 2 * 44, m = tex[i % 4].clone(); m.repeat.set(1, Math.max(1, Math.round(h / 10))); m.wrapS = m.wrapT = THREE.RepeatWrapping; m.needsUpdate = true;
+    {Array.from({ length: 44 }).map((_, i) => { const x = -150 + i * 7 + hash(i) * 3, w = 5 + hash(i + 3) * 4, h = 6 + hash(i + 5) ** 2 * 18, m = tex[i % 4].clone(); m.repeat.set(1, Math.max(1, Math.round(h / 10))); m.wrapS = m.wrapT = THREE.RepeatWrapping; m.needsUpdate = true;
       return <mesh key={i} position={[x, h / 2, -hash(i + 9) * 18]}><boxGeometry args={[w, h, w]} /><meshStandardMaterial color="#1f2566" map={m} emissiveMap={m} emissive="#ffffff" emissiveIntensity={0.75} roughness={0.8} /></mesh>; })}
-    <group position={[-30, 0, 38]}>
-      <mesh position={[0, 3.2, 0]}><boxGeometry args={[150, 0.7, 2.2]} /><meshStandardMaterial color="#3a4196" emissive="#ffc46a" emissiveIntensity={0.25} /></mesh>
-      {Array.from({ length: 14 }).map((_, i) => <mesh key={i} position={[-70 + i * 10.8, 1.5, 0]}><boxGeometry args={[0.7, 3.2, 1.4]} /><meshStandardMaterial color="#2a3080" /></mesh>)}
-      {[-14, 14].map((px) => <group key={px} position={[px, 0, 0]}><mesh position={[0, 11, 0]}><boxGeometry args={[1.1, 22, 1.1]} /><meshStandardMaterial color="#8c96f0" emissive="#3a4196" emissiveIntensity={0.6} /></mesh>
-        {Array.from({ length: 7 }).map((_, k) => [-1, 1].map((sd) => { const a = V(0, 21 - k * 1.6, 0), b = V(sd * (3 + k * 2.6), 3.6, 0), d = b.clone().sub(a), q = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), d.clone().normalize()); return <mesh key={k + '-' + sd} position={a.clone().add(b).multiplyScalar(0.5)} quaternion={q}><cylinderGeometry args={[0.06, 0.06, d.length(), 5]} /><meshBasicMaterial color="#cfd6ff" /></mesh>; }))}</group>)}
-    </group>
   </group>; };
 /* the cable landing station: where the land network hands over to the sea cable */
 const Station: React.FC = () => { const P = cpt(6.5), y = sand(13, 11);
