@@ -25,7 +25,7 @@ motif = [69, 76, 72, 76, 69, 76, 74, 76, 65, 72, 69, 72, 65, 72, 71, 72]; HELD =
 for i in range(int(DUR / (beat / 2))):
     at = i * beat / 2
     if HELD[0] < at < HELD[1] or at > DUR - 2.6: continue
-    L = int(0.5 * SR); tt = np.arange(L) / SR; f = midi(motif[i % 16] + 12); place((np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(4 * np.pi * f * tt)) * env(L, 0.002, 0.35, 5), at, 0.011, 0.35 if i % 2 else -0.35)
+    L = int(0.5 * SR); tt = np.arange(L) / SR; f = midi(motif[i % 16] + 12); place((np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(4 * np.pi * f * tt)) * env(L, 0.002, 0.35, 5), at, 0.0, 0.35 if i % 2 else -0.35)
 for q in range(int(DUR / beat)):
     at = q * beat
     if HELD[0] < at < HELD[1] or at > DUR - 2.6: continue
@@ -59,7 +59,7 @@ pass   # sweep removed
 pass   # sweep removed
 pass   # crawl hum removed
 whoosh(10.6, 0.8, 0.35)                                                                                      # the line is freed
-for k_ in range(6): blip(12.0 + k_ * 0.15, 1400 + 120 * k_, 0.07, 0.04)                                       # the photo is sliced
+pass   # slice blips removed (27 Nov 2026: only 2 or 3 beeps)
 pass   # packet ticks removed
 pass   # landing ticks removed
 pass   # sweep removed

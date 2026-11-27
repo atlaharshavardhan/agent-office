@@ -2,7 +2,7 @@
 Writes v3/public/full-mix.wav = hook-mix + wire part."""
 import numpy as np, soundfile as sf
 SR = 48000; N = int(25.9 * SR); rng = np.random.default_rng(7)   # wire scene 7.4 s + step 2 15 s
-bed, _ = sf.read('audio/bed-soft.wav'); out = bed[int(15.6 * SR):int(15.6 * SR) + N] * 0.56
+bed, _ = sf.read('audio/bed-hook.wav'); out = bed[int(15.6 * SR):int(15.6 * SR) + N] * 0.56
 def put(sig, at, g=1.0):
     i = int(at * SR); n = min(len(sig), N - i)
     if sig.ndim == 1: sig = np.stack([sig, sig], 1)
