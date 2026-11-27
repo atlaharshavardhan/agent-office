@@ -143,28 +143,29 @@ export const London: React.FC = () => {
 
 /* ---------- End card: the torch from the first shot, the planet it turned into, and the channel ---------- */
 /* p2: the Part 1 end card: smaller logo and handle under the globe (never on it), a "Part 2 coming soon" line, everything above y 1480 */
-export const EndCard: React.FC<{ p2?: boolean }> = ({ p2 }) => {
+export const EndCard: React.FC<{ p2?: boolean; p3?: boolean }> = ({ p2, p3 }) => {
+  const s = !!(p2 || p3);
   const f = useCurrentFrame(), k = f / FPS, a = prog(f, 0.1, 0.5, easeOut), b = prog(f, 0.5, 0.9, easeOut);
   return (
     <AbsoluteFill style={{ backgroundColor: '#070a22' }}>
       <svg width={1080} height={1920}>
         <Night id="ec" f={f} stars={110} />
         <defs><linearGradient id="ecBeam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#fff6dc" stopOpacity=".7" /><stop offset="1" stopColor="#ffe2a8" stopOpacity="0" /></linearGradient></defs>
-        <g opacity={a}><Globe id="eg" rot={[30 + k * 9, 22]} R={(p2 ? 270 : 330) * (0.9 + 0.1 * a)} cy={p2 ? 700 : 760} f={f}>{(g: GlobeApi) => <>
+        <g opacity={a}><Globe id="eg" rot={[30 + k * 9, 22]} R={(s ? 270 : 330) * (0.9 + 0.1 * a)} cy={s ? 700 : 760} f={f}>{(g: GlobeApi) => <>
           {[...WEB, MAIN, ALT].map((r, i) => { const d = g.line(routePts(r)); return <g key={i}><path d={d} fill="none" stroke="#5fe3ff" strokeWidth={7} strokeLinecap="round" opacity={0.14} /><path d={d} fill="none" stroke="#9fe9ff" strokeWidth={1.8} strokeLinecap="round" opacity={0.8} /></g>; })}</>}</Globe></g>
         {/* the torch, still shining */}
-        <g transform={p2 ? "translate(540 1425) scale(0.42)" : "translate(540 1530) scale(0.8)"} opacity={b}><path d="M -46 -96 L -250 -1100 L 250 -1100 L 46 -96 Z" fill="url(#ecBeam)" opacity={0.28 + 0.05 * Math.sin(k * 5)} style={{ mixBlendMode: 'screen' }} />
+        <g transform={s ? "translate(540 1425) scale(0.42)" : "translate(540 1530) scale(0.8)"} opacity={b}><path d="M -46 -96 L -250 -1100 L 250 -1100 L 46 -96 Z" fill="url(#ecBeam)" opacity={0.28 + 0.05 * Math.sin(k * 5)} style={{ mixBlendMode: 'screen' }} />
           <circle cx={0} cy={-100} r={110} fill="url(#ecW)" opacity={0.8} /><rect x={-30} y={-10} width={60} height={150} rx={14} fill="#2a2f4c" /><rect x={-30} y={-10} width={20} height={150} rx={10} fill="#5a6088" opacity={0.7} />{[0, 1, 2, 3, 4].map((i) => <rect key={i} x={-30} y={40 + i * 16} width={60} height={5} fill="#0a0c14" opacity={0.5} />)}
           <polygon points="-30,-10 -56,-84 56,-84 30,-10" fill="#d24a30" /><polygon points="-30,-10 -56,-84 -30,-84 -14,-10" fill="#ff8a6a" opacity={0.6} /><rect x={-60} y={-98} width={120} height={16} rx={7} fill="#e3e7f2" /><ellipse cx={0} cy={-98} rx={54} ry={9} fill="#fffbe8" /></g>
         <rect x={fx()} width={fw()} height={1920} fill="url(#ecV)" />
       </svg>
-      <div style={{ position: 'absolute', top: p2 ? 1010 : 1090, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: p2 ? 12 : 18, opacity: b, transform: `translateY(${(1 - b) * 30}px)` }}>
-        <Img src={staticFile('logo.png')} style={{ width: p2 ? 84 : 150, height: p2 ? 84 : 150, borderRadius: 75, boxShadow: '0 0 0 4px rgba(95,227,255,.6), 0 0 40px rgba(95,227,255,.5)' }} />
-        <div style={{ font: `800 ${p2 ? 42 : 74}px/1 ${FONT.ui}`, color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,.8)' }}>@TheInvisiTech</div>
-        <div style={{ font: `700 ${p2 ? 26 : 34}px/1 ${FONT.ui}`, color: '#0a2a44', background: '#5fe3ff', padding: p2 ? '11px 28px' : '14px 34px', borderRadius: 40, transform: `scale(${1 + 0.04 * Math.sin(k * 6)})` }}>Follow for more</div>
+      <div style={{ position: 'absolute', top: s ? 1010 : 1090, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s ? 12 : 18, opacity: b, transform: `translateY(${(1 - b) * 30}px)` }}>
+        <Img src={staticFile('logo.png')} style={{ width: s ? 84 : 150, height: s ? 84 : 150, borderRadius: 75, boxShadow: '0 0 0 4px rgba(95,227,255,.6), 0 0 40px rgba(95,227,255,.5)' }} />
+        <div style={{ font: `800 ${s ? 42 : 74}px/1 ${FONT.ui}`, color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,.8)' }}>@TheInvisiTech</div>
+        <div style={{ font: `700 ${s ? 26 : 34}px/1 ${FONT.ui}`, color: '#0a2a44', background: '#5fe3ff', padding: s ? '11px 28px' : '14px 34px', borderRadius: 40, transform: `scale(${1 + 0.04 * Math.sin(k * 6)})` }}>Follow for more</div>
       </div>
       {p2 && <div style={{ position: 'absolute', top: 1262, left: 0, right: 0, display: 'flex', justifyContent: 'center', opacity: b, transform: `translateY(${(1 - b) * 30}px)` }}><div style={{ padding: '14px 36px', borderRadius: 30, background: 'rgba(10,14,36,.88)', border: '3px solid #ffd38a', boxShadow: '0 12px 36px rgba(0,0,0,.5)', font: `800 44px/1 ${FONT.ui}`, color: '#fff', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>PART 2 <span style={{ color: '#ffd38a' }}>coming soon</span></div></div>}
-      <div style={{ position: 'absolute', top: 250, left: 0, right: 0, textAlign: 'center', font: `800 60px/1.15 ${FONT.ui}`, color: '#eef1ff', opacity: a, textShadow: '0 4px 20px rgba(0,0,0,.8)' }}>From one <span style={{ color: '#ffd38a' }}>torch</span><br />to the whole <span style={{ color: '#9fe9ff' }}>world.</span></div>
+      <div style={{ position: 'absolute', top: 250, left: 0, right: 0, textAlign: 'center', font: `800 60px/1.15 ${FONT.ui}`, color: '#eef1ff', opacity: a, textShadow: '0 4px 20px rgba(0,0,0,.8)' }}>{p3 ? <>That is how a photo<br />crosses an <span style={{ color: '#9fe9ff' }}>ocean.</span></> : <>From one <span style={{ color: '#ffd38a' }}>torch</span><br />to the whole <span style={{ color: '#9fe9ff' }}>world.</span></>}</div>
     </AbsoluteFill>
   );
 };

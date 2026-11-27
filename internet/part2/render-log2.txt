@@ -1,0 +1,13 @@
+ok ArriveV 0
+ok ArriveV 30
+ok ArriveV 60
+ok ArriveV 90
+ok ArriveV 120
+ok ArriveV 150
+DONE 08b-ArriveV.mp4
+ok EndCardP2 0
+ok EndCardP2 30
+ok EndCardP2 60
+ok EndCardP2 90
+DONE 09b-EndCardV.mp4
+finished

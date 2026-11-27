@@ -9,6 +9,7 @@ import { Flight, FLIGHT_FRAMES } from './v4/Flight';
 import { Planet, PLANET_FRAMES } from './v4/Planet';
 import { SeaCable, SEACABLE_FRAMES } from './v4/SeaCable';
 import { Shore, SHORE_FRAMES } from './v4/Shore';
+import { Arrive, ARRIVE_FRAMES } from './v4/Arrive';
 import { Routers, ROUTERS_FRAMES } from './v4/Routers';
 import { Underground, UNDER_FRAMES } from './v4/Underground';
 import { Seabed, SEABED_FRAMES, SeabedRepeater, REPEATER_FRAMES } from './v4/Seabed';
@@ -51,6 +52,7 @@ export const Root: React.FC = () => (
     <Composition id="RoutersV" component={() => <Vert><Routers /></Vert>} durationInFrames={ROUTERS_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ShoreV" component={() => <Vert><Shore /></Vert>} durationInFrames={SHORE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="SeaCableV" component={() => <Vert><SeaCable /></Vert>} durationInFrames={SEACABLE_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="ArriveV" component={Arrive} durationInFrames={ARRIVE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="PlanetV" component={() => <Vert><Planet /></Vert>} durationInFrames={PLANET_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="FlightV" component={() => <Vert><Flight /></Vert>} durationInFrames={FLIGHT_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="LondonV4V" component={() => <Vert><LondonV4 /></Vert>} durationInFrames={LONDON_FRAMES} fps={30} width={1080} height={1920} />
@@ -93,6 +95,7 @@ export const Root: React.FC = () => (
     <Composition id="SeaCut" component={SeaCut} durationInFrames={54} fps={30} width={1080} height={1920} />
     <Composition id="Packets" component={Packets} durationInFrames={156} fps={30} width={1080} height={1920} />
     <Composition id="London" component={London} durationInFrames={120} fps={30} width={1080} height={1920} />
+    <Composition id="EndCardP2" component={() => <EndCard p3 />} durationInFrames={108} fps={30} width={1080} height={1920} />
     <Composition id="EndCard" component={EndCard} durationInFrames={108} fps={30} width={1080} height={1920} />
     <Composition id="TailFilm" component={TailFilm} durationInFrames={TAIL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="PovHi" component={PovHi} durationInFrames={132} fps={30} width={1080} height={1920} />
