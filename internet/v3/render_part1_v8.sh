@@ -16,5 +16,5 @@ part IsoFullHi 0 176; part IsoFullHi 252 831; part IsoFullHi 889 1244; part Part
 [ -f $C/mark.png ] || npx remotion still bundle12 MarkStrip $C/mark.png --image-format=png > /dev/null 2>&1
 ffmpeg -v error -y -i public/full-mix.wav -i public/city-mix.wav -i public/part1-mix.wav -filter_complex "[0:a][1:a][2:a]concat=n=3:v=0:a=1,volume=3dB,alimiter=limit=0.89[a]" -map "[a]" $C/audio.wav || exit 1
 ffmpeg -v error -y -i $C/IsoFullHi-0-all.mp4 -i $C/IsoFullHi-252-all.mp4 -i $C/IsoFullHi-889-all.mp4 -i $C/CityAll-0-all.mp4 -i $C/Part1Fly-0-all.mp4 -loop 1 -framerate 30 -t 90 -i $C/mark.png -i $C/audio.wav \
-  -filter_complex "[0:v][1:v][2:v][3:v][4:v]concat=n=5:v=1:a=0[b];[5:v]format=rgba,colorchannelmixer=aa=${MARK_ALPHA:-0.3}[m];[b][m]overlay=x=${MARK_X:-24}:y=${MARK_Y:-926}:enable='lt(t,82.1)'[v]" \
-  -map "[v]" -map 6:a -t 85.7 -c:v libx264 -crf 20 -preset medium -pix_fmt yuv420p -r 30 -c:a aac -b:a 192k -movflags +faststart ../video/internet-part1-v8.mp4 && echo PART1V8_OK
+  -filter_complex "[0:v][1:v][2:v][3:v][4:v]concat=n=5:v=1:a=0[b];[5:v]format=rgba,colorchannelmixer=aa=${MARK_ALPHA:-0.3}[m];[b][m]overlay=x=${MARK_X:-24}:y=${MARK_Y:-926}:enable='lt(t,82.1)'[v0];[v0]setpts=PTS/${SPEED:-1.06}[v]" \
+  -map "[v]" -map 6:a -af atempo=${SPEED:-1.06} -t $(python3 -c "print(round(85.7/${SPEED:-1.06}, 2))") -c:v libx264 -crf 20 -preset medium -pix_fmt yuv420p -r 30 -c:a aac -b:a 192k -movflags +faststart ../video/internet-part1-v8.mp4 && echo PART1V8_OK
