@@ -1,0 +1,7 @@
+1|02-PacketBurstV|0.15|Meera sends a photo|from London.|CHANGE header Her to Meera
+2|03-UndergroundV|0.30|Radio to the tower, then|glass cable under the street.|OK, enlarge small labels
+3|04-RoutersV|0.20|Routers pass each packet along.|Road jammed? Another path.|CHANGE tag to Arjun, Hyderabad
+4|05-ShoreV|0.50|Then the land ends.|The cable goes into the sea.|CHANGE Mumbai coast to UK coast
+5|06-SeabedV|0.80|Three kilometres down,|the packets are just light.|OK
+6|07-SeabedRepeaterV|0.45|A repeater boosts|the fading light.|OK, check the 50 to 100 km label
+7|09-PlanetV|0.85|Across the ocean|to Hyderabad.|CHANGE labels to London and Hyderabad
