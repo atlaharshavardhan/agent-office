@@ -120,12 +120,12 @@ export const PhotoUI: React.FC<{ te: number; RT: Pt[]; scr: Scr }> = ({ te, RT, 
     {chip('WITH PACKETS', 'what the internet really does', '#5fe3ff', head2)}
     {o1 > 0 && <IPhone left={PHIS.x} top={PHIS.y} o={o1} k={Z} name="Meera" avatar="#ff8672">
       <div style={{ paddingTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}><div style={{ opacity: sent1 ? 0.15 : 1 }}><Pic id="pa" s={TH} tiles={Array(36).fill(true)} grid={0} /></div><Note c="#ffd27a">{sent1 ? 'sending as 1 block…' : 'photo.jpg · 3 MB'}</Note></div>
-      <Compose bottom={18} ready={!sent1} press={tap1} text={<span style={{ color: '#6b6b70' }}>{sent1 ? 'iMessage' : '1 photo'}</span>} />
+      <Compose bottom={18} ready={!sent1} press={tap1} text={<span style={{ color: '#6b6b70' }}>{sent1 ? 'Message' : '1 photo'}</span>} />
     </IPhone>}
     {sent1 && j1 < 1 && (() => { const q = arc([PHIS.x + Z * (THX + TH / 2), PHIS.y + Z * (THY + TH / 2)], [home[0], home[1] - 34], j1, 120), sz = lerp(TH * Z, 112, j1); return <div style={{ position: 'absolute', left: q[0] - sz / 2, top: q[1] - sz / 2, boxShadow: '0 0 34px rgba(255,180,94,.9)', borderRadius: 10 }}><Pic id="pj" s={sz} tiles={Array(36).fill(true)} grid={0} /></div>; })()}
     {o2 > 0 && <IPhone left={PHIS.x} top={PHIS.y} o={o2} k={Z} name="Meera" avatar="#ff8672">
       <div style={{ paddingTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}><Pic id="pc" s={TH} tiles={PK.map((p) => bst(p.i) <= 0)} grid={grid} /><Note>{grid > 0 ? 'about 2,000 packets' : 'photo.jpg · 3 MB'}</Note></div>
-      <Compose bottom={18} ready={te < 13.35} press={tap2} text={<span style={{ color: '#6b6b70' }}>{te < 13.35 ? '1 photo' : 'iMessage'}</span>} />
+      <Compose bottom={18} ready={te < 13.35} press={tap2} text={<span style={{ color: '#6b6b70' }}>{te < 13.35 ? '1 photo' : 'Message'}</span>} />
     </IPhone>}
     {/* the squares in flight from his phone, then waiting above his router until their turn */}
     {te > 13.3 && PK.map((p) => { const u = bst(p.i); if (u <= 0 || te >= p.dep) return null; const q = arc(thumb(p.i), mos(p.i), easeInOut(u), 60 + (p.i % 6) * 8); return <Tile key={'m' + p.i} i={p.i} s={lerp(Z * TH / 6, MC - 1, u)} x={q[0]} y={q[1]} />; })}
@@ -133,7 +133,7 @@ export const PhotoUI: React.FC<{ te: number; RT: Pt[]; scr: Scr }> = ({ te, RT, 
     {o3 > 0 && <IPhone left={PHER.x} top={PHER.y} o={o3} k={ZR} name="Arjun" avatar="#3fb8a8">
       <div style={{ position: 'absolute', left: GRX - SCR.x, top: GRY - SCR.y - 96, width: GR, height: GR, borderRadius: 10, background: '#111318', boxShadow: glow > 0 ? `0 0 ${30 * glow}px 4px #5fe3ff` : 'inset 0 0 0 1px #2c2c2e' }} />
       <div style={{ position: 'absolute', left: 0, right: 0, top: GRY - SCR.y - 96 + GR + 10 }}>{sorted ? <><Note c="#7dffb0">✓ photo received</Note><Note c="#eef1ff">back in order</Note></> : te >= REORD ? <><Note>sorting by number…</Note><Note c="#eef1ff">1, 2, 3, 4 …</Note></> : <><Note>receiving packets</Note><Note c="#eef1ff">{Math.round((landed / N) * 2000).toLocaleString('en-US')} of 2,000</Note></>}</div>
-      <Compose bottom={18} text={<span style={{ color: '#6b6b70' }}>iMessage</span>} />
+      <Compose bottom={18} text={<span style={{ color: '#6b6b70' }}>Message</span>} />
     </IPhone>}
     {/* each packet hops from her city router into the next free slot; at the end every square slides to its own number */}
     {o3 > 0 && PK.map((p) => { const u = (te - p.arr) / HOP; if (u <= 0) return null; const k = SLOT[p.i];

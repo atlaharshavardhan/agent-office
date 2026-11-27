@@ -205,7 +205,7 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
       {t > 7.4 && t < 9.2 && (() => { const o = prog(f, 7.4, 7.8, easeOut) * (1 - prog(f, 8.85, 9.15)), n = Math.max(0, Math.min(5, Math.floor((t - 7.9) / 0.12))), typed = 'Hello'.slice(0, n), sent = t >= 8.7, press = t > 8.58 && t < 8.76;
         const hit = !sent && t >= 7.9 && n < 5 && (t - 7.9) % 0.12 < 0.085 ? 'hello'[n] : undefined;
         return <IPhone left={HIS.x} top={HIS.y} o={o} k={KP} name="Meera" avatar="#ff8672">
-          <Compose bottom={148} press={press} ready={n > 0 && !sent} text={sent ? <span style={{ color: '#6b6b70' }}>iMessage</span> : n === 0 ? <><span style={{ opacity: Math.sin(t * 10) > 0 ? 1 : 0, color: '#0a84ff' }}>|</span><span style={{ color: '#6b6b70' }}>iMessage</span></> : <>{typed}<span style={{ opacity: Math.sin(t * 10) > 0 ? 1 : 0, color: '#0a84ff' }}>|</span></>} />
+          <Compose bottom={148} press={press} ready={n > 0 && !sent} text={sent ? <span style={{ color: '#6b6b70' }}>Message</span> : n === 0 ? <><span style={{ opacity: Math.sin(t * 10) > 0 ? 1 : 0, color: '#0a84ff' }}>|</span><span style={{ color: '#6b6b70' }}>Message</span></> : <>{typed}<span style={{ opacity: Math.sin(t * 10) > 0 ? 1 : 0, color: '#0a84ff' }}>|</span></>} />
           <Keyboard hit={hit} />
         </IPhone>; })()}
       {t >= 8.7 && t < 9.15 && (() => { const u = easeInOut(clamp01((t - 8.7) / 0.45)), q = scr(RT[0]), sx = HIS.x + 96 * KP, sy = HIS.y + 318 * KP, x = lerp(sx, q[0], u), y = lerp(sy, q[1], u) - 110 * Math.sin(Math.PI * u), sc = lerp(1.15, 0.55, u);
@@ -218,7 +218,7 @@ export const IsoCity2: React.FC<{ ext?: boolean; all?: boolean }> = ({ ext, all:
             {inn > 0 && <Bubble style={{ opacity: inn, transform: `scale(${0.6 + 0.4 * inn})`, transformOrigin: 'left bottom', boxShadow: `0 0 ${22 * (1 - prog(f, H0 + 3.0, H0 + 3.5))}px rgba(95,227,255,.9)` }}>Hello</Bubble>}
             {reply > 0 && <Bubble mine style={{ marginTop: 10, opacity: Math.min(1, reply * 2), transform: `translateY(${(1 - reply) * 18}px) scale(${0.5 + 0.5 * reply + 0.2 * Math.sin(Math.PI * reply)})`, transformOrigin: 'right bottom' }}>Hi! ❤️</Bubble>}
           </div>
-          <Compose bottom={18} text={<span style={{ color: '#6b6b70' }}>iMessage</span>} />
+          <Compose bottom={18} text={<span style={{ color: '#6b6b70' }}>Message</span>} />
         </IPhone>
           {u > 0 && u < 1 && <div style={{ position: 'absolute', left: lerp(q[0], HER.x + 60 * KP, u), top: lerp(q[1], HER.y + 135 * KP, u) - 70 * Math.sin(Math.PI * u), width: 44, height: 30, borderRadius: 7, background: '#f2fdff', border: '3px solid #22c4ee', transform: `translate(-50%,-50%) scale(${1.2 - 0.5 * u})`, boxShadow: '0 0 26px rgba(95,227,255,.9)' }} />}</>; })()}
       {line && <div style={{ position: 'absolute', top: 1260, left: 60, right: 150, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: `800 58px/1.15 ${FONT.ui}`, color: '#fff', textShadow: '0 3px 6px rgba(0,0,0,.95), 0 0 26px rgba(0,0,0,.9)' }}><div className="sub">{line}</div></div>}

@@ -2,7 +2,7 @@
 Writes v3/public/part1-mix.wav and v3/src/dusk/part1-plan.json (captions, read by the scene). Run from internet/."""
 import json, numpy as np, soundfile as sf
 SR = 48000; rng = np.random.default_rng(31); PHOTO = 28.0; FLY = 4.0; FLYK = 7.1 / 4.0; END = 3.6; DUR = PHOTO + FLY + END; N = int(DUR * SR)   # the flight shot plays FLYK times faster than drawn
-V = [("liam/a1", 0.2, ["A text is tiny.", "But what about a *photo?*"]), ("liam/b1", 3.05, ["Send it as *one big piece,*", "and it *blocks* the whole line."]), ("liam/b2", 6.4, ["Everyone else has to *wait.*"]),
+V = [("liam/a1", 0.2, ["A text is tiny.", "But what about a *photo?*"]), ("liam/b1", 3.05, ["*Imagine* sending it as *one big piece.*", "It *blocks* the whole line."]), ("liam/b2", 6.4, ["Everyone else has to *wait.*"]),
      ("liam/b3", 8.3, ["One small error, and it has to *start again.*"]), ("liam/c1p", 10.8, ["So the internet *never* sends it in one piece."]),
      ("liam/d1", 13.1, ["It cuts the photo into", "about *2,000* small pieces,", "called *packets,*"]), ("liam/d2", 16.4, ["each with her *address* and a *number.*"]), ("liam/d3", 18.5, ["They *share the wires* with everyone else."]),
      ("liam/d4", 20.7, ["Wire busy? Some take *another path.*"]), ("liam/d5", 22.7, ["One lost? Only *that one* is sent again."]), ("liam/d6", 25.3, ["And her phone puts them *back in order.*"]),

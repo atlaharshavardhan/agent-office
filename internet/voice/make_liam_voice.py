@@ -12,7 +12,7 @@ L = [  # name, text, slot in seconds
  ("n1", "Then she moves to a hostel. New wire.", 3.0), ("n2", "Then a friend's place. Another wire.", 2.43), ("n3", "Then another!", 1.08), ("n4", "Now the neighbours want to join too.", 1.7),
  ("n5", "So every house plugs into one box:", 2.28), ("m4", "the router.", 0.93), ("m5", "Every house gets a number, like a door number.", 2.85), ("m6", "That's its IP address.", 1.64), ("m7", "The router reads the number and delivers the message.", 2.6),
  ("c1", "Then she moves to another city.", 3.1), ("c2", "One router can't reach that far.", 2.0), ("c3", "So routers connect to other routers,", 2.7), ("c4", "and pass the message along, hop by hop.", 5.0),
- ("a1", "A text is tiny. But what about a photo?", 2.85), ("b1", "Send it as one big piece, and it blocks the whole line.", 3.35), ("b2", "Everyone else has to wait.", 1.9), ("b3", "One small error, and it has to start again.", 2.5),
+ ("a1", "A text is tiny. But what about a photo?", 2.85), ("b1", "Imagine sending it as one big piece. It blocks the whole line.", 3.35), ("b2", "Everyone else has to wait.", 1.9), ("b3", "One small error, and it has to start again.", 2.5),
  ("c1p", "So the internet never sends it in one piece.", 2.3), ("d1", "It cuts the photo into about two thousand small pieces, called packets,", 3.3), ("d2", "each with her address and a number.", 2.1), ("d3", "They share the wires with everyone else.", 2.2),
  ("d4", "Wire busy? Some take another path.", 2.0), ("d5", "One lost? Only that one is sent again.", 2.6), ("d6", "And her phone puts them back in order.", 2.8),
  ("t3", "Then she flies to London.", 1.65), ("z2", "Next: how a photo crosses an ocean.", 2.6), ("t10", "Follow InvisiTech for more.", 3.0)]
