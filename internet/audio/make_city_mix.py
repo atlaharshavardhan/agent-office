@@ -23,7 +23,7 @@ for q in range(int(DUR / beat)):
 out *= 0.5
 import json; LOG = []
 for name, at in [("liam/c1", 0.2), ("liam/c2", 3.3), ("liam/c3", 5.3), ("liam/c4", 8.0)]:
-    a, sr = sf.read(f"voice/{name}.wav"); a = np.interp(np.arange(len(a) * 2) / 2, np.arange(len(a)), a); LOG.append([round(37.1 + at, 3), round(37.1 + at + len(a) / SR, 3)])
+    a, sr = sf.read(f"voice/{name}.wav"); a = np.interp(np.arange(len(a) * 2) / 2, np.arange(len(a)), a); LOG.append([round(37.1 + at, 3), round(37.1 + at + len(a) / SR, 3), name])
     i = int(at * SR); n = min(len(a), N - i); pad = int(0.12 * SR); lo, hi = max(0, i - pad), min(N, i + n + pad)
     duck = np.full(hi - lo, 0.5); k = min(pad, (hi - lo) // 2); duck[:k] = np.linspace(1, 0.5, k); duck[-k:] = np.linspace(0.5, 1, k); out[lo:hi] *= duck[:, None]
     out[i:i + n] += np.stack([a[:n], a[:n]], 1) * 0.92

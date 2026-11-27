@@ -37,7 +37,7 @@ for name, at, pieces in V:
     if at < prev + 0.1: print("pushed", name, at, "->", round(prev + 0.1, 2)); at = prev + 0.1
     i = int(at * SR); n = min(len(a), N - i); pad = int(0.12 * SR); lo, hi = max(0, i - pad), min(N, i + n + pad)
     duck = np.full(hi - lo, 0.5); k = min(pad, (hi - lo) // 2); duck[:k] = np.linspace(1, 0.5, k); duck[-k:] = np.linspace(0.5, 1, k); out[lo:hi] *= duck[:, None]
-    out[i:i + n] += np.stack([a[:n], a[:n]], 1) * 0.92; d = len(a) / SR; prev = at + d; LOGP.append([round(50.1 + at, 3), round(50.1 + at + d, 3)])
+    out[i:i + n] += np.stack([a[:n], a[:n]], 1) * 0.92; d = len(a) / SR; prev = at + d; LOGP.append([round(50.1 + at, 3), round(50.1 + at + d, 3), name])
     tot = sum(len(p.replace("*", "")) for p in pieces) or 1; c = at
     for p in pieces:
         w = d * len(p.replace("*", "")) / tot; row = [round(c, 2), round(c + w + (0.2 if p is pieces[-1] else 0), 2), p]

@@ -1,0 +1,147 @@
+1
+00:00:00,148 --> 00:00:03,179
+Flash a torch at your friend, and
+you've just built the internet.
+
+2
+00:00:03,219 --> 00:00:05,539
+That's all it is: light,
+blinking on and off.
+
+3
+00:00:05,579 --> 00:00:07,251
+On is one. Off is zero.
+
+4
+00:00:07,591 --> 00:00:08,918
+Eight blinks make one letter.
+
+5
+00:00:09,321 --> 00:00:10,767
+But hello takes forty blinks.
+
+6
+00:00:11,083 --> 00:00:12,308
+Too slow.
+
+7
+00:00:12,500 --> 00:00:13,400
+So we use a wire.
+
+8
+00:00:14,041 --> 00:00:15,664
+Now it's a billion blinks, every second.
+
+9
+00:00:16,194 --> 00:00:17,498
+Hello arrives before you blink.
+
+10
+00:00:18,131 --> 00:00:20,308
+Then she moves to a hostel. New wire.
+
+11
+00:00:20,649 --> 00:00:22,452
+Then a friend's place. Another wire.
+
+12
+00:00:22,492 --> 00:00:24,058
+Now the neighbours want to join too.
+
+13
+00:00:24,098 --> 00:00:25,848
+So every house plugs into one box:
+
+14
+00:00:26,199 --> 00:00:26,899
+the router.
+
+15
+00:00:27,038 --> 00:00:29,017
+Every house gets a number,
+like a door number.
+
+16
+00:00:29,517 --> 00:00:30,590
+That's its IP address.
+
+17
+00:00:30,957 --> 00:00:32,954
+The router reads the number
+and delivers the message.
+
+18
+00:00:33,326 --> 00:00:35,135
+Then she moves to another city.
+
+19
+00:00:35,781 --> 00:00:37,618
+One router can't reach that far.
+
+20
+00:00:37,658 --> 00:00:39,259
+So routers connect to other routers,
+
+21
+00:00:39,798 --> 00:00:41,692
+and pass the message along, hop by hop.
+
+22
+00:00:42,978 --> 00:00:45,622
+A text is tiny. But what about a photo?
+
+23
+00:00:45,662 --> 00:00:48,760
+Imagine sending it as one big
+piece. It blocks the whole line.
+
+24
+00:00:48,800 --> 00:00:50,378
+Everyone else has to wait.
+
+25
+00:00:50,633 --> 00:00:52,962
+One small error, and
+it has to start again.
+
+26
+00:00:53,002 --> 00:00:55,013
+So the internet never
+sends it in one piece.
+
+27
+00:00:55,169 --> 00:00:58,147
+It cuts the photo into about two
+thousand small pieces, called packets,
+
+28
+00:00:58,328 --> 00:00:59,808
+each with her address and a number.
+
+29
+00:01:00,223 --> 00:01:01,950
+They share the wires with everyone else.
+
+30
+00:01:02,283 --> 00:01:04,066
+Wire busy? Some take another path.
+
+31
+00:01:04,186 --> 00:01:06,322
+One lost? Only that one is sent again.
+
+32
+00:01:06,622 --> 00:01:08,147
+And her phone puts them back in order.
+
+33
+00:01:08,808 --> 00:01:10,356
+Then she flies to London.
+
+34
+00:01:10,396 --> 00:01:12,380
+Next: how a photo crosses an ocean.
+
+35
+00:01:12,817 --> 00:01:14,270
+Follow InvisiTech for more.

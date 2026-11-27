@@ -5,7 +5,7 @@ frame boundaries, so they stay in sync. Usage: python retime.py <input 1x video>
 import json, subprocess, sys
 SRC, DST = sys.argv[1], sys.argv[2]; G = 1.06; FR = 30; TOTAL = 85.7
 iv = []
-for n in ['hook', 'wire', 'city', 'part1']: iv += json.load(open(f'audio/voicelog-{n}.json'))
+for n in ['hook', 'wire', 'city', 'part1']: iv += [e[:2] for e in json.load(open(f'audio/voicelog-{n}.json'))]
 iv.sort(); sp = []
 for a, b in iv:
     a, b = max(0, a - 0.05), min(TOTAL, b + 0.10)
@@ -20,6 +20,11 @@ for a, b in sp:
     if b > a: segs.append((a, b, G, 'speech'))
     t = b
 if TOTAL > t + 1e-6: segs.append((t, TOTAL, G, 'end'))
+# make every output segment a whole number of frames, so picture and sound stay exactly together and times can be mapped exactly
+segs = [(a, b, (b - a) * FR / max(1, round((b - a) * FR / s)), k) for a, b, s, k in segs]
+acc = 0.0; MAP = []
+for a, b, s, k in segs: MAP.append([round(a, 4), round(b, 4), round(acc, 4), s]); acc += (b - a) / s
+json.dump({'segments': MAP, 'total': round(acc, 4)}, open('audio/retime-map.json', 'w'))
 out_len = sum((b - a) / s for a, b, s, _ in segs); print(len(segs), 'segments; output', round(out_len, 2), 's; gaps sped up:', round(sum(b - a for a, b, s, k in segs if k == 'gap'), 1), 's of pause')
 def atempo(s):
     f = []

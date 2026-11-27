@@ -11,7 +11,7 @@ bedc = cut(bed[:int(15.6 * SR)])[:N] * 0.56; out = bedc + cut(sfx[:int(15.6 * SR
 V = [('liam/hookA', 0.15), ('liam/p1', 5.9), ('liam/p2', 8.0), ('liam/p3', 9.95), ('liam/p4', 11.8)]
 import json; LOG = []
 for name, at in V:
-    a, sr = sf.read(f'voice/{name}.wav'); a = np.interp(np.arange(len(a) * 2) / 2, np.arange(len(a)), a); LOG.append((round(at, 3), round(at + len(a) / SR, 3)))
+    a, sr = sf.read(f'voice/{name}.wav'); a = np.interp(np.arange(len(a) * 2) / 2, np.arange(len(a)), a); LOG.append((round(at, 3), round(at + len(a) / SR, 3), name))
     i = int(at * SR); n = min(len(a), N - i); out[i:i + n] -= bedc[i:i + n] * 0.45; out[i:i + n] += np.stack([a[:n], a[:n]], 1) * 0.9
 out[:int(0.15 * SR)] *= np.linspace(0, 1, int(0.15 * SR))[:, None]
 ab = np.abs(out); out = np.where(ab > 0.75, np.sign(out) * (0.75 + 0.15 * np.tanh((ab - 0.75) / 0.15)), out)

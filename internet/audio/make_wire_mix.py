@@ -9,7 +9,7 @@ def put(sig, at, g=1.0):
     out[i:i + n] += sig[:n] * g
 LOGW = []
 def voice(name, at):
-    a, sr = sf.read(f'voice/{name}.wav'); a = np.interp(np.arange(len(a) * 2) / 2, np.arange(len(a)), a); put(a, at, 0.9); LOGW.append((at, at + len(a) / SR))
+    a, sr = sf.read(f'voice/{name}.wav'); a = np.interp(np.arange(len(a) * 2) / 2, np.arange(len(a)), a); put(a, at, 0.9); LOGW.append((at, at + len(a) / SR, name))
     i = int(at * SR); bedpart = bed[int(15.6 * SR) + i:int(15.6 * SR) + i + len(a)] * 0.56; out[i:i + len(bedpart)] -= bedpart[:max(0, N - i)] * 0.45   # duck the music under the voice
 def t(d): return np.arange(int(d * SR)) / SR
 def env(x, a=0.004, r=4.0): n = len(x); e = np.minimum(1, np.arange(n) / (a * SR)) * np.exp(-r * np.arange(n) / n); return x * e
@@ -48,7 +48,7 @@ for i in range(9): x = t(0.05); put(env(np.sin(2 * np.pi * 2000 * x), r=5) * 0.0
 pass   # data chirp removed (26 Nov 2026)
 x = t(0.9); put(env(np.sin(2 * np.pi * 1318 * x) + 0.5 * np.sin(2 * np.pi * 1976 * x), r=6) * 0.2, M + 15.1)
 import json as _j; HOOKLEN = 13.1; cutlen = CUT_B - CUT_A
-_j.dump([[round(HOOKLEN + (a if a < M + CUT_A else a - cutlen), 3), round(HOOKLEN + (b if b <= M + CUT_A else b - cutlen), 3)] for a, b in LOGW if not (a >= M + CUT_A and a < M + CUT_B)], open('audio/voicelog-wire.json', 'w'))
+_j.dump([[round(HOOKLEN + (a if a < M + CUT_A else a - cutlen), 3), round(HOOKLEN + (b if b <= M + CUT_A else b - cutlen), 3), nm] for a, b, nm in LOGW if not (a >= M + CUT_A and a < M + CUT_B)], open('audio/voicelog-wire.json', 'w'))
 ca, cb, cf = int((M + CUT_A) * SR), int((M + CUT_B) * SR), int(0.03 * SR)
 seam = out[ca - cf:ca] * np.linspace(1, 0, cf)[:, None] + out[cb - cf:cb] * np.linspace(0, 1, cf)[:, None]
 out = np.concatenate([out[:ca - cf], seam, out[cb:]])
