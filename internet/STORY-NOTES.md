@@ -141,3 +141,4 @@ Harsh: do NOT render or make images for 16:9 now. Only 9:16.
 - Cards: heading card ("WITHOUT/WITH PACKETS") is one compact centred card; packet tag is a two-line card with its text inside; the "why" for 40 blinks ("Hello" = 5 letters x 8 blinks = 40) now shows on the first-person card (my reading of "this scene is missing why": Harsh may have meant something else).
 - End card (Part 1 version only, EndCard p2): smaller logo and handle under the globe, not touching it; "PART 2 coming soon" card; torch small; everything above y 1480.
 - Render: v3/render_part1_v8.sh fresh, short runs under 28 min. Estimated 8 to 10 hours (my earlier 5 to 6 hour guess was too low).
+- 27 Nov 2026: Part 1 v8 (9:16 only) rendered, checked on 25 frames and sent: internet/video/internet-part1-v8.mp4 (85.7 s, 39 MB re-encode crf 23). Sound could not be listened to by me. 16:9 untouched and out of date (old voice, wording, cameras).
