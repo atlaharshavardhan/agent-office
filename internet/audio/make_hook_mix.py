@@ -6,7 +6,7 @@ SR = 48000; CUT_A, CUT_B = 5.9, 8.4
 def cut(x):
     a, b, f = int(CUT_A * SR), int(CUT_B * SR), int(0.03 * SR); y = np.concatenate([x[:a], x[b:]]); r = np.linspace(0, 1, f)[:, None]
     y[a - f:a] = x[a - f:a] * (1 - r) + x[b - f:b] * r; return y
-bed, _ = sf.read('audio/bed-soft.wav'); sfx, _ = sf.read('audio/sfx-quiet.wav'); N = int((15.6 - (CUT_B - CUT_A)) * SR)
+bed, _ = sf.read('audio/bed-hook.wav'); sfx, _ = sf.read('audio/sfx-hook.wav'); N = int((15.6 - (CUT_B - CUT_A)) * SR)
 bedc = cut(bed[:int(15.6 * SR)])[:N] * 0.56; out = bedc + cut(sfx[:int(15.6 * SR)])[:N] * 1.25
 V = [('liam/hookA', 0.15), ('liam/p1', 5.9), ('liam/p2', 8.0), ('liam/p3', 9.95), ('liam/p4', 11.8)]
 for name, at in V:
