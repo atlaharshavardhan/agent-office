@@ -33,15 +33,15 @@ const drawThumb = (g: CanvasRenderingContext2D, x: number, y: number, w: number,
 const screenTex = (sent: boolean, hideThumb: boolean) => canvas(600, 1240, (g) => {
   g.fillStyle = '#0b0f2e'; g.fillRect(0, 0, 600, 1240);
   g.fillStyle = '#141a45'; g.fillRect(0, 0, 600, 150); g.fillStyle = '#ff8f7a'; g.beginPath(); g.arc(80, 86, 34, 0, 7); g.fill();
-  g.fillStyle = '#eef1ff'; g.font = '800 40px Manrope, sans-serif'; g.fillText('Her', 136, 82); g.fillStyle = '#7dffb0'; g.font = '500 24px Manrope, sans-serif'; g.fillText('London · online', 136, 116);
-  g.fillStyle = '#1b2258'; rr(g, 40, 200, 330, 84, 26); g.fill(); g.fillStyle = '#cfd6ff'; g.font = '500 30px Manrope, sans-serif'; g.fillText('Show me the street!', 64, 252);
+  g.fillStyle = '#eef1ff'; g.font = '800 40px Manrope, sans-serif'; g.fillText('Arjun', 136, 82); g.fillStyle = '#7dffb0'; g.font = '500 24px Manrope, sans-serif'; g.fillText('Hyderabad · online', 136, 116);
+  g.fillStyle = '#1b2258'; rr(g, 40, 200, 330, 84, 26); g.fill(); g.fillStyle = '#cfd6ff'; g.font = '500 30px Manrope, sans-serif'; g.fillText('Send me a photo!', 64, 252);
   g.fillStyle = '#1d6f8f'; rr(g, 150, 330, 410, 470, 30); g.fill(); if (!hideThumb) { drawThumb(g, 170, 350, 370, 370); g.fillStyle = 'rgba(8,12,40,.55)'; g.beginPath(); g.arc(355, 535, 54, 0, 7); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(338, 505); g.lineTo(388, 535); g.lineTo(338, 565); g.closePath(); g.fill(); } else { g.strokeStyle = 'rgba(160,230,255,.5)'; g.setLineDash([10, 10]); g.lineWidth = 3; rr(g, 170, 350, 370, 370, 18); g.stroke(); g.setLineDash([]); }
-  g.fillStyle = '#d9f4ff'; g.font = '500 26px "IBM Plex Mono", monospace'; g.fillText(sent ? 'sending… 2 MB' : 'torch.mp4 · 2 MB', 180, 770);
+  g.fillStyle = '#d9f4ff'; g.font = '500 26px "IBM Plex Mono", monospace'; g.fillText(sent ? 'sending… 3 MB' : 'photo.jpg · 3 MB', 180, 770);
   g.fillStyle = '#141a45'; g.fillRect(0, 1080, 600, 160); g.fillStyle = '#0b0f2e'; rr(g, 30, 1110, 410, 90, 45); g.fill(); g.fillStyle = '#6f7ab8'; g.font = '500 30px Manrope, sans-serif'; g.fillText('Message', 66, 1166);
   g.fillStyle = sent ? '#7dffb0' : '#5fe3ff'; g.beginPath(); g.arc(520, 1155, 52, 0, 7); g.fill(); g.fillStyle = '#07102c'; g.beginPath(); g.moveTo(498, 1128); g.lineTo(548, 1155); g.lineTo(498, 1182); g.closePath(); g.fill();
 });
 const tagTex = (n: number, hero: boolean) => canvas(256, 112, (g) => {
-  g.fillStyle = hero ? '#ffb454' : '#bfeaff'; rr(g, 4, 4, 248, 104, 18); g.fill(); g.fillStyle = hero ? '#7a4a08' : '#12436a'; g.fillRect(4, 4, 248, 26); g.fillStyle = hero ? '#ffe6b8' : '#e9f8ff'; g.font = '700 16px "IBM Plex Mono", monospace'; g.fillText('TO: HER · LONDON', 16, 23);
+  g.fillStyle = hero ? '#ffb454' : '#bfeaff'; rr(g, 4, 4, 248, 104, 18); g.fill(); g.fillStyle = hero ? '#7a4a08' : '#12436a'; g.fillRect(4, 4, 248, 26); g.fillStyle = hero ? '#ffe6b8' : '#e9f8ff'; g.font = '700 16px "IBM Plex Mono", monospace'; g.fillText('TO: ARJUN · HYDERABAD', 16, 23);
   g.fillStyle = '#07102c'; g.font = '800 54px Manrope, sans-serif'; g.textAlign = 'center'; g.fillText('#' + String(n).padStart(4, '0'), 128, 88);
 });
 export const winTex = (seed: number) => canvas(128, 256, (g) => { g.fillStyle = '#141a4a'; g.fillRect(0, 0, 128, 256); for (let r = 0; r < 12; r++) for (let c = 0; c < 5; c++) { const h = hash(seed * 31 + r * 7 + c); g.fillStyle = h > 0.74 ? (h > 0.93 ? '#9fe6ff' : '#ffd08a') : '#1d2460'; g.fillRect(10 + c * 23, 10 + r * 20, 14, 11); } });
@@ -118,7 +118,7 @@ const project = (t: number, p: THREE.Vector3): [number, number] => { const c = c
 
 export const PacketBurst: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS;
-  const count = Math.round(lerp(0, 1500, seg(t, 2.8, 5.0)) / 10) * 10, title = seg(t, 3.0, 3.5) * (1 - seg(t, 9.2, 9.8));
+  const count = Math.round(lerp(0, 2000, seg(t, 2.8, 5.0)) / 10) * 10, title = seg(t, 3.0, 3.5) * (1 - seg(t, 9.2, 9.8));
   const hk = tagPos(HERO, t), [hx, hy] = project(t, hk.p), heroTag = seg(t, 4.6, 5.0) * (1 - seg(t, 6.6, 7.0));
   const [tx, ty] = project(t, TOWER), towerTag = seg(t, 6.8, 7.3) * (1 - seg(t, 9.4, 9.9));
   return (
@@ -133,9 +133,9 @@ export const PacketBurst: React.FC = () => {
         <EffectComposer><Bloom intensity={0.5} luminanceThreshold={0.86} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.75} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill><svg width={F.W} height={F.H}>
-        <g opacity={title} {...EDGE} transform={tr(1560, 150)}><text textAnchor="middle" fill="#eef1ff" style={{ font: `800 46px ${FONT.ui}` }}>1 video</text>
+        <g opacity={title} {...EDGE} transform={tr(1560, 150)}><text textAnchor="middle" fill="#eef1ff" style={{ font: `800 46px ${FONT.ui}` }}>1 photo</text>
           <text y={98} textAnchor="middle" fill="#5fe3ff" style={{ font: `800 104px ${FONT.ui}` }}>{count.toLocaleString('en-US')}</text><text y={150} textAnchor="middle" fill="#eef1ff" style={{ font: `800 46px ${FONT.ui}` }}>packets</text>
-          <text y={196} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 24px ${FONT.mono}` }}>2 MB, about 1,400 bytes each</text></g>
+          <text y={196} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 24px ${FONT.mono}` }}>3 MB, about 1,500 bytes each</text></g>
         <g opacity={heroTag}><line x1={hx} y1={hy + 40} x2={hx + 150} y2={hy + 150} stroke="#ffb454" strokeWidth={2.5} /><g transform={`translate(${hx + 250} ${hy + 176})`}><rect x={-190} y={-30} width={380} height={76} rx={12} fill="#0e1430" fillOpacity={0.92} stroke="#ffb454" strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>FOLLOW THIS ONE</text><text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>each packet carries her address</text></g></g>
         <g opacity={towerTag}><line x1={tx} y1={ty - 20} x2={tx - 120} y2={ty - 130} stroke="#5fe3ff" strokeWidth={2.5} /><g transform={`translate(${tx - 190} ${ty - 160})`}><rect x={-150} y={-30} width={300} height={76} rx={12} fill="#0e1430" fillOpacity={0.92} stroke="#5fe3ff" strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>CELL TOWER</text><text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>packets fly as radio waves</text></g></g>
       </svg></AbsoluteFill>
