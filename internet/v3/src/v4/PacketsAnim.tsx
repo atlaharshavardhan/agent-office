@@ -65,22 +65,33 @@ export const PacketsRing: React.FC = () => { const f = useCurrentFrame(), t = f 
     <Ms v={t < 5 ? 2 : 3} /></AbsoluteFill>); };
 
 /* v5 scene: the same photo breaks into blocks, each block becomes a gold packet with a tiny lock and its piece of the dog, the packets circle in a vertical ring, then ONE packet (#1204) flies to the front and becomes its address card */
-const PkD: React.FC<{ x: number; y: number; w: number; rot: number; o: number; i: number; j: number }> = ({ x, y, w, rot, o, i, j }) => { const h = w * 0.62, N = 14, ps = h * 0.62;
+/* the photo breaks into wide RECTANGLES (Harsh): 11 columns x 17 rows */
+const NC = 11, NR = 17, BPW = 80, BPH = 52;
+const BlockR: React.FC<{ x: number; y: number; w: number; h: number; rot: number; i: number; j: number }> = ({ x, y, w, h, rot, i, j }) => (
+  <g transform={`translate(${x} ${y}) rotate(${rot})`} style={{ filter: 'drop-shadow(12px 16px 12px rgba(0,0,0,.65))' }}>
+    <rect x={-w / 2 + 8} y={-h / 2 + 10} width={w} height={h} rx={5} fill="#3a2418" />
+    <svg x={-w / 2} y={-h / 2} width={w} height={h} viewBox={`${(j * 190) / NC} ${(i * 190) / NR} ${190 / NC} ${190 / NR}`} preserveAspectRatio="none" overflow="hidden"><DogPhoto /></svg>
+    <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={4} fill="none" stroke="#1a0f08" strokeWidth={2.5} />
+  </g>);
+const blockAtR = (i: number, j: number, u: number, t: number) => { const k = i * NC + j, dx = j - (NC - 1) / 2, dy = i - (NR - 1) / 2, d = Math.hypot(dx, dy) + 0.4;
+  const x1 = 540 + dx * (BPW + 6) * (1 + 0.012 * d) + (hash(k) - 0.5) * 24, y1 = 880 + dy * (BPH + 5) * (1 + 0.012 * d) + (hash(k + 3) - 0.5) * 24, r1 = (hash(k + 7) - 0.5) * 60 * Math.min(1, d / 3);
+  return { x: lp(540 + dx * BPW, x1, u) + (Math.sin(t * 2.3 + k * 1.7) * 20) * u, y: lp(880 + dy * BPH, y1, u) + (Math.cos(t * 2.0 + k * 1.3) * 20) * u, rot: lp(0, r1, u) + Math.sin(t * 1.9 + k) * 20 * u, w: lp(BPW, 70, u), h: lp(BPH, 44, u) }; };
+const PkD: React.FC<{ x: number; y: number; w: number; rot: number; o: number; i: number; j: number }> = ({ x, y, w, rot, o, i, j }) => { const h = w * 0.62, ps = h * 0.62;
   return <g transform={`translate(${x} ${y}) rotate(${rot})`} opacity={o} style={{ filter: 'drop-shadow(8px 10px 8px rgba(0,0,0,.5))' }}>
     <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={6} fill="url(#gp)" /><rect x={-w / 2} y={-h / 2} width={w} height={h * 0.28} rx={6} fill="#2a1630" opacity={0.9} />
-    <svg x={-w / 2 + w * 0.07} y={-h / 2 + h * 0.3} width={ps} height={ps} viewBox={`${(j * 190) / N} ${(i * 190) / N} ${190 / N} ${190 / N}`} overflow="hidden"><DogPhoto /></svg>
+    <svg x={-w / 2 + w * 0.07} y={-h / 2 + h * 0.3} width={ps * 1.5} height={ps} viewBox={`${(j * 190) / NC} ${(i * 190) / NR} ${190 / NC} ${190 / NR}`} preserveAspectRatio="none" overflow="hidden"><DogPhoto /></svg>
     {w > 56 && <g transform={`translate(${w / 2 - w * 0.12} ${-h / 2 + h * 0.14})`}><rect x={-w * 0.035} y={-h * 0.02} width={w * 0.07} height={h * 0.09} rx={1.5} fill="#ffd38a" /><path d={`M ${-w * 0.022} ${-h * 0.02} v ${-h * 0.05} a ${w * 0.022} ${w * 0.022} 0 0 1 ${w * 0.044} 0 v ${h * 0.05}`} fill="none" stroke="#ffd38a" strokeWidth={Math.max(1, w * 0.012)} /></g>}
   </g>; };
 export const PACKETS_STORY_FRAMES = 260;
-export const PacketsStory: React.FC = () => { const f = useCurrentFrame(), t = f / 30, NN = 196, HERO = 11, tf = 4.2, g = eo((t - tf) / 1.2), dm = 1 - 0.75 * eo((t - tf) / 0.8), count = Math.round(2000 * eo((t - 2.0) / 1.6) / 10) * 10, rows = [sm((t - 5.5) / 0.5), sm((t - 6.1) / 0.5), sm((t - 6.7) / 0.5)];
+export const PacketsStory: React.FC = () => { const f = useCurrentFrame(), t = f / 30, NN = 187, HERO = 11, tf = 4.2, g = eo((t - tf) / 1.2), dm = 1 - 0.75 * eo((t - tf) / 0.8), count = Math.round(2000 * eo((t - 2.0) / 1.6) / 10) * 10, rows = [sm((t - 5.5) / 0.5), sm((t - 6.1) / 0.5), sm((t - 6.7) / 0.5)];
   const items: [string, string, string, string][] = [['TO', '86.14.203.57', 'London', '#c2412b'], ['FROM', '49.37.118.202', 'Hyderabad', '#2a6fb0'], ['PIECE', '1,204 of 2,000', '1,500 bytes', '#9a6a14']];
-  const pos = (k: number) => { const i = Math.floor(k / 14), j = k % 14, bt = eo((t - 0.35 - hash(k + 50) * 0.35) / 1.0), mt = eo((t - 1.3 - hash(k + 60) * 0.35) / 1.1), b = blockAt(i, j, bt, t), r = ring(k, t), w = 52 + hash(k + 9) * 56 + 14 * r.z;
-    return { i, j, mt, bx: b.x, by: b.y, br: b.rot, bs: b.s, x: lp(b.x, r.x, mt), y: lp(b.y, r.y, mt), rot: lp(b.rot, r.rot, mt), w: lp(b.s, w, mt), z: r.z }; };
+  const pos = (k: number) => { const i = Math.floor(k / NC), j = k % NC, bt = eo((t - 0.35 - hash(k + 50) * 0.35) / 1.0), mt = eo((t - 1.3 - hash(k + 60) * 0.35) / 1.1), b = blockAtR(i, j, bt, t), r = ring(k, t), w = 52 + hash(k + 9) * 56 + 14 * r.z;
+    return { i, j, mt, bx: b.x, by: b.y, br: b.rot, bw: b.w, bh: b.h, x: lp(b.x, r.x, mt), y: lp(b.y, r.y, mt), rot: lp(b.rot, r.rot, mt), w: lp(b.w, w, mt), z: r.z }; };
   const all = Array.from({ length: NN }).map((_, k) => ({ k, p: pos(k) })).sort((p, q) => p.p.z - q.p.z), h0 = ring(HERO, tf), photo = 1 - sm((t - 0.3) / 0.3);
   return (<AbsoluteFill><Bg /><svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
     <svg x={92} y={432} width={896} height={896} viewBox="0 0 190 190" opacity={photo}><DogPhoto /></svg>
     {all.map(({ k, p }) => { if (k === HERO && t >= tf) return null; return <g key={k} opacity={dm}>
-      {p.mt < 1 && <Block x={p.x} y={p.y} s={p.bs} rot={p.rot} i={p.i} j={p.j} n={14} />}
+      {p.mt < 1 && <BlockR x={p.x} y={p.y} w={p.bw} h={p.bh} rot={p.rot} i={p.i} j={p.j} />}
       {p.mt > 0 && <>{[3, 2, 1].map((gg) => { const q = ring(k, t - gg * 0.045); return p.mt > 0.95 ? <Pk key={gg} x={q.x} y={q.y} w={p.w * 0.9} rot={q.rot} o={0.12 * (4 - gg) / 3} /> : null; })}<PkD x={p.x} y={p.y} w={Math.max(20, p.w * (0.75 + 0.25 * p.mt))} rot={p.rot} o={p.mt} i={p.i} j={p.j} /></>}</g>; })}
     {t >= tf && <g transform={`translate(${lp(h0.x, 540, g)} ${lp(h0.y, 880, g)}) scale(${lp(0.13, 1, g)}) rotate(${lp((((h0.rot % 360) + 540) % 360) - 180, 0, g)})`} style={{ filter: 'drop-shadow(0 30px 40px rgba(0,0,0,.7)) drop-shadow(0 0 50px rgba(255,180,84,.45))' }}>
       <rect x={-440} y={-290} width={880} height={580} rx={44} fill="url(#gp2)" stroke="#ffe3a0" strokeWidth={5} />
