@@ -52,3 +52,6 @@ Same desk style as London (locked) with his own look: purple-plum wall, maroon r
 
 ## Flags and a proper Charminar (Harsh, 28 Nov 2026)
 Small waving desk flags on both tables: the Indian tricolour on Arjun's, the Union Jack on Meera's (DeskFlag in Story.tsx; London room otherwise unchanged). The Charminar is redrawn properly (CharminarArt: four minarets with balconies and bulb domes, parapet, central dome, big central arch, small arched windows) and used in his window, in the framed picture on his desk and in the photo he sends. A framed dog picture was offered instead of the Charminar one but not added (desks are already full); ask Harsh if he wants it. Stills: part2/storyboard/flags-charminar/.
+
+## HOOK ONLY, as 8 images (Harsh, 28 Nov 2026: "only hook, images, not the whole video"): internet/part2/storyboard/hook-final/
+1 he taps send (Hyderabad 9:12 pm) - 2 the photo leaves his screen - 3 onto the globe, 0 ms - 4 how fast it travels, counter running - 5 almost there, 63 ms - 6 lands in London, 65 ms - 7 her phone buzzes (London 3:42 pm) - 8 the notification on her lock screen, zoomed. The first full video cut (internet/video/internet-part2-v1.mp4) went beyond this; Harsh wants the hook first and approved before the rest.
