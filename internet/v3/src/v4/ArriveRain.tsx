@@ -12,7 +12,7 @@ const label = (n: number) => String(Math.round(n * 2000 / NT) + 1).padStart(4, '
 const rank = Array.from({ length: NT }).map((_, i) => i).sort((a, b) => hash(a + 700) - hash(b + 700));
 const order = new Array(NT); rank.forEach((n, r) => { order[n] = r; });
 const Cap: React.FC<{ t: string; o: number }> = ({ t, o }) => <div style={{ position: 'absolute', left: 0, right: 0, top: 1680, display: 'flex', justifyContent: 'center', opacity: o }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: CREAM, textAlign: 'center' }}>{t}</div></div>;
-export const ArriveRain: React.FC = () => { const t = useCurrentFrame() / 30, ms = Math.round(lp(50, 65, sm((t - 0.3) / 9.6)));
+export const ArriveRain: React.FC = () => { const t = useCurrentFrame() / 30, ms = Math.round(lp(62, 65, sm((t - 0.3) / 9.6)));
   let landed = 0; const got: boolean[] = new Array(NT).fill(false); const tiles: React.ReactNode[] = [], slots: React.ReactNode[] = [], marks: React.ReactNode[] = [];
   for (let n = 0; n < NT; n++) {
     const c = n % C, r = Math.floor(n / C), x = BX + (c + 0.5) * TW, y = BY + (r + 0.5) * TH, lost = LOST.indexOf(n) >= 0;

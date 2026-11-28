@@ -149,7 +149,7 @@ export const HydSend: React.FC = () => {
 };
 
 /* ---- the lock screen shown on Meera's phone (children of IPhone, drawn over its header) ---- */
-const Lock: React.FC<{ banner: number; lit: number; press?: number }> = ({ banner, lit, press = 0 }) => (<>
+const Lock: React.FC<{ banner: number; lit: number; press?: number; who?: string }> = ({ banner, lit, press = 0, who = 'Arjun' }) => (<>
   <div style={{ position: 'absolute', left: -9, right: -9, top: -62, bottom: -9, background: 'linear-gradient(170deg,#3a1f4d,#a84a4a 55%,#f09a4a)', opacity: lit }} />
   <div style={{ position: 'absolute', left: -9, right: -9, top: -62, bottom: -9, background: '#050507', opacity: 1 - lit }} />
   <div style={{ opacity: lit }}>
@@ -157,7 +157,7 @@ const Lock: React.FC<{ banner: number; lit: number; press?: number }> = ({ banne
     <div style={{ position: 'absolute', left: 0, right: 0, top: -22, textAlign: 'center', font: `700 66px/1.1 ${FONT.ui}`, color: '#fff' }}>3:42</div>
     <div style={{ position: 'absolute', left: 4, right: 4, top: 116 + (1 - banner) * -60, height: 76, borderRadius: 18, background: `rgba(255,255,255,${0.3 - 0.1 * press})`, backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,.45)', opacity: banner, transform: `scale(${(0.92 + 0.08 * banner) * (1 - 0.045 * press)})`, boxShadow: `0 8px 24px rgba(0,0,0,.35), 0 0 ${24 * press}px rgba(255,235,190,${0.9 * press})` }}>
       <div style={{ position: 'absolute', left: 9, top: 10, width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(#5fe05f,#25b745)', display: 'grid', placeItems: 'center' }}><svg width={19} height={17} viewBox="0 0 17 15"><path d="M8.5 1C4.4 1 1 3.6 1 6.8c0 1.8 1 3.4 2.7 4.4L3 14l3.1-1.6c.8.2 1.5.3 2.4.3 4.1 0 7.5-2.6 7.5-5.9S12.6 1 8.5 1z" fill="#fff" /></svg></div>
-      <div style={{ position: 'absolute', left: 50, top: 9, font: `700 14px ${FONT.ui}`, color: '#fff' }}>Arjun</div>
+      <div style={{ position: 'absolute', left: 50, top: 9, font: `700 14px ${FONT.ui}`, color: '#fff' }}>{who}</div>
       <div style={{ position: 'absolute', right: 62, top: 10, font: `500 10px ${FONT.ui}`, color: 'rgba(255,255,255,.85)' }}>now</div>
       <div style={{ position: 'absolute', left: 50, top: 30, font: `600 13px ${FONT.ui}`, color: '#fff' }}>📷 Photo</div>
       <div style={{ position: 'absolute', right: 8, top: 9, width: 50, height: 58, borderRadius: 9, overflow: 'hidden' }}><svg width={50} height={58} viewBox="0 0 190 190" preserveAspectRatio="xMidYMid slice"><Charminar /></svg></div>
@@ -401,14 +401,14 @@ export const LondonRoom: React.FC = () => {
 
 /* ================= 3. the notification, zoomed ================= */
 export const NOTIF_FRAMES = 90;
-export const Notif: React.FC = () => {
+export const Notif: React.FC<{ who?: string; ms?: number }> = ({ who = 'Arjun', ms }) => {
   const f = useCurrentFrame(), t = f / FPS;
   const banner = prog(f, 0.2, 0.6, easeOut), zoom = lerp(0.92, 1, easeOut(Math.min(1, t / 1.2)));
   return (
     <AbsoluteFill style={{ background: 'linear-gradient(180deg,#2a1a20 0%,#7a3f3a 50%,#2a1a20 100%)' }}>
       <Bokeh n={12} seed={31} cols={['#ffb454', '#ff7a59', '#ffd89a', '#2bb5a3']} y0={100} y1={1600} />
       <div style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1920, transform: `scale(${zoom})`, transformOrigin: '540px 900px' }}>
-        <IPhone v18 left={186} top={250} o={1} name="" avatar="#000" k={3.0}><Lock banner={banner} lit={1} /></IPhone>
+        <IPhone v18 left={186} top={250} o={1} name="" avatar="#000" k={3.0}><Lock banner={banner} lit={1} who={who} /></IPhone>
         <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
           {[0, 1, 2].map((i) => { const p = prog(f, 0.3 + i * 0.12, 0.9 + i * 0.12); return p > 0 && p < 1 ? <rect key={i} x={186 - 20 * p} y={250 - 20 * p} width={708 + 40 * p} height={1452 + 40 * p} rx={130} fill="none" stroke="#ffd89a" strokeWidth={5 * (1 - p)} opacity={0.5 * (1 - p)} /> : null; })}
         </svg>

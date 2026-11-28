@@ -1,5 +1,10 @@
 {
  "lengths": {
+  "h1": 2.965,
+  "h2": 1.365,
+  "e1": 1.429,
+  "e2": 2.603,
+  "e3": 1.472,
   "g1": 3.541,
   "g2": 2.475,
   "m1": 2.645,
@@ -20,6 +25,11 @@
   "r4": 2.731
  },
  "text": {
+  "h1": "At her end, a tower turns the light back into radio.",
+  "h2": "And her phone lights up.",
+  "e1": "That took less than a blink.",
+  "e2": "But how do we know the photo is exactly the same?",
+  "e3": "Follow for Part 3.",
   "g1": "Almost all data between continents travels in cables like this.",
   "g2": "Our photo crosses from Hyderabad to London.",
   "m1": "But three are missing. Her phone asks for them again.",

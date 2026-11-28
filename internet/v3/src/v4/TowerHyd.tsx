@@ -73,10 +73,10 @@ const lerpN = (a: number, b: number, u: number) => a + (b - a) * u, smoothN = (u
 const SigAnim: React.FC<{ t: number }> = ({ t }) => { const n = 5, mats = React.useMemo(() => Array.from({ length: n }).map(() => shellMat(0.4)), []);
   return <group position={[TOWER.x, BASE + 21.2, TOWER.z]}>{mats.map((m, k) => { const u = (((t * 0.42 + k / n) % 1) + 1) % 1, r = 1.4 + u * 13; m.uniforms.o.value = 0.42 * Math.pow(1 - u, 1.3) * Math.min(1, u * 6); return <mesh key={k} material={m}><sphereGeometry args={[r, 80, 36, 0, Math.PI * 2, 0, Math.PI / 2]} /></mesh>; })}</group>; };
 export const TOWER_SHOT_FRAMES = 190;
-export const TowerShot: React.FC = () => {
+export const TowerShot: React.FC<{ her?: boolean }> = ({ her }) => {
   const f = useCurrentFrame(), t = f / 30, k = smoothN((t - 2.0) / 4.0), a = CAMS[2], b = CAMS[3];
   const p = a.p.map((v, i) => lerpN(v, b.p[i], k)) as [number, number, number], l = a.l.map((v, i) => lerpN(v, b.l[i], k)) as [number, number, number], fov = lerpN(a.fov, b.fov, k);
-  const ms = Math.round(lerpN(5, 7, smoothN(t / 5)));
+  const ms = her ? Math.round(lerpN(60, 62, smoothN(t / 5))) : Math.round(lerpN(5, 7, smoothN(t / 5)));
   const CamNow: React.FC = () => { const { camera } = useThree(); useLayoutEffect(() => { const cam = camera as THREE.PerspectiveCamera; cam.position.set(...p); cam.fov = vfov(fov); cam.near = 0.05; cam.far = 400; cam.lookAt(...l); cam.updateProjectionMatrix(); }, [f, camera]); return null; };
   return (<AbsoluteFill style={{ background: '#070a22' }}>
     <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 36, near: 0.05, far: 400 }}>
@@ -86,6 +86,8 @@ export const TowerShot: React.FC = () => {
       <EffectComposer><Bloom intensity={0.6} luminanceThreshold={0.8} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.7} /></EffectComposer>
     </ThreeCanvas>
     <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
-    <div style={{ position: 'absolute', left: 90, top: 560, opacity: 1 - smoothN((t - 1.6) / 0.8), font: `800 54px ${FONT.ui}`, color: '#fff', textShadow: '0 0 18px rgba(127,212,255,.7), 0 4px 10px #000' }}>Mobile tower</div>
+    <div style={{ position: 'absolute', left: 90, top: 560, opacity: 1 - smoothN((t - 1.6) / 0.8), font: `800 54px ${FONT.ui}`, color: '#fff', textShadow: '0 0 18px rgba(127,212,255,.7), 0 4px 10px #000' }}>{her ? 'Her mobile tower' : 'Mobile tower'}</div>
   </AbsoluteFill>);
 };
+
+export const TowerShotHer: React.FC = () => <TowerShot her />;

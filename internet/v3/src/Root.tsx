@@ -7,6 +7,8 @@ import { FbB2, FbB3, FbB4 } from './v4/FibreHyd';
 import { S1Phone, S1_FRAMES, S2Break, S2_FRAMES, S3Bits, S3_FRAMES, S4Dog, S4_FRAMES, S5Lock, S5_FRAMES, S6Lens, S6_FRAMES, S2Bits, S2B_FRAMES } from './v4/StartAnim';
 import { PacketsA, PACKETS_A_FRAMES, LabelB, PACKETS_B_FRAMES, PacketsRing, PACKETS_RING_FRAMES, PacketsStory, PACKETS_STORY_FRAMES } from './v4/PacketsAnim';
 import { TowerShot, TOWER_SHOT_FRAMES } from './v4/TowerHyd';
+import { EndHer, END_FRAMES, NotifHer } from './v4/EndHer';
+import { TowerShotHer } from './v4/TowerHyd';
 import { TwH2, TwH3, TwH4, TwB1, TwB2, TwB3, TwB4 } from './v4/TowerHyd';
 import { EncB0, EncB1, EncB2, EncB3, EncB4, EncB5, EncB6, EncB7 } from './v4/Encrypt';
 import { PktZoom, PktB0, PktB1, PktB2, PktB3, PktB4, PktB5 } from './v4/PacketsHyd';
@@ -85,6 +87,9 @@ export const Root: React.FC = () => (
     <Composition id="PktAV" component={PacketsA} durationInFrames={PACKETS_A_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="PktLabelBV" component={LabelB} durationInFrames={PACKETS_B_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="TowerShotV" component={() => <Vert><TowerShot /></Vert>} durationInFrames={TOWER_SHOT_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="EndHerV" component={EndHer} durationInFrames={END_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="TowerShotHerV" component={() => <Vert><TowerShotHer /></Vert>} durationInFrames={190} fps={30} width={1080} height={1920} />
+    <Composition id="NotifHerV" component={NotifHer} durationInFrames={NOTIF_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="TwH2V" component={() => <Vert><TwH2 /></Vert>} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="TwH3V" component={() => <Vert><TwH3 /></Vert>} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="TwH4V" component={() => <Vert><TwH4 /></Vert>} durationInFrames={30} fps={30} width={1080} height={1920} />
