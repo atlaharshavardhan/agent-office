@@ -1,6 +1,6 @@
 #!/bin/bash
 # Part 2 segment B (packets, label, tower, glass cable): 30-frame pieces, one worker, glitch check + retry. Re-running skips finished pieces.
-cd "$(dirname "$0")"; C=../video/part2f; mkdir -p $C
+cd "$(dirname "$0")"; C=../video/part2g; mkdir -p $C
 job() { ID=$1; A=$2; B=$3; OUT=$4; : > $C/$OUT.txt
   for a in $(seq $A 30 $B); do b=$((a+29)); [ $b -gt $B ] && b=$B; g=$C/$OUT-$a.mp4; echo "file '$OUT-$a.mp4'" >> $C/$OUT.txt; [ -f "$g" ] && continue
     for try in 1 2 3 4; do

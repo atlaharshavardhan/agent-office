@@ -1,6 +1,6 @@
 """Part 2: routers + shore (v1). Same recipe as make_part2c_final.py. Run from internet/ after v3/render_part2d.sh and voice/make_part2d_voice.py. Writes video/internet-part2-arrival-v2.mp4 + subtitles/part2-arrival-v2.srt"""
 import json, subprocess, numpy as np, soundfile as sf
-SR = 48000; D = 'video/part2f'; X = 0.15; FPS = 30
+SR = 48000; D = 'video/part2g'; X = 0.15; FPS = 30
 L = json.load(open('voice/p2d/lengths.json'))['lengths']; T = json.load(open('voice/p2d/lengths.json'))['text']
 SH = [('ar', 390, ['a1', 'a2', 'm1', 'a3', 'a4'])]; MINK = 1.0; TR = []; VAT = {'a1': 0.5, 'a2': 2.5, 'm1': 3.5, 'a3': 6.0, 'a4': 8.8}; CBK = 1.0
 dur = {}; vstart = {}
