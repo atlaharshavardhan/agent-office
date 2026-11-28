@@ -2,7 +2,7 @@
 import json, subprocess, numpy as np, soundfile as sf
 SR = 48000; D = 'video/part2d'; X = 0.12; FPS = 30
 L = json.load(open('voice/p2d/lengths.json'))['lengths']; T = json.load(open('voice/p2d/lengths.json'))['text']
-SH = [('rt', 360, ['r1', 'r2']), ('sh', 285, ['r3', 'r4']), ('sb', 294, ['q1', 'q2']), ('rp', 225, ['q3']), ('cb', 450, ['c1', 'c2', 'c3', 'c4'])]; MINK = 0.55; TR = ['fade', 'zoomin', 'fade', 'zoomin']; VAT = {'c1': 0.5, 'c2': 4.6, 'c3': 8.8, 'c4': 11.8}; CBK = 1.06
+SH = [('rt', 360, ['r1', 'r2']), ('sh', 285, ['r3', 'r4']), ('sb', 294, ['q1', 'q2']), ('rp', 225, ['q3']), ('cb', 450, ['c1', 'c2', 'c3', 'c4'])]; MINK = 0.55; TR = ['fade', 'fade', 'fade', 'fade']; VAT = {'c1': 0.1, 'c2': 3.0, 'c3': 6.5, 'c4': 8.8}; CBK = 0.77  # quick cable-layers clip (Harsh)
 dur = {}; vstart = {}
 for n, fr, ks in SH:
     t = 0.08

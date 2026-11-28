@@ -6,7 +6,7 @@ L = json.load(open('voice/p2c/lengths.json'))['lengths']; T = json.load(open('vo
 # (shot, rendered frames, [voice keys in order])
 SH = [('s1', 106, ['s1']), ('b2', 59, ['b2']), ('s5', 58, ['s5']), ('s6', 71, ['s6']), ('pa', 260, ['p1', 'p2']), ('tw', 190, ['p3', 'p4']), ('ug', 270, ['p5', 'o2'])]
 GAP = {'p2': 1.2}
-TR = ['fade', 'zoomin', 'radial', 'fade', 'zoomin', 'fade']
+TR = ['fade', 'fade', 'radial', 'fade', 'fade', 'fade']
 dur = {}; vstart = {}
 for n, fr, ks in SH:
     t = 0.08
