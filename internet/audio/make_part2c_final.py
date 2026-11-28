@@ -1,17 +1,17 @@
 """Part 2, phone to glass cable, v2 (Harsh: faster, free packet motion, better transitions). Every shot is stretched to fit its voice; transitions are camera-shutter flashes, zoom-throughs and a radial wipe.
-Run from internet/ after v3/render_part2c.sh (shots in video/part2c/) and voice/make_part2c_voice.py. Writes video/internet-part2-phone-to-cable-v5.mp4 + subtitles/part2-phone-to-cable-v5.srt"""
+Run from internet/ after v3/render_part2c.sh (shots in video/part2c/) and voice/make_part2c_voice.py. Writes video/internet-part2-phone-to-cable-v6.mp4 + subtitles/part2-phone-to-cable-v6.srt"""
 import json, subprocess, numpy as np, soundfile as sf
-SR = 48000; D = 'video/part2c'; X = 0.15; FPS = 30
+SR = 48000; D = 'video/part2c'; X = 0.12; FPS = 30
 L = json.load(open('voice/p2c/lengths.json'))['lengths']; T = json.load(open('voice/p2c/lengths.json'))['text']
 # (shot, rendered frames, [voice keys in order])
 SH = [('s1', 106, ['s1']), ('b2', 59, ['b2']), ('s5', 58, ['s5']), ('s6', 71, ['s6']), ('pa', 260, ['p1', 'p2']), ('tw', 190, ['p3', 'p4']), ('ug', 270, ['p5', 'o2'])]
 GAP = {'p2': 1.2}
-TR = ['fadewhite', 'zoomin', 'radial', 'fadewhite', 'zoomin', 'fadewhite']
+TR = ['fade', 'zoomin', 'radial', 'fade', 'zoomin', 'fade']
 dur = {}; vstart = {}
 for n, fr, ks in SH:
-    t = 0.2
+    t = 0.08
     for k in ks: t += GAP.get(k, 0); vstart[k] = t; t += L[k] + 0.12
-    dur[n] = max(t - 0.12 + 0.22, 1.4)
+    dur[n] = max(t - 0.12 + 0.08, 1.4)
 S = {}; t = 0.0
 for n, fr, ks in SH: S[n] = t; t += dur[n] - X
 TOTAL = t + X; k_ = {n: dur[n] / (fr / FPS) for n, fr, ks in SH}
@@ -58,8 +58,8 @@ prev = '[a0]'
 for i in range(1, len(SH)):
     o = f'[x{i}]'; fc += f'{prev}[a{i}]xfade=transition={TR[i - 1]}:duration={X}:offset={S[SH[i][0]]:.3f}{o};'; prev = o
 fc = f'[{len(SH)}:v]format=rgba,colorchannelmixer=aa=0.3[wm];' + fc + f'{prev}[wm]overlay=24:926[v]'
-cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-phone-to-cable-v5.mp4']
+cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-phone-to-cable-v6.mp4']
 r = subprocess.run(cmd, capture_output=True, text=True); print('final', r.returncode, r.stderr[-300:])
 def ts(s): return '%02d:%02d:%02d,%03d' % (int(s // 3600), int(s % 3600 // 60), int(s % 60), round((s % 1) * 1000))
 rows = [(S[n] + vstart[k], L[k], T[k]) for n, fr, ks in SH for k in ks]
-open('subtitles/part2-phone-to-cable-v5.srt', 'w').write('\n'.join(f'{i + 1}\n{ts(a)} --> {ts(a + d)}\n{x}\n' for i, (a, d, x) in enumerate(rows)))
+

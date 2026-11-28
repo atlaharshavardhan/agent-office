@@ -1,13 +1,13 @@
-"""Part 2: routers + shore (v1). Same recipe as make_part2c_final.py. Run from internet/ after v3/render_part2d.sh and voice/make_part2d_voice.py. Writes video/internet-part2-routers-to-cable-v1.mp4 + subtitles/part2-routers-to-cable-v1.srt"""
+"""Part 2: routers + shore (v1). Same recipe as make_part2c_final.py. Run from internet/ after v3/render_part2d.sh and voice/make_part2d_voice.py. Writes video/internet-part2-routers-to-cable-v2.mp4 + subtitles/part2-routers-to-cable-v2.srt"""
 import json, subprocess, numpy as np, soundfile as sf
-SR = 48000; D = 'video/part2d'; X = 0.15; FPS = 30
+SR = 48000; D = 'video/part2d'; X = 0.12; FPS = 30
 L = json.load(open('voice/p2d/lengths.json'))['lengths']; T = json.load(open('voice/p2d/lengths.json'))['text']
-SH = [('rt', 360, ['r1', 'r2']), ('sh', 285, ['r3', 'r4']), ('sb', 294, ['q1', 'q2']), ('rp', 225, ['q3']), ('cb', 450, ['c1', 'c2', 'c3', 'c4'])]; MINK = 0.62; TR = ['fadewhite', 'zoomin', 'fadewhite', 'zoomin']; VAT = {'c1': 0.5, 'c2': 4.6, 'c3': 8.8, 'c4': 11.8}; CBK = 1.06
+SH = [('rt', 360, ['r1', 'r2']), ('sh', 285, ['r3', 'r4']), ('sb', 294, ['q1', 'q2']), ('rp', 225, ['q3']), ('cb', 450, ['c1', 'c2', 'c3', 'c4'])]; MINK = 0.55; TR = ['fade', 'zoomin', 'fade', 'zoomin']; VAT = {'c1': 0.5, 'c2': 4.6, 'c3': 8.8, 'c4': 11.8}; CBK = 1.06
 dur = {}; vstart = {}
 for n, fr, ks in SH:
-    t = 0.2
+    t = 0.08
     for k in ks: vstart[k] = t; t += L[k] + 0.12
-    dur[n] = max(t - 0.12 + 0.22, MINK * fr / FPS)
+    dur[n] = max(t - 0.12 + 0.08, MINK * fr / FPS)
     if n == 'cb':
         dur[n] = CBK * fr / FPS
         for k in ks: vstart[k] = VAT[k] * CBK
@@ -48,8 +48,8 @@ prev = '[a0]'
 for i in range(1, len(SH)):
     o = f'[x{i}]'; fc += f'{prev}[a{i}]xfade=transition={TR[i - 1]}:duration={X}:offset={S[SH[i][0]]:.3f}{o};'; prev = o
 fc = f'[{len(SH)}:v]format=rgba,colorchannelmixer=aa=0.3[wm];' + fc + f'{prev}[wm]overlay=24:926[v]'
-cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-routers-to-cable-v1.mp4']
+cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-routers-to-cable-v2.mp4']
 r = subprocess.run(cmd, capture_output=True, text=True); print('final', r.returncode, r.stderr[-300:])
 def ts(s): return '%02d:%02d:%02d,%03d' % (int(s // 3600), int(s % 3600 // 60), int(s % 60), round((s % 1) * 1000))
 rows = [(S[n] + vstart[k], L[k], T[k]) for n, fr, ks in SH for k in ks]
-open('subtitles/part2-routers-to-cable-v1.srt', 'w').write('\n'.join(f'{i + 1}\n{ts(a)} --> {ts(a + d)}\n{x}\n' for i, (a, d, x) in enumerate(rows)))
+pass   # Harsh: no srt until he says
