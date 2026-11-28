@@ -1,5 +1,8 @@
 {
  "lengths": {
+  "gc1": 2.155,
+  "gc2": 1.749,
+  "gc3": 3.029,
   "h1": 2.965,
   "h2": 1.365,
   "e1": 1.429,
@@ -25,6 +28,9 @@
   "r4": 2.731
  },
  "text": {
+  "gc1": "Almost all data travels in cables.",
+  "gc2": "But a ship's anchor can cut one.",
+  "gc3": "No problem. There are many cables, so it takes another way.",
   "h1": "At her end, a tower turns the light back into radio.",
   "h2": "And her phone lights up.",
   "e1": "That took less than a blink.",
