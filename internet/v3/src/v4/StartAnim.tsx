@@ -52,6 +52,18 @@ export const S6Lens: React.FC = () => { const t = useCurrentFrame() / 30 * SP, e
     <line x1={lx + 218} y1={ly + 218} x2={lx + 300} y2={ly + 300} stroke="url(#rimG)" strokeWidth={34} strokeLinecap="round" />
     <line x1={lx + 296} y1={ly + 296} x2={lx + 450} y2={ly + 450} stroke="#12102a" strokeWidth={58} strokeLinecap="round" /><line x1={lx + 296} y1={ly + 296} x2={lx + 450} y2={ly + 450} stroke="url(#hdlG)" strokeWidth={46} strokeLinecap="round" />
     {[0, 1, 2, 3].map((q) => <line key={q} x1={lx + 330 + q * 26 - 14} y1={ly + 330 + q * 26 + 14} x2={lx + 330 + q * 26 + 14} y2={ly + 330 + q * 26 - 14} stroke="#cdbfff" strokeWidth={4} opacity={0.35} />)}
+    {(() => { const ey = sm((t - 1.0) / 0.5), bl = Math.max(0, 1 - Math.abs(t - 2.4) / 0.16, 1 - Math.abs(t - 3.1) / 0.16), lk = Math.sin(t * 2.2) * 20, k = Math.min(1, bl * 1.3);
+      return <g opacity={ey} transform={`translate(${lx} ${ly - 178}) scale(${0.85 + 0.15 * ey})`} style={{ filter: 'drop-shadow(0 6px 14px rgba(0,0,0,.55))' }}>
+        <defs><clipPath id="eyeC"><path d="M -135 0 Q 0 -86 135 0 Q 0 86 -135 0 Z" /></clipPath>
+          <radialGradient id="irisG" cx="40%" cy="35%" r="70%"><stop offset="0" stopColor="#9fd6ff" /><stop offset="0.55" stopColor="#3f78d8" /><stop offset="1" stopColor="#14246b" /></radialGradient>
+          <linearGradient id="lidG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6a5ab8" /><stop offset="1" stopColor="#3a3279" /></linearGradient></defs>
+        <path d="M -135 0 Q 0 -86 135 0 Q 0 86 -135 0 Z" fill="#f4f7ff" />
+        <g clipPath="url(#eyeC)"><circle cx={lk} cy={0} r={46} fill="url(#irisG)" /><circle cx={lk} cy={0} r={20} fill="#050816" /><circle cx={lk - 14} cy={-16} r={9} fill="#fff" opacity={0.9} />
+          <rect x={-140} y={-90} width={280} height={90 * k} fill="url(#lidG)" /><rect x={-140} y={90 - 90 * k} width={280} height={90 * k} fill="url(#lidG)" />
+          <path d={`M -135 0 Q 0 ${-86 + 86 * k} 135 0`} fill="none" stroke="#1b1750" strokeWidth={5} opacity={k > 0.05 ? 1 : 0} /></g>
+        <path d="M -135 0 Q 0 -86 135 0" fill="none" stroke="#1b1750" strokeWidth={7} strokeLinecap="round" /><path d="M -135 0 Q 0 86 135 0" fill="none" stroke="#1b1750" strokeWidth={4} strokeLinecap="round" opacity={0.7} />
+        {[-90, -45, 0, 45, 90].map((x, q) => <line key={q} x1={x} y1={-(80 - Math.abs(x) * 0.5) * 0.92} x2={x + (x < 0 ? -9 : x > 0 ? 9 : 0)} y2={-(80 - Math.abs(x) * 0.5) * 0.92 - 16} stroke="#1b1750" strokeWidth={4} strokeLinecap="round" />)}
+      </g>; })()}
     <g opacity={txt} transform={`translate(${lx} ${ly}) scale(${0.9 + 0.1 * txt})`} style={{ filter: 'drop-shadow(0 0 22px rgba(255,122,122,.55))' }}><rect x={-270} y={-56} width={540} height={112} rx={24} fill="url(#nsBg)" stroke="#ff7a7a" strokeWidth={4} /><path d="M -250 -53 H 250 Q 264 -53 266 -34 H -266 Q -264 -53 -250 -53 Z" fill="#fff" opacity={0.16} /><rect x={-256} y={-34} width={7} height={68} rx={3.5} fill="#ff7a7a" /><text y={19} textAnchor="middle" fill="#ffb0a8" style={{ font: `900 58px ${FONT.ui}`, letterSpacing: '0.04em' }}>NOTHING TO SEE</text></g></SVG><Ms v="001" /></AbsoluteFill>); };
 
 /* v5 order: the full-screen dog turns into ones and zeros (zooming a little as it does) */

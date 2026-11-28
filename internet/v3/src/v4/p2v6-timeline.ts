@@ -30,6 +30,7 @@ export default {
  "SEG": [
   {
    "id": "s1",
+   "folder": "rf",
    "file": "p2v6/s1.mp4",
    "off": 0,
    "a": 0.15,
@@ -41,6 +42,7 @@ export default {
   },
   {
    "id": "b2",
+   "folder": "rf",
    "file": "p2v6/b2.mp4",
    "off": 0,
    "a": 0.0,
@@ -52,6 +54,7 @@ export default {
   },
   {
    "id": "s5",
+   "folder": "rf",
    "file": "p2v6/s5.mp4",
    "off": 0,
    "a": 0.0,
@@ -63,6 +66,7 @@ export default {
   },
   {
    "id": "s6",
+   "folder": "rf6",
    "file": "p2v6/s6.mp4",
    "off": 0,
    "a": 0.0,
@@ -74,6 +78,7 @@ export default {
   },
   {
    "id": "pa",
+   "folder": "rf",
    "file": "p2v6/pa.mp4",
    "off": 0,
    "a": 0.0,
@@ -85,6 +90,7 @@ export default {
   },
   {
    "id": "tw1",
+   "folder": "rf6",
    "file": "p2v6/tw1.mp4",
    "off": 0,
    "a": 0.0,
@@ -96,6 +102,7 @@ export default {
   },
   {
    "id": "ug",
+   "folder": "rf6",
    "file": "p2v6/ug.mp4",
    "off": 0.6,
    "a": 0.6,
@@ -107,6 +114,7 @@ export default {
   },
   {
    "id": "rt",
+   "folder": "rf6",
    "file": "p2v6/rt.mp4",
    "off": 0,
    "a": 0.0,
@@ -118,6 +126,7 @@ export default {
   },
   {
    "id": "sh",
+   "folder": "rf6",
    "file": "p2v6/sh.mp4",
    "off": 0.8,
    "a": 0.8,
@@ -129,6 +138,7 @@ export default {
   },
   {
    "id": "cb",
+   "folder": "rf",
    "file": "p2v6/cb.mp4",
    "off": 0,
    "a": 0.2,
@@ -140,6 +150,7 @@ export default {
   },
   {
    "id": "sbb",
+   "folder": "rf6",
    "file": "p2v6/sbb.mp4",
    "off": 3.0,
    "a": 3.0,
@@ -151,6 +162,7 @@ export default {
   },
   {
    "id": "rp",
+   "folder": "rf",
    "file": "p2v6/rp.mp4",
    "off": 0,
    "a": 0.0,
@@ -162,6 +174,7 @@ export default {
   },
   {
    "id": "gc",
+   "folder": "rf6",
    "file": "p2v6/gc.mp4",
    "off": 0,
    "a": 0.0,
@@ -173,6 +186,7 @@ export default {
   },
   {
    "id": "tw",
+   "folder": "rf6",
    "file": "p2v6/tw.mp4",
    "off": 0,
    "a": 0.0,
@@ -184,6 +198,7 @@ export default {
   },
   {
    "id": "nt",
+   "folder": "rf",
    "file": "p2v6/nt.mp4",
    "off": 0,
    "a": 0.3,
@@ -195,6 +210,7 @@ export default {
   },
   {
    "id": "ar",
+   "folder": "rf6",
    "file": "p2v6/ar.mp4",
    "off": 0,
    "a": 0.0,
@@ -206,6 +222,7 @@ export default {
   },
   {
    "id": "ar2",
+   "folder": "rf6",
    "file": "p2v6/ar.mp4",
    "off": 0,
    "a": 7.9,
@@ -217,6 +234,7 @@ export default {
   },
   {
    "id": "en",
+   "folder": "rf",
    "file": "p2v6/en.mp4",
    "off": 0,
    "a": 0.0,

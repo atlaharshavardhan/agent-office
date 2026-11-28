@@ -97,7 +97,7 @@ export const TowerShot: React.FC<{ her?: boolean }> = ({ her }) => {
       <EffectComposer><Bloom intensity={0.6} luminanceThreshold={0.8} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.7} /></EffectComposer>
     </ThreeCanvas>
     <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
-    <div style={{ position: 'absolute', left: 90, top: 560, opacity: 1 - smoothN((t - 1.6) / 0.8), font: `800 54px ${FONT.ui}`, color: '#fff', textShadow: '0 0 18px rgba(127,212,255,.7), 0 4px 10px #000' }}>{her ? 'Her mobile tower' : 'Mobile tower'}</div>
+    <div style={{ position: 'absolute', left: 60, top: 540, opacity: 1 - smoothN((t - 1.6) / 0.8), padding: '18px 40px 18px 52px', borderRadius: 24, background: 'linear-gradient(#24357e, #0a1030)', border: '3.5px solid #5fe3ff', boxShadow: '0 10px 18px rgba(0,0,0,.6), 0 0 16px rgba(95,227,255,.4), inset 0 22px 22px rgba(255,255,255,.14)', font: `800 46px ${FONT.ui}`, letterSpacing: '0.03em', color: '#eef1ff' }}><div style={{ position: 'absolute', left: 16, top: 16, bottom: 16, width: 9, borderRadius: 5, background: '#5fe3ff' }} />{her ? 'Her mobile tower' : 'Mobile tower'}</div>
     {her && <div style={{ position: 'absolute', left: 60, top: 1400, opacity: smoothN((t - 3.5) / 0.8), font: `800 58px/1.05 ${FONT.ui}`, color: '#fff', textShadow: '0 0 22px rgba(120,170,255,.75), 0 4px 10px rgba(0,0,0,.6)' }}>London<div style={{ font: `700 34px ${FONT.ui}`, color: '#7fd4ff' }}>3:42 AM</div></div>}
   </AbsoluteFill>);
 };
