@@ -29,3 +29,16 @@ Meera (London) sends a photo to Arjun (Hyderabad).
 - 09 Planet: route drawn Mumbai to London, labels MUMBAI and LONDON; Part 1 rule says show only two city names: LONDON and HYDERABAD.
 - Text in several clips is below the readable size for a phone.
 - Facts to verify before use: "95%+ of data between continents in undersea cables", "200,000 km/s", cable repeater spacing "every 50 to 100 km".
+
+## 28 Nov 2026 - scene after the hook: your phone, packets, encryption (Harsh approved the pictures; tower comes later)
+No names. Squares for the photo blocks, rectangles for packets. Free voice first, ElevenLabs only after Harsh says final.
+1 (0-3 s) "Let's start where the photo starts: your phone, in Hyderabad. You tap send."
+2 (3-6) "First, the photo breaks into tiny pieces."
+3 (6-9) "Each piece is just ones and zeros."
+4 (9-11) "Your whole photo, only ones and zeros."
+5 (11-14) "Then your phone locks it. It is encrypted."
+6 (14-18) "If anyone tries to look, they find nothing. Only noise."
+7 (18-22) "Now it is cut into about 2,000 packets."
+8 (22-27) "Every packet gets a label: where it is going, where it came from, and its number, so the pieces can be put back in order."
+9 (later) "Then radio waves carry them to your Wi-Fi router or the nearest mobile tower."
+Board: part2/storyboard/part2-packets-board.png. Stills: v3/stills/p2/enc/ and v3/stills/p2/pk/. Code: v3/src/v4/Encrypt.tsx, PacketsHyd.tsx.
