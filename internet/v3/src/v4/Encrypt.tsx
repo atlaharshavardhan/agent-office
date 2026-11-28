@@ -58,8 +58,11 @@ const Scene: React.FC<{ beat: number }> = ({ beat }) => {
         <circle cx={600} cy={880} r={300} fill="#050816" />
         <g clipPath="url(#lensClip)"><g transform="translate(600 880) scale(2.3) translate(-600 -880) translate(0 150)" opacity={0.95}><Grid scramble seed={9} /></g></g>
         <circle cx={600} cy={880} r={300} fill="url(#lensG)" /><circle cx={600} cy={880} r={300} fill="none" stroke="#c9d6f0" strokeWidth={26} /><circle cx={600} cy={880} r={314} fill="none" stroke="#6a7a9a" strokeWidth={6} />
-        <line x1={812} y1={1092} x2={960} y2={1240} stroke="#c9d6f0" strokeWidth={46} strokeLinecap="round" /><line x1={812} y1={1092} x2={960} y2={1240} stroke="#4a3a6a" strokeWidth={22} strokeLinecap="round" />
-        <g transform="translate(600 880)"><rect x={-250} y={-48} width={500} height={96} rx={20} fill="#0b0f2e" opacity={0.88} stroke="#ff7a7a" strokeWidth={4} /><text y={16} textAnchor="middle" fill="#ff9a9a" style={{ font: `900 54px ${FONT.ui}`, letterSpacing: '0.04em' }}>NOTHING TO READ</text></g></>}
+        <g transform="translate(860 1500)"><path d="M -230 300 Q -230 40 -90 10 L 90 10 Q 230 40 230 300 Z" fill="#1a1230" stroke="#3a2a5a" strokeWidth={4} /><circle cx={0} cy={-70} r={135} fill="#1a1230" stroke="#3a2a5a" strokeWidth={4} /><ellipse cx={0} cy={-62} rx={92} ry={100} fill="#05060f" />
+    <ellipse cx={-34} cy={-70} rx={17} ry={11} fill="#7fffd4" /><ellipse cx={34} cy={-70} rx={17} ry={11} fill="#7fffd4" /><circle cx={-34} cy={-70} r={5} fill="#05060f" /><circle cx={34} cy={-70} r={5} fill="#05060f" /><path d="M -34 -36 Q 0 -20 34 -36" fill="none" stroke="#3a3a5a" strokeWidth={5} strokeLinecap="round" />
+    <text y={-196} textAnchor="middle" fill="#7fffd4" style={{ font: `800 34px ${FONT.mono}` }}>HACKER</text></g>
+        <line x1={812} y1={1092} x2={760} y2={1370} stroke="#c9d6f0" strokeWidth={46} strokeLinecap="round" /><line x1={812} y1={1092} x2={760} y2={1370} stroke="#4a3a6a" strokeWidth={22} strokeLinecap="round" /><circle cx={752} cy={1400} r={34} fill="#c68a5a" />
+        <g transform="translate(600 880)"><rect x={-250} y={-48} width={500} height={96} rx={20} fill="#0b0f2e" opacity={0.88} stroke="#ff7a7a" strokeWidth={4} /><text y={16} textAnchor="middle" fill="#ff9a9a" style={{ font: `900 54px ${FONT.ui}`, letterSpacing: '0.04em' }}>NOTHING TO SEE</text></g></>}
       {beat === 6 && <g>{Array.from({ length: 130 }).map((_, k) => { const x = hash(k) * 1080, y = 160 + hash(k + 5) * 1500, w = 70 + hash(k + 9) * 130, h = w * 0.58, o = 0.35 + 0.65 * hash(k + 2); return <g key={k} transform={`translate(${x} ${y}) rotate(${(hash(k + 4) - 0.5) * 70})`} opacity={o} style={{ filter: 'drop-shadow(8px 10px 8px rgba(0,0,0,.5))' }}><rect x={-w / 2} y={-h / 2} width={w} height={h} rx={6} fill="url(#gp)" /><rect x={-w / 2} y={-h / 2} width={w} height={h * 0.28} rx={6} fill="#2a1630" opacity={0.85} /></g>; })}
         <defs><linearGradient id="gp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffd38a" /><stop offset="1" stopColor="#e08a1e" /></linearGradient></defs></g>}
       {beat === 7 && <g>{Array.from({ length: 40 }).map((_, k) => { const x = hash(k) * 1080, y = 100 + hash(k + 5) * 1700, w = 90 + hash(k + 9) * 120, h = w * 0.58; return <g key={k} transform={`translate(${x} ${y}) rotate(${(hash(k + 4) - 0.5) * 50})`} opacity={0.22}><rect x={-w / 2} y={-h / 2} width={w} height={h} rx={6} fill={GOLD} /></g>; })}
@@ -75,7 +78,7 @@ const Scene: React.FC<{ beat: number }> = ({ beat }) => {
     {beat === 2 && <><Ms v="001" /><Cap t="Each block is only ones and zeros" /></>}
     {beat === 3 && <><Ms v="001" /><Cap t="The dog, made of ones and zeros" /></>}
     {beat === 4 && <><Ms v="001" /><Cap t="Then it is encrypted" /></>}
-    {beat === 5 && <><Ms v="001" /><Cap t="Zoom in as much as you like: only noise" y={1560} /></>}
+    {beat === 5 && <><Ms v="001" /><Cap t="A hacker looks closely: he sees nothing" y={300} /></>}
     {beat === 6 && <><Ms v="002" /><div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', font: `900 190px/1 ${FONT.ui}`, color: GOLD, textShadow: '0 0 40px rgba(255,180,84,.55), 0 8px 18px rgba(0,0,0,.7)' }}>2,000</div><div style={{ position: 'absolute', left: 0, right: 0, top: 850, textAlign: 'center', font: `800 60px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,.8)' }}>packets</div><Cap t="Into about 2,000 small packets" /></>}
     {beat === 7 && <><Ms v="003" /><Cap t="Each packet: an address and its number" /></>}
   </AbsoluteFill>);
