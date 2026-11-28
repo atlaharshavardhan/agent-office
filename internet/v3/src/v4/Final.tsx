@@ -7,6 +7,7 @@ import { Vert } from './frame';
 import { Seabed, SeabedRepeater } from './Seabed';
 import { Planet, ov, project, ll, R, MAIN, ALT } from './Planet';
 import { Sat } from './Hook';
+import { DogBetter } from './DogBetter';
 import { Charminar, PaperPhoto } from './Story';
 import { routeAt, LL, LONDON as LONDON_LL } from '../tail/Globe';
 import { prog, easeOut } from '../lib/anim';
@@ -118,7 +119,7 @@ export const GlobeRoute: React.FC = () => {
   return (<AbsoluteFill style={{ backgroundColor: '#04061a' }}>
     <Sequence from={-Math.round(T0 * 30)}><Planet /></Sequence>
     <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><defs><radialGradient id="gr2"><stop offset="0" stopColor="#ffffff" stopOpacity={0.95} /><stop offset="0.35" stopColor="#ffe27a" stopOpacity={0.8} /><stop offset="1" stopColor="#ffd23a" stopOpacity={0} /></radialGradient></defs>
-      {front && <g transform={`translate(${x} ${y})`} opacity={op}><circle r={80} fill="url(#gr2)" /><circle r={13} fill="#fff" /></g>}</svg>
+      {front && <g transform={`translate(${x} ${y})`} opacity={op}><circle r={46} fill="url(#gr2)" /><circle r={9} fill="#fff" /></g>}</svg>
     <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 560, background: 'linear-gradient(#04061a 45%, rgba(4,6,26,0))', opacity: op }} />
     <div style={{ position: 'absolute', left: 0, right: 0, top: 270, textAlign: 'center', opacity: op, textShadow: '0 6px 14px rgba(0,0,0,.7)' }}><div style={{ font: `900 100px/1.05 ${FONT.ui}`, color: '#fff' }}>Almost all data</div><div style={{ font: `800 60px/1.2 ${FONT.ui}`, color: '#7fd4ff' }}>travels in cables</div></div>
     <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
@@ -145,6 +146,11 @@ export const GlobeCut: React.FC<{ real?: boolean; sat?: boolean }> = ({ real = f
         <g transform={`translate(0 ${-(1 - drop) * 520}) scale(0.95)`} opacity={sm2(drop * 3)}><path d="M 0 -62 L 0 38 M -22 -34 L 22 -34 M -42 14 Q -40 46 0 50 Q 40 46 42 14 M -42 14 L -56 6 M 42 14 L 56 6" fill="none" stroke="#e6f0ff" strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" /><circle cy={-72} r={12} fill="none" stroke="#e6f0ff" strokeWidth={7} /></g>
         <g opacity={cut}><circle r={40 + 130 * (1 - cut)} fill="url(#gcr)" /></g></g>}
 </svg>
+    {(() => { const [mx, my, mf] = project(tt, ll(routeAt(MAIN, d1) as unknown as LL, R * 1.012)); const mo = easeOut(clamp01((t - 0.7) / 0.4)) * (1 - easeOut(clamp01((t - TC) / 0.25))), ao = easeOut(clamp01((t - 5.0) / 0.4));
+      const one = (px: number, py: number, o: number, k: string) => { if (o <= 0.01) return null; const cx2 = Math.max(150, Math.min(930, px + 150)), cy2 = Math.max(470, Math.min(1500, py + 150));
+        return <g key={k} opacity={o}><line x1={px} y1={py} x2={cx2 - 60} y2={cy2 - 80} stroke="#ffc94a" strokeWidth={3} />
+          <g transform={`translate(${cx2} ${cy2})`} style={{ filter: 'drop-shadow(0 8px 16px rgba(0,0,0,.6)) drop-shadow(0 0 14px rgba(255,201,74,.55))' }}><rect x={-100} y={-100} width={200} height={200} rx={20} fill="#0b1230" stroke="#ffc94a" strokeWidth={5} /><svg x={-92} y={-92} width={184} height={184} viewBox="0 0 190 190"><clipPath id="phc"><rect x={0} y={0} width={190} height={190} rx={12} /></clipPath><g clipPath="url(#phc)"><DogBetter /></g></svg></g></g>; };
+      return <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>{mf && one(mx, my, mo, 'm')}{afront && one(ax, ay, ao, 'a')}</svg>; })()}
     <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 560, background: 'linear-gradient(#04061a 45%, rgba(4,6,26,0))', opacity: op }} />
     {cap('Almost all intercontinental data travels in cables', c1)}{cap("A ship's anchor cuts one", c2, '#d94a64')}{cap('The network can reroute the data', c3, '#ffe04a')}{cap('through another cable', c4, '#ffe04a')}
     <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
