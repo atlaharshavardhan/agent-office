@@ -285,12 +285,14 @@ export const LondonRoom: React.FC = () => {
           <text x={cx + buzz} y={cy - 112} textAnchor="middle" fill="#fff" style={{ font: `800 34px ${FONT.ui}`, paintOrder: 'stroke', stroke: '#2a1a20', strokeWidth: 7 }}>ding! bzzzt</text></g> : null}
       </svg>
       {/* her hands, in front of the laptop: both on the keys and typing; the left stays, the right lifts off and reaches */}
+      <div style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1920, clipPath: 'inset(0 0 190px 0)' }}>{/* her arms stop at y 1730, where the desk apron meets the rug */}
       <div style={{ position: 'absolute', left: 0, top: TB, width: 1080, height: 1800, transformOrigin: '0 0', transform: `scale(1, ${PY})` }}>
         <svg width={1080} height={1800} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
           <Limb anchor={anchorL} wrist={[LX - 128 + sL[0], wy0 + sL[1]]} side={-1} type={typing} t={t} ph={0} />
           <Limb anchor={anchorR} wrist={wR} side={1} bend={lerp(0, bendEnd, u)} type={typing} t={t} ph={0.9} point={point} lift={lift} />
           {tapP > 0 && tapP < 1 && [0, 1].map((i) => { const p = clamp01((tapP - i * 0.25) / 0.75); return p > 0 ? <ellipse key={i} cx={target[0]} cy={target[1]} rx={10 + p * 44} ry={10 + p * 44} fill="none" stroke="#fff3d0" strokeWidth={5 * (1 - p)} opacity={0.9 * (1 - p)} /> : null; })}
         </svg>
+      </div>
       </div>
       <Chip text="LONDON · 3:42 pm" col="#ffb454" top={236} left={36} />
     </AbsoluteFill>
