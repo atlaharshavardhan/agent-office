@@ -1,2 +1,36 @@
 ok cb 6
 ok cb 36
+ok cb 66
+ok cb 96
+ok cb 126
+ok cb 156
+ok cb 186
+ok cb 216
+ok cb 246
+ok cb 276
+ok cb 306
+ok cb 336
+ok cb 366
+ok cb 396
+ok cb 426
+DONE cb
+ok ar 0
+ok ar 30
+ok ar 60
+ok ar 90
+ok ar 120
+ok ar 150
+ok ar 180
+ok ar 210
+ok ar 240
+ok ar 270
+ok ar 300
+ok ar 330
+ok ar 360
+ok ar 390
+DONE ar
+ok s6 0
+ok s6 30
+ok s6 60
+DONE s6
+ALLDONE A

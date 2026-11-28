@@ -1,2 +1,37 @@
 ok rt 0
 ok rt 30
+ok rt 60
+ok rt 90
+ok rt 120
+ok rt 150
+ok rt 180
+ok rt 210
+ok rt 240
+ok rt 270
+ok rt 300
+ok rt 330
+DONE rt
+ok gc 0
+ok gc 30
+ok gc 60
+ok gc 90
+ok gc 120
+ok gc 150
+ok gc 180
+ok gc 210
+ok gc 240
+ok gc 270
+ok gc 300
+DONE gc
+ok s1 4
+ok s1 34
+ok s1 64
+ok s1 94
+DONE s1
+ok b2 0
+ok b2 30
+DONE b2
+ok s5 0
+ok s5 30
+DONE s5
+ALLDONE B

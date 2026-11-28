@@ -1,2 +1,39 @@
 ok pb 0
 ok pb 30
+ok pb 60
+ok pb 90
+DONE pb
+ok gt 0
+ok gt 30
+ok gt 60
+ok gt 90
+ok gt 120
+ok gt 150
+ok gt 180
+ok gt 210
+DONE gt
+ok sh 24
+ok sh 54
+ok sh 84
+ok sh 114
+ok sh 144
+ok sh 174
+ok sh 204
+ok sh 234
+DONE sh
+ok sbb 90
+ok sbb 120
+ok sbb 150
+ok sbb 180
+ok sbb 210
+DONE sbb
+ok rp 0
+ok rp 30
+ok rp 60
+ok rp 90
+ok rp 120
+ok rp 150
+ok rp 180
+ok rp 210
+DONE rp
+ALLDONE D
