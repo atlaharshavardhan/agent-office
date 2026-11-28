@@ -21,7 +21,7 @@ const cv = (w: number, h: number) => { const c = document.createElement('canvas'
 const plateTex = () => { const c = cv(COLS * 64, ROWS * 64), g = c.getContext('2d')!; g.fillStyle = '#080e2e'; g.fillRect(0, 0, c.width, c.height); g.textAlign = 'center'; g.font = '700 21px "IBM Plex Mono", monospace';
   for (let n = 0; n < NT; n++) { const x = (n % COLS) * 64, y = Math.floor(n / COLS) * 64; g.strokeStyle = '#18265a'; g.lineWidth = 2; g.strokeRect(x + 3, y + 3, 58, 58); g.fillStyle = '#2f4286'; g.fillText('#' + lab(n), x + 32, y + 38); }
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
-const atlasTex = () => { const c = cv(COLS * 64, ROWS * 64), g = c.getContext('2d')!; g.textAlign = 'center'; g.font = '800 21px "IBM Plex Mono", monospace'; g.fillStyle = '#3a2008';
+const atlasTex = (txt: string) => { const c = cv(COLS * 64, ROWS * 64), g = c.getContext('2d')!; g.textAlign = 'center'; g.font = '800 21px "IBM Plex Mono", monospace'; g.fillStyle = txt;
   for (let n = 0; n < NT; n++) g.fillText('#' + lab(n), (n % COLS) * 64 + 32, Math.floor(n / COLS) * 64 + 38);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
 const redTex = (txt: string) => { const c = cv(512, 160), g = c.getContext('2d')!; g.textAlign = 'center'; g.font = '900 120px Manrope, sans-serif'; g.shadowColor = 'rgba(255,50,70,.95)'; g.shadowBlur = 26; g.lineWidth = 10; g.strokeStyle = '#4a0a14'; g.strokeText(txt, 256, 122); g.fillStyle = '#ff4a5a'; g.fillText(txt, 256, 122); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; };
@@ -32,8 +32,9 @@ const K = [
 const camAt = (t: number) => { let i = 0; while (i < K.length - 2 && t > K[i + 1].t) i++; const a = K[i], b = K[i + 1], u = sm((t - a.t) / (b.t - a.t)); return { p: a.p.map((v, j) => lp(v, b.p[j], u)) as number[], l: a.l.map((v, j) => lp(v, b.l[j], u)) as number[], f: lp(a.f, b.f, u) }; };
 const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.set(c.p[0], c.p[1], c.p[2]); cam.fov = c.f; cam.near = 0.05; cam.far = 400; cam.lookAt(c.l[0], c.l[1], c.l[2]); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
 const dummy = new THREE.Object3D(), labelLocal = new THREE.Matrix4().compose(new THREE.Vector3(0, REST + 0.002, 0), new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0)), new THREE.Vector3(1, 1, 1)), mtmp = new THREE.Matrix4();
-const Scene: React.FC<{ t: number }> = ({ t }) => {
-  const plate = useMemo(plateTex, []), atlas = useMemo(atlasTex, []), reds = useMemo(() => LOST.map((n) => redTex('#' + lab(n))), []);
+const Scene: React.FC<{ t: number; pal: string }> = ({ t, pal }) => {
+  const PAL = PALS[pal] || PALS.gold;
+  const plate = useMemo(plateTex, []), atlas = useMemo(() => atlasTex(PAL.text), []), reds = useMemo(() => LOST.map((n) => redTex('#' + lab(n))), []);
   const inst = useRef<THREE.InstancedMesh>(null), labm = useRef<THREE.InstancedMesh>(null);
   const photo = useMemo(() => { const c = cv(760, 760); drawThumb(c.getContext('2d')!, 0, 0, 760, 760); const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; return tx; }, []);
   const uvOff = useMemo(() => { const a = new Float32Array(NT * 2); for (let n = 0; n < NT; n++) { a[n * 2] = (n % COLS) / COLS; a[n * 2 + 1] = 1 - (Math.floor(n / COLS) + 1) / ROWS; } return new THREE.InstancedBufferAttribute(a, 2); }, []);
@@ -45,13 +46,13 @@ const Scene: React.FC<{ t: number }> = ({ t }) => {
       else if (u < 1) { const e = 1 - u * u, hh = 14 + 22 * hash(n + 3); fall = 1; dummy.position.set(SX(n) + (hash(n + 4) - 0.5) * 7 * e, REST + hh * e, SZ(n) + (hash(n + 5) - 0.5) * 7 * e); dummy.rotation.set((hash(n + 6) - 0.5) * 9 * e, (hash(n + 7) - 0.5) * 9 * e, (hash(n + 8) - 0.5) * 9 * e); dummy.scale.setScalar(1); }
       else { const s = t - ta - FALL; heat = Math.exp(-4.5 * s); dummy.position.set(SX(n), REST + 0.06 * Math.exp(-8 * s) * Math.abs(Math.sin(15 * s)), SZ(n)); dummy.rotation.set(0, 0, 0); dummy.scale.setScalar(1); }
       dummy.updateMatrix(); m.setMatrixAt(n, dummy.matrix); mtmp.multiplyMatrices(dummy.matrix, labelLocal); l.setMatrixAt(n, mtmp);
-      col.setRGB(lerp3(fall ? 0.62 : 1, 1, heat), lerp3(fall ? 0.46 : 0.74, 0.97, heat), lerp3(fall ? 0.12 : 0.2, 0.7, heat)); m.setColorAt(n, col); }
+      { const c0 = fall ? PAL.fall : PAL.base; col.setRGB(lerp3(c0[0], PAL.hot[0], heat), lerp3(c0[1], PAL.hot[1], heat), lerp3(c0[2], PAL.hot[2], heat)); } m.setColorAt(n, col); }
     m.instanceMatrix.needsUpdate = true; l.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; }, [t]);
   const miss = sm((t - 2.6) / 0.3) * (1 - sm((t - TL - 0.7) / 0.3)), bl = 0.5 + 0.5 * Math.sin(t * 10), ph = sm((t - 8.3) / 1.3);
   return (<>
     <mesh rotation-x={-Math.PI / 2}><planeGeometry args={[BW, BW]} /><meshBasicMaterial map={plate} toneMapped={false} /></mesh>
     <mesh rotation-x={-Math.PI / 2} position={[0, -0.05, 0]}><planeGeometry args={[BW + 6, BW + 6]} /><meshBasicMaterial color="#050818" /></mesh>
-    <instancedMesh ref={inst} args={[undefined as any, undefined as any, NT]} frustumCulled={false}><boxGeometry args={[0.84, 0.2, 0.84]} /><meshStandardMaterial color="#ffffff" roughness={0.32} metalness={0.25} emissive="#7a4a08" emissiveIntensity={0.55} /></instancedMesh>
+    <instancedMesh ref={inst} args={[undefined as any, undefined as any, NT]} frustumCulled={false}><boxGeometry args={[0.84, 0.2, 0.84]} /><meshStandardMaterial color="#ffffff" roughness={0.32} metalness={0.25} emissive={PAL.emis} emissiveIntensity={0.55} /></instancedMesh>
     <instancedMesh ref={labm} args={[undefined as any, undefined as any, NT]} frustumCulled={false} geometry={labGeo} material={labMat} />
     {LOST.map((n, i) => miss > 0.01 && <group key={n} position={[SX(n), 0, SZ(n)]}>
       <mesh position={[0, 0.14, 0]}><boxGeometry args={[0.9, 0.22, 0.9]} /><meshBasicMaterial color="#ff2a3a" transparent opacity={miss * (0.45 + 0.55 * bl)} toneMapped={false} /></mesh>
@@ -59,8 +60,14 @@ const Scene: React.FC<{ t: number }> = ({ t }) => {
       <sprite position={[0, 2.0 + Math.sin(t * 3 + i) * 0.1, 0]} scale={[3.4, 1.06, 1]}><spriteMaterial map={reds[i]} transparent opacity={miss * (0.75 + 0.25 * bl)} depthWrite={false} toneMapped={false} /></sprite></group>)}
     {ph > 0.001 && <mesh rotation-x={-Math.PI / 2} position={[0, 0.3, 0]}><planeGeometry args={[BW, BW]} /><meshBasicMaterial map={photo} transparent opacity={ph} toneMapped={false} /></mesh>}
   </>); };
+export const PALS: Record<string, { base: number[]; fall: number[]; hot: number[]; emis: string; text: string }> = {
+  gold: { base: [1, 0.74, 0.2], fall: [0.62, 0.46, 0.12], hot: [1, 0.97, 0.7], emis: '#7a4a08', text: '#3a2008' },
+  cyan: { base: [0.22, 0.72, 1], fall: [0.12, 0.42, 0.62], hot: [0.85, 0.97, 1], emis: '#0a4a7a', text: '#04203a' },
+  violet: { base: [0.62, 0.42, 1], fall: [0.36, 0.24, 0.62], hot: [0.95, 0.9, 1], emis: '#3a1a7a', text: '#160a3a' },
+  teal: { base: [0.12, 0.85, 0.7], fall: [0.07, 0.5, 0.42], hot: [0.85, 1, 0.97], emis: '#066a5a', text: '#03231d' },
+};
 const lerp3 = (a: number, b: number, u: number) => a + (b - a) * u;
-export const ArriveReal: React.FC = () => { const f = useCurrentFrame(), t = f / 30, ms = Math.round(lp(62, 65, sm((t - 0.3) / 9.6)));
+export const ArriveReal: React.FC<{ pal?: string }> = ({ pal = 'gold' }) => { const f = useCurrentFrame(), t = f / 30, ms = Math.round(lp(62, 65, sm((t - 0.3) / 9.6)));
   let landed = 0; const got: boolean[] = []; for (let n = 0; n < NT; n++) { const g = t >= TA(n) + FALL; got.push(g); if (g) landed++; }
   const count = Math.round((2000 * landed) / NT), pct = Math.round((100 * landed) / NT), TWd = 230 / COLS, THd = 230 / ROWS, hot = t < TL + 0.7 && t > 4.9 && count > 1000;
   const cap = (txt: string, o: number) => <div style={{ position: 'absolute', left: 0, right: 0, top: 1700, display: 'flex', justifyContent: 'center', opacity: o }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: '#fff1dc', textAlign: 'center' }}>{txt}</div></div>;
@@ -68,7 +75,7 @@ export const ArriveReal: React.FC = () => { const f = useCurrentFrame(), t = f /
     <ThreeCanvas width={1080} height={1920} gl={{ antialias: true }} camera={{ fov: 44, near: 0.05, far: 400 }}>
       <Cam t={t} /><color attach="background" args={['#03051a']} /><fog attach="fog" args={['#03051a', 70, 260]} />
       <ambientLight intensity={0.9} /><directionalLight position={[6, 14, 8]} intensity={1.5} color="#ffe9c0" /><pointLight position={[0, 6, 0]} intensity={40} color="#ffb454" distance={50} />
-      <Scene t={t} />
+      <Scene t={t} pal={pal} />
       <EffectComposer><Bloom intensity={0.7} luminanceThreshold={0.78} luminanceSmoothing={0.25} mipmapBlur /><Vignette eskil={false} offset={0.25} darkness={0.7} /></EffectComposer>
     </ThreeCanvas>
     <div style={{ position: 'absolute', left: 0, top: 0, opacity: sm((t - 0.5) / 0.4) * (1 - sm((t - 9.4) / 0.4)), transform: 'translate(300px, 6px) scale(0.78)', transformOrigin: '0 0' }}><svg width={1080} height={460} style={{ position: 'absolute', left: 0, top: 0 }}>
