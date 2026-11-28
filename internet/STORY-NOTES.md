@@ -175,3 +175,5 @@ Mapping for Part 2: Hook = locked 12 s (v10). Lead = your phone, send, photo bre
 ## 28 Nov 2026 - DECISION (Harsh): the photo in Part 2 is a BLACK cat (dark cat, v3/src/v4/CatPhoto.tsx, drawn placeholder until a real photo comes) with YELLOW/GOLD packets. Dog is replaced by the cat in the main video. Still open: the cat's name (desk plates) and whether the locked hook (dog + Rocky) is redone with the cat. Do not render until he says.
 
 ## 28 Nov 2026 - DECISION CHANGED (Harsh: "lets keep dog"): the photo stays the cartoon DOG in the whole video, hook included. The cat idea is dropped (v3/src/v4/CatPhoto.tsx stays unused). Packets stay gold/yellow. No re-render of the hook needed.
+
+## 28 Nov 2026 - Harsh approved the BETTER DOG (v3/src/v4/DogBetter.tsx). It is now DogPhoto everywhere in the code (old dog = DogPhotoOld). Finished videos (hook v10, etc.) still show the old dog until re-rendered. Not rendered yet; wait for his "render".

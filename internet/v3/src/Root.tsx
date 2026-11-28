@@ -23,7 +23,7 @@ import { Arrive, ARRIVE_FRAMES } from './v4/Arrive';
 import { ArriveGrid } from './v4/ArriveGrid';
 import { CatPhoto } from './v4/CatPhoto';
 import { DogBetter } from './v4/DogBetter';
-import { DogPhoto as DogPhotoOld } from './v4/Story';
+import { DogPhotoOld } from './v4/Story';
 import { ArriveReal, REAL_FRAMES } from './v4/ArriveReal';
 import { ArriveRain, RAIN_FRAMES } from './v4/ArriveRain';
 import { Arrive as ArriveHer, ARRIVE_FRAMES as ARRIVE_HER_FRAMES } from './v4/ArriveAnim';

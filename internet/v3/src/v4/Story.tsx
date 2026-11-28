@@ -1,3 +1,4 @@
+import { DogBetter } from './DogBetter';
 import React from 'react';
 import { AbsoluteFill, Sequence, useCurrentFrame } from 'remotion';
 import { FPS, prog, lerp, easeOut, easeInOut, hash, clamp01 } from '../lib/anim';
@@ -46,7 +47,7 @@ export const CharminarPhoto: React.FC = () => (<g>
 </g>);
 
 /* ---- a dog's portrait for a framed picture on the desk ---- */
-export const DogPhoto: React.FC = () => (<g>
+export const DogPhotoOld: React.FC = () => (<g>
   <defs><linearGradient id="dgBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fbe8c8" /><stop offset="1" stopColor="#f2b88a" /></linearGradient></defs>
   <rect width={190} height={190} fill="url(#dgBg)" />{[[28, 30], [160, 44], [150, 150], [34, 148]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r={5 + i} fill="#fff" opacity={0.35} />)}
   <ellipse cx={46} cy={96} rx={22} ry={40} fill="#9a5a2e" transform="rotate(14 46 96)" /><ellipse cx={144} cy={96} rx={22} ry={40} fill="#9a5a2e" transform="rotate(-14 144 96)" />
@@ -61,6 +62,8 @@ export const DogPhoto: React.FC = () => (<g>
 </g>);
 
 /* Harsh, 28 Nov 2026: the photo he sends, the framed picture on his desk and the notification thumbnail are the DOG, not the Charminar. */
+/* Harsh, 28 Nov 2026: the better-drawn puppy (DogBetter) is THE photo; the first cartoon dog stays as DogPhotoOld (the finished hook v10 video still shows it) */
+export const DogPhoto: React.FC = () => <DogBetter />;
 export const Charminar: React.FC = DogPhoto;
 
 /* the photo as a FLEXIBLE sheet of paper (Harsh, 28 Nov 2026: "like paper, not a card", "flexible"): a thin print with a white border that bends and ripples in waves along its length as it flies, curls at the corner, and tumbles a little.
