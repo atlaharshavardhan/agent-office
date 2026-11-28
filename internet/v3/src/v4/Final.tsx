@@ -119,8 +119,8 @@ export const GlobeRoute: React.FC = () => {
     <Sequence from={-Math.round(T0 * 30)}><Planet /></Sequence>
     <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><defs><radialGradient id="gr2"><stop offset="0" stopColor="#ffffff" stopOpacity={0.95} /><stop offset="0.35" stopColor="#ffe27a" stopOpacity={0.8} /><stop offset="1" stopColor="#ffd23a" stopOpacity={0} /></radialGradient></defs>
       {front && <g transform={`translate(${x} ${y})`} opacity={op}><circle r={80} fill="url(#gr2)" /><circle r={13} fill="#fff" /></g>}</svg>
-    <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 640, background: 'linear-gradient(#04061a 40%, rgba(4,6,26,0))', opacity: op }} />
-    <div style={{ position: 'absolute', left: 0, right: 0, top: 250, textAlign: 'center', opacity: op, textShadow: '0 0 30px rgba(160,210,255,.7), 0 6px 14px rgba(0,0,0,.7)' }}><div style={{ font: `900 150px/1 ${FONT.ui}`, color: '#fff' }}>Almost all</div><div style={{ font: `800 56px/1.2 ${FONT.ui}`, color: '#e6f0ff', marginTop: 10 }}>of the data between continents</div><div style={{ font: `800 56px/1.2 ${FONT.ui}`, color: '#7fd4ff' }}>travels in cables like this</div></div>
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 560, background: 'linear-gradient(#04061a 45%, rgba(4,6,26,0))', opacity: op }} />
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 270, textAlign: 'center', opacity: op, textShadow: '0 6px 14px rgba(0,0,0,.7)' }}><div style={{ font: `900 100px/1.05 ${FONT.ui}`, color: '#fff' }}>Almost all data</div><div style={{ font: `800 60px/1.2 ${FONT.ui}`, color: '#7fd4ff' }}>travels in cables</div></div>
     <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
   </AbsoluteFill>);
 };

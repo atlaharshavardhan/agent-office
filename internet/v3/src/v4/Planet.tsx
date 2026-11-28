@@ -60,11 +60,11 @@ const mainU = (t: number) => clamp01((t - 0.6) / 8.6) ** 0.9;      // how far al
 
 /* Harsh's reference: a dense web of glowing cable arcs over the whole Earth (ov.dense) */
 const DenseWeb: React.FC<{ t: number }> = ({ t }) => { const arcs = useMemo(() => { const out: THREE.BufferGeometry[] = []; let tries = 0;
-    while (out.length < 105 && tries++ < 2000) { const a = CITIES[Math.floor(hash(tries * 3) * CITIES.length)], b = CITIES[Math.floor(hash(tries * 3 + 1) * CITIES.length)], A = ll(a, 1), B = ll(b, 1), ang = A.angleTo(B); if (ang < 0.35 || ang > 2.4) continue;
+    while (out.length < 42 && tries++ < 2000) { const a = CITIES[Math.floor(hash(tries * 3) * CITIES.length)], b = CITIES[Math.floor(hash(tries * 3 + 1) * CITIES.length)], A = ll(a, 1), B = ll(b, 1), ang = A.angleTo(B); if (ang < 0.35 || ang > 2.4) continue;
       const pts = Array.from({ length: 26 }).map((_, i) => { const u = i / 25, q = new THREE.Quaternion().setFromUnitVectors(A.clone().normalize(), B.clone().normalize()), id = new THREE.Quaternion(), r = id.clone().slerp(q, u); return A.clone().applyQuaternion(r).normalize().multiplyScalar(R * (1.004 + 0.045 * Math.sin(Math.PI * u) * Math.min(1, ang / 1.2))); });
       out.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.0075, 4, false)); } return out; }, []);
   const o = seg(t, 5.4, 7.0);
-  return <group>{arcs.map((g, i) => <mesh key={i} geometry={g}><meshBasicMaterial color={i % 3 ? '#cfeaff' : '#8fd0ff'} transparent opacity={(0.28 + 0.3 * hash(i)) * o} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>)}</group>; };
+  return <group>{arcs.map((g, i) => <mesh key={i} geometry={g}><meshBasicMaterial color={i % 3 ? '#cfeaff' : '#8fd0ff'} transparent opacity={(0.25 + 0.25 * hash(i)) * o} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>)}</group>; };
 const Earth: React.FC<{ t: number }> = ({ t }) => {
   const tex = useMemo(earthTex, []), atmo = useMemo(atmoMat, []), atmoThin = useMemo(() => new THREE.ShaderMaterial({ transparent: true, side: THREE.BackSide, depthWrite: false, blending: THREE.AdditiveBlending, vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix*vec4(position,1.); vN = normalize(normalMatrix*normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }', fragmentShader: 'varying vec3 vN; varying vec3 vV; void main(){ float f = pow(clamp(1. - abs(dot(normalize(vN), normalize(vV))), 0., 1.), 5.0); gl_FragColor = vec4(vec3(.35, .65, 1.) * f * 0.55, f * 0.45); }' }), []);
   const web = useMemo(() => WEB.map((r) => { const c = curveOf(r); return { c, g: new THREE.TubeGeometry(c, Math.max(20, Math.round(c.getLength() * 8)), 0.03, 6, false) }; }), []);
@@ -80,8 +80,8 @@ const Earth: React.FC<{ t: number }> = ({ t }) => {
     {web.map((w, i) => { const on = seg(t, 4.2 + i * 0.09, 5.0 + i * 0.09); w.g.setDrawRange(0, Math.floor((w.g.index!.count * on) / 3) * 3); const pu = ((t * 0.16 + hash(i) * 5) % 1 + 1) % 1, pp = w.c.getPointAt(pu);
       return <group key={i}><mesh geometry={w.g}><meshBasicMaterial color="#6fd0ff" transparent opacity={0.8 * (ov.show ? ov.show(t) : 1)} /></mesh>{on > 0.95 && <mesh position={pp}><sphereGeometry args={[0.055, 8, 8]} /><meshBasicMaterial color="#dff6ff" /></mesh>}</group>; })}
     <mesh geometry={mainDim} visible={!ov.show || ov.show(t) > 0.5}><meshBasicMaterial color="#5fb8ff" transparent opacity={0.4} /></mesh>
-    <mesh geometry={mainG} visible={zoom > 0.45 && (!ov.show || ov.show(t) > 0.5)}><meshBasicMaterial color="#ffc24a" /></mesh>
-    <mesh geometry={mainThin} visible={zoom <= 0.45 && (!ov.show || ov.show(t) > 0.5)}><meshBasicMaterial color="#ffc24a" /></mesh>
+    <mesh geometry={mainG} visible={zoom > 0.45 && (!ov.show || ov.show(t) > 0.5)}><meshBasicMaterial color={ov.dense ? "#ffe04a" : "#ffc24a"} /></mesh>
+    <mesh geometry={mainThin} visible={zoom <= 0.45 && (!ov.show || ov.show(t) > 0.5)}><meshBasicMaterial color={ov.dense ? "#ffe04a" : "#ffc24a"} /></mesh>
     <group position={head}><sprite scale={[lerp(0.45, 2.2, zoom), lerp(0.45, 2.2, zoom), 1]}><spriteMaterial map={glow} transparent depthWrite={false} blending={THREE.AdditiveBlending} /></sprite><mesh><sphereGeometry args={[lerp(0.028, 0.1, zoom), 10, 8]} /><meshBasicMaterial color="#fff0c8" /></mesh></group>
     {[LONDON, HYD].map((p, i) => <mesh key={i} position={ll(p, R * 1.01)}><sphereGeometry args={[0.1, 12, 10]} /><meshBasicMaterial color={i ? '#ffe08a' : '#ff9c8a'} /></mesh>)}
   </group>;

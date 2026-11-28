@@ -1,5 +1,7 @@
 {
  "lengths": {
+  "g1": 3.541,
+  "g2": 2.475,
   "m1": 2.645,
   "a1": 2.176,
   "a2": 1.771,
@@ -18,6 +20,8 @@
   "r4": 2.731
  },
  "text": {
+  "g1": "Almost all data between continents travels in cables like this.",
+  "g2": "Our photo crosses from Hyderabad to London.",
   "m1": "But three are missing. Her phone asks for them again.",
   "a1": "On her phone, the pieces land in any order.",
   "a2": "The numbers put them back in line.",
