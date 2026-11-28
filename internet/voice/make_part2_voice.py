@@ -6,6 +6,9 @@ from pathlib import Path
 OUT = Path(__file__).parent / "p2"; OUT.mkdir(exist_ok=True)
 VOICE = "TX3LPaxmHKxFdv7VOQHJ"; SET = {"stability": 0.3, "similarity_boost": 0.8, "style": 0.55, "use_speaker_boost": True, "speed": 1.12}
 L = [
+ ("s1", "Imagine the movement when you click send."),
+ ("s2", "How does it travel to your girlfriend, who is in London?"),
+ ("s3", "Let's follow it."),
  ("h1", "Arjun taps send."),
  ("h2", "A second later, Meera's phone buzzes, in London."),
  ("h3", "How does a photo cross an ocean that fast?"),
