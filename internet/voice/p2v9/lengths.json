@@ -1,0 +1,19 @@
+{
+ "lengths": {
+  "w1": 1.387,
+  "w2": 2.965,
+  "w3": 1.387,
+  "w4": 1.557,
+  "w5": 1.685,
+  "w6": 1.365
+ },
+ "text": {
+  "w1": "The moment you hit send,",
+  "w2": "the photo pops up on your girlfriend's phone in London.",
+  "w3": "But how did it travel",
+  "w4": "thousands of kilometres,",
+  "w5": "across an entire ocean,",
+  "w6": "in the blink of an eye?"
+ },
+ "speed": 1.1
+}

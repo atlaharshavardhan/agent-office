@@ -94,3 +94,9 @@ Notes: the cable shot is now 4 s (earlier plan was 1.5 s). The satellite shot sh
 
 ## CAPTION POSITION RULE (Harsh, 28 Nov 2026, latest): captions CENTRED horizontally, at the TOP or the BOTTOM of the screen. Look for free space first; if there is none, put them on the objects. (Replaces the left-aligned free-space positions.) Safe zones: right edge of the pill at most x 940; vertical band y 250 to 1500.
 Also this session: satellite goes OUTSIDE the globe (top-left dark space) with dots running only from the satellite towards the Earth; the "13,000 km -> 0.065 s" tag is removed from the first shot.
+
+## 28 Nov 2026 - hook v9 plan (Harsh's new 6-line table replaces the v8 narration)
+Narration (free Michael, voice/make_hook_v9_voice.py, files voice/p2v9/): w1 "The moment you hit send," 1.39 s | w2 "the photo pops up on your girlfriend's phone in London." 2.97 s | w3 "But how did it travel" 1.39 s | w4 "thousands of kilometres," 1.56 s | w5 "across an entire ocean," 1.69 s | w6 "in the blink of an eye?" 1.37 s. Total speech 10.35 s.
+Planned timing (12 s): w1 0.1-1.5 he clicks send (tap, window break) | w2 1.6-4.6 her phone buzzes, photo appears (London) | w3 4.7-6.1 zoom out from London to the globe | w4 6.2-7.8 globe with the live line and satellite | w5 7.9-9.6 dive into the ocean, light in the cable | w6 9.7-11.1 camera follows the fast light pulses; hold to 12.
+Captions: only key moments (srt carries all). Globe: thin edge, small stars (half blink slowly), satellite sways, amber line drawn live from Hyderabad to London with the photo at its tip.
+Order change vs v8: London notification now comes BEFORE the globe. Not rendered yet - wait for Harsh's "render".
