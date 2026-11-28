@@ -10,6 +10,7 @@ import { Planet, PLANET_FRAMES } from './v4/Planet';
 import { SeaCable, SEACABLE_FRAMES } from './v4/SeaCable';
 import { Shore, SHORE_FRAMES } from './v4/Shore';
 import { Arrive, ARRIVE_FRAMES } from './v4/Arrive';
+import { Snap, SNAP_FRAMES } from './v4/Snap';
 import { Routers, ROUTERS_FRAMES } from './v4/Routers';
 import { Underground, UNDER_FRAMES } from './v4/Underground';
 import { Seabed, SEABED_FRAMES, SeabedRepeater, REPEATER_FRAMES } from './v4/Seabed';
@@ -52,6 +53,7 @@ export const Root: React.FC = () => (
     <Composition id="RoutersV" component={() => <Vert><Routers /></Vert>} durationInFrames={ROUTERS_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ShoreV" component={() => <Vert><Shore /></Vert>} durationInFrames={SHORE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="SeaCableV" component={() => <Vert><SeaCable /></Vert>} durationInFrames={SEACABLE_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="SnapV" component={Snap} durationInFrames={SNAP_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ArriveV" component={Arrive} durationInFrames={ARRIVE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="PlanetV" component={() => <Vert><Planet /></Vert>} durationInFrames={PLANET_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="FlightV" component={() => <Vert><Flight /></Vert>} durationInFrames={FLIGHT_FRAMES} fps={30} width={1080} height={1920} />

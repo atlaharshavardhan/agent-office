@@ -16,7 +16,7 @@ const slotOf = (pk: number) => JUMBLE.indexOf(pk);
 const cell = (s: number): [number, number] => [PX + (s % G) * CELL, PY + Math.floor(s / G) * CELL];
 
 /* the photo she took: London at night, the big wheel by the river */
-const Photo: React.FC = () => (<g>
+export const Photo: React.FC = () => (<g>
   <defs><linearGradient id="phSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#141a52" /><stop offset="1" stopColor="#5a4fb8" /></linearGradient></defs>
   <rect width={190} height={190} fill="url(#phSky)" /><circle cx={158} cy={36} r={13} fill="#fff3d6" />
   {[14, 40, 72, 110, 140, 176].map((x, i) => <circle key={i} cx={x} cy={10 + (i * 11) % 36} r={1.4} fill="#fff" opacity={0.8} />)}

@@ -22,20 +22,22 @@ export const TOWER = V(17, 15, -30);
 const canvas = (w: number, h: number, draw: (g: CanvasRenderingContext2D) => void) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d')!); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
 const rr = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
 /* the little video he sends: the torch across the street, as a thumbnail */
-const drawThumb = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => {
-  const sky = g.createLinearGradient(0, y, 0, y + h); sky.addColorStop(0, '#141a4e'); sky.addColorStop(1, '#3a2f7a'); g.fillStyle = sky; rr(g, x, y, w, h, 18); g.fill(); g.save(); rr(g, x, y, w, h, 18); g.clip();
-  g.fillStyle = '#8f7be0'; g.fillRect(x + w * 0.56, y + h * 0.3, w * 0.36, h * 0.7); g.fillStyle = '#5546b8'; g.fillRect(x + w * 0.53, y + h * 0.26, w * 0.42, h * 0.07);
-  g.fillStyle = '#ffd98a'; [[0.61, 0.42], [0.79, 0.42], [0.61, 0.68]].forEach(([a, b]) => g.fillRect(x + w * a, y + h * b, w * 0.1, h * 0.15));
-  g.fillStyle = '#2a245f'; g.fillRect(x, y + h * 0.84, w, h * 0.16);
-  const beam = g.createLinearGradient(x + w * 0.1, 0, x + w * 0.62, 0); beam.addColorStop(0, 'rgba(255,240,190,.95)'); beam.addColorStop(1, 'rgba(255,220,140,0)'); g.fillStyle = beam; g.beginPath(); g.moveTo(x + w * 0.12, y + h * 0.62); g.lineTo(x + w * 0.66, y + h * 0.4); g.lineTo(x + w * 0.66, y + h * 0.62); g.closePath(); g.fill();
-  g.fillStyle = '#ff5a4a'; g.fillRect(x + w * 0.06, y + h * 0.58, w * 0.08, h * 0.08); g.fillStyle = '#fff3d6'; g.beginPath(); g.arc(x + w * 0.2, y + h * 0.2, h * 0.07, 0, 7); g.fill(); g.restore();
+const drawThumb = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => {   /* the photo Meera took: London at night, the big wheel by the river */
+  g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); const u = w / 190;
+  const sky = g.createLinearGradient(0, y, 0, y + h); sky.addColorStop(0, '#141a52'); sky.addColorStop(1, '#5a4fb8'); g.fillStyle = sky; g.fillRect(x, y, w, h);
+  g.fillStyle = '#fff3d6'; g.beginPath(); g.arc(x + 158 * u, y + 36 * u, 13 * u, 0, 7); g.fill();
+  const cx = x + 84 * u, cy = y + 92 * u; g.strokeStyle = '#ffd88a'; g.lineWidth = 2.4 * u; g.beginPath(); g.arc(cx, cy, 50 * u, 0, 7); g.stroke();
+  g.strokeStyle = '#e8b866'; g.lineWidth = 0.8 * u; for (let i = 0; i < 16; i++) { const a = (i / 16) * 6.283; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + 50 * u * Math.cos(a), cy + 50 * u * Math.sin(a)); g.stroke(); g.fillStyle = '#fff1d0'; g.beginPath(); g.arc(cx + 50 * u * Math.cos(a), cy + 50 * u * Math.sin(a), 2.6 * u, 0, 7); g.fill(); }
+  g.strokeStyle = '#c9a15a'; g.lineWidth = 2.4 * u; g.beginPath(); g.moveTo(cx - 2 * u, cy); g.lineTo(cx - 22 * u, cy + 62 * u); g.moveTo(cx + 2 * u, cy); g.lineTo(cx + 22 * u, cy + 62 * u); g.stroke();
+  g.fillStyle = '#0d1240'; g.beginPath(); g.moveTo(x, y + 140 * u); g.lineTo(x + 36 * u, y + 132 * u); g.lineTo(x + 36 * u, y + 124 * u); g.lineTo(x + 50 * u, y + 124 * u); g.lineTo(x + 50 * u, y + 134 * u); g.lineTo(x + 120 * u, y + 134 * u); g.lineTo(x + 120 * u, y + 120 * u); g.lineTo(x + 150 * u, y + 120 * u); g.lineTo(x + 150 * u, y + 136 * u); g.lineTo(x + w, y + 130 * u); g.lineTo(x + w, y + h); g.lineTo(x, y + h); g.closePath(); g.fill();
+  g.fillStyle = '#1d2a78'; g.fillRect(x, y + 156 * u, w, h - 156 * u); g.restore();
 };
 const screenTex = (sent: boolean, hideThumb: boolean) => canvas(600, 1240, (g) => {
   g.fillStyle = '#0b0f2e'; g.fillRect(0, 0, 600, 1240);
   g.fillStyle = '#141a45'; g.fillRect(0, 0, 600, 150); g.fillStyle = '#ff8f7a'; g.beginPath(); g.arc(80, 86, 34, 0, 7); g.fill();
   g.fillStyle = '#eef1ff'; g.font = '800 40px Manrope, sans-serif'; g.fillText('Arjun', 136, 82); g.fillStyle = '#7dffb0'; g.font = '500 24px Manrope, sans-serif'; g.fillText('Hyderabad · online', 136, 116);
   g.fillStyle = '#1b2258'; rr(g, 40, 200, 330, 84, 26); g.fill(); g.fillStyle = '#cfd6ff'; g.font = '500 30px Manrope, sans-serif'; g.fillText('Send me a photo!', 64, 252);
-  g.fillStyle = '#1d6f8f'; rr(g, 150, 330, 410, 470, 30); g.fill(); if (!hideThumb) { drawThumb(g, 170, 350, 370, 370); g.fillStyle = 'rgba(8,12,40,.55)'; g.beginPath(); g.arc(355, 535, 54, 0, 7); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(338, 505); g.lineTo(388, 535); g.lineTo(338, 565); g.closePath(); g.fill(); } else { g.strokeStyle = 'rgba(160,230,255,.5)'; g.setLineDash([10, 10]); g.lineWidth = 3; rr(g, 170, 350, 370, 370, 18); g.stroke(); g.setLineDash([]); }
+  g.fillStyle = '#1d6f8f'; rr(g, 150, 330, 410, 470, 30); g.fill(); if (!hideThumb) { drawThumb(g, 170, 350, 370, 370); } else { g.strokeStyle = 'rgba(160,230,255,.5)'; g.setLineDash([10, 10]); g.lineWidth = 3; rr(g, 170, 350, 370, 370, 18); g.stroke(); g.setLineDash([]); }
   g.fillStyle = '#d9f4ff'; g.font = '500 26px "IBM Plex Mono", monospace'; g.fillText(sent ? 'sending… 3 MB' : 'photo.jpg · 3 MB', 180, 770);
   g.fillStyle = '#141a45'; g.fillRect(0, 1080, 600, 160); g.fillStyle = '#0b0f2e'; rr(g, 30, 1110, 410, 90, 45); g.fill(); g.fillStyle = '#6f7ab8'; g.font = '500 30px Manrope, sans-serif'; g.fillText('Message', 66, 1166);
   g.fillStyle = sent ? '#7dffb0' : '#5fe3ff'; g.beginPath(); g.arc(520, 1155, 52, 0, 7); g.fill(); g.fillStyle = '#07102c'; g.beginPath(); g.moveTo(498, 1128); g.lineTo(548, 1155); g.lineTo(498, 1182); g.closePath(); g.fill();
