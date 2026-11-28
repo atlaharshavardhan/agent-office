@@ -79,12 +79,12 @@ export const GlobeSat: React.FC = () => {
 export const SeabedLight12: React.FC = () => <SeabedLight from={27} to={53} start={85} frames={45} />;
 
 /* shot 2 of the 12 s hook: the globe with the satellite question FIRST. The photo has just landed on the Hyderabad pin and starts along the cable (0 to 11 ms), a satellite flies in with "?", a red cross, "No". */
-export const GlobeSatStart: React.FC<{ cross?: boolean }> = ({ cross = true }) => {
+export const GlobeSatStart: React.FC<{ cross?: boolean; span?: number }> = ({ cross = true, span }) => {
   const f = useCurrentFrame(), t = f / 30, T0 = 300 / 30;
   ov.lon = () => 40; ov.show = () => 1; ov.pins = 0; ov.thin = true;
-  ov.u = cross ? null : (tt: number) => 0.55 * easeInOut(clamp01((tt - 10 - 0.1) / 1.9));      // Harsh: the amber line is drawn live, with the photo at its tip
+  ov.u = span ? (tt: number) => easeInOut(clamp01((tt - 10 - 0.2) / span)) : cross ? null : (tt: number) => 0.55 * easeInOut(clamp01((tt - 10 - 0.1) / 1.9));      // Harsh: the amber line is drawn live, with the photo at its tip
   const q = prog(f, 0.05, 0.4, easeOut), no = cross ? prog(f, 0.95, 1.25, easeOut) : 0, satIn = prog(f, 0, 0.5, easeOut), land = prog(f, 0, 0.25, easeOut);
-  const u = cross ? 0.15 * easeInOut(clamp01((t - 0.3) / 1.6)) : 0.55 * easeInOut(clamp01((t - 0.1) / 1.9)), pt = T0 + t;   // (with cross=false the satellite stays with its question mark)
+  const u = span ? easeInOut(clamp01((t - 0.2) / span)) : cross ? 0.15 * easeInOut(clamp01((t - 0.3) / 1.6)) : 0.55 * easeInOut(clamp01((t - 0.1) / 1.9)), pt = T0 + t;   // (with cross=false the satellite stays with its question mark)
   const [x, y, front] = project(pt, ll(routeAt(MAIN, u) as unknown as LL, R * 1.012));
   const sx = lerp(-160, 390, satIn) + Math.sin(t * 1.7) * 9, sy = 452 + Math.sin(t * 2.2) * 8, ms = Math.round(cross ? 11 * easeInOut(clamp01((t - 0.3) / 1.6)) : 65 * u);
   const chip = (txt: string, o: number, col: string) => <div style={{ position: 'absolute', left: 0, right: 0, top: 236, display: 'flex', justifyContent: 'center', opacity: o }}><div style={{ padding: '14px 34px', borderRadius: 32, background: 'rgba(10,14,36,.9)', border: `3px solid ${col}`, font: `800 42px/1 ${FONT.ui}`, color: '#fff', whiteSpace: 'nowrap' }}>{txt}</div></div>;
@@ -106,4 +106,5 @@ export const GlobeSatStart: React.FC<{ cross?: boolean }> = ({ cross = true }) =
 export const SeabedLight12b: React.FC = () => <SeabedLight from={11} to={53} start={85} frames={60} />;
 
 export const GlobeSatQ: React.FC = () => <GlobeSatStart cross={false} />;
+export const GlobeHook: React.FC = () => <GlobeSatStart cross={false} span={3.6} />;     // hook v10: the line is drawn all the way, Hyderabad to London, with the photo at its tip
 export const SeabedLight12c: React.FC = () => <SeabedLight from={11} to={65} start={85} frames={120} />;
