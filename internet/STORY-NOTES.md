@@ -187,3 +187,7 @@ Mapping for Part 2: Hook = locked 12 s (v10). Lead = your phone, send, photo bre
 - OPTICAL CABLE LAYERS clip (SeaCable, "STEEL WIRES" etc.): Harsh wants it QUICK. Layers peel/appear fast, no slow moves, shorter scene (cut hold times; target about 8 s instead of 15 s). Apply when he says "render".
 
 - WORDS: never say "locked/unlock". Say "encrypted" (her side: "We decrypt it"). Voice: "Then your phone encrypts it." / "Her phone decrypts them, and the photo appears." Address card stamp = ENCRYPTED. Regenerate those voice lines at render.
+- 28 Nov 2026: Harsh watched full-v5 and gave two fixes (NOT done yet, he said do not render until he says go):
+  1. Cable-layers clip (about 1:06): two voices play at once. Cause: in audio/make_part2d_final.py the voice starts are VAT*CBK, and CBK was cut to 0.77, so c2 starts before c1 ends. Fix: place c1..c4 one after the other (c1 0.1 s, then each after the last + 0.1 s), not scaled by CBK. Keep the clip quick (about 11 s).
+  2. The two globe scenes are duplicates ("Almost all data between continents travels in cables" with the Hyderabad/London globe, and then the anchor globe "Almost all data travels in cables"). Keep the 3rd one (the anchor globe, part i / gc). Remove the first globe (part g / gl) from the join: hook + c + d + i + h.
+  Then re-mix with audio/build_final.py, re-join, check glitches, send.
