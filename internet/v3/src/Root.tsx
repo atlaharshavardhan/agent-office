@@ -80,6 +80,7 @@ export const Root: React.FC = () => (
     <Composition id="S4V" component={S4Dog} durationInFrames={S4_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="S5V" component={S5Lock} durationInFrames={S5_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="S6V" component={S6Lens} durationInFrames={S6_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="CatGoldStillV" component={() => <svg width={1080} height={1080} viewBox="0 0 190 190"><CatPhoto gold /></svg>} durationInFrames={1} fps={30} width={1080} height={1080} />
     <Composition id="CatStillV" component={() => <svg width={1080} height={1080} viewBox="0 0 190 190"><CatPhoto /></svg>} durationInFrames={1} fps={30} width={1080} height={1080} />
     <Composition id="ArriveRealV" component={ArriveReal} durationInFrames={REAL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ArriveRV" component={ArriveRain} durationInFrames={RAIN_FRAMES} fps={30} width={1080} height={1920} />
