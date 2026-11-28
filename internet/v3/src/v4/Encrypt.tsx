@@ -40,9 +40,20 @@ export const DogBits: React.FC<{ reveal?: number; p?: number; tick?: number; o?:
     {cells && cells.map(([v, cr, cg, cb], k) => { const c = k % G, r = (k / G) | 0; if (r > reveal * G) return null; const hs = hash(k * 7 + 3 + Math.floor(tick / 5) * 31), sym = hash(k * 3 + 1) < p, ch = sym ? syms[Math.floor(hs * syms.length)] : hs > 0.5 ? '1' : '0', lit = v > 0.35;
       return <text key={k} x={c * cw + cw / 2} y={r * cw + 22} textAnchor="middle" fill={sym ? (hs > 0.5 ? '#7fd4ff' : '#c58bff') : lit ? `rgb(${Math.min(255, cr * 1.15 + 20)},${Math.min(255, cg * 1.1 + 15)},${Math.min(255, cb * 1.0 + 10)})` : '#5a6aa8'} opacity={sym ? 0.5 : lit ? 1 : 0.18} style={{ font: `800 ${cw * 0.9}px ${FONT.mono}` }}>{ch}</text>; })}</g>);
 };
-export const Lock: React.FC<{ x: number; y: number; k: number }> = ({ x, y, k }) => (<g transform={`translate(${x} ${y}) scale(${k})`} style={{ filter: 'drop-shadow(0 12px 22px rgba(0,0,0,.6)) drop-shadow(0 0 30px rgba(127,212,255,.6))' }}>
-  <path d="M -62 -40 L -62 -110 A 62 62 0 0 1 62 -110 L 62 -40" fill="none" stroke="#c9d6f0" strokeWidth={26} strokeLinecap="round" />
-  <rect x={-110} y={-50} width={220} height={190} rx={30} fill="#2a7fe0" stroke="#9fd0ff" strokeWidth={6} /><circle cx={0} cy={30} r={26} fill="#0a2a5a" /><rect x={-9} y={40} width={18} height={50} rx={9} fill="#0a2a5a" /></g>);
+export const Lock: React.FC<{ x: number; y: number; k: number }> = ({ x, y, k }) => (<g transform={`translate(${x} ${y}) scale(${k})`} style={{ filter: 'drop-shadow(0 14px 24px rgba(0,0,0,.65)) drop-shadow(0 0 34px rgba(127,212,255,.55))' }}>
+  <defs>
+    <linearGradient id="lkBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#4da0ff" /><stop offset="0.5" stopColor="#2a6fe0" /><stop offset="1" stopColor="#14349a" /></linearGradient>
+    <linearGradient id="lkShackle" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#8fa3c8" /><stop offset="0.35" stopColor="#f2f7ff" /><stop offset="0.7" stopColor="#b6c6e6" /><stop offset="1" stopColor="#6c7fa6" /></linearGradient>
+    <radialGradient id="lkKey" cx="50%" cy="40%" r="60%"><stop offset="0" stopColor="#ffe9a8" /><stop offset="0.6" stopColor="#ffb347" /><stop offset="1" stopColor="#c46a10" /></radialGradient>
+  </defs>
+  <path d="M -62 -40 L -62 -108 A 62 62 0 0 1 62 -108 L 62 -40" fill="none" stroke="#0a1a4a" strokeWidth={34} strokeLinecap="round" opacity={0.55} />
+  <path d="M -62 -40 L -62 -108 A 62 62 0 0 1 62 -108 L 62 -40" fill="none" stroke="url(#lkShackle)" strokeWidth={26} strokeLinecap="round" />
+  <rect x={-112} y={-52} width={224} height={196} rx={34} fill="url(#lkBody)" stroke="#a9d4ff" strokeWidth={5} />
+  <path d="M -92 -44 H 92 Q 104 -44 106 -28 H -106 Q -104 -44 -92 -44 Z" fill="#fff" opacity={0.28} />
+  <rect x={-100} y={-34} width={10} height={160} rx={5} fill="#fff" opacity={0.14} />
+  <circle cx={0} cy={30} r={30} fill="#0a1d52" stroke="#1d3d86" strokeWidth={3} /><rect x={-11} y={42} width={22} height={52} rx={11} fill="#0a1d52" />
+  <circle cx={0} cy={30} r={13} fill="url(#lkKey)" /><rect x={-5} y={36} width={10} height={36} rx={5} fill="url(#lkKey)" />
+  <g fontFamily="monospace" fontSize={15} fontWeight={700} fill="#bfe0ff" opacity={0.6}><text x={-92} y={-10}>01 10 1</text><text x={30} y={126}>0 1 01</text></g></g>);
 const Scene: React.FC<{ beat: number }> = ({ beat }) => {
   const els: React.ReactNode[] = [];
   if (beat === 1) { const n = 14, s = 56; for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { const k = i * n + j, dx = (j - 6.5), dy = (i - 6.5), d = Math.hypot(dx, dy) + 0.4; els.push(<Block key={k} x={540 + dx * (s + 8) * (1 + 0.012 * d) + (hash(k) - 0.5) * 26} y={880 + dy * (s + 8) * (1 + 0.012 * d) + (hash(k + 3) - 0.5) * 26} s={s - 4} rot={(hash(k + 7) - 0.5) * 60 * Math.min(1, d / 3)} i={i} j={j} n={n} />); } }

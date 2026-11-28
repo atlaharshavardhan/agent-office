@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { hash } from '../lib/anim';
 import { FONT } from '../lib/palette';
 import { DogPhoto } from './Story';
+import { DogBetter } from './DogBetter';
 import { CatPhoto } from './CatPhoto';
 /* Part 2 arrival, REAL 3D (Harsh: the flat board did not look real): numbered gold packets fall in the wrong order, tumble, land with a bounce in a numbered grid; three stay missing (big red numbers float above their slots, the camera comes close); they arrive; the packets turn into the whole photo. 9:16. */
 const sm = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); }, lp = (a: number, b: number, u: number) => a + (b - a) * u;
@@ -67,7 +68,7 @@ export const PALS: Record<string, { base: number[]; fall: number[]; hot: number[
 };
 const lerp3 = (a: number, b: number, u: number) => a + (b - a) * u;
 export const ArriveReal: React.FC<{ pal?: string; cat?: 'dog' | 'dark' | 'gold' }> = ({ pal = 'amber', cat = 'dog' }) => {
-  const Photo: React.FC = () => (cat === 'dog' ? <DogPhoto /> : <CatPhoto gold={cat === 'gold'} />); const f = useCurrentFrame(), t = f / 30, ms = Math.round(lp(62, 65, sm((t - 0.3) / 9.6)));
+  const Photo: React.FC = () => { const tt = useCurrentFrame() / 30, bv = Math.max(0, 1 - Math.abs((tt - 12.15) / 0.12), 1 - Math.abs((tt - 13.0) / 0.12)); return (cat === 'dog' ? <DogBetter blink={Math.min(1, bv * 1.4)} /> : <CatPhoto gold={cat === 'gold'} />); }; const f = useCurrentFrame(), t = f / 30, ms = Math.round(lp(62, 65, sm((t - 0.3) / 9.6)));
   let landed = 0; const got: boolean[] = []; for (let n = 0; n < NT; n++) { const g = t >= TA(n) + FALL; got.push(g); if (g) landed++; }
   const count = Math.round((2000 * landed) / NT), pct = Math.round((100 * landed) / NT), TWd = 230 / COLS, THd = 230 / ROWS, hot = t < TL + 0.7 && t > 4.9 && count > 1000;
   const cap = (txt: string, o: number) => <div style={{ position: 'absolute', left: 0, right: 0, top: 1700, display: 'flex', justifyContent: 'center', opacity: o }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: '#fff1dc', textAlign: 'center' }}>{txt}</div></div>;
@@ -87,5 +88,5 @@ export const ArriveReal: React.FC<{ pal?: string; cat?: 'dog' | 'dark' | 'gold' 
     <div style={{ position: 'absolute', left: 56, top: 360, textAlign: 'left', font: `900 120px/1 ${FONT.ui}`, color: hot ? '#ff4a5a' : t >= TL + 0.7 ? '#7dffb0' : '#fff', textShadow: '0 6px 18px rgba(0,0,0,.8)', opacity: 1 - sm((t - 9.4) / 0.4) }}>{count.toLocaleString('en-US')}<span style={{ font: `700 54px ${FONT.ui}`, color: '#cfd8ff' }}> / 2,000</span><div style={{ font: `700 46px ${FONT.ui}`, color: '#fff' }}>packets</div></div>
     <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: t > 10.3 ? '#7dffb0' : '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
     <div style={{ position: 'absolute', left: 0, right: 0, top: 640, display: 'flex', justifyContent: 'space-between', padding: '0 60px', font: `800 46px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 10px rgba(0,0,0,.7)', opacity: 1 - sm((t - 9.4) / 0.4) }}><span>Hyderabad</span><span>London</span></div>
-    {cap('They arrive in the wrong order', sm((t - 0.8) / 0.4) * (1 - sm((t - 2.0) / 0.3)))}{cap('Sorted by number', sm((t - 2.7) / 0.4) * (1 - sm((t - 4.9) / 0.3)))}{cap('3 packets missing. Asking again', sm((t - 5.2) / 0.4) * (1 - sm((t - 6.9) / 0.3)))}{cap('Unlocked', sm((t - 7.9) / 0.4) * (1 - sm((t - 10.0) / 0.3)))}
+    {cap('They arrive in the wrong order', sm((t - 0.8) / 0.4) * (1 - sm((t - 2.0) / 0.3)))}{cap('Sorted by number', sm((t - 2.7) / 0.4) * (1 - sm((t - 4.9) / 0.3)))}{cap('3 packets missing. Asking again', sm((t - 5.2) / 0.4) * (1 - sm((t - 6.9) / 0.3)))}{cap('We decrypt it', sm((t - 7.9) / 0.4) * (1 - sm((t - 10.0) / 0.3)))}
   </AbsoluteFill>); };

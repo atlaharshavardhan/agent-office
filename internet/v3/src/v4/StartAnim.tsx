@@ -40,11 +40,19 @@ export const S6_FRAMES = 72;
 export const S6Lens: React.FC = () => { const t = useCurrentFrame() / 30 * SP, ex = eo((t - 0.2) / 1.2), lx = lp(-260, 600, ex) + Math.sin(t * 1.4) * 8, ly = 880 + Math.sin(t * 1.1) * 8, seed = 4 + Math.floor(t * 2) * 5, txt = sm((t - 1.7) / 0.6);
   return (<AbsoluteFill><Bg /><SVG>
     <g opacity={0.55} transform="translate(0 150)"><Grid scramble seed={seed} /></g>
-    <defs><clipPath id="lensClip"><circle cx={lx} cy={ly} r={300} /></clipPath><radialGradient id="lensG" cx="35%" cy="30%"><stop offset="0" stopColor="#fff" stopOpacity={0.35} /><stop offset="0.5" stopColor="#9fd0ff" stopOpacity={0.08} /><stop offset="1" stopColor="#9fd0ff" stopOpacity={0.15} /></radialGradient></defs>
-    <circle cx={lx} cy={ly} r={300} fill="#050816" /><g clipPath="url(#lensClip)"><g transform={`translate(${lx} ${ly}) scale(2.3) translate(${-lx} ${-ly}) translate(0 150)`} opacity={0.95}><Grid scramble seed={seed + 5} /></g></g>
-    <circle cx={lx} cy={ly} r={300} fill="url(#lensG)" /><circle cx={lx} cy={ly} r={300} fill="none" stroke="#c9d6f0" strokeWidth={26} /><circle cx={lx} cy={ly} r={314} fill="none" stroke="#6a7a9a" strokeWidth={6} />
-    <line x1={lx + 212} y1={ly + 212} x2={lx + 360} y2={ly + 360} stroke="#c9d6f0" strokeWidth={46} strokeLinecap="round" /><line x1={lx + 212} y1={ly + 212} x2={lx + 360} y2={ly + 360} stroke="#4a3a6a" strokeWidth={22} strokeLinecap="round" />
-    <g opacity={txt} transform={`translate(${lx} ${ly})`}><rect x={-250} y={-48} width={500} height={96} rx={20} fill="#0b0f2e" opacity={0.88} stroke="#ff7a7a" strokeWidth={4} /><text y={16} textAnchor="middle" fill="#ff9a9a" style={{ font: `900 54px ${FONT.ui}`, letterSpacing: '0.04em' }}>NOTHING TO SEE</text></g></SVG><Ms v="001" /></AbsoluteFill>); };
+    <defs><clipPath id="lensClip"><circle cx={lx} cy={ly} r={296} /></clipPath>
+      <radialGradient id="lensG" cx="32%" cy="26%" r="85%"><stop offset="0" stopColor="#fff" stopOpacity={0.4} /><stop offset="0.35" stopColor="#bfe0ff" stopOpacity={0.1} /><stop offset="1" stopColor="#5a7acc" stopOpacity={0.22} /></radialGradient>
+      <linearGradient id="rimG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f4f8ff" /><stop offset="0.45" stopColor="#9fb4dc" /><stop offset="1" stopColor="#5c6e96" /></linearGradient>
+      <linearGradient id="hdlG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#2a2150" /><stop offset="0.45" stopColor="#7a68c0" /><stop offset="1" stopColor="#1e183c" /></linearGradient>
+      <linearGradient id="nsBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#24357e" /><stop offset="1" stopColor="#0a1030" /></linearGradient></defs>
+    <ellipse cx={lx + 40} cy={ly + 330} rx={280} ry={38} fill="#000" opacity={0.28} />
+    <circle cx={lx} cy={ly} r={296} fill="#050816" /><g clipPath="url(#lensClip)"><g transform={`translate(${lx} ${ly}) scale(2.3) translate(${-lx} ${-ly}) translate(0 150)`} opacity={0.95}><Grid scramble seed={seed + 5} /></g></g>
+    <circle cx={lx} cy={ly} r={296} fill="url(#lensG)" /><path d={`M ${lx - 210} ${ly - 120} A 250 250 0 0 1 ${lx - 40} ${ly - 238}`} fill="none" stroke="#fff" strokeWidth={14} strokeLinecap="round" opacity={0.5} /><path d={`M ${lx + 190} ${ly + 150} A 250 250 0 0 1 ${lx + 90} ${ly + 225}`} fill="none" stroke="#fff" strokeWidth={8} strokeLinecap="round" opacity={0.25} />
+    <circle cx={lx} cy={ly} r={304} fill="none" stroke="#2a3558" strokeWidth={8} /><circle cx={lx} cy={ly} r={306} fill="none" stroke="url(#rimG)" strokeWidth={24} /><circle cx={lx} cy={ly} r={318} fill="none" stroke="#fff" strokeWidth={3} opacity={0.4} />
+    <line x1={lx + 218} y1={ly + 218} x2={lx + 300} y2={ly + 300} stroke="url(#rimG)" strokeWidth={34} strokeLinecap="round" />
+    <line x1={lx + 296} y1={ly + 296} x2={lx + 450} y2={ly + 450} stroke="#12102a" strokeWidth={58} strokeLinecap="round" /><line x1={lx + 296} y1={ly + 296} x2={lx + 450} y2={ly + 450} stroke="url(#hdlG)" strokeWidth={46} strokeLinecap="round" />
+    {[0, 1, 2, 3].map((q) => <line key={q} x1={lx + 330 + q * 26 - 14} y1={ly + 330 + q * 26 + 14} x2={lx + 330 + q * 26 + 14} y2={ly + 330 + q * 26 - 14} stroke="#cdbfff" strokeWidth={4} opacity={0.35} />)}
+    <g opacity={txt} transform={`translate(${lx} ${ly}) scale(${0.9 + 0.1 * txt})`} style={{ filter: 'drop-shadow(0 0 22px rgba(255,122,122,.55))' }}><rect x={-270} y={-56} width={540} height={112} rx={24} fill="url(#nsBg)" stroke="#ff7a7a" strokeWidth={4} /><path d="M -250 -53 H 250 Q 264 -53 266 -34 H -266 Q -264 -53 -250 -53 Z" fill="#fff" opacity={0.16} /><rect x={-256} y={-34} width={7} height={68} rx={3.5} fill="#ff7a7a" /><text y={19} textAnchor="middle" fill="#ffb0a8" style={{ font: `900 58px ${FONT.ui}`, letterSpacing: '0.04em' }}>NOTHING TO SEE</text></g></SVG><Ms v="001" /></AbsoluteFill>); };
 
 /* v5 order: the full-screen dog turns into ones and zeros (zooming a little as it does) */
 export const S2B_FRAMES = 59;
