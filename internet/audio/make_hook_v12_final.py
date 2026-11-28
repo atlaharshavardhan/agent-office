@@ -33,7 +33,7 @@ f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) 
 fnt = ImageFont.truetype('/usr/share/fonts/opentype/inter/Inter-ExtraBold.otf', 50)
 PLUM = (42, 22, 48); NIGHT = (16, 20, 48); BROWN = (58, 28, 30)
 # only the key moments get a caption (Harsh); the whole narration is in internet/subtitles/part2-hook-v10.srt
-CAP = [('across an entire ocean,', 6.2, 7.85, None, 1290, 700, NIGHT, (255, 190, 90), NIGHT), ('in the blink of an eye?', 9.7, 12.0, None, 1290, 700, PLUM, (255, 180, 84), PLUM)]
+CAP = []   # v12: the hook words are drawn by audio/p2v6_caps.py (same style as the whole video)
 e3 = 12.0
 # CENTRED captions (Harsh): the free wall strip above the desk in the first second, otherwise the bottom band (y 1290), on the objects when there is no free space
 def lay(words, maxw):

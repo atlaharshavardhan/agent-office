@@ -288,5 +288,169 @@ export default {
    "speed": 1.0,
    "fade": true
   }
+ ],
+ "SENT": [
+  {
+   "id": "n1.a",
+   "text": "First, your phone converts the photo into digital data.",
+   "a": 0.0,
+   "b": 3.084
+  },
+  {
+   "id": "n1.b",
+   "text": "Millions of ones and zeros.",
+   "a": 3.174,
+   "b": 4.886
+  },
+  {
+   "id": "n1.c1",
+   "text": "Then, it encrypts that data,",
+   "a": 4.976,
+   "b": 6.489
+  },
+  {
+   "id": "n1.c2",
+   "text": "so if anyone intercepts it, all they see is scrambled data.",
+   "a": 6.519,
+   "b": 9.851
+  },
+  {
+   "id": "n2.a",
+   "text": "Next, the data is split into thousands of tiny packets.",
+   "a": 9.95,
+   "b": 13.116
+  },
+  {
+   "id": "n2.b",
+   "text": "Each packet carries information about where it's going, where it came from, and how it fits into the original data.",
+   "a": 13.206,
+   "b": 19.742
+  },
+  {
+   "id": "n2.c",
+   "text": "And now, they're ready to travel.",
+   "a": 19.832,
+   "b": 21.392
+  },
+  {
+   "id": "n3.a",
+   "text": "Radio waves carry them to a nearby mobile tower.",
+   "a": 21.492,
+   "b": 24.389
+  },
+  {
+   "id": "n3.b",
+   "text": "From there, the data travels as pulses of light through a fibre-optic cable beneath the street.",
+   "a": 24.479,
+   "b": 29.751
+  },
+  {
+   "id": "n4.a",
+   "text": "Along the way, routers read the addresses and decide where to send each packet next.",
+   "a": 29.851,
+   "b": 34.649
+  },
+  {
+   "id": "n4.b",
+   "text": "If one route is congested, they can take another.",
+   "a": 34.739,
+   "b": 37.648
+  },
+  {
+   "id": "n4.c",
+   "text": "But eventually, the land ends, and the cable disappears beneath the ocean.",
+   "a": 37.738,
+   "b": 42.055
+  },
+  {
+   "id": "n5.a",
+   "text": "Deep underwater, the cable can be as thin as a garden hose.",
+   "a": 42.155,
+   "b": 45.811
+  },
+  {
+   "id": "n5.b",
+   "text": "Layers of steel and plastic protect it, while copper carries electrical power.",
+   "a": 45.901,
+   "b": 50.295
+  },
+  {
+   "id": "n5.c",
+   "text": "And at its core are glass fibres, thinner than a human hair.",
+   "a": 50.385,
+   "b": 53.524
+  },
+  {
+   "id": "n6.a",
+   "text": "Down here, your photo is nothing but pulses of light.",
+   "a": 53.624,
+   "b": 56.501
+  },
+  {
+   "id": "n6.b",
+   "text": "Every 60 to 100 kilometres, a repeater amplifies the signal, keeping it strong across the ocean.",
+   "a": 56.591,
+   "b": 63.24
+  },
+  {
+   "id": "n7.a",
+   "text": "Almost all intercontinental internet traffic travels through cables like these.",
+   "a": 63.34,
+   "b": 68.206
+  },
+  {
+   "id": "n7.b",
+   "text": "But what happens if a ship's anchor cuts one?",
+   "a": 68.296,
+   "b": 70.346
+  },
+  {
+   "id": "n7.c",
+   "text": "The network can reroute the data through another cable.",
+   "a": 70.436,
+   "b": 73.167
+  },
+  {
+   "id": "n8.a",
+   "text": "Once the data reaches London, it travels to a mobile tower, which sends it to her phone as radio waves.",
+   "a": 73.267,
+   "b": 79.752
+  },
+  {
+   "id": "n8.b",
+   "text": "The packets may arrive out of order,",
+   "a": 79.842,
+   "b": 81.524
+  },
+  {
+   "id": "n8.b2",
+   "text": "but they're put back into the correct sequence.",
+   "a": 81.554,
+   "b": 83.606
+  },
+  {
+   "id": "n8.c",
+   "text": "If any are missing, they're requested again.",
+   "a": 83.696,
+   "b": 85.862
+  },
+  {
+   "id": "n8.d",
+   "text": "Finally, her phone decrypts the data, and the photo appears.",
+   "a": 85.952,
+   "b": 89.549
+  },
+  {
+   "id": "n9.a",
+   "text": "All of this can happen in the blink of an eye.",
+   "a": 89.649,
+   "b": 92.276
+  },
+  {
+   "id": "n10.a",
+   "text": "Follow for more.",
+   "a": 92.869,
+   "b": 93.314
+  }
  ]
 } as const;

@@ -67,10 +67,11 @@ for cid, grp, folder, name, off, a, b, at, end in RAW:
     if not os.path.lexists(link): os.symlink(os.path.abspath(f'video/{folder}/{name}.mp4'), link)
     segs.append(dict(id=cid, group=grp, folder=folder, file=f'p2v6/{name}.mp4', off=off, a=round(a, 4), b=round(b, 4), at=round(at, 4), end=round(end, 4), speed=round((b - a) / (end - at), 4), fade=grp not in seen)); seen.add(grp)
 TOTAL = NA + RAW[-1][8]
-START = {n: round(v[0], 4) for n, v in SCN.items()}; START['n10'] = round(en_at + 0.3, 4)
+START = {n: round(v[0], 4) for n, v in SCN.items()}; START['n10'] = round(en_at + 0.3, 4); S[('n10', 'a')] = en_at + 0.3; E[('n10', 'a')] = en_at + 0.3 + (e_('n10', 'a') - s_('n10', 'a'))
 # the n10 line must start exactly when the end card text appears: shift its wav start in the mix (kept in START)
 LEN = {n: round(v[1] - v[0], 4) for n, v in SCN.items()}
-out = dict(NA=NA, HOOK=HOOK, FADE=FADE, TOTAL=round(TOTAL, 3), START=START, LEN=LEN, SEG=segs)
+SENT = [dict(id=f'{n}.{q}', text=text, a=round(S[(n, q)], 3), b=round(E[(n, q)], 3)) for n, items in SC.items() for q, text in items]
+out = dict(NA=NA, HOOK=HOOK, FADE=FADE, TOTAL=round(TOTAL, 3), START=START, LEN=LEN, SEG=segs, SENT=SENT)
 open('v3/src/v4/p2v6-timeline.ts', 'w').write('export default ' + json.dumps(out, indent=1) + ' as const;\n'); json.dump(out, open('video/rf6/timeline.json', 'w'), indent=1)
 for s in segs: print(s['id'], 'at', round(s['at'], 2), 'end', round(s['end'], 2), 'speed', s['speed'])
 print('total', round(TOTAL, 2), 'narration end', round(NA + START['n10'] + LEN['n10'], 2), 'blink at', round(NA + blinkT, 2))

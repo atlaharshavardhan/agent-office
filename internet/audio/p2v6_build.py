@@ -43,11 +43,11 @@ for k, g in enumerate(segs):
     if r.returncode: print('FAIL', g['id'], r.stderr[-400:]); sys.exit(1)
     files.append((f, g))
 # 3. hook + scenes, 0.12 s dissolves, watermark, sound
-ins = ['-i', 'video/internet-part2-hook-v12.mp4'] + sum([['-i', f] for f, g in files], []) + ['-i', 'video/part2v1/mark.png', '-i', 'v3/public/p2v6/audio.wav']
+ins = ['-i', 'video/internet-part2-hook-v12.mp4'] + sum([['-i', f] for f, g in files], []) + ['-i', 'video/part2v1/mark.png', '-i', 'video/rf6/caps.mov', '-i', 'v3/public/p2v6/audio.wav']
 n = len(files); fc = f'[0:v]scale={W}:{H},format=yuv420p[h];'; prev = '[h]'
 for k, (f, g) in enumerate(files):
     fc += f"{prev}[{k + 1}:v]xfade=transition=fade:duration={FADE}:offset={NA + g['at']:.3f}[x{k}];"; prev = f'[x{k}]'
-fc += f"[{n + 1}:v]format=rgba,colorchannelmixer=aa=0.3,scale={int(420 * SC)}:-1[wm];{prev}[wm]overlay={int(24 * SC)}:{int(926 * SC)}:enable='gte(t,{NA})'[v];"
-fc += f"[0:a]apad[ha];[ha][{n + 2}:a]amix=inputs=2:normalize=0:duration=longest[a]"
+fc += f"[{n + 2}:v]scale={W}:{H},format=rgba[cp];{prev}[cp]overlay=0:0:format=auto[cv];[{n + 1}:v]format=rgba,colorchannelmixer=aa=0.3,scale={int(420 * SC)}:-1[wm];[cv][wm]overlay={int(24 * SC)}:{int(926 * SC)}:enable='gte(t,{NA})'[v];"
+fc += f"[0:a]apad[ha];[ha][{n + 3}:a]amix=inputs=2:normalize=0:duration=longest[a]"
 cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-filter_complex', fc, '-map', '[v]', '-map', '[a]', '-t', f"{T['TOTAL']:.3f}", '-c:v', 'libx264', '-crf', CRF, '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', str(FPS), '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', out]
 r = subprocess.run(cmd, capture_output=True, text=True); print('final', r.returncode, r.stderr[-500:])
