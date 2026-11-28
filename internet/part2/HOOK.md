@@ -37,3 +37,6 @@ Check that is still to do when rendering: use --concurrency=1 and v3/check_glitc
 
 ## London room v6 (28 Nov 2026): Harsh said v5 was perfect, plus
 Laptop screen is a document ("Script - Part 2 (draft)") with the script typed live (the 4th line types in until the phone buzzes, cursor blinks); hands keep moving while she types (fingers tap, wrists sway). The London Eye is no longer static: its spokes and pods turn slowly (one turn in about 20 s) and it sits in the left pane behind the Houses of Parliament; Big Ben stays in the right pane. Rain falls faster all the time (80 streaks plus a few slow drops). Stills: part2/storyboard/london-v6/.
+
+## London room v7 (28 Nov 2026): the "LONDON 3:42 pm" tag is replaced by a wall clock and a plaque
+Wall clock at 3:42 (hour hand 111 deg, minute hand 252 deg, red second hand sweeping) on the left wall; plaque under it: LONDON, 3:42 pm, Saturday 28 November GMT, Raining over the Thames, Hyderabad is 5 h 30 min ahead (9:12 pm). Time check: 3:42 pm GMT = 9:12 pm IST (UTC+5:30). Stills: part2/storyboard/london-v7/.
