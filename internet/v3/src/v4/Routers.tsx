@@ -38,8 +38,8 @@ type CK = { t: number; p: [number, number, number]; l: [number, number, number];
 const CAM: CK[] = [
   { t: 0, p: [3.6, 3.6, 10.5], l: [0.3, 3.0, 0.8], fov: 36 },           // close on the rack, slow push
   { t: 3.8, p: [2.6, 3.4, 8.4], l: [0.2, 2.9, 0.8], fov: 34 },
-  { t: 6.6, p: [-9, 13, 20], l: [12, 0, -14], fov: 42 },                // up and back: the whole network
-  { t: 12, p: [4, 17, 12], l: [34, 0, -38], fov: 44 },                  // drift after the packet
+  { t: 6.6, p: [-5, 10, 15], l: [9, 0, -9], fov: 40 },                // up and back: the whole network
+  { t: 12, p: [12, 13, 4], l: [30, 0, -32], fov: 42 },                  // drift after the packet
 ];
 const camAt = (t: number) => { let i = 0; while (i < CAM.length - 2 && t > CAM[i + 1].t) i++; const a = CAM[i], b = CAM[i + 1], u = smooth((t - a.t) / (b.t - a.t)); const L = (x: number[], y: number[]) => V(lerp(x[0], y[0], u), lerp(x[1], y[1], u), lerp(x[2], y[2], u)); return { p: L(a.p, b.p), l: L(a.l, b.l), fov: lerp(a.fov, b.fov, u) }; };
 const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = vfov(c.fov); cam.near = 0.05; cam.far = 500; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
@@ -73,6 +73,16 @@ const Rack: React.FC<{ t: number }> = ({ t }) => {
   </group>;
 };
 
+/* every router in the network is the SAME server rack as the big one (Harsh), just smaller */
+const MiniRack: React.FC<{ seed: number; lit: number; wide: number }> = ({ seed, lit, wide }) => {
+  const tex = useMemo(() => unitTex(seed + 20), [seed]);
+  const cab = useMemo(() => [0, 1, 2].map((k) => { const y = 1.6 + k * 1.5, s = k % 2 ? 1 : -1; return new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V(-0.5 * s, y, 0.86), V(-0.8 * s, y - 0.2, 1.4), V(-1.25 * s, y - 0.9, 1.15), V(-1.3 * s, y - 1.5, 0.9)]), 24, 0.045, 6, false); }), []);
+  return <group scale={0.95}>
+    <mesh position={[0, 3.1, 0]}><boxGeometry args={[2.7, 6.2, 1.6]} /><meshStandardMaterial color="#12163f" roughness={0.6} metalness={0.2} /></mesh>
+    {Array.from({ length: 6 }).map((_, u) => <mesh key={u} position={[0, 0.9 + u * 0.9, 0.79]}><boxGeometry args={[2.36, 0.64, 0.08]} /><meshStandardMaterial map={tex} emissiveMap={tex} emissive={lit > 0.05 ? '#ffd9a0' : '#ffffff'} emissiveIntensity={(0.75 + lit * 1.5) * wide} roughness={0.5} /></mesh>)}
+    {cab.map((g, k) => <mesh key={k} geometry={g}><meshStandardMaterial color="#6fb6ff" emissive="#1c4a8a" emissiveIntensity={0.9 * wide} /></mesh>)}
+  </group>; };
+
 /* ---------- the wide view ---------- */
 const Net: React.FC<{ t: number }> = ({ t }) => {
   const ft = useMemo(farTex, []), amber = useMemo(() => glowTex('255,190,90'), []), red = useMemo(() => glowTex('255,90,80'), []);
@@ -80,24 +90,30 @@ const Net: React.FC<{ t: number }> = ({ t }) => {
   const wide = seg(t, T_WIDE - 0.4, T_WIDE + 0.8), pk = packetAt(t), going = t > T_GO;
   const onRoute = (a: number, b: number) => { for (let k = 0; k < ROUTE.length - 1; k++) if ((ROUTE[k] === a && ROUTE[k + 1] === b) || (ROUTE[k] === b && ROUTE[k + 1] === a)) return k; return -1; };
   /* at the third router it looks at the busy link first, sees it is jammed, and takes the other */
-  const tBusy = T_GO + HOP * 2, busy = seg(t, tBusy - 0.5, tBusy - 0.2) * (1 - seg(t, tBusy + 0.7, tBusy + 1.2));
+  const tBusy = T_GO + HOP * 2, busy = seg(t, tBusy - 0.5, tBusy - 0.2);      // the link FAILS and stays broken
   return <group>
     <mesh rotation-x={-Math.PI / 2} position={[20, 0, -30]}><planeGeometry args={[260, 220]} /><meshStandardMaterial color="#0b0e36" roughness={0.95} /></mesh>
     {NODES.map((_, i) => { if (i === 0) return null; const h = 4 + hash(i + 3) * 2.2, hot = ROUTE.indexOf(i), lit = hot > 0 ? seg(t, T_GO + HOP * hot - 0.25, T_GO + HOP * hot) * (1 - seg(t, T_GO + HOP * hot + 0.8, T_GO + HOP * hot + 1.6)) : 0;
-      return <group key={i} position={nodeP(i)}><mesh position={[0, h / 2, 0]}><boxGeometry args={[1.9, h, 1.3]} /><meshStandardMaterial color="#12163f" map={ft} emissiveMap={ft} emissive={lit > 0.05 ? '#ffd9a0' : '#ffffff'} emissiveIntensity={(0.35 + lit * 1.2) * wide} roughness={0.6} /></mesh>
+      return <group key={i} position={nodeP(i)}><MiniRack seed={i} lit={lit} wide={wide} />
         <mesh position={[0, 0.06, 0]}><boxGeometry args={[2.5, 0.12, 1.9]} /><meshStandardMaterial color="#232a70" roughness={0.7} /></mesh>
         {lit > 0.02 && <pointLight position={[0, h * 0.6, 1.4]} color="#ffb454" intensity={40 * lit} distance={12} />}</group>; })}
     {tubes.map((g, i) => { const [a, b] = LINKS[i], k = onRoute(a, b), done = k >= 0 && going ? clamp01((t - T_GO - HOP * k) / HOP) : 0, isBusy = (a === BUSY[0] && b === BUSY[1]);
       const col = isBusy && busy > 0.3 ? '#ff5a4a' : done >= 1 ? '#ffb454' : '#3f6fd8', em = isBusy ? 0.25 + busy * 1.6 : done >= 1 ? 0.9 : 0.28;
-      return <mesh key={i} geometry={g}><meshStandardMaterial color={col} emissive={col} emissiveIntensity={em * wide} roughness={0.5} transparent opacity={0.35 + 0.65 * Math.min(1, em)} /></mesh>; })}
+      return <mesh key={i} geometry={g} visible={!(isBusy && busy > 0.25)}><meshStandardMaterial color={col} emissive={col} emissiveIntensity={em * wide} roughness={0.5} transparent opacity={0.35 + 0.65 * Math.min(1, em)} /></mesh>; })}
     {/* the stretch of the current link already travelled */}
     {going && (() => { const g = new THREE.TubeGeometry(linkCurve(ROUTE[pk.k], ROUTE[pk.k + 1]), 40, 0.11, 8, false); g.setDrawRange(0, Math.floor((g.index!.count * pk.f) / 3) * 3); return <mesh geometry={g}><meshBasicMaterial color="#ffb454" /></mesh>; })()}
     {going && (() => { const hu = clamp01((t - T_GO) / (HOP * (ROUTE.length - 1))) * (ROUTE.length - 1);   // the photo is light now: a string of glowing pulses follows the head along the route
       return <group>{Array.from({ length: 30 }).map((_, i) => { const uu = hu - 0.05 - i * 0.075; if (uu < 0 || i === 0) return null; const q = routePos(uu), k = 1 - i / 34;
         return <group key={i} position={[q.x, 0.55, q.z]}><sprite scale={[2.6 * k + 0.6, 2.6 * k + 0.6, 1]}><spriteMaterial map={amber} transparent opacity={0.9 * k} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite><mesh><sphereGeometry args={[0.2 * k + 0.05, 10, 8]} /><meshBasicMaterial color="#fff0c8" /></mesh></group>; })}</group>; })()}
     {going && <group position={[pk.p.x, 0.5, pk.p.z]}><sprite scale={[5, 5, 1]}><spriteMaterial map={amber} transparent depthWrite={false} blending={THREE.AdditiveBlending} /></sprite><mesh><sphereGeometry args={[0.28, 12, 10]} /><meshBasicMaterial color="#fff0c8" /></mesh><pointLight color="#ffb454" intensity={70} distance={16} decay={1.5} position={[0, 1.5, 0]} /></group>}
-    {busy > 0.02 && <group>{Array.from({ length: 12 }).map((_, i) => { const q = linkCurve(BUSY[0], BUSY[1]).getPointAt(0.12 + i * 0.065); return <mesh key={i} position={[q.x, 0.5, q.z]} scale={busy}><sphereGeometry args={[0.35, 10, 8]} /><meshBasicMaterial color="#ff6a5a" /></mesh>; })}</group>}
-    {busy > 0.02 && (() => { const m = linkCurve(BUSY[0], BUSY[1]).getPointAt(0.45); return <group position={[m.x, 0.6, m.z]}><sprite scale={[16 * busy, 16 * busy, 1]}><spriteMaterial map={red} transparent opacity={busy} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite><pointLight color="#ff5a4a" intensity={40 * busy} distance={12} /></group>; })()}
+    {busy > 0.02 && (() => { const c = linkCurve(BUSY[0], BUSY[1]), m = c.getPointAt(0.5), fl = 0.5 + 0.5 * Math.sin(t * 12), sp = (t * 7) % 1;
+      const halfA = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(Array.from({ length: 12 }).map((_, i) => c.getPointAt(i / 11 * 0.4))), 20, 0.09, 6, false), halfB = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(Array.from({ length: 12 }).map((_, i) => c.getPointAt(0.6 + i / 11 * 0.4))), 20, 0.09, 6, false);
+      return <group>
+        <mesh geometry={halfA}><meshStandardMaterial color="#ff5a4a" emissive="#ff3a2a" emissiveIntensity={0.8 * busy * (0.4 + 0.6 * fl)} transparent opacity={0.8} /></mesh><mesh geometry={halfB}><meshStandardMaterial color="#ff5a4a" emissive="#ff3a2a" emissiveIntensity={0.8 * busy * (0.4 + 0.6 * fl)} transparent opacity={0.8} /></mesh>
+        <group position={[m.x, 0.7, m.z]}><sprite scale={[11 * busy, 11 * busy, 1]}><spriteMaterial map={red} transparent opacity={busy * (0.5 + 0.5 * fl)} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
+          <mesh rotation={[0, 0, Math.PI / 4]} scale={busy}><boxGeometry args={[2.6, 0.32, 0.32]} /><meshBasicMaterial color="#ff4a3a" /></mesh><mesh rotation={[0, 0, -Math.PI / 4]} scale={busy}><boxGeometry args={[2.6, 0.32, 0.32]} /><meshBasicMaterial color="#ff4a3a" /></mesh>
+          {Array.from({ length: 8 }).map((_, k) => { const a = hash(k + 3) * 6.283, d = ((sp + k / 8) % 1) * 2.2; return <mesh key={k} position={[Math.cos(a) * d, Math.abs(Math.sin(a)) * d * 0.6, Math.sin(a) * d * 0.4]} scale={busy * (1 - d / 2.4)}><sphereGeometry args={[0.1, 6, 6]} /><meshBasicMaterial color="#ffd0a0" /></mesh>; })}
+          <pointLight color="#ff4a3a" intensity={50 * busy} distance={14} /></group></group>; })()}
   </group>;
 };
 
@@ -108,7 +124,7 @@ const Box: React.FC<{ x: number; y: number; o: number; text: string; sub?: strin
 export const Routers: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS, pk = packetAt(t);
   const [px, py] = project(t, V(pk.p.x, 0.5, pk.p.z)), tagO = seg(t, T_GO, T_GO + 0.4) * (1 - seg(t, 11.2, 11.7));
-  const tBusy = T_GO + HOP * 2, bm = linkCurve(BUSY[0], BUSY[1]).getPointAt(0.45), [bx, by] = project(t, V(bm.x, 0.6, bm.z)), busyO = seg(t, tBusy - 0.3, tBusy) * (1 - seg(t, tBusy + 1.0, tBusy + 1.4));
+  const tBusy = T_GO + HOP * 2, bm = linkCurve(BUSY[0], BUSY[1]).getPointAt(0.45), [bx, by] = project(t, V(bm.x, 0.6, bm.z)), busyO = seg(t, tBusy - 0.3, tBusy) * (1 - seg(t, tBusy + 1.8, tBusy + 2.3));
   return (
     <AbsoluteFill style={{ background: '#070a22' }}>
       <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 36, near: 0.05, far: 500 }}>
@@ -124,7 +140,7 @@ export const Routers: React.FC = () => {
         <Box x={F.v ? 540 : 1440} y={F.v ? 330 : 250} o={seg(t, 0.5, 0.9) * (1 - seg(t, 4.0, 4.5))} text="ROUTER" sub="reads the address on each packet" />
         <Box x={F.v ? 540 : 1440} y={F.v ? 500 : 370} o={seg(t, 2.3, 2.6) * (1 - seg(t, 4.0, 4.5))} text="TO 86.14.203.57 · LONDON" sub="so it picks the cable that leads there" col="#ffb454" />
         <g opacity={tagO}><line x1={px} y1={py - 14} x2={px + 60} y2={py - 96} stroke="#ffb454" strokeWidth={2.5} /><g transform={`translate(${Math.min(px + 150, 740)} ${py - 190})`} style={{ filter: 'drop-shadow(0 10px 18px rgba(0,0,0,.6)) drop-shadow(0 0 18px rgba(255,180,84,.55))' }}><defs><linearGradient id="gTag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffd77a" /><stop offset="1" stopColor="#d9901c" /></linearGradient></defs><rect x={-190} y={-44} width={380} height={140} rx={26} fill="url(#gTag)" stroke="#ffe9b0" strokeWidth={4} /><rect x={-190} y={-44} width={380} height={44} rx={26} fill="#2a1630" /><rect x={-176} y={-36} width={34} height={26} rx={6} fill="#f0b23a" /><path d="M -186 -40 H 186 Q 186 -4 186 -4 H -186 Z" fill="none" /><text x={-128} y={-12} fill="#ffe6b8" style={{ font: `700 21px ${FONT.mono}` }}>TO 86.14.203.57 · LONDON</text><text y={66} textAnchor="middle" fill="#2a1630" style={{ font: `900 70px ${FONT.ui}` }}>#1204</text></g></g>
-        <g opacity={busyO}><line x1={bx} y1={by + 14} x2={bx - 50} y2={by + 100} stroke="#ff5a4a" strokeWidth={2.5} /><Box x={Math.min(Math.max(bx - 70, 400), 540)} y={by + 150} o={1} text="BUSY" sub="so the router sends it another way" col="#ff5a4a" /></g>
+        <g opacity={busyO}><line x1={bx} y1={by + 14} x2={bx - 50} y2={by + 100} stroke="#ff5a4a" strokeWidth={2.5} /><Box x={Math.min(Math.max(bx - 70, 400), 540)} y={by + 150} o={1} text="LINK DOWN" sub="this cable failed: another way" col="#ff5a4a" /></g>
         <g opacity={seg(t, 5.6, 6.1) * (1 - seg(t, 11.3, 11.8))} {...EDGE} transform={tr(120, 150)}><text fill="#eef1ff" style={{ font: `800 70px ${FONT.ui}` }}>Router to router</text><text y={44} fill="#5fe3ff" style={{ font: `600 38px ${FONT.mono}` }}>each one only knows the next step</text></g>
       </svg></AbsoluteFill>
       <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(9, 15, seg(t, 0.5, 11)))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
