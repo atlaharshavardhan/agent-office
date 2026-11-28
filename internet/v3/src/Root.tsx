@@ -3,8 +3,8 @@ import { Composition } from 'remotion';
 import { Prototype } from './Prototype';
 import { Vert, Horiz } from './v4/frame';
 import { FiberJourney, FIBER_FRAMES } from './v4/Fiber';
-import { EncB1, EncB2, EncB3, EncB4, EncB5, EncB6, EncB7 } from './v4/Encrypt';
-import { PktB0, PktB1, PktB2, PktB3, PktB4, PktB5 } from './v4/PacketsHyd';
+import { EncB0, EncB1, EncB2, EncB3, EncB4, EncB5, EncB6, EncB7 } from './v4/Encrypt';
+import { PktZoom, PktB0, PktB1, PktB2, PktB3, PktB4, PktB5 } from './v4/PacketsHyd';
 import { PacketBurst, PACKETS_FRAMES } from './v4/Packets';
 import { PacketBurst2, PACKETS2_FRAMES } from './v4/Packets2';
 import { London as LondonV4, LONDON_FRAMES } from './v4/London';
@@ -59,6 +59,8 @@ export const Root: React.FC = () => (
     <Composition id="PktB1V" component={PktB1} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="PktB2V" component={PktB2} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="PktB3V" component={PktB3} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="EncB0V" component={EncB0} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="PktZoomV" component={PktZoom} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="EncB1V" component={EncB1} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="EncB2V" component={EncB2} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="EncB3V" component={EncB3} durationInFrames={30} fps={30} width={1080} height={1920} />

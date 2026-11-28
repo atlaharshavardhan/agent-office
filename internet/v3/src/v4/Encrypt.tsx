@@ -44,11 +44,12 @@ const Lock: React.FC<{ x: number; y: number; k: number }> = ({ x, y, k }) => (<g
 const Scene: React.FC<{ beat: number }> = ({ beat }) => {
   const els: React.ReactNode[] = [];
   if (beat === 1) { const n = 14, s = 56; for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { const k = i * n + j, dx = (j - 6.5), dy = (i - 6.5), d = Math.hypot(dx, dy) + 0.4; els.push(<Block key={k} x={540 + dx * (s + 8) * (1 + 0.012 * d) + (hash(k) - 0.5) * 26} y={880 + dy * (s + 8) * (1 + 0.012 * d) + (hash(k + 3) - 0.5) * 26} s={s - 4} rot={(hash(k + 7) - 0.5) * 60 * Math.min(1, d / 3)} i={i} j={j} n={n} />); } }
+  if (beat === 0) els.push(<svg key="d" x={92} y={432} width={896} height={896} viewBox="0 0 190 190"><DogPhoto /></svg>);
   if (beat === 2) { for (let r = 0; r < 9; r++) { const sc = 0.8 + r * 0.085, cols = 8; for (let c = 0; c < cols; c++) els.push(<Bits key={r + '-' + c} x={540 + (c - 3.5) * 150 * sc} y={330 + r * 118 * sc * 1.05 + r * r * 4} s={128 * sc} seed={r * 11 + c} lit={hash(r * 3 + c) > 0.45 ? 1 : 0.3} />); } }
   const lens = beat === 5;
   return (<AbsoluteFill><Bg />
     <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
-      {beat === 1 && <g>{els}</g>}
+      {(beat === 0 || beat === 1) && <g>{els}</g>}
       {beat === 2 && <g>{els}</g>}
       {beat === 3 && <DogBits />}
       {beat === 4 && <><g transform="translate(0 150)" opacity={0.5}><Grid scramble seed={4} /></g><Lock x={540} y={900} k={2.3} /></>}
@@ -71,6 +72,7 @@ const Scene: React.FC<{ beat: number }> = ({ beat }) => {
           <defs><linearGradient id="gp2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffd38a" /><stop offset="1" stopColor="#e8962a" /></linearGradient></defs>
           <text y={240} textAnchor="middle" fill="#3a2008" style={{ font: `900 230px ${FONT.ui}` }}>#1204</text></g></g>}
     </svg>
+    {beat === 0 && <><Ms v="000" /><Cap t="Your photo, full screen" /></>}
     {beat === 1 && <><Ms v="000" /><Cap t="The photo breaks into blocks" /></>}
     {beat === 2 && <><Ms v="001" /><Cap t="Each block is only ones and zeros" /></>}
     {beat === 3 && <><Ms v="001" /><Cap t="The dog, made of ones and zeros" /></>}
@@ -80,4 +82,4 @@ const Scene: React.FC<{ beat: number }> = ({ beat }) => {
     {beat === 7 && <><Ms v="003" /><Cap t="Each packet: an address and its number" /></>}
   </AbsoluteFill>);
 };
-export const EncB1 = () => <Scene beat={1} />; export const EncB2 = () => <Scene beat={2} />; export const EncB3 = () => <Scene beat={3} />; export const EncB4 = () => <Scene beat={4} />; export const EncB5 = () => <Scene beat={5} />; export const EncB6 = () => <Scene beat={6} />; export const EncB7 = () => <Scene beat={7} />;
+export const EncB0 = () => <Scene beat={0} />; export const EncB1 = () => <Scene beat={1} />; export const EncB2 = () => <Scene beat={2} />; export const EncB3 = () => <Scene beat={3} />; export const EncB4 = () => <Scene beat={4} />; export const EncB5 = () => <Scene beat={5} />; export const EncB6 = () => <Scene beat={6} />; export const EncB7 = () => <Scene beat={7} />;

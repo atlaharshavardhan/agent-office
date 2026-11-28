@@ -32,7 +32,7 @@ Meera (London) sends a photo to Arjun (Hyderabad).
 
 ## 28 Nov 2026 - scene after the hook: your phone, packets, encryption (Harsh approved the pictures; tower comes later)
 No names. Squares for the photo blocks, rectangles for packets. Free voice first, ElevenLabs only after Harsh says final.
-1 (0-3 s) "Let's start where the photo starts: your phone, in Hyderabad. You tap send."
+1 (0-3 s) "Let's start where the photo starts: your phone, in Hyderabad. You tap send." Picture: tap send, camera zooms into the phone until the dog photo fills the screen (stills pf0, z1, z2), then it breaks into pieces (e1).
 2 (3-6) "First, the photo breaks into tiny pieces."
 3 (6-9) "Each piece is just ones and zeros."
 4 (9-11) "Your whole photo, only ones and zeros."

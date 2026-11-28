@@ -104,3 +104,9 @@ const Outside: React.FC = () => (<svg width={1080} height={1920} style={{ positi
   <g transform="translate(540 1830)"><rect x={-70} y={0} width={140} height={150} rx={26} fill="#17141c" stroke="#8a3a4c" strokeWidth={5} /><rect x={-58} y={12} width={116} height={130} rx={16} fill="#0f0d14" /><svg x={-40} y={30} width={80} height={80} viewBox="0 0 190 190"><DogPhoto /></svg></g>
 </svg>);
 export const PktB0 = () => <Scene beat={0} />; export const PktB1 = () => <Scene beat={1} />; export const PktB2 = () => <Scene beat={2} />; export const PktB3 = () => <Scene beat={3} />; export const PktB4 = () => <Scene beat={4} />; export const PktB5 = () => <Scene beat={5} />;
+
+/* the camera zooms into the phone until the dog photo fills the screen (mid-zoom still) */
+export const PktZoom = () => (<AbsoluteFill>
+  <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><City /></svg>
+  <Ph k={4.2} left={540 - 133 * 4.2} top={880 - 246 * 4.2} press={false} />
+</AbsoluteFill>);
