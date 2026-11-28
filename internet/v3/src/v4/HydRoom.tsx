@@ -3,7 +3,7 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { FPS, prog, lerp, easeOut, easeInOut, hash, clamp01 } from '../lib/anim';
 import { FONT } from '../lib/palette';
 import { IPhone, Compose } from '../dusk/Phone';
-import { Charminar, Chip, Limb, solveWrist, rot2, PY, TB, HS } from './Story';
+import { Charminar, CharminarArt, DeskFlag, Chip, Limb, solveWrist, rot2, PY, TB, HS } from './Story';
 
 /* Part 2 hook, the man's side (9:16 only): Arjun's room in Hyderabad at 9:12 pm, same desk style as Meera's London room (locked) but his own colours.
    His phone lies on the desk with the photo ready in the chat to Meera; his right index finger reaches, holds on the send arrow, taps; the photo lifts off the screen. */
@@ -26,13 +26,8 @@ const HydWindow: React.FC<{ t: number }> = ({ t }) => {
       {Array.from({ length: 34 }).map((_, i) => <circle key={i} cx={545 + hash(i + 7) * 490} cy={135 + hash(i + 9) * 380} r={1 + hash(i + 11) * 1.6} fill="#fff" opacity={0.45 + 0.4 * Math.abs(Math.sin(t * (1.2 + hash(i) * 2) + i))} />)}
       <circle cx={640} cy={290} r={30} fill="#fff3d6" /><circle cx={654} cy={282} r={27} fill="#1c1240" />
       {/* the Charminar, floodlit */}
-      <ellipse cx={800} cy={700} rx={230} ry={170} fill="url(#hFlood)" />
-      <g fill="#6a3a3a"><rect x={716} y={560} width={168} height={236} /><rect x={706} y={548} width={188} height={16} />
-        {[722, 878].map((x) => <g key={x}><rect x={x - 14} y={380} width={28} height={170} /><rect x={x - 20} y={440} width={40} height={8} /><rect x={x - 20} y={490} width={40} height={8} /><ellipse cx={x} cy={376} rx={20} ry={24} /><rect x={x - 3} y={330} width={6} height={32} /></g>)}
-        {[772, 828].map((x) => <g key={x}><rect x={x - 12} y={444} width={24} height={110} /><ellipse cx={x} cy={440} rx={15} ry={19} /><rect x={x - 2} y={404} width={4} height={26} /></g>)}
-        <ellipse cx={800} cy={552} rx={36} ry={22} /></g>
-      <g fill="#ffd38a">{[0, 1, 2].map((i) => <path key={i} d={`M ${742 + i * 48} 796 L ${742 + i * 48} 690 A 22 22 0 0 1 ${786 + i * 48} 690 L ${786 + i * 48} 796 Z`} opacity={0.92} />)}
-        {[0, 1, 2, 3].map((i) => <rect key={'w' + i} x={730 + i * 38} y={600} width={14} height={26} rx={7} opacity={0.85} />)}</g>
+      <ellipse cx={790} cy={690} rx={250} ry={190} fill="url(#hFlood)" />
+      <g transform="translate(630 448) scale(1.6)"><CharminarArt stone="#d9a05a" shade="#7a4a2c" glow="#ffe7a8" /></g>
       {/* rooftops with lit windows */}
       <g fill="#241438"><rect x={540} y={700} width={150} height={100} /><rect x={560} y={660} width={60} height={40} /><rect x={900} y={690} width={140} height={110} /><rect x={930} y={640} width={50} height={50} /></g>
       {[[560, 720], [600, 720], [640, 740], [920, 710], [960, 710], [1000, 730], [940, 750]].map(([x, y], i) => <rect key={i} x={x} y={y} width={14} height={18} fill="#ffd38a" opacity={0.5 + 0.5 * Math.abs(Math.sin(t * 0.7 + i))} />)}
@@ -131,6 +126,7 @@ export const HydRoom: React.FC = () => {
         <path d="M 107 1064 L 173 1064 L 165 1120 L 115 1120 Z" fill="#c0634a" /><ellipse cx={140} cy={1120} rx={25} ry={5} fill="#8a3f2a" /><rect x={101} y={1054} width={78} height={14} rx={5} fill="#d6785a" />
         {[-34, -12, 8, 28, 46].map((a, i) => <path key={i} d={`M 140 1056 Q ${140 + a * 0.9} ${1004 - (i % 2) * 14} ${140 + a * 1.2} ${966 + (i % 3) * 12}`} stroke="#3f8a4a" strokeWidth={8} fill="none" strokeLinecap="round" />)}
         {[-34, -12, 8, 28, 46].map((a, i) => <ellipse key={i} cx={140 + a * 1.2} cy={966 + (i % 3) * 12} rx={19} ry={10} fill="#4fa05a" transform={`rotate(${a * 1.3} ${140 + a * 1.2} ${966 + (i % 3) * 12})`} />)}
+        <DeskFlag x={520} y={1128} kind="in" t={t} id="flagIN" />
         {/* the lamp */}
         <ellipse cx={855} cy={1086} rx={74} ry={15} fill="#000" opacity={0.5} filter="url(#blur6)" />
         <ellipse cx={855} cy={1076} rx={52} ry={12} fill="#2a1e18" /><rect x={803} y={1062} width={104} height={14} fill="#3a2a22" /><ellipse cx={855} cy={1062} rx={52} ry={12} fill="#4a3a30" /><ellipse cx={855} cy={1060} rx={30} ry={6} fill="#5a4838" />

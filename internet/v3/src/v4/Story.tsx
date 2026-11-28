@@ -11,20 +11,63 @@ import { routeAt, LL, HYD as HYD_LL, LONDON as LONDON_LL } from '../tail/Globe';
    on a table in London, window beside it shows London; the phone lights up with a notification and we zoom in. Everything drawn in code. */
 const WARM = { amber: '#ffb454', coral: '#ff7a59', plum: '#3a1f3d', teal: '#2bb5a3', cream: '#fff1dc' };
 
+/* ---- the Charminar: four minarets with balconies and domes, a big central arch, small arched windows, a parapet. Drawn in a 200 x 240 box (x 0..200, y -20..220, base at y 220) ---- */
+export const CharminarArt: React.FC<{ stone?: string; shade?: string; glow?: string }> = ({ stone = '#d9a05a', shade = '#8a5a34', glow = '#ffe7a8' }) => {
+  const mino = (x: number, top: number, w: number) => {
+    const h = 220 - top - 30;
+    return (<g key={x}>
+      <rect x={x - w / 2} y={top + 30} width={w} height={h} fill={stone} /><rect x={x - w / 2} y={top + 30} width={w * 0.36} height={h} fill={shade} opacity={0.5} />
+      {[0.3, 0.55, 0.78].map((k, i) => { const by = top + 30 + h * k; return <g key={i}><rect x={x - w * 0.95} y={by} width={w * 1.9} height={5} rx={1.5} fill={stone} /><rect x={x - w * 0.95} y={by + 5} width={w * 1.9} height={3} fill={shade} opacity={0.6} />{[-0.7, -0.25, 0.2, 0.65].map((o, j) => <rect key={j} x={x + o * w - 0.8} y={by - 5} width={1.6} height={5} fill={shade} />)}</g>; })}
+      <rect x={x - w * 0.72} y={top + 20} width={w * 1.44} height={10} rx={2} fill={stone} /><rect x={x - w * 0.72} y={top + 27} width={w * 1.44} height={3} fill={shade} opacity={0.6} />
+      <path d={`M ${x - w * 0.62} ${top + 20} Q ${x - w * 1.0} ${top + 2} ${x} ${top - 8} Q ${x + w * 1.0} ${top + 2} ${x + w * 0.62} ${top + 20} Z`} fill={stone} /><path d={`M ${x} ${top - 8} Q ${x + w * 1.0} ${top + 2} ${x + w * 0.62} ${top + 20} L ${x} ${top + 20} Z`} fill={shade} opacity={0.35} />
+      <rect x={x - 1.1} y={top - 22} width={2.2} height={16} fill={shade} /><circle cx={x} cy={top - 23} r={2.4} fill={glow} />
+    </g>);
+  };
+  return (<g>
+    {mino(56, 22, 11)}{mino(144, 22, 11)}
+    <rect x={32} y={100} width={136} height={120} fill={stone} /><rect x={32} y={100} width={24} height={120} fill={shade} opacity={0.35} /><rect x={32} y={212} width={136} height={8} fill={shade} opacity={0.6} />
+    <rect x={28} y={70} width={144} height={32} fill={stone} /><rect x={28} y={96} width={144} height={6} fill={shade} opacity={0.55} /><rect x={28} y={70} width={144} height={4} fill={shade} opacity={0.4} />
+    {Array.from({ length: 7 }).map((_, i) => <path key={i} d={`M ${40 + i * 19} 98 L ${40 + i * 19} 84 Q ${40 + i * 19 + 5.5} 74 ${40 + i * 19 + 11} 84 L ${40 + i * 19 + 11} 98 Z`} fill={glow} />)}
+    {Array.from({ length: 16 }).map((_, i) => <path key={i} d={`M ${28 + i * 9.1} 70 L ${31 + i * 9.1} 60 L ${34 + i * 9.1} 70 Z`} fill={stone} />)}
+    <ellipse cx={100} cy={56} rx={22} ry={16} fill={stone} /><path d="M 100 40 Q 122 44 122 56 L 100 56 Z" fill={shade} opacity={0.35} /><rect x={99} y={20} width={2} height={20} fill={shade} /><circle cx={100} cy={19} r={2.6} fill={glow} />
+    {[66, 134].map((x) => <g key={x}><rect x={x - 8} y={58} width={16} height={12} fill={stone} /><ellipse cx={x} cy={58} rx={10} ry={8} fill={stone} /><rect x={x - 0.8} y={44} width={1.6} height={12} fill={shade} /></g>)}
+    <path d="M 70 220 L 70 156 Q 70 120 100 108 Q 130 120 130 156 L 130 220 Z" fill="#3a1a10" /><path d="M 78 220 L 78 158 Q 78 128 100 118 Q 122 128 122 158 L 122 220 Z" fill={glow} opacity={0.9} />
+    {[[38, 60], [140, 162]].map(([x0, x1], i) => <g key={i}><path d={`M ${x0 + 2} 220 L ${x0 + 2} 168 Q ${x0 + 2} 146 ${(x0 + x1) / 2 - 1 + 0} 140 Q ${x1 - 2} 146 ${x1 - 2} 168 L ${x1 - 2} 220 Z`} fill="#3a1a10" opacity={0.85} /><path d={`M ${x0 + 6} 220 L ${x0 + 6} 170 Q ${x0 + 6} 152 ${(x0 + x1) / 2} 147 Q ${x1 - 6} 152 ${x1 - 6} 170 L ${x1 - 6} 220 Z`} fill={glow} opacity={0.7} /></g>)}
+    {mino(14, 8, 15)}{mino(186, 8, 15)}
+  </g>);
+};
 /* ---- the photo he sends: the Charminar at dusk (Hyderabad) ---- */
 export const Charminar: React.FC = () => (<g>
   <defs><linearGradient id="chSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#3b2a6a" /><stop offset="0.6" stopColor="#d96b5a" /><stop offset="1" stopColor="#ffb454" /></linearGradient></defs>
   <rect width={190} height={190} fill="url(#chSky)" /><circle cx={30} cy={34} r={11} fill="#fff1d0" />
   {[100, 140, 168, 20, 60].map((x, i) => <circle key={i} cx={x} cy={8 + (i * 9) % 30} r={1.2} fill="#fff" opacity={0.8} />)}
-  <g fill="#3a1830">
-    <rect x={52} y={92} width={86} height={80} /><rect x={48} y={86} width={94} height={8} />
-    {[56, 134].map((x) => <g key={x}><rect x={x - 6} y={34} width={12} height={58} /><rect x={x - 9} y={50} width={18} height={4} /><rect x={x - 9} y={68} width={18} height={4} /><ellipse cx={x} cy={32} rx={8} ry={9} /><rect x={x - 1.2} y={14} width={2.4} height={12} /></g>)}
-    {[78, 112].map((x) => <g key={x}><rect x={x - 6} y={50} width={12} height={42} /><ellipse cx={x} cy={48} rx={7} ry={8} /><rect x={x - 1.2} y={32} width={2.4} height={12} /></g>)}
-    <ellipse cx={95} cy={90} rx={14} ry={10} />
-  </g>
-  <g fill="#ffcf7a">{[0, 1, 2].map((i) => <path key={i} d={`M ${70 + i * 24} 172 L ${70 + i * 24} 126 A 12 12 0 0 1 ${82 + i * 24} 126 L ${82 + i * 24} 172 Z`} />)}</g>
-  <rect y={172} width={190} height={18} fill="#1a0c1c" />
+  <g transform="translate(27 32) scale(0.68)"><CharminarArt stone="#c8785a" shade="#6a3030" glow="#ffd98a" /></g>
+  <rect y={178} width={190} height={12} fill="#1a0c1c" />
 </g>);
+
+/* ---- a small desk flag on a pole, waving a little (kind: the Indian tricolour or the Union Jack); the cloth always extends to the right ---- */
+export const DeskFlag: React.FC<{ x: number; y: number; kind: 'in' | 'uk'; t: number; id: string }> = ({ x, y, kind, t, id }) => {
+  const W = 94, H = 62, top = y - 150;
+  const pts = Array.from({ length: 13 }).map((_, i) => { const k = i / 12; return [x + k * W, top + Math.sin(k * 5 - t * 4.5) * 3.4 * k] as [number, number]; });
+  const d = 'M ' + [...pts, ...pts.map(([px, py]) => [px, py + H] as [number, number]).reverse()].map((p) => p.join(' ')).join(' L ') + ' Z';
+  return (<g>
+    <ellipse cx={x} cy={y + 6} rx={34} ry={8} fill="#000" opacity={0.45} filter="url(#blur3)" />
+    <ellipse cx={x} cy={y} rx={22} ry={6} fill="#2a1e18" /><rect x={x - 22} y={y - 6} width={44} height={6} fill="#3a2a22" /><ellipse cx={x} cy={y - 6} rx={22} ry={6} fill="#4a3a30" />
+    <rect x={x - 2} y={top - 8} width={4} height={y - top + 2} fill="#c9a15a" /><circle cx={x} cy={top - 10} r={4.5} fill="#e8c46a" />
+    <defs><clipPath id={id}><path d={d} /></clipPath></defs>
+    <g clipPath={`url(#${id})`}><g transform={`translate(${x} ${top})`}>
+      {kind === 'in' ? <>
+        <rect width={W} height={H / 3 + 1} fill="#ff9933" /><rect y={H / 3} width={W} height={H / 3 + 1} fill="#ffffff" /><rect y={(2 * H) / 3} width={W} height={H / 3 + 1} fill="#138808" />
+        <circle cx={W / 2} cy={H / 2} r={8.5} fill="none" stroke="#1c2f8a" strokeWidth={1.6} />{Array.from({ length: 12 }).map((_, i) => <line key={i} x1={W / 2} y1={H / 2} x2={W / 2 + 8.5 * Math.cos((i * Math.PI) / 6)} y2={H / 2 + 8.5 * Math.sin((i * Math.PI) / 6)} stroke="#1c2f8a" strokeWidth={0.9} />)}<circle cx={W / 2} cy={H / 2} r={2} fill="#1c2f8a" />
+      </> : <>
+        <rect width={W} height={H} fill="#012169" /><path d={`M 0 0 L ${W} ${H} M ${W} 0 L 0 ${H}`} stroke="#fff" strokeWidth={11} /><path d={`M 0 0 L ${W} ${H} M ${W} 0 L 0 ${H}`} stroke="#c8102e" strokeWidth={4} />
+        <rect x={0} y={H / 2 - 8} width={W} height={16} fill="#fff" /><rect x={W / 2 - 8} y={0} width={16} height={H} fill="#fff" /><rect x={0} y={H / 2 - 4.8} width={W} height={9.6} fill="#c8102e" /><rect x={W / 2 - 4.8} y={0} width={9.6} height={H} fill="#c8102e" />
+      </>}
+      {Array.from({ length: 6 }).map((_, i) => <rect key={i} x={i * 16 + ((t * 20) % 16)} y={0} width={7} height={H} fill="#000" opacity={0.07} />)}
+    </g></g>
+    <path d={d} fill="none" stroke="#000" strokeWidth={1} opacity={0.25} />
+  </g>);
+};
 
 const Bokeh: React.FC<{ n: number; seed: number; cols: string[]; y0: number; y1: number }> = ({ n, seed, cols, y0, y1 }) => (<>
   {Array.from({ length: n }).map((_, i) => <div key={i} style={{ position: 'absolute', left: hash(i + seed) * 1080 - 60, top: lerp(y0, y1, hash(i + seed + 9)), width: 60 + hash(i + seed + 3) * 120, height: 60 + hash(i + seed + 3) * 120, borderRadius: '50%', background: cols[i % cols.length], opacity: 0.16 + hash(i + seed + 5) * 0.2, filter: 'blur(10px)' }} />)}
@@ -273,6 +316,7 @@ export const LondonRoom: React.FC = () => {
         <path d="M 692 1060 L 758 1060 L 750 1116 L 700 1116 Z" fill="#c0634a" /><ellipse cx={725} cy={1116} rx={25} ry={5} fill="#8a3f2a" /><rect x={686} y={1050} width={78} height={14} rx={5} fill="#d6785a" />
         {[-34, -12, 8, 28, 46].map((a, i) => <path key={i} d={`M 725 1052 Q ${725 + a * 0.9} ${1000 - (i % 2) * 14} ${725 + a * 1.25} ${962 + (i % 3) * 12}`} stroke="#3f8a4a" strokeWidth={8} fill="none" strokeLinecap="round" />)}
         {[-34, -12, 8, 28, 46].map((a, i) => <ellipse key={i} cx={725 + a * 1.25} cy={962 + (i % 3) * 12} rx={19} ry={10} fill="#4fa05a" transform={`rotate(${a * 1.3} ${725 + a * 1.25} ${962 + (i % 3) * 12})`} />)}
+        <DeskFlag x={945} y={1078} kind="uk" t={t} id="flagUK" />
         <g transform="translate(-30 0)">
         {/* the lamp: a wide round base, a stem, a socket joining the stem to the shade */}
         <ellipse cx={885} cy={1086} rx={74} ry={15} fill="#000" opacity={0.5} filter="url(#blur6)" />
