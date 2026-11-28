@@ -2,11 +2,12 @@
 Run from internet/ after v3/render_part2b.sh (shots in video/part2b/) and voice/make_part2b_voice.py. Writes video/internet-part2-phone-to-cable-v1.mp4 and subtitles/part2-phone-to-cable-v1.srt"""
 import json, subprocess, numpy as np, soundfile as sf
 SR = 48000; D = 'video/part2b'; X = 0.2
-SH = [('s1', 160, None), ('s2', 90, None), ('s3', 82, None), ('s4', 90, None), ('s5', 88, None), ('s6', 108, None), ('pa', 120, 96), ('pb', 240, None), ('tw', 190, None), ('ug', 270, None)]
-dur = [(n, (cut or fr) / 30) for n, fr, cut in SH]; start = []; t = 0.0
+HOLD = {'pa': 1.8}
+SH = [('s1', 160, None), ('s2', 90, None), ('s3', 82, None), ('s4', 90, None), ('s5', 88, None), ('s6', 108, None), ('pa', 120, None), ('pb', 240, None), ('tw', 190, None), ('ug', 270, None)]
+dur = [(n, (cut or fr) / 30 + HOLD.get(n, 0)) for n, fr, cut in SH]; start = []; t = 0.0
 for n, d in dur: start.append(t); t += d - X
 TOTAL = start[-1] + dur[-1][1]; S = dict(zip([n for n, _ in dur], start)); print('starts', {k: round(v, 2) for k, v in S.items()}, 'total', round(TOTAL, 2))
-V = {'s1': 0.3, 's2': S['s2'] + 0.2, 's3': S['s3'] + 0.2, 's4': S['s4'] + 0.2, 's5': S['s5'] + 0.2, 's6': S['s6'] + 0.2, 'p1': S['pa'] + 0.2, 'p2': S['pb'] + 0.2, 'p3': S['tw'] + 0.2, 'p4': S['tw'] + 3.3, 'p5': S['ug'] + 1.0}
+V = {'s1': 0.3, 's2': S['s2'] + 0.2, 's3': S['s3'] + 0.2, 's4': S['s4'] + 0.2, 's5': S['s5'] + 0.2, 's6': S['s6'] + 0.2, 'o1': S['pa'] + 0.2, 'p1': S['pa'] + 2.7, 'p2': S['pb'] + 0.2, 'p3': S['tw'] + 0.2, 'p4': S['tw'] + 3.3, 'p5': S['ug'] + 1.0, 'o2': S['ug'] + 6.5}
 L = json.load(open('voice/p2b/lengths.json'))['lengths']
 N = int(TOTAL * SR) + SR; out = np.zeros((N, 2)); rng = np.random.default_rng(5)
 def place(sig, at, g=1.0, pan=0.0):
@@ -52,9 +53,9 @@ f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) 
 # join the shots with 0.2 s fades
 ins = []
 for n, fr, cut in SH: ins += ['-i', f'{D}/{n}.mp4']
-fc = ''; prev = '[0:v]'; off = 0.0
+fc = ''.join(f'[{i}:v]tpad=stop_mode=clone:stop_duration={HOLD[n]}[h{i}];' for i, (n, fr, cut) in enumerate(SH) if n in HOLD); ref = lambda i: f'[h{i}]' if SH[i][0] in HOLD else f'[{i}:v]'; prev = ref(0); off = 0.0
 for i in range(1, len(SH)):
-    off = start[i] ; o = f'[x{i}]'; fc += f'{prev}[{i}:v]xfade=transition=fade:duration={X}:offset={off - X:.3f}{o};'; prev = o
+    off = start[i] ; o = f'[x{i}]'; fc += f'{prev}{ref(i)}xfade=transition=fade:duration={X}:offset={off - X:.3f}{o};'; prev = o
 fc += f'{prev}[{len(SH)}:v]overlay=24:926[v]'
 cmd = ['ffmpeg', '-v', 'error', '-y'] + ins[:] + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav']
 # the watermark must be 30% see-through: prepare it as input before the chain
