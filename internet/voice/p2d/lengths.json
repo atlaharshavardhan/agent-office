@@ -1,5 +1,9 @@
 {
  "lengths": {
+  "c1": 2.944,
+  "c2": 3.477,
+  "c3": 2.24,
+  "c4": 2.411,
   "q1": 3.584,
   "q2": 4.053,
   "q3": 4.224,
@@ -9,6 +13,10 @@
   "r4": 2.731
  },
  "text": {
+  "c1": "The cable is thin, about as thick as a garden hose.",
+  "c2": "Steel wires and plastic protect it from anchors and sea water.",
+  "c3": "A copper tube carries power to the repeaters.",
+  "c4": "In the middle, glass fibres, thin as a hair.",
   "q1": "Three kilometres down, in the Arabian Sea, the photo is only light.",
   "q2": "Light in glass travels about 200,000 kilometres every second.",
   "q3": "As it fades, a repeater, every 60 to 100 kilometres, boosts it.",

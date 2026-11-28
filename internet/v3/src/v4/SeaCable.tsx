@@ -74,9 +74,9 @@ const Floor: React.FC = () => { const rock = useMemo(() => new THREE.Icosahedron
 
 const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.05, 300); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
 const Tag: React.FC<{ t: number; at: THREE.Vector3; text: string; sub?: string; a: number; b: number; dx: number; dy: number; col?: string }> = ({ t, at, text, sub, a, b, dx, dy, col = '#5fe3ff' }) => {
-  const o = seg(t, a, a + 0.4) * (1 - seg(t, b - 0.4, b)); if (o <= 0.001) return null; const [x, y] = project(t, at), w = Math.max(text.length * 19 + 44, (sub?.length ?? 0) * 11.5 + 44), lx = clampX(x + dx, w), ly = y + dy;
+  const o = seg(t, a, a + 0.4) * (1 - seg(t, b - 0.4, b)); if (o <= 0.001) return null; const [x, y] = project(t, at), w = Math.max(text.length * 30 + 60, (sub?.length ?? 0) * 19 + 60), lx = clampX(x + dx, w), ly = y + dy;
   return <g opacity={o}><line x1={x} y1={y} x2={lx} y2={ly + (dy < 0 ? 30 : -30)} stroke={col} strokeWidth={2.5} /><circle cx={x} cy={y} r={6} fill={col} stroke="#070a22" strokeWidth={2.5} />
-    <g transform={`translate(${lx} ${ly})`}><rect x={-w / 2} y={-30} width={w} height={sub ? 76 : 56} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>{text}</text>{sub && <text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>{sub}</text>}</g></g>; };
+    <g transform={`translate(${lx} ${ly})`}><rect x={-w / 2} y={-46} width={w} height={sub ? 128 : 78} rx={16} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} /><text y={8} textAnchor="middle" fill="#eef1ff" style={{ font: `800 46px ${FONT.ui}`, letterSpacing: '0.03em' }}>{text}</text>{sub && <text y={52} textAnchor="middle" fill="#cfd8ff" style={{ font: `600 30px ${FONT.mono}` }}>{sub}</text>}</g></g>; };
 
 export const SeaCable: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS, o = OUT(t);
@@ -95,12 +95,13 @@ export const SeaCable: React.FC = () => {
       <AbsoluteFill><svg width={F.W} height={F.H}>
         <Tag t={t} at={along(-5, 1, 0)} text="UNDERSEA CABLE" sub="deep sea: about 2 cm thick" a={0.6} b={4.0} dx={-150} dy={-190} />
         <Tag t={t} at={along(-0.5, -3.4, 0.4)} text="GARDEN HOSE" sub="about the same thickness" a={1.4} b={3.7} dx={330} dy={-40} col="#7dffb0" />
-        <Tag t={t} at={along(-3, 1, 0)} text="STEEL WIRES" sub="armour against anchors and nets" a={4.8} b={9.6} dx={-170} dy={-190} />
+        <Tag t={t} at={along(-3, 1, 0)} text="STEEL WIRES" sub="armour against anchors and nets" a={4.8} b={9.6} dx={-170} dy={190} />
         <Tag t={t} at={along(o.poly * 0.55, 0.74, 0)} text="PLASTIC" sub="keeps the sea water out" a={6.0} b={9.6} dx={-40} dy={-230} col="#9fa8ff" />
         <Tag t={t} at={along(lerp(o.poly, o.copper, 0.55), -0.5, 0)} text="COPPER TUBE" sub="carries power to the repeaters" a={7.2} b={10.4} dx={230} dy={170} col="#ffb454" />
         <Tag t={t} at={along(lerp(o.copper, o.strand, 0.6), 0.36, 0)} text="STEEL STRANDS" sub="take the pull when it is laid" a={8.4} b={11.0} dx={-60} dy={-210} />
         <Tag t={t} at={along(8.0, 0.15, 0)} text="GLASS FIBRES" sub="each as thin as a human hair" a={11.6} b={15.0} dx={-250} dy={-190} col="#ffb454" />
       </svg></AbsoluteFill>
+      <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(46, 50, seg(t, 0.5, 14)))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
     </AbsoluteFill>
   );
 };
