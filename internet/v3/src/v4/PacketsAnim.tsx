@@ -39,3 +39,24 @@ export const LabelB: React.FC = () => { const f = useCurrentFrame(), t0 = f / 30
         <text x={-190} y={62} fill="#2a1630" style={{ font: `800 38px ${FONT.mono}` }}>{v}</text><g transform="translate(140 0)"><rect x={0} y={12} width={sub.length * 16 + 36} height={62} rx={31} fill={c} /><text x={18} y={55} fill="#fff" style={{ font: `800 30px ${FONT.ui}` }}>{sub}</text></g>
         {r < 2 && <line x1={-370} x2={370} y1={100} y2={100} stroke="#e3c9a0" strokeWidth={2} />}</g>)}</g>
   </svg><Ms v={3} /></AbsoluteFill>); };
+
+/* ONE continuous scene (Harsh): the packets circle in a vertical ring, then ONE packet (#1204) flies out of the ring to the front, grows to fill the screen and becomes its address card */
+export const PACKETS_RING_FRAMES = 270;
+export const PacketsRing: React.FC = () => { const f = useCurrentFrame(), t = f / 30, HERO = 11, tf = 4.5, g = eo((t - tf) / 1.3), dm = 1 - 0.75 * eo((t - tf) / 0.8), count = Math.round(2000 * eo((t - 0.2) / 2.0) / 10) * 10, rows = [sm((t - 5.9) / 0.5), sm((t - 6.6) / 0.5), sm((t - 7.3) / 0.5)];
+  const items: [string, string, string, string][] = [['TO', '86.14.203.57', 'London', '#c2412b'], ['FROM', '49.37.118.202', 'Hyderabad', '#2a6fb0'], ['PIECE', '1,204 of 2,000', '1,500 bytes', '#9a6a14']];
+  const order = Array.from({ length: NP }).map((_, k) => ({ k, o: ring(k, t) })).sort((p, q) => p.o.z - q.o.z), h0 = ring(HERO, tf);
+  return (<AbsoluteFill><Bg /><svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
+    {order.map(({ k, o }) => { if (k === HERO && t >= tf) return null; const d = hash(k) * 1.0, u = eo((t - d) / 0.9), a = hash(k + 7) * 6.283, sx = 540 + Math.cos(a) * 1100, sy = 900 + Math.sin(a) * 1300, w = lp(40, (62 + hash(k + 9) * 90) * (0.7 + 0.45 * o.z), u);
+      return <g key={k}>{[3, 2, 1].map((gg) => { const p = ring(k, t - gg * 0.045); return <Pk key={gg} x={lp(sx, p.x, u)} y={lp(sy, p.y, u)} w={w * 0.9} rot={p.rot} o={0.12 * u * (4 - gg) / 3 * dm} />; })}<Pk x={lp(sx, o.x, u)} y={lp(sy, o.y, u)} w={w} rot={lp(hash(k + 4) * 300, o.rot, u)} o={Math.min(1, u * 2) * (0.55 + 0.45 * hash(k + 2)) * dm} /></g>; })}
+    {t >= tf && <g transform={`translate(${lp(h0.x, 540, g)} ${lp(h0.y, 880, g)}) scale(${lp(0.13, 1, g)}) rotate(${lp((((h0.rot % 360) + 540) % 360) - 180, 0, g)})`} style={{ filter: 'drop-shadow(0 30px 40px rgba(0,0,0,.7)) drop-shadow(0 0 50px rgba(255,180,84,.45))' }}>
+      <rect x={-440} y={-290} width={880} height={580} rx={44} fill="url(#gp2)" stroke="#ffe3a0" strokeWidth={5} />
+      <path d="M -440 -246 Q -440 -290 -396 -290 L 396 -290 Q 440 -290 440 -246 L 440 -170 L -440 -170 Z" fill="#2a1630" />
+      <g opacity={sm((g - 0.5) / 0.4)}><text x={-400} y={-215} fill={GOLD2} style={{ font: `900 44px ${FONT.ui}`, letterSpacing: '0.12em' }}>PACKET</text><text x={400} y={-215} textAnchor="end" fill="#fff1dc" style={{ font: `900 56px ${FONT.mono}` }}>#1204</text></g>
+      <g opacity={sm((g - 0.7) / 0.3)}><rect x={-405} y={-140} width={810} height={400} rx={26} fill="#fff6e6" /></g>
+      {items.map(([k, v, sub, c], r) => <g key={k} opacity={rows[r]} transform={`translate(0 ${r * 125 - 100 + lp(24, 0, rows[r])})`}>
+        <circle cx={-366} cy={46} r={10} fill={c} /><text x={-338} y={62} fill={c} style={{ font: `900 38px ${FONT.ui}`, letterSpacing: '0.06em' }}>{k}</text>
+        <text x={-190} y={62} fill="#2a1630" style={{ font: `800 38px ${FONT.mono}` }}>{v}</text><g transform="translate(140 0)"><rect x={0} y={12} width={sub.length * 16 + 36} height={62} rx={31} fill={c} /><text x={18} y={55} fill="#fff" style={{ font: `800 30px ${FONT.ui}` }}>{sub}</text></g>
+        {r < 2 && <line x1={-370} x2={370} y1={100} y2={100} stroke="#e3c9a0" strokeWidth={2} />}</g>)}</g>}</svg>
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 740, textAlign: 'center', font: `900 190px/1 ${FONT.ui}`, color: GOLD, textShadow: '0 0 40px rgba(255,180,84,.55), 0 8px 18px rgba(0,0,0,.7)', opacity: sm(t / 0.4) * (1 - eo((t - 4.3) / 0.4)) }}>{count.toLocaleString('en-US')}</div>
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 950, textAlign: 'center', font: `800 60px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,.8)', opacity: sm(t / 0.4) * (1 - eo((t - 4.3) / 0.4)) }}>packets</div>
+    <Ms v={t < 5 ? 2 : 3} /></AbsoluteFill>); };
