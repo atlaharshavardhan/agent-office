@@ -48,3 +48,9 @@ a (0-3 s) tower from below, label "Mobile tower": "Next, a mobile tower, close t
 b (3-6) antennas close: "Its antennas catch the radio waves."
 c (6-10) box at the foot: "A box at the bottom turns them into light, and sends them down a glass cable." (usually fibre; some towers use microwave links, say "usually")
 Stills: v3/stills/p2/tw/t2-t4.png. Code: v3/src/v4/TowerHyd.tsx (3D, reuses the Packets.tsx tower). First draft, needs polish.
+
+## 28 Nov 2026 - after the tower box (Harsh's references: box glows, cable under the ground, light goes in, light races)
+d (10-13 s) "At the bottom, a box turns the signal into light." (tower box with glow, still tw/t4.png)
+e (13-17 s) "It sends that light down a glass cable, buried under the street." (cutaway, fb/f2.png) then the light enters (fb/f3.png)
+f (17-20 s) "Inside, the light races." (fb/f4.png)
+Code: v3/src/v4/FibreHyd.tsx (2D). First drafts.

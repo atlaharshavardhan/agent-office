@@ -3,6 +3,7 @@ import { Composition } from 'remotion';
 import { Prototype } from './Prototype';
 import { Vert, Horiz } from './v4/frame';
 import { FiberJourney, FIBER_FRAMES } from './v4/Fiber';
+import { FbB2, FbB3, FbB4 } from './v4/FibreHyd';
 import { TwB1, TwB2, TwB3, TwB4 } from './v4/TowerHyd';
 import { EncB0, EncB1, EncB2, EncB3, EncB4, EncB5, EncB6, EncB7 } from './v4/Encrypt';
 import { PktZoom, PktB0, PktB1, PktB2, PktB3, PktB4, PktB5 } from './v4/PacketsHyd';
@@ -60,6 +61,9 @@ export const Root: React.FC = () => (
     <Composition id="PktB1V" component={PktB1} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="PktB2V" component={PktB2} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="PktB3V" component={PktB3} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="FbB2V" component={FbB2} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="FbB3V" component={FbB3} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="FbB4V" component={FbB4} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="TwB1V" component={() => <Vert><TwB1 /></Vert>} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="TwB2V" component={() => <Vert><TwB2 /></Vert>} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="TwB3V" component={() => <Vert><TwB3 /></Vert>} durationInFrames={30} fps={30} width={1080} height={1920} />
