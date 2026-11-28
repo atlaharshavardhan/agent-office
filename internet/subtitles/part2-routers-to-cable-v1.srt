@@ -1,0 +1,43 @@
+1
+00:00:00,200 --> 00:00:04,979
+At the next stop, a router reads the label. Each router only knows the next step.
+
+2
+00:00:05,099 --> 00:00:07,467
+If a road is busy, it sends it another way.
+
+3
+00:00:07,737 --> 00:00:10,510
+Then the land ends. The cable goes into the sea.
+
+4
+00:00:10,630 --> 00:00:13,361
+From here, it all travels as light, under the sea.
+
+5
+00:00:13,631 --> 00:00:17,215
+Three kilometres down, in the Arabian Sea, the photo is only light.
+
+6
+00:00:17,335 --> 00:00:21,388
+Light in glass travels about 200,000 kilometres every second.
+
+7
+00:00:21,658 --> 00:00:25,882
+As it fades, a repeater, every 60 to 100 kilometres, boosts it.
+
+8
+00:00:26,488 --> 00:00:29,432
+The cable is thin, about as thick as a garden hose.
+
+9
+00:00:30,834 --> 00:00:34,311
+Steel wires and plastic protect it from anchors and sea water.
+
+10
+00:00:35,286 --> 00:00:37,526
+A copper tube carries power to the repeaters.
+
+11
+00:00:38,466 --> 00:00:40,877
+In the middle, glass fibres, thin as a hair.
