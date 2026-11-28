@@ -2,6 +2,9 @@ import React from 'react';
 import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { hash } from '../lib/anim';
 import { FONT } from '../lib/palette';
+import { DogPhoto } from './Story';
+import { Block } from './Encrypt';
+import { blockAt } from './StartAnim';
 /* Part 2, segment B animation: (A) about 2,000 packets gather, the counter runs; (B) one packet comes close, its address and number appear, then the label card. 9:16. */
 const GOLD = '#ffb454', GOLD2 = '#ffd38a';
 const sm = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); }, eo = (u: number) => 1 - Math.pow(1 - Math.max(0, Math.min(1, u)), 3), lp = (a: number, b: number, u: number) => a + (b - a) * u;
@@ -60,3 +63,34 @@ export const PacketsRing: React.FC = () => { const f = useCurrentFrame(), t = f 
     <div style={{ position: 'absolute', left: 0, right: 0, top: 740, textAlign: 'center', font: `900 190px/1 ${FONT.ui}`, color: GOLD, textShadow: '0 0 40px rgba(255,180,84,.55), 0 8px 18px rgba(0,0,0,.7)', opacity: sm(t / 0.4) * (1 - eo((t - 4.3) / 0.4)) }}>{count.toLocaleString('en-US')}</div>
     <div style={{ position: 'absolute', left: 0, right: 0, top: 950, textAlign: 'center', font: `800 60px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,.8)', opacity: sm(t / 0.4) * (1 - eo((t - 4.3) / 0.4)) }}>packets</div>
     <Ms v={t < 5 ? 2 : 3} /></AbsoluteFill>); };
+
+/* v5 scene: the same photo breaks into blocks, each block becomes a gold packet with a tiny lock and its piece of the dog, the packets circle in a vertical ring, then ONE packet (#1204) flies to the front and becomes its address card */
+const PkD: React.FC<{ x: number; y: number; w: number; rot: number; o: number; i: number; j: number }> = ({ x, y, w, rot, o, i, j }) => { const h = w * 0.62, N = 14, ps = h * 0.62;
+  return <g transform={`translate(${x} ${y}) rotate(${rot})`} opacity={o} style={{ filter: 'drop-shadow(8px 10px 8px rgba(0,0,0,.5))' }}>
+    <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={6} fill="url(#gp)" /><rect x={-w / 2} y={-h / 2} width={w} height={h * 0.28} rx={6} fill="#2a1630" opacity={0.9} />
+    <svg x={-w / 2 + w * 0.07} y={-h / 2 + h * 0.3} width={ps} height={ps} viewBox={`${(j * 190) / N} ${(i * 190) / N} ${190 / N} ${190 / N}`} overflow="hidden"><DogPhoto /></svg>
+    {w > 56 && <g transform={`translate(${w / 2 - w * 0.12} ${-h / 2 + h * 0.14})`}><rect x={-w * 0.035} y={-h * 0.02} width={w * 0.07} height={h * 0.09} rx={1.5} fill="#ffd38a" /><path d={`M ${-w * 0.022} ${-h * 0.02} v ${-h * 0.05} a ${w * 0.022} ${w * 0.022} 0 0 1 ${w * 0.044} 0 v ${h * 0.05}`} fill="none" stroke="#ffd38a" strokeWidth={Math.max(1, w * 0.012)} /></g>}
+  </g>; };
+export const PACKETS_STORY_FRAMES = 260;
+export const PacketsStory: React.FC = () => { const f = useCurrentFrame(), t = f / 30, NN = 196, HERO = 11, tf = 4.2, g = eo((t - tf) / 1.2), dm = 1 - 0.75 * eo((t - tf) / 0.8), count = Math.round(2000 * eo((t - 2.0) / 1.6) / 10) * 10, rows = [sm((t - 5.5) / 0.5), sm((t - 6.1) / 0.5), sm((t - 6.7) / 0.5)];
+  const items: [string, string, string, string][] = [['TO', '86.14.203.57', 'London', '#c2412b'], ['FROM', '49.37.118.202', 'Hyderabad', '#2a6fb0'], ['PIECE', '1,204 of 2,000', '1,500 bytes', '#9a6a14']];
+  const pos = (k: number) => { const i = Math.floor(k / 14), j = k % 14, bt = eo((t - 0.35 - hash(k + 50) * 0.35) / 1.0), mt = eo((t - 1.3 - hash(k + 60) * 0.35) / 1.1), b = blockAt(i, j, bt, t), r = ring(k, t), w = 52 + hash(k + 9) * 56 + 14 * r.z;
+    return { i, j, mt, bx: b.x, by: b.y, br: b.rot, bs: b.s, x: lp(b.x, r.x, mt), y: lp(b.y, r.y, mt), rot: lp(b.rot, r.rot, mt), w: lp(b.s, w, mt), z: r.z }; };
+  const all = Array.from({ length: NN }).map((_, k) => ({ k, p: pos(k) })).sort((p, q) => p.p.z - q.p.z), h0 = ring(HERO, tf), photo = 1 - sm((t - 0.3) / 0.3);
+  return (<AbsoluteFill><Bg /><svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
+    <svg x={92} y={432} width={896} height={896} viewBox="0 0 190 190" opacity={photo}><DogPhoto /></svg>
+    {all.map(({ k, p }) => { if (k === HERO && t >= tf) return null; return <g key={k} opacity={dm}>
+      {p.mt < 1 && <Block x={p.x} y={p.y} s={p.bs} rot={p.rot} i={p.i} j={p.j} n={14} />}
+      {p.mt > 0 && <>{[3, 2, 1].map((gg) => { const q = ring(k, t - gg * 0.045); return p.mt > 0.95 ? <Pk key={gg} x={q.x} y={q.y} w={p.w * 0.9} rot={q.rot} o={0.12 * (4 - gg) / 3} /> : null; })}<PkD x={p.x} y={p.y} w={Math.max(20, p.w * (0.75 + 0.25 * p.mt))} rot={p.rot} o={p.mt} i={p.i} j={p.j} /></>}</g>; })}
+    {t >= tf && <g transform={`translate(${lp(h0.x, 540, g)} ${lp(h0.y, 880, g)}) scale(${lp(0.13, 1, g)}) rotate(${lp((((h0.rot % 360) + 540) % 360) - 180, 0, g)})`} style={{ filter: 'drop-shadow(0 30px 40px rgba(0,0,0,.7)) drop-shadow(0 0 50px rgba(255,180,84,.45))' }}>
+      <rect x={-440} y={-290} width={880} height={580} rx={44} fill="url(#gp2)" stroke="#ffe3a0" strokeWidth={5} />
+      <path d="M -440 -246 Q -440 -290 -396 -290 L 396 -290 Q 440 -290 440 -246 L 440 -170 L -440 -170 Z" fill="#2a1630" />
+      <g opacity={sm((g - 0.5) / 0.4)}><text x={-400} y={-215} fill={GOLD2} style={{ font: `900 44px ${FONT.ui}`, letterSpacing: '0.12em' }}>PACKET</text><text x={400} y={-215} textAnchor="end" fill="#fff1dc" style={{ font: `900 56px ${FONT.mono}` }}>#1204</text></g>
+      <g opacity={sm((g - 0.7) / 0.3)}><rect x={-405} y={-140} width={810} height={400} rx={26} fill="#fff6e6" /></g>
+      {items.map(([k, v, sub, c], r) => <g key={k} opacity={rows[r]} transform={`translate(0 ${r * 125 - 100 + lp(24, 0, rows[r])})`}>
+        <circle cx={-366} cy={46} r={10} fill={c} /><text x={-338} y={62} fill={c} style={{ font: `900 38px ${FONT.ui}`, letterSpacing: '0.06em' }}>{k}</text>
+        <text x={-190} y={62} fill="#2a1630" style={{ font: `800 38px ${FONT.mono}` }}>{v}</text><g transform="translate(140 0)"><rect x={0} y={12} width={sub.length * 16 + 36} height={62} rx={31} fill={c} /><text x={18} y={55} fill="#fff" style={{ font: `800 30px ${FONT.ui}` }}>{sub}</text></g>
+        {r < 2 && <line x1={-370} x2={370} y1={100} y2={100} stroke="#e3c9a0" strokeWidth={2} />}</g>)}</g>}</svg>
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 740, textAlign: 'center', font: `900 190px/1 ${FONT.ui}`, color: GOLD, textShadow: '0 0 40px rgba(255,180,84,.55), 0 8px 18px rgba(0,0,0,.7)', opacity: sm((t - 2.0) / 0.4) * (1 - eo((t - 3.9) / 0.4)) }}>{count.toLocaleString('en-US')}</div>
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 950, textAlign: 'center', font: `800 60px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,.8)', opacity: sm((t - 2.0) / 0.4) * (1 - eo((t - 3.9) / 0.4)) }}>packets</div>
+    <Ms v={t < 1.3 ? 1 : t < tf ? 2 : 3} /></AbsoluteFill>); };

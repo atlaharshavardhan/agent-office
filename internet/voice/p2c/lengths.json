@@ -1,5 +1,6 @@
 {
  "lengths": {
+  "b2": 2.837,
   "s1": 2.304,
   "s2": 2.304,
   "s3": 2.155,
@@ -15,6 +16,7 @@
   "p5": 4.587
  },
  "text": {
+  "b2": "To a computer, a photo is only ones and zeros.",
   "s1": "Your phone, in Hyderabad. You tap send.",
   "s2": "First, the photo breaks into tiny pieces.",
   "s3": "Every piece is just ones and zeros.",

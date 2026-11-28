@@ -16,7 +16,7 @@ export const S1Phone: React.FC = () => { const t = useCurrentFrame() / 30 * SP, 
     <div style={{ position: 'absolute', inset: 0, opacity: fade }}><Bg /></div>
     <SVG><svg x={92} y={432} width={896} height={896} viewBox="0 0 190 190" opacity={fade}><DogPhoto /></svg></SVG><Ms v="000" /></AbsoluteFill>); };
 const N = 14, PITCH = 64;
-const blockAt = (i: number, j: number, u: number, t = 0) => { const k = i * N + j, dx = j - 6.5, dy = i - 6.5, d = Math.hypot(dx, dy) + 0.4; const x1 = 540 + dx * 64 * (1 + 0.012 * d) + (hash(k) - 0.5) * 26, y1 = 880 + dy * 64 * (1 + 0.012 * d) + (hash(k + 3) - 0.5) * 26, r1 = (hash(k + 7) - 0.5) * 60 * Math.min(1, d / 3);
+export const blockAt = (i: number, j: number, u: number, t = 0) => { const k = i * N + j, dx = j - 6.5, dy = i - 6.5, d = Math.hypot(dx, dy) + 0.4; const x1 = 540 + dx * 64 * (1 + 0.012 * d) + (hash(k) - 0.5) * 26, y1 = 880 + dy * 64 * (1 + 0.012 * d) + (hash(k + 3) - 0.5) * 26, r1 = (hash(k + 7) - 0.5) * 60 * Math.min(1, d / 3);
   return { x: lp(540 + dx * PITCH, x1, u) + (Math.sin(t * 2.3 + k * 1.7) * 22) * u, y: lp(880 + dy * PITCH, y1, u) + (Math.cos(t * 2.0 + k * 1.3) * 22) * u, rot: lp(0, r1, u) + Math.sin(t * 1.9 + k) * 22 * u, s: lp(PITCH, 52, u) }; };
 export const S2_FRAMES = 60;
 export const S2Break: React.FC = () => { const t = useCurrentFrame() / 30 * SP;
@@ -45,3 +45,10 @@ export const S6Lens: React.FC = () => { const t = useCurrentFrame() / 30 * SP, e
     <circle cx={lx} cy={ly} r={300} fill="url(#lensG)" /><circle cx={lx} cy={ly} r={300} fill="none" stroke="#c9d6f0" strokeWidth={26} /><circle cx={lx} cy={ly} r={314} fill="none" stroke="#6a7a9a" strokeWidth={6} />
     <line x1={lx + 212} y1={ly + 212} x2={lx + 360} y2={ly + 360} stroke="#c9d6f0" strokeWidth={46} strokeLinecap="round" /><line x1={lx + 212} y1={ly + 212} x2={lx + 360} y2={ly + 360} stroke="#4a3a6a" strokeWidth={22} strokeLinecap="round" />
     <g opacity={txt} transform={`translate(${lx} ${ly})`}><rect x={-250} y={-48} width={500} height={96} rx={20} fill="#0b0f2e" opacity={0.88} stroke="#ff7a7a" strokeWidth={4} /><text y={16} textAnchor="middle" fill="#ff9a9a" style={{ font: `900 54px ${FONT.ui}`, letterSpacing: '0.04em' }}>NOTHING TO SEE</text></g></SVG><Ms v="001" /></AbsoluteFill>); };
+
+/* v5 order: the full-screen dog turns into ones and zeros (zooming a little as it does) */
+export const S2B_FRAMES = 59;
+export const S2Bits: React.FC = () => { const t = useCurrentFrame() / 30 * SP, k = lp(0.8615, 1, eo((t - 0.2) / 1.4)), ph = 1 - sm((t - 0.35) / 1.0);
+  return (<AbsoluteFill><Bg /><SVG>
+    <g transform={`translate(540 880) scale(${k}) translate(-540 -940)`}><DogBits reveal={sm((t - 0.3) / 1.3)} tick={Math.floor(t * 30)} o={sm((t - 0.2) / 0.5)} /></g>
+    <svg x={92} y={432} width={896} height={896} viewBox="0 0 190 190" opacity={ph}><DogPhoto /></svg></SVG><Ms v="001" /></AbsoluteFill>); };
