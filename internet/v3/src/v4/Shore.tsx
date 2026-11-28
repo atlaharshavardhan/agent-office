@@ -14,7 +14,7 @@ import { winTex } from './Packets';
    The camera follows the amber light down the sand and under the water, ready to cut to the seabed. */
 
 export const SHORE_FRAMES = 285;
-export const COAST_NAME = 'UK coast';
+export const COAST_NAME = 'Indian coast';
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
 /* the beach: rises gently inland, slopes down under the water (water level is y = 0, the shoreline is near z = -10) */
@@ -79,7 +79,7 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
     </group>}
   </group>; };
 const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.05, 500); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
-const Box: React.FC<{ x: number; y: number; o: number; text: string; sub?: string; col?: string }> = ({ x, y, o, text, sub, col = '#5fe3ff' }) => { const ww = Math.max(text.length * 19 + 44, (sub?.length ?? 0) * 11.5 + 44);
+const Box: React.FC<{ x: number; y: number; o: number; text: string; sub?: string; col?: string }> = ({ x, y, o, text, sub, col = '#5fe3ff' }) => { const ww = Math.max(text.length * 27 + 50, (sub?.length ?? 0) * 16 + 50);
   return <g opacity={o} transform={`translate(${x} ${y})`}><rect x={-ww / 2} y={-30} width={ww} height={sub ? 76 : 56} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>{text}</text>{sub && <text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>{sub}</text>}</g>; };
 
 export const Shore: React.FC = () => {
@@ -103,8 +103,9 @@ export const Shore: React.FC = () => {
       <AbsoluteFill style={{ background: '#0a1e6a', opacity: under * 0.22 }} />
       <AbsoluteFill><svg width={F.W} height={F.H}>
         <g opacity={stO}><line x1={sx} y1={sy} x2={sx - 40} y2={sy - 90} stroke="#5fe3ff" strokeWidth={2.5} /><Box x={sx - 60} y={sy - 122} o={1} text="CABLE LANDING STATION" sub="where land cables meet the sea cable" /></g>
-        <g opacity={seg(t, 0.4, 0.8) * (1 - seg(t, 5.6, 6.1))} {...EDGE} transform={tr(120, 880)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>{COAST_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>the cable goes into the sea</text></g>
+        <g opacity={seg(t, 0.4, 0.8) * (1 - seg(t, 5.6, 6.1))} {...EDGE} transform={tr(120, 880)}><text fill="#eef1ff" style={{ font: `800 70px ${FONT.ui}` }}>{COAST_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `600 38px ${FONT.mono}` }}>the cable goes into the sea</text></g>
       </svg></AbsoluteFill>
+      <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(15, 18, seg(t, 0.5, 8)))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
     </AbsoluteFill>
   );
 };

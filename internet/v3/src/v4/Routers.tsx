@@ -95,8 +95,8 @@ const Net: React.FC<{ t: number }> = ({ t }) => {
 };
 
 const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.05, 500); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
-const Box: React.FC<{ x: number; y: number; o: number; text: string; sub?: string; col?: string; w?: number }> = ({ x, y, o, text, sub, col = '#5fe3ff', w }) => { const ww = w ?? Math.max(text.length * 19 + 44, (sub?.length ?? 0) * 11.5 + 44);
-  return <g opacity={o} transform={`translate(${x} ${y})`}><rect x={-ww / 2} y={-30} width={ww} height={sub ? 76 : 56} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>{text}</text>{sub && <text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>{sub}</text>}</g>; };
+const Box: React.FC<{ x: number; y: number; o: number; text: string; sub?: string; col?: string; w?: number }> = ({ x, y, o, text, sub, col = '#5fe3ff', w }) => { const ww = w ?? Math.max(text.length * 27 + 50, (sub?.length ?? 0) * 16 + 50);
+  return <g opacity={o} transform={`translate(${x} ${y})`}><rect x={-ww / 2} y={-38} width={ww} height={sub ? 100 : 66} rx={14} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 38px ${FONT.ui}`, letterSpacing: '0.04em' }}>{text}</text>{sub && <text y={42} textAnchor="middle" fill="#cfd8ff" style={{ font: `600 25px ${FONT.mono}` }}>{sub}</text>}</g>; };
 
 export const Routers: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS, pk = packetAt(t);
@@ -115,11 +115,12 @@ export const Routers: React.FC = () => {
       </ThreeCanvas>
       <AbsoluteFill><svg width={F.W} height={F.H}>
         <Box x={F.v ? 540 : 1440} y={F.v ? 300 : 250} o={seg(t, 0.5, 0.9) * (1 - seg(t, 4.0, 4.5))} text="ROUTER" sub="reads the address on each packet" />
-        <Box x={F.v ? 540 : 1440} y={F.v ? 400 : 370} o={seg(t, 2.3, 2.6) * (1 - seg(t, 4.0, 4.5))} text="TO: MEERA · LONDON" sub="so it picks the cable that leads there" col="#ffb454" />
-        <g opacity={tagO}><line x1={px} y1={py - 14} x2={px + 60} y2={py - 96} stroke="#ffb454" strokeWidth={2.5} /><g transform={`translate(${px + 120} ${py - 150})`}><rect x={-112} y={-34} width={224} height={84} rx={12} fill="#ffb454" /><rect x={-112} y={-34} width={224} height={26} rx={12} fill="#7a4a08" /><text x={-98} y={-15} fill="#ffe6b8" style={{ font: `700 15px ${FONT.mono}` }}>TO: MEERA · LONDON</text><text y={34} textAnchor="middle" fill="#07102c" style={{ font: `800 46px ${FONT.ui}` }}>#0004</text></g></g>
+        <Box x={F.v ? 540 : 1440} y={F.v ? 400 : 370} o={seg(t, 2.3, 2.6) * (1 - seg(t, 4.0, 4.5))} text="TO 86.14.203.57 · LONDON" sub="so it picks the cable that leads there" col="#ffb454" />
+        <g opacity={tagO}><line x1={px} y1={py - 14} x2={px + 60} y2={py - 96} stroke="#ffb454" strokeWidth={2.5} /><g transform={`translate(${px + 120} ${py - 150})`}><rect x={-130} y={-34} width={260} height={96} rx={12} fill="#ffb454" /><rect x={-130} y={-34} width={260} height={28} rx={12} fill="#7a4a08" /><text x={-118} y={-14} fill="#ffe6b8" style={{ font: `700 13px ${FONT.mono}` }}>TO 86.14.203.57 · LONDON</text><text y={40} textAnchor="middle" fill="#07102c" style={{ font: `800 54px ${FONT.ui}` }}>#1204</text></g></g>
         <g opacity={busyO}><line x1={bx} y1={by + 14} x2={bx - 50} y2={by + 100} stroke="#ff5a4a" strokeWidth={2.5} /><Box x={bx - 70} y={by + 132} o={1} text="BUSY" sub="so the router sends it another way" col="#ff5a4a" /></g>
-        <g opacity={seg(t, 5.6, 6.1) * (1 - seg(t, 11.3, 11.8))} {...EDGE} transform={tr(120, 150)}><text fill="#eef1ff" style={{ font: `800 50px ${FONT.ui}` }}>Router to router</text><text y={44} fill="#5fe3ff" style={{ font: `500 28px ${FONT.mono}` }}>each one only knows the next step</text></g>
+        <g opacity={seg(t, 5.6, 6.1) * (1 - seg(t, 11.3, 11.8))} {...EDGE} transform={tr(120, 150)}><text fill="#eef1ff" style={{ font: `800 62px ${FONT.ui}` }}>Router to router</text><text y={44} fill="#5fe3ff" style={{ font: `600 34px ${FONT.mono}` }}>each one only knows the next step</text></g>
       </svg></AbsoluteFill>
+      <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(9, 15, seg(t, 0.5, 11)))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
     </AbsoluteFill>
   );
 };
