@@ -9,6 +9,7 @@ import { F, vfov, tr, clampX } from './frame';
 import { FONT } from '../lib/palette';
 import { glassMat, pulseMat } from './Fiber';
 import { winTex, Tower, TOWER } from './Packets';
+import { FootBox } from './TowerHyd';
 
 /* V4, 16:9: from the cell tower the packets go down into a fibre optic cable under the street.
    The ground is cut open like a slice of cake: street and houses on top, soil and stones below, the glass cable running through. */
@@ -95,6 +96,7 @@ export const Underground: React.FC = () => {
         <directionalLight position={[-6, 10, 14]} intensity={1.3} color="#c9d2ff" />
         <Street /><Ground /><Cable t={t} />
         <group position={[TX - TOWER.x, 4.5 + 0.44, -9.5 - TOWER.z]}><Tower t={t + 6.2} /></group>
+        <FootBox position={[TX + 1.9, 0.52, -3.5]} scale={0.9} />
         <EffectComposer><Bloom intensity={0.5} luminanceThreshold={0.86} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.75} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill><svg width={F.W} height={F.H}>

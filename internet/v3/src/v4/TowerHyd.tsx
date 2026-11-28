@@ -18,7 +18,7 @@ const CAMS: Record<number, { p: [number, number, number]; l: [number, number, nu
   4: { p: [TOWER.x - 3.5, BASE + 2.2, TOWER.z + 9.5], l: [TOWER.x + 1.5, BASE + 1.6, TOWER.z + 2], fov: 42 },
 };
 const Cam: React.FC<{ beat: number }> = ({ beat }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = CAMS[beat], cam = camera as THREE.PerspectiveCamera; cam.position.set(...c.p); cam.fov = vfov(c.fov); cam.near = 0.05; cam.far = 400; cam.lookAt(...c.l); cam.updateProjectionMatrix(); }, [beat, camera]); return null; };
-const Cabinet: React.FC = () => (<group position={[TOWER.x + 2.4, BASE + 1.5, TOWER.z + 2.6]}>
+const Cabinet: React.FC<{ at?: [number, number, number] }> = ({ at }) => (<group position={at ?? [TOWER.x + 2.4, BASE + 1.5, TOWER.z + 2.6]}>
   <mesh><boxGeometry args={[2.4, 3, 1.5]} /><meshStandardMaterial color="#aab4d8" roughness={0.55} metalness={0.3} emissive="#ffe9b0" emissiveIntensity={0.18} /></mesh>
   {[0.9, -0.8].map((y, k) => <group key={k} position={[0, y, 0.77]}>{Array.from({ length: 6 }).map((_, j) => <mesh key={j} position={[0, (j - 2.5) * 0.12, 0]}><boxGeometry args={[1.5, 0.05, 0.04]} /><meshStandardMaterial color="#6a7498" /></mesh>)}</group>)}
   <mesh position={[0, -1.55, 0]}><boxGeometry args={[2.9, 0.12, 1.9]} /><meshStandardMaterial color="#d8c9a0" /></mesh>
@@ -63,3 +63,6 @@ const Scene: React.FC<{ beat: number }> = ({ beat }) => (<AbsoluteFill style={{ 
   <div style={{ position: 'absolute', left: 0, right: 0, top: 1640, display: 'flex', justifyContent: 'center' }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: '#fff1dc', textAlign: 'center' }}>{['', 'Radio waves carry the packets', 'To the mobile tower', 'The antennas catch the waves', 'A box turns radio into light'][beat]}</div></div>
 </AbsoluteFill>);
 export const TwB1 = () => <Scene beat={1} />; export const TwB2 = () => <Scene beat={2} />; export const TwB3 = () => <Scene beat={3} />; export const TwB4 = () => <Scene beat={4} />;
+
+/* the box that turns radio into light, to stand at the foot of any tower scene (origin = the floor under the box) */
+export const FootBox: React.FC<{ position: [number, number, number]; scale?: number }> = ({ position, scale = 1 }) => (<group position={position} scale={scale}><Cabinet at={[0, 1.5, 0]} /></group>);
