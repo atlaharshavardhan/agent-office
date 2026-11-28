@@ -112,7 +112,13 @@ const Net: React.FC<{ t: number }> = ({ t }) => {
         <mesh geometry={halfA}><meshStandardMaterial color="#ff5a4a" emissive="#ff3a2a" emissiveIntensity={0.8 * busy * (0.4 + 0.6 * fl)} transparent opacity={0.8} /></mesh><mesh geometry={halfB}><meshStandardMaterial color="#ff5a4a" emissive="#ff3a2a" emissiveIntensity={0.8 * busy * (0.4 + 0.6 * fl)} transparent opacity={0.8} /></mesh>
         <group position={[m.x, 0.7, m.z]}><sprite scale={[11 * busy, 11 * busy, 1]}><spriteMaterial map={red} transparent opacity={busy * (0.5 + 0.5 * fl)} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
           <mesh rotation={[0, 0, Math.PI / 4]} scale={busy}><boxGeometry args={[2.6, 0.32, 0.32]} /><meshBasicMaterial color="#ff4a3a" /></mesh><mesh rotation={[0, 0, -Math.PI / 4]} scale={busy}><boxGeometry args={[2.6, 0.32, 0.32]} /><meshBasicMaterial color="#ff4a3a" /></mesh>
-          {Array.from({ length: 8 }).map((_, k) => { const a = hash(k + 3) * 6.283, d = ((sp + k / 8) % 1) * 2.2; return <mesh key={k} position={[Math.cos(a) * d, Math.abs(Math.sin(a)) * d * 0.6, Math.sin(a) * d * 0.4]} scale={busy * (1 - d / 2.4)}><sphereGeometry args={[0.1, 6, 6]} /><meshBasicMaterial color="#ffd0a0" /></mesh>; })}
+          {(() => { const e = Math.max(0, t - (tBusy - 0.5)) , x = Math.min(1, e / 1.1), fade = 1 - x; if (e <= 0 || x >= 1) return null; const ez = 1 - Math.pow(1 - x, 3);
+            return <group>
+              <sprite scale={[30 * ez + 5, 30 * ez + 5, 1]}><spriteMaterial map={red} transparent opacity={fade * 1.4} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
+              <mesh rotation={[-Math.PI / 2, 0, 0]} scale={0.5 + ez * 10}><ringGeometry args={[0.85, 1, 48]} /><meshBasicMaterial color="#ff5a3a" transparent opacity={fade} side={THREE.DoubleSide} /></mesh>
+              {Array.from({ length: 60 }).map((_, k) => { const a = hash(k + 3) * 6.283, up = 0.4 + hash(k + 50) * 1.1, sp = 6 + hash(k + 90) * 12, d = ez * sp;
+                return <mesh key={k} position={[Math.cos(a) * d, up * d * 0.9 - x * x * 3, Math.sin(a) * d * 0.7]} scale={fade * (0.5 + hash(k + 7))}><boxGeometry args={[0.6, 0.6, 0.6]} /><meshBasicMaterial color={k % 3 ? '#ff3a2a' : '#ffb070'} /></mesh>; })}
+            </group>; })()}
           <pointLight color="#ff4a3a" intensity={50 * busy} distance={14} /></group></group>; })()}
   </group>;
 };
