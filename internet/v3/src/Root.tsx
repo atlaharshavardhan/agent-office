@@ -22,6 +22,8 @@ import { Shore, SHORE_FRAMES } from './v4/Shore';
 import { Arrive, ARRIVE_FRAMES } from './v4/Arrive';
 import { ArriveGrid } from './v4/ArriveGrid';
 import { CatPhoto } from './v4/CatPhoto';
+import { DogBetter } from './v4/DogBetter';
+import { DogPhoto as DogPhotoOld } from './v4/Story';
 import { ArriveReal, REAL_FRAMES } from './v4/ArriveReal';
 import { ArriveRain, RAIN_FRAMES } from './v4/ArriveRain';
 import { Arrive as ArriveHer, ARRIVE_FRAMES as ARRIVE_HER_FRAMES } from './v4/ArriveAnim';
@@ -86,6 +88,8 @@ export const Root: React.FC = () => (
     <Composition id="ArPaltealV" component={() => <ArriveReal pal="teal" />} durationInFrames={REAL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ArAV" component={() => <ArriveReal pal="teal" cat="gold" />} durationInFrames={REAL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ArBV" component={() => <ArriveReal pal="gold" cat="dark" />} durationInFrames={REAL_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="DogBetterV" component={() => <svg width={1080} height={1080} viewBox="0 0 190 190"><DogBetter /></svg>} durationInFrames={1} fps={30} width={1080} height={1080} />
+    <Composition id="DogOldV" component={() => <svg width={1080} height={1080} viewBox="0 0 190 190"><DogPhotoOld /></svg>} durationInFrames={1} fps={30} width={1080} height={1080} />
     <Composition id="CatStillV" component={() => <svg width={1080} height={1080} viewBox="0 0 190 190"><CatPhoto /></svg>} durationInFrames={1} fps={30} width={1080} height={1080} />
     <Composition id="ArriveRealV" component={ArriveReal} durationInFrames={REAL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ArriveRV" component={ArriveRain} durationInFrames={RAIN_FRAMES} fps={30} width={1080} height={1920} />
