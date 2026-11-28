@@ -16,10 +16,10 @@ const AMBER = ['#ffd27a', '#f2a93a', '#c98318', '#ffe3a0'].map((c) => new THREE.
 
 const lerp = (a: number, b: number, u: number) => a + (b - a) * u;
 const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => {
-  const k1 = sm((t - 0.7) / 1.1), k2 = sm((t - 2.45) / 1.0);   // 1: fly in low and tilted (Harsh's angle), 2: pull back to the ring
-  const px = lerp(lerp(0, 1.9, k1), 0, k2), py = lerp(lerp(0.15, -3.0, k1), 0.1, k2), pz = lerp(lerp(11.2 - 0.7 * sm(t / 1.2), 2.9, k1), 10.8, k2);
-  const lx = lerp(lerp(0, -0.2, k1), 0, k2), ly = lerp(lerp(0, 0.4, k1), 0, k2), roll = lerp(lerp(0, -0.5, k1), 0, k2);
-  camera.position.set(px, py, pz); camera.up.set(0, 1, 0); camera.lookAt(lx, ly, 0.4); camera.rotateZ(roll); (camera as THREE.PerspectiveCamera).fov = lerp(42, 66, k1 * (1 - k2)); (camera as THREE.PerspectiveCamera).updateProjectionMatrix(); }, [t, camera]); return null; };
+  // the photo stays still: the CAMERA flies straight in towards the centre as the hole opens, passes close to the tumbling pieces, then pulls back to the ring
+  const k1 = sm((t - 0.35) / 1.6), k2 = sm((t - 2.05) / 0.95);
+  const pz = lerp(lerp(11.2, 3.2, k1), 10.8, k2), px = lerp(Math.sin(t * 1.3) * 0.5 * k1, 0, k2), py = lerp(-0.35 * k1, 0.1, k2), roll = lerp(0.12 * Math.sin(t * 1.7) * k1, 0, k2);
+  camera.position.set(px, py, pz); camera.up.set(0, 1, 0); camera.lookAt(0, 0, 0); camera.rotateZ(roll); (camera as THREE.PerspectiveCamera).fov = lerp(42, 62, k1 * (1 - k2)); (camera as THREE.PerspectiveCamera).updateProjectionMatrix(); }, [t, camera]); return null; };
 
 const Tiles: React.FC<{ t: number }> = ({ t }) => {
   const ref = useRef<THREE.InstancedMesh>(null), plates = useRef<THREE.Mesh[]>([]); const tex = useMemo(() => NUMS.map((n) => numTex(100 + ((n * 37) % 1900))), []), pi = useMemo(() => new Map(NUMS.map((n, q) => [n, q])), []);
@@ -31,13 +31,13 @@ const Tiles: React.FC<{ t: number }> = ({ t }) => {
       const ix = i % N, iy = Math.floor(i / N), x = (ix - (N - 1) / 2) * S, y = ((N - 1) / 2 - iy) * S, [h1, h2, h3, h4, h5] = rnd[i];
       const r = Math.hypot(x, y) / (SZ * 0.62), t0 = 1.0 + r * 1.15 + h1 * 0.3, tau = Math.max(0, t - t0), a = Math.atan2(y, x);
       // free flight
-      const v = 1.0 + h2 * 2.0, vz = (h3 - 0.25) * 5.0, g = 0.45;
+      const v = 1.0 + h2 * 2.0, vz = (h3 - 0.45) * 4.2, g = 0.45;
       let px = x + Math.cos(a + (h4 - 0.5) * 0.9) * v * tau, py = y + Math.sin(a + (h4 - 0.5) * 0.9) * v * tau - g * tau * tau, pz = vz * tau;
       const wx = (h2 - 0.5) * 9, wy = (h3 - 0.5) * 9, wz = (h5 - 0.5) * 9; let rx = wx * tau, ry = wy * tau, rz = wz * tau;
       // before the break: a trembling photo
       if (t < t0) { const k = sm((t - 0.45) / 0.5) * 0.022; px += Math.sin(t * 61 + h4 * 90) * k; py += Math.cos(t * 53 + h5 * 90) * k; pz += Math.sin(t * 47 + h3 * 90) * k * 0.6; }
       // then the pieces gather into the ring of amber packets
-      const u = sm((t - 2.35) / 1.1); let sx = S * 0.97, sy = S * 0.97, sz = S * 0.55;
+      const u = sm((t - 1.95) / 1.15); let sx = S * 0.97, sy = S * 0.97, sz = S * 0.55;
       col.copy(base[i]);
       if (u > 0) {
         const th = h1 * Math.PI * 2 + t * 0.55, rho = 1.25 + Math.sqrt(h2) * 1.0, tx = Math.cos(th) * rho, ty = Math.sin(th) * rho, tz = (h3 - 0.5) * 0.7;
