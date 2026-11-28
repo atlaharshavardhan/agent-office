@@ -38,6 +38,6 @@ export const ServerHall: React.FC = () => { const t = useCurrentFrame() / 30;
       <EffectComposer><Bloom intensity={0.7} luminanceThreshold={0.7} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.7} /></EffectComposer>
     </ThreeCanvas>
     <div style={{ position: 'absolute', left: 0, right: 0, top: 300, textAlign: 'center', padding: '0 50px' }}><div style={{ font: `900 118px/1.02 ${FONT.ui}`, color: '#ffc61a', textTransform: 'uppercase', textShadow: '0 0 34px rgba(255,190,40,.55), 0 6px 12px rgba(0,0,0,.6)', opacity: sm(t / 0.5) }}>The server</div><div style={{ font: `800 54px/1.2 ${FONT.ui}`, color: '#fff', marginTop: 14, textShadow: '0 4px 10px rgba(0,0,0,.7)', opacity: sm((t - 0.4) / 0.5) }}>holds your photo, locked, and passes it on</div></div>
-    <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>012<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+    
     <div style={{ position: 'absolute', left: 60, top: 1560, opacity: sm((t - 3.4) / 0.6), font: `800 54px/1.1 ${FONT.ui}`, color: '#fff', textShadow: '0 0 20px rgba(120,170,255,.7)' }}>It can't read it<div style={{ font: `700 34px ${FONT.ui}`, color: '#7fd4ff' }}>only the two phones have the key</div></div>
   </AbsoluteFill>); };

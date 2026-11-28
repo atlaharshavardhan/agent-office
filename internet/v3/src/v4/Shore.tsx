@@ -104,10 +104,8 @@ export const Shore: React.FC = () => {
       </ThreeCanvas>
       <AbsoluteFill style={{ background: '#0a1e6a', opacity: under * 0.22 }} />
       <AbsoluteFill><svg width={F.W} height={F.H}>
-        <g opacity={stO}><line x1={sx} y1={sy} x2={sx - 40} y2={sy - 90} stroke="#5fe3ff" strokeWidth={2.5} /><Box x={sx - 60} y={sy - 122} o={1} text="CABLE LANDING STATION" sub="where land cables meet the sea cable" /></g>
-        <g opacity={seg(t, 0.4, 0.8) * (1 - seg(t, 5.6, 6.1))} {...EDGE} transform={tr(120, 880)}><text fill="#eef1ff" style={{ font: `800 70px ${FONT.ui}` }}>{COAST_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `600 38px ${FONT.mono}` }}>the cable goes into the sea</text></g>
       </svg></AbsoluteFill>
-      <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(15, 18, seg(t, 0.5, 8)))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+      
     </AbsoluteFill>
   );
 };

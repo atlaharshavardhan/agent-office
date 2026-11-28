@@ -14,4 +14,4 @@ export const EndHer: React.FC = () => { const t = useCurrentFrame() / 30;
     <div style={{ position: 'absolute', left: 0, right: 0, top: 1330, textAlign: 'center', opacity: sm((t - 1.4) / 0.6), transform: `scale(${0.85 + 0.15 * sm((t - 1.4) / 0.6)})` }}><Img src={staticFile('logo.png')} style={{ width: 230, height: 230, objectFit: 'contain', filter: 'drop-shadow(0 0 30px rgba(127,212,255,.6))' }} /><div style={{ font: `900 96px/1.1 ${FONT.ui}`, color: '#fff', letterSpacing: '0.02em', marginTop: 14 }}>Invisi<span style={{ color: '#7fd4ff' }}>Tech</span></div></div>
   </AbsoluteFill>); };
 
-export const NotifHer: React.FC = () => (<AbsoluteFill><Notif who="Boyfriend" /><div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>062<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div></AbsoluteFill>);
+export const NotifHer: React.FC = () => (<AbsoluteFill><Notif who="Boyfriend" /></AbsoluteFill>);

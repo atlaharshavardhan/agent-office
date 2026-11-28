@@ -69,8 +69,7 @@ const Scene: React.FC<{ beat: number; her?: boolean }> = ({ beat, her }) => (<Ab
     <City /><Tower t={0} />{beat === 1 && <Waves />}{beat >= 2 && beat <= 3 && <Panels />}{beat === 2 && <Signal radii={[3, 5.6, 8.6, 12]} />}{beat === 3 && <Signal radii={[2.6, 3.8, 5.2]} />}{beat >= 2 && <Cables beat={beat} />}{beat === 4 && <Cabinet />}
     <EffectComposer><Bloom intensity={0.6} luminanceThreshold={0.8} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.7} /></EffectComposer>
   </ThreeCanvas>
-  <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{(her ? ['', '060', '061', '062', '062'] : ['', '005', '007', '007', '008'])[beat]}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
-  {beat === 2 && !her && <div style={{ position: 'absolute', left: 90, top: 560, font: `800 54px ${FONT.ui}`, color: '#fff', textShadow: '0 0 18px rgba(127,212,255,.7), 0 4px 10px #000' }}>Mobile tower</div>}
+  
   <div style={{ position: 'absolute', left: 0, right: 0, top: 1640, display: 'flex', justifyContent: 'center' }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: '#fff1dc', textAlign: 'center' }}>{(her ? ['', '', 'The tower sends it out as radio', 'Radio waves go to her phone', 'Light arrives at her tower'] : ['', 'Radio waves carry the packets', 'To the mobile tower', 'The antennas catch the waves', 'A box turns radio into light'])[beat]}</div></div>
 </AbsoluteFill>);
 export const TwH2 = () => <Scene beat={2} her />; export const TwH3 = () => <Scene beat={3} her />; export const TwH4 = () => <Scene beat={4} her />; export const TwB1 = () => <Scene beat={1} />; export const TwB2 = () => <Scene beat={2} />; export const TwB3 = () => <Scene beat={3} />; export const TwB4 = () => <Scene beat={4} />;
@@ -96,9 +95,7 @@ export const TowerShot: React.FC<{ her?: boolean }> = ({ her }) => {
       <City /><Tower t={Math.max(0, (t - 3) * 0.3)} />{her ? <PanelsBig /> : <Panels />}{her && <Cables beat={3} />}<SigAnim t={t} />
       <EffectComposer><Bloom intensity={0.6} luminanceThreshold={0.8} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.7} /></EffectComposer>
     </ThreeCanvas>
-    <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
-    <div style={{ position: 'absolute', left: 60, top: 540, opacity: 1 - smoothN((t - 1.6) / 0.8), padding: '18px 40px 18px 52px', borderRadius: 24, background: 'linear-gradient(#24357e, #0a1030)', border: '3.5px solid #5fe3ff', boxShadow: '0 10px 18px rgba(0,0,0,.6), 0 0 16px rgba(95,227,255,.4), inset 0 22px 22px rgba(255,255,255,.14)', font: `800 46px ${FONT.ui}`, letterSpacing: '0.03em', color: '#eef1ff' }}><div style={{ position: 'absolute', left: 16, top: 16, bottom: 16, width: 9, borderRadius: 5, background: '#5fe3ff' }} />{her ? 'Her mobile tower' : 'Mobile tower'}</div>
-    {her && <div style={{ position: 'absolute', left: 60, top: 1400, opacity: smoothN((t - 3.5) / 0.8), font: `800 58px/1.05 ${FONT.ui}`, color: '#fff', textShadow: '0 0 22px rgba(120,170,255,.75), 0 4px 10px rgba(0,0,0,.6)' }}>London<div style={{ font: `700 34px ${FONT.ui}`, color: '#7fd4ff' }}>3:42 AM</div></div>}
+    
   </AbsoluteFill>);
 };
 

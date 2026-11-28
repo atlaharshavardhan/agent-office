@@ -122,7 +122,7 @@ export const GlobeRoute: React.FC = () => {
       {front && <g transform={`translate(${x} ${y})`} opacity={op}><circle r={46} fill="url(#gr2)" /><circle r={9} fill="#fff" /></g>}</svg>
     <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 560, background: 'linear-gradient(#04061a 45%, rgba(4,6,26,0))', opacity: op }} />
     <div style={{ position: 'absolute', left: 0, right: 0, top: 270, textAlign: 'center', opacity: op, textShadow: '0 6px 14px rgba(0,0,0,.7)' }}><div style={{ font: `900 100px/1.05 ${FONT.ui}`, color: '#fff' }}>Almost all data</div><div style={{ font: `800 60px/1.2 ${FONT.ui}`, color: '#7fd4ff' }}>travels in cables</div></div>
-    <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+    
   </AbsoluteFill>);
 };
 
@@ -152,8 +152,7 @@ export const GlobeCut: React.FC<{ real?: boolean; sat?: boolean }> = ({ real = f
           <g transform={`translate(${cx2} ${cy2})`} style={{ filter: 'drop-shadow(0 8px 16px rgba(0,0,0,.6)) drop-shadow(0 0 14px rgba(255,201,74,.55))' }}><rect x={-100} y={-100} width={200} height={200} rx={20} fill="#0b1230" stroke="#ffc94a" strokeWidth={5} /><svg x={-92} y={-92} width={184} height={184} viewBox="0 0 190 190"><clipPath id="phc"><rect x={0} y={0} width={190} height={190} rx={12} /></clipPath><g clipPath="url(#phc)"><DogBetter /></g></svg></g></g>; };
       return <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>{mf && one(mx, my, mo, 'm')}{afront && one(ax, ay, ao, 'a')}</svg>; })()}
     <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 560, background: 'linear-gradient(#04061a 45%, rgba(4,6,26,0))', opacity: op }} />
-    {cap('Almost all intercontinental data travels in cables', c1)}{cap("A ship's anchor cuts one", c2, '#d94a64')}{cap('The network can reroute the data', c3, '#ffe04a')}{cap('through another cable', c4, '#ffe04a')}
-    <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+    
   </AbsoluteFill>);
 };
 
@@ -170,7 +169,7 @@ export const LightTunnel: React.FC<{ title?: boolean; label?: string; sub?: stri
     {title && TITLE('The photo you just sent', 'is 3,000 m under the Arabian Sea right now', 1)}
     {label && <div style={{ position: 'absolute', left: 60, top: 1230, font: `800 56px/1.05 ${FONT.ui}`, color: '#fff', textShadow: '0 0 20px rgba(120,170,255,.7)' }}>{label}<div style={{ font: `700 34px ${FONT.ui}`, color: '#7fd4ff' }}>{sub}</div></div>}
     {title && <div style={{ position: 'absolute', left: 0, right: 0, top: 1400, textAlign: 'center', font: `800 58px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,.7)' }}>Right now <span style={{ color: '#ffc61a' }}>3,000 meters</span></div>}
-    <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{ms}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+    
   </AbsoluteFill>); };
 export const TunnelCable: React.FC = () => <LightTunnel />;
 export const TunnelDive: React.FC = () => <LightTunnel title label="Arabian Sea" sub="depth 410 m" ms="018" />;
@@ -183,5 +182,5 @@ export const GlobeRef: React.FC = () => { const f = useCurrentFrame(), t = f / 3
     <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 900, background: 'linear-gradient(#02030f 40%, rgba(2,3,15,0))' }} />
     {TITLE('The photo you just sent', 'is 3,000 m under the Arabian Sea right now', 1)}
     <div style={{ position: 'absolute', left: 0, right: 0, top: 1760, textAlign: 'center', font: `800 58px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,.7)' }}>Right now <span style={{ color: '#ffc61a' }}>3,000 meters</span></div>
-    <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(18, 22, t / 5))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+    
   </AbsoluteFill>); };

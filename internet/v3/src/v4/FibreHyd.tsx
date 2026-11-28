@@ -4,7 +4,7 @@ import { hash } from '../lib/anim';
 import { FONT } from '../lib/palette';
 /* Part 2, after the tower box: the light goes into a glass cable under the street (STILL STORYBOARD, 9:16). Beats: 2 the cable under the ground, 3 the light enters the cable, 4 inside, the light races. */
 const GOLD = '#ffb454', GOLD2 = '#ffd38a', CREAM = '#fff1dc';
-const Ms: React.FC<{ v: string }> = ({ v }) => <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{v}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>;
+const Ms: React.FC<{ v: string }> = ({ v }) => null;
 const Cap: React.FC<{ t: string; y?: number }> = ({ t, y = 1640 }) => <div style={{ position: 'absolute', left: 0, right: 0, top: y, display: 'flex', justifyContent: 'center' }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: CREAM, textAlign: 'center' }}>{t}</div></div>;
 const Night: React.FC<{ h: number }> = ({ h }) => (<g><defs><linearGradient id="fsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#070a22" /><stop offset="1" stopColor="#1a2250" /></linearGradient></defs><rect width={1080} height={h} fill="url(#fsky)" />
   {[...Array(60)].map((_, k) => <circle key={k} cx={hash(k) * 1080} cy={hash(k + 40) * h * 0.6} r={1 + hash(k + 3) * 1.5} fill="#e6ebff" opacity={0.5} />)}

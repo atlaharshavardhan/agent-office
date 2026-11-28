@@ -93,15 +93,10 @@ export const SeaCable: React.FC = () => {
         <EffectComposer><Bloom intensity={0.5} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.75} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill><svg width={F.W} height={F.H}>
-        <Tag t={t} at={along(-5, 1, 0)} text="UNDERSEA CABLE" sub="deep sea: about 2 cm thick" a={0.6} b={4.0} dx={-150} dy={-190} />
-        <Tag t={t} at={along(-0.5, -3.4, 0.4)} text="GARDEN HOSE" sub="about the same thickness" a={1.4} b={3.7} dx={330} dy={-40} col="#7dffb0" />
-        <Tag t={t} at={along(-3, 1, 0)} text="STEEL WIRES" sub="armour against anchors and nets" a={4.8} b={9.6} dx={-170} dy={190} />
         <Tag t={t} at={along(o.poly * 0.55, 0.74, 0)} text="PLASTIC" sub="keeps the sea water out" a={6.0} b={9.6} dx={-40} dy={-230} col="#9fa8ff" />
-        <Tag t={t} at={along(lerp(o.poly, o.copper, 0.55), -0.5, 0)} text="COPPER TUBE" sub="carries power to the repeaters" a={7.2} b={10.4} dx={230} dy={170} col="#ffb454" />
-        <Tag t={t} at={along(lerp(o.copper, o.strand, 0.6), 0.36, 0)} text="STEEL STRANDS" sub="take the pull when it is laid" a={8.4} b={11.0} dx={-60} dy={-210} />
         <Tag t={t} at={along(8.0, 0.15, 0)} text="GLASS FIBRES" sub="each as thin as a human hair" a={11.6} b={15.0} dx={-250} dy={-190} col="#ffb454" />
       </svg></AbsoluteFill>
-      <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(46, 50, seg(t, 0.5, 14)))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+      
     </AbsoluteFill>
   );
 };

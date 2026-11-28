@@ -66,7 +66,6 @@ export const PhotoShatter3D: React.FC = () => {
       <Tiles t={t} />
       <EffectComposer><Bloom intensity={0.35} luminanceThreshold={0.9} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.25} darkness={0.7} /></EffectComposer>
     </ThreeCanvas>
-    <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
-    <div style={{ position: 'absolute', left: 60, top: 330, opacity: sm((t - 1.1) / 0.4), textShadow: '0 4px 14px rgba(0,0,0,.7)' }}><div style={{ font: `900 80px/1 ${FONT.ui}`, color: '#ffc94a' }}>{cnt.toLocaleString('en-US')}</div><div style={{ font: `600 30px ${FONT.mono}`, color: '#d6e4ff' }}>packets</div></div>
+    
   </AbsoluteFill>);
 };

@@ -185,7 +185,7 @@ export const Seabed: React.FC<{ bare?: boolean }> = ({ bare }) => {
         <g opacity={num} {...EDGE} transform={F.v ? 'translate(540 470)' : tr(960, 250)}><text textAnchor="middle" fill="#ffc94a" style={{ font: `800 170px ${FONT.ui}`, letterSpacing: '0.01em', filter: 'drop-shadow(0 0 26px rgba(255,180,60,.55))' }}>{count.toLocaleString('en-US')}<tspan dx={18} style={{ font: `800 62px ${FONT.ui}` }}>km/s</tspan></text>
           <text y={70} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 30px ${FONT.mono}` }}>light in glass: 2/3 of its speed in space</text></g>
       </svg></AbsoluteFill>}
-      <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(18, 40, seg(t, 0.5, 9.5)))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+      
     </AbsoluteFill>
   );
 };
@@ -210,7 +210,7 @@ export const SeabedRepeater: React.FC = () => {
       <AbsoluteFill><svg width={F.W} height={F.H}>
         <Tag t={t} at={top} text="REPEATER" sub="one every 60 to 100 km" a={1.2} b={7.4} dx={-40} dy={-170} />
       </svg></AbsoluteFill>
-      <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(40, 46, seg(t, 0.5, 7)))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+      
     </AbsoluteFill>
   );
 };

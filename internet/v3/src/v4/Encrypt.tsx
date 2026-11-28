@@ -7,7 +7,7 @@ import { DogPhoto } from './Story';
 /* Part 2, after the hook: the photo breaks into blocks, becomes ones and zeros, is ENCRYPTED, a zoom lens finds nothing, then the gold packets and the address label (STILL STORYBOARD, 9:16). The tower comes later. */
 const GOLD = '#ffb454', GOLD2 = '#ffd38a', INK = '#2a1630', CREAM = '#fff1dc';
 export const Bg: React.FC = () => <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><defs><radialGradient id="eb" cx="50%" cy="42%" r="75%"><stop offset="0" stopColor="#101a4a" /><stop offset="1" stopColor="#04061a" /></radialGradient></defs><rect width={1080} height={1920} fill="url(#eb)" />{[...Array(50)].map((_, k) => <circle key={k} cx={hash(k) * 1080} cy={hash(k + 40) * 1920} r={1 + hash(k + 3) * 1.4} fill="#cfd8ff" opacity={0.35} />)}</svg>;
-export const Ms: React.FC<{ v: string }> = ({ v }) => <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{v}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>;
+export const Ms: React.FC<{ v: string }> = ({ v }) => null;
 const Cap: React.FC<{ t: string; y?: number }> = ({ t, y = 1640 }) => <div style={{ position: 'absolute', left: 0, right: 0, top: y, display: 'flex', justifyContent: 'center' }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: CREAM, textAlign: 'center' }}>{t}</div></div>;
 /* a dog block: a piece of the photo as a solid 3D block */
 export const Block: React.FC<{ x: number; y: number; s: number; rot: number; i: number; j: number; n: number }> = ({ x, y, s, rot, i, j, n }) => (
