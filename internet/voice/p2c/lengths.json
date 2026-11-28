@@ -2,7 +2,7 @@
  "lengths": {
   "s1": 2.304,
   "s2": 2.304,
-  "s3": 2.091,
+  "s3": 2.155,
   "s4": 2.304,
   "s5": 2.219,
   "s6": 3.029,
@@ -17,7 +17,7 @@
  "text": {
   "s1": "Your phone, in Hyderabad. You tap send.",
   "s2": "First, the photo breaks into tiny pieces.",
-  "s3": "Each piece is just ones and zeros.",
+  "s3": "Every piece is just ones and zeros.",
   "s4": "Your whole photo, only ones and zeros.",
   "s5": "Then your phone locks it. It is encrypted.",
   "s6": "If anyone tries to look, they find nothing. Only noise.",

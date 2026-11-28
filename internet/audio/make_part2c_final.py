@@ -1,11 +1,11 @@
 """Part 2, phone to glass cable, v2 (Harsh: faster, free packet motion, better transitions). Every shot is stretched to fit its voice; transitions are camera-shutter flashes, zoom-throughs and a radial wipe.
-Run from internet/ after v3/render_part2c.sh (shots in video/part2c/) and voice/make_part2c_voice.py. Writes video/internet-part2-phone-to-cable-v2.mp4 + subtitles/part2-phone-to-cable-v2.srt"""
+Run from internet/ after v3/render_part2c.sh (shots in video/part2c/) and voice/make_part2c_voice.py. Writes video/internet-part2-phone-to-cable-v3.mp4 + subtitles/part2-phone-to-cable-v3.srt"""
 import json, subprocess, numpy as np, soundfile as sf
 SR = 48000; D = 'video/part2c'; X = 0.15; FPS = 30
 L = json.load(open('voice/p2c/lengths.json'))['lengths']; T = json.load(open('voice/p2c/lengths.json'))['text']
 # (shot, rendered frames, [voice keys in order])
-SH = [('s1', 106, ['s1']), ('s2', 59, ['s2']), ('s3', 54, ['s3']), ('s4', 59, ['s4']), ('s5', 58, ['s5']), ('s6', 71, ['s6']), ('pa', 200, ['o1', 'p1']), ('pb', 170, ['p2']), ('tw', 190, ['p3', 'p4']), ('ug', 270, ['p5', 'o2'])]
-TR = ['fadewhite', 'zoomin', 'fadewhite', 'radial', 'fadewhite', 'zoomin', 'slideup', 'fadewhite', 'zoomin']
+SH = [('s1', 106, ['s1']), ('s2', 59, ['s2']), ('s4', 59, ['s3']), ('s5', 58, ['s5']), ('s6', 71, ['s6']), ('pa', 200, ['o1', 'p1']), ('pb', 170, ['p2']), ('tw', 190, ['p3', 'p4']), ('ug', 270, ['p5', 'o2'])]
+TR = ['fadewhite', 'zoomin', 'radial', 'fadewhite', 'zoomin', 'slideup', 'fadewhite', 'zoomin']
 dur = {}; vstart = {}
 for n, fr, ks in SH:
     d = 0.2 + sum(L[k] for k in ks) + 0.12 * (len(ks) - 1) + 0.22; dur[n] = max(d, 1.4)
@@ -46,7 +46,7 @@ place(bass(), S['s1'] + 0.05, 0.55); place(pop(), at('s1', 0.8), 0.4); place(who
 for n in [x[0] for x in SH][1:]: place(shutter(), S[n] - 0.05, 0.3)
 place(bass(), at('s5', 0.75), 0.5); place(pop(), at('s6', 1.1), 0.45)
 place(riser(0.8), S['pa'] - 0.6, 0.35); place(pop(), at('pa', 0.6), 0.4)
-place(pop(), at('pb', 0.9), 0.45); place(typing(10), at('pb', 1.2), 0.35); place(typing(10), at('pb', 1.8), 0.3); place(riser(0.8), at('pb', 2.5), 0.3); place(pop(), at('pb', 2.95), 0.4)
+place(riser(0.7), S['pb'] - 0.2, 0.3); place(pop(), at('pb', 1.0), 0.45); place(typing(8), at('pb', 1.2), 0.3); place(typing(8), at('pb', 1.6), 0.3); place(typing(8), at('pb', 2.0), 0.3)
 place(pop(), S['tw'] + 0.2, 0.4); place(whoosh(), at('tw', 2.0), 0.22)
 place(riser(1.0), S['ug'] - 0.5, 0.3); place(load('video/part2hook12/cable-one-soft.wav'), S['ug'] + 0.6, 0.8)
 f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) / (1.0 * SR)); out *= f[:, None]; out = np.tanh(out * 1.2) / 1.2; out *= 0.7 / np.abs(out).max(); sf.write(f'{D}/mix.wav', out[: int(TOTAL * SR)], SR)
@@ -57,8 +57,8 @@ prev = '[a0]'
 for i in range(1, len(SH)):
     o = f'[x{i}]'; fc += f'{prev}[a{i}]xfade=transition={TR[i - 1]}:duration={X}:offset={S[SH[i][0]]:.3f}{o};'; prev = o
 fc = f'[{len(SH)}:v]format=rgba,colorchannelmixer=aa=0.3[wm];' + fc + f'{prev}[wm]overlay=24:926[v]'
-cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-phone-to-cable-v2.mp4']
+cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-phone-to-cable-v3.mp4']
 r = subprocess.run(cmd, capture_output=True, text=True); print('final', r.returncode, r.stderr[-300:])
 def ts(s): return '%02d:%02d:%02d,%03d' % (int(s // 3600), int(s % 3600 // 60), int(s % 60), round((s % 1) * 1000))
 rows = [(S[n] + vstart[k], L[k], T[k]) for n, fr, ks in SH for k in ks]
-open('subtitles/part2-phone-to-cable-v2.srt', 'w').write('\n'.join(f'{i + 1}\n{ts(a)} --> {ts(a + d)}\n{x}\n' for i, (a, d, x) in enumerate(rows)))
+open('subtitles/part2-phone-to-cable-v3.srt', 'w').write('\n'.join(f'{i + 1}\n{ts(a)} --> {ts(a + d)}\n{x}\n' for i, (a, d, x) in enumerate(rows)))

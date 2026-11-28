@@ -17,7 +17,7 @@ export const S1Phone: React.FC = () => { const t = useCurrentFrame() / 30 * SP, 
     <SVG><svg x={92} y={432} width={896} height={896} viewBox="0 0 190 190" opacity={fade}><DogPhoto /></svg></SVG><Ms v="000" /></AbsoluteFill>); };
 const N = 14, PITCH = 64;
 const blockAt = (i: number, j: number, u: number, t = 0) => { const k = i * N + j, dx = j - 6.5, dy = i - 6.5, d = Math.hypot(dx, dy) + 0.4; const x1 = 540 + dx * 64 * (1 + 0.012 * d) + (hash(k) - 0.5) * 26, y1 = 880 + dy * 64 * (1 + 0.012 * d) + (hash(k + 3) - 0.5) * 26, r1 = (hash(k + 7) - 0.5) * 60 * Math.min(1, d / 3);
-  return { x: lp(540 + dx * PITCH, x1, u) + Math.sin(t * 1.9 + k) * 9 * u, y: lp(880 + dy * PITCH, y1, u) + Math.cos(t * 1.6 + k * 0.7) * 9 * u, rot: lp(0, r1, u) + Math.sin(t * 1.4 + k) * 9 * u, s: lp(PITCH, 52, u) }; };
+  return { x: lp(540 + dx * PITCH, x1, u) + (Math.sin(t * 2.3 + k * 1.7) * 22) * u, y: lp(880 + dy * PITCH, y1, u) + (Math.cos(t * 2.0 + k * 1.3) * 22) * u, rot: lp(0, r1, u) + Math.sin(t * 1.9 + k) * 22 * u, s: lp(PITCH, 52, u) }; };
 export const S2_FRAMES = 60;
 export const S2Break: React.FC = () => { const t = useCurrentFrame() / 30 * SP;
   return (<AbsoluteFill><Bg /><SVG>{Array.from({ length: N * N }).map((_, k) => { const i = Math.floor(k / N), j = k % N, u = eo((t - 0.2 - hash(k + 50) * 0.5) / 1.5), b = blockAt(i, j, u, t); return <Block key={k} x={b.x} y={b.y} s={b.s} rot={b.rot} i={i} j={j} n={N} />; })}</SVG><Ms v="000" /></AbsoluteFill>); };
@@ -28,8 +28,10 @@ export const S3Bits: React.FC = () => { const t = useCurrentFrame() / 30 * SP, u
     <g opacity={1 - u}>{Array.from({ length: N * N }).map((_, k) => { const i = Math.floor(k / N), j = k % N, b = blockAt(i, j, 1, t); return <Block key={k} x={b.x} y={b.y} s={b.s * (1 - 0.3 * u)} rot={b.rot} i={i} j={j} n={N} />; })}</g>
     <Wall t={t} o={u} sc={lp(0.82, 1, u)} /></SVG><Ms v="001" /></AbsoluteFill>); };
 export const S4_FRAMES = 60;
-export const S4Dog: React.FC = () => { const t = useCurrentFrame() / 30 * SP, u = sm(t / 0.9);
-  return (<AbsoluteFill><Bg /><SVG><Wall t={t + 3} o={1 - u} sc={lp(1, 1.25, u)} /><DogBits reveal={sm((t - 0.2) / 1.4)} tick={Math.floor(t * 30)} /></SVG><Ms v="001" /></AbsoluteFill>); };
+export const S4Dog: React.FC = () => { const t = useCurrentFrame() / 30 * SP, u = sm(t / 1.1), tb = t + 2.95;   // the floating blocks fade into the dog drawn in ones and zeros (the grid of bit blocks was dropped, Harsh)
+  return (<AbsoluteFill><Bg /><SVG>
+    <g opacity={1 - u}>{Array.from({ length: N * N }).map((_, k) => { const i = Math.floor(k / N), j = k % N, b = blockAt(i, j, 1, tb); return <Block key={k} x={540 + (b.x - 540) * (1 + 0.25 * u)} y={880 + (b.y - 880) * (1 + 0.25 * u)} s={b.s * (1 - 0.4 * u)} rot={b.rot} i={i} j={j} n={N} />; })}</g>
+    <DogBits reveal={sm((t - 0.3) / 1.3)} tick={Math.floor(t * 30)} o={sm((t - 0.1) / 0.5)} /></SVG><Ms v="001" /></AbsoluteFill>); };
 export const S5_FRAMES = 59;
 export const S5Lock: React.FC = () => { const t = useCurrentFrame() / 30 * SP, p = sm((t - 0.1) / 1.2), pop = t < 1.1 ? 0 : t < 1.4 ? lp(0, 1.18, (t - 1.1) / 0.3) : lp(1.18, 1, Math.min(1, (t - 1.4) / 0.3));
   return (<AbsoluteFill><Bg /><SVG><g opacity={0.5 * sm((t - 0.6) / 1.0)} transform="translate(0 150)"><Grid scramble seed={4} /></g><DogBits p={p} tick={Math.floor(t * 30)} o={1 - 0.4 * sm((t - 0.8) / 0.8)} />
