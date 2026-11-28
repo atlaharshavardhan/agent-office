@@ -181,3 +181,5 @@ Mapping for Part 2: Hook = locked 12 s (v10). Lead = your phone, send, photo bre
 ## 28 Nov 2026 - ARRIVAL packets (Harsh): wide RECTANGLES (not squares), amber/yellow like his reference (v3/src/v4/ArriveReal.tsx, palette 'amber'), better dog photo, red missing packets close together in the middle. Not rendered yet.
 
 ## 28 Nov 2026 - PACKETS (Harsh): the packets form a 3D CLOUD (sphere), not a ring (cloud3 in v3/src/v4/PacketsAnim.tsx). The address card is the new glossy 3D label (AddressCard: gold bezel, chip header, icons, London/Hyderabad badges, progress bar, barcode, LOCKED stamp). Stills only, not rendered.
+
+## 28 Nov 2026 - TEXT CARDS (Harsh): all label cards (Routers, Shore, Seabed, SeaCable tags) are the glossy style (blue gradient body, coloured glass border, top shine, accent bar, glow); the #1204 tag is a glossy gold tag. The router/server rack scene stays DARK (the brighter version was reverted).
