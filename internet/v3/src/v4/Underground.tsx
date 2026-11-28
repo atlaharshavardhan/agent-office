@@ -18,7 +18,7 @@ export const UNDER_FRAMES = 270;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
 const TX = -14, CY = -3.2, CZ = 0.7;      // tower x, cable depth, cable just in front of the cut face
-const PATH = new THREE.CatmullRomCurve3([V(TX, 2.2, CZ), V(TX, 0, CZ), V(TX, -1.8, CZ), V(TX + 0.7, -2.8, CZ), V(TX + 2.2, CY, CZ), V(0, CY, CZ), V(30, CY, CZ), V(70, CY, CZ)], false, 'catmullrom', 0.2);
+const PATH = new THREE.CatmullRomCurve3([V(TX, 0.25, CZ), V(TX, -0.4, CZ), V(TX, -1.8, CZ), V(TX + 0.7, -2.8, CZ), V(TX + 2.2, CY, CZ), V(0, CY, CZ), V(30, CY, CZ), V(70, CY, CZ)], false, 'catmullrom', 0.2);
 const LEN = PATH.getLength();
 
 type CK = { t: number; p: [number, number, number]; l: [number, number, number]; fov: number };
