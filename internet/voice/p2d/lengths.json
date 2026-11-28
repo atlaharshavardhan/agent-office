@@ -1,5 +1,9 @@
 {
  "lengths": {
+  "a1": 2.176,
+  "a2": 1.771,
+  "a3": 2.432,
+  "a4": 2.816,
   "c1": 2.944,
   "c2": 3.477,
   "c3": 2.24,
@@ -13,6 +17,10 @@
   "r4": 2.731
  },
  "text": {
+  "a1": "On her phone, the pieces land in any order.",
+  "a2": "The numbers put them back in line.",
+  "a3": "Her phone unlocks them, and the photo appears.",
+  "a4": "About 65 milliseconds. Faster than a blink.",
   "c1": "The cable is thin, about as thick as a garden hose.",
   "c2": "Steel wires and plastic protect it from anchors and sea water.",
   "c3": "A copper tube carries power to the repeaters.",

@@ -18,6 +18,7 @@ import { Planet, PLANET_FRAMES } from './v4/Planet';
 import { SeaCable, SEACABLE_FRAMES } from './v4/SeaCable';
 import { Shore, SHORE_FRAMES } from './v4/Shore';
 import { Arrive, ARRIVE_FRAMES } from './v4/Arrive';
+import { Arrive as ArriveHer, ARRIVE_FRAMES as ARRIVE_HER_FRAMES } from './v4/ArriveAnim';
 import { Snap, SNAP_FRAMES } from './v4/Snap';
 import { SeabedMs, RepeaterMs, PlanetMs, SeabedFast, SeabedLight, GlobeSat, SeabedLight12, GlobeSatStart, SeabedLight12b, GlobeSatQ, GlobeHook, SeabedLight12c } from './v4/Final';
 import { HydRoom, HYD_ROOM_FRAMES } from './v4/HydRoom';
@@ -73,6 +74,7 @@ export const Root: React.FC = () => (
     <Composition id="S4V" component={S4Dog} durationInFrames={S4_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="S5V" component={S5Lock} durationInFrames={S5_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="S6V" component={S6Lens} durationInFrames={S6_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="ArriveHV" component={ArriveHer} durationInFrames={ARRIVE_HER_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="S2BV" component={S2Bits} durationInFrames={S2B_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="PktStoryV" component={PacketsStory} durationInFrames={PACKETS_STORY_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="PktRingV" component={PacketsRing} durationInFrames={PACKETS_RING_FRAMES} fps={30} width={1080} height={1920} />

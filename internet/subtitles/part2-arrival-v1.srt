@@ -1,0 +1,15 @@
+1
+00:00:00,500 --> 00:00:02,676
+On her phone, the pieces land in any order.
+
+2
+00:00:02,600 --> 00:00:04,371
+The numbers put them back in line.
+
+3
+00:00:04,500 --> 00:00:06,932
+Her phone unlocks them, and the photo appears.
+
+4
+00:00:07,600 --> 00:00:10,416
+About 65 milliseconds. Faster than a blink.
