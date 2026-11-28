@@ -3,12 +3,12 @@ Reels structure: 01 Hook, 02 Lead, 03 Body 1, 04 Open loop, 05 Body 2, 06 Open l
 | # | Part | Part 2 content | Status |
 |---|---|---|---|
 | 01 | Hook | 12 s hook, LOCKED: video/internet-part2-hook-v10.mp4 | done |
-| 02 | Lead | your phone, tap send, zoom into the dog photo, it breaks into 196 blocks | rendering (v3/render_part2b.sh) |
-| 03 | Body 1 | ones and zeros, the dog in bits, lock = encrypted, magnifier: nothing to see | rendering |
+| 02 | Lead | phone, zoom into the dog photo, ones and zeros | LOCKED (phone-to-cable-v5) |
+| 03 | Body 1 | lock = encrypted, magnifier: nothing to see, photo breaks into locked packets, ring, packet #1204 becomes the address card, mobile tower | LOCKED |
 | 04 | Open loop | "But where do all these pieces go?" (line to add) | to add |
 | 05 | Body 2 | about 2,000 packets, packet label (To / From / Piece), radio waves, mobile tower | rendering |
 | 06 | Open loop | "And then they have to cross an entire ocean..." (line to add) | to add |
-| 07 | Body 3 | box turns radio into light, glass cable under the street (old Underground scene + box), later seabed | partly |
+| 07 | Body 3 | box turns radio into light, glass cable under the street, routers, shore, Arabian Sea seabed, repeater, optical cable layers | LOCKED (video/internet-part2-phone-to-cable-v5.mp4 and video/internet-part2-routers-to-cable-v1.mp4) |
 | 08 | CTA | "Follow for the next part", Bell Ding | to build |
 Sounds (Harsh's list): Hooks = Bass Impact, Zoom In = Quick Whoosh, Transitions = Camera Shutter, Text popping up = Soft Pop, Captions = Keyboard Typing, Reveals = Metallic Riser, CTA = Bell Ding (audio/make_part2b_final.py).
 Rules: no names (say "your phone", "your girlfriend"), squares for photo blocks, rectangles for packets, free voice (Kokoro Michael) first, ElevenLabs only on his word, captions only for key moments (full text in the .srt).
@@ -69,3 +69,7 @@ d (10-13 s) "At the bottom, a box turns the signal into light." (tower box with 
 e (13-17 s) "It sends that light down a glass cable, buried under the street." (cutaway, fb/f2.png) then the light enters (fb/f3.png)
 f (17-20 s) "Inside, the light races." (fb/f4.png)
 Code: v3/src/v4/FibreHyd.tsx (2D). First drafts.
+
+## 28 Nov 2026 - LOCKED by Harsh: internet-part2-phone-to-cable-v5.mp4 (32 s, phone to the glass cable under the street) and internet-part2-routers-to-cable-v1.mp4 (42 s, routers, Indian coast, Arabian Sea, repeater, optical cable layers). Counter: 000 ms to 050 ms.
+After the box at the tower base everything is LIGHT, not packets (Harsh). The sea is the Arabian Sea (not Pacific): the route is Hyderabad - Arabian Sea - Red Sea - Mediterranean - Atlantic - London.
+NEXT (to build): the rest of the sea crossing (counter 050 to about 65 ms: cable on from the Arabian Sea, the globe with the line drawn Hyderabad to London), landing on the UK coast, routers in London, her mobile tower, radio to her phone, the photo appears (use London room/notification scenes; counter ends near 65 ms), then the open loop and CTA "follow" with Bell Ding. Old clips to reuse: 09-PlanetV (globe), 10-ArriveV, 11-EndCardV in internet/part2/clips-v3.
