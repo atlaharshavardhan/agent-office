@@ -84,6 +84,8 @@ export const Root: React.FC = () => (
     <Composition id="ArPalcyanV" component={() => <ArriveReal pal="cyan" />} durationInFrames={REAL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ArPalvioletV" component={() => <ArriveReal pal="violet" />} durationInFrames={REAL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ArPaltealV" component={() => <ArriveReal pal="teal" />} durationInFrames={REAL_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="ArAV" component={() => <ArriveReal pal="teal" cat="gold" />} durationInFrames={REAL_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="ArBV" component={() => <ArriveReal pal="gold" cat="dark" />} durationInFrames={REAL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="CatStillV" component={() => <svg width={1080} height={1080} viewBox="0 0 190 190"><CatPhoto /></svg>} durationInFrames={1} fps={30} width={1080} height={1080} />
     <Composition id="ArriveRealV" component={ArriveReal} durationInFrames={REAL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ArriveRV" component={ArriveRain} durationInFrames={RAIN_FRAMES} fps={30} width={1080} height={1920} />
