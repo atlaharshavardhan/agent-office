@@ -82,26 +82,47 @@ export const PkD: React.FC<{ x: number; y: number; w: number; rot: number; o: nu
     <svg x={-w / 2 + w * 0.07} y={-h / 2 + h * 0.3} width={ps * 1.5} height={ps} viewBox={`${(j * 190) / NC} ${(i * 190) / NR} ${190 / NC} ${190 / NR}`} preserveAspectRatio="none" overflow="hidden"><DogPhoto /></svg>
     {w > 56 && <g transform={`translate(${w / 2 - w * 0.12} ${-h / 2 + h * 0.14})`}><rect x={-w * 0.035} y={-h * 0.02} width={w * 0.07} height={h * 0.09} rx={1.5} fill="#ffd38a" /><path d={`M ${-w * 0.022} ${-h * 0.02} v ${-h * 0.05} a ${w * 0.022} ${w * 0.022} 0 0 1 ${w * 0.044} 0 v ${h * 0.05}`} fill="none" stroke="#ffd38a" strokeWidth={Math.max(1, w * 0.012)} /></g>}
   </g>; };
+/* the 3D cloud (Harsh's pick): packets on a turning sphere; z = depth from -1 (far) to 1 (near), sc = perspective scale */
+const cloud3 = (k: number, t: number) => { const th = hash(k) * 6.283 + t * 0.5, ph = Math.acos(2 * hash(k + 7) - 1), R = 400, X = R * Math.sin(ph) * Math.cos(th), Z = R * Math.sin(ph) * Math.sin(th), Y = R * Math.cos(ph) * 1.05, sc = 1 + Z / 1100; return { x: 540 + X * sc, y: 900 + Y * sc, z: Z / R, sc, rot: Math.atan2(Y, X) * 57.3 + 90 + Math.sin(t * 1.5 + k) * 14 }; };
+/* THE ADDRESS CARD (Harsh: make it so much better): a glossy, tilted 3D packet label, gold bezel, dark header with a chip, icons, route arrow, progress bar, barcode and a LOCKED stamp */
+const Row: React.FC<{ k: string; sub: string; v: string; city: string; c: string; ic: React.ReactNode; o: number }> = ({ k, sub, v, city, c, ic, o }) => (<div style={{ display: 'flex', alignItems: 'center', gap: 22, opacity: o, transform: `translateY(${(1 - o) * 26}px)`, padding: '14px 0' }}>
+  <div style={{ width: 84, height: 84, borderRadius: 24, background: `linear-gradient(145deg, ${c}, #00000055)`, display: 'grid', placeItems: 'center', boxShadow: `0 8px 18px ${c}66, inset 0 2px 0 #ffffff66` }}>{ic}</div>
+  <div style={{ flex: 1 }}><div style={{ font: `800 26px ${FONT.ui}`, letterSpacing: '0.14em', color: c }}>{k} <span style={{ color: '#8a7a66', fontWeight: 700, letterSpacing: '0.02em' }}>{sub}</span></div><div style={{ font: `800 50px/1.1 ${FONT.mono}`, color: '#24102a', letterSpacing: '-0.02em' }}>{v}</div></div>
+  <div style={{ padding: '14px 30px', borderRadius: 40, background: `linear-gradient(180deg, ${c}, #00000044)`, font: `800 34px ${FONT.ui}`, color: '#fff', boxShadow: `0 6px 14px ${c}55, inset 0 2px 0 #ffffff55` }}>{city}</div></div>);
+const PIN = <svg width={46} height={46} viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="#fff" /></svg>;
+const HOME = <svg width={46} height={46} viewBox="0 0 24 24"><path d="M12 3 2 12h3v8h5v-5h4v5h5v-8h3z" fill="#fff" /></svg>;
+const PUZ = <svg width={46} height={46} viewBox="0 0 24 24"><path d="M10 3a2 2 0 0 1 4 0v2h4a1 1 0 0 1 1 1v4h-2a2 2 0 0 0 0 4h2v4a1 1 0 0 1-1 1h-4v-2a2 2 0 0 0-4 0v2H6a1 1 0 0 1-1-1v-4h2a2 2 0 0 0 0-4H5V6a1 1 0 0 1 1-1h4z" fill="#fff" /></svg>;
+const AddressCard: React.FC<{ rows: number[]; shine: number }> = ({ rows, shine }) => (<div style={{ width: 940, borderRadius: 60, padding: 12, background: 'linear-gradient(135deg, #ffe9a8 0%, #f0b23a 28%, #b8741a 55%, #f6c862 80%, #fff0c0 100%)', boxShadow: '0 50px 70px rgba(0,0,0,.65), 0 0 90px rgba(255,180,84,.45), inset 0 3px 0 #fff8dc', position: 'relative', overflow: 'hidden' }}>
+  <div style={{ borderRadius: 50, overflow: 'hidden', background: '#fff7e8', position: 'relative' }}>
+    <div style={{ height: 120, background: 'linear-gradient(180deg, #3a2046, #1e0f2a)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 44px', borderBottom: '5px solid #f0b23a' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}><div style={{ width: 62, height: 46, borderRadius: 10, background: 'linear-gradient(145deg,#ffe08a,#c88a22)', boxShadow: 'inset 0 0 0 3px #8a5a10aa' }} /><div style={{ font: `900 46px ${FONT.ui}`, letterSpacing: '0.16em', color: '#ffd38a' }}>PACKET</div></div>
+      <div style={{ font: `900 62px ${FONT.mono}`, color: '#fff1dc', textShadow: '0 0 22px rgba(255,200,100,.6)' }}>#1204</div></div>
+    <div style={{ padding: '18px 44px 10px' }}>
+      <Row k="TO" sub="where it goes" v="86.14.203.57" city="London" c="#c2412b" ic={PIN} o={rows[0]} />
+      <div style={{ height: 0, borderTop: '3px dashed #e3c9a0' }} />
+      <Row k="FROM" sub="where it came from" v="49.37.118.202" city="Hyderabad" c="#2a6fb0" ic={HOME} o={rows[1]} />
+      <div style={{ height: 0, borderTop: '3px dashed #e3c9a0' }} />
+      <Row k="PIECE" sub="its place in the photo" v="1,204 of 2,000" city="1,500 bytes" c="#9a6a14" ic={PUZ} o={rows[2]} />
+      <div style={{ marginTop: 6, height: 26, borderRadius: 13, background: '#ead9b8', boxShadow: 'inset 0 3px 6px #00000033', overflow: 'hidden', opacity: rows[2] }}><div style={{ width: `${60.2 * rows[2]}%`, height: '100%', background: 'linear-gradient(90deg,#f0b23a,#ffd77a)', borderRadius: 13 }} /></div></div>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 44px 26px', opacity: rows[2] }}>
+      <svg width={470} height={64}>{Array.from({ length: 46 }).map((_, k) => <rect key={k} x={k * 10.2} y={0} width={hash(k + 77) > 0.5 ? 6 : 3} height={64} fill="#24102a" />)}</svg>
+      <div style={{ transform: 'rotate(-8deg)', border: '5px solid #2a8a5a', color: '#2a8a5a', borderRadius: 14, padding: '6px 22px', font: `900 40px ${FONT.ui}`, letterSpacing: '0.12em', display: 'flex', alignItems: 'center', gap: 10 }}><svg width={36} height={36} viewBox="0 0 24 24"><path d="M7 10V8a5 5 0 0 1 10 0v2h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1zm2 0h6V8a3 3 0 0 0-6 0z" fill="#2a8a5a" /></svg>LOCKED</div></div>
+  </div>
+  <div style={{ position: 'absolute', top: 0, bottom: 0, width: 220, left: `${-30 + shine * 150}%`, background: 'linear-gradient(105deg, transparent, rgba(255,255,255,.38), transparent)', transform: 'skewX(-18deg)' }} />
+</div>);
 export const PACKETS_STORY_FRAMES = 260;
 export const PacketsStory: React.FC = () => { const f = useCurrentFrame(), t = f / 30, NN = 187, HERO = 11, tf = 4.2, g = eo((t - tf) / 1.2), dm = 1 - 0.75 * eo((t - tf) / 0.8), count = Math.round(2000 * eo((t - 2.0) / 1.6) / 10) * 10, rows = [sm((t - 5.5) / 0.5), sm((t - 6.1) / 0.5), sm((t - 6.7) / 0.5)];
   const items: [string, string, string, string][] = [['TO', '86.14.203.57', 'London', '#c2412b'], ['FROM', '49.37.118.202', 'Hyderabad', '#2a6fb0'], ['PIECE', '1,204 of 2,000', '1,500 bytes', '#9a6a14']];
-  const pos = (k: number) => { const i = Math.floor(k / NC), j = k % NC, bt = eo((t - 0.35 - hash(k + 50) * 0.35) / 1.0), mt = eo((t - 1.3 - hash(k + 60) * 0.35) / 1.1), b = blockAtR(i, j, bt, t), r = ring(k, t), w = 52 + hash(k + 9) * 56 + 14 * r.z;
+  const pos = (k: number) => { const i = Math.floor(k / NC), j = k % NC, bt = eo((t - 0.35 - hash(k + 50) * 0.35) / 1.0), mt = eo((t - 1.3 - hash(k + 60) * 0.35) / 1.1), b = blockAtR(i, j, bt, t), r = cloud3(k, t), w = (50 + hash(k + 9) * 50) * r.sc * 1.12;
     return { i, j, mt, bx: b.x, by: b.y, br: b.rot, bw: b.w, bh: b.h, x: lp(b.x, r.x, mt), y: lp(b.y, r.y, mt), rot: lp(b.rot, r.rot, mt), w: lp(b.w, w, mt), z: r.z }; };
-  const all = Array.from({ length: NN }).map((_, k) => ({ k, p: pos(k) })).sort((p, q) => p.p.z - q.p.z), h0 = ring(HERO, tf), photo = 1 - sm((t - 0.3) / 0.3);
+  const all = Array.from({ length: NN }).map((_, k) => ({ k, p: pos(k) })).sort((p, q) => p.p.z - q.p.z), h0 = cloud3(HERO, tf), photo = 1 - sm((t - 0.3) / 0.3);
   return (<AbsoluteFill><Bg /><svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
     <svg x={92} y={432} width={896} height={896} viewBox="0 0 190 190" opacity={photo}><DogPhoto /></svg>
     {all.map(({ k, p }) => { if (k === HERO && t >= tf) return null; return <g key={k} opacity={dm}>
       {p.mt < 1 && <BlockR x={p.x} y={p.y} w={p.bw} h={p.bh} rot={p.rot} i={p.i} j={p.j} />}
-      {p.mt > 0 && <>{[3, 2, 1].map((gg) => { const q = ring(k, t - gg * 0.045); return p.mt > 0.95 ? <Pk key={gg} x={q.x} y={q.y} w={p.w * 0.9} rot={q.rot} o={0.12 * (4 - gg) / 3} /> : null; })}<PkD x={p.x} y={p.y} w={Math.max(20, p.w * (0.75 + 0.25 * p.mt))} rot={p.rot} o={p.mt} i={p.i} j={p.j} /></>}</g>; })}
-    {t >= tf && <g transform={`translate(${lp(h0.x, 540, g)} ${lp(h0.y, 880, g)}) scale(${lp(0.13, 1, g)}) rotate(${lp((((h0.rot % 360) + 540) % 360) - 180, 0, g)})`} style={{ filter: 'drop-shadow(0 30px 40px rgba(0,0,0,.7)) drop-shadow(0 0 50px rgba(255,180,84,.45))' }}>
-      <rect x={-440} y={-290} width={880} height={580} rx={44} fill="url(#gp2)" stroke="#ffe3a0" strokeWidth={5} />
-      <path d="M -440 -246 Q -440 -290 -396 -290 L 396 -290 Q 440 -290 440 -246 L 440 -170 L -440 -170 Z" fill="#2a1630" />
-      <g opacity={sm((g - 0.5) / 0.4)}><text x={-400} y={-215} fill={GOLD2} style={{ font: `900 44px ${FONT.ui}`, letterSpacing: '0.12em' }}>PACKET</text><text x={400} y={-215} textAnchor="end" fill="#fff1dc" style={{ font: `900 56px ${FONT.mono}` }}>#1204</text></g>
-      <g opacity={sm((g - 0.7) / 0.3)}><rect x={-405} y={-140} width={810} height={400} rx={26} fill="#fff6e6" /></g>
-      {items.map(([k, v, sub, c], r) => <g key={k} opacity={rows[r]} transform={`translate(0 ${r * 125 - 100 + lp(24, 0, rows[r])})`}>
-        <circle cx={-366} cy={46} r={10} fill={c} /><text x={-338} y={62} fill={c} style={{ font: `900 38px ${FONT.ui}`, letterSpacing: '0.06em' }}>{k}</text>
-        <text x={-190} y={62} fill="#2a1630" style={{ font: `800 38px ${FONT.mono}` }}>{v}</text><g transform="translate(140 0)"><rect x={0} y={12} width={sub.length * 16 + 36} height={62} rx={31} fill={c} /><text x={18} y={55} fill="#fff" style={{ font: `800 30px ${FONT.ui}` }}>{sub}</text></g>
-        {r < 2 && <line x1={-370} x2={370} y1={100} y2={100} stroke="#e3c9a0" strokeWidth={2} />}</g>)}</g>}</svg>
-    <div style={{ position: 'absolute', left: 0, right: 0, top: 740, textAlign: 'center', font: `900 190px/1 ${FONT.ui}`, color: GOLD, textShadow: '0 0 40px rgba(255,180,84,.55), 0 8px 18px rgba(0,0,0,.7)', opacity: sm((t - 2.0) / 0.4) * (1 - eo((t - 3.9) / 0.4)) }}>{count.toLocaleString('en-US')}</div>
-    <div style={{ position: 'absolute', left: 0, right: 0, top: 950, textAlign: 'center', font: `800 60px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,.8)', opacity: sm((t - 2.0) / 0.4) * (1 - eo((t - 3.9) / 0.4)) }}>packets</div>
+      {p.mt > 0 && <>{[3, 2, 1].map((gg) => { const q = cloud3(k, t - gg * 0.045); return p.mt > 0.95 ? <Pk key={gg} x={q.x} y={q.y} w={p.w * 0.9} rot={q.rot} o={0.12 * (4 - gg) / 3} /> : null; })}<PkD x={p.x} y={p.y} w={Math.max(20, p.w * (0.75 + 0.25 * p.mt))} rot={p.rot} o={p.mt} i={p.i} j={p.j} /></>}</g>; })}
+  </svg>
+    {t >= tf && <div style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1920, perspective: 1600, pointerEvents: 'none' }}><div style={{ position: 'absolute', left: lp(h0.x, 540, g) - 470, top: lp(h0.y, 840, g) - 330, transform: `scale(${lp(0.12, 1, g)}) rotate(${lp((((h0.rot % 360) + 540) % 360) - 180, 0, g)}deg) rotateY(${lp(-40, -9, g) + Math.sin(t * 1.4) * 1.5}deg) rotateX(${lp(20, 6, g)}deg)`, transformOrigin: '50% 50%' }}><AddressCard rows={rows} shine={sm((t - 6.8) / 1.2)} /></div></div>}
+    <div style={{ position: 'absolute', left: 56, top: 330, textAlign: 'left', font: `900 110px/1 ${FONT.ui}`, color: GOLD, textShadow: '0 0 40px rgba(255,180,84,.55), 0 8px 18px rgba(0,0,0,.7)', opacity: sm((t - 2.0) / 0.4) * (1 - eo((t - 3.9) / 0.4)) }}>{count.toLocaleString('en-US')}</div>
+    <div style={{ position: 'absolute', left: 56, top: 450, textAlign: 'left', font: `700 46px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,.8)', opacity: sm((t - 2.0) / 0.4) * (1 - eo((t - 3.9) / 0.4)) }}>packets</div>
     <Ms v={t < 1.3 ? 1 : t < tf ? 2 : 3} /></AbsoluteFill>); };
