@@ -78,7 +78,7 @@ const Earth: React.FC<{ t: number }> = ({ t }) => {
     {[LONDON, HYD].map((p, i) => <mesh key={i} position={ll(p, R * 1.01)}><sphereGeometry args={[0.1, 12, 10]} /><meshBasicMaterial color={i ? '#ffe08a' : '#ff9c8a'} /></mesh>)}
   </group>;
 };
-const Stars: React.FC = () => <>{Array.from({ length: ov.thin ? 70 : 260 }).map((_, i) => { const a = hash(i) * 6.283, b = Math.acos(2 * hash(i + 7) - 1), r = 260; return <mesh key={i} position={[r * Math.sin(b) * Math.cos(a), r * Math.cos(b), r * Math.sin(b) * Math.sin(a)]}><sphereGeometry args={[(ov.thin ? 0.55 : 0.25) + hash(i + 3) * (ov.thin ? 0.7 : 0.5), 6, 6]} /><meshBasicMaterial color="#e6ebff" fog={false} /></mesh>; })}</>;
+const Stars: React.FC = () => <>{Array.from({ length: ov.thin ? 1400 : 260 }).map((_, i) => { const a = hash(i) * 6.283, b = Math.acos(2 * hash(i + 7) - 1), r = 260; return <mesh key={i} position={[r * Math.sin(b) * Math.cos(a), r * Math.cos(b), r * Math.sin(b) * Math.sin(a)]}><sphereGeometry args={[(ov.thin ? 0.3 : 0.25) + hash(i + 3) * (ov.thin ? 0.45 : 0.5), 6, 6]} /><meshBasicMaterial color="#e6ebff" fog={false} /></mesh>; })}</>;
 
 export const project = (t: number, p: THREE.Vector3): [number, number, boolean] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.1, 600); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); q.x -= (shift(t) / F.W) * 2; const front = p.clone().normalize().dot(c.p.clone().normalize()) > 0.18; return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H + shiftY(t), front]; };
 /* a Google Maps style pin: red teardrop with a white dot, its tip exactly on the city, name beside it */
