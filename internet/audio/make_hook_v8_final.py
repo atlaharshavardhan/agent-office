@@ -34,9 +34,7 @@ fnt = ImageFont.truetype('/usr/share/fonts/opentype/inter/Inter-ExtraBold.otf', 
 PLUM = (42, 22, 48); NIGHT = (16, 20, 48); BROWN = (58, 28, 30)
 e1, s2, e2, s3, e3, bs, bl = TL['e1'], TL['s2'], TL['e2'], TL['s3'], TL['e3'], TL['b_space'], TL['b_light']; mid1 = 0.12 + (e1 - 0.12) * 0.36
 # (text, start, end, left x or None = centred on the phone screen, top y, max width, pill colour, highlight colour, highlight text colour)
-CAP = [('You send a photo', 0.12, mid1, None, 700, 520, PLUM, (255, 180, 84), PLUM), ('to your girlfriend in London.', mid1, e1, None, 1290, 700, PLUM, (255, 180, 84), PLUM),
-       ("You'd think it travels through space,", s2, bs, None, 1290, 700, NIGHT, (255, 211, 138), NIGHT), ('but it actually races across the ocean as light,', bs, bl, None, 1290, 700, NIGHT, (255, 190, 90), NIGHT),
-       ('through an underwater cable.', bl, e2 + 0.04, None, 1290, 700, NIGHT, (255, 190, 90), NIGHT), ('But how?', s3, 12.0, None, 1250, 700, PLUM, (255, 180, 84), PLUM)]
+CAP = [('through an underwater cable.', bl, e2 + 0.04, None, 1290, 700, NIGHT, (255, 190, 90), NIGHT), ('But how?', s3, 12.0, None, 1250, 700, PLUM, (255, 180, 84), PLUM)]   # Harsh: captions only for the key moments, the full narration goes in the .srt
 # CENTRED captions (Harsh): the free wall strip above the desk in the first second, otherwise the bottom band (y 1290), on the objects when there is no free space
 def lay(words, maxw):
     lines = [[]]
