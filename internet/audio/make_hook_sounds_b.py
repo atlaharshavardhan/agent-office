@@ -23,7 +23,7 @@ def shimmer(d):   # light racing along the cable: a glassy tone that rises, with
     for k in range(26): at = int(rng.uniform(0, d - 0.1) * SR); tt = np.arange(int(0.06 * SR)) / SR; sp[at: at + len(tt)] += np.sin(2 * np.pi * rng.uniform(3000, 6500) * tt) * np.exp(-tt * 60) * 0.25
     return base * 0.35 + sp
 def radar():      # the satellite: a soft sonar ping with an echo
-    return tone(1100, 0.7, 0.004, 0.5, 5) + 0.5 * np.concatenate([np.zeros(int(0.18 * SR)), tone(1100, 0.5, 0.004, 0.4, 5)])
+    a = tone(1100, 0.7, 0.004, 0.5, 5); b = np.concatenate([np.zeros(int(0.18 * SR)), tone(1100, 0.5, 0.004, 0.4, 5)]); o = np.zeros(max(len(a), len(b))); o[:len(a)] += a; o[:len(b)] += 0.5 * b; return o
 def thud():       # the red cross: a low, short "no"
     t = np.arange(int(0.4 * SR)) / SR; return np.sin(2 * np.pi * 95 * t * (1 - 0.3 * t)) * np.exp(-t * 11) * 1.0
 log = []
