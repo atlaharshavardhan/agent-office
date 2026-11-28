@@ -36,12 +36,12 @@ export const SeabedFast: React.FC = () => {
     <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
       <defs><filter id="sg"><feGaussianBlur stdDeviation="5" /></filter><radialGradient id="vp"><stop offset="0" stopColor="#ffe3a0" stopOpacity={0.55} /><stop offset="1" stopColor="#ffb454" stopOpacity={0} /></radialGradient></defs>
       <ellipse cx={566} cy={908} rx={260} ry={60} fill="url(#vp)" />
-      {Array.from({ length: 46 }).map((_, i) => { const ang = (hash(i + 3) - 0.5) * 3.0 + Math.PI / 2, ph = ((f * (0.05 + hash(i + 9) * 0.04) + hash(i + 5)) % 1), r0 = 120 + ph * 1200, r1 = r0 + 60 + ph * 260;
-        const x0 = 566 + Math.cos(ang) * r0, y0 = 908 + Math.sin(ang) * r0 * 0.9, x1 = 566 + Math.cos(ang) * r1, y1 = 908 + Math.sin(ang) * r1 * 0.9;
-        return y0 > 940 || y1 > 940 ? <line key={i} x1={x0} y1={y0} x2={x1} y2={y1} stroke={i % 3 ? '#9fe9ff' : '#ffd38a'} strokeWidth={1.5 + ph * 4} strokeLinecap="round" opacity={0.55 * Math.sin(Math.PI * ph)} /> : null; })}
       {Array.from({ length: 6 }).map((_, i) => { const u = (f * 0.032 + i / 6) % 1, u1 = Math.min(1, u + 0.07 + u * 0.05), a = cableAt(u), b = cableAt(u1), w = 3 + u * 14;
         return <g key={i} opacity={Math.sin(Math.PI * Math.min(1, u * 1.1))}><line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#ffb454" strokeWidth={w * 2.4} strokeLinecap="round" opacity={0.5} filter="url(#sg)" /><line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#fff6dc" strokeWidth={w} strokeLinecap="round" /></g>; })}
     </svg>
-    <Hud from={14} to={55} start={0} frames={90} />
+    <Hud from={1} to={53} start={36} frames={51} />
   </AbsoluteFill>);
 };
+
+/* the sea-floor shot for the 10 s hook: only the natural light of the scene (the bright flare racing along the cable) and the speed readout. No streak lines, no extra dashes. */
+export const SeabedLight: React.FC<{ from?: number; to?: number; start?: number; frames?: number }> = ({ from = 1, to = 53, start = 60, frames = 51 }) => (<AbsoluteFill><Vert><Seabed bare /></Vert><Hud from={from} to={to} start={start} frames={frames} /></AbsoluteFill>);

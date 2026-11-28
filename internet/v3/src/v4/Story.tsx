@@ -398,8 +398,8 @@ const T0F = 300 / FPS;
 export const FlyGlobe: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS;
   ov.lon = () => 40; ov.show = () => 1; ov.pins = T0F + 0.05;
-  const pt = T0F + t, land = prog(f, 0.0, 0.7, easeOut);                                         // the photo comes down onto the Hyderabad pin
-  const u = easeInOut(Math.min(1, Math.max(0, (t - 0.7) / 3.3))), arrived = prog(f, 4.0, 4.4, easeOut);
+  const pt = T0F + t, land = prog(f, 0.0, 0.4, easeOut);                                         // the photo comes down onto the Hyderabad pin
+  const u = easeInOut(Math.min(1, Math.max(0, (t - 0.4) / 2.2))), arrived = prog(f, 2.6, 3.0, easeOut);
   const at = (uu: number) => project(pt, ll(routeAt(MAIN, uu) as unknown as LL, R * 1.012));
   const [hx, hy] = project(pt, ll(HYD_LL, R * 1.012));
   const [x, y, front] = u > 0 ? at(u) : [hx, hy, true];

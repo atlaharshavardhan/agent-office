@@ -8,7 +8,7 @@ import { Charminar, CharminarArt, DeskFlag, Chip, Limb, solveWrist, rot2, PY, TB
 /* Part 2 hook, the man's side (9:16 only): Arjun's room in Hyderabad at 9:12 pm, same desk style as Meera's London room (locked) but his own colours.
    His phone lies on the desk with the photo ready in the chat to Meera; his right index finger reaches, holds on the send arrow, taps; the photo lifts off the screen. */
 export const HYD_ROOM_FRAMES = 150;
-export const HYD_TIMES = { reach: 1.1, touch: 2.5, tap: 2.85, lift: 3.3 };
+export const HYD_TIMES = { reach: 0.1, touch: 0.95, tap: 1.2, lift: 1.5 };   // the quick version for the 10 s hook
 const SKIN_A = '#b87a50', SLEEVE: [string, string, string, string] = ['#e0a63a', '#f2c25a', '#a8761e', '#fff1d0'];   // his skin tone and an ochre shirt
 
 /* the window: Hyderabad at night, the lit Charminar, rooftops, an auto-rickshaw passing in the street (one pass over the scene), stars, no rain */
