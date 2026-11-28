@@ -146,6 +146,7 @@ export const Root: React.FC = () => (
     <Composition id="TunnelDiveV" component={TunnelDive} durationInFrames={TUNNEL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeRefV" component={() => <Vert><GlobeRef /></Vert>} durationInFrames={GLOBE_REF_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="FlyoverHydLonV" component={() => <MapFlyover origin={[78.4867, 17.385]} destination={[-0.1276, 51.5072]} originLabel="Hyderabad" destinationLabel="London" routeColor="#ffe04a" />} durationInFrames={285} fps={30} width={1080} height={1920} />
+    <Composition id="GlobeCutSatV" component={() => <Vert><GlobeCut sat /></Vert>} durationInFrames={GLOBE_CUT_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeCutRealV" component={() => <Vert><GlobeCut real /></Vert>} durationInFrames={GLOBE_CUT_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeCutV" component={() => <Vert><GlobeCut /></Vert>} durationInFrames={GLOBE_CUT_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeRouteV" component={() => <Vert><GlobeRoute /></Vert>} durationInFrames={GLOBE_ROUTE_FRAMES} fps={30} width={1080} height={1920} />
