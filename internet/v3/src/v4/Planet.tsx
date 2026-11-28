@@ -79,8 +79,16 @@ const Earth: React.FC<{ t: number }> = ({ t }) => {
 const Stars: React.FC = () => <>{Array.from({ length: 260 }).map((_, i) => { const a = hash(i) * 6.283, b = Math.acos(2 * hash(i + 7) - 1), r = 260; return <mesh key={i} position={[r * Math.sin(b) * Math.cos(a), r * Math.cos(b), r * Math.sin(b) * Math.sin(a)]}><sphereGeometry args={[0.25 + hash(i + 3) * 0.5, 6, 6]} /><meshBasicMaterial color="#cfd6ff" fog={false} /></mesh>; })}</>;
 
 const project = (t: number, p: THREE.Vector3): [number, number, boolean] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.1, 600); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); q.x -= (shift(t) / F.W) * 2; const front = p.clone().normalize().dot(c.p.clone().normalize()) > 0.18; return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H + shiftY(t), front]; };
-const Pin: React.FC<{ t: number; at: LL; name: string; col: string; a: number; dx: number; dy: number }> = ({ t, at, name, col, a, dx, dy }) => { const [x, y, front] = project(t, ll(at, R * 1.01)), o = seg(t, a, a + 0.4) * (front ? 1 : 0); if (o < 0.01) return null; const w = name.length * 20 + 40, lx = clampX(x + dx, w);
-  return <g opacity={o}><line x1={x} y1={y} x2={lx} y2={y + dy + (dy < 0 ? 26 : -26)} stroke={col} strokeWidth={2.5} /><g transform={`translate(${lx} ${y + dy})`}><rect x={-w / 2} y={-26} width={w} height={52} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} /><text y={10} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.08em' }}>{name}</text></g></g>; };
+/* a Google Maps style pin: red teardrop with a white dot, its tip exactly on the city, name beside it */
+const Pin: React.FC<{ t: number; at: LL; name: string; col: string; a: number; dx: number; dy: number }> = ({ t, at, name, a, dx }) => { const [x, y, front] = project(t, ll(at, R * 1.01)), o = seg(t, a, a + 0.4) * (front ? 1 : 0); if (o < 0.01) return null;
+  const drop = 1 - seg(t, a, a + 0.5), side = dx < 0 ? -1 : 1, w = name.length * 19 + 20, ly = y - 50, lx = clampX(x + side * (64 + w / 2), w + 40);
+  return <g opacity={o}>
+    <ellipse cx={x} cy={y} rx={16} ry={6} fill="#000" opacity={0.45} />
+    <g transform={`translate(${x} ${y - drop * 70}) scale(${0.8 + 0.2 * (1 - drop)})`}>
+      <path d="M 0 0 C -8 -16 -30 -30 -30 -56 A 30 30 0 1 1 30 -56 C 30 -30 8 -16 0 0 Z" fill="#ea4335" stroke="#a52714" strokeWidth={3} strokeLinejoin="round" />
+      <circle cx={0} cy={-56} r={12} fill="#fff" /></g>
+    <text x={lx} y={ly + 10} textAnchor="middle" fill="#fff" style={{ font: `800 34px ${FONT.ui}`, letterSpacing: '0.05em', paintOrder: 'stroke', stroke: '#070a22', strokeWidth: 8, strokeLinejoin: 'round' }}>{name}</text>
+  </g>; };
 
 export const Planet: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS;
@@ -95,7 +103,7 @@ export const Planet: React.FC = () => {
         <EffectComposer><Bloom intensity={0.6} luminanceThreshold={0.8} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.25} darkness={0.7} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill><svg width={F.W} height={F.H}>
-        <Pin t={t} at={LONDON} name="LONDON" col="#ff9c8a" a={0.4} dx={-110} dy={-80} />
+        <Pin t={t} at={LONDON} name="LONDON" col="#ff9c8a" a={0.4} dx={110} dy={-80} />
         <Pin t={t} at={HYD} name="HYDERABAD" col="#ffe08a" a={7.2} dx={-200} dy={-110} />
         <g opacity={seg(t, 0.5, 0.9) * (1 - seg(t, 3.6, 4.1))} {...EDGE} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>North Atlantic</text><text y={46} fill="#ffc24a" style={{ font: `500 30px ${FONT.mono}` }}>our packet, heading south for the Red Sea</text></g>
       </svg></AbsoluteFill>

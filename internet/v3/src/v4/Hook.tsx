@@ -20,7 +20,7 @@ export const HookGlobe: React.FC = () => {
   const chip = (txt: string, o: number, col: string, top: number) => <div style={{ position: 'absolute', left: 0, right: 0, top, display: 'flex', justifyContent: 'center', opacity: o }}><div style={{ padding: '14px 34px', borderRadius: 32, background: 'rgba(10,14,36,.9)', border: `3px solid ${col}`, font: `800 42px/1 ${FONT.ui}`, color: '#fff', whiteSpace: 'nowrap' }}>{txt}</div></div>;
   return (
     <AbsoluteFill style={{ backgroundColor: '#03041a' }}>
-      <Sequence from={-216}><Planet /></Sequence>
+      <Sequence from={-300}><Planet /></Sequence>
       <AbsoluteFill><svg width={1080} height={1920}>
         <g opacity={(1 - no * 0.65)}><Sat x={sx} y={sy} s={1.1} rot={-18} /></g>
         <g opacity={q * (1 - no)} transform={`translate(${sx - 150} ${sy - 80})`}><circle r={46} fill="#ffd38a" /><text y={20} textAnchor="middle" fill="#07102c" style={{ font: `900 64px ${FONT.ui}` }}>?</text></g>
