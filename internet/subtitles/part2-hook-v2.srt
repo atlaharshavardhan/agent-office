@@ -1,0 +1,19 @@
+1
+00:00:00,200 --> 00:00:01,889
+Imagine the movement when you click send.
+
+2
+00:00:02,299 --> 00:00:03,740
+It flies out over the globe,
+
+3
+00:00:03,899 --> 00:00:05,950
+as light, through a cable under the sea,
+
+4
+00:00:06,500 --> 00:00:07,960
+to your girlfriend in London.
+
+5
+00:00:10,349 --> 00:00:11,449
+So how did it get there?

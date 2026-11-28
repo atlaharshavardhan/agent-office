@@ -44,4 +44,4 @@ export const SeabedFast: React.FC = () => {
 };
 
 /* the sea-floor shot for the 10 s hook: only the natural light of the scene (the bright flare racing along the cable) and the speed readout. No streak lines, no extra dashes. */
-export const SeabedLight: React.FC<{ from?: number; to?: number; start?: number; frames?: number }> = ({ from = 1, to = 53, start = 60, frames = 51 }) => (<AbsoluteFill><Vert><Seabed bare /></Vert><Hud from={from} to={to} start={start} frames={frames} /></AbsoluteFill>);
+export const SeabedLight: React.FC<{ from?: number; to?: number; start?: number; frames?: number }> = ({ from = 18, to = 53, start = 85, frames = 90 }) => (<AbsoluteFill><Vert><Seabed bare /></Vert><Hud from={from} to={to} start={start} frames={frames} /></AbsoluteFill>);

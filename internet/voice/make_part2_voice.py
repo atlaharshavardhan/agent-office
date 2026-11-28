@@ -8,6 +8,7 @@ VOICE = "TX3LPaxmHKxFdv7VOQHJ"; SET = {"stability": 0.3, "similarity_boost": 0.8
 L = [
  ("s1", "Imagine the movement when you click send."),
  ("s2", "How does it travel to your girlfriend, who is in London?"),
+ ("s4", "So how did it get there?"),
  ("g1", "It flies out over the globe,"),
  ("g2", "as light, through a cable under the sea,"),
  ("g3", "to your girlfriend in London."),

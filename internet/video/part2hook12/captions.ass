@@ -1,0 +1,17 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 2
+
+[V4+ Styles]
+Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding
+Style: Cap,DejaVu Sans,50,&H00FFFFFF,&H00B9A3A0,&H00220A07,&H96000000,-1,0,0,0,100,100,0,0,1,5,2,2,110,150,470,1
+
+[Events]
+Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
+Dialogue: 0,0:00:00.15,0:00:01.99,Cap,,0,0,0,,{\k30\1c&HFFFFFF&}Imagine {\k13\1c&HFFFFFF&}the {\k34\1c&HFFFFFF&}movement\N{\k17\1c&HFFFFFF&}when {\k13\1c&HFFFFFF&}you {\k21\1c&H54B4FF&}click {\k21\1c&H54B4FF&}send.
+Dialogue: 0,0:00:02.25,0:00:03.84,Cap,,0,0,0,,{\k11\1c&HFFFFFF&}It {\k27\1c&HFFFFFF&}flies {\k16\1c&HFFFFFF&}out {\k22\1c&HFFFFFF&}over\N{\k16\1c&HFFFFFF&}the {\k32\1c&H54B4FF&}globe,
+Dialogue: 0,0:00:03.85,0:00:06.05,Cap,,0,0,0,,{\k11\1c&HFFFFFF&}as {\k33\1c&H54B4FF&}light, {\k38\1c&HFFFFFF&}through {\k11\1c&HFFFFFF&}a\N{\k27\1c&HFFFFFF&}cable {\k27\1c&H54B4FF&}under {\k16\1c&H54B4FF&}the {\k22\1c&H54B4FF&}sea,
+Dialogue: 0,0:00:06.45,0:00:08.06,Cap,,0,0,0,,{\k10\1c&HFFFFFF&}to {\k20\1c&HFFFFFF&}your {\k50\1c&H54B4FF&}girlfriend\N{\k10\1c&HFFFFFF&}in {\k35\1c&H54B4FF&}London.
+Dialogue: 0,0:00:10.30,0:00:11.55,Cap,,0,0,0,,{\k9\1c&HFFFFFF&}So {\k14\1c&H54B4FF&}how {\k14\1c&HFFFFFF&}did {\k9\1c&HFFFFFF&}it {\k14\1c&HFFFFFF&}get {\k28\1c&H54B4FF&}there?
