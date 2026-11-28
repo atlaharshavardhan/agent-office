@@ -119,7 +119,6 @@ const Cable: React.FC<{ t: number; rep?: boolean }> = ({ t, rep }) => {
       {glowOn > 0.01 && <group position={pp}>
         <sprite scale={[CR * 13, CR * 13, 1]}><spriteMaterial map={glowTex} transparent opacity={0.9 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
         <sprite scale={[CR * 300, CR * 1.5, 1]}><spriteMaterial map={glowTex} transparent opacity={0.8 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
-        <sprite scale={[CR * 1.3, CR * 30, 1]}><spriteMaterial map={glowTex} transparent opacity={0.55 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
         <mesh><sphereGeometry args={[CR * 1.2, 16, 12]} /><meshBasicMaterial color="#fff0c8" transparent opacity={glowOn} /></mesh>
         {/* the glowing stretch of cable just behind the light */}
         <group quaternion={trailQ}><mesh position={[0, -9, 0]}><cylinderGeometry args={[CR * 1.06, CR * 1.02, 18, 20, 1, true]} /><meshBasicMaterial color="#ffb347" transparent opacity={0.22 * glowOn} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh></group>
