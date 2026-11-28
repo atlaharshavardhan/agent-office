@@ -42,3 +42,9 @@ No names. Squares for the photo blocks, rectangles for packets. Free voice first
 8 (22-27) "Every packet gets a label: where it is going, where it came from, and its number, so the pieces can be put back in order."
 9 (later) "Then radio waves carry them to your Wi-Fi router or the nearest mobile tower."
 Board: part2/storyboard/part2-packets-board.png. Stills: v3/stills/p2/enc/ and v3/stills/p2/pk/. Code: v3/src/v4/Encrypt.tsx, PacketsHyd.tsx.
+
+## 28 Nov 2026 - tower scene (Harsh: after the packets, go straight to the cell tower and explain; no radio-waves-over-city shot)
+a (0-3 s) tower from below, label "Mobile tower": "Next, a mobile tower, close to you."
+b (3-6) antennas close: "Its antennas catch the radio waves."
+c (6-10) box at the foot: "A box at the bottom turns them into light, and sends them down a glass cable." (usually fibre; some towers use microwave links, say "usually")
+Stills: v3/stills/p2/tw/t2-t4.png. Code: v3/src/v4/TowerHyd.tsx (3D, reuses the Packets.tsx tower). First draft, needs polish.

@@ -60,7 +60,7 @@ const camAt = (t: number) => { let i = 0; while (i < CAM.length - 2 && t > CAM[i
 const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { const c = camAt(t), cam = camera as THREE.PerspectiveCamera; cam.position.copy(c.p); cam.fov = vfov(c.fov); cam.near = 0.05; cam.far = 400; cam.lookAt(c.l); cam.updateProjectionMatrix(); }, [t, camera]); return null; };
 
 /* ---------- set: his balcony ledge, the night city, the tower ---------- */
-const City: React.FC = () => {
+export const City: React.FC = () => {
   const tex = useMemo(() => [0, 1, 2, 3].map(winTex), []);
   return <group>
     <mesh position={[0, -0.25, 0]}><boxGeometry args={[30, 0.5, 5]} /><meshStandardMaterial color="#2a2f7a" roughness={0.8} /></mesh>
