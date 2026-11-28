@@ -1,0 +1,39 @@
+1
+00:00:00,200 --> 00:00:02,504
+Your phone, in Hyderabad. You tap send.
+
+2
+00:00:02,774 --> 00:00:05,611
+To a computer, a photo is only ones and zeros.
+
+3
+00:00:05,881 --> 00:00:08,100
+Then your phone locks it. It is encrypted.
+
+4
+00:00:08,370 --> 00:00:11,399
+If anyone tries to look, they find nothing. Only noise.
+
+5
+00:00:11,669 --> 00:00:14,144
+Now it is cut into about 2,000 packets.
+
+6
+00:00:15,464 --> 00:00:19,389
+Every packet gets a label: where it is going, where it came from, and its number.
+
+7
+00:00:19,659 --> 00:00:22,283
+Then radio waves carry them to a mobile tower.
+
+8
+00:00:22,403 --> 00:00:24,088
+Its antennas catch the signal.
+
+9
+00:00:24,358 --> 00:00:28,945
+A box at the bottom turns it into light, and sends it down a glass cable, under the street.
+
+10
+00:00:29,065 --> 00:00:31,540
+And then, it has to cross an entire ocean.
