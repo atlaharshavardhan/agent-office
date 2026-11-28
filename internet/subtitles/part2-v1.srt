@@ -1,0 +1,47 @@
+1
+00:00:00,900 --> 00:00:02,319
+Arjun taps send.
+
+2
+00:00:04,649 --> 00:00:07,148
+A second later, Meera's phone buzzes, in London.
+
+3
+00:00:08,349 --> 00:00:10,494
+How does a photo cross an ocean that fast?
+
+4
+00:00:10,799 --> 00:00:14,992
+First, his phone cuts the photo into about two thousand small packets.
+
+5
+00:00:15,799 --> 00:00:18,878
+Radio to the nearest tower, then glass cable under the street.
+
+6
+00:00:19,800 --> 00:00:23,360
+Routers pass each packet along. Road jammed? Another path.
+
+7
+00:00:23,800 --> 00:00:26,384
+Then the land ends, and the cable goes into the sea.
+
+8
+00:00:26,949 --> 00:00:29,117
+Three kilometres down, the packets are just light.
+
+9
+00:00:29,900 --> 00:00:31,632
+A repeater boosts the fading light.
+
+10
+00:00:32,450 --> 00:00:36,348
+The whole trip, Hyderabad to London, takes light about sixty-five milliseconds.
+
+11
+00:00:36,750 --> 00:00:39,555
+Her phone puts the packets back in order, and the photo appears.
+
+12
+00:00:39,899 --> 00:00:42,884
+That's how a photo crosses an ocean. Follow for more.

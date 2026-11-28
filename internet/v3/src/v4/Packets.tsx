@@ -22,20 +22,24 @@ export const TOWER = V(17, 15, -30);
 const canvas = (w: number, h: number, draw: (g: CanvasRenderingContext2D) => void) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d')!); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
 const rr = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
 /* the little video he sends: the torch across the street, as a thumbnail */
-const drawThumb = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => {   /* the photo Meera took: London at night, the big wheel by the river */
-  g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); const u = w / 190;
-  const sky = g.createLinearGradient(0, y, 0, y + h); sky.addColorStop(0, '#141a52'); sky.addColorStop(1, '#5a4fb8'); g.fillStyle = sky; g.fillRect(x, y, w, h);
-  g.fillStyle = '#fff3d6'; g.beginPath(); g.arc(x + 158 * u, y + 36 * u, 13 * u, 0, 7); g.fill();
-  const cx = x + 84 * u, cy = y + 92 * u; g.strokeStyle = '#ffd88a'; g.lineWidth = 2.4 * u; g.beginPath(); g.arc(cx, cy, 50 * u, 0, 7); g.stroke();
-  g.strokeStyle = '#e8b866'; g.lineWidth = 0.8 * u; for (let i = 0; i < 16; i++) { const a = (i / 16) * 6.283; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + 50 * u * Math.cos(a), cy + 50 * u * Math.sin(a)); g.stroke(); g.fillStyle = '#fff1d0'; g.beginPath(); g.arc(cx + 50 * u * Math.cos(a), cy + 50 * u * Math.sin(a), 2.6 * u, 0, 7); g.fill(); }
-  g.strokeStyle = '#c9a15a'; g.lineWidth = 2.4 * u; g.beginPath(); g.moveTo(cx - 2 * u, cy); g.lineTo(cx - 22 * u, cy + 62 * u); g.moveTo(cx + 2 * u, cy); g.lineTo(cx + 22 * u, cy + 62 * u); g.stroke();
-  g.fillStyle = '#0d1240'; g.beginPath(); g.moveTo(x, y + 140 * u); g.lineTo(x + 36 * u, y + 132 * u); g.lineTo(x + 36 * u, y + 124 * u); g.lineTo(x + 50 * u, y + 124 * u); g.lineTo(x + 50 * u, y + 134 * u); g.lineTo(x + 120 * u, y + 134 * u); g.lineTo(x + 120 * u, y + 120 * u); g.lineTo(x + 150 * u, y + 120 * u); g.lineTo(x + 150 * u, y + 136 * u); g.lineTo(x + w, y + 130 * u); g.lineTo(x + w, y + h); g.lineTo(x, y + h); g.closePath(); g.fill();
-  g.fillStyle = '#1d2a78'; g.fillRect(x, y + 156 * u, w, h - 156 * u); g.restore();
+const drawThumb = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => {   /* his photo: the Charminar at dusk */
+  g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); const u = w / 190, R = (a: number, b: number, c: number, d: number, col: string) => { g.fillStyle = col; g.fillRect(x + a * u, y + b * u, c * u, d * u); };
+  const sky = g.createLinearGradient(0, y, 0, y + h); sky.addColorStop(0, '#3b2a6a'); sky.addColorStop(0.6, '#d96b5a'); sky.addColorStop(1, '#ffb454'); g.fillStyle = sky; g.fillRect(x, y, w, h);
+  g.fillStyle = '#fff1d0'; g.beginPath(); g.arc(x + 30 * u, y + 34 * u, 11 * u, 0, 7); g.fill();
+  const stone = '#c8785a', dark = '#6a3030', glow = '#ffd98a';
+  const mino = (cx: number, top: number, mw: number) => { R(cx - mw / 2, top + 14, mw, 178 - top - 14, stone); R(cx - mw / 2, top + 14, mw * 0.36, 178 - top - 14, dark); [0.35, 0.6].forEach((k) => R(cx - mw * 0.9, top + 14 + (178 - top - 14) * k, mw * 1.8, 3, stone));
+    g.fillStyle = stone; g.beginPath(); g.ellipse(x + cx * u, y + (top + 10) * u, mw * 0.8 * u, 11 * u, 0, 0, 7); g.fill(); R(cx - 0.8, top - 6, 1.6, 10, dark); };
+  mino(66, 52, 7); mino(124, 52, 7);
+  R(42, 108, 106, 70, stone); R(42, 108, 16, 70, dark); R(40, 92, 110, 18, stone); [0, 1, 2, 3, 4, 5].forEach((i) => R(49 + i * 15, 96, 7, 11, glow));
+  g.fillStyle = stone; g.beginPath(); g.ellipse(x + 95 * u, y + 88 * u, 15 * u, 11 * u, 0, 0, 7); g.fill();
+  g.fillStyle = '#3a1a10'; g.beginPath(); g.moveTo(x + 80 * u, y + 178 * u); g.lineTo(x + 80 * u, y + 142 * u); g.quadraticCurveTo(x + 95 * u, y + 122 * u, x + 110 * u, y + 142 * u); g.lineTo(x + 110 * u, y + 178 * u); g.fill();
+  g.fillStyle = glow; g.beginPath(); g.moveTo(x + 85 * u, y + 178 * u); g.lineTo(x + 85 * u, y + 144 * u); g.quadraticCurveTo(x + 95 * u, y + 130 * u, x + 105 * u, y + 144 * u); g.lineTo(x + 105 * u, y + 178 * u); g.fill();
+  mino(36, 40, 10); mino(154, 40, 10); R(0, 178, 190, 12, '#1a0c1c'); g.restore();
 };
 const screenTex = (sent: boolean, hideThumb: boolean) => canvas(600, 1240, (g) => {
   g.fillStyle = '#0b0f2e'; g.fillRect(0, 0, 600, 1240);
   g.fillStyle = '#141a45'; g.fillRect(0, 0, 600, 150); g.fillStyle = '#000'; rr(g, 236, 14, 128, 40, 20); g.fill(); g.fillStyle = '#ff8f7a'; g.beginPath(); g.arc(80, 86, 34, 0, 7); g.fill();
-  g.fillStyle = '#eef1ff'; g.font = '800 40px Manrope, sans-serif'; g.fillText('Arjun', 136, 82); g.fillStyle = '#7dffb0'; g.font = '500 24px Manrope, sans-serif'; g.fillText('Hyderabad · online', 136, 116);
+  g.fillStyle = '#eef1ff'; g.font = '800 40px Manrope, sans-serif'; g.fillText('Meera', 136, 82); g.fillStyle = '#7dffb0'; g.font = '500 24px Manrope, sans-serif'; g.fillText('London · online', 136, 116);
   g.fillStyle = '#1b2258'; rr(g, 40, 200, 330, 84, 26); g.fill(); g.fillStyle = '#cfd6ff'; g.font = '500 30px Manrope, sans-serif'; g.fillText('Send me a photo!', 64, 252);
   g.fillStyle = '#1d6f8f'; rr(g, 150, 330, 410, 470, 30); g.fill(); if (!hideThumb) { drawThumb(g, 170, 350, 370, 370); } else { g.strokeStyle = 'rgba(160,230,255,.5)'; g.setLineDash([10, 10]); g.lineWidth = 3; rr(g, 170, 350, 370, 370, 18); g.stroke(); g.setLineDash([]); }
   g.fillStyle = '#d9f4ff'; g.font = '500 26px "IBM Plex Mono", monospace'; g.fillText(sent ? 'sending… 3 MB' : 'photo.jpg · 3 MB', 180, 770);
@@ -43,7 +47,7 @@ const screenTex = (sent: boolean, hideThumb: boolean) => canvas(600, 1240, (g) =
   g.fillStyle = sent ? '#7dffb0' : '#5fe3ff'; g.beginPath(); g.arc(520, 1155, 52, 0, 7); g.fill(); g.fillStyle = '#07102c'; g.beginPath(); g.moveTo(498, 1128); g.lineTo(548, 1155); g.lineTo(498, 1182); g.closePath(); g.fill();
 });
 const tagTex = (n: number, hero: boolean) => canvas(256, 112, (g) => {
-  g.fillStyle = hero ? '#ffb454' : '#bfeaff'; rr(g, 4, 4, 248, 104, 18); g.fill(); g.fillStyle = hero ? '#7a4a08' : '#12436a'; g.fillRect(4, 4, 248, 26); g.fillStyle = hero ? '#ffe6b8' : '#e9f8ff'; g.font = '700 16px "IBM Plex Mono", monospace'; g.fillText('TO: ARJUN · HYDERABAD', 16, 23);
+  g.fillStyle = hero ? '#ffb454' : '#bfeaff'; rr(g, 4, 4, 248, 104, 18); g.fill(); g.fillStyle = hero ? '#7a4a08' : '#12436a'; g.fillRect(4, 4, 248, 26); g.fillStyle = hero ? '#ffe6b8' : '#e9f8ff'; g.font = '700 16px "IBM Plex Mono", monospace'; g.fillText('TO: MEERA · LONDON', 16, 23);
   g.fillStyle = '#07102c'; g.font = '800 54px Manrope, sans-serif'; g.textAlign = 'center'; g.fillText('#' + String(n).padStart(4, '0'), 128, 88);
 });
 export const winTex = (seed: number) => canvas(128, 256, (g) => { g.fillStyle = '#141a4a'; g.fillRect(0, 0, 128, 256); for (let r = 0; r < 12; r++) for (let c = 0; c < 5; c++) { const h = hash(seed * 31 + r * 7 + c); g.fillStyle = h > 0.74 ? (h > 0.93 ? '#9fe6ff' : '#ffd08a') : '#1d2460'; g.fillRect(10 + c * 23, 10 + r * 20, 14, 11); } });

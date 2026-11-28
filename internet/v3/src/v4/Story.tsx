@@ -45,6 +45,21 @@ export const Charminar: React.FC = () => (<g>
   <rect y={178} width={190} height={12} fill="#1a0c1c" />
 </g>);
 
+/* ---- a dog's portrait for a framed picture on the desk ---- */
+export const DogPhoto: React.FC = () => (<g>
+  <defs><linearGradient id="dgBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fbe8c8" /><stop offset="1" stopColor="#f2b88a" /></linearGradient></defs>
+  <rect width={190} height={190} fill="url(#dgBg)" />{[[28, 30], [160, 44], [150, 150], [34, 148]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r={5 + i} fill="#fff" opacity={0.35} />)}
+  <ellipse cx={46} cy={96} rx={22} ry={40} fill="#9a5a2e" transform="rotate(14 46 96)" /><ellipse cx={144} cy={96} rx={22} ry={40} fill="#9a5a2e" transform="rotate(-14 144 96)" />
+  <ellipse cx={95} cy={96} rx={52} ry={48} fill="#d9a05a" /><ellipse cx={95} cy={62} rx={20} ry={12} fill="#e8b878" opacity={0.7} />
+  <ellipse cx={95} cy={122} rx={28} ry={22} fill="#f6e3c2" />
+  <circle cx={75} cy={90} r={7.5} fill="#2a1a18" /><circle cx={115} cy={90} r={7.5} fill="#2a1a18" /><circle cx={77.5} cy={87.5} r={2.6} fill="#fff" /><circle cx={117.5} cy={87.5} r={2.6} fill="#fff" />
+  <path d="M 64 78 Q 75 72 86 78 M 104 78 Q 115 72 126 78" stroke="#8a5a2e" strokeWidth={3} fill="none" strokeLinecap="round" />
+  <ellipse cx={95} cy={112} rx={11} ry={8} fill="#2a1a18" /><ellipse cx={92} cy={110} rx={3.4} ry={2} fill="#fff" opacity={0.6} />
+  <path d="M 95 120 V 128 M 95 128 Q 84 138 75 130 M 95 128 Q 106 138 115 130" stroke="#2a1a18" strokeWidth={2.6} fill="none" strokeLinecap="round" />
+  <path d="M 87 134 Q 95 158 103 134 Z" fill="#ef7f8f" /><path d="M 95 136 V 148" stroke="#c9586a" strokeWidth={1.6} />
+  <path d="M 52 160 Q 95 182 138 160 L 138 176 Q 95 198 52 176 Z" fill="#d6252d" /><circle cx={95} cy={184} r={9} fill="#e8c46a" stroke="#a87420" strokeWidth={2} />
+</g>);
+
 /* ---- a small desk flag on a pole, waving a little (kind: the Indian tricolour or the Union Jack); the cloth always extends to the right ---- */
 export const DeskFlag: React.FC<{ x: number; y: number; kind: 'in' | 'uk'; t: number; id: string }> = ({ x, y, kind, t, id }) => {
   const W = 94, H = 62, top = y - 150;
@@ -317,6 +332,10 @@ export const LondonRoom: React.FC = () => {
         {[-34, -12, 8, 28, 46].map((a, i) => <path key={i} d={`M 725 1052 Q ${725 + a * 0.9} ${1000 - (i % 2) * 14} ${725 + a * 1.25} ${962 + (i % 3) * 12}`} stroke="#3f8a4a" strokeWidth={8} fill="none" strokeLinecap="round" />)}
         {[-34, -12, 8, 28, 46].map((a, i) => <ellipse key={i} cx={725 + a * 1.25} cy={962 + (i % 3) * 12} rx={19} ry={10} fill="#4fa05a" transform={`rotate(${a * 1.3} ${725 + a * 1.25} ${962 + (i % 3) * 12})`} />)}
         <DeskFlag x={945} y={1078} kind="uk" t={t} id="flagUK" />
+        {/* a framed picture of her dog */}
+        <ellipse cx={1030} cy={1344} rx={52} ry={9} fill="#000" opacity={0.5} filter="url(#blur3)" />
+        <path d="M 1030 1280 L 1004 1338 L 1056 1338 Z" fill="#4a2e1a" opacity={0.8} />
+        <rect x={993} y={1243} width={74} height={96} rx={7} fill="#5a3a22" stroke="#3a2210" strokeWidth={3} /><rect x={1001} y={1251} width={58} height={80} fill="#fdf3e4" /><svg x={1004} y={1254} width={52} height={74} viewBox="0 0 190 190" preserveAspectRatio="xMidYMid slice"><DogPhoto /></svg>
         <g transform="translate(-30 0)">
         {/* the lamp: a wide round base, a stem, a socket joining the stem to the shade */}
         <ellipse cx={885} cy={1086} rx={74} ry={15} fill="#000" opacity={0.5} filter="url(#blur6)" />
@@ -369,7 +388,6 @@ export const Notif: React.FC = () => {
           {[0, 1, 2].map((i) => { const p = prog(f, 0.3 + i * 0.12, 0.9 + i * 0.12); return p > 0 && p < 1 ? <rect key={i} x={186 - 20 * p} y={250 - 20 * p} width={708 + 40 * p} height={1452 + 40 * p} rx={130} fill="none" stroke="#ffd89a" strokeWidth={5 * (1 - p)} opacity={0.5 * (1 - p)} /> : null; })}
         </svg>
       </div>
-      <Chip text="Meera gets it: about 65 ms across the ocean" col="#ffb454" top={236} size={34} />
     </AbsoluteFill>
   );
 };

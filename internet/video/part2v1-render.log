@@ -1,0 +1,51 @@
+ok hyd 27
+ok hyd 57
+ok hyd 87
+ok hyd 117
+DONE hyd
+ok lon 0
+ok lon 30
+ok lon 60
+ok lon 90
+ok lon 120
+DONE lon
+ok hook 0
+ok hook 30
+ok hook 60
+DONE hook
+ok pk 0
+ok pk 30
+ok pk 60
+ok pk 90
+ok pk 120
+DONE pk
+ok rt 30
+ok rt 60
+ok rt 90
+ok rt 120
+DONE rt
+ok sb 0
+ok sb 30
+ok sb 60
+DONE sb
+ok rp 0
+ok rp 30
+ok rp 60
+DONE rp
+ok pl 90
+ok pl 120
+ok pl 150
+ok pl 180
+ok pl 210
+DONE pl
+ok nt 0
+ok nt 30
+ok nt 60
+DONE nt
+ok ec 0
+ok ec 30
+ok ec 60
+ok ec 90
+DONE ec
+ALLDONE
+END

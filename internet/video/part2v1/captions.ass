@@ -1,0 +1,24 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 2
+
+[V4+ Styles]
+Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding
+Style: Cap,DejaVu Sans,50,&H00FFFFFF,&H00B9A3A0,&H00220A07,&H96000000,-1,0,0,0,100,100,0,0,1,5,2,2,110,150,470,1
+
+[Events]
+Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
+Dialogue: 0,0:00:00.85,0:00:02.47,Cap,,0,0,0,,{\k44\1c&HFFFFFF&}Arjun {\k35\1c&HFFFFFF&}taps {\k44\1c&H54B4FF&}send.
+Dialogue: 0,0:00:04.60,0:00:07.30,Cap,,0,0,0,,{\k11\1c&HFFFFFF&}A {\k33\1c&HFFFFFF&}second {\k33\1c&HFFFFFF&}later, {\k38\1c&H54B4FF&}Meera's\N{\k27\1c&HFFFFFF&}phone {\k38\1c&H54B4FF&}buzzes, {\k11\1c&HFFFFFF&}in {\k38\1c&H54B4FF&}London.
+Dialogue: 0,0:00:08.30,0:00:10.64,Cap,,0,0,0,,{\k17\1c&HFFFFFF&}How {\k22\1c&HFFFFFF&}does {\k11\1c&HFFFFFF&}a {\k28\1c&HFFFFFF&}photo {\k28\1c&HFFFFFF&}cross {\k11\1c&HFFFFFF&}an\N{\k28\1c&H54B4FF&}ocean {\k22\1c&HFFFFFF&}that {\k28\1c&H54B4FF&}fast?
+Dialogue: 0,0:00:10.75,0:00:15.14,Cap,,0,0,0,,{\k41\1c&HFFFFFF&}First, {\k20\1c&HFFFFFF&}his {\k34\1c&HFFFFFF&}phone {\k27\1c&HFFFFFF&}cuts {\k20\1c&HFFFFFF&}the\N{\k34\1c&HFFFFFF&}photo {\k27\1c&HFFFFFF&}into {\k34\1c&HFFFFFF&}about {\k20\1c&H54B4FF&}two\N{\k54\1c&H54B4FF&}thousand {\k34\1c&HFFFFFF&}small {\k54\1c&H54B4FF&}packets.
+Dialogue: 0,0:00:15.75,0:00:19.03,Cap,,0,0,0,,{\k28\1c&HFFFFFF&}Radio {\k11\1c&HFFFFFF&}to {\k17\1c&HFFFFFF&}the {\k39\1c&HFFFFFF&}nearest\N{\k33\1c&H54B4FF&}tower, {\k22\1c&HFFFFFF&}then {\k28\1c&H54B4FF&}glass {\k28\1c&H54B4FF&}cable\N{\k28\1c&HFFFFFF&}under {\k17\1c&HFFFFFF&}the {\k39\1c&HFFFFFF&}street.
+Dialogue: 0,0:00:19.75,0:00:23.51,Cap,,0,0,0,,{\k47\1c&HFFFFFF&}Routers {\k27\1c&HFFFFFF&}pass {\k27\1c&HFFFFFF&}each\N{\k40\1c&HFFFFFF&}packet {\k40\1c&HFFFFFF&}along. {\k27\1c&HFFFFFF&}Road\N{\k47\1c&HFFFFFF&}jammed? {\k47\1c&H54B4FF&}Another {\k34\1c&H54B4FF&}path.
+Dialogue: 0,0:00:23.75,0:00:26.53,Cap,,0,0,0,,{\k23\1c&HFFFFFF&}Then {\k17\1c&HFFFFFF&}the {\k23\1c&HFFFFFF&}land {\k28\1c&HFFFFFF&}ends,\N{\k17\1c&HFFFFFF&}and {\k17\1c&HFFFFFF&}the {\k28\1c&HFFFFFF&}cable {\k23\1c&HFFFFFF&}goes\N{\k23\1c&H54B4FF&}into {\k17\1c&H54B4FF&}the {\k23\1c&H54B4FF&}sea.
+Dialogue: 0,0:00:26.90,0:00:29.27,Cap,,0,0,0,,{\k23\1c&H54B4FF&}Three {\k46\1c&H54B4FF&}kilometres\N{\k23\1c&HFFFFFF&}down, {\k14\1c&HFFFFFF&}the {\k32\1c&HFFFFFF&}packets\N{\k14\1c&HFFFFFF&}are {\k18\1c&HFFFFFF&}just {\k27\1c&H54B4FF&}light.
+Dialogue: 0,0:00:29.85,0:00:31.78,Cap,,0,0,0,,{\k10\1c&HFFFFFF&}A {\k40\1c&H54B4FF&}repeater {\k30\1c&HFFFFFF&}boosts {\k15\1c&HFFFFFF&}the\N{\k30\1c&HFFFFFF&}fading {\k30\1c&HFFFFFF&}light.
+Dialogue: 0,0:00:32.40,0:00:36.50,Cap,,0,0,0,,{\k16\1c&HFFFFFF&}The {\k27\1c&HFFFFFF&}whole {\k27\1c&HFFFFFF&}trip,\N{\k48\1c&H54B4FF&}Hyderabad {\k11\1c&HFFFFFF&}to {\k38\1c&H54B4FF&}London,\N{\k27\1c&HFFFFFF&}takes {\k27\1c&HFFFFFF&}light {\k27\1c&HFFFFFF&}about\N{\k54\1c&H54B4FF&}sixty-five {\k70\1c&H54B4FF&}milliseconds.
+Dialogue: 0,0:00:36.70,0:00:39.71,Cap,,0,0,0,,{\k15\1c&HFFFFFF&}Her {\k25\1c&HFFFFFF&}phone {\k20\1c&HFFFFFF&}puts {\k15\1c&HFFFFFF&}the\N{\k34\1c&HFFFFFF&}packets {\k20\1c&HFFFFFF&}back {\k10\1c&HFFFFFF&}in {\k29\1c&HFFFFFF&}order, {\k15\1c&HFFFFFF&}and\N{\k15\1c&HFFFFFF&}the {\k25\1c&H54B4FF&}photo {\k39\1c&H54B4FF&}appears.
+Dialogue: 0,0:00:39.85,0:00:43.03,Cap,,0,0,0,,{\k37\1c&HFFFFFF&}That's {\k19\1c&HFFFFFF&}how {\k12\1c&HFFFFFF&}a {\k31\1c&HFFFFFF&}photo\N{\k43\1c&HFFFFFF&}crosses {\k12\1c&HFFFFFF&}an {\k37\1c&H54B4FF&}ocean.\N{\k37\1c&H54B4FF&}Follow {\k19\1c&HFFFFFF&}for {\k31\1c&HFFFFFF&}more.

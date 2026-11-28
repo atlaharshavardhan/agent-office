@@ -1,0 +1,277 @@
+{
+ "dur": 114.4,
+ "endcard": 110.8,
+ "segs": [
+  [
+   "ShortFly",
+   0,
+   4.4,
+   0.0
+  ],
+  [
+   "LondonV4V",
+   0,
+   2.6,
+   4.4
+  ],
+  [
+   "LondonV4V",
+   4.6,
+   14.0,
+   7.0
+  ],
+  [
+   "PacketBurstV",
+   0,
+   10.0,
+   16.4
+  ],
+  [
+   "UndergroundV",
+   0,
+   8.0,
+   26.4
+  ],
+  [
+   "RoutersV",
+   0,
+   12.0,
+   34.4
+  ],
+  [
+   "ShoreV",
+   0,
+   9.5,
+   46.4
+  ],
+  [
+   "SeabedV",
+   0,
+   9.8,
+   55.9
+  ],
+  [
+   "SeabedRepeaterV",
+   0,
+   6.5,
+   65.7
+  ],
+  [
+   "SeaCableV",
+   0,
+   15.0,
+   72.2
+  ],
+  [
+   "PlanetV",
+   0,
+   12.0,
+   87.2
+  ],
+  [
+   "ShortEndA",
+   0,
+   4.8,
+   99.2
+  ],
+  [
+   "LondonV4V",
+   10.4,
+   14.0,
+   104.0
+  ],
+  [
+   "ShortEndB",
+   0,
+   6.8,
+   107.6
+  ]
+ ],
+ "subs": [
+  [
+   0.4,
+   2.23,
+   "Then she flies to *London.*"
+  ],
+  [
+   2.25,
+   4.46,
+   "*Seven thousand* kilometres away."
+  ],
+  [
+   4.8,
+   6.16,
+   "A new *city.*"
+  ],
+  [
+   7.4,
+   9.93,
+   "A new street, far from *his balcony.*"
+  ],
+  [
+   11.9,
+   13.98,
+   "And she is waiting for *his video.*"
+  ],
+  [
+   16.7,
+   18.02,
+   "He hits *send.*"
+  ],
+  [
+   18.2,
+   19.94,
+   "The video is chopped into"
+  ],
+  [
+   19.94,
+   21.59,
+   "*1,500* small packets,"
+  ],
+  [
+   21.8,
+   23.63,
+   "each stamped with *her address.*"
+  ],
+  [
+   23.6,
+   26.77,
+   "*Radio waves* carry them to the nearest cell tower."
+  ],
+  [
+   26.9,
+   29.41,
+   "From the tower, they dive *under the street,*"
+  ],
+  [
+   29.9,
+   32.71,
+   "into a glass cable, as *flashes of light.*"
+  ],
+  [
+   34.8,
+   36.86,
+   "Every *router* reads the address,"
+  ],
+  [
+   37.1,
+   39.76,
+   "and passes the packet *one step closer.*"
+  ],
+  [
+   40.9,
+   43.43,
+   "If one road is jammed, it picks *another.*"
+  ],
+  [
+   46.9,
+   48.64,
+   "Then the *land runs out.*"
+  ],
+  [
+   49.6,
+   52.67,
+   "So the cable keeps going, straight *into the sea.*"
+  ],
+  [
+   56.3,
+   58.68,
+   "*Three kilometres* down, in the dark,"
+  ],
+  [
+   58.9,
+   61.26,
+   "the light races along the *sea floor,*"
+  ],
+  [
+   61.6,
+   64.52,
+   "at *200,000 kilometres* a second."
+  ],
+  [
+   66.0,
+   67.72,
+   "The light *fades* on the way,"
+  ],
+  [
+   68.0,
+   69.78,
+   "so a *repeater* boosts it,"
+  ],
+  [
+   69.78,
+   72.03,
+   "every *60 to 100* kilometres."
+  ],
+  [
+   72.6,
+   75.67,
+   "And the cable? About as thick as a *garden hose.*"
+  ],
+  [
+   76.8,
+   79.82,
+   "Steel, plastic and copper, *layer on layer,*"
+  ],
+  [
+   80.4,
+   82.8,
+   "all to protect a few *glass fibres,*"
+  ],
+  [
+   83.2,
+   85.24,
+   "each as thin as a *human hair.*"
+  ],
+  [
+   87.6,
+   89.88,
+   "Our packet crosses the *Arabian Sea,*"
+  ],
+  [
+   89.88,
+   91.89,
+   "the *Red Sea,* the *Mediterranean,*"
+  ],
+  [
+   91.89,
+   93.38,
+   "and reaches *London.*"
+  ],
+  [
+   93.8,
+   95.69,
+   "More than *95 percent* of data"
+  ],
+  [
+   95.69,
+   98.36,
+   "between continents travels this way."
+  ],
+  [
+   99.3,
+   100.77,
+   "*Anchors* cut them,"
+  ],
+  [
+   101.1,
+   102.74,
+   "so we lay *hundreds.*"
+  ],
+  [
+   102.7,
+   104.19,
+   "Packets *reroute.*"
+  ],
+  [
+   104.15,
+   107.49,
+   "All 1,500 packets reach her phone *in a blink.*"
+  ],
+  [
+   108.0,
+   110.04,
+   "That's how *this video* reached you."
+  ]
+ ]
+}
