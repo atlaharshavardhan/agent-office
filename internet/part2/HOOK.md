@@ -66,3 +66,6 @@ Speed readout on every travel shot (SpeedReadout in v3/src/v4/Final.tsx and the 
 
 ## Hook narration audio, 10 s (Harsh asked for audio first, 28 Nov 2026): video/part2hook10/hook10-audio.wav (+ .mp3), made by audio/make_hook10_audio.py
 Voice (Liam, recorded once, 113 characters): s1 0.2 s "Imagine the movement when you click send." | s2 2.5 s "How does it travel to your girlfriend, who is in London?" | s3 7.9 s "Let's follow it." Sounds: tap 0.95 s, glass break 1.9 s, soft pad, one soft note on landing 5.35 s, phone buzz + ding 5.7 s, notification chime 8.05 s. Not listened to by me.
+
+## HOOK IS NOW 12 SECONDS (Harsh, 28 Nov 2026) with narration for every shot, incl. the globe and the lit cable. Audio: video/part2hook10/hook12-audio.mp3
+0.2 "Imagine the movement when you click send." (tap 0.95, window breaks 1.9) | 2.3 "It flies out over the globe," | 3.9 "as light, through a cable under the sea," (sea floor light) | 6.5 "to your girlfriend in London." (globe lands, note 7.3) | buzz 8.4 | chime 10.3 | 10.5 "Let's follow it." Shots: Hyderabad 0-2.2, globe 2.2-3.4, ocean light 3.4-6.4, globe to London 6.4-7.6, London buzz 7.6-9.9, notification 9.9-12.
