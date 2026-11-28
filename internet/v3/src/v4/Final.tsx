@@ -128,10 +128,10 @@ export const GlobeRoute: React.FC = () => {
 /* Part 2: a ship's anchor cuts the cable in the Red Sea; there are many cables, so the light goes another way round Africa and still reaches London. 9:16. */
 export const GLOBE_CUT_FRAMES = 360;
 const sm2 = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); }, lp = lerp;
-export const GlobeCut: React.FC = () => {
+export const GlobeCut: React.FC<{ real?: boolean }> = ({ real = false }) => {
   const f = useCurrentFrame(), t = f / 30, T0 = 7.0, tt = T0 + t, UC = 0.36, TC = 3.4, d1 = easeInOut(clamp01((t - 0.6) / (TC - 0.6))) * UC, ua = easeInOut(clamp01((t - 5.0) / 5.2));
   ov.lon = (x: number) => { const q = x - T0; return q < 3.4 ? lerp(72, 42, easeInOut(clamp01(q / 3.4))) : lerp(42, 12, easeInOut(clamp01((q - 3.4) / 7))); };
-  ov.show = () => 1; ov.pins = 0; ov.thin = true; ov.dense = true; ov.real = false; ov.u = (x: number) => { const q = x - T0; return easeInOut(clamp01((q - 0.6) / (TC - 0.6))) * UC; }; ov.alt = (x: number) => easeInOut(clamp01((x - T0 - 5.0) / 5.2)); ov.cut = (x: number) => (x - T0 >= TC ? 1 : 0);
+  ov.show = () => 1; ov.pins = 0; ov.thin = true; ov.dense = true; ov.real = real; ov.blue = real; ov.u = (x: number) => { const q = x - T0; return easeInOut(clamp01((q - 0.6) / (TC - 0.6))) * UC; }; ov.alt = (x: number) => easeInOut(clamp01((x - T0 - 5.0) / 5.2)); ov.cut = (x: number) => (x - T0 >= TC ? 1 : 0);
   const [cx, cy, cfront] = project(tt, ll(routeAt(MAIN, UC) as unknown as LL, R * 1.012)), [ax, ay, afront] = project(tt, ll(routeAt(ALT, ua) as unknown as LL, R * 1.012));
   const cut = easeOut(clamp01((t - TC) / 0.35)), drop = easeOut(clamp01((t - (TC - 0.7)) / 0.7)), blink = 0.5 + 0.5 * Math.sin(t * 10), ms = Math.round(lerp(50, 52, d1 / UC) + 8 * ua), op = easeOut(clamp01(t / 0.6));
   const c1 = easeOut(clamp01((t - 0.3) / 0.5)) * (1 - easeOut(clamp01((t - 3.0) / 0.4))), c2 = easeOut(clamp01((t - 3.4) / 0.5)) * (1 - easeOut(clamp01((t - 5.2) / 0.4))), c3 = easeOut(clamp01((t - 5.3) / 0.5)) * (1 - easeOut(clamp01((t - 10.0) / 0.4))), c4 = easeOut(clamp01((t - 10.2) / 0.5));

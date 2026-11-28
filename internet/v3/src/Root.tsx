@@ -144,6 +144,7 @@ export const Root: React.FC = () => (
     <Composition id="TunnelCableV" component={TunnelCable} durationInFrames={TUNNEL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="TunnelDiveV" component={TunnelDive} durationInFrames={TUNNEL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeRefV" component={() => <Vert><GlobeRef /></Vert>} durationInFrames={GLOBE_REF_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="GlobeCutRealV" component={() => <Vert><GlobeCut real /></Vert>} durationInFrames={GLOBE_CUT_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeCutV" component={() => <Vert><GlobeCut /></Vert>} durationInFrames={GLOBE_CUT_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeRouteV" component={() => <Vert><GlobeRoute /></Vert>} durationInFrames={GLOBE_ROUTE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeSatQV" component={() => <Vert><GlobeSatQ /></Vert>} durationInFrames={60} fps={30} width={1080} height={1920} />
