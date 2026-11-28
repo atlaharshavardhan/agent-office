@@ -37,7 +37,7 @@ export const CharminarArt: React.FC<{ stone?: string; shade?: string; glow?: str
   </g>);
 };
 /* ---- the photo he sends: the Charminar at dusk (Hyderabad) ---- */
-export const Charminar: React.FC = () => (<g>
+export const CharminarPhoto: React.FC = () => (<g>
   <defs><linearGradient id="chSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#3b2a6a" /><stop offset="0.6" stopColor="#d96b5a" /><stop offset="1" stopColor="#ffb454" /></linearGradient></defs>
   <rect width={190} height={190} fill="url(#chSky)" /><circle cx={30} cy={34} r={11} fill="#fff1d0" />
   {[100, 140, 168, 20, 60].map((x, i) => <circle key={i} cx={x} cy={8 + (i * 9) % 30} r={1.2} fill="#fff" opacity={0.8} />)}
@@ -59,6 +59,9 @@ export const DogPhoto: React.FC = () => (<g>
   <path d="M 87 134 Q 95 158 103 134 Z" fill="#ef7f8f" /><path d="M 95 136 V 148" stroke="#c9586a" strokeWidth={1.6} />
   <path d="M 52 160 Q 95 182 138 160 L 138 176 Q 95 198 52 176 Z" fill="#d6252d" /><circle cx={95} cy={184} r={9} fill="#e8c46a" stroke="#a87420" strokeWidth={2} />
 </g>);
+
+/* Harsh, 28 Nov 2026: the photo he sends, the framed picture on his desk and the notification thumbnail are the DOG, not the Charminar. */
+export const Charminar: React.FC = DogPhoto;
 
 /* ---- a small desk flag on a pole, waving a little (kind: the Indian tricolour or the Union Jack); the cloth always extends to the right ---- */
 export const DeskFlag: React.FC<{ x: number; y: number; kind: 'in' | 'uk'; t: number; id: string }> = ({ x, y, kind, t, id }) => {

@@ -22,19 +22,14 @@ export const TOWER = V(17, 15, -30);
 const canvas = (w: number, h: number, draw: (g: CanvasRenderingContext2D) => void) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d')!); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
 const rr = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
 /* the little video he sends: the torch across the street, as a thumbnail */
-const drawThumb = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => {   /* his photo: the Charminar at dusk */
-  g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); const u = w / 190, R = (a: number, b: number, c: number, d: number, col: string) => { g.fillStyle = col; g.fillRect(x + a * u, y + b * u, c * u, d * u); };
-  const sky = g.createLinearGradient(0, y, 0, y + h); sky.addColorStop(0, '#3b2a6a'); sky.addColorStop(0.6, '#d96b5a'); sky.addColorStop(1, '#ffb454'); g.fillStyle = sky; g.fillRect(x, y, w, h);
-  g.fillStyle = '#fff1d0'; g.beginPath(); g.arc(x + 30 * u, y + 34 * u, 11 * u, 0, 7); g.fill();
-  const stone = '#c8785a', dark = '#6a3030', glow = '#ffd98a';
-  const mino = (cx: number, top: number, mw: number) => { R(cx - mw / 2, top + 14, mw, 178 - top - 14, stone); R(cx - mw / 2, top + 14, mw * 0.36, 178 - top - 14, dark); [0.35, 0.6].forEach((k) => R(cx - mw * 0.9, top + 14 + (178 - top - 14) * k, mw * 1.8, 3, stone));
-    g.fillStyle = stone; g.beginPath(); g.ellipse(x + cx * u, y + (top + 10) * u, mw * 0.8 * u, 11 * u, 0, 0, 7); g.fill(); R(cx - 0.8, top - 6, 1.6, 10, dark); };
-  mino(66, 52, 7); mino(124, 52, 7);
-  R(42, 108, 106, 70, stone); R(42, 108, 16, 70, dark); R(40, 92, 110, 18, stone); [0, 1, 2, 3, 4, 5].forEach((i) => R(49 + i * 15, 96, 7, 11, glow));
-  g.fillStyle = stone; g.beginPath(); g.ellipse(x + 95 * u, y + 88 * u, 15 * u, 11 * u, 0, 0, 7); g.fill();
-  g.fillStyle = '#3a1a10'; g.beginPath(); g.moveTo(x + 80 * u, y + 178 * u); g.lineTo(x + 80 * u, y + 142 * u); g.quadraticCurveTo(x + 95 * u, y + 122 * u, x + 110 * u, y + 142 * u); g.lineTo(x + 110 * u, y + 178 * u); g.fill();
-  g.fillStyle = glow; g.beginPath(); g.moveTo(x + 85 * u, y + 178 * u); g.lineTo(x + 85 * u, y + 144 * u); g.quadraticCurveTo(x + 95 * u, y + 130 * u, x + 105 * u, y + 144 * u); g.lineTo(x + 105 * u, y + 178 * u); g.fill();
-  mino(36, 40, 10); mino(154, 40, 10); R(0, 178, 190, 12, '#1a0c1c'); g.restore();
+const drawThumb = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => {   /* his photo: the dog */
+  g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); const u = w / 190, E = (cx: number, cy: number, rx: number, ry: number, col: string, rot = 0) => { g.fillStyle = col; g.beginPath(); g.ellipse(x + cx * u, y + cy * u, rx * u, ry * u, rot, 0, 7); g.fill(); };
+  const bg = g.createLinearGradient(0, y, 0, y + h); bg.addColorStop(0, '#fbe8c8'); bg.addColorStop(1, '#f2b88a'); g.fillStyle = bg; g.fillRect(x, y, w, h);
+  E(46, 96, 22, 40, '#9a5a2e', 0.25); E(144, 96, 22, 40, '#9a5a2e', -0.25); E(95, 96, 52, 48, '#d9a05a'); E(95, 62, 20, 12, '#e8b878'); E(95, 122, 28, 22, '#f6e3c2');
+  E(75, 90, 7.5, 7.5, '#2a1a18'); E(115, 90, 7.5, 7.5, '#2a1a18'); E(77.5, 87.5, 2.6, 2.6, '#fff'); E(117.5, 87.5, 2.6, 2.6, '#fff'); E(95, 112, 11, 8, '#2a1a18');
+  g.strokeStyle = '#2a1a18'; g.lineWidth = 2.6 * u; g.beginPath(); g.moveTo(x + 95 * u, y + 120 * u); g.lineTo(x + 95 * u, y + 128 * u); g.stroke();
+  g.fillStyle = '#ef7f8f'; g.beginPath(); g.moveTo(x + 87 * u, y + 134 * u); g.quadraticCurveTo(x + 95 * u, y + 158 * u, x + 103 * u, y + 134 * u); g.fill();
+  g.fillStyle = '#d6252d'; g.beginPath(); g.moveTo(x + 52 * u, y + 160 * u); g.quadraticCurveTo(x + 95 * u, y + 182 * u, x + 138 * u, y + 160 * u); g.lineTo(x + 138 * u, y + 176 * u); g.quadraticCurveTo(x + 95 * u, y + 198 * u, x + 52 * u, y + 176 * u); g.fill(); E(95, 184, 9, 9, '#e8c46a'); g.restore();
 };
 const screenTex = (sent: boolean, hideThumb: boolean) => canvas(600, 1240, (g) => {
   g.fillStyle = '#0b0f2e'; g.fillRect(0, 0, 600, 1240);

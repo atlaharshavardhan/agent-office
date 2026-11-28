@@ -8,7 +8,8 @@ import { Charminar, CharminarArt, DeskFlag, Chip, Limb, solveWrist, rot2, PY, TB
 /* Part 2 hook, the man's side (9:16 only): Arjun's room in Hyderabad at 9:12 pm, same desk style as Meera's London room (locked) but his own colours.
    His phone lies on the desk with the photo ready in the chat to Meera; his right index finger reaches, holds on the send arrow, taps; the photo lifts off the screen. */
 export const HYD_ROOM_FRAMES = 150;
-export const HYD_TIMES = { reach: 0.1, touch: 0.95, tap: 1.2, lift: 1.5 };   // the quick version for the 10 s hook
+export const WIN_PANE = { x0: 672, y0: 142, x1: 812, y1: 372, cx: 741, cy: 256 };   // the window pane the photo breaks (screen pixels)
+export const HYD_TIMES = { reach: 0.1, touch: 0.7, tap: 0.95, lift: 1.15, hit: 1.9 };   // the quick version for the 10 s hook: tap, the photo flies at the window, the glass breaks at 1.9 s
 const SKIN_A = '#b87a50', SLEEVE: [string, string, string, string] = ['#e0a63a', '#f2c25a', '#a8761e', '#fff1d0'];   // his skin tone and an ochre shirt
 
 /* the window: Hyderabad at night, the lit Charminar, rooftops, an auto-rickshaw passing in the street (one pass over the scene), stars, no rain */
@@ -45,12 +46,31 @@ const HydWindow: React.FC<{ t: number }> = ({ t }) => {
   </g>);
 };
 
+/* the glass: before the hit a faint glare; at the hit a flash, spider-web cracks, jagged edges stay in the frame and about 40 shards fly out and fall */
+const WindowBreak: React.FC<{ t: number; T: { hit: number } }> = ({ t, T }) => {
+  const P = WIN_PANE, ts = t - T.hit, w = P.x1 - P.x0, hgt = P.y1 - P.y0;
+  const shards = React.useMemo(() => { const cols = 6, rows = 7, pts: [number, number][][] = []; for (let r = 0; r <= rows; r++) { pts.push([]); for (let c = 0; c <= cols; c++) pts[r].push([P.x0 + (c / cols) * w + (c && c < cols ? (hash(r * 9 + c) - 0.5) * 14 : 0), P.y0 + (r / rows) * hgt + (r && r < rows ? (hash(r * 13 + c + 50) - 0.5) * 16 : 0)]); }
+    const out: [number, number][][] = []; for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const a = pts[r][c], b = pts[r][c + 1], d = pts[r + 1][c], e = pts[r + 1][c + 1]; out.push([a, b, e], [a, e, d]); } return out; }, []);
+  const cracks = React.useMemo(() => Array.from({ length: 14 }).map((_, i) => { const ang = (i / 14) * 6.283 + hash(i) * 0.3, len = 50 + hash(i + 3) * 120; let x = P.cx, y = P.cy; const pts = [`${x},${y}`]; for (let k = 1; k <= 4; k++) { const a2 = ang + (hash(i * 7 + k) - 0.5) * 0.5, l = len / 4; x += Math.cos(a2) * l; y += Math.sin(a2) * l; pts.push(`${x},${y}`); } return pts.join(' '); }), []);
+  const glare = t < T.hit ? 0.1 : 0;
+  return (<g>
+    <clipPath id="paneClip"><rect x={P.x0} y={P.y0} width={w} height={hgt} /></clipPath>
+    {glare > 0 && <g clipPath="url(#paneClip)" opacity={glare}>{[0, 1, 2].map((i) => <polygon key={i} points={`${P.x0 + 20 + i * 52},${P.y0} ${P.x0 + 44 + i * 52},${P.y0} ${P.x0 - 40 + i * 52},${P.y1} ${P.x0 - 64 + i * 52},${P.y1}`} fill="#fff" />)}</g>}
+    {ts > 0 && ts < 0.18 && <circle cx={P.cx} cy={P.cy} r={20 + ts * 700} fill="#fff" opacity={0.85 * (1 - ts / 0.18)} />}
+    {ts > 0 && <g opacity={0.9 - 0.4 * clamp01(ts / 0.8)} clipPath="url(#paneClip)">{cracks.map((c, i) => <polyline key={i} points={c} fill="none" stroke="#fff" strokeWidth={2.2} strokeLinejoin="round" />)}
+      {[40, 90].map((r, i) => <polygon key={i} points={cracks.map((c, k) => { const p = c.split(' ')[1 + i]; return p; }).join(' ')} fill="none" stroke="#dff4ff" strokeWidth={1.4} opacity={0.8} />)}</g>}
+    {ts > 0 && shards.map((s, i) => { const cxs = (s[0][0] + s[1][0] + s[2][0]) / 3, cys = (s[0][1] + s[1][1] + s[2][1]) / 3, dx = cxs - P.cx, dy = cys - P.cy, d = Math.hypot(dx, dy) + 1, sp = 160 + hash(i + 70) * 260, vx = (dx / d) * sp * 0.6, vy = (dy / d) * sp * 0.6 - 60, om = (hash(i + 90) - 0.5) * 12;
+      const x = vx * ts, y = vy * ts + 900 * ts * ts, op = ts < 0.25 ? 0.8 : 0.8 * (1 - clamp01((ts - 0.25) / 0.85)); if (op <= 0) return null;
+      return <polygon key={i} transform={`translate(${x} ${y}) rotate(${om * ts * 57} ${cxs} ${cys})`} points={s.map((p) => p.join(',')).join(' ')} fill="rgba(190,230,255,.38)" stroke="#fff" strokeWidth={1} opacity={op} />; })}
+    {ts > 0.1 && [[P.x0, P.y0, 26, 16], [P.x0 + 60, P.y0, 18, 22], [P.x1 - 40, P.y0, 24, 18], [P.x1, P.y0 + 90, -22, 24], [P.x0, P.y1 - 60, 24, -20], [P.x0 + 50, P.y1, 20, -24], [P.x1 - 30, P.y1, 26, -18], [P.x1, P.y1 - 70, -20, -22]].map(([x, y, dx, dy], i) => <polygon key={i} points={`${x},${y} ${x + dx},${y} ${x},${y + dy}`} fill="rgba(235,248,255,.5)" />)}
+  </g>);
+};
+
 export const HydRoom: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS, T = HYD_TIMES;
-  const u = easeInOut(prog(f, T.reach, T.touch)), point = prog(f, T.reach + 0.5, T.touch - 0.2, easeOut), lift = prog(f, T.reach, T.reach + 0.3, easeOut) * (1 - 0.75 * prog(f, T.touch - 0.2, T.touch));
+  const u = easeInOut(prog(f, T.reach, T.touch)), point = prog(f, T.reach + 0.25, T.touch - 0.05, easeOut), lift = prog(f, T.reach, T.reach + 0.3, easeOut) * (1 - 0.75 * prog(f, T.touch - 0.2, T.touch));
   const tapP = prog(f, T.tap, T.tap + 0.6), press = prog(f, T.tap, T.tap + 0.25, easeOut) * (1 - prog(f, T.tap + 0.25, T.tap + 0.6));
   const sending = t >= T.tap, delivered = t >= T.tap + 0.65;
-  const g = prog(f, T.lift, T.lift + 1.5, easeInOut);                                                         // the photo lifts off the phone
   // his phone (cherry, 18 Pro look) lies on the desk, turned a little
   const PK = 0.62, PW2 = 236 * PK, PH2 = 484 * PK, cx = 560, cy = 1330, th = -9, pcy = (cy - TB) / PY;
   const [tdx, tdy] = rot2(85.5 * PK, 209 * PK, th), target: [number, number] = [cx + tdx, pcy + tdy];            // the send arrow on his screen
@@ -59,7 +79,10 @@ export const HydRoom: React.FC = () => {
   const arc = Math.sin(Math.PI * u) * 30, wR: [number, number] = [lerp(w0[0], wEnd[0], u) + arc + Math.sin(t * 2.2) * 2 * (1 - u), lerp(w0[1], wEnd[1], u) + Math.sin(t * 3.1) * 1.5 * (1 - u)];
   const wL: [number, number] = [330 + Math.sin(t * 1.7) * 2, 800 + Math.sin(t * 2.6) * 1.5];
   const [pbx, pby] = rot2(15 * PK, 3 * PK, th);
-  const ghostX = cx + pbx, ghostY = TB + (pcy + pby) * PY - g * 640;
+  const sx = cx + pbx, sy = TB + (pcy + pby) * PY;                                                              // the photo starts on his screen
+  const a1 = clamp01((t - T.lift) / (T.hit - T.lift)), a2 = clamp01((t - T.hit) / 0.9);                         // 1: flies at the window. 2: through the broken glass and away
+  const flying = t >= T.lift, e1 = a1 * a1 * (3 - 2 * a1), ghostX = lerp(sx, WIN_PANE.cx, e1) + (t >= T.hit ? lerp(0, 150, a2) : 0), ghostY = lerp(sy, WIN_PANE.cy, e1) - (t >= T.hit ? lerp(0, 160, a2) : 0);
+  const gScale = t < T.hit ? lerp(1, 0.78, e1) : lerp(0.78, 0.3, a2), gOp = t < T.hit ? 1 : 1 - clamp01((a2 - 0.6) / 0.4);
   return (
     <AbsoluteFill style={{ background: '#2a1a2e' }}>
       <div style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 860, background: 'linear-gradient(180deg,#3a2540 0%,#4a2f45 70%,#3a2438 100%)' }} />
@@ -117,7 +140,7 @@ export const HydRoom: React.FC = () => {
       </div>
       {/* things that stand up */}
       <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none' }}>
-        {/* a framed photo of the two of them at the Charminar */}
+        {/* a framed picture of the dog */}
         <ellipse cx={340} cy={1122} rx={74} ry={13} fill="#000" opacity={0.5} filter="url(#blur3)" />
         <path d="M 340 1040 L 300 1118 L 380 1118 Z" fill="#4a2e1a" opacity={0.8} />
         <rect x={286} y={972} width={108} height={136} rx={8} fill="#5a3a22" stroke="#3a2210" strokeWidth={3} /><rect x={296} y={982} width={88} height={116} fill="#fdf3e4" /><svg x={300} y={988} width={80} height={104} viewBox="0 0 190 190" preserveAspectRatio="xMidYMid slice"><Charminar /></svg>
@@ -140,9 +163,10 @@ export const HydRoom: React.FC = () => {
         <path d="M 738 1130 L 782 1130 L 776 1198 L 744 1198 Z" fill="#c58a52" opacity={0.95} /><path d="M 738 1130 L 782 1130 L 779 1150 L 741 1150 Z" fill="#fff6e8" opacity={0.55} /><path d="M 738 1130 L 782 1130 L 776 1198 L 744 1198 Z" fill="none" stroke="#fff" strokeWidth={2.4} opacity={0.65} />
         <ellipse cx={760} cy={1130} rx={22} ry={5} fill="#e8c898" /><ellipse cx={760} cy={1131} rx={18} ry={3.4} fill="#a8683a" />
         {[0, 1, 2].map((i) => { const ph = (t * 0.7 + i * 0.33) % 1; return <path key={i} d={`M ${748 + i * 12} 1124 q 9 -22 0 -44 q -9 -20 0 -36`} stroke="#fff" strokeWidth={4} fill="none" opacity={0.3 * (1 - ph)} strokeLinecap="round" transform={`translate(0 ${-ph * 40})`} />; })}
-        {/* the photo lifts off the phone and flies up, towards the globe */}
-        {g > 0 && <g transform={`translate(${ghostX} ${ghostY}) rotate(${-8 * g}) scale(${1 + 0.35 * g})`} opacity={1 - clamp01((g - 0.75) / 0.25)}>
-          <circle r={120} fill="#ffb454" opacity={0.28 * (1 - g * 0.5)} filter="url(#blur6)" /><rect x={-58} y={-58} width={116} height={116} rx={12} fill="#fff" stroke="#ffb454" strokeWidth={5} /><svg x={-52} y={-52} width={104} height={104} viewBox="0 0 190 190"><Charminar /></svg></g>}
+        {/* the photo flies at the window and breaks the glass */}
+        {flying && <g transform={`translate(${ghostX} ${ghostY}) rotate(${-10 * e1}) scale(${gScale})`} opacity={gOp}>
+          <circle r={118} fill="#ffb454" opacity={0.3} filter="url(#blur6)" /><rect x={-58} y={-58} width={116} height={116} rx={12} fill="#fff" stroke="#ffb454" strokeWidth={5} /><svg x={-52} y={-52} width={104} height={104} viewBox="0 0 190 190"><Charminar /></svg></g>}
+        <WindowBreak t={t} T={T} />
       </svg>
       {/* his hands: the left rests on the desk, the right reaches and taps send */}
       <div style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1920, clipPath: 'inset(0 0 190px 0)' }}>
