@@ -51,7 +51,7 @@ const Scene: React.FC<{ t: number; pal: string }> = ({ t, pal }) => {
   return (<>
     <mesh rotation-x={-Math.PI / 2}><planeGeometry args={[BW, BH]} /><meshBasicMaterial map={plate} toneMapped={false} /></mesh>
     <mesh rotation-x={-Math.PI / 2} position={[0, -0.05, 0]}><planeGeometry args={[BW + 6, BH + 6]} /><meshBasicMaterial color="#050818" /></mesh>
-    <instancedMesh ref={inst} args={[undefined as any, undefined as any, NT]} frustumCulled={false}><boxGeometry args={[1.06, 0.2, 0.66]} /><meshStandardMaterial color="#ffffff" roughness={0.32} metalness={0.25} emissive={PAL.emis} emissiveIntensity={0.55} /></instancedMesh>
+    <instancedMesh ref={inst} args={[undefined as any, undefined as any, NT]} frustumCulled={false}><boxGeometry args={[1.06, 0.2, 0.66]} /><meshStandardMaterial color="#ffffff" roughness={0.32} metalness={0.25} emissive={PAL.emis} emissiveIntensity={0.3} /></instancedMesh>
     <instancedMesh ref={labm} args={[undefined as any, undefined as any, NT]} frustumCulled={false} geometry={labGeo} material={labMat} />
     {LOST.map((n, i) => miss > 0.01 && <group key={n} position={[SX(n), 0, SZ(n)]}>
       <mesh position={[0, 0.14, 0]}><boxGeometry args={[1.12, 0.22, 0.72]} /><meshBasicMaterial color="#ff2a3a" transparent opacity={miss * (0.45 + 0.55 * bl)} toneMapped={false} /></mesh>
@@ -60,7 +60,7 @@ const Scene: React.FC<{ t: number; pal: string }> = ({ t, pal }) => {
   </>); };
 export const PALS: Record<string, { base: number[]; fall: number[]; hot: number[]; emis: string; text: string }> = {
   gold: { base: [1, 0.74, 0.2], fall: [0.62, 0.46, 0.12], hot: [1, 0.97, 0.7], emis: '#7a4a08', text: '#3a2008' },
-  amber: { base: [0.98, 0.62, 0.1], fall: [0.7, 0.4, 0.06], hot: [1, 0.9, 0.5], emis: '#7a3a04', text: '#4a1a04' },
+  amber: { base: [0.9, 0.53, 0.05], fall: [0.6, 0.34, 0.04], hot: [0.95, 0.78, 0.32], emis: '#4a2202', text: '#2e1002' },
   cyan: { base: [0.22, 0.72, 1], fall: [0.12, 0.42, 0.62], hot: [0.85, 0.97, 1], emis: '#0a4a7a', text: '#04203a' },
   violet: { base: [0.62, 0.42, 1], fall: [0.36, 0.24, 0.62], hot: [0.95, 0.9, 1], emis: '#3a1a7a', text: '#160a3a' },
   teal: { base: [0.12, 0.85, 0.7], fall: [0.07, 0.5, 0.42], hot: [0.85, 1, 0.97], emis: '#066a5a', text: '#03231d' },
@@ -74,7 +74,7 @@ export const ArriveReal: React.FC<{ pal?: string; cat?: 'dog' | 'dark' | 'gold' 
   return (<AbsoluteFill style={{ background: '#03051a' }}>
     <ThreeCanvas width={1080} height={1920} gl={{ antialias: true }} camera={{ fov: 44, near: 0.05, far: 400 }}>
       <Cam t={t} /><color attach="background" args={['#03051a']} /><fog attach="fog" args={['#03051a', 70, 260]} />
-      <ambientLight intensity={0.9} /><directionalLight position={[6, 14, 8]} intensity={1.5} color="#ffe9c0" /><pointLight position={[0, 6, 0]} intensity={40} color="#ffb454" distance={50} />
+      <ambientLight intensity={0.8} /><directionalLight position={[6, 14, 8]} intensity={1.3} color="#ffe9c0" /><pointLight position={[0, 6, 0]} intensity={26} color="#ffb454" distance={50} />
       <Scene t={t} pal={pal} />
       <EffectComposer><Bloom intensity={0.7} luminanceThreshold={0.78} luminanceSmoothing={0.25} mipmapBlur /><Vignette eskil={false} offset={0.25} darkness={0.7} /></EffectComposer>
     </ThreeCanvas>
