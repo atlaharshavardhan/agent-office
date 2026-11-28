@@ -42,12 +42,12 @@ place(pop(), S['s1'] + 1.3, 0.4)                                                
 for n in ('s2', 's3', 's4', 's5', 's6', 'pa', 'pb', 'tw', 'ug'): place(shutter(), S[n] - 0.1, 0.3)   # TRANSITIONS: camera shutter on each cut
 place(bass(), S['s5'] + 1.1, 0.5)                                                      # the lock closes: bass impact
 place(pop(), S['s6'] + 1.7, 0.45)                                                      # "NOTHING TO SEE" pops up
-place(riser(), S['pa'] - 0.9, 0.35); place(pop(), S['pa'] + 0.6, 0.4)                  # REVEAL: the 2,000 packets (riser, then the number pops)
+pass; place(pop(), S['pa'] + 0.6, 0.4)                  # REVEAL: the 2,000 packets (riser, then the number pops)
 place(typing(10), S['pb'] + 1.8, 0.35); place(typing(10), S['pb'] + 2.4, 0.3)          # the address types in (From, To)
-place(pop(), S['pb'] + 1.4, 0.45); place(riser(1.0), S['pb'] + 3.3, 0.3); place(pop(), S['pb'] + 4.4, 0.4)   # #1204 pops, riser into the label card
+place(pop(), S['pb'] + 1.4, 0.45); pass; place(pop(), S['pb'] + 4.4, 0.4)   # #1204 pops, riser into the label card
 place(whoosh(), S['tw'] + 3.0, 0.22)                                                   # camera rises to the antennas
 place(pop(), S['tw'] + 0.3, 0.4)                                                       # "Mobile tower" label pops
-place(riser(1.2), S['ug'] - 0.7, 0.3)                                                  # REVEAL: the light enters the cable
+pass                                                  # REVEAL: the light enters the cable
 place(load('video/part2hook12/cable-one-soft.wav'), S['ug'] + 1.0, 0.8)
 f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) / (1.0 * SR)); out *= f[:, None]; out = np.tanh(out * 1.2) / 1.2; out *= 0.7 / np.abs(out).max(); sf.write(f'{D}/mix.wav', out[: int(TOTAL * SR)], SR)
 # join the shots with 0.2 s fades

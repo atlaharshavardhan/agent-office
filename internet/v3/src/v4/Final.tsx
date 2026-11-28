@@ -127,6 +127,7 @@ export const GlobeRoute: React.FC = () => {
 
 /* Part 2: a ship's anchor cuts the cable in the Red Sea; there are many cables, so the light goes another way round Africa and still reaches London. 9:16. */
 export const GLOBE_CUT_FRAMES = 360;
+const sm2 = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); }, lp = lerp;
 export const GlobeCut: React.FC = () => {
   const f = useCurrentFrame(), t = f / 30, T0 = 7.0, tt = T0 + t, UC = 0.36, TC = 3.4, d1 = easeInOut(clamp01((t - 0.6) / (TC - 0.6))) * UC, ua = easeInOut(clamp01((t - 5.0) / 5.2));
   ov.lon = (x: number) => { const q = x - T0; return q < 3.4 ? lerp(72, 42, easeInOut(clamp01(q / 3.4))) : lerp(42, 12, easeInOut(clamp01((q - 3.4) / 7))); };
@@ -139,7 +140,14 @@ export const GlobeCut: React.FC = () => {
     <Sequence from={-Math.round(T0 * 30)}><Planet /></Sequence>
     <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><defs><radialGradient id="gc2"><stop offset="0" stopColor="#ffffff" stopOpacity={0.95} /><stop offset="0.35" stopColor="#ffe27a" stopOpacity={0.8} /><stop offset="1" stopColor="#ffd23a" stopOpacity={0} /></radialGradient><radialGradient id="gcr"><stop offset="0" stopColor="#8a1c34" stopOpacity={0.95} /><stop offset="1" stopColor="#8a1c34" stopOpacity={0} /></radialGradient></defs>
       {cfront && t >= TC - 0.7 && <g transform={`translate(${cx} ${cy})`}>
-        <g transform={`translate(0 ${-(1 - drop) * 500})`} opacity={drop}><path d="M 0 -62 L 0 38 M -22 -34 L 22 -34 M -42 14 Q -40 46 0 50 Q 40 46 42 14 M -42 14 L -56 6 M 42 14 L 56 6" fill="none" stroke="#e6f0ff" strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" /><circle cy={-72} r={12} fill="none" stroke="#e6f0ff" strokeWidth={8} /></g>
+        <g opacity={sm2(drop * 3)}>
+          <g transform={`translate(0 ${-300 + Math.sin(t * 2) * 3})`}>
+            <path d="M -150 0 Q 0 24 150 0" fill="none" stroke="#7fd4ff" strokeWidth={5} strokeLinecap="round" opacity={0.7} /><path d="M -110 34 Q 0 54 110 34" fill="none" stroke="#7fd4ff" strokeWidth={4} strokeLinecap="round" opacity={0.45} />
+            <path d="M -120 -4 L 124 -4 L 98 -50 L -92 -50 Z" fill="#e8eefc" stroke="#9fb4d6" strokeWidth={4} /><path d="M -92 -50 L 98 -50 L 98 -58 L -92 -58 Z" fill="#c8362e" />
+            <rect x={-30} y={-96} width={86} height={38} rx={5} fill="#ffffff" stroke="#9fb4d6" strokeWidth={3} /><rect x={-14} y={-130} width={30} height={34} rx={4} fill="#3a4a8a" stroke="#9fb4d6" strokeWidth={3} /><rect x={-8} y={-146} width={18} height={16} fill="#ffb454" />
+            {[-16, 4, 24, 44].map((x) => <rect key={x} x={x} y={-88} width={12} height={14} rx={2} fill="#3a4a8a" />)}</g>
+          <line x1={-30} y1={-296} x2={-30} y2={lp(-296, -62, drop)} stroke="#cfd6ee" strokeWidth={7} strokeDasharray="14 7" />
+          <g transform={`translate(-30 ${lp(-290, -8, drop)})`}><path d="M 0 -62 L 0 38 M -22 -34 L 22 -34 M -42 14 Q -40 46 0 50 Q 40 46 42 14 M -42 14 L -56 6 M 42 14 L 56 6" fill="none" stroke="#e6f0ff" strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" /><circle cy={-72} r={12} fill="none" stroke="#e6f0ff" strokeWidth={8} /></g></g>
         <g opacity={cut}><circle r={40 + 130 * (1 - cut)} fill="url(#gcr)" /><circle r={46 + 90 * (1 - cut)} fill="none" stroke="#d23c58" strokeWidth={8} opacity={0.5 + 0.5 * blink} />
           <path d="M -34 -34 L 34 34 M 34 -34 L -34 34" stroke="#d23c58" strokeWidth={14} strokeLinecap="round" opacity={0.55 + 0.45 * blink} /></g></g>}
 </svg>

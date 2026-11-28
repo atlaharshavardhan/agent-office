@@ -38,10 +38,10 @@ def pop(): n = int(0.18 * SR); t = np.arange(n) / SR; return np.sin(2 * np.pi * 
 def riser(d=1.0): n = int(d * SR); t = np.arange(n) / SR; ph = 2 * np.pi * np.cumsum(300 + 1500 * (t / d) ** 2) / SR; return (np.sin(ph) + 0.5 * np.sin(2.01 * ph) + 0.3 * np.sin(3.2 * ph)) * (t / d) ** 1.5 * np.minimum(1, (d - t) / 0.05) * 0.45
 def whoosh(): n = int(0.45 * SR); t = np.arange(n) / SR; env = np.sin(np.pi * np.clip(t / 0.45, 0, 1)) ** 2; return np.convolve(rng.normal(0, 1, n), np.ones(40) / 40, 'same') * env * 1.2
 place(shutter(), S['rt'] + 0.05, 0.3); place(pop(), at('rt', 0.4), 0.4); place(pop(), at('rt', 2.4), 0.4); place(pop(), at('rt', 5.8), 0.4); place(whoosh(), at('rt', 5.0), 0.2)   # router label, destination, hero tag, busy
-place(shutter(), S['sh'] - 0.05, 0.3); place(riser(1.0), S['sh'] - 0.4, 0.3); place(pop(), at('sh', 0.6), 0.4)
-place(shutter(), S['sb'] - 0.05, 0.3); place(pop(), at('sb', 0.6), 0.4); place(riser(1.0), at('sb', 2.3), 0.3); place(pop(), at('sb', 3.3), 0.45)
-place(shutter(), S['cb'] - 0.05, 0.3); [place(pop(), at('cb', tt), 0.35) for tt in (0.6, 4.8, 7.2, 11.6)]; place(riser(1.0), at('cb', 10.5), 0.3)
-place(shutter(), S['rp'] - 0.05, 0.3); place(pop(), at('rp', 1.3), 0.4); place(riser(0.9), at('rp', 3.3), 0.3)
+place(shutter(), S['sh'] - 0.05, 0.3); pass; place(pop(), at('sh', 0.6), 0.4)
+place(shutter(), S['sb'] - 0.05, 0.3); place(pop(), at('sb', 0.6), 0.4); pass; place(pop(), at('sb', 3.3), 0.45)
+place(shutter(), S['cb'] - 0.05, 0.3); [place(pop(), at('cb', tt), 0.35) for tt in (0.6, 4.8, 7.2, 11.6)]; pass
+place(shutter(), S['rp'] - 0.05, 0.3); place(pop(), at('rp', 1.3), 0.4); pass
 f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) / (1.0 * SR)); out *= f[:, None]; out = np.tanh(out * 1.2) / 1.2; out *= 0.7 / np.abs(out).max(); sf.write(f'{D}/mix.wav', out[: int(TOTAL * SR)], SR)
 ins = []; fc = ''
 for i, (n, fr, ks) in enumerate(SH): ins += (['-ss', str(TRIM[n])] if n in TRIM else []) + ['-i', f'{D}/{n}.mp4']; fc += f'[{i}:v]setpts=PTS*{k_[n]:.4f},fps={FPS},tpad=stop_mode=clone:stop_duration=0.2,format=yuv420p[a{i}];'

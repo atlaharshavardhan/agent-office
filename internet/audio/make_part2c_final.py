@@ -47,9 +47,9 @@ place(bass(), S['s1'] + 0.05, 0.55); place(pop(), at('s1', 0.8), 0.4); place(who
 for n in [x[0] for x in SH][1:]: place(shutter(), S[n] - 0.05, 0.3)
 place(bass(), at('s5', 0.75), 0.5); place(pop(), at('s6', 1.1), 0.45)
 place(whoosh(), at('pa', 0.45), 0.2); place(pop(), at('pa', 2.0), 0.4)
-place(riser(0.7), at('pa', 3.4), 0.3); place(pop(), at('pa', 4.9), 0.45); place(typing(8), at('pa', 5.5), 0.3); place(typing(8), at('pa', 6.1), 0.3); place(typing(8), at('pa', 6.7), 0.3)
+pass; place(pop(), at('pa', 4.9), 0.45); place(typing(8), at('pa', 5.5), 0.3); place(typing(8), at('pa', 6.1), 0.3); place(typing(8), at('pa', 6.7), 0.3)
 place(pop(), S['tw'] + 0.2, 0.4); place(whoosh(), at('tw', 2.0), 0.22)
-place(riser(1.0), S['ug'] - 0.5, 0.3); place(load('video/part2hook12/cable-one-soft.wav'), S['ug'] + 0.6, 0.8)
+pass; place(load('video/part2hook12/cable-one-soft.wav'), S['ug'] + 0.6, 0.8)
 f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) / (1.0 * SR)); out *= f[:, None]; out = np.tanh(out * 1.2) / 1.2; out *= 0.7 / np.abs(out).max(); sf.write(f'{D}/mix.wav', out[: int(TOTAL * SR)], SR)
 ins = []; fc = ''
 for i, (n, fr, ks) in enumerate(SH):

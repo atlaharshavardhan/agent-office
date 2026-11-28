@@ -169,3 +169,5 @@ Mapping for Part 2: Hook = locked 12 s (v10). Lead = your phone, send, photo bre
 ## 28 Nov 2026 - RULE (Harsh): do NOT create or send .srt subtitle files until he says. Make the video only. (Earlier videos have srt files already; leave them alone, make no new ones.)
 
 ## 28 Nov 2026 - Harsh: NO "Part 3" anywhere. The Part 2 ending is "That took less than a blink." then "Follow for more" (@TheInvisiTech, bell ding). No open-loop question about checking the photo.
+
+## 28 Nov 2026 - SOUND (Harsh): the rising "riser" (he calls it the ambulance sound) is REMOVED from every video script. NO sound effects are added until Harsh tells which sounds he wants; keep only the voice and the soft pad. Do not add any riser, whoosh or pop on my own. Anchor scene: show a ship with its anchor chain falling on the cable (not only a small anchor icon). Do not render videos until he says.

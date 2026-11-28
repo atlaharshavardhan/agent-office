@@ -36,7 +36,7 @@ def shutter(): n = int(0.28 * SR); t = np.arange(n) / SR; c1 = rng.normal(0, 1, 
 def pop(): n = int(0.18 * SR); t = np.arange(n) / SR; return np.sin(2 * np.pi * (700 + 500 * np.exp(-40 * t)) * t) * np.exp(-30 * t) * 0.9
 def riser(d=1.0): n = int(d * SR); t = np.arange(n) / SR; ph = 2 * np.pi * np.cumsum(300 + 1500 * (t / d) ** 2) / SR; return (np.sin(ph) + 0.5 * np.sin(2.01 * ph) + 0.3 * np.sin(3.2 * ph)) * (t / d) ** 1.5 * np.minimum(1, (d - t) / 0.05) * 0.45
 def whoosh(): n = int(0.45 * SR); t = np.arange(n) / SR; env = np.sin(np.pi * np.clip(t / 0.45, 0, 1)) ** 2; return np.convolve(rng.normal(0, 1, n), np.ones(40) / 40, 'same') * env * 1.2
-place(shutter(), S['ar'] + 0.05, 0.3); place(riser(1.2), at('ar', 0.2), 0.25)
+place(shutter(), S['ar'] + 0.05, 0.3); pass
 def tk(fq): m = int(0.035 * SR); tt = np.arange(m) / SR; return (np.sin(2 * np.pi * fq * tt) * np.exp(-90 * tt) + rng.normal(0, 1, m) * np.exp(-200 * tt) * 0.15) * 0.8
 def swell(d=1.6): n = int(d * SR); t = np.arange(n) / SR; ph = 2 * np.pi * np.cumsum(500 + 900 * (t / d)) / SR; return (np.sin(ph) + 0.4 * np.sin(2 * ph)) * np.sin(np.pi * np.clip(t / d, 0, 1)) ** 1.5 * 0.45
 # (the landing ticks and the unlock swell were removed: Harsh did not like them)                                                    # the unlock: the photo sweeps in [place(pop(), at('ar', 6.6 + k * 0.2), 0.35) for k in range(3)]; place(pop(), at('ar', 7.9), 0.45); place(pop(), at('ar', 10.5), 0.5)
