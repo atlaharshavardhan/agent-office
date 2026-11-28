@@ -71,15 +71,17 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
     {Array.from({ length: 26 }).map((_, i) => { const zz = -4 - i * 0.62, a = cpt(zz), d = cpt(zz - 0.3).sub(cpt(zz + 0.3)).normalize(), q = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), d); return <mesh key={i} position={a} quaternion={q}><cylinderGeometry args={[0.44, 0.5, 0.5, 18]} /><meshStandardMaterial color="#2b3180" roughness={0.5} metalness={0.3} /></mesh>; })}
     {/* marker posts either side of the cable on the beach */}
     {[[3.4, 3], [3.2, -3], [-4.6, -9], [3.4, -12]].map(([dx, zz], i) => { const x = cx(zz) + dx, y = sand(x, zz); return <group key={i} position={[x, y, zz]}><mesh position={[0, 1.1, 0]}><cylinderGeometry args={[0.09, 0.11, 2.2, 8]} /><meshStandardMaterial color="#2b3180" /></mesh><mesh position={[0, 2.25, 0]}><boxGeometry args={[0.3, 0.26, 0.3]} /><meshBasicMaterial color="#9fe6ff" /></mesh><pointLight position={[0, 2.3, 0]} color="#5fe3ff" intensity={4} distance={6} /></group>; })}
+    {on > 0.01 && <group position={cpt(-9.5)}><sprite scale={[16 * (1 - Math.min(1, Math.abs(z + 9.5) / 14)), 6 * (1 - Math.min(1, Math.abs(z + 9.5) / 14)), 1]}><spriteMaterial map={glow} transparent opacity={0.85} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite></group>}
     {on > 0.01 && <group position={p}>
       <sprite scale={[5.5, 5.5, 1]}><spriteMaterial map={glow} transparent opacity={0.9 * on} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
       <sprite scale={[60, 0.7, 1]}><spriteMaterial map={glow} transparent opacity={0.6 * on} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
       <mesh><sphereGeometry args={[0.36, 14, 10]} /><meshBasicMaterial color="#fff0c8" /></mesh>
+      {Array.from({ length: 34 }).map((_, i) => { const zz = z + 0.9 + i * 0.62, q = cpt(zz), o = Math.sin(t * 3 + i * 1.9) * 0.55; return <mesh key={i} position={[q.x - p.x + o, q.y - p.y + 0.45 + Math.abs(Math.sin(t * 2.4 + i)) * 0.5, q.z - p.z]} rotation={[t * 1.6 + i, t * 1.2 + i * 0.4, 0]}><boxGeometry args={[0.7, 0.38, 0.26]} /><meshStandardMaterial color="#ffb454" emissive="#ff9a2e" emissiveIntensity={1.0} roughness={0.4} /></mesh>; })}
       <pointLight color="#ffb454" intensity={260 * on} distance={46} decay={1.35} position={[0, 1.6, 0]} />
     </group>}
   </group>; };
 const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.05, 500); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
-const Box: React.FC<{ x: number; y: number; o: number; text: string; sub?: string; col?: string }> = ({ x, y, o, text, sub, col = '#5fe3ff' }) => { const ww = Math.max(text.length * 27 + 50, (sub?.length ?? 0) * 16 + 50);
+const Box: React.FC<{ x: number; y: number; o: number; text: string; sub?: string; col?: string }> = ({ x, y, o, text, sub, col = '#5fe3ff' }) => { const ww = Math.max(text.length * 30 + 60, (sub?.length ?? 0) * 19 + 60);
   return <g opacity={o} transform={`translate(${x} ${y})`}><rect x={-ww / 2} y={-30} width={ww} height={sub ? 76 : 56} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>{text}</text>{sub && <text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>{sub}</text>}</g>; };
 
 export const Shore: React.FC = () => {
