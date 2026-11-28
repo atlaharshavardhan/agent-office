@@ -177,3 +177,5 @@ Mapping for Part 2: Hook = locked 12 s (v10). Lead = your phone, send, photo bre
 ## 28 Nov 2026 - DECISION CHANGED (Harsh: "lets keep dog"): the photo stays the cartoon DOG in the whole video, hook included. The cat idea is dropped (v3/src/v4/CatPhoto.tsx stays unused). Packets stay gold/yellow. No re-render of the hook needed.
 
 ## 28 Nov 2026 - Harsh approved the BETTER DOG (v3/src/v4/DogBetter.tsx). It is now DogPhoto everywhere in the code (old dog = DogPhotoOld). Finished videos (hook v10, etc.) still show the old dog until re-rendered. Not rendered yet; wait for his "render".
+
+## 28 Nov 2026 - ARRIVAL packets (Harsh): wide RECTANGLES (not squares), amber/yellow like his reference (v3/src/v4/ArriveReal.tsx, palette 'amber'), better dog photo, red missing packets close together in the middle. Not rendered yet.
