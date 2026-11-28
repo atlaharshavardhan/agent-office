@@ -19,6 +19,7 @@ import { SeaCable, SEACABLE_FRAMES } from './v4/SeaCable';
 import { Shore, SHORE_FRAMES } from './v4/Shore';
 import { Arrive, ARRIVE_FRAMES } from './v4/Arrive';
 import { ArriveGrid } from './v4/ArriveGrid';
+import { ArriveRain, RAIN_FRAMES } from './v4/ArriveRain';
 import { Arrive as ArriveHer, ARRIVE_FRAMES as ARRIVE_HER_FRAMES } from './v4/ArriveAnim';
 import { Snap, SNAP_FRAMES } from './v4/Snap';
 import { SeabedMs, RepeaterMs, PlanetMs, SeabedFast, SeabedLight, GlobeSat, SeabedLight12, GlobeSatStart, SeabedLight12b, GlobeSatQ, GlobeHook, SeabedLight12c } from './v4/Final';
@@ -75,6 +76,7 @@ export const Root: React.FC = () => (
     <Composition id="S4V" component={S4Dog} durationInFrames={S4_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="S5V" component={S5Lock} durationInFrames={S5_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="S6V" component={S6Lens} durationInFrames={S6_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="ArriveRV" component={ArriveRain} durationInFrames={RAIN_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ArriveGV" component={ArriveGrid} durationInFrames={ARRIVE_HER_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ArriveHV" component={ArriveHer} durationInFrames={ARRIVE_HER_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="S2BV" component={S2Bits} durationInFrames={S2B_FRAMES} fps={30} width={1080} height={1920} />
