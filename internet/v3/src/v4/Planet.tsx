@@ -100,8 +100,8 @@ const Earth: React.FC<{ t: number }> = ({ t }) => {
   const mainCol = ov.cut && ov.cut(t) > 0.5 ? '#ff2e3e' : ov.dense ? '#ffe04a' : '#ffc24a';
   const head = MAIN_C.getPointAt(u), zoom = seg(t, 3.2, 6.6);
   return <group>
-    <mesh><sphereGeometry args={[R, 96, 64]} /><meshStandardMaterial map={tex} emissiveMap={tex} color={ov.blue ? "#5f86c4" : "#ffffff"} emissive={ov.blue ? "#7aa2e8" : "#ffffff"} emissiveIntensity={ov.blue ? 0.75 : ov.real ? 1.0 : 0.55} roughness={0.9} /></mesh>
-    <mesh material={ov.real ? atmo : ov.thin ? atmoThin : atmo}><sphereGeometry args={[R * (ov.real ? 1.03 : ov.thin ? 1.012 : 1.045), 64, 48]} /></mesh>
+    <mesh><sphereGeometry args={[R, 96, 64]} /><meshStandardMaterial map={tex} emissiveMap={tex} color={ov.blue ? "#9cc0f5" : "#ffffff"} emissive={ov.blue ? "#9cc0ff" : "#ffffff"} emissiveIntensity={ov.blue ? 1.15 : ov.real ? 1.0 : 0.55} roughness={0.9} /></mesh>
+    <mesh material={ov.real ? atmo : ov.thin ? atmoThin : atmo}><sphereGeometry args={[R * (ov.blue ? 1.075 : ov.real ? 1.03 : ov.thin ? 1.012 : 1.045), 64, 48]} /></mesh>
     {ov.dense && <DenseWeb t={t} />}
     {/* the world's cables: dim cyan, lighting up one after another as the camera pulls back */}
     {web.map((w, i) => { const on = seg(t, 4.2 + i * 0.09, 5.0 + i * 0.09); w.g.setDrawRange(0, Math.floor((w.g.index!.count * on) / 3) * 3); const pu = ((t * 0.16 + hash(i) * 5) % 1 + 1) % 1, pp = w.c.getPointAt(pu);
