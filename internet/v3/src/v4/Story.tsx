@@ -205,7 +205,7 @@ export const LondonRoom: React.FC = () => {
           <filter id="blur6" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7" /></filter><filter id="blur3"><feGaussianBlur stdDeviation="3.5" /></filter></defs>
         <g transform="translate(300 40) scale(0.66)"><Window t={t} /></g>
         {/* wall clock showing London time, 3:42, with a sweeping second hand */}
-        <g transform="translate(250 450)">
+        <g transform="translate(250 330)">
           <circle r={128} cy={8} fill="#000" opacity={0.35} filter="url(#blur6)" />
           <circle r={124} fill="#d9a13a" stroke="#a87420" strokeWidth={6} /><circle r={108} fill="#fdf3e4" stroke="#c9a15a" strokeWidth={3} />
           {Array.from({ length: 60 }).map((_, i) => { const a = (i * 6 * Math.PI) / 180, big = i % 5 === 0; return <line key={i} x1={Math.sin(a) * (big ? 86 : 94)} y1={-Math.cos(a) * (big ? 86 : 94)} x2={Math.sin(a) * 102} y2={-Math.cos(a) * 102} stroke="#3a2a22" strokeWidth={big ? 5 : 2} strokeLinecap="round" />; })}
@@ -306,7 +306,7 @@ export const LondonRoom: React.FC = () => {
         </svg>
       </div>
       </div>
-      <Chip text="LONDON · 3:42 pm" col="#ffb454" top={236} left={36} />
+      <Chip text="LONDON · 3:42 pm" col="#ffb454" top={482} left={36} />
     </AbsoluteFill>
   );
 };
