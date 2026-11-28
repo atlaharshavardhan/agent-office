@@ -6,17 +6,17 @@ import { FONT } from '../lib/palette';
 export const PW = 236, PH = 484, SCR = { x: 9, y: 9, w: PW - 18, h: PH - 18 };
 const BLUE = '#0a84ff';
 /* v18: the iPhone 18 Pro look (Cherry burgundy aluminium frame, smaller Dynamic Island, Camera Control button). Off by default so Part 1 stays as it was. */
-export const IPhone: React.FC<{ left: number; top: number; o: number; name: string; avatar: string; k?: number; v18?: boolean; children: React.ReactNode }> = ({ left, top, o, name, avatar, k = 1, v18, children }) => (
+export const IPhone: React.FC<{ left: number; top: number; o: number; name: string; avatar: string; k?: number; v18?: boolean | 'silver'; children: React.ReactNode }> = ({ left, top, o, name, avatar, k = 1, v18, children }) => (
   <div style={{ position: 'absolute', left, top, width: PW, height: PH, transform: `scale(${k})`, transformOrigin: '0 0' }}>
   <div style={{ position: 'absolute', left: 0, top: 0, width: PW, height: PH, opacity: Math.min(1, o * 1.6), transform: `scale(${0.82 + 0.18 * o})`, transformOrigin: '50% 60%', filter: 'drop-shadow(0 26px 40px rgba(0,0,0,.6))', fontFamily: FONT.ui }}>
     {/* side buttons */}
-    <div style={{ position: 'absolute', left: -3, top: 96, width: 4, height: 22, borderRadius: 2, background: v18 ? '#8a3a4c' : '#5d6068' }} />
-    <div style={{ position: 'absolute', left: -3, top: 132, width: 4, height: 40, borderRadius: 2, background: v18 ? '#8a3a4c' : '#5d6068' }} />
-    <div style={{ position: 'absolute', left: -3, top: 180, width: 4, height: 40, borderRadius: 2, background: v18 ? '#8a3a4c' : '#5d6068' }} />
-    <div style={{ position: 'absolute', right: -3, top: 150, width: 4, height: 62, borderRadius: 2, background: v18 ? '#8a3a4c' : '#5d6068' }} />
-    {v18 && <div style={{ position: 'absolute', right: -3, top: 330, width: 4, height: 34, borderRadius: 2, background: '#b45a6e' }} />}
+    <div style={{ position: 'absolute', left: -3, top: 96, width: 4, height: 22, borderRadius: 2, background: v18 === 'silver' ? '#b9bcc4' : v18 ? '#8a3a4c' : '#5d6068' }} />
+    <div style={{ position: 'absolute', left: -3, top: 132, width: 4, height: 40, borderRadius: 2, background: v18 === 'silver' ? '#b9bcc4' : v18 ? '#8a3a4c' : '#5d6068' }} />
+    <div style={{ position: 'absolute', left: -3, top: 180, width: 4, height: 40, borderRadius: 2, background: v18 === 'silver' ? '#b9bcc4' : v18 ? '#8a3a4c' : '#5d6068' }} />
+    <div style={{ position: 'absolute', right: -3, top: 150, width: 4, height: 62, borderRadius: 2, background: v18 === 'silver' ? '#b9bcc4' : v18 ? '#8a3a4c' : '#5d6068' }} />
+    {v18 && <div style={{ position: 'absolute', right: -3, top: 330, width: 4, height: 34, borderRadius: 2, background: v18 === 'silver' ? '#d3d5da' : '#b45a6e' }} />}
     {/* titanium frame, then the black bezel, then the screen */}
-    <div style={{ position: 'absolute', inset: 0, borderRadius: 46, background: v18 ? 'linear-gradient(135deg,#d9929f,#8a2e43 30%,#5a1a2b 60%,#c2788a)' : 'linear-gradient(135deg,#a9acb4,#4a4c54 30%,#2c2d33 60%,#8d9098)' }} />
+    <div style={{ position: 'absolute', inset: 0, borderRadius: 46, background: v18 === 'silver' ? 'linear-gradient(135deg,#f4f4f6,#b9bcc4 30%,#8a8d96 60%,#e9eaee)' : v18 ? 'linear-gradient(135deg,#d9929f,#8a2e43 30%,#5a1a2b 60%,#c2788a)' : 'linear-gradient(135deg,#a9acb4,#4a4c54 30%,#2c2d33 60%,#8d9098)' }} />
     <div style={{ position: 'absolute', inset: 3, borderRadius: 43, background: '#050506' }} />
     <div style={{ position: 'absolute', left: SCR.x, top: SCR.y, width: SCR.w, height: SCR.h, borderRadius: 37, background: '#000', overflow: 'hidden' }}>
       {/* status bar */}
