@@ -140,22 +140,7 @@ export const GlobeCut: React.FC = () => {
     <Sequence from={-Math.round(T0 * 30)}><Planet /></Sequence>
     <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><defs><radialGradient id="gc2"><stop offset="0" stopColor="#ffffff" stopOpacity={0.95} /><stop offset="0.35" stopColor="#ffe27a" stopOpacity={0.8} /><stop offset="1" stopColor="#ffd23a" stopOpacity={0} /></radialGradient><radialGradient id="gcr"><stop offset="0" stopColor="#8a1c34" stopOpacity={0.95} /><stop offset="1" stopColor="#8a1c34" stopOpacity={0} /></radialGradient></defs>
       {cfront && t >= TC - 0.7 && <g transform={`translate(${cx} ${cy})`}>
-        <g opacity={sm2(drop * 3)}>
-          <g transform={`translate(0 ${-300 + Math.sin(t * 2) * 3}) rotate(${Math.sin(t * 1.3) * 1.2})`} style={{ filter: 'drop-shadow(0 10px 14px rgba(0,0,0,.55))' }}>
-            {/* containers: five stacks, three high, in our colours */}
-            {[0, 1, 2, 3, 4, 5].map((c) => [0, 1, 2].map((r) => ((c + r) % 5 === 4 && r === 2) ? null : <rect key={c + '-' + r} x={-176 + c * 40} y={-58 - r * 21} width={37} height={19} rx={2} fill={['#ffb454', '#e0705a', '#2f9c95', '#8a5ad0', '#ffd38a', '#4a7fd0', '#c8362e'][(c * 3 + r * 2) % 7]} stroke="#1a1030" strokeWidth={1.5} />))}
-            {/* hull: long, dark blue, curved bow on the right, red stripe under the deck */}
-            <path d="M -208 -40 L 150 -40 Q 196 -40 214 -14 Q 190 22 120 24 L -190 24 Q -214 20 -208 -10 Z" fill="#1c2f6a" stroke="#0e1a44" strokeWidth={3} />
-            <path d="M -208 -40 L 150 -40 Q 196 -40 214 -14 L 205 -4 L -208 -4 Z" fill="#c8362e" /><path d="M -208 -4 L 205 -4 L 196 4 L -208 4 Z" fill="#f0e2c8" />
-            {/* bridge tower at the back (left), funnel, mast */}
-            <rect x={-206} y={-96} width={44} height={56} rx={4} fill="#f4f6ff" stroke="#9fb4d6" strokeWidth={3} /><rect x={-200} y={-112} width={32} height={18} rx={3} fill="#f4f6ff" stroke="#9fb4d6" strokeWidth={3} />
-            {[-198, -184, -170].map((x) => <rect key={x} x={x} y={-88} width={9} height={8} rx={1.5} fill="#2a3a7a" />)}{[-196, -180].map((x) => <rect key={x} x={x} y={-72} width={9} height={8} rx={1.5} fill="#2a3a7a" />)}
-            <rect x={-198} y={-108} width={30} height={7} fill="#2a3a7a" /><rect x={-132} y={-82} width={16} height={42} rx={3} fill="#ffb454" stroke="#7a4a08" strokeWidth={2} /><rect x={-132} y={-86} width={16} height={7} fill="#1a1030" />
-            <line x1={-190} y1={-112} x2={-190} y2={-136} stroke="#9fb4d6" strokeWidth={3} /><line x1={-196} y1={-128} x2={-184} y2={-128} stroke="#9fb4d6" strokeWidth={3} />
-            {/* sea round the hull */}
-            <path d="M -240 18 Q -210 6 -180 18 T -120 18 T -60 18 T 0 18 T 60 18 T 120 18 T 180 18 T 240 18" fill="none" stroke="#7fd4ff" strokeWidth={5} strokeLinecap="round" opacity={0.85} /><path d="M -210 34 Q -180 24 -150 34 T -90 34 T -30 34 T 30 34 T 90 34 T 150 34 T 210 34" fill="none" stroke="#7fd4ff" strokeWidth={4} strokeLinecap="round" opacity={0.5} /></g>
-          <line x1={150} y1={-290} x2={0} y2={lp(-290, -62, drop)} stroke="#cfd6ee" strokeWidth={7} strokeDasharray="14 7" />
-          <g transform={`translate(0 ${lp(-290, -8, drop)})`}><path d="M 0 -62 L 0 38 M -22 -34 L 22 -34 M -42 14 Q -40 46 0 50 Q 40 46 42 14 M -42 14 L -56 6 M 42 14 L 56 6" fill="none" stroke="#e6f0ff" strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" /><circle cy={-72} r={12} fill="none" stroke="#e6f0ff" strokeWidth={8} /></g></g>
+        <g transform={`translate(0 ${-(1 - drop) * 520}) scale(1.6)`} opacity={sm2(drop * 3)}><path d="M 0 -62 L 0 38 M -22 -34 L 22 -34 M -42 14 Q -40 46 0 50 Q 40 46 42 14 M -42 14 L -56 6 M 42 14 L 56 6" fill="none" stroke="#e6f0ff" strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" /><circle cy={-72} r={12} fill="none" stroke="#e6f0ff" strokeWidth={7} /></g>
         <g opacity={cut}><circle r={40 + 130 * (1 - cut)} fill="url(#gcr)" /><circle r={46 + 90 * (1 - cut)} fill="none" stroke="#d23c58" strokeWidth={8} opacity={0.5 + 0.5 * blink} />
           <path d="M -34 -34 L 34 34 M 34 -34 L -34 34" stroke="#d23c58" strokeWidth={14} strokeLinecap="round" opacity={0.55 + 0.45 * blink} /></g></g>}
 </svg>
