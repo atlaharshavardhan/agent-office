@@ -21,7 +21,7 @@ export const R = 10;
 export const PLANET_FRAMES = 360;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 /* the Part 2 hook turns the globe once and shows the cables only later: it sets these (lon = camera longitude by time, show = how much of the cable web and our route is visible, 0 to 1) */
-export const ov: { lon: null | ((t: number) => number); show: null | ((t: number) => number); pins: null | number; thin?: boolean; u?: null | ((t: number) => number); dense?: boolean } = { lon: null, show: null, pins: null, thin: false, u: null, dense: false };   // thin = Harsh: a thin edge on the globe and a few clear stars (hook v9)
+export const ov: { lon: null | ((t: number) => number); show: null | ((t: number) => number); pins: null | number; thin?: boolean; u?: null | ((t: number) => number); dense?: boolean; alt?: null | ((t: number) => number) } = { lon: null, show: null, pins: null, thin: false, u: null, dense: false, alt: null };   // thin = Harsh: a thin edge on the globe and a few clear stars (hook v9)
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
 export const ll = (p: LL, r = R) => { const la = (p[1] * Math.PI) / 180, lo = (p[0] * Math.PI) / 180; return V(r * Math.cos(la) * Math.cos(lo), r * Math.sin(la), -r * Math.cos(la) * Math.sin(lo)); };
 const CITIES: LL[] = [MUMBAI, LONDON, [78.5, 17.4], [77.2, 28.6], [77.6, 13], [80.3, 13.1], [88.4, 22.6], [67, 24.9], [55.3, 25.3], [46.7, 24.7], [51.4, 35.7], [31.2, 30], [29, 41], [37.6, 55.8], [2.35, 48.9], [13.4, 52.5], [-3.7, 40.4], [12.5, 41.9], [103.8, 1.3], [114.2, 22.3], [121.5, 31.2], [139.8, 35.7], [126.9, 37.5], [116.4, 39.9], [100.5, 13.8], [106.8, -6.2], [151.2, -33.9], [144.9, -37.8], [18.4, -33.9], [28, -26.2], [3.4, 6.4], [36.8, -1.3], [-74, 40.7], [-118.2, 34], [-87.6, 41.9], [-99.1, 19.4], [-46.6, -23.5], [-58.4, -34.6], [-43.2, -22.9], [-79.4, 43.7], [-122.4, 37.8], [-80.2, 25.8]];
@@ -56,6 +56,9 @@ const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree();
 
 const curveOf = (r: LL[], lift = 1.006) => new THREE.CatmullRomCurve3(routePts(r, 1, 0.02).map((p) => ll(p as LL, R * lift)));
 const MAIN_C = curveOf(MAIN, 1.008);
+/* the back-up route round Africa, used when the short way is cut (Part 2, anchor scene) */
+export const ALT: LL[] = [MUMBAI, [62, 2], [52, -16], [38, -32], [18, -36], [8, -20], [2, -5], [-8, 5], [-17, 15], [-18, 28], [-12, 40], [-9, 46], [-4.55, 50.83]];
+const ALT_C = curveOf(ALT, 1.008);
 const mainU = (t: number) => clamp01((t - 0.6) / 8.6) ** 0.9;      // how far along its route our light is
 
 /* Harsh's reference: a dense web of glowing cable arcs over the whole Earth (ov.dense) */
@@ -70,6 +73,7 @@ const Earth: React.FC<{ t: number }> = ({ t }) => {
   const web = useMemo(() => WEB.map((r) => { const c = curveOf(r); return { c, g: new THREE.TubeGeometry(c, Math.max(20, Math.round(c.getLength() * 8)), 0.03, 6, false) }; }), []);
   const mainG = useMemo(() => new THREE.TubeGeometry(MAIN_C, 500, 0.05, 8, false), []), mainThin = useMemo(() => new THREE.TubeGeometry(MAIN_C, 500, 0.018, 8, false), []), mainDim = useMemo(() => new THREE.TubeGeometry(MAIN_C, 500, 0.024, 6, false), []);
   const glow = useMemo(() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d')!; const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,240,200,1)'); gr.addColorStop(0.2, 'rgba(255,190,90,.7)'); gr.addColorStop(0.55, 'rgba(255,150,40,.16)'); gr.addColorStop(1, 'rgba(255,140,30,0)'); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); const x = new THREE.CanvasTexture(c); x.colorSpace = THREE.SRGBColorSpace; return x; }, []);
+  const altG = useMemo(() => new THREE.TubeGeometry(ALT_C, 500, 0.05, 8, false), []), ua = ov.alt ? ov.alt(t) : 0; altG.setDrawRange(0, Math.floor((altG.index!.count * ua) / 3) * 3);
   const u = ov.u ? ov.u(t) : mainU(t); mainG.setDrawRange(0, Math.floor((mainG.index!.count * u) / 3) * 3); mainThin.setDrawRange(0, Math.floor((mainThin.index!.count * u) / 3) * 3);
   const head = MAIN_C.getPointAt(u), zoom = seg(t, 3.2, 6.6);
   return <group>
@@ -82,6 +86,7 @@ const Earth: React.FC<{ t: number }> = ({ t }) => {
     <mesh geometry={mainDim} visible={!ov.show || ov.show(t) > 0.5}><meshBasicMaterial color="#5fb8ff" transparent opacity={0.4} /></mesh>
     <mesh geometry={mainG} visible={zoom > 0.45 && (!ov.show || ov.show(t) > 0.5)}><meshBasicMaterial color={ov.dense ? "#ffe04a" : "#ffc24a"} /></mesh>
     <mesh geometry={mainThin} visible={zoom <= 0.45 && (!ov.show || ov.show(t) > 0.5)}><meshBasicMaterial color={ov.dense ? "#ffe04a" : "#ffc24a"} /></mesh>
+    {ov.alt && ua > 0.001 && <><mesh geometry={altG}><meshBasicMaterial color="#ffe04a" /></mesh><group position={ALT_C.getPointAt(ua)}><sprite scale={[1.6, 1.6, 1]}><spriteMaterial map={glow} transparent depthWrite={false} blending={THREE.AdditiveBlending} /></sprite><mesh><sphereGeometry args={[0.07, 10, 8]} /><meshBasicMaterial color="#fff0c8" /></mesh></group></>}
     <group position={head}><sprite scale={[lerp(0.45, 2.2, zoom), lerp(0.45, 2.2, zoom), 1]}><spriteMaterial map={glow} transparent depthWrite={false} blending={THREE.AdditiveBlending} /></sprite><mesh><sphereGeometry args={[lerp(0.028, 0.1, zoom), 10, 8]} /><meshBasicMaterial color="#fff0c8" /></mesh></group>
     {[LONDON, HYD].map((p, i) => <mesh key={i} position={ll(p, R * 1.01)}><sphereGeometry args={[0.1, 12, 10]} /><meshBasicMaterial color={i ? '#ffe08a' : '#ff9c8a'} /></mesh>)}
   </group>;
