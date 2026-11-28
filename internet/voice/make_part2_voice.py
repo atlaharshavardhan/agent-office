@@ -9,6 +9,7 @@ L = [
  ("h1", "Arjun taps send."),
  ("h2", "A second later, Meera's phone buzzes, in London."),
  ("h3", "How does a photo cross an ocean that fast?"),
+ ("n1", "The photo races under the sea at two hundred thousand kilometres a second."),
  ("b1", "First, his phone cuts the photo into about two thousand small packets."),
  ("b2", "Radio to the nearest tower, then glass cable under the street."),
  ("b3", "Routers pass each packet along. Road jammed? Another path."),

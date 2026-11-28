@@ -1,0 +1,16 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 2
+
+[V4+ Styles]
+Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding
+Style: Cap,DejaVu Sans,50,&H00FFFFFF,&H00B9A3A0,&H00220A07,&H96000000,-1,0,0,0,100,100,0,0,1,5,2,2,110,150,470,1
+
+[Events]
+Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
+Dialogue: 0,0:00:00.85,0:00:02.47,Cap,,0,0,0,,{\k44\1c&HFFFFFF&}Arjun {\k35\1c&HFFFFFF&}taps {\k44\1c&H54B4FF&}send.
+Dialogue: 0,0:00:04.05,0:00:07.48,Cap,,0,0,0,,{\k14\1c&HFFFFFF&}The {\k24\1c&HFFFFFF&}photo {\k24\1c&HFFFFFF&}races {\k24\1c&H54B4FF&}under\N{\k14\1c&H54B4FF&}the {\k14\1c&H54B4FF&}sea {\k10\1c&HFFFFFF&}at {\k14\1c&H54B4FF&}two\N{\k34\1c&H54B4FF&}hundred {\k38\1c&H54B4FF&}thousand\N{\k48\1c&HFFFFFF&}kilometres {\k10\1c&HFFFFFF&}a {\k34\1c&HFFFFFF&}second.
+Dialogue: 0,0:00:11.70,0:00:14.40,Cap,,0,0,0,,{\k11\1c&HFFFFFF&}A {\k33\1c&HFFFFFF&}second {\k33\1c&HFFFFFF&}later, {\k38\1c&H54B4FF&}Meera's\N{\k27\1c&HFFFFFF&}phone {\k38\1c&H54B4FF&}buzzes, {\k11\1c&HFFFFFF&}in {\k38\1c&H54B4FF&}London.
+Dialogue: 0,0:00:15.40,0:00:17.74,Cap,,0,0,0,,{\k17\1c&HFFFFFF&}How {\k22\1c&HFFFFFF&}does {\k11\1c&HFFFFFF&}a {\k28\1c&HFFFFFF&}photo {\k28\1c&HFFFFFF&}cross {\k11\1c&HFFFFFF&}an\N{\k28\1c&H54B4FF&}ocean {\k22\1c&HFFFFFF&}that {\k28\1c&H54B4FF&}fast?

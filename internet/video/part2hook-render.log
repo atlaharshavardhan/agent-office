@@ -1,0 +1,13 @@
+ok ga 0
+ok ga 30
+DONE ga
+ok sf 0
+ok sf 30
+ok sf 60
+DONE sf
+ok gb 87
+ok gb 117
+ok gb 147
+DONE gb
+ALLDONE
+END
