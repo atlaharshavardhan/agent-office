@@ -131,7 +131,7 @@ const sm2 = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x * x
 export const GlobeCut: React.FC = () => {
   const f = useCurrentFrame(), t = f / 30, T0 = 7.0, tt = T0 + t, UC = 0.36, TC = 3.4, d1 = easeInOut(clamp01((t - 0.6) / (TC - 0.6))) * UC, ua = easeInOut(clamp01((t - 5.0) / 5.2));
   ov.lon = (x: number) => { const q = x - T0; return q < 3.4 ? lerp(72, 42, easeInOut(clamp01(q / 3.4))) : lerp(42, 12, easeInOut(clamp01((q - 3.4) / 7))); };
-  ov.show = () => 1; ov.pins = 0; ov.thin = true; ov.dense = true; ov.real = true; ov.u = (x: number) => { const q = x - T0; return easeInOut(clamp01((q - 0.6) / (TC - 0.6))) * UC; }; ov.alt = (x: number) => easeInOut(clamp01((x - T0 - 5.0) / 5.2));
+  ov.show = () => 1; ov.pins = 0; ov.thin = true; ov.dense = true; ov.real = false; ov.u = (x: number) => { const q = x - T0; return easeInOut(clamp01((q - 0.6) / (TC - 0.6))) * UC; }; ov.alt = (x: number) => easeInOut(clamp01((x - T0 - 5.0) / 5.2));
   const [cx, cy, cfront] = project(tt, ll(routeAt(MAIN, UC) as unknown as LL, R * 1.012)), [ax, ay, afront] = project(tt, ll(routeAt(ALT, ua) as unknown as LL, R * 1.012));
   const cut = easeOut(clamp01((t - TC) / 0.35)), drop = easeOut(clamp01((t - (TC - 0.7)) / 0.7)), blink = 0.5 + 0.5 * Math.sin(t * 10), ms = Math.round(lerp(50, 52, d1 / UC) + 8 * ua), op = easeOut(clamp01(t / 0.6));
   const c1 = easeOut(clamp01((t - 0.3) / 0.5)) * (1 - easeOut(clamp01((t - 3.0) / 0.4))), c2 = easeOut(clamp01((t - 3.4) / 0.5)) * (1 - easeOut(clamp01((t - 5.2) / 0.4))), c3 = easeOut(clamp01((t - 5.3) / 0.5)) * (1 - easeOut(clamp01((t - 10.0) / 0.4))), c4 = easeOut(clamp01((t - 10.2) / 0.5));
@@ -170,7 +170,7 @@ export const TunnelDive: React.FC = () => <LightTunnel title label="Arabian Sea"
 /* the globe in the reference's style: low over the Arabian Sea, real-looking Earth, big gold title, route drawn in yellow with the thin blue rest */
 export const GLOBE_REF_FRAMES = 150;
 export const GlobeRef: React.FC = () => { const f = useCurrentFrame(), t = f / 30, T0 = 4.3, tt = T0 + t * 0.8;
-  ov.lon = (x: number) => 64 - 14 * clamp01((x - T0) / 4); ov.show = () => 1; ov.pins = 0; ov.thin = true; ov.dense = true; ov.real = true; ov.dy = 260; ov.u = (x: number) => 0.06 + 0.34 * easeInOut(clamp01((x - T0) / 4));
+  ov.lon = (x: number) => 64 - 14 * clamp01((x - T0) / 4); ov.show = () => 1; ov.pins = 0; ov.thin = true; ov.dense = true; ov.real = false; ov.dy = 260; ov.u = (x: number) => 0.06 + 0.34 * easeInOut(clamp01((x - T0) / 4));
   return (<AbsoluteFill style={{ backgroundColor: '#02030f' }}>
     <Sequence from={-Math.round(T0 * 30)}><Planet /></Sequence>
     <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 900, background: 'linear-gradient(#02030f 40%, rgba(2,3,15,0))' }} />
