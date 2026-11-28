@@ -22,6 +22,7 @@ import { Shore, SHORE_FRAMES } from './v4/Shore';
 import { Arrive, ARRIVE_FRAMES } from './v4/Arrive';
 import { ArriveGrid } from './v4/ArriveGrid';
 import { CatPhoto } from './v4/CatPhoto';
+import { ServerHall, SERVER_FRAMES } from './v4/ServerHall';
 import { LayStream, LayFountain, LayCloud } from './v4/PacketsLayouts';
 import { DogBetter } from './v4/DogBetter';
 import { DogPhotoOld } from './v4/Story';
@@ -94,6 +95,7 @@ export const Root: React.FC = () => (
     <Composition id="LayStreamV" component={LayStream} durationInFrames={150} fps={30} width={1080} height={1920} />
     <Composition id="LayFountainV" component={LayFountain} durationInFrames={150} fps={30} width={1080} height={1920} />
     <Composition id="LayCloudV" component={LayCloud} durationInFrames={150} fps={30} width={1080} height={1920} />
+    <Composition id="ServerHallV" component={ServerHall} durationInFrames={SERVER_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="CatStillV" component={() => <svg width={1080} height={1080} viewBox="0 0 190 190"><CatPhoto /></svg>} durationInFrames={1} fps={30} width={1080} height={1080} />
     <Composition id="ArriveRealV" component={ArriveReal} durationInFrames={REAL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ArriveRV" component={ArriveRain} durationInFrames={RAIN_FRAMES} fps={30} width={1080} height={1920} />
