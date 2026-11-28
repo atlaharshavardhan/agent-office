@@ -37,7 +37,7 @@ export const S5Lock: React.FC = () => { const t = useCurrentFrame() / 30 * SP, p
   return (<AbsoluteFill><Bg /><SVG><g opacity={0.5 * sm((t - 0.6) / 1.0)} transform="translate(0 150)"><Grid scramble seed={4} /></g><DogBits p={p} tick={Math.floor(t * 30)} o={1 - 0.4 * sm((t - 0.8) / 0.8)} />
     {pop > 0 && <g opacity={sm((t - 1.1) / 0.2)}><Lock x={540} y={900} k={2.3 * pop} /><circle cx={540} cy={900} r={lp(120, 520, Math.min(1, (t - 1.4) / 0.9))} fill="none" stroke="#7fd4ff" strokeWidth={6} opacity={Math.max(0, 1 - (t - 1.4) / 0.9) * (t > 1.4 ? 1 : 0)} /></g>}</SVG><Ms v="001" /></AbsoluteFill>); };
 export const S6_FRAMES = 72;
-export const S6Lens: React.FC = () => { const t = useCurrentFrame() / 30 * SP, ex = eo((t - 0.2) / 1.2), lx = lp(-260, 600, ex) + Math.sin(t * 1.4) * 8, ly = 880 + Math.sin(t * 1.1) * 8, seed = 4 + Math.floor(t * 2) * 5, txt = sm((t - 1.7) / 0.6);
+export const S6Lens: React.FC = () => { const t = useCurrentFrame() / 30 * SP, ex = eo((t - 0.2) / 1.2), lx = lp(-260, 600, ex) + Math.sin(t * 1.4) * 8, ly = 880 + Math.sin(t * 1.1) * 8, seed = 4 + Math.floor(t * 2) * 5, txt = sm((t - 2.0) / 0.6);
   return (<AbsoluteFill><Bg /><SVG>
     <g opacity={0.55} transform="translate(0 150)"><Grid scramble seed={seed} /></g>
     <defs><clipPath id="lensClip"><circle cx={lx} cy={ly} r={296} /></clipPath>
@@ -52,8 +52,8 @@ export const S6Lens: React.FC = () => { const t = useCurrentFrame() / 30 * SP, e
     <line x1={lx + 218} y1={ly + 218} x2={lx + 300} y2={ly + 300} stroke="url(#rimG)" strokeWidth={34} strokeLinecap="round" />
     <line x1={lx + 296} y1={ly + 296} x2={lx + 450} y2={ly + 450} stroke="#12102a" strokeWidth={58} strokeLinecap="round" /><line x1={lx + 296} y1={ly + 296} x2={lx + 450} y2={ly + 450} stroke="url(#hdlG)" strokeWidth={46} strokeLinecap="round" />
     {[0, 1, 2, 3].map((q) => <line key={q} x1={lx + 330 + q * 26 - 14} y1={ly + 330 + q * 26 + 14} x2={lx + 330 + q * 26 + 14} y2={ly + 330 + q * 26 - 14} stroke="#cdbfff" strokeWidth={4} opacity={0.35} />)}
-    {(() => { const ey = sm((t - 1.0) / 0.5), bl = Math.max(0, 1 - Math.abs(t - 2.4) / 0.16, 1 - Math.abs(t - 3.1) / 0.16), lk = Math.sin(t * 2.2) * 20, k = Math.min(1, bl * 1.3);
-      return <g opacity={ey} transform={`translate(${lx} ${ly - 178}) scale(${0.85 + 0.15 * ey})`} style={{ filter: 'drop-shadow(0 6px 14px rgba(0,0,0,.55))' }}>
+    {(() => { const ey = sm((t - 0.5) / 0.4) * (1 - sm((t - 1.85) / 0.3)), bl = Math.max(0, 1 - Math.abs(t - 1.3) / 0.16), lk = Math.sin(t * 2.6) * 22, k = Math.min(1, bl * 1.3);
+      return <g opacity={ey} transform={`translate(${lx} ${ly}) scale(${1.2 + 0.1 * ey})`} style={{ filter: 'drop-shadow(0 6px 14px rgba(0,0,0,.55))' }}>
         <defs><clipPath id="eyeC"><path d="M -135 0 Q 0 -86 135 0 Q 0 86 -135 0 Z" /></clipPath>
           <radialGradient id="irisG" cx="40%" cy="35%" r="70%"><stop offset="0" stopColor="#9fd6ff" /><stop offset="0.55" stopColor="#3f78d8" /><stop offset="1" stopColor="#14246b" /></radialGradient>
           <linearGradient id="lidG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6a5ab8" /><stop offset="1" stopColor="#3a3279" /></linearGradient></defs>
