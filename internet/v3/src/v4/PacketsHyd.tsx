@@ -68,7 +68,7 @@ const Scene: React.FC<{ beat: number }> = ({ beat }) => {
     {beat === 2 && <Cap t="About 2,000 packets, ready" y={1640} />}
     {beat === 3 && <Cap t="Every packet gets an address label" y={1640} />}
     {false && <Cap t="Out of the window, as radio waves" y={1640} />}
-    {beat === 5 && <Cap t="Radio waves to the router or the tower" y={1640} />}
+    {beat === 5 && <Cap t="Packets arrive at the router and the tower" y={1640} />}
   </AbsoluteFill>);
 };
 /* outside the window: the night city, a rooftop Wi-Fi box and the mobile tower; the packets fly in as radio waves */
@@ -85,13 +85,22 @@ const Lattice: React.FC<{ h: number; bw: number; tw: number; seg: number }> = ({
     <rect x={-bw - 40} y={-70} width={110} height={70} rx={6} fill="#26304f" stroke="#9fb4d6" strokeWidth={3} /><line x1={-bw + 10} y1={-70} x2={-tw - 40} y2={-h * 0.25} stroke="#9fb4d6" strokeWidth={3} opacity={0.6} />
   </g>);
 };
+const Flow: React.FC<{ x0: number; y0: number; cx: number; cy: number; x1: number; y1: number; n: number; col: string }> = ({ x0, y0, cx, cy, x1, y1, n, col }) => {
+  const pt = (u: number) => [(1 - u) ** 2 * x0 + 2 * (1 - u) * u * cx + u * u * x1, (1 - u) ** 2 * y0 + 2 * (1 - u) * u * cy + u * u * y1];
+  return (<g>
+    <path d={`M ${x0} ${y0} Q ${cx} ${cy} ${x1} ${y1}`} fill="none" stroke={col} strokeWidth={4} strokeDasharray="4 16" strokeLinecap="round" opacity={0.7} />
+    {Array.from({ length: n }).map((_, q) => { const u = 0.06 + (q / (n - 1)) * 0.86, [x, y] = pt(u), sz = 40 - 14 * u; return <Tile key={q} x={x} y={y} s={sz} rot={-40 + q * 23} i={(q * 3) % 8} j={(q * 5) % 8} n={8} glow={0.8} />; })}
+    <g transform={`translate(${x1} ${y1})`}><circle r={78} fill={col} opacity={0.22} /><circle r={52} fill="none" stroke={col} strokeWidth={6} opacity={0.9} /><circle r={104} fill="none" stroke={col} strokeWidth={4} opacity={0.5} /><circle r={16} fill="#fff" opacity={0.95} /></g>
+  </g>);
+};
 const Outside: React.FC = () => (<svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
   <City />
   <g transform="translate(800 1380)"><Lattice h={780} bw={170} tw={34} seg={9} />{[0, 1, 2, 3].map((r) => <path key={r} d={`M -${130 + r * 54} -${860 - r * 18} A ${130 + r * 54} ${130 + r * 54} 0 0 0 -${130 + r * 54} -${690 + r * 18}`} fill="none" stroke="#ffd38a" strokeWidth={7} strokeLinecap="round" opacity={0.95 - r * 0.2} />)}</g>
-  <text x={800} y={1520} textAnchor="middle" fill={CREAM} style={{ font: `800 36px ${FONT.ui}`, paintOrder: 'stroke', stroke: '#070a22', strokeWidth: 8 }}>Mobile tower</text>
+  <text x={800} y={330} textAnchor="middle" fill={CREAM} style={{ font: `800 36px ${FONT.ui}`, paintOrder: 'stroke', stroke: '#070a22', strokeWidth: 8 }}>Mobile tower</text>
   <g transform="translate(250 1180)"><rect x={-140} y={0} width={280} height={96} rx={12} fill="#2d2540" stroke="#ffb454" strokeWidth={5} /><rect x={-110} y={34} width={14} height={14} rx={7} fill="#7dffb0" /><rect x={-80} y={34} width={14} height={14} rx={7} fill="#7dffb0" /><rect x={-50} y={34} width={14} height={14} rx={7} fill="#ffd38a" />
     <line x1={-100} y1={0} x2={-122} y2={-90} stroke="#222" strokeWidth={9} strokeLinecap="round" /><line x1={100} y1={0} x2={122} y2={-90} stroke="#222" strokeWidth={9} strokeLinecap="round" />{[0, 1, 2].map((a) => <path key={a} d={`M -${50 + a * 34} -${40 + a * 30} A ${70 + a * 34} ${70 + a * 34} 0 0 1 ${50 + a * 34} -${40 + a * 30}`} fill="none" stroke="#7fd4ff" strokeWidth={8} strokeLinecap="round" opacity={1 - a * 0.25} />)}
-    <text y={196} textAnchor="middle" fill={CREAM} style={{ font: `800 36px ${FONT.ui}`, paintOrder: 'stroke', stroke: '#070a22', strokeWidth: 8 }}>Wi-Fi router</text></g>
-  {stream(540, 1760, 270, 1110, 14, -90)}{stream(560, 1760, 780, 560, 30, 120)}{stream(520, 1760, 330, 1110, 9, 60)}{stream(580, 1760, 840, 600, 12, -60)}
+    <text y={-190} textAnchor="middle" fill={CREAM} style={{ font: `800 36px ${FONT.ui}`, paintOrder: 'stroke', stroke: '#070a22', strokeWidth: 8 }}>Wi-Fi router</text></g>
+  <Flow x0={500} y0={1700} cx={200} cy={1560} x1={250} y1={1215} n={13} col="#7fd4ff" /><Flow x0={580} y0={1700} cx={1010} cy={1250} x1={790} y1={560} n={22} col="#ffd38a" />
+  <g transform="translate(540 1830)"><rect x={-70} y={0} width={140} height={150} rx={26} fill="#17141c" stroke="#8a3a4c" strokeWidth={5} /><rect x={-58} y={12} width={116} height={130} rx={16} fill="#0f0d14" /><svg x={-40} y={30} width={80} height={80} viewBox="0 0 190 190"><DogPhoto /></svg></g>
 </svg>);
 export const PktB0 = () => <Scene beat={0} />; export const PktB1 = () => <Scene beat={1} />; export const PktB2 = () => <Scene beat={2} />; export const PktB3 = () => <Scene beat={3} />; export const PktB4 = () => <Scene beat={4} />; export const PktB5 = () => <Scene beat={5} />;
