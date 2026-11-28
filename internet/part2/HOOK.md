@@ -10,3 +10,11 @@ Code: v3/src/v4/Hook.tsx (HookGlobeV), Snap.tsx (SnapV). Stills: v3/stills/p2/.
 
 ## NOTE from Harsh (28 Nov 2026): the globe ROTATES in the hook video
 When the hook video is built (not yet), the globe must slowly rotate (turn) in beats 2 to 4, not stay still. Keep the pins on their cities as it turns (pins hide when a city turns to the far side). Currently HookGlobe in v3/src/v4/Hook.tsx uses fixed late Planet frames (camera held), so the rotation still has to be added. Do not render until Harsh says "render".
+
+## Hook globe timing, built as stills (28 Nov 2026), as Harsh described: ONE ROTATION FIRST, no points, then the pins, then the explaining
+0 to 4 s: the globe turns one full turn (chip: "How does a photo cross the ocean?"). No pins, no cables, no satellite.
+4.2 s: Google Maps pins drop on London, then Hyderabad (0.3 s later).
+5.4 s: satellite flies in with "?" ("A satellite?").
+7.2 s: red cross ("Almost never").
+8.4 s: the cables under the sea light up ("Nearly all of it goes through cables under the sea").
+Total 11 s (330 frames). Code: Hook.tsx (HookGlobeV) with overrides in Planet.tsx (ov.lon, ov.show, ov.pins). Stills: v3/stills/p2/rotation.png.

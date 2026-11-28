@@ -20,6 +20,8 @@ const MAIN: LL[] = [...MAIN_MUMBAI].reverse().concat([HYD]);
 export const R = 10;
 export const PLANET_FRAMES = 360;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
+/* the Part 2 hook turns the globe once and shows the cables only later: it sets these (lon = camera longitude by time, show = how much of the cable web and our route is visible, 0 to 1) */
+export const ov: { lon: null | ((t: number) => number); show: null | ((t: number) => number); pins: null | number } = { lon: null, show: null, pins: null };
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
 export const ll = (p: LL, r = R) => { const la = (p[1] * Math.PI) / 180, lo = (p[0] * Math.PI) / 180; return V(r * Math.cos(la) * Math.cos(lo), r * Math.sin(la), -r * Math.cos(la) * Math.sin(lo)); };
 const CITIES: LL[] = [MUMBAI, LONDON, [78.5, 17.4], [77.2, 28.6], [77.6, 13], [80.3, 13.1], [88.4, 22.6], [67, 24.9], [55.3, 25.3], [46.7, 24.7], [51.4, 35.7], [31.2, 30], [29, 41], [37.6, 55.8], [2.35, 48.9], [13.4, 52.5], [-3.7, 40.4], [12.5, 41.9], [103.8, 1.3], [114.2, 22.3], [121.5, 31.2], [139.8, 35.7], [126.9, 37.5], [116.4, 39.9], [100.5, 13.8], [106.8, -6.2], [151.2, -33.9], [144.9, -37.8], [18.4, -33.9], [28, -26.2], [3.4, 6.4], [36.8, -1.3], [-74, 40.7], [-118.2, 34], [-87.6, 41.9], [-99.1, 19.4], [-46.6, -23.5], [-58.4, -34.6], [-43.2, -22.9], [-79.4, 43.7], [-122.4, 37.8], [-80.2, 25.8]];
@@ -45,7 +47,7 @@ const CAM: CK[] = [
   { t: 12, lon: 46, lat: 28, d: 31, tl: null, fov: 40 },             // slow drift round towards Europe
 ];
 const camAt = (t: number) => { let i = 0; while (i < CAM.length - 2 && t > CAM[i + 1].t) i++; const a = CAM[i], b = CAM[i + 1], u = smooth((t - a.t) / (b.t - a.t));
-  const far = F.v ? 0.86 : 1, p = ll([lerp(a.lon, b.lon, u), lerp(a.lat, b.lat, u)], lerp(a.d * (a.tl ? 1 : far), b.d * (b.tl ? 1 : far), u)), ta = a.tl ? ll(a.tl) : V(0, 0, 0), tb = b.tl ? ll(b.tl) : V(0, 0, 0); return { p, l: ta.lerp(tb, u), fov: lerp(a.fov, b.fov, u) }; };
+  const far = F.v ? 0.86 : 1, p = ll([ov.lon ? ov.lon(t) : lerp(a.lon, b.lon, u), lerp(a.lat, b.lat, u)], lerp(a.d * (a.tl ? 1 : far), b.d * (b.tl ? 1 : far), u)), ta = a.tl ? ll(a.tl) : V(0, 0, 0), tb = b.tl ? ll(b.tl) : V(0, 0, 0); return { p, l: ta.lerp(tb, u), fov: lerp(a.fov, b.fov, u) }; };
 /* once the whole Earth is in view it sits left of centre, leaving the right side for the words */
 const shift = (t: number) => (F.v ? 0 : 330 * seg(t, 3.6, 6.6));
 /* in the Short the Earth drops a little instead, leaving the top for the words */
@@ -68,10 +70,10 @@ const Earth: React.FC<{ t: number }> = ({ t }) => {
     <mesh material={atmo}><sphereGeometry args={[R * 1.045, 64, 48]} /></mesh>
     {/* the world's cables: dim cyan, lighting up one after another as the camera pulls back */}
     {web.map((w, i) => { const on = seg(t, 4.2 + i * 0.09, 5.0 + i * 0.09); w.g.setDrawRange(0, Math.floor((w.g.index!.count * on) / 3) * 3); const pu = ((t * 0.16 + hash(i) * 5) % 1 + 1) % 1, pp = w.c.getPointAt(pu);
-      return <group key={i}><mesh geometry={w.g}><meshBasicMaterial color="#6fd0ff" transparent opacity={0.8} /></mesh>{on > 0.95 && <mesh position={pp}><sphereGeometry args={[0.055, 8, 8]} /><meshBasicMaterial color="#dff6ff" /></mesh>}</group>; })}
-    <mesh geometry={mainDim}><meshBasicMaterial color="#5fb8ff" transparent opacity={0.4} /></mesh>
-    <mesh geometry={mainG} visible={zoom > 0.45}><meshBasicMaterial color="#ffc24a" /></mesh>
-    <mesh geometry={mainThin} visible={zoom <= 0.45}><meshBasicMaterial color="#ffc24a" /></mesh>
+      return <group key={i}><mesh geometry={w.g}><meshBasicMaterial color="#6fd0ff" transparent opacity={0.8 * (ov.show ? ov.show(t) : 1)} /></mesh>{on > 0.95 && <mesh position={pp}><sphereGeometry args={[0.055, 8, 8]} /><meshBasicMaterial color="#dff6ff" /></mesh>}</group>; })}
+    <mesh geometry={mainDim} visible={!ov.show || ov.show(t) > 0.5}><meshBasicMaterial color="#5fb8ff" transparent opacity={0.4} /></mesh>
+    <mesh geometry={mainG} visible={zoom > 0.45 && (!ov.show || ov.show(t) > 0.5)}><meshBasicMaterial color="#ffc24a" /></mesh>
+    <mesh geometry={mainThin} visible={zoom <= 0.45 && (!ov.show || ov.show(t) > 0.5)}><meshBasicMaterial color="#ffc24a" /></mesh>
     <group position={head}><sprite scale={[lerp(0.45, 2.2, zoom), lerp(0.45, 2.2, zoom), 1]}><spriteMaterial map={glow} transparent depthWrite={false} blending={THREE.AdditiveBlending} /></sprite><mesh><sphereGeometry args={[lerp(0.028, 0.1, zoom), 10, 8]} /><meshBasicMaterial color="#fff0c8" /></mesh></group>
     {[LONDON, HYD].map((p, i) => <mesh key={i} position={ll(p, R * 1.01)}><sphereGeometry args={[0.1, 12, 10]} /><meshBasicMaterial color={i ? '#ffe08a' : '#ff9c8a'} /></mesh>)}
   </group>;
@@ -80,8 +82,8 @@ const Stars: React.FC = () => <>{Array.from({ length: 260 }).map((_, i) => { con
 
 const project = (t: number, p: THREE.Vector3): [number, number, boolean] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.1, 600); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); q.x -= (shift(t) / F.W) * 2; const front = p.clone().normalize().dot(c.p.clone().normalize()) > 0.18; return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H + shiftY(t), front]; };
 /* a Google Maps style pin: red teardrop with a white dot, its tip exactly on the city, name beside it */
-const Pin: React.FC<{ t: number; at: LL; name: string; col: string; a: number; dx: number; dy: number }> = ({ t, at, name, a, dx }) => { const [x, y, front] = project(t, ll(at, R * 1.01)), o = seg(t, a, a + 0.4) * (front ? 1 : 0); if (o < 0.01) return null;
-  const drop = 1 - seg(t, a, a + 0.5), side = dx < 0 ? -1 : 1, w = name.length * 19 + 20, ly = y - 50, lx = clampX(x + side * (64 + w / 2), w + 40);
+const Pin: React.FC<{ t: number; at: LL; name: string; col: string; a: number; dx: number; dy: number }> = ({ t, at, name, a, dx }) => { const [x, y, front] = project(t, ll(at, R * 1.01)), aa = ov.pins != null ? ov.pins + (name === 'HYDERABAD' ? 0.3 : 0) : a, o = seg(t, aa, aa + 0.4) * (front ? 1 : 0); if (o < 0.01) return null;
+  const drop = 1 - seg(t, aa, aa + 0.5), side = dx < 0 ? -1 : 1, w = name.length * 19 + 20, ly = y - 50, lx = clampX(x + side * (64 + w / 2), w + 40);
   return <g opacity={o}>
     <ellipse cx={x} cy={y} rx={16} ry={6} fill="#000" opacity={0.45} />
     <g transform={`translate(${x} ${y - drop * 70}) scale(${0.8 + 0.2 * (1 - drop)})`}>
