@@ -1,3 +1,18 @@
+# PART 2 STRUCTURE (Harsh, 28 Nov 2026: "we will follow this")
+Reels structure: 01 Hook, 02 Lead, 03 Body 1, 04 Open loop, 05 Body 2, 06 Open loop, 07 Body 3, 08 CTA.
+| # | Part | Part 2 content | Status |
+|---|---|---|---|
+| 01 | Hook | 12 s hook, LOCKED: video/internet-part2-hook-v10.mp4 | done |
+| 02 | Lead | your phone, tap send, zoom into the dog photo, it breaks into 196 blocks | rendering (v3/render_part2b.sh) |
+| 03 | Body 1 | ones and zeros, the dog in bits, lock = encrypted, magnifier: nothing to see | rendering |
+| 04 | Open loop | "But where do all these pieces go?" (line to add) | to add |
+| 05 | Body 2 | about 2,000 packets, packet label (To / From / Piece), radio waves, mobile tower | rendering |
+| 06 | Open loop | "And then they have to cross an entire ocean..." (line to add) | to add |
+| 07 | Body 3 | box turns radio into light, glass cable under the street (old Underground scene + box), later seabed | partly |
+| 08 | CTA | "Follow for the next part", Bell Ding | to build |
+Sounds (Harsh's list): Hooks = Bass Impact, Zoom In = Quick Whoosh, Transitions = Camera Shutter, Text popping up = Soft Pop, Captions = Keyboard Typing, Reveals = Metallic Riser, CTA = Bell Ding (audio/make_part2b_final.py).
+Rules: no names (say "your phone", "your girlfriend"), squares for photo blocks, rectangles for packets, free voice (Kokoro Michael) first, ElevenLabs only on his word, captions only for key moments (full text in the .srt).
+
 # Part 2 script (draft 1, direction A: London to Hyderabad)
 Agreed by Harsh on 28 Nov 2026 ("you have everything right"). Not rendered.
 Meera (London) sends a photo to Arjun (Hyderabad).
