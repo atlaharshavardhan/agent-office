@@ -103,7 +103,7 @@ const Net: React.FC<{ t: number }> = ({ t }) => {
     {/* the stretch of the current link already travelled */}
     {going && (() => { const g = new THREE.TubeGeometry(linkCurve(ROUTE[pk.k], ROUTE[pk.k + 1]), 40, 0.11, 8, false); g.setDrawRange(0, Math.floor((g.index!.count * pk.f) / 3) * 3); return <mesh geometry={g}><meshBasicMaterial color="#ffb454" /></mesh>; })()}
     {going && (() => { const hu = clamp01((t - T_GO) / (HOP * (ROUTE.length - 1))) * (ROUTE.length - 1);   // the photo is light now: a string of glowing pulses follows the head along the route
-      return <group>{Array.from({ length: 30 }).map((_, i) => { const uu = hu - 0.05 - i * 0.075; if (uu < 0 || i === 0) return null; const q = routePos(uu), k = 1 - i / 34;
+      return <group>{Array.from({ length: 0 }).map((_, i) => { const uu = hu - 0.05 - i * 0.075; if (uu < 0 || i === 0) return null; const q = routePos(uu), k = 1 - i / 34;
         return <group key={i} position={[q.x, 0.55, q.z]}><sprite scale={[2.6 * k + 0.6, 2.6 * k + 0.6, 1]}><spriteMaterial map={amber} transparent opacity={0.9 * k} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite><mesh><sphereGeometry args={[0.2 * k + 0.05, 10, 8]} /><meshBasicMaterial color="#fff0c8" /></mesh></group>; })}</group>; })()}
     {going && <group position={[pk.p.x, 0.5, pk.p.z]}><sprite scale={[5, 5, 1]}><spriteMaterial map={amber} transparent depthWrite={false} blending={THREE.AdditiveBlending} /></sprite><mesh><sphereGeometry args={[0.28, 12, 10]} /><meshBasicMaterial color="#fff0c8" /></mesh><pointLight color="#ffb454" intensity={70} distance={16} decay={1.5} position={[0, 1.5, 0]} /></group>}
     {busy > 0.02 && (() => { const c = linkCurve(BUSY[0], BUSY[1]), m = c.getPointAt(0.5), fl = 0.5 + 0.5 * Math.sin(t * 12), sp = (t * 7) % 1;
@@ -111,13 +111,13 @@ const Net: React.FC<{ t: number }> = ({ t }) => {
       return <group>
         <mesh geometry={halfA}><meshStandardMaterial color="#ff5a4a" emissive="#ff3a2a" emissiveIntensity={0.8 * busy * (0.4 + 0.6 * fl)} transparent opacity={0.8} /></mesh><mesh geometry={halfB}><meshStandardMaterial color="#ff5a4a" emissive="#ff3a2a" emissiveIntensity={0.8 * busy * (0.4 + 0.6 * fl)} transparent opacity={0.8} /></mesh>
         <group position={[m.x, 0.7, m.z]}><sprite scale={[11 * busy, 11 * busy, 1]}><spriteMaterial map={red} transparent opacity={busy * (0.5 + 0.5 * fl)} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
-          <mesh rotation={[0, 0, Math.PI / 4]} scale={busy}><boxGeometry args={[2.6, 0.32, 0.32]} /><meshBasicMaterial color="#ff4a3a" /></mesh><mesh rotation={[0, 0, -Math.PI / 4]} scale={busy}><boxGeometry args={[2.6, 0.32, 0.32]} /><meshBasicMaterial color="#ff4a3a" /></mesh>
+          
           {(() => { const e = Math.max(0, t - (tBusy - 0.5)) , x = Math.min(1, e / 1.1), fade = 1 - x; if (e <= 0 || x >= 1) return null; const ez = 1 - Math.pow(1 - x, 3);
             return <group>
-              <sprite scale={[30 * ez + 5, 30 * ez + 5, 1]}><spriteMaterial map={red} transparent opacity={fade * 1.4} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
-              <mesh rotation={[-Math.PI / 2, 0, 0]} scale={0.5 + ez * 10}><ringGeometry args={[0.85, 1, 48]} /><meshBasicMaterial color="#ff5a3a" transparent opacity={fade} side={THREE.DoubleSide} /></mesh>
-              {Array.from({ length: 60 }).map((_, k) => { const a = hash(k + 3) * 6.283, up = 0.4 + hash(k + 50) * 1.1, sp = 6 + hash(k + 90) * 12, d = ez * sp;
-                return <mesh key={k} position={[Math.cos(a) * d, up * d * 0.9 - x * x * 3, Math.sin(a) * d * 0.7]} scale={fade * (0.5 + hash(k + 7))}><boxGeometry args={[0.6, 0.6, 0.6]} /><meshBasicMaterial color={k % 3 ? '#ff3a2a' : '#ffb070'} /></mesh>; })}
+              <sprite scale={[9 * ez + 2, 9 * ez + 2, 1]}><spriteMaterial map={red} transparent opacity={fade * 1.4} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
+              <mesh rotation={[-Math.PI / 2, 0, 0]} scale={0.3 + ez * 2.6}><ringGeometry args={[0.85, 1, 48]} /><meshBasicMaterial color="#ff5a3a" transparent opacity={fade} side={THREE.DoubleSide} /></mesh>
+              {Array.from({ length: 24 }).map((_, k) => { const a = hash(k + 3) * 6.283, up = 0.4 + hash(k + 50) * 1.1, sp = 1.2 + hash(k + 90) * 2.6, d = ez * sp;
+                return <mesh key={k} position={[Math.cos(a) * d, up * d * 0.9 - x * x * 3, Math.sin(a) * d * 0.7]} scale={fade * (0.5 + hash(k + 7))}><boxGeometry args={[0.18, 0.18, 0.18]} /><meshBasicMaterial color={k % 3 ? '#ff3a2a' : '#ffb070'} /></mesh>; })}
             </group>; })()}
           <pointLight color="#ff4a3a" intensity={50 * busy} distance={14} /></group></group>; })()}
   </group>;
