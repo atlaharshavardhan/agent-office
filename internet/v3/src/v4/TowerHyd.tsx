@@ -51,18 +51,18 @@ const Panels: React.FC = () => (<group position={[TOWER.x, BASE + 20.4, TOWER.z]
   <mesh position={[1.7, -0.2, 0.3]} rotation-z={Math.PI / 2}><sphereGeometry args={[0.55, 24, 12, 0, Math.PI]} /><meshStandardMaterial color="#f2f5ff" roughness={0.4} side={THREE.DoubleSide} /></mesh>
   <pointLight position={[0, 0.4, 1.6]} intensity={5} color="#ffd38a" distance={7} />
 </group>);
-const Scene: React.FC<{ beat: number }> = ({ beat }) => (<AbsoluteFill style={{ background: '#070a22' }}>
+const Scene: React.FC<{ beat: number; her?: boolean }> = ({ beat, her }) => (<AbsoluteFill style={{ background: '#070a22' }}>
   <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 36, near: 0.05, far: 400 }}>
     <Cam beat={beat} /><color attach="background" args={['#0a0d34']} /><fog attach="fog" args={['#0c1040', 30, 160]} />
     <hemisphereLight args={['#7f8cff', '#160c44', 1.15]} /><directionalLight position={[-8, 12, 10]} intensity={1.3} color="#c9d2ff" />
     <City /><Tower t={0} />{beat === 1 && <Waves />}{beat >= 2 && beat <= 3 && <Panels />}{beat === 2 && <Signal radii={[3, 5.6, 8.6, 12]} />}{beat === 3 && <Signal radii={[2.6, 3.8, 5.2]} />}{beat >= 2 && <Cables beat={beat} />}{beat === 4 && <Cabinet />}
     <EffectComposer><Bloom intensity={0.6} luminanceThreshold={0.8} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.7} /></EffectComposer>
   </ThreeCanvas>
-  <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{['', '005', '007', '007', '008'][beat]}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
-  {beat === 2 && <div style={{ position: 'absolute', left: 90, top: 560, font: `800 54px ${FONT.ui}`, color: '#fff', textShadow: '0 0 18px rgba(127,212,255,.7), 0 4px 10px #000' }}>Mobile tower</div>}
-  <div style={{ position: 'absolute', left: 0, right: 0, top: 1640, display: 'flex', justifyContent: 'center' }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: '#fff1dc', textAlign: 'center' }}>{['', 'Radio waves carry the packets', 'To the mobile tower', 'The antennas catch the waves', 'A box turns radio into light'][beat]}</div></div>
+  <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{(her ? ['', '060', '061', '062', '062'] : ['', '005', '007', '007', '008'])[beat]}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+  {beat === 2 && !her && <div style={{ position: 'absolute', left: 90, top: 560, font: `800 54px ${FONT.ui}`, color: '#fff', textShadow: '0 0 18px rgba(127,212,255,.7), 0 4px 10px #000' }}>Mobile tower</div>}
+  <div style={{ position: 'absolute', left: 0, right: 0, top: 1640, display: 'flex', justifyContent: 'center' }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: '#fff1dc', textAlign: 'center' }}>{(her ? ['', '', 'The tower sends it out as radio', 'Radio waves go to her phone', 'Light arrives at her tower'] : ['', 'Radio waves carry the packets', 'To the mobile tower', 'The antennas catch the waves', 'A box turns radio into light'])[beat]}</div></div>
 </AbsoluteFill>);
-export const TwB1 = () => <Scene beat={1} />; export const TwB2 = () => <Scene beat={2} />; export const TwB3 = () => <Scene beat={3} />; export const TwB4 = () => <Scene beat={4} />;
+export const TwH2 = () => <Scene beat={2} her />; export const TwH3 = () => <Scene beat={3} her />; export const TwH4 = () => <Scene beat={4} her />; export const TwB1 = () => <Scene beat={1} />; export const TwB2 = () => <Scene beat={2} />; export const TwB3 = () => <Scene beat={3} />; export const TwB4 = () => <Scene beat={4} />;
 
 /* the box that turns radio into light, to stand at the foot of any tower scene (origin = the floor under the box) */
 export const FootBox: React.FC<{ position: [number, number, number]; scale?: number }> = ({ position, scale = 1 }) => (<group position={position} scale={scale}><Cabinet at={[0, 1.5, 0]} flip /></group>);
