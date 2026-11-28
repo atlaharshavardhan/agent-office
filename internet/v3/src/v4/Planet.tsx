@@ -85,7 +85,7 @@ const mainU = (t: number) => clamp01((t - 0.6) / 8.6) ** 0.9;      // how far al
 
 /* Harsh's reference: a dense web of glowing cable arcs over the whole Earth (ov.dense) */
 const DenseWeb: React.FC<{ t: number }> = ({ t }) => { const arcs = useMemo(() => { const out: { g: THREE.BufferGeometry; c: THREE.CatmullRomCurve3 }[] = []; let tries = 0;
-    while (out.length < 42 && tries++ < 2000) { const a = CITIES[Math.floor(hash(tries * 3) * CITIES.length)], b = CITIES[Math.floor(hash(tries * 3 + 1) * CITIES.length)], A = ll(a, 1), B = ll(b, 1), ang = A.angleTo(B); if (ang < 0.35 || ang > 2.4) continue;
+    while (out.length < 14 && tries++ < 2000) { const a = CITIES[Math.floor(hash(tries * 3) * CITIES.length)], b = CITIES[Math.floor(hash(tries * 3 + 1) * CITIES.length)], A = ll(a, 1), B = ll(b, 1), ang = A.angleTo(B); if (ang < 0.35 || ang > 2.4) continue;
       const pts = Array.from({ length: 26 }).map((_, i) => { const u = i / 25, q = new THREE.Quaternion().setFromUnitVectors(A.clone().normalize(), B.clone().normalize()), id = new THREE.Quaternion(), r = id.clone().slerp(q, u); return A.clone().applyQuaternion(r).normalize().multiplyScalar(R * (1.004 + 0.045 * Math.sin(Math.PI * u) * Math.min(1, ang / 1.2))); });
       const c = new THREE.CatmullRomCurve3(pts); out.push({ g: new THREE.TubeGeometry(c, 40, 0.0075, 4, false), c }); } return out; }, []);
   const o = seg(t, 5.4, 7.0);
@@ -105,7 +105,7 @@ const Earth: React.FC<{ t: number }> = ({ t }) => {
     {ov.dense && <DenseWeb t={t} />}
     {/* the world's cables: dim cyan, lighting up one after another as the camera pulls back */}
     {web.map((w, i) => { const on = seg(t, 4.2 + i * 0.09, 5.0 + i * 0.09); w.g.setDrawRange(0, Math.floor((w.g.index!.count * on) / 3) * 3); const pu = ((t * 0.16 + hash(i) * 5) % 1 + 1) % 1, pp = w.c.getPointAt(pu);
-      return <group key={i}><mesh geometry={w.g}><meshBasicMaterial color="#6fd0ff" transparent opacity={0.8 * (ov.show ? ov.show(t) : 1)} /></mesh>{on > 0.95 && <mesh position={pp}><sphereGeometry args={[0.055, 8, 8]} /><meshBasicMaterial color="#dff6ff" /></mesh>}</group>; })}
+      return <group key={i}><mesh geometry={w.g}><meshBasicMaterial color="#6fd0ff" transparent opacity={(ov.dense ? 0.4 : 0.8) * (ov.show ? ov.show(t) : 1)} /></mesh>{on > 0.95 && <mesh position={pp}><sphereGeometry args={[0.055, 8, 8]} /><meshBasicMaterial color="#dff6ff" /></mesh>}</group>; })}
     <mesh geometry={mainDim} visible={!ov.show || ov.show(t) > 0.5}><meshBasicMaterial color={ov.dense ? "#d6ebff" : "#5fb8ff"} transparent opacity={ov.dense ? 0.75 : 0.4} /></mesh>
     {ov.dense && <mesh geometry={mainGlow}><meshBasicMaterial color={mainCol} transparent opacity={0.2} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh>}
     <mesh geometry={mainG} visible={zoom > 0.45 && (!ov.show || ov.show(t) > 0.5)}><meshBasicMaterial color={mainCol} /></mesh>
