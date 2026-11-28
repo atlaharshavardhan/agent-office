@@ -11,7 +11,7 @@ import { SeaCable, SEACABLE_FRAMES } from './v4/SeaCable';
 import { Shore, SHORE_FRAMES } from './v4/Shore';
 import { Arrive, ARRIVE_FRAMES } from './v4/Arrive';
 import { Snap, SNAP_FRAMES } from './v4/Snap';
-import { SeabedMs, RepeaterMs, PlanetMs } from './v4/Final';
+import { SeabedMs, RepeaterMs, PlanetMs, SeabedFast } from './v4/Final';
 import { HydRoom, HYD_ROOM_FRAMES } from './v4/HydRoom';
 import { HydSend, HYD_SEND_FRAMES, LondonRoom, LONDON_ROOM_FRAMES, Notif, NOTIF_FRAMES, FlyGlobe, FLY_GLOBE_FRAMES } from './v4/Story';
 import { HookGlobe, HOOK_GLOBE_FRAMES } from './v4/Hook';
@@ -63,6 +63,7 @@ export const Root: React.FC = () => (
     <Composition id="NotifV" component={Notif} durationInFrames={NOTIF_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="FlyGlobeV" component={() => <Vert><FlyGlobe /></Vert>} durationInFrames={FLY_GLOBE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="HydRoomV" component={HydRoom} durationInFrames={HYD_ROOM_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="SeabedFastV" component={SeabedFast} durationInFrames={294} fps={30} width={1080} height={1920} />
     <Composition id="SeabedMsV" component={SeabedMs} durationInFrames={294} fps={30} width={1080} height={1920} />
     <Composition id="RepeaterMsV" component={RepeaterMs} durationInFrames={225} fps={30} width={1080} height={1920} />
     <Composition id="PlanetMsV" component={PlanetMs} durationInFrames={360} fps={30} width={1080} height={1920} />

@@ -55,3 +55,6 @@ Small waving desk flags on both tables: the Indian tricolour on Arjun's, the Uni
 
 ## HOOK ONLY, as 8 images (Harsh, 28 Nov 2026: "only hook, images, not the whole video"): internet/part2/storyboard/hook-final/
 1 he taps send (Hyderabad 9:12 pm) - 2 the photo leaves his screen - 3 onto the globe, 0 ms - 4 how fast it travels, counter running - 5 almost there, 63 ms - 6 lands in London, 65 ms - 7 her phone buzzes (London 3:42 pm) - 8 the notification on her lock screen, zoomed. The first full video cut (internet/video/internet-part2-v1.mp4) went beyond this; Harsh wants the hook first and approved before the rest.
+
+## Hook is now 9 images (Harsh asked to add the sea-floor shot, "just only moving fast"): internet/part2/storyboard/hook-final/hook-9-images.png
+New image 5: the cable on the sea floor at 18 ms, only speed: no place name or sentence, just the ms counter, bright light pulses racing along the cable and speed streaks from the horizon (SeabedFast in v3/src/v4/Final.tsx; Seabed has a "bare" option that hides its labels). 18 ms matches the globe picture 4 (Arabian Sea).
