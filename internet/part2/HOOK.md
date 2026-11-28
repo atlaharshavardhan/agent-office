@@ -40,3 +40,4 @@ Laptop screen is a document ("Script - Part 2 (draft)") with the script typed li
 
 ## London room v7 (28 Nov 2026): the "LONDON 3:42 pm" tag is replaced by a wall clock and a plaque
 Wall clock at 3:42 (hour hand 111 deg, minute hand 252 deg, red second hand sweeping) on the left wall; plaque under it: LONDON, 3:42 pm, Saturday 28 November GMT, Raining over the Thames, Hyderabad is 5 h 30 min ahead (9:12 pm). Time check: 3:42 pm GMT = 9:12 pm IST (UTC+5:30). Stills: part2/storyboard/london-v7/.
+(v8, same day: Harsh did not want the plaque card; the "LONDON · 3:42 pm" tag is back at the top left and the wall clock hangs just below it.)
