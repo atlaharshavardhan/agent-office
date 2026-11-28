@@ -10,7 +10,7 @@ job() { ID=$1; A=$2; B=$3; OUT=$4; : > $C/$OUT.txt
     [ -f $C/tmp-$OUT-$a.mp4 ] && mv $C/tmp-$OUT-$a.mp4 "$g" && echo "ok $OUT $a" || { echo "FAILED $OUT $a"; exit 1; }; done
   rm -f $C/$OUT.mp4; ffmpeg -v error -y -f concat -safe 0 -i $C/$OUT.txt -c copy $C/$OUT.mp4; echo "DONE $OUT"; }
 case $1 in
- H) job PhotoShatterV 0 107 pb;;
+ H) job PhotoShatterV 0 119 pb;;
 esac
 echo ALLDONE $1
 

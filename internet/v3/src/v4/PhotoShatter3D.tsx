@@ -9,7 +9,9 @@ import { DOG_N, DOG_C } from './dog-tiles';
 
 /* Part 2 v6: the photo breaks into real 3D pieces (1,936 tiles), they tumble through the air, then turn into the ring of amber packets
    (the next shot, PktStoryV, continues from that ring). 9:16. Tiles take their colour from the dog photo. */
-export const SHATTER_FRAMES = 108;
+export const SHATTER_FRAMES = 120;
+/* real time -> simulation time: normal until the photo starts to split, then SLOW MOTION through the split, then a little faster while the cloud forms */
+const warp = (T: number) => (T < 1.0 ? T : T < 3.0 ? 1.0 + (T - 1.0) * 0.6 : T < 4.0 ? 2.2 + (T - 3.0) * 1.2 : 3.4 + (T - 4.0));
 const N = DOG_N, COUNT = N * N, SZ = 4.5, S = SZ / N;
 const sm = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); };
 const AMBER = ['#ffd27a', '#f2a93a', '#c98318', '#ffe3a0'].map((c) => new THREE.Color(c));
@@ -40,7 +42,8 @@ const Tiles: React.FC<{ t: number }> = ({ t }) => {
       const u = sm((t - 1.95) / 1.15); let sx = S * 0.97, sy = S * 0.97, sz = S * 0.55;
       col.copy(base[i]);
       if (u > 0) {
-        const th = h1 * Math.PI * 2 + t * 0.55, rho = 1.25 + Math.sqrt(h2) * 1.0, tx = Math.cos(th) * rho, ty = Math.sin(th) * rho, tz = (h3 - 0.5) * 0.7;
+        const th = h1 * Math.PI * 2 + t * 0.55, rho = 1.3 + Math.sqrt(h2) * 1.1, lx = Math.cos(th) * rho, ly = Math.sin(th) * rho, lz = (h3 - 0.5) * 2.2, tl = 0.95 + 0.15 * Math.sin(t * 0.8), sp = t * 0.5;
+        const y1 = ly * Math.cos(tl) - lz * Math.sin(tl), z1 = ly * Math.sin(tl) + lz * Math.cos(tl), tx = lx * Math.cos(sp) + z1 * Math.sin(sp), ty = y1, tz = -lx * Math.sin(sp) + z1 * Math.cos(sp);
         px += (tx - px) * u; py += (ty - py) * u; pz += (tz - pz) * u; rx = rx * (1 - u) + (0.4 + h4) * u; ry = ry * (1 - u) + (h5 - 0.5) * 0.8 * u; rz = rz * (1 - u) + (th + Math.PI / 2 + (h3 - 0.5)) * u;
         sx = S * 0.97 + (0.17 - S * 0.97) * u; sy = S * 0.97 + (0.11 - S * 0.97) * u; sz = S * 0.55 + (0.07 - S * 0.55) * u;
         col.lerp(AMBER[Math.floor(h5 * 4) % 4], u);
@@ -56,7 +59,7 @@ const Tiles: React.FC<{ t: number }> = ({ t }) => {
 const NUMS = Array.from({ length: 36 }, (_, q) => q * 53 + 7);
 const numTex = (n: number) => { const c = document.createElement('canvas'); c.width = 128; c.height = 64; const g = c.getContext('2d')!; g.fillStyle = '#1a1405'; g.fillRect(0, 0, 128, 64); g.strokeStyle = '#ffd27a'; g.lineWidth = 4; g.strokeRect(3, 3, 122, 58); g.fillStyle = '#ffd27a'; g.font = '800 40px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), 64, 34); const x = new THREE.CanvasTexture(c); x.colorSpace = THREE.SRGBColorSpace; return x; };
 export const PhotoShatter3D: React.FC = () => {
-  const f = useCurrentFrame(), t = f / 30, cnt = Math.round(COUNT * sm((t - 1.1) / 1.6) / 10) * 10, ms = 1 + Math.round(1 * sm((t - 1.5) / 2.0));
+  const f = useCurrentFrame(), t = warp(f / 30), cnt = Math.round(COUNT * sm((t - 1.1) / 1.6) / 10) * 10, ms = 1 + Math.round(1 * sm((t - 1.5) / 2.0));
   return (<AbsoluteFill style={{ background: 'radial-gradient(ellipse at 50% 45%, #0b1440 0%, #04061a 70%)' }}>
     <ThreeCanvas width={1080} height={1920} gl={{ antialias: true }} camera={{ fov: 42, near: 0.1, far: 100 }}>
       <Cam t={t} /><ambientLight intensity={0.95} /><directionalLight position={[3, 5, 9]} intensity={1.7} color="#fff1d8" /><directionalLight position={[-6, 2, -3]} intensity={0.7} color="#7f96ff" /><pointLight position={[0, 0, 5]} intensity={18} color="#ffb454" distance={14} />
