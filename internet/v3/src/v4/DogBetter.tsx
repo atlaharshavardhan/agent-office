@@ -8,9 +8,9 @@ export const DogBetter: React.FC<{ blink?: number }> = ({ blink = 0 }) => {
   const eye = (cx: number, s: number) => <g key={cx}><ellipse cx={cx} cy={92} rx={11} ry={11.5} fill="#f6ecdc" opacity={0.9} /><circle cx={cx} cy={92.5} r={8.4} fill="url(#dbi)" /><circle cx={cx} cy={92.5} r={4.6} fill="#120804" /><ellipse cx={cx - 2.8 * s} cy={89} rx={2.6} ry={2.1} fill="#fff" opacity={0.98} /><circle cx={cx + 2.6 * s} cy={96} r={1.1} fill="#fff" opacity={0.7} /><path d={`M ${cx - 10} 83 Q ${cx} 78 ${cx + 10} 83`} fill="none" stroke="#7a4a1c" strokeWidth={1.1} strokeLinecap="round" opacity={0.5} /></g>;
   return (<g>
     <defs>
-      <linearGradient id="dbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fdeccf" /><stop offset="1" stopColor="#f0b384" /></linearGradient>
-      <radialGradient id="dhd" cx="50%" cy="34%" r="70%"><stop offset="0" stopColor="#f2c27c" /><stop offset="0.6" stopColor="#d49a52" /><stop offset="1" stopColor="#a8682a" /></radialGradient>
-      <radialGradient id="dmz" cx="50%" cy="40%" r="60%"><stop offset="0" stopColor="#fff2d8" /><stop offset="1" stopColor="#f0d2a0" /></radialGradient>
+      <linearGradient id="dbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#e4bd88" /><stop offset="1" stopColor="#c58655" /></linearGradient>
+      <radialGradient id="dhd" cx="50%" cy="34%" r="70%"><stop offset="0" stopColor="#e2b26c" /><stop offset="0.6" stopColor="#c68c47" /><stop offset="1" stopColor="#96601f" /></radialGradient>
+      <radialGradient id="dmz" cx="50%" cy="40%" r="60%"><stop offset="0" stopColor="#f0d8b0" /><stop offset="1" stopColor="#dcb87e" /></radialGradient>
       <linearGradient id="dea" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#6a3a14" /><stop offset="0.5" stopColor="#9a5c24" /><stop offset="1" stopColor="#5a300e" /></linearGradient>
       <radialGradient id="dbi" cx="40%" cy="35%" r="70%"><stop offset="0" stopColor="#8a5a2a" /><stop offset="1" stopColor="#3a1e08" /></radialGradient>
       <radialGradient id="dns" cx="35%" cy="30%" r="70%"><stop offset="0" stopColor="#5a4a52" /><stop offset="1" stopColor="#0c0608" /></radialGradient>
@@ -18,14 +18,14 @@ export const DogBetter: React.FC<{ blink?: number }> = ({ blink = 0 }) => {
       <filter id="dsh"><feGaussianBlur stdDeviation="2.2" /></filter>
     </defs>
     <rect width={190} height={190} fill="url(#dbg)" />
-    {[[24, 30, 12], [168, 26, 9], [152, 62, 14], [30, 70, 8], [176, 100, 7], [12, 112, 10]].map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} fill="#fff6e0" opacity={0.35} />)}
+    {[[24, 30, 12], [168, 26, 9], [152, 62, 14], [30, 70, 8], [176, 100, 7], [12, 112, 10]].map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} fill="#f0d9a8" opacity={0.2} />)}
     <ellipse cx={95} cy={172} rx={60} ry={14} fill="#7a4a20" opacity={0.25} filter="url(#dsh)" />
-    <path d="M 40 190 Q 44 152 70 148 L 120 148 Q 146 152 150 190 Z" fill="#c68a44" /><path d="M 70 148 Q 95 160 120 148" fill="none" stroke="#e8b068" strokeWidth={2} opacity={0.5} />
+    <path d="M 40 190 Q 44 152 70 148 L 120 148 Q 146 152 150 190 Z" fill="#b57a3a" /><path d="M 70 148 Q 95 160 120 148" fill="none" stroke="#e8b068" strokeWidth={2} opacity={0.5} />
     <path d="M 38 74 Q 14 84 18 128 Q 22 154 46 148 Q 54 120 54 92 Z" fill="url(#dea)" /><path d="M 152 74 Q 176 84 172 128 Q 168 154 144 148 Q 136 120 136 92 Z" fill="url(#dea)" />
     <path d="M 40 84 Q 26 96 28 124" fill="none" stroke="#c88a4a" strokeWidth={1.6} opacity={0.55} strokeLinecap="round" /><path d="M 150 84 Q 164 96 162 124" fill="none" stroke="#c88a4a" strokeWidth={1.6} opacity={0.55} strokeLinecap="round" />
     <path d="M 95 46 Q 140 44 150 90 Q 156 130 128 146 Q 95 158 62 146 Q 34 130 40 90 Q 50 44 95 46 Z" fill="url(#dhd)" />
     <g>{fur}</g>
-    <path d="M 95 54 Q 112 58 114 76 Q 95 70 76 76 Q 78 58 95 54 Z" fill="#f4cd8a" opacity={0.55} />
+    <path d="M 95 54 Q 112 58 114 76 Q 95 70 76 76 Q 78 58 95 54 Z" fill="#e8bc78" opacity={0.4} />
     <path d="M 52 128 Q 60 150 95 152 Q 130 150 138 128 Q 128 108 95 108 Q 62 108 52 128 Z" fill="url(#dmz)" />
     {eye(70, 1)}{eye(120, 1)}
     {blink > 0.02 && <defs><radialGradient id="dbLid"><stop offset="0" stopColor="#d9a35e" /><stop offset="0.75" stopColor="#d9a35e" /><stop offset="1" stopColor="#d9a35e" stopOpacity={0} /></radialGradient></defs>}
