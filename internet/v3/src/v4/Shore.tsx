@@ -76,7 +76,7 @@ const Cable: React.FC<{ t: number }> = ({ t }) => {
       <sprite scale={[5.5, 5.5, 1]}><spriteMaterial map={glow} transparent opacity={0.9 * on} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
       <sprite scale={[60, 0.7, 1]}><spriteMaterial map={glow} transparent opacity={0.6 * on} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
       <mesh><sphereGeometry args={[0.36, 14, 10]} /><meshBasicMaterial color="#fff0c8" /></mesh>
-      {Array.from({ length: 34 }).map((_, i) => { const zz = z + 0.9 + i * 0.62, q = cpt(zz), o = Math.sin(t * 3 + i * 1.9) * 0.55; return <mesh key={i} position={[q.x - p.x + o, q.y - p.y + 0.45 + Math.abs(Math.sin(t * 2.4 + i)) * 0.5, q.z - p.z]} rotation={[t * 1.6 + i, t * 1.2 + i * 0.4, 0]}><boxGeometry args={[0.7, 0.38, 0.26]} /><meshStandardMaterial color="#ffb454" emissive="#ff9a2e" emissiveIntensity={1.0} roughness={0.4} /></mesh>; })}
+      {Array.from({ length: 34 }).map((_, i) => { const zz = z + 0.9 + i * 0.62, q = cpt(zz), k = 1 - i / 40; return <group key={i} position={[q.x - p.x, q.y - p.y + 0.4, q.z - p.z]}><sprite scale={[2.4 * k + 0.5, 2.4 * k + 0.5, 1]}><spriteMaterial map={glow} transparent opacity={0.85 * k} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite><mesh><sphereGeometry args={[0.2 * k + 0.05, 10, 8]} /><meshBasicMaterial color="#fff0c8" /></mesh></group>; })}
       <pointLight color="#ffb454" intensity={260 * on} distance={46} decay={1.35} position={[0, 1.6, 0]} />
     </group>}
   </group>; };
