@@ -5,21 +5,23 @@ import { FONT } from '../lib/palette';
    Size is fixed at PW x PH; position it with left/top. `o` (0..1) pops it in and out. */
 export const PW = 236, PH = 484, SCR = { x: 9, y: 9, w: PW - 18, h: PH - 18 };
 const BLUE = '#0a84ff';
-export const IPhone: React.FC<{ left: number; top: number; o: number; name: string; avatar: string; k?: number; children: React.ReactNode }> = ({ left, top, o, name, avatar, k = 1, children }) => (
+/* v18: the iPhone 18 Pro look (Cherry burgundy aluminium frame, smaller Dynamic Island, Camera Control button). Off by default so Part 1 stays as it was. */
+export const IPhone: React.FC<{ left: number; top: number; o: number; name: string; avatar: string; k?: number; v18?: boolean; children: React.ReactNode }> = ({ left, top, o, name, avatar, k = 1, v18, children }) => (
   <div style={{ position: 'absolute', left, top, width: PW, height: PH, transform: `scale(${k})`, transformOrigin: '0 0' }}>
   <div style={{ position: 'absolute', left: 0, top: 0, width: PW, height: PH, opacity: Math.min(1, o * 1.6), transform: `scale(${0.82 + 0.18 * o})`, transformOrigin: '50% 60%', filter: 'drop-shadow(0 26px 40px rgba(0,0,0,.6))', fontFamily: FONT.ui }}>
     {/* side buttons */}
-    <div style={{ position: 'absolute', left: -3, top: 96, width: 4, height: 22, borderRadius: 2, background: '#5d6068' }} />
-    <div style={{ position: 'absolute', left: -3, top: 132, width: 4, height: 40, borderRadius: 2, background: '#5d6068' }} />
-    <div style={{ position: 'absolute', left: -3, top: 180, width: 4, height: 40, borderRadius: 2, background: '#5d6068' }} />
-    <div style={{ position: 'absolute', right: -3, top: 150, width: 4, height: 62, borderRadius: 2, background: '#5d6068' }} />
+    <div style={{ position: 'absolute', left: -3, top: 96, width: 4, height: 22, borderRadius: 2, background: v18 ? '#8a3a4c' : '#5d6068' }} />
+    <div style={{ position: 'absolute', left: -3, top: 132, width: 4, height: 40, borderRadius: 2, background: v18 ? '#8a3a4c' : '#5d6068' }} />
+    <div style={{ position: 'absolute', left: -3, top: 180, width: 4, height: 40, borderRadius: 2, background: v18 ? '#8a3a4c' : '#5d6068' }} />
+    <div style={{ position: 'absolute', right: -3, top: 150, width: 4, height: 62, borderRadius: 2, background: v18 ? '#8a3a4c' : '#5d6068' }} />
+    {v18 && <div style={{ position: 'absolute', right: -3, top: 330, width: 4, height: 34, borderRadius: 2, background: '#b45a6e' }} />}
     {/* titanium frame, then the black bezel, then the screen */}
-    <div style={{ position: 'absolute', inset: 0, borderRadius: 46, background: 'linear-gradient(135deg,#a9acb4,#4a4c54 30%,#2c2d33 60%,#8d9098)' }} />
+    <div style={{ position: 'absolute', inset: 0, borderRadius: 46, background: v18 ? 'linear-gradient(135deg,#d9929f,#8a2e43 30%,#5a1a2b 60%,#c2788a)' : 'linear-gradient(135deg,#a9acb4,#4a4c54 30%,#2c2d33 60%,#8d9098)' }} />
     <div style={{ position: 'absolute', inset: 3, borderRadius: 43, background: '#050506' }} />
     <div style={{ position: 'absolute', left: SCR.x, top: SCR.y, width: SCR.w, height: SCR.h, borderRadius: 37, background: '#000', overflow: 'hidden' }}>
       {/* status bar */}
       <div style={{ position: 'absolute', left: 22, top: 11, font: `800 13px ${FONT.ui}`, color: '#fff' }}>9:41</div>
-      <div style={{ position: 'absolute', left: '50%', top: 8, width: 66, height: 20, marginLeft: -33, borderRadius: 10, background: '#000', boxShadow: 'inset 0 0 0 1px #18181b' }}><div style={{ position: 'absolute', right: 9, top: 6, width: 8, height: 8, borderRadius: 4, background: '#12131c', boxShadow: 'inset 0 0 0 1px #24263a' }} /></div>
+      <div style={{ position: 'absolute', left: '50%', top: 8, width: v18 ? 46 : 66, height: v18 ? 18 : 20, marginLeft: v18 ? -23 : -33, borderRadius: 10, background: '#000', boxShadow: 'inset 0 0 0 1px #18181b' }}><div style={{ position: 'absolute', right: 9, top: 6, width: 8, height: 8, borderRadius: 4, background: '#12131c', boxShadow: 'inset 0 0 0 1px #24263a' }} /></div>
       <svg width={52} height={14} style={{ position: 'absolute', right: 16, top: 12 }}>
         {[0, 1, 2, 3].map((k) => <rect key={k} x={k * 4.4} y={9 - k * 2.4} width={3} height={3 + k * 2.4} rx={0.8} fill="#fff" />)}
         <path d="M21 5.2 a7.5 7.5 0 0 1 10.6 0 M23 7.6 a4.6 4.6 0 0 1 6.6 0" stroke="#fff" strokeWidth={1.7} fill="none" strokeLinecap="round" /><circle cx={26.3} cy={10.4} r={1.3} fill="#fff" />

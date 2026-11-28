@@ -34,7 +34,7 @@ const drawThumb = (g: CanvasRenderingContext2D, x: number, y: number, w: number,
 };
 const screenTex = (sent: boolean, hideThumb: boolean) => canvas(600, 1240, (g) => {
   g.fillStyle = '#0b0f2e'; g.fillRect(0, 0, 600, 1240);
-  g.fillStyle = '#141a45'; g.fillRect(0, 0, 600, 150); g.fillStyle = '#ff8f7a'; g.beginPath(); g.arc(80, 86, 34, 0, 7); g.fill();
+  g.fillStyle = '#141a45'; g.fillRect(0, 0, 600, 150); g.fillStyle = '#000'; rr(g, 236, 14, 128, 40, 20); g.fill(); g.fillStyle = '#ff8f7a'; g.beginPath(); g.arc(80, 86, 34, 0, 7); g.fill();
   g.fillStyle = '#eef1ff'; g.font = '800 40px Manrope, sans-serif'; g.fillText('Arjun', 136, 82); g.fillStyle = '#7dffb0'; g.font = '500 24px Manrope, sans-serif'; g.fillText('Hyderabad · online', 136, 116);
   g.fillStyle = '#1b2258'; rr(g, 40, 200, 330, 84, 26); g.fill(); g.fillStyle = '#cfd6ff'; g.font = '500 30px Manrope, sans-serif'; g.fillText('Send me a photo!', 64, 252);
   g.fillStyle = '#1d6f8f'; rr(g, 150, 330, 410, 470, 30); g.fill(); if (!hideThumb) { drawThumb(g, 170, 350, 370, 370); } else { g.strokeStyle = 'rgba(160,230,255,.5)'; g.setLineDash([10, 10]); g.lineWidth = 3; rr(g, 170, 350, 370, 370, 18); g.stroke(); g.setLineDash([]); }
@@ -87,7 +87,7 @@ const Phone: React.FC<{ t: number }> = ({ t }) => {
   const texs = useMemo(() => [screenTex(false, false), screenTex(true, false), screenTex(true, true)], []);
   const stage = t < 2.0 ? 0 : t < 2.75 ? 1 : 2, press = seg(t, 1.75, 2.0) * (1 - seg(t, 2.0, 2.3));
   return <group position={[0, 1.7, 0]} rotation={[-0.14, 0.2, 0.03]}>
-    <RoundedBox args={[1.62, 3.3, 0.16]} radius={0.16} smoothness={5}><meshStandardMaterial color="#1a1f52" roughness={0.35} metalness={0.4} /></RoundedBox>
+    <RoundedBox args={[1.62, 3.3, 0.16]} radius={0.16} smoothness={5}><meshStandardMaterial color="#6a1f33" roughness={0.35} metalness={0.5} /></RoundedBox>
     <mesh position={[0, 0, 0.083]}><planeGeometry args={[1.48, 3.06]} /><meshBasicMaterial map={texs[stage]} toneMapped={false} /></mesh>
     {/* his fingertip pressing Send */}
     <group position={[0.54, -1.42 - (1 - press) * 0.5, 0.2 + (1 - press) * 0.5]} visible={t > 1.2 && t < 2.6}><mesh rotation-x={-0.5}><capsuleGeometry args={[0.13, 0.5, 6, 12]} /><meshStandardMaterial color="#a8714f" roughness={0.7} /></mesh></group>

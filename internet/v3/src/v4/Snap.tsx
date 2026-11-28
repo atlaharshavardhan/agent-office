@@ -17,7 +17,7 @@ export const Snap: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: '#070a22' }}>
       <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><Night id="sn" f={f} stars={90} /></svg>
-      <IPhone left={LEFT} top={TOP} o={pop} name="" avatar="#000" k={K}>
+      <IPhone v18 left={LEFT} top={TOP} o={pop} name="" avatar="#000" k={K}>
         <div style={{ position: 'absolute', left: -9, right: -9, top: -62, bottom: -9, background: '#000' }} />
         <div style={{ position: 'absolute', left: 0, right: 0, top: -50, height: 292, overflow: 'hidden', borderRadius: 8 }}>
           <div style={{ width: 218, height: 292, transform: `scale(${zoom}) translate(${drift * 0.2}px, 0)`, transformOrigin: '50% 45%' }}>

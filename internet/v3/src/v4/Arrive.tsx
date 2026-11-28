@@ -40,7 +40,7 @@ export const Arrive: React.FC = () => {
         <div style={{ position: 'absolute', left: 0, right: 0, top: 232, display: 'flex', justifyContent: 'center', opacity: pop }}>
           <div style={{ padding: '12px 30px', borderRadius: 30, background: 'rgba(10,14,36,.88)', border: `3px solid ${t > 4.0 ? '#7dffb0' : '#5fe3ff'}`, font: `800 36px/1 ${FONT.ui}`, color: '#fff', whiteSpace: 'nowrap' }}>{stage}</div>
         </div>
-        <IPhone left={LEFT} top={TOP} o={pop} name="Meera" avatar="#e0705a" k={K}>
+        <IPhone v18 left={LEFT} top={TOP} o={pop} name="Meera" avatar="#e0705a" k={K}>
           <Bubble style={{ margin: '8px 10px 0' }}>Look at this!</Bubble>
           <div style={{ position: 'absolute', left: 14, top: 69, width: 190, height: 190, borderRadius: 14, background: '#14183c', border: '1px dashed #3a4190', boxSizing: 'border-box' }} />
         </IPhone>
