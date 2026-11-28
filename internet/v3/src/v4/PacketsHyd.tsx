@@ -26,7 +26,7 @@ const City: React.FC = () => (<g>
 </g>);
 const PK = 2.3, PL = (1080 - PW * PK) / 2, PT = 250;      // our iPhone, big, centred
 const Ph: React.FC<{ k?: number; left?: number; top?: number; photo?: boolean; press?: boolean }> = ({ k = PK, left = PL, top = PT, photo = true, press }) => (
-  <IPhone v18 left={left} top={top} o={1} name="Meera" avatar="#e0705a" k={k}>
+  <IPhone v18 left={left} top={top} o={1} name="Girlfriend" avatar="#e0705a" k={k}>
     <div style={{ position: 'absolute', left: 8, top: 6, background: '#26252a', color: '#fff', borderRadius: '14px 14px 14px 4px', padding: '5px 10px', font: `700 15px ${FONT.ui}` }}>Send me a photo!</div>
     {photo && <div style={{ position: 'absolute', left: 36, top: 52, width: 176, height: 176, borderRadius: 14, overflow: 'hidden', border: '2px solid #0a84ff' }}><svg width={176} height={176} viewBox="0 0 190 190"><DogPhoto /></svg></div>}
     <Compose bottom={8} text={<span style={{ color: '#8e8e93' }}>Message</span>} press={press} ready />
@@ -40,11 +40,11 @@ const Label: React.FC<{ y: number }> = ({ y }) => (
   </g>);
 const stream = (x0: number, y0: number, x1: number, y1: number, cn: number, bend: number) => Array.from({ length: cn }).map((_, q) => { const u = (q + 0.5) / cn, x = x0 + (x1 - x0) * u + Math.sin(u * 3.14) * bend, y = y0 + (y1 - y0) * u, i = (q * 3) % 8, j = (q * 5) % 8; return <Tile key={q} x={x} y={y} s={26 + 12 * (1 - u)} rot={-30 + q * 17} i={i} j={j} n={8} glow={0.8} />; });
 const Scene: React.FC<{ beat: number }> = ({ beat }) => {
-  const N = 8, tiles: React.ReactNode[] = [];
+  const N = 12, tiles: React.ReactNode[] = [];
   const ox = PL + 86 * (PK / 1), oy = PT + 125;                 // the photo on the phone screen (top-left), 176 x 176 at the phone's scale
-  const pcx = PL + (36 + 88) * PK, pcy = PT + (52 + 88) * PK, ps = 176 * PK;
-  if (beat === 1) for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j, s = ps / N, g = 1.22 + hash(k) * 0.12; tiles.push(<Tile key={k} x={pcx + (j - 3.5) * s * g + (hash(k + 9) - 0.5) * 16} y={pcy + (i - 3.5) * s * g + (hash(k + 5) - 0.5) * 16} s={s - 2} rot={(hash(k + 3) - 0.5) * 18} i={i} j={j} n={N} glow={0.6} />); }
-  if (beat === 2) for (let k = 0; k < 40; k++) { const a = hash(k) * 6.283, r = 300 + hash(k + 5) * 330, i = Math.floor(hash(k + 2) * N), j = Math.floor(hash(k + 7) * N), x = 540 + Math.cos(a) * r * 0.95, y = 960 + Math.sin(a) * r * 1.25; if (x < 90 || x > 990 || y < 160 || y > 1560) continue; tiles.push(<Tile key={k} x={x} y={y} s={50 + hash(k + 4) * 36} rot={(hash(k + 1) - 0.5) * 70} i={i} j={j} n={N} tag={num(Math.floor(hash(k + 8) * 2000))} hl={k === 11} />); }
+  const pcx = PL + 133 * PK, pcy = PT + 246 * PK, ps = 176 * PK;
+  if (beat === 1) for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j, s = ps / N, g = 1.18 + hash(k) * 0.1; tiles.push(<Tile key={k} x={pcx + (j - 5.5) * s * g + (hash(k + 9) - 0.5) * 16} y={pcy + (i - 5.5) * s * g + (hash(k + 5) - 0.5) * 16} s={s - 2} rot={(hash(k + 3) - 0.5) * 18} i={i} j={j} n={N} glow={0.6} />); }
+  if (beat === 2) for (let k = 0; k < 150; k++) { const a = hash(k) * 6.283, r = 200 + hash(k + 5) * 460, i = Math.floor(hash(k + 2) * N), j = Math.floor(hash(k + 7) * N), x = 540 + Math.cos(a) * r * 0.95, y = 960 + Math.sin(a) * r * 1.25; if (x < 70 || x > 1010 || y < 140 || y > 1580) continue; tiles.push(<Tile key={k} x={x} y={y} s={34 + hash(k + 4) * 34} rot={(hash(k + 1) - 0.5) * 70} i={i} j={j} n={N} tag={k % 3 === 0 ? num(Math.floor(hash(k + 8) * 2000)) : undefined} hl={k === 11} />); }
   const room = beat === 4;
   return (<AbsoluteFill>
     {beat < 4 && <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><City /></svg>}
@@ -62,18 +62,31 @@ const Scene: React.FC<{ beat: number }> = ({ beat }) => {
     {beat === 1 && <Cap t="The photo splits into pieces" y={1640} />}
     {beat === 2 && <Cap t="About 2,000 packets, ready" y={1640} />}
     {beat === 3 && <Cap t="Every packet gets an address label" y={1640} />}
-    {beat === 4 && <Cap t="Out of the window, as radio waves" y={1640} />}
-    {beat === 5 && <Cap t="To the Wi-Fi box and the mobile tower" y={1640} />}
+    {false && <Cap t="Out of the window, as radio waves" y={1640} />}
+    {beat === 5 && <Cap t="Radio waves to the router or the tower" y={1640} />}
   </AbsoluteFill>);
 };
 /* outside the window: the night city, a rooftop Wi-Fi box and the mobile tower; the packets fly in as radio waves */
+const Lattice: React.FC<{ h: number; bw: number; tw: number; seg: number }> = ({ h, bw, tw, seg }) => {   // a real mobile mast: three legs' look, cross braces, platform, antenna panels, dish, light, cabin
+  const rows = Array.from({ length: seg + 1 }).map((_, k) => { const y = -h + (h * k) / seg, w = tw + ((bw - tw) * k) / seg; return { y, w }; });
+  return (<g stroke="#9fb4d6" strokeLinecap="round" fill="none">
+    <line x1={-tw} y1={-h} x2={-bw} y2={0} strokeWidth={9} /><line x1={tw} y1={-h} x2={bw} y2={0} strokeWidth={9} /><line x1={0} y1={-h} x2={0} y2={0} strokeWidth={5} opacity={0.5} />
+    {rows.map((r, k) => <line key={'h' + k} x1={-r.w} x2={r.w} y1={r.y} y2={r.y} strokeWidth={5} />)}
+    {rows.slice(0, -1).map((r, k) => { const n = rows[k + 1]; return <g key={'x' + k} strokeWidth={3.5}><line x1={-r.w} y1={r.y} x2={n.w} y2={n.y} /><line x1={r.w} y1={r.y} x2={-n.w} y2={n.y} /></g>; })}
+    <rect x={-tw - 26} y={-h - 8} width={(tw + 26) * 2} height={12} rx={4} fill="#4a5878" stroke="#9fb4d6" strokeWidth={2} />
+    {[-tw - 20, 0, tw + 20].map((x, k) => <g key={k}><rect x={x - 11} y={-h - 130} width={22} height={118} rx={5} fill="#e8eefc" stroke="#9fb4d6" strokeWidth={3} /><rect x={x - 5} y={-h - 118} width={10} height={90} rx={3} fill="#c8d4ee" /></g>)}
+    <circle cx={tw + 64} cy={-h + 60} r={34} fill="#e8eefc" stroke="#9fb4d6" strokeWidth={4} /><circle cx={tw + 64} cy={-h + 60} r={10} fill="#4a5878" /><line x1={tw + 30} y1={-h + 76} x2={tw - 6} y2={-h + 100} stroke="#9fb4d6" strokeWidth={5} />
+    <line x1={0} y1={-h - 130} x2={0} y2={-h - 190} stroke="#9fb4d6" strokeWidth={6} /><circle cx={0} cy={-h - 198} r={13} fill="#ff4a3a" /><circle cx={0} cy={-h - 198} r={34} fill="#ff4a3a" opacity={0.25} stroke="none" />
+    <rect x={-bw - 40} y={-70} width={110} height={70} rx={6} fill="#26304f" stroke="#9fb4d6" strokeWidth={3} /><line x1={-bw + 10} y1={-70} x2={-tw - 40} y2={-h * 0.25} stroke="#9fb4d6" strokeWidth={3} opacity={0.6} />
+  </g>);
+};
 const Outside: React.FC = () => (<svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
   <City />
-  <g transform="translate(830 1060)"><path d="M 0 -520 L -90 360 L 90 360 Z" fill="#0c1030" stroke="#7fd4ff" strokeWidth={6} />{[-380, -250, -120, 10, 140, 260].map((y, k) => <g key={k}><line x1={-18 - (y + 520) * 0.1} x2={18 + (y + 520) * 0.1} y1={y} y2={y} stroke="#7fd4ff" strokeWidth={4} /></g>)}
-    <circle cx={0} cy={-540} r={16} fill="#ff5a5a" /><circle cx={0} cy={-540} r={34} fill="#ff5a5a" opacity={0.3} />{[0, 1, 2].map((r) => <path key={r} d={`M -${60 + r * 38} -${440 - r * 20} A ${60 + r * 38} ${60 + r * 38} 0 0 1 -${60 + r * 38} -${360 + r * 20}`} fill="none" stroke="#ffd38a" strokeWidth={6} strokeLinecap="round" opacity={0.9 - r * 0.25} />)}</g>
-  <g transform="translate(250 1180)"><rect x={-130} y={0} width={260} height={90} rx={12} fill="#3a2a4a" stroke="#ffb454" strokeWidth={5} /><rect x={-100} y={30} width={14} height={14} rx={7} fill="#7dffb0" /><rect x={-70} y={30} width={14} height={14} rx={7} fill="#7dffb0" />{[0, 1, 2].map((a) => <path key={a} d={`M -${50 + a * 34} -${20 + a * 30} A ${70 + a * 34} ${70 + a * 34} 0 0 1 ${50 + a * 34} -${20 + a * 30}`} fill="none" stroke="#7fd4ff" strokeWidth={8} strokeLinecap="round" opacity={1 - a * 0.25} />)}
-    <text y={150} x={0} textAnchor="middle" fill={CREAM} style={{ font: `800 34px ${FONT.ui}` }}>Wi-Fi router</text></g>
-  <text x={830} y={1460} textAnchor="middle" fill={CREAM} style={{ font: `800 34px ${FONT.ui}` }}>Mobile tower</text>
-  {stream(560, 120, 270, 1110, 9, 110)}{stream(560, 120, 820, 560, 8, -90)}
+  <g transform="translate(800 1380)"><Lattice h={780} bw={170} tw={34} seg={9} />{[0, 1, 2, 3].map((r) => <path key={r} d={`M -${130 + r * 54} -${860 - r * 18} A ${130 + r * 54} ${130 + r * 54} 0 0 0 -${130 + r * 54} -${690 + r * 18}`} fill="none" stroke="#ffd38a" strokeWidth={7} strokeLinecap="round" opacity={0.95 - r * 0.2} />)}</g>
+  <text x={800} y={1520} textAnchor="middle" fill={CREAM} style={{ font: `800 36px ${FONT.ui}`, paintOrder: 'stroke', stroke: '#070a22', strokeWidth: 8 }}>Mobile tower</text>
+  <g transform="translate(250 1180)"><rect x={-140} y={0} width={280} height={96} rx={12} fill="#2d2540" stroke="#ffb454" strokeWidth={5} /><rect x={-110} y={34} width={14} height={14} rx={7} fill="#7dffb0" /><rect x={-80} y={34} width={14} height={14} rx={7} fill="#7dffb0" /><rect x={-50} y={34} width={14} height={14} rx={7} fill="#ffd38a" />
+    <line x1={-100} y1={0} x2={-122} y2={-90} stroke="#222" strokeWidth={9} strokeLinecap="round" /><line x1={100} y1={0} x2={122} y2={-90} stroke="#222" strokeWidth={9} strokeLinecap="round" />{[0, 1, 2].map((a) => <path key={a} d={`M -${50 + a * 34} -${40 + a * 30} A ${70 + a * 34} ${70 + a * 34} 0 0 1 ${50 + a * 34} -${40 + a * 30}`} fill="none" stroke="#7fd4ff" strokeWidth={8} strokeLinecap="round" opacity={1 - a * 0.25} />)}
+    <text y={196} textAnchor="middle" fill={CREAM} style={{ font: `800 36px ${FONT.ui}`, paintOrder: 'stroke', stroke: '#070a22', strokeWidth: 8 }}>Wi-Fi router</text></g>
+  {stream(540, 1760, 270, 1110, 14, -90)}{stream(560, 1760, 780, 560, 30, 120)}{stream(520, 1760, 330, 1110, 9, 60)}{stream(580, 1760, 840, 600, 12, -60)}
 </svg>);
 export const PktB0 = () => <Scene beat={0} />; export const PktB1 = () => <Scene beat={1} />; export const PktB2 = () => <Scene beat={2} />; export const PktB3 = () => <Scene beat={3} />; export const PktB4 = () => <Scene beat={4} />; export const PktB5 = () => <Scene beat={5} />;
