@@ -5,7 +5,7 @@ import { FONT } from '../lib/palette';
 import { IPhone } from '../dusk/Phone';
 import { Compose } from '../dusk/Phone';
 import { Planet, ov, project, ll, R, MAIN } from './Planet';
-import { routeAt, LL } from '../tail/Globe';
+import { routeAt, LL, HYD as HYD_LL, LONDON as LONDON_LL } from '../tail/Globe';
 
 /* Part 2 hook story (9:16 only), warm colours: Arjun in Hyderabad taps send; the photo flies over the globe (a few milliseconds); Meera's phone lies charging
    on a table in London, window beside it shows London; the phone lights up with a notification and we zoom in. Everything drawn in code. */
@@ -335,20 +335,28 @@ export const FLY_GLOBE_FRAMES = 150;
 const T0F = 300 / FPS;
 export const FlyGlobe: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS;
-  ov.lon = () => 40; ov.show = () => 1; ov.pins = T0F + 0.1;
-  const u = easeInOut(Math.min(1, Math.max(0, (t - 0.6) / 3.6))), pt = T0F + t, [lon, lat] = routeAt(MAIN, u) as unknown as [number, number];
-  const [x, y, front] = project(pt, ll([lon, lat] as LL, R * 1.012));
+  ov.lon = () => 40; ov.show = () => 1; ov.pins = T0F + 0.05;
+  const pt = T0F + t, land = prog(f, 0.0, 0.7, easeOut);                                         // the photo comes down onto the Hyderabad pin
+  const u = easeInOut(Math.min(1, Math.max(0, (t - 0.7) / 3.3))), arrived = prog(f, 4.0, 4.4, easeOut);
+  const at = (uu: number) => project(pt, ll(routeAt(MAIN, uu) as unknown as LL, R * 1.012));
+  const [hx, hy] = project(pt, ll(HYD_LL, R * 1.012));
+  const [x, y, front] = u > 0 ? at(u) : [hx, hy, true];
+  const cardX = x, cardY = u > 0 ? y : lerp(-120, hy, land);
+  const trail = Array.from({ length: Math.max(2, Math.round(u * 60)) }).map((_, i, a) => at((i / (a.length - 1)) * u)).filter((q) => q[2]).map((q) => `${q[0]},${q[1]}`).join(' ');
   const ms = Math.round(65 * u);
   return (
     <AbsoluteFill style={{ backgroundColor: '#14091c' }}>
       <Sequence from={-300}><Planet /></Sequence>
       <AbsoluteFill><svg width={1080} height={1920}>
-        <defs><radialGradient id="fg"><stop offset="0" stopColor="#ffe3a0" stopOpacity={0.9} /><stop offset="1" stopColor="#ffb454" stopOpacity={0} /></radialGradient></defs>
-        {front && <g transform={`translate(${x} ${y})`}><circle r={96} fill="url(#fg)" /><rect x={-44} y={-44} width={88} height={88} rx={12} fill="#fff" stroke="#ffb454" strokeWidth={5} /><svg x={-38} y={-38} width={76} height={76} viewBox="0 0 190 190"><Charminar /></svg></g>}
+        <defs><radialGradient id="fg"><stop offset="0" stopColor="#ffe3a0" stopOpacity={0.9} /><stop offset="1" stopColor="#ffb454" stopOpacity={0} /></radialGradient><filter id="tglow"><feGaussianBlur stdDeviation="6" /></filter></defs>
+        {trail && u > 0 && <><polyline points={trail} fill="none" stroke="#ffb454" strokeWidth={16} strokeLinecap="round" strokeLinejoin="round" opacity={0.55} filter="url(#tglow)" /><polyline points={trail} fill="none" stroke="#fff3c8" strokeWidth={6} strokeLinecap="round" strokeLinejoin="round" /></>}
+        {front && <g transform={`translate(${cardX} ${cardY})`} opacity={1 - 0.0 * arrived}><circle r={104 + 18 * arrived} fill="url(#fg)" /><rect x={-46} y={-46} width={92} height={92} rx={12} fill="#fff" stroke="#ffb454" strokeWidth={5} /><svg x={-40} y={-40} width={80} height={80} viewBox="0 0 190 190"><Charminar /></svg></g>}
+        {arrived > 0 && (() => { const [lx, ly] = project(pt, ll(LONDON_LL, R * 1.012)); return [0, 1, 2].map((i) => { const p = clamp01((arrived - i * 0.2) / 0.8); return p > 0 ? <circle key={i} cx={lx} cy={ly} r={14 + p * 70} fill="none" stroke="#fff3c8" strokeWidth={6 * (1 - p)} opacity={0.9 * (1 - p)} /> : null; }); })()}
       </svg></AbsoluteFill>
       <Chip text="Hyderabad → London" col="#ffb454" top={236} />
       <div style={{ position: 'absolute', left: 0, right: 0, top: 330, display: 'flex', justifyContent: 'center' }}>
-        <div style={{ font: `800 96px/1 ${FONT.mono}`, color: '#ffe3a0', textShadow: '0 4px 20px rgba(0,0,0,.8)' }}>{ms}<span style={{ fontSize: 44, color: '#fff' }}> ms</span></div></div>
+        <div style={{ font: `800 104px/1 ${FONT.mono}`, color: '#ffe3a0', textShadow: '0 4px 20px rgba(0,0,0,.8)' }}>{ms}<span style={{ fontSize: 46, color: '#fff' }}> ms</span></div></div>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 452, textAlign: 'center', font: `700 28px/1 ${FONT.ui}`, color: '#ffd38a', opacity: 0.9 }}>the ocean crossing, about 65 ms</div>
     </AbsoluteFill>
   );
 };
