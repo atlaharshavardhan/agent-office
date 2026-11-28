@@ -3,6 +3,7 @@ import { Composition } from 'remotion';
 import { Prototype } from './Prototype';
 import { Vert, Horiz } from './v4/frame';
 import { FiberJourney, FIBER_FRAMES } from './v4/Fiber';
+import { PktB0, PktB1, PktB2, PktB3, PktB4 } from './v4/PacketsHyd';
 import { PacketBurst, PACKETS_FRAMES } from './v4/Packets';
 import { London as LondonV4, LONDON_FRAMES } from './v4/London';
 import { Flight, FLIGHT_FRAMES } from './v4/Flight';
@@ -52,6 +53,11 @@ export const Root: React.FC = () => (
     <Composition id="LondonV4" component={() => <Horiz><LondonV4 /></Horiz>} durationInFrames={LONDON_FRAMES} fps={30} width={1920} height={1080} />
     <Composition id="SeabedV" component={() => <Vert><Seabed /></Vert>} durationInFrames={SEABED_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="SeabedRepeaterV" component={() => <Vert><SeabedRepeater /></Vert>} durationInFrames={REPEATER_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="PktB0V" component={PktB0} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="PktB1V" component={PktB1} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="PktB2V" component={PktB2} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="PktB3V" component={PktB3} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="PktB4V" component={PktB4} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="PacketBurstV" component={() => <Vert><PacketBurst /></Vert>} durationInFrames={PACKETS_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="UndergroundV" component={() => <Vert><Underground /></Vert>} durationInFrames={UNDER_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="RoutersV" component={() => <Vert><Routers /></Vert>} durationInFrames={ROUTERS_FRAMES} fps={30} width={1080} height={1920} />
