@@ -1,0 +1,16 @@
+timeline {'w1': 0.1, 'w2': 1.6, 'w3': 4.7, 'w5': 6.2, 'w4': 8.0, 'w6': 9.7} {'T_HYD': 1.7, 'T_LON': 2.6, 'T_GS': 4.5}
+camera ok
+[vost#0:0/rawvideo @ 0x561448af1b40] Error submitting a packet to the muxer: Broken pipe
+[out#0/rawvideo @ 0x561448a87200] Error muxing a packet
+[out#0/rawvideo @ 0x561448a87200] Error writing trailer: Broken pipe
+[out#0/rawvideo @ 0x561448a87200] Error closing file: Broken pipe
+[vost#0:0/rawvideo @ 0x5579f083b2c0] Error submitting a packet to the muxer: Broken pipe
+[out#0/rawvideo @ 0x5579f07d12c0] Error muxing a packet
+[out#0/rawvideo @ 0x5579f07d12c0] Error writing trailer: Broken pipe
+[out#0/rawvideo @ 0x5579f07d12c0] Error closing file: Broken pipe
+[vost#0:0/rawvideo @ 0x561c3d79b740] Error submitting a packet to the muxer: Broken pipe
+[out#0/rawvideo @ 0x561c3d74f700] Error muxing a packet
+[out#0/rawvideo @ 0x561c3d74f700] Error writing trailer: Broken pipe
+[out#0/rawvideo @ 0x561c3d74f700] Error closing file: Broken pipe
+final 0 
+HOOKDONE
