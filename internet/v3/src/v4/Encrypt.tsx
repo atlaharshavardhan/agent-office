@@ -43,7 +43,7 @@ const Lock: React.FC<{ x: number; y: number; k: number }> = ({ x, y, k }) => (<g
   <rect x={-110} y={-50} width={220} height={190} rx={30} fill="#2a7fe0" stroke="#9fd0ff" strokeWidth={6} /><circle cx={0} cy={30} r={26} fill="#0a2a5a" /><rect x={-9} y={40} width={18} height={50} rx={9} fill="#0a2a5a" /></g>);
 const Scene: React.FC<{ beat: number }> = ({ beat }) => {
   const els: React.ReactNode[] = [];
-  if (beat === 1) { const n = 6, s = 118; for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { const k = i * n + j, dx = (j - 2.5), dy = (i - 2.5), d = Math.hypot(dx, dy) + 0.4; els.push(<Block key={k} x={540 + dx * (s + 14) * (1 + 0.07 * d) + (hash(k) - 0.5) * 36} y={880 + dy * (s + 14) * (1 + 0.07 * d) + (hash(k + 3) - 0.5) * 36} s={s - 6} rot={(hash(k + 7) - 0.5) * 50 * Math.min(1, d / 2)} i={i} j={j} n={n} />); } }
+  if (beat === 1) { const n = 14, s = 56; for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { const k = i * n + j, dx = (j - 6.5), dy = (i - 6.5), d = Math.hypot(dx, dy) + 0.4; els.push(<Block key={k} x={540 + dx * (s + 8) * (1 + 0.012 * d) + (hash(k) - 0.5) * 26} y={880 + dy * (s + 8) * (1 + 0.012 * d) + (hash(k + 3) - 0.5) * 26} s={s - 4} rot={(hash(k + 7) - 0.5) * 60 * Math.min(1, d / 3)} i={i} j={j} n={n} />); } }
   if (beat === 2) { for (let r = 0; r < 9; r++) { const sc = 0.8 + r * 0.085, cols = 8; for (let c = 0; c < cols; c++) els.push(<Bits key={r + '-' + c} x={540 + (c - 3.5) * 150 * sc} y={330 + r * 118 * sc * 1.05 + r * r * 4} s={128 * sc} seed={r * 11 + c} lit={hash(r * 3 + c) > 0.45 ? 1 : 0.3} />); } }
   const lens = beat === 5;
   return (<AbsoluteFill><Bg />
