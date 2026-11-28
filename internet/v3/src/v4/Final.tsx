@@ -140,7 +140,7 @@ export const GlobeCut: React.FC<{ real?: boolean; sat?: boolean }> = ({ real = f
     <Sequence from={-Math.round(T0 * 30)}><Planet /></Sequence>
     <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><defs><radialGradient id="gc2"><stop offset="0" stopColor="#ffffff" stopOpacity={0.95} /><stop offset="0.35" stopColor="#ffe27a" stopOpacity={0.8} /><stop offset="1" stopColor="#ffd23a" stopOpacity={0} /></radialGradient><radialGradient id="gcr"><stop offset="0" stopColor="#8a1c34" stopOpacity={0.95} /><stop offset="1" stopColor="#8a1c34" stopOpacity={0} /></radialGradient></defs>
       {cfront && t >= TC - 0.7 && <g transform={`translate(${cx} ${cy})`}>
-        <g transform={`translate(0 ${-(1 - drop) * 520}) scale(1.6)`} opacity={sm2(drop * 3)}><path d="M 0 -62 L 0 38 M -22 -34 L 22 -34 M -42 14 Q -40 46 0 50 Q 40 46 42 14 M -42 14 L -56 6 M 42 14 L 56 6" fill="none" stroke="#e6f0ff" strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" /><circle cy={-72} r={12} fill="none" stroke="#e6f0ff" strokeWidth={7} /></g>
+        <g transform={`translate(0 ${-(1 - drop) * 520}) scale(0.95)`} opacity={sm2(drop * 3)}><path d="M 0 -62 L 0 38 M -22 -34 L 22 -34 M -42 14 Q -40 46 0 50 Q 40 46 42 14 M -42 14 L -56 6 M 42 14 L 56 6" fill="none" stroke="#e6f0ff" strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" /><circle cy={-72} r={12} fill="none" stroke="#e6f0ff" strokeWidth={7} /></g>
         <g opacity={cut}><circle r={40 + 130 * (1 - cut)} fill="url(#gcr)" /></g></g>}
 </svg>
     <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 560, background: 'linear-gradient(#04061a 45%, rgba(4,6,26,0))', opacity: op }} />
