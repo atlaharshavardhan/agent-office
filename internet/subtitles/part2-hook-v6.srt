@@ -1,0 +1,19 @@
+1
+00:00:00,150 --> 00:00:03,240
+Imagine sending a photo to your girlfriend in London.
+
+2
+00:00:03,100 --> 00:00:05,230
+You'd think it travels through a satellite,
+
+3
+00:00:05,099 --> 00:00:08,109
+but it actually crosses the ocean through a cable as light,
+
+4
+00:00:09,000 --> 00:00:10,719
+in a fraction of a second.
+
+5
+00:00:10,750 --> 00:00:11,809
+But how?

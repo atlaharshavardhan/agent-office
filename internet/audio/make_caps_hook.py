@@ -9,6 +9,8 @@ TEXT = {'f1': 'Imagine sending a photo to your girlfriend in London.', 'f2': "Yo
 # shots: (start, end, left x, top y, max pill width, highlight colour)
 # (start, end, x, y, max width, pill colour, highlight colour, highlight text colour): the colours come from each scene's own palette
 PLUM = (42, 22, 48); NIGHT = (16, 20, 48); BROWN = (58, 28, 30)
+PLUM = (42, 22, 48); NIGHT = (16, 20, 48); BROWN = (58, 28, 30)   # the pill colours come from each scene's own palette
+# (start, end, x, y, max width, pill colour, highlight colour, highlight text colour). x < 100 = left edge; x > 100 = centred on the phone screen
 SHOTS = [(0, 3, 40, 690, 700, PLUM, (255, 180, 84), (42, 22, 48)), (3, 5, 40, 335, 600, NIGHT, (255, 211, 138), (16, 20, 48)), (5, 9, 40, 335, 620, NIGHT, (255, 190, 90), (16, 20, 48)), (9, 10, 40, 655, 600, BROWN, (255, 122, 89), (42, 22, 28)), (10, 12, 190, 1240, 700, PLUM, (255, 180, 84), (42, 22, 48))]
 def shot(t): return next(s for s in SHOTS if s[0] <= t < s[1]) if t < 12 else SHOTS[-1]
 fnt = ImageFont.truetype(FONT, 46); CREAM = (246, 241, 228); NAVY = (24, 30, 58)
