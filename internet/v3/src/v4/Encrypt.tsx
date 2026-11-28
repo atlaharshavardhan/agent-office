@@ -58,18 +58,7 @@ const Scene: React.FC<{ beat: number }> = ({ beat }) => {
         <circle cx={600} cy={880} r={300} fill="#050816" />
         <g clipPath="url(#lensClip)"><g transform="translate(600 880) scale(2.3) translate(-600 -880) translate(0 150)" opacity={0.95}><Grid scramble seed={9} /></g></g>
         <circle cx={600} cy={880} r={300} fill="url(#lensG)" /><circle cx={600} cy={880} r={300} fill="none" stroke="#c9d6f0" strokeWidth={26} /><circle cx={600} cy={880} r={314} fill="none" stroke="#6a7a9a" strokeWidth={6} />
-        <defs><linearGradient id="hood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#3a2e70" /><stop offset="1" stopColor="#120e28" /></linearGradient><radialGradient id="scr" cx="50%" cy="0%" r="90%"><stop offset="0" stopColor="#3dffc0" stopOpacity={0.35} /><stop offset="1" stopColor="#3dffc0" stopOpacity={0} /></radialGradient></defs>
-        <g transform="translate(540 1340)">
-          <path d="M -330 560 Q -330 190 -150 140 L 150 140 Q 330 190 330 560 Z" fill="url(#hood)" stroke="#5a4aa0" strokeWidth={4} />
-          <path d="M -150 140 Q 0 260 150 140" fill="none" stroke="#0b0820" strokeWidth={10} opacity={0.6} /><line x1={-50} y1={230} x2={-56} y2={330} stroke="#cfd6ff" strokeWidth={6} strokeLinecap="round" /><line x1={50} y1={230} x2={56} y2={330} stroke="#cfd6ff" strokeWidth={6} strokeLinecap="round" />
-          <path d="M -165 150 Q -190 -150 0 -190 Q 190 -150 165 150 Q 0 230 -165 150 Z" fill="url(#hood)" stroke="#6a5ab8" strokeWidth={5} />
-          <path d="M -118 130 Q -134 -110 0 -140 Q 134 -110 118 130 Q 0 190 -118 130 Z" fill="#04050e" />
-          <ellipse cx={0} cy={60} rx={140} ry={110} fill="url(#scr)" />
-          <path d="M -80 -30 L -30 -14 L -30 6 L -84 -6 Z" fill="#7fffd4" /><path d="M 80 -30 L 30 -14 L 30 6 L 84 -6 Z" fill="#7fffd4" /><circle cx={-48} cy={-6} r={5} fill="#04050e" /><circle cx={48} cy={-6} r={5} fill="#04050e" />
-          <text x={-250} y={160} textAnchor="middle" fill="#7fffd4" style={{ font: `800 34px ${FONT.mono}`, letterSpacing: '0.18em' }}>HACKER</text></g>
-        <g transform="translate(540 1640)"><path d="M -300 20 L 300 20 L 340 150 L -340 150 Z" fill="#2a2a44" stroke="#6a6a9a" strokeWidth={4} /><rect x={-290} y={-250} width={580} height={280} rx={16} fill="#0a1020" stroke="#8a8ab8" strokeWidth={6} />
-          <rect x={-272} y={-232} width={544} height={244} rx={8} fill="#04140f" /><text y={-130} textAnchor="middle" fill="#5fffb0" style={{ font: `800 62px ${FONT.mono}` }}>? ? ? ? ? ?</text><text y={-50} textAnchor="middle" fill="#5fffb0" opacity={0.7} style={{ font: `700 34px ${FONT.mono}` }}>data: unreadable</text><rect x={-190} y={-20} width={380} height={22} rx={4} fill="#ff5a5a" opacity={0.0} /></g>
-        <line x1={780} y1={1130} x2={760} y2={1420} stroke="#c9d6f0" strokeWidth={46} strokeLinecap="round" /><line x1={780} y1={1130} x2={760} y2={1420} stroke="#4a3a6a" strokeWidth={22} strokeLinecap="round" /><g transform="translate(748 1440)"><rect x={-26} y={-20} width={52} height={50} rx={20} fill="#c68a5a" /><rect x={-22} y={-26} width={14} height={24} rx={7} fill="#d29a6a" /><rect x={-4} y={-28} width={14} height={26} rx={7} fill="#d29a6a" /><rect x={14} y={-24} width={12} height={22} rx={6} fill="#d29a6a" /></g>
+        <line x1={812} y1={1092} x2={960} y2={1240} stroke="#c9d6f0" strokeWidth={46} strokeLinecap="round" /><line x1={812} y1={1092} x2={960} y2={1240} stroke="#4a3a6a" strokeWidth={22} strokeLinecap="round" />
         <g transform="translate(600 880)"><rect x={-250} y={-48} width={500} height={96} rx={20} fill="#0b0f2e" opacity={0.88} stroke="#ff7a7a" strokeWidth={4} /><text y={16} textAnchor="middle" fill="#ff9a9a" style={{ font: `900 54px ${FONT.ui}`, letterSpacing: '0.04em' }}>NOTHING TO SEE</text></g></>}
       {beat === 6 && <g>{Array.from({ length: 130 }).map((_, k) => { const x = hash(k) * 1080, y = 160 + hash(k + 5) * 1500, w = 70 + hash(k + 9) * 130, h = w * 0.58, o = 0.35 + 0.65 * hash(k + 2); return <g key={k} transform={`translate(${x} ${y}) rotate(${(hash(k + 4) - 0.5) * 70})`} opacity={o} style={{ filter: 'drop-shadow(8px 10px 8px rgba(0,0,0,.5))' }}><rect x={-w / 2} y={-h / 2} width={w} height={h} rx={6} fill="url(#gp)" /><rect x={-w / 2} y={-h / 2} width={w} height={h * 0.28} rx={6} fill="#2a1630" opacity={0.85} /></g>; })}
         <defs><linearGradient id="gp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffd38a" /><stop offset="1" stopColor="#e08a1e" /></linearGradient></defs></g>}
@@ -86,7 +75,7 @@ const Scene: React.FC<{ beat: number }> = ({ beat }) => {
     {beat === 2 && <><Ms v="001" /><Cap t="Each block is only ones and zeros" /></>}
     {beat === 3 && <><Ms v="001" /><Cap t="The dog, made of ones and zeros" /></>}
     {beat === 4 && <><Ms v="001" /><Cap t="Then it is encrypted" /></>}
-    {beat === 5 && <><Ms v="001" /><Cap t="A hacker looks closely: he sees nothing" y={300} /></>}
+    {beat === 5 && <><Ms v="001" /><Cap t="Encrypted: anyone who looks sees nothing" y={1560} /></>}
     {beat === 6 && <><Ms v="002" /><div style={{ position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', font: `900 190px/1 ${FONT.ui}`, color: GOLD, textShadow: '0 0 40px rgba(255,180,84,.55), 0 8px 18px rgba(0,0,0,.7)' }}>2,000</div><div style={{ position: 'absolute', left: 0, right: 0, top: 850, textAlign: 'center', font: `800 60px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,.8)' }}>packets</div><Cap t="Into about 2,000 small packets" /></>}
     {beat === 7 && <><Ms v="003" /><Cap t="Each packet: an address and its number" /></>}
   </AbsoluteFill>);
