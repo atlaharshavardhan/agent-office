@@ -2,7 +2,7 @@
 import json, subprocess, numpy as np, soundfile as sf
 SR = 48000; D = 'video/part2p'; X = 0.15; FPS = 30
 L = json.load(open('voice/p2d/lengths.json'))['lengths']; T = json.load(open('voice/p2d/lengths.json'))['text']
-SH = [('tw', 190, ['h1']), ('nt', 90, ['h2']), ('ar', 420, ['a1', 'a2', 'm1', 'a3', 'a4']), ('en', 165, ['e1', 'e2', 'e3'])]; MINK = 1.0; TR = []; VATS = {'ar': {'a1': 0.5, 'a2': 2.7, 'm1': 5.1, 'a3': 7.9, 'a4': 10.4}, 'en': {'e1': 0.3, 'e2': 2.3, 'e3': 4.6}}; CBK = 1.0
+SH = [('tw', 190, ['h1']), ('nt', 90, ['h2']), ('ar', 420, ['a1', 'a2', 'm1', 'a3', 'a4']), ('en', 165, ['e1', 'e2', 'e3'])]; MINK = 1.0; TR = ['fadewhite', 'zoomin', 'fadewhite']; VATS = {'ar': {'a1': 0.5, 'a2': 2.7, 'm1': 5.1, 'a3': 7.9, 'a4': 10.4}, 'en': {'e1': 0.3, 'e2': 2.3, 'e3': 4.6}}; CBK = 1.0
 dur = {}; vstart = {}
 for n, fr, ks in SH:
     t = 0.2
@@ -38,6 +38,8 @@ def riser(d=1.0): n = int(d * SR); t = np.arange(n) / SR; ph = 2 * np.pi * np.cu
 def whoosh(): n = int(0.45 * SR); t = np.arange(n) / SR; env = np.sin(np.pi * np.clip(t / 0.45, 0, 1)) ** 2; return np.convolve(rng.normal(0, 1, n), np.ones(40) / 40, 'same') * env * 1.2
 for n in ('nt', 'ar', 'en'): place(shutter(), S[n] - 0.05, 0.3)
 place(pop(), S['tw'] + 0.4, 0.4); place(whoosh(), at('tw', 2.0), 0.2)                                  # her tower
+def tone(f, d, a=0.004, r=0.25, sh=5.0, h=0.0):
+    n = int(d * SR); tt = np.arange(n) / SR; return (np.sin(2 * np.pi * f * tt) + h * np.sin(4 * np.pi * f * tt)) * np.minimum(1, tt / a) * np.exp(-sh * tt / r)
 def buzz():
     o = np.zeros(int(0.9 * SR))
     for k in range(2):
@@ -51,6 +53,8 @@ f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) 
 ins = []; fc = ''
 for i, (n, fr, ks) in enumerate(SH): ins += ['-i', f'{D}/{n}.mp4']; fc += f'[{i}:v]setpts=PTS*{k_[n]:.4f},fps={FPS},format=yuv420p[a{i}];'
 prev = '[a0]'
+for i in range(1, len(SH)):
+    o = f'[x{i}]'; fc += f'{prev}[a{i}]xfade=transition={TR[i - 1]}:duration={X}:offset={S[SH[i][0]]:.3f}{o};'; prev = o
 fc = f'[{len(SH)}:v]format=rgba,colorchannelmixer=aa=0.3[wm];' + fc + f'{prev}[wm]overlay=24:926[v]'
 cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-landing-end-v1.mp4']
 r = subprocess.run(cmd, capture_output=True, text=True); print('final', r.returncode, r.stderr[-300:])
