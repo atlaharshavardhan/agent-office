@@ -83,3 +83,11 @@ Voice (Liam, recorded once, 113 characters): s1 0.2 s "Imagine the movement when
 - Colours must SUIT each scene, not one fixed colour: pick the highlight and pill tones from the scene palette (e.g. amber/coral on the warm rooms, teal or gold on the dark globe and sea floor). Keep the pill readable on every background.
 - POSITION: put the caption in FREE SPACE, not on top of the objects being shown (phone, hands, globe, cable, readout). If a shot truly has no free space, it may sit over the picture; note which shots.
 - Replaces the current white-text captions with an outline (the ASS captions in audio/compose_hook12d.py). Needs per-shot caption positions (free areas), so it will be burned in with a drawn overlay (Remotion or ffmpeg drawbox) instead of ASS.
+
+## HARSH'S OWN HOOK SCRIPT, APPROVED 28 Nov 2026 ("this is good"). Replaces every earlier narration. Not yet recorded or rendered.
+0-3 s  He taps send, window breaks | "Imagine sending a photo to your girlfriend in London."
+3-5 s  Globe, satellite with a question mark | "You'd think it travels through a satellite,"
+5-9 s  Camera dives into the ocean, light travels through the cable | "but it actually crosses the ocean through a cable as light,"
+9-10 s Her phone buzzes | "in a fraction of a second."
+10-12 s Notification zoom-in | "But how?"
+Notes: the cable shot is now 4 s (earlier plan was 1.5 s). The satellite shot shows the question mark only (no red cross needed, the voice says "but it actually..." ). The speed readout stays on the cable shot. Old recorded lines (w1, n2-n5, s1, g1-g3, q1, q2, s4, s5) are not used. New lines to record, with Harsh's go: 5 lines, about 190 characters (ElevenLabs allowed for the hook).
