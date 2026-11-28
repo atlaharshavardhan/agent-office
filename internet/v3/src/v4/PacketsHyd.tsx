@@ -14,7 +14,7 @@ const Tile: React.FC<{ x: number; y: number; s: number; rot?: number; i: number;
     <rect x={-s / 2 - 5} y={-s / 2 - 5} width={s + 10} height={s + 22} rx={9} fill="url(#pkG)" stroke="#ffe3a0" strokeWidth={1.5} />
     <svg x={-s / 2} y={-s / 2} width={s} height={s} viewBox={`${(j * 190) / n} ${(i * 190) / n} ${190 / n} ${190 / n}`} overflow="hidden"><DogPhoto /></svg>
     <rect x={-s / 2} y={s / 2 + 2} width={s} height={9} rx={3} fill="#2a1630" opacity={0.8} /><rect x={-s / 2 + 3} y={s / 2 + 5} width={s * 0.55} height={3} rx={1.5} fill="#ffd38a" />
-    {tag && <g transform={`translate(0 ${-s / 2 - 18})`}><rect x={-36} y={-14} width={72} height={26} rx={6} fill="#ffd38a" /><text y={6} textAnchor="middle" fill={INK} style={{ font: `800 18px ${FONT.ui}` }}>{tag}</text></g>}
+    {tag && <g transform={`translate(0 ${-s / 2 - 18 * Math.max(1, s / 110)}) scale(${Math.max(1, s / 110)})`}><rect x={-36} y={-14} width={72} height={26} rx={6} fill="#ffd38a" /><text y={6} textAnchor="middle" fill={INK} style={{ font: `800 18px ${FONT.ui}` }}>{tag}</text></g>}
   </g>);
 const City: React.FC = () => (<g>
   <defs><linearGradient id="pkG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffd38a" /><stop offset="1" stopColor="#d98a2a" /></linearGradient>
