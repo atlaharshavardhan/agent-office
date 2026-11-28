@@ -97,17 +97,22 @@ const Window: React.FC<{ t: number }> = ({ t }) => {
   <g clipPath="url(#lnWin)">
     <rect x={540} y={130} width={500} height={860} fill="url(#lnSky)" /><circle cx={620} cy={330} r={34} fill="#ffe7b0" opacity={0.8} />
     {Array.from({ length: 5 }).map((_, i) => <ellipse key={i} cx={640 + i * 110} cy={300 + (i % 3) * 70} rx={90} ry={16} fill="#f5a07a" opacity={0.28} />)}
+    <g transform="translate(664 548) scale(0.82)">
+      <polygon points="-14,0 14,0 40,180 -40,180" fill="#2a1830" opacity={0.9} /><polygon points="-6,0 6,0 -62,180 -40,180" fill="#2a1830" opacity={0.7} />
+      <circle r={150} fill="none" stroke="#2a1830" strokeWidth={5} /><circle r={116} fill="none" stroke="#2a1830" strokeWidth={2} />
+      {Array.from({ length: 18 }).map((_, i) => { const a = (i / 18) * 6.283 + t * 0.32; return <line key={'s' + i} x1={0} y1={0} x2={116 * Math.cos(a)} y2={116 * Math.sin(a)} stroke="#2a1830" strokeWidth={1.6} opacity={0.8} />; })}
+      {Array.from({ length: 18 }).map((_, i) => { const a = (i / 18) * 6.283 + t * 0.32, px = 150 * Math.cos(a), py = 150 * Math.sin(a); return <g key={i} transform={`translate(${px} ${py})`}><line x1={0} y1={-3} x2={0} y2={2} stroke="#2a1830" strokeWidth={2} /><rect x={-7} y={0} width={14} height={11} rx={5} fill="#ffd89a" stroke="#2a1830" strokeWidth={1.4} /></g>; })}
+      <circle r={9} fill="#2a1830" />
+    </g>
     <g fill="#33203a"><rect x={560} y={640} width={250} height={150} /><rect x={560} y={610} width={60} height={30} />{[600, 660, 720, 780].map((x) => <rect key={x} x={x} y={600} width={8} height={40} />)}
       <rect x={810} y={400} width={68} height={390} /><rect x={802} y={392} width={84} height={14} /><polygon points="810,392 844,300 878,392" /><rect x={842} y={268} width={4} height={34} />
       <circle cx={844} cy={452} r={26} fill="#ffe7a8" /><circle cx={844} cy={452} r={22} fill="#fff6dc" />
       <path d={`M 844 452 L ${844 + 17 * Math.sin(mA)} ${452 - 17 * Math.cos(mA)}`} stroke="#33203a" strokeWidth={2.4} strokeLinecap="round" /><path d={`M 844 452 L ${844 + 11 * Math.sin(hA)} ${452 - 11 * Math.cos(hA)}`} stroke="#33203a" strokeWidth={3.6} strokeLinecap="round" /><circle cx={844} cy={452} r={2.4} fill="#33203a" /></g>
-    <g transform="translate(960 640)"><circle r={150} fill="none" stroke="#2a1830" strokeWidth={5} /><circle r={116} fill="none" stroke="#2a1830" strokeWidth={2} />
-      {Array.from({ length: 18 }).map((_, i) => { const a = (i / 18) * 6.283 + t * 0.05; return <g key={i}><line x1={0} y1={0} x2={150 * Math.cos(a)} y2={150 * Math.sin(a)} stroke="#2a1830" strokeWidth={1.6} /><circle cx={150 * Math.cos(a)} cy={150 * Math.sin(a)} r={7} fill="#ffd89a" /></g>; })}
-      <polygon points="-14,0 14,0 40,180 -40,180" fill="#2a1830" /></g>
     <rect x={540} y={790} width={500} height={70} fill="#7a3a50" /><rect x={540} y={800} width={500} height={6} fill="#ffb870" opacity={0.6} />
     <rect x={540} y={860} width={500} height={130} fill="#2a1a2a" />
     <g transform={`translate(${busX} 842)`}><rect width={190} height={80} rx={8} fill="#d6252d" /><rect y={38} width={190} height={5} fill="#a01a20" />{[14, 50, 86, 122, 158].map((x) => <g key={x}><rect x={x} y={10} width={26} height={22} rx={3} fill="#ffe7a8" /><rect x={x} y={48} width={26} height={22} rx={3} fill="#ffe7a8" /></g>)}<circle cx={36} cy={80} r={13} fill="#111" /><circle cx={150} cy={80} r={13} fill="#111" /></g>
-    {Array.from({ length: 40 }).map((_, i) => { const x = 540 + hash(i + 70) * 500, y = 130 + ((hash(i + 80) * 860 + t * (40 + hash(i) * 60)) % 860); return <line key={i} x1={x} y1={y} x2={x - 3} y2={y + 22} stroke="#fff" strokeWidth={1.6} opacity={0.35} />; })}
+    {Array.from({ length: 80 }).map((_, i) => { const x = 540 + hash(i + 70) * 500, y = 130 + ((hash(i + 80) * 860 + t * (300 + hash(i) * 200)) % 860); return <line key={i} x1={x} y1={y} x2={x - 5} y2={y + 30} stroke="#fff" strokeWidth={1.8} opacity={0.4} />; })}
+    {Array.from({ length: 9 }).map((_, i) => { const x = 560 + hash(i + 120) * 460, y = 130 + ((hash(i + 130) * 860 + t * (24 + hash(i + 4) * 26)) % 860); return <ellipse key={'d' + i} cx={x} cy={y} rx={3.2} ry={5} fill="#fff" opacity={0.35} />; })}
   </g>
   <rect x={540} y={130} width={500} height={860} rx={6} fill="none" stroke="#f3e6d0" strokeWidth={22} /><rect x={786} y={130} width={14} height={860} fill="#f3e6d0" /><rect x={540} y={512} width={500} height={14} fill="#f3e6d0" />
   {/* the sill: only a little wider than the frame */}
@@ -122,6 +127,7 @@ const Window: React.FC<{ t: number }> = ({ t }) => {
 
 const PY = 0.66, TB = 905;       // the desk top seen from above and behind her: back edge at y 905, front edge at y 1500; flat things live in a plane squashed to 66%
 const HS = 1.25;                       // hand size relative to the keys
+const DOC_LINES = ['Scene 1 · Hyderabad: he taps send.', 'Scene 2 · The photo is cut into packets.', 'Scene 3 · Under the sea it is just light.'], DOC_LIVE = 'Scene 4 · London: her phone lights up.';
 const SKIN = '#c98a5e', SKIN_D = '#9a6034', NAIL = '#f2d3c3';
 const rot2 = (x: number, y: number, deg: number): [number, number] => { const r = (deg * Math.PI) / 180; return [x * Math.cos(r) - y * Math.sin(r), x * Math.sin(r) + y * Math.cos(r)]; };
 
@@ -172,6 +178,7 @@ export const LondonRoom: React.FC = () => {
   const lit = prog(f, T.ring, T.ring + 0.1), banner = prog(f, T.ring + 0.2, T.ring + 0.6, easeOut);
   const buzzing = t >= T.ring && t < T.ring + 0.9, buzz = buzzing ? Math.sin(f * 2.9) * 4.5 * (1 - prog(f, T.ring, T.ring + 0.9)) : 0;
   const typing = 1 - prog(f, T.ring, T.ring + 0.18);                          // typing pauses the moment the phone buzzes
+  const typedChars = Math.min(DOC_LIVE.length, Math.floor(Math.min(t, T.ring) * 14));   // the next script line is typed live until the phone buzzes
   const lift = prog(f, T.lift, T.lift + 0.3, easeOut) * (1 - 0.75 * prog(f, T.touch - 0.2, T.touch));
   const u = easeInOut(prog(f, T.reach, T.touch)), point = prog(f, T.reach + 0.45, T.touch - 0.2, easeOut);
   const press = prog(f, T.tap, T.tap + 0.3, easeOut) * (1 - prog(f, T.tap + 0.3, T.tap + 0.7));
@@ -182,8 +189,9 @@ export const LondonRoom: React.FC = () => {
   const [bdx, bdy] = rot2(0, 18 * PK, th), target: [number, number] = [cx + bdx, pcy + bdy];          // centre of the banner on the phone glass
   const anchorR: [number, number] = [LX + 175, 1650], anchorL: [number, number] = [LX - 175, 1650];
   const bendEnd = -9, wEnd = solveWrist(anchorR, target, [-22 * HS, -150 * HS], bendEnd);
+  const sway = (ph: number): [number, number] => [Math.sin(t * 4.2 + ph) * 3 * typing, Math.sin(t * 8.4 + ph) * 2 * typing];
   const w0: [number, number] = [LX + 128, wy0], arc = Math.sin(Math.PI * u) * 34;
-  const wR: [number, number] = [lerp(w0[0], wEnd[0], u) + arc, lerp(w0[1], wEnd[1], u)];
+  const sR = sway(1.7), wR: [number, number] = [lerp(w0[0], wEnd[0], u) + arc + sR[0], lerp(w0[1], wEnd[1], u) + sR[1]], sL = sway(0);
   const tapP = prog(f, T.tap, T.tap + 0.6);
   return (
     <AbsoluteFill style={{ background: '#3a2230' }}>
@@ -233,8 +241,13 @@ export const LondonRoom: React.FC = () => {
         <polygon points={`${LX - 262},${LB - 330} ${LX + 262},${LB - 330} ${LX + 276},${LB - 6} ${LX - 276},${LB - 6}`} fill="#1b1d26" stroke="#8a8d96" strokeWidth={6} />
         <polygon points={`${LX - 246},${LB - 312} ${LX + 246},${LB - 312} ${LX + 258},${LB - 22} ${LX - 258},${LB - 22}`} fill="#fdf3e4" />
         <rect x={LX - 246} y={LB - 312} width={492} height={26} fill="#e8d9c0" /><circle cx={LX - 228} cy={LB - 299} r={5} fill="#ff6b5e" /><circle cx={LX - 211} cy={LB - 299} r={5} fill="#ffbd44" /><circle cx={LX - 194} cy={LB - 299} r={5} fill="#3ec65a" />
-        <rect x={LX - 226} y={LB - 270} width={150} height={18} fill="#d9694f" />{[0, 1, 2, 3, 4, 5, 6].map((i) => <rect key={i} x={LX - 226} y={LB - 230 + i * 26} width={i % 3 === 2 ? 250 : 430} height={9} rx={4} fill="#c9b8a0" />)}
-        <rect x={LX + 40} y={LB - 270} width={150} height={92} rx={8} fill="#ffb454" opacity={0.9} /><polyline points={`${LX + 52},${LB - 200} ${LX + 88},${LB - 228} ${LX + 122},${LB - 210} ${LX + 180},${LB - 252}`} stroke="#fff" strokeWidth={5} fill="none" strokeLinejoin="round" />
+        <text x={LX - 120} y={LB - 294} fill="#5a4a3a" style={{ font: `700 13px ${FONT.ui}` }}>Script · Part 2 (draft)</text>
+        <rect x={LX - 246} y={LB - 286} width={492} height={24} fill="#f3e9d6" />{[0, 1, 2, 3, 4, 5].map((i) => <rect key={i} x={LX - 232 + i * 30} y={LB - 280} width={18} height={12} rx={3} fill="#cdbfa6" />)}<rect x={LX + 120} y={LB - 280} width={90} height={12} rx={3} fill="#d9694f" opacity={0.85} />
+        <rect x={LX - 214} y={LB - 258} width={428} height={232} fill="#ffffff" stroke="#e0d3bc" strokeWidth={2} />
+        <text x={LX - 192} y={LB - 228} fill="#d9694f" style={{ font: `800 17px ${FONT.ui}`, letterSpacing: '0.04em' }}>HOW A PHOTO CROSSES AN OCEAN</text>
+        {DOC_LINES.map((ln, i) => <text key={i} x={LX - 192} y={LB - 196 + i * 30} fill="#4a3a30" style={{ font: `600 14.5px ${FONT.ui}` }}>{ln}</text>)}
+        <text x={LX - 192} y={LB - 196 + DOC_LINES.length * 30} fill="#4a3a30" style={{ font: `600 14.5px ${FONT.ui}` }}>{DOC_LIVE.slice(0, typedChars)}</text>
+        <rect x={LX - 192 + typedChars * 7.35} y={LB - 196 + DOC_LINES.length * 30 - 14} width={2.4} height={18} fill="#d9694f" opacity={Math.floor(t * 2.4) % 2 === 0 ? 1 : 0.15} />
         <polygon points={`${LX - 276},${LB} ${LX + 276},${LB} ${LX + 312},${LB + 112} ${LX - 312},${LB + 112}`} fill="#c9ccd2" stroke="#8a8d96" strokeWidth={3} />
         <polygon points={`${LX - 276},${LB} ${LX + 276},${LB} ${LX + 280},${LB + 10} ${LX - 280},${LB + 10}`} fill="#a9acb4" opacity={0.55} />
         <rect x={LX - 268} y={LB - 9} width={536} height={13} rx={6} fill="#3a3c46" stroke="#1b1d26" strokeWidth={2} /><rect x={LX - 262} y={LB - 8} width={520} height={3} rx={1.5} fill="#8a8d96" opacity={0.7} /><circle cx={LX - 268} cy={LB - 2} r={8} fill="#2a2c34" /><circle cx={LX + 268} cy={LB - 2} r={8} fill="#2a2c34" />
@@ -274,7 +287,7 @@ export const LondonRoom: React.FC = () => {
       {/* her hands, in front of the laptop: both on the keys and typing; the left stays, the right lifts off and reaches */}
       <div style={{ position: 'absolute', left: 0, top: TB, width: 1080, height: 1800, transformOrigin: '0 0', transform: `scale(1, ${PY})` }}>
         <svg width={1080} height={1800} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
-          <Limb anchor={anchorL} wrist={[LX - 128, wy0]} side={-1} type={typing} t={t} ph={0} />
+          <Limb anchor={anchorL} wrist={[LX - 128 + sL[0], wy0 + sL[1]]} side={-1} type={typing} t={t} ph={0} />
           <Limb anchor={anchorR} wrist={wR} side={1} bend={lerp(0, bendEnd, u)} type={typing} t={t} ph={0.9} point={point} lift={lift} />
           {tapP > 0 && tapP < 1 && [0, 1].map((i) => { const p = clamp01((tapP - i * 0.25) / 0.75); return p > 0 ? <ellipse key={i} cx={target[0]} cy={target[1]} rx={10 + p * 44} ry={10 + p * 44} fill="none" stroke="#fff3d0" strokeWidth={5 * (1 - p)} opacity={0.9 * (1 - p)} /> : null; })}
         </svg>
