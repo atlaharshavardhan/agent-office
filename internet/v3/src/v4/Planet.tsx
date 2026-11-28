@@ -118,14 +118,20 @@ const Stars: React.FC<{ t?: number }> = ({ t = 0 }) => <>{Array.from({ length: o
 
 export const project = (t: number, p: THREE.Vector3): [number, number, boolean] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.1, 600); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); q.x -= (shift(t) / F.W) * 2; const front = p.clone().normalize().dot(c.p.clone().normalize()) > 0.18; return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H + shiftY(t), front]; };
 /* a Google Maps style pin: red teardrop with a white dot, its tip exactly on the city, name beside it */
-const Pin: React.FC<{ t: number; at: LL; name: string; col: string; a: number; dx: number; dy: number }> = ({ t, at, name, a, dx }) => { const [x, y, front] = project(t, ll(at, R * 1.01)), aa = ov.pins != null ? ov.pins + (name === 'HYDERABAD' ? 0.3 : 0) : a, o = seg(t, aa, aa + 0.4) * (front ? 1 : 0); if (o < 0.01) return null;
-  const drop = 1 - seg(t, aa, aa + 0.5), side = dx < 0 ? -1 : 1, w = name.length * 19 + 20, ly = y - 50, lx = clampX(x + side * (64 + w / 2), w + 40);
+const Pin: React.FC<{ t: number; at: LL; name: string; col: string; a: number; dx: number; dy: number }> = ({ t, at, name, a, dx, col }) => { const [x, y, front] = project(t, ll(at, R * 1.01)), aa = ov.pins != null ? ov.pins + (name === 'HYDERABAD' ? 0.3 : 0) : a, o = seg(t, aa, aa + 0.4) * (front ? 1 : 0); if (o < 0.01) return null;
+  const drop = 1 - seg(t, aa, aa + 0.5), side = dx < 0 ? -1 : 1, w = name.length * 19 + 20, ly = y - 50, lx = clampX(x + side * (64 + w / 2 + 46), w + 40);
   return <g opacity={o}>
     <ellipse cx={x} cy={y} rx={16} ry={6} fill="#000" opacity={0.45} />
     <g transform={`translate(${x} ${y - drop * 70}) scale(${0.8 + 0.2 * (1 - drop)})`}>
       <path d="M 0 0 C -8 -16 -30 -30 -30 -56 A 30 30 0 1 1 30 -56 C 30 -30 8 -16 0 0 Z" fill="#ea4335" stroke="#a52714" strokeWidth={3} strokeLinejoin="round" />
       <circle cx={0} cy={-56} r={12} fill="#fff" /></g>
-    <text x={lx} y={ly + 10} textAnchor="middle" fill="#fff" style={{ font: `800 34px ${FONT.ui}`, letterSpacing: '0.05em', paintOrder: 'stroke', stroke: '#070a22', strokeWidth: 8, strokeLinejoin: 'round' }}>{name}</text>
+    {(() => { const sub = name === 'LONDON' ? 'she gets it here' : 'you send it here', cw = Math.max(name.length * 24, sub.length * 14) + 70, ch = 92, cx0 = lx - cw / 2, cy0 = ly - 36; return <g style={{ filter: `drop-shadow(0 0 14px ${col}88)` }}>
+      <defs><linearGradient id="pinbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#24357e" /><stop offset="1" stopColor="#0a1030" /></linearGradient></defs>
+      <rect x={cx0} y={cy0} width={cw} height={ch} rx={18} fill="url(#pinbg)" stroke={col} strokeWidth={3} />
+      <path d={`M ${cx0 + 18} ${cy0 + 3} H ${cx0 + cw - 18} Q ${cx0 + cw - 6} ${cy0 + 3} ${cx0 + cw - 4} ${cy0 + 16} H ${cx0 + 4} Q ${cx0 + 6} ${cy0 + 3} ${cx0 + 18} ${cy0 + 3} Z`} fill="#fff" opacity={0.14} />
+      <rect x={cx0 + 10} y={cy0 + 14} width={6} height={ch - 28} rx={3} fill={col} />
+      <text x={lx + 6} y={cy0 + 44} textAnchor="middle" fill="#fff" style={{ font: `800 36px ${FONT.ui}`, letterSpacing: '0.06em' }}>{name}</text>
+      <text x={lx + 6} y={cy0 + 74} textAnchor="middle" fill={col} style={{ font: `600 22px ${FONT.mono}` }}>{sub}</text></g>; })()}
   </g>; };
 
 export const Planet: React.FC = () => {
