@@ -33,13 +33,13 @@ const Ph: React.FC<{ k?: number; left?: number; top?: number; photo?: boolean; p
   </IPhone>);
 const Cap: React.FC<{ t: string; y?: number }> = ({ t, y = 1640 }) => <div style={{ position: 'absolute', left: 0, right: 0, top: y, display: 'flex', justifyContent: 'center' }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: CREAM }}>{t}</div></div>;
 const Label: React.FC<{ y: number }> = ({ y }) => {
-  const rows: [string, string, string, string][] = [['TO', '86.14.203.57', '(London)', '#c2412b'], ['FROM', '49.37.118.202', '(Hyderabad)', '#2a6fb0'], ['PIECE', '1,204 of 2,000', '1,500 bytes', '#9a6a14']];
+  const rows: [string, string, string, string][] = [['TO', '86.14.203.57', 'London', '#c2412b'], ['FROM', '49.37.118.202', 'Hyderabad', '#2a6fb0'], ['PIECE', '1,204 of 2,000', '1,500 bytes', '#9a6a14']];
   return (<g transform={`translate(540 ${y})`} style={{ filter: 'drop-shadow(0 16px 28px rgba(0,0,0,.5)) drop-shadow(0 0 26px rgba(255,180,84,.35))' }}>
     <rect x={-430} y={0} width={860} height={380} rx={36} fill="#fff6e6" stroke={GOLD} strokeWidth={6} />
     <rect x={-430} y={0} width={20} height={380} rx={10} fill={GOLD} /><rect x={-418} y={0} width={14} height={380} fill="#fff6e6" />
     {rows.map(([k, v, sub, c], r) => <g key={k} transform={`translate(0 ${r * 116 + 30})`}>
       <circle cx={-372} cy={46} r={9} fill={c} /><text x={-345} y={62} fill={c} style={{ font: `900 38px ${FONT.ui}`, letterSpacing: '0.08em' }}>{k}</text>
-      <text x={-200} y={62} fill="#2a1630" style={{ font: `800 40px ${FONT.mono}` }}>{v}</text><text x={r < 2 ? 150 : 160} y={62} fill={c} style={{ font: `800 ${r < 2 ? 38 : 32}px ${FONT.ui}` }}>{sub}</text>
+      <text x={-200} y={62} fill="#2a1630" style={{ font: `800 40px ${FONT.mono}` }}>{v}</text><g transform={`translate(${r < 2 ? 150 : 162} 0)`}><rect x={0} y={14} width={sub.length * (r < 2 ? 21 : 17) + 40} height={62} rx={31} fill={c} /><text x={20} y={58} fill="#fff" style={{ font: `800 ${r < 2 ? 36 : 30}px ${FONT.ui}` }}>{sub}</text></g>
       {r < 2 && <line x1={-380} x2={390} y1={104} y2={104} stroke="#e3c9a0" strokeWidth={2} />}</g>)}
   </g>);
 };
