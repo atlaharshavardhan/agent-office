@@ -108,3 +108,19 @@ export const SeabedLight12b: React.FC = () => <SeabedLight from={11} to={53} sta
 export const GlobeSatQ: React.FC = () => <GlobeSatStart cross={false} />;
 export const GlobeHook: React.FC = () => <GlobeSatStart cross={false} span={3.6} />;     // hook v10: the line is drawn all the way, Hyderabad to London, with the photo at its tip
 export const SeabedLight12c: React.FC = () => <SeabedLight from={11} to={65} start={85} frames={120} />;
+
+/* Part 2: the whole route on the globe (Harsh's reference): a dense web of cable arcs, our route drawn live in bright yellow, the photo at its tip, big words, the ms counter. 9:16. */
+export const GLOBE_ROUTE_FRAMES = 270;
+export const GlobeRoute: React.FC = () => {
+  const f = useCurrentFrame(), t = f / 30, T0 = 7.0, tt = T0 + t, drawn = easeInOut(clamp01((t - 0.8) / 6.4));
+  ov.lon = (x: number) => 72 - 66 * easeInOut(clamp01((x - T0 - 0.6) / 7.5)); ov.show = () => 1; ov.pins = 0; ov.thin = true; ov.dense = true; ov.u = (x: number) => easeInOut(clamp01((x - T0 - 0.8) / 6.4));
+  const [x, y, front] = project(tt, ll(routeAt(MAIN, drawn) as unknown as LL, R * 1.012)), ms = Math.round(lerp(50, 60, easeInOut(clamp01((t - 0.5) / 6.6)))), op = easeOut(clamp01(t / 0.6));
+  return (<AbsoluteFill style={{ backgroundColor: '#04061a' }}>
+    <Sequence from={-Math.round(T0 * 30)}><Planet /></Sequence>
+    <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><defs><radialGradient id="gr2"><stop offset="0" stopColor="#ffffff" stopOpacity={0.95} /><stop offset="0.35" stopColor="#ffe27a" stopOpacity={0.8} /><stop offset="1" stopColor="#ffd23a" stopOpacity={0} /></radialGradient></defs>
+      {front && <g transform={`translate(${x} ${y})`} opacity={op}><circle r={80} fill="url(#gr2)" /><circle r={13} fill="#fff" /></g>}</svg>
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 640, background: 'linear-gradient(#04061a 40%, rgba(4,6,26,0))', opacity: op }} />
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 250, textAlign: 'center', opacity: op, textShadow: '0 0 30px rgba(160,210,255,.7), 0 6px 14px rgba(0,0,0,.7)' }}><div style={{ font: `900 150px/1 ${FONT.ui}`, color: '#fff' }}>Almost all</div><div style={{ font: `800 56px/1.2 ${FONT.ui}`, color: '#e6f0ff', marginTop: 10 }}>of the data between continents</div><div style={{ font: `800 56px/1.2 ${FONT.ui}`, color: '#7fd4ff' }}>travels in cables like this</div></div>
+    <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+  </AbsoluteFill>);
+};

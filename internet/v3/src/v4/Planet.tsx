@@ -21,7 +21,7 @@ export const R = 10;
 export const PLANET_FRAMES = 360;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 /* the Part 2 hook turns the globe once and shows the cables only later: it sets these (lon = camera longitude by time, show = how much of the cable web and our route is visible, 0 to 1) */
-export const ov: { lon: null | ((t: number) => number); show: null | ((t: number) => number); pins: null | number; thin?: boolean; u?: null | ((t: number) => number) } = { lon: null, show: null, pins: null, thin: false, u: null };   // thin = Harsh: a thin edge on the globe and a few clear stars (hook v9)
+export const ov: { lon: null | ((t: number) => number); show: null | ((t: number) => number); pins: null | number; thin?: boolean; u?: null | ((t: number) => number); dense?: boolean } = { lon: null, show: null, pins: null, thin: false, u: null, dense: false };   // thin = Harsh: a thin edge on the globe and a few clear stars (hook v9)
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
 export const ll = (p: LL, r = R) => { const la = (p[1] * Math.PI) / 180, lo = (p[0] * Math.PI) / 180; return V(r * Math.cos(la) * Math.cos(lo), r * Math.sin(la), -r * Math.cos(la) * Math.sin(lo)); };
 const CITIES: LL[] = [MUMBAI, LONDON, [78.5, 17.4], [77.2, 28.6], [77.6, 13], [80.3, 13.1], [88.4, 22.6], [67, 24.9], [55.3, 25.3], [46.7, 24.7], [51.4, 35.7], [31.2, 30], [29, 41], [37.6, 55.8], [2.35, 48.9], [13.4, 52.5], [-3.7, 40.4], [12.5, 41.9], [103.8, 1.3], [114.2, 22.3], [121.5, 31.2], [139.8, 35.7], [126.9, 37.5], [116.4, 39.9], [100.5, 13.8], [106.8, -6.2], [151.2, -33.9], [144.9, -37.8], [18.4, -33.9], [28, -26.2], [3.4, 6.4], [36.8, -1.3], [-74, 40.7], [-118.2, 34], [-87.6, 41.9], [-99.1, 19.4], [-46.6, -23.5], [-58.4, -34.6], [-43.2, -22.9], [-79.4, 43.7], [-122.4, 37.8], [-80.2, 25.8]];
@@ -58,6 +58,13 @@ const curveOf = (r: LL[], lift = 1.006) => new THREE.CatmullRomCurve3(routePts(r
 const MAIN_C = curveOf(MAIN, 1.008);
 const mainU = (t: number) => clamp01((t - 0.6) / 8.6) ** 0.9;      // how far along its route our light is
 
+/* Harsh's reference: a dense web of glowing cable arcs over the whole Earth (ov.dense) */
+const DenseWeb: React.FC<{ t: number }> = ({ t }) => { const arcs = useMemo(() => { const out: THREE.BufferGeometry[] = []; let tries = 0;
+    while (out.length < 105 && tries++ < 2000) { const a = CITIES[Math.floor(hash(tries * 3) * CITIES.length)], b = CITIES[Math.floor(hash(tries * 3 + 1) * CITIES.length)], A = ll(a, 1), B = ll(b, 1), ang = A.angleTo(B); if (ang < 0.35 || ang > 2.4) continue;
+      const pts = Array.from({ length: 26 }).map((_, i) => { const u = i / 25, q = new THREE.Quaternion().setFromUnitVectors(A.clone().normalize(), B.clone().normalize()), id = new THREE.Quaternion(), r = id.clone().slerp(q, u); return A.clone().applyQuaternion(r).normalize().multiplyScalar(R * (1.004 + 0.045 * Math.sin(Math.PI * u) * Math.min(1, ang / 1.2))); });
+      out.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.0075, 4, false)); } return out; }, []);
+  const o = seg(t, 5.4, 7.0);
+  return <group>{arcs.map((g, i) => <mesh key={i} geometry={g}><meshBasicMaterial color={i % 3 ? '#cfeaff' : '#8fd0ff'} transparent opacity={(0.28 + 0.3 * hash(i)) * o} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>)}</group>; };
 const Earth: React.FC<{ t: number }> = ({ t }) => {
   const tex = useMemo(earthTex, []), atmo = useMemo(atmoMat, []), atmoThin = useMemo(() => new THREE.ShaderMaterial({ transparent: true, side: THREE.BackSide, depthWrite: false, blending: THREE.AdditiveBlending, vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix*vec4(position,1.); vN = normalize(normalMatrix*normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }', fragmentShader: 'varying vec3 vN; varying vec3 vV; void main(){ float f = pow(clamp(1. - abs(dot(normalize(vN), normalize(vV))), 0., 1.), 5.0); gl_FragColor = vec4(vec3(.35, .65, 1.) * f * 0.55, f * 0.45); }' }), []);
   const web = useMemo(() => WEB.map((r) => { const c = curveOf(r); return { c, g: new THREE.TubeGeometry(c, Math.max(20, Math.round(c.getLength() * 8)), 0.03, 6, false) }; }), []);
@@ -68,6 +75,7 @@ const Earth: React.FC<{ t: number }> = ({ t }) => {
   return <group>
     <mesh><sphereGeometry args={[R, 96, 64]} /><meshStandardMaterial map={tex} emissiveMap={tex} emissive="#ffffff" emissiveIntensity={0.55} roughness={0.9} /></mesh>
     <mesh material={ov.thin ? atmoThin : atmo}><sphereGeometry args={[R * (ov.thin ? 1.012 : 1.045), 64, 48]} /></mesh>
+    {ov.dense && <DenseWeb t={t} />}
     {/* the world's cables: dim cyan, lighting up one after another as the camera pulls back */}
     {web.map((w, i) => { const on = seg(t, 4.2 + i * 0.09, 5.0 + i * 0.09); w.g.setDrawRange(0, Math.floor((w.g.index!.count * on) / 3) * 3); const pu = ((t * 0.16 + hash(i) * 5) % 1 + 1) % 1, pp = w.c.getPointAt(pu);
       return <group key={i}><mesh geometry={w.g}><meshBasicMaterial color="#6fd0ff" transparent opacity={0.8 * (ov.show ? ov.show(t) : 1)} /></mesh>{on > 0.95 && <mesh position={pp}><sphereGeometry args={[0.055, 8, 8]} /><meshBasicMaterial color="#dff6ff" /></mesh>}</group>; })}
