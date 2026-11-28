@@ -13,7 +13,8 @@ for n, fr, ks in SH:
         for k in ks: vstart[k] = VAT[k] * CBK
 S = {}; t = 0.0
 for n, fr, ks in SH: S[n] = t; t += dur[n] - X
-TOTAL = t + X; k_ = {n: dur[n] / (fr / FPS) for n, fr, ks in SH}; print('starts', S, 'stretch', {a: round(b, 2) for a, b in k_.items()}, 'total', round(TOTAL, 2))
+TOTAL = t + X; TRIM = {'cb': 0.2}      # the first frames of the cable-layers shot are a flat blue wash: cut them
+k_ = {n: dur[n] / (fr / FPS - TRIM.get(n, 0)) for n, fr, ks in SH}; print('starts', S, 'stretch', {a: round(b, 2) for a, b in k_.items()}, 'total', round(TOTAL, 2))
 at = lambda n, tr: S[n] + tr * k_[n]
 N = int(TOTAL * SR) + SR; out = np.zeros((N, 2)); rng = np.random.default_rng(5)
 def place(sig, a, g=1.0, pan=0.0):
@@ -43,7 +44,7 @@ place(shutter(), S['cb'] - 0.05, 0.3); [place(pop(), at('cb', tt), 0.35) for tt 
 place(shutter(), S['rp'] - 0.05, 0.3); place(pop(), at('rp', 1.3), 0.4); place(riser(0.9), at('rp', 3.3), 0.3)
 f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) / (1.0 * SR)); out *= f[:, None]; out = np.tanh(out * 1.2) / 1.2; out *= 0.7 / np.abs(out).max(); sf.write(f'{D}/mix.wav', out[: int(TOTAL * SR)], SR)
 ins = []; fc = ''
-for i, (n, fr, ks) in enumerate(SH): ins += ['-i', f'{D}/{n}.mp4']; fc += f'[{i}:v]setpts=PTS*{k_[n]:.4f},fps={FPS},format=yuv420p[a{i}];'
+for i, (n, fr, ks) in enumerate(SH): ins += (['-ss', str(TRIM[n])] if n in TRIM else []) + ['-i', f'{D}/{n}.mp4']; fc += f'[{i}:v]setpts=PTS*{k_[n]:.4f},fps={FPS},tpad=stop_mode=clone:stop_duration=0.2,format=yuv420p[a{i}];'
 prev = '[a0]'
 for i in range(1, len(SH)):
     o = f'[x{i}]'; fc += f'{prev}[a{i}]xfade=transition={TR[i - 1]}:duration={X}:offset={S[SH[i][0]]:.3f}{o};'; prev = o

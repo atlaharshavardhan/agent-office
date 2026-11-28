@@ -51,7 +51,7 @@ place(buzz(), S['nt'] + 0.3, 0.22); place(ding(), S['nt'] + 0.6, 0.16)          
 place(pop(), at('en', 0.3), 0.4); place(ding(), at('en', 2.7), 0.22)  # the bell ding on the follow
 f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) / (1.0 * SR)); out *= f[:, None]; out = np.tanh(out * 1.2) / 1.2; out *= 0.7 / np.abs(out).max(); sf.write(f'{D}/mix.wav', out[: int(TOTAL * SR)], SR)
 ins = []; fc = ''
-for i, (n, fr, ks) in enumerate(SH): ins += ['-i', f'{D}/{n}.mp4']; fc += f'[{i}:v]setpts=PTS*{k_[n]:.4f},fps={FPS},format=yuv420p[a{i}];'
+for i, (n, fr, ks) in enumerate(SH): ins += ['-i', f'{D}/{n}.mp4']; fc += f'[{i}:v]setpts=PTS*{k_[n]:.4f},fps={FPS},tpad=stop_mode=clone:stop_duration=0.2,format=yuv420p[a{i}];'
 prev = '[a0]'
 for i in range(1, len(SH)):
     o = f'[x{i}]'; fc += f'{prev}[a{i}]xfade=transition={TR[i - 1]}:duration={X}:offset={S[SH[i][0]]:.3f}{o};'; prev = o
