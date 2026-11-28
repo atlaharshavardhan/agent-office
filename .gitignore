@@ -40,3 +40,7 @@ internet/v3/src/bundle*/
 internet/video/rf/
 internet/video/rf-?/
 internet/video/rf-out/
+internet/video/rf6/
+internet/v3/bundle[GHM]/
+internet/v3/snap[GHM]/
+internet/v3/public/p2v6/

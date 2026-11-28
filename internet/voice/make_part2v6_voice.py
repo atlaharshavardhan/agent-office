@@ -19,7 +19,7 @@ S = {
 }
 k = Kokoro(str(M / "kokoro-v1.0.onnx"), str(M / "voices-v1.0.bin")); L = {}; words = 0
 for n, t in S.items():
-    a, sr = k.create(t, voice="am_michael", speed=SPEED, lang="en-us"); sf.write(OUT / f"{n}.wav", a, sr); L[n] = round(len(a) / sr, 3); w = len(t.split()); words += w if n != "n10" else 0
+    a, sr = k.create(t, voice="am_michael", speed=(0.72 if n == "n9" else SPEED), lang="en-us")  # short closing line: slower so it does not rush; sf.write(OUT / f"{n}.wav", a, sr); L[n] = round(len(a) / sr, 3); w = len(t.split()); words += w if n != "n10" else 0
     print(n, w, "words", L[n], "s", round(w / L[n] * 60), "wpm")
 tw = sum(len(t.split()) for t in S.values()); tl = sum(L.values()); print("total", tw, "words", round(tl, 2), "s", round(tw / tl * 60), "wpm")
 json.dump({"lengths": L, "text": S, "speed": SPEED}, open(OUT / "lengths.json", "w"), indent=1)

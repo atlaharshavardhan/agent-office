@@ -2,6 +2,7 @@ import React from 'react';
 import { Composition } from 'remotion';
 import { Prototype } from './Prototype';
 import { Vert, Horiz } from './v4/frame';
+import { Part2V6, PART2V6_FRAMES } from './v4/Part2V6';
 import { FiberJourney, FIBER_FRAMES } from './v4/Fiber';
 import { FbB2, FbB3, FbB4 } from './v4/FibreHyd';
 import { S1Phone, S1_FRAMES, S2Break, S2_FRAMES, S3Bits, S3_FRAMES, S4Dog, S4_FRAMES, S5Lock, S5_FRAMES, S6Lens, S6_FRAMES, S2Bits, S2B_FRAMES } from './v4/StartAnim';
@@ -71,6 +72,7 @@ export const Root: React.FC = () => (
     <Composition id="Flight" component={() => <Horiz><Flight /></Horiz>} durationInFrames={FLIGHT_FRAMES} fps={30} width={1920} height={1080} />
     <Composition id="LondonV4" component={() => <Horiz><LondonV4 /></Horiz>} durationInFrames={LONDON_FRAMES} fps={30} width={1920} height={1080} />
     <Composition id="SeabedV" component={() => <Vert><Seabed /></Vert>} durationInFrames={SEABED_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="Part2V6" component={Part2V6} durationInFrames={PART2V6_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="SeabedBareV" component={() => <Vert><Seabed bare /></Vert>} durationInFrames={SEABED_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="SeabedRepeaterV" component={() => <Vert><SeabedRepeater /></Vert>} durationInFrames={REPEATER_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="PktB0V" component={PktB0} durationInFrames={30} fps={30} width={1080} height={1920} />
