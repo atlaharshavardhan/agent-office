@@ -144,6 +144,7 @@ export const HydRoom: React.FC = () => {
         <ellipse cx={340} cy={1122} rx={74} ry={13} fill="#000" opacity={0.5} filter="url(#blur3)" />
         <path d="M 340 1040 L 300 1118 L 380 1118 Z" fill="#4a2e1a" opacity={0.8} />
         <rect x={286} y={972} width={108} height={136} rx={8} fill="#5a3a22" stroke="#3a2210" strokeWidth={3} /><rect x={296} y={982} width={88} height={116} fill="#fdf3e4" /><svg x={300} y={988} width={80} height={104} viewBox="0 0 190 190" preserveAspectRatio="xMidYMid slice"><Charminar /></svg>
+        <rect x={298} y={1080} width={84} height={22} rx={4} fill="#d9b25a" stroke="#8a6a20" strokeWidth={1.5} /><text x={340} y={1096} textAnchor="middle" fill="#3a2a10" style={{ font: `800 15px ${FONT.ui}`, letterSpacing: '0.12em' }}>ROCKY</text>
         {/* a tulsi plant in a clay pot */}
         <ellipse cx={140} cy={1124} rx={50} ry={11} fill="#000" opacity={0.5} filter="url(#blur3)" />
         <path d="M 107 1064 L 173 1064 L 165 1120 L 115 1120 Z" fill="#c0634a" /><ellipse cx={140} cy={1120} rx={25} ry={5} fill="#8a3f2a" /><rect x={101} y={1054} width={78} height={14} rx={5} fill="#d6785a" />

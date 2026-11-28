@@ -339,6 +339,7 @@ export const LondonRoom: React.FC = () => {
         <ellipse cx={1030} cy={1344} rx={52} ry={9} fill="#000" opacity={0.5} filter="url(#blur3)" />
         <path d="M 1030 1280 L 1004 1338 L 1056 1338 Z" fill="#4a2e1a" opacity={0.8} />
         <rect x={993} y={1243} width={74} height={96} rx={7} fill="#5a3a22" stroke="#3a2210" strokeWidth={3} /><rect x={1001} y={1251} width={58} height={80} fill="#fdf3e4" /><svg x={1004} y={1254} width={52} height={74} viewBox="0 0 190 190" preserveAspectRatio="xMidYMid slice"><DogPhoto /></svg>
+        <rect x={1001} y={1316} width={58} height={16} rx={3} fill="#d9b25a" stroke="#8a6a20" strokeWidth={1.2} /><text x={1030} y={1328} textAnchor="middle" fill="#3a2a10" style={{ font: `800 11px ${FONT.ui}`, letterSpacing: '0.1em' }}>ROCKY</text>
         <g transform="translate(-30 0)">
         {/* the lamp: a wide round base, a stem, a socket joining the stem to the shade */}
         <ellipse cx={885} cy={1086} rx={74} ry={15} fill="#000" opacity={0.5} filter="url(#blur6)" />

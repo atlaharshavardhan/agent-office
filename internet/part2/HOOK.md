@@ -61,3 +61,5 @@ New image 5: the cable on the sea floor at 18 ms, only speed: no place name or s
 
 ## Hook is now 10 images, with the speed shown (Harsh: "how fast it will transfer, show it"): internet/part2/storyboard/hook-final/hook-10-images.png
 Speed readout on every travel shot (SpeedReadout in v3/src/v4/Final.tsx and the FlyGlobe counter in Story.tsx): big ms counter, then "km travelled" (13,000 km in 65 ms), then "200,000 km/s, light in glass". Numbers: light in glass travels about 200,000 km/s (about two thirds of its speed in space); a typical India to London ping is about 130 ms, so about 65 ms one way; 65 ms x 200,000 km/s = about 13,000 km of cable (the straight line Hyderabad to London is about 7,700 km, real routes are longer). The 13,000 km is an estimate from the 65 ms, always shown as "about". Sea-floor shots: 018 ms with racing light pulses and speed streaks, and 034 ms with the bright flare (full size: full-6-sea-floor-34ms.png).
+
+## The dog is named ROCKY (Harsh, 28 Nov 2026): a brass name plate on the framed dog picture on both desks (HydRoom.tsx, Story.tsx LondonRoom).
