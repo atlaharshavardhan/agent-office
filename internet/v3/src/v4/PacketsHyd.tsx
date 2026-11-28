@@ -32,7 +32,7 @@ const Ph: React.FC<{ k?: number; left?: number; top?: number; photo?: boolean; p
     <Compose bottom={8} text={<span style={{ color: '#8e8e93' }}>Message</span>} press={press} ready />
   </IPhone>);
 const Cap: React.FC<{ t: string; y?: number }> = ({ t, y = 1640 }) => <div style={{ position: 'absolute', left: 0, right: 0, top: y, display: 'flex', justifyContent: 'center' }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: CREAM }}>{t}</div></div>;
-const Label: React.FC<{ y: number }> = ({ y }) => {
+export const Label: React.FC<{ y: number; k?: number }> = ({ y }) => {
   const rows: [string, string, string, string][] = [['TO', '86.14.203.57', 'London', '#c2412b'], ['FROM', '49.37.118.202', 'Hyderabad', '#2a6fb0'], ['PIECE', '1,204 of 2,000', '1,500 bytes', '#9a6a14']];
   return (<g transform={`translate(540 ${y})`} style={{ filter: 'drop-shadow(0 16px 28px rgba(0,0,0,.5)) drop-shadow(0 0 26px rgba(255,180,84,.35))' }}>
     <rect x={-430} y={0} width={860} height={380} rx={36} fill="#fff6e6" stroke={GOLD} strokeWidth={6} />

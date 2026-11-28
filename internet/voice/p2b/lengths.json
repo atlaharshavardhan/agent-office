@@ -1,0 +1,17 @@
+{
+ "lengths": {
+  "p1": 2.773,
+  "p2": 3.477,
+  "p3": 2.795,
+  "p4": 1.856,
+  "p5": 5.205
+ },
+ "text": {
+  "p1": "Now it is cut into about 2,000 packets.",
+  "p2": "Every packet gets a label: where it is going, and its number.",
+  "p3": "Then radio waves carry them to a mobile tower.",
+  "p4": "Its antennas catch the signal.",
+  "p5": "A box at the bottom turns it into light, and sends it down a glass cable, under the street."
+ },
+ "speed": 1.1
+}

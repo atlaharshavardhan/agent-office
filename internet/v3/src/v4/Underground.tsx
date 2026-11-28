@@ -101,8 +101,9 @@ export const Underground: React.FC = () => {
       </ThreeCanvas>
       <AbsoluteFill><svg width={F.W} height={F.H}>
         <g opacity={o}><line x1={x} y1={y + 26} x2={x - 70} y2={y + 130} stroke="#5fe3ff" strokeWidth={2.5} /><circle cx={x} cy={y + 26} r={6} fill="#5fe3ff" stroke="#070a22" strokeWidth={2.5} />
-          <g transform={`translate(${clampX(x - 90, 400)} ${y + 160})`}><rect x={-200} y={-30} width={400} height={76} rx={12} fill="#0e1430" fillOpacity={0.92} stroke="#5fe3ff" strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>FIBRE OPTIC CABLE</text><text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>under the street, the data is light</text></g></g>
+          <g transform={`translate(${clampX(x - 90, 400)} ${y + 160})`}><rect x={-250} y={-40} width={500} height={96} rx={14} fill="#0e1430" fillOpacity={0.92} stroke="#5fe3ff" strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 40px ${FONT.ui}`, letterSpacing: '0.04em' }}>FIBRE OPTIC CABLE</text><text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>under the street, the data is light</text></g></g>
       </svg></AbsoluteFill>
+      <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(7, 9, seg(t, 1, 6)))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
     </AbsoluteFill>
   );
 };
