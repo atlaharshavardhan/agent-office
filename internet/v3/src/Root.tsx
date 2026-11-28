@@ -5,6 +5,7 @@ import { Vert, Horiz } from './v4/frame';
 import { FiberJourney, FIBER_FRAMES } from './v4/Fiber';
 import { PktB0, PktB1, PktB2, PktB3, PktB4, PktB5 } from './v4/PacketsHyd';
 import { PacketBurst, PACKETS_FRAMES } from './v4/Packets';
+import { PacketBurst2, PACKETS2_FRAMES } from './v4/Packets2';
 import { London as LondonV4, LONDON_FRAMES } from './v4/London';
 import { Flight, FLIGHT_FRAMES } from './v4/Flight';
 import { Planet, PLANET_FRAMES } from './v4/Planet';
@@ -59,6 +60,7 @@ export const Root: React.FC = () => (
     <Composition id="PktB3V" component={PktB3} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="PktB5V" component={PktB5} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="PktB4V" component={PktB4} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="PacketBurst2V" component={() => <Vert><PacketBurst2 /></Vert>} durationInFrames={PACKETS2_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="PacketBurstV" component={() => <Vert><PacketBurst /></Vert>} durationInFrames={PACKETS_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="UndergroundV" component={() => <Vert><Underground /></Vert>} durationInFrames={UNDER_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="RoutersV" component={() => <Vert><Routers /></Vert>} durationInFrames={ROUTERS_FRAMES} fps={30} width={1080} height={1920} />
