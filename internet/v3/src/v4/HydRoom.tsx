@@ -179,7 +179,6 @@ export const HydRoom: React.FC = () => {
         </div>
       </div>
       <Chip text="HYDERABAD · 9:12 pm" col="#ffb454" top={482} left={36} />
-      <Chip text="13,000 km → 0.065 s" col="#ffe3a0" top={575} left={36} size={44} o={prog(f, 0.05, 0.3, easeOut)} />
     </AbsoluteFill>
   );
 };

@@ -91,3 +91,6 @@ Voice (Liam, recorded once, 113 characters): s1 0.2 s "Imagine the movement when
 9-10 s Her phone buzzes | "in a fraction of a second."
 10-12 s Notification zoom-in | "But how?"
 Notes: the cable shot is now 4 s (earlier plan was 1.5 s). The satellite shot shows the question mark only (no red cross needed, the voice says "but it actually..." ). The speed readout stays on the cable shot. Old recorded lines (w1, n2-n5, s1, g1-g3, q1, q2, s4, s5) are not used. New lines to record, with Harsh's go: 5 lines, about 190 characters (ElevenLabs allowed for the hook).
+
+## CAPTION POSITION RULE (Harsh, 28 Nov 2026, latest): captions CENTRED horizontally, at the TOP or the BOTTOM of the screen. Look for free space first; if there is none, put them on the objects. (Replaces the left-aligned free-space positions.) Safe zones: right edge of the pill at most x 940; vertical band y 250 to 1500.
+Also this session: satellite goes OUTSIDE the globe (top-left dark space) with dots running only from the satellite towards the Earth; the "13,000 km -> 0.065 s" tag is removed from the first shot.
