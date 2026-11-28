@@ -33,19 +33,14 @@ const Ph: React.FC<{ k?: number; left?: number; top?: number; photo?: boolean; p
   </IPhone>);
 const Cap: React.FC<{ t: string; y?: number }> = ({ t, y = 1640 }) => <div style={{ position: 'absolute', left: 0, right: 0, top: y, display: 'flex', justifyContent: 'center' }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: CREAM }}>{t}</div></div>;
 const Label: React.FC<{ y: number }> = ({ y }) => {
-  const rows: [string, string, string, string, string][] = [['TO', 'Where it is going', '86.14.203.57', 'London, UK', '#c2412b'], ['FROM', 'Where it came from', '49.37.118.202', 'Hyderabad, India', '#2a6fb0'], ['PIECE', 'Its place in the photo', '1,204 of 2,000', '1,500 bytes of the dog photo', '#9a6a14']];
-  return (<g transform={`translate(540 ${y})`} style={{ filter: 'drop-shadow(0 18px 30px rgba(0,0,0,.55))' }}>
-    <rect x={-440} y={0} width={880} height={650} rx={34} fill="#fff6e6" stroke={GOLD} strokeWidth={6} />
-    <path d="M -440 34 Q -440 0 -406 0 L 406 0 Q 440 0 440 34 L 440 96 L -440 96 Z" fill="#2a1630" />
-    <text x={-400} y={64} fill={GOLD2} style={{ font: `900 34px ${FONT.ui}`, letterSpacing: '0.14em' }}>PACKET LABEL</text>
-    <text x={400} y={64} textAnchor="end" fill="#fff1dc" style={{ font: `800 34px ${FONT.mono}` }}>#1204</text>
-    {rows.map(([k, cap, v, sub, c], r) => <g key={k} transform={`translate(0 ${r * 150 + 120})`}>
-      <rect x={-400} y={8} width={104} height={104} rx={20} fill={c} /><text x={-348} y={72} textAnchor="middle" fill="#fff" style={{ font: `900 ${k === 'PIECE' ? 24 : 30}px ${FONT.ui}`, letterSpacing: '0.06em' }}>{k}</text>
-      <text x={-270} y={34} fill="#8a7a66" style={{ font: `700 26px ${FONT.ui}` }}>{cap}</text>
-      <text x={-270} y={84} fill="#2a1630" style={{ font: `800 50px ${FONT.mono}` }}>{v}</text>
-      <text x={-270} y={116} fill={c} style={{ font: `800 26px ${FONT.ui}` }}>{sub}</text>
-      {r < 2 && <line x1={-400} x2={400} y1={136} y2={136} stroke="#e3c9a0" strokeWidth={2} strokeDasharray="8 8" />}</g>)}
-    <g transform="translate(-400 622)" opacity={0.9}>{Array.from({ length: 46 }).map((_, k) => <rect key={k} x={k * 17.4} y={-26} width={hash(k + 77) > 0.5 ? 9 : 4.5} height={14} fill="#2a1630" />)}</g>
+  const rows: [string, string, string, string][] = [['TO', '86.14.203.57', '(London)', '#c2412b'], ['FROM', '49.37.118.202', '(Hyderabad)', '#2a6fb0'], ['PIECE', '1,204 of 2,000', '1,500 bytes', '#9a6a14']];
+  return (<g transform={`translate(540 ${y})`} style={{ filter: 'drop-shadow(0 16px 28px rgba(0,0,0,.5)) drop-shadow(0 0 26px rgba(255,180,84,.35))' }}>
+    <rect x={-430} y={0} width={860} height={380} rx={36} fill="#fff6e6" stroke={GOLD} strokeWidth={6} />
+    <rect x={-430} y={0} width={20} height={380} rx={10} fill={GOLD} /><rect x={-418} y={0} width={14} height={380} fill="#fff6e6" />
+    {rows.map(([k, v, sub, c], r) => <g key={k} transform={`translate(0 ${r * 116 + 30})`}>
+      <circle cx={-372} cy={46} r={9} fill={c} /><text x={-345} y={62} fill={c} style={{ font: `900 38px ${FONT.ui}`, letterSpacing: '0.08em' }}>{k}</text>
+      <text x={-200} y={62} fill="#2a1630" style={{ font: `800 40px ${FONT.mono}` }}>{v}</text><text x={r < 2 ? 150 : 160} y={62} fill={c} style={{ font: `800 ${r < 2 ? 38 : 32}px ${FONT.ui}` }}>{sub}</text>
+      {r < 2 && <line x1={-380} x2={390} y1={104} y2={104} stroke="#e3c9a0" strokeWidth={2} />}</g>)}
   </g>);
 };
 const stream = (x0: number, y0: number, x1: number, y1: number, cn: number, bend: number) => Array.from({ length: cn }).map((_, q) => { const u = (q + 0.5) / cn, x = x0 + (x1 - x0) * u + Math.sin(u * 3.14) * bend, y = y0 + (y1 - y0) * u, i = (q * 3) % 8, j = (q * 5) % 8; return <Tile key={q} x={x} y={y} s={26 + 12 * (1 - u)} rot={-30 + q * 17} i={i} j={j} n={8} glow={0.8} />; });
@@ -64,7 +59,7 @@ const Scene: React.FC<{ beat: number }> = ({ beat }) => {
     <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
       {!room && beat !== 5 && null}
       {(beat === 1 || beat === 2) && <g>{tiles}</g>}
-      {beat === 3 && <><Tile x={540} y={470} s={300} i={6} j={5} n={N} tag={num(1204)} hl /><Label y={800} /></>}
+      {beat === 3 && <><Tile x={540} y={470} s={300} i={6} j={5} n={N} tag={num(1204)} hl /><Label y={860} /></>}
       {room && <g>{stream(560, 1250, WIN_PANE.cx, WIN_PANE.cy + 40, 9, -120)}<circle cx={WIN_PANE.cx} cy={WIN_PANE.cy} r={90} fill="none" stroke="#ffd38a" strokeWidth={4} opacity={0.6} /></g>}
     </svg>
     {beat === 5 && <Outside />}
