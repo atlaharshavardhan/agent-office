@@ -1,0 +1,15 @@
+1
+00:00:00,200 --> 00:00:04,979
+At the next stop, a router reads the label. Each router only knows the next step.
+
+2
+00:00:05,099 --> 00:00:07,830
+If a road is busy, it sends the packet another way.
+
+3
+00:00:08,450 --> 00:00:11,223
+Then the land ends. The cable goes into the sea.
+
+4
+00:00:11,343 --> 00:00:14,180
+From here, the packets travel as light, under the sea.
