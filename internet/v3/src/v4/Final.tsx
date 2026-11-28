@@ -131,7 +131,7 @@ const sm2 = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x * x
 export const GlobeCut: React.FC = () => {
   const f = useCurrentFrame(), t = f / 30, T0 = 7.0, tt = T0 + t, UC = 0.36, TC = 3.4, d1 = easeInOut(clamp01((t - 0.6) / (TC - 0.6))) * UC, ua = easeInOut(clamp01((t - 5.0) / 5.2));
   ov.lon = (x: number) => { const q = x - T0; return q < 3.4 ? lerp(72, 42, easeInOut(clamp01(q / 3.4))) : lerp(42, 12, easeInOut(clamp01((q - 3.4) / 7))); };
-  ov.show = () => 1; ov.pins = 0; ov.thin = true; ov.dense = true; ov.u = (x: number) => { const q = x - T0; return easeInOut(clamp01((q - 0.6) / (TC - 0.6))) * UC; }; ov.alt = (x: number) => easeInOut(clamp01((x - T0 - 5.0) / 5.2));
+  ov.show = () => 1; ov.pins = 0; ov.thin = true; ov.dense = true; ov.real = true; ov.u = (x: number) => { const q = x - T0; return easeInOut(clamp01((q - 0.6) / (TC - 0.6))) * UC; }; ov.alt = (x: number) => easeInOut(clamp01((x - T0 - 5.0) / 5.2));
   const [cx, cy, cfront] = project(tt, ll(routeAt(MAIN, UC) as unknown as LL, R * 1.012)), [ax, ay, afront] = project(tt, ll(routeAt(ALT, ua) as unknown as LL, R * 1.012));
   const cut = easeOut(clamp01((t - TC) / 0.35)), drop = easeOut(clamp01((t - (TC - 0.7)) / 0.7)), blink = 0.5 + 0.5 * Math.sin(t * 10), ms = Math.round(lerp(50, 52, d1 / UC) + 8 * ua), op = easeOut(clamp01(t / 0.6));
   const c1 = easeOut(clamp01((t - 0.3) / 0.5)) * (1 - easeOut(clamp01((t - 3.0) / 0.4))), c2 = easeOut(clamp01((t - 3.4) / 0.5)) * (1 - easeOut(clamp01((t - 5.2) / 0.4))), c3 = easeOut(clamp01((t - 5.3) / 0.5)) * (1 - easeOut(clamp01((t - 10.0) / 0.4))), c4 = easeOut(clamp01((t - 10.2) / 0.5));
@@ -149,3 +149,32 @@ export const GlobeCut: React.FC = () => {
     <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
   </AbsoluteFill>);
 };
+
+/* Harsh's reference: the light tunnel (radial streaks) with a glowing core; used for "into the cable" and for the dive under the sea */
+const TITLE = (t1: string, t2: string, o: number) => <div style={{ position: 'absolute', left: 0, right: 0, top: 440, textAlign: 'center', opacity: o, padding: '0 40px' }}><div style={{ font: `900 118px/1.02 ${FONT.ui}`, color: '#ffc61a', textTransform: 'uppercase', letterSpacing: '-0.01em', textShadow: '0 0 34px rgba(255,190,40,.55), 0 6px 12px rgba(0,0,0,.6)' }}>{t1}</div><div style={{ font: `800 56px/1.2 ${FONT.ui}`, color: '#fff', marginTop: 18, textShadow: '0 0 24px rgba(160,200,255,.7), 0 4px 10px rgba(0,0,0,.6)' }}>{t2}</div></div>;
+export const TUNNEL_FRAMES = 90;
+export const LightTunnel: React.FC<{ title?: boolean; label?: string; sub?: string; ms?: string; col?: boolean }> = ({ title, label, sub, ms = '009' }) => { const t = useCurrentFrame() / 30;
+  return (<AbsoluteFill style={{ background: '#03051a' }}>
+    <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><defs><radialGradient id="tnb" cx="50%" cy="52%" r="62%"><stop offset="0" stopColor="#1a2466" /><stop offset="0.55" stopColor="#0a1040" /><stop offset="1" stopColor="#02030f" /></radialGradient><radialGradient id="tnw" cx="50%" cy="50%" r="50%"><stop offset="0.7" stopColor="#9fb6e8" stopOpacity={0} /><stop offset="0.86" stopColor="#9fb6e8" stopOpacity={0.16} /><stop offset="1" stopColor="#9fb6e8" stopOpacity={0} /></radialGradient><radialGradient id="tnc"><stop offset="0" stopColor="#fff6dc" /><stop offset="0.35" stopColor="#ffc860" /><stop offset="1" stopColor="#a8741a" stopOpacity={0} /></radialGradient></defs>
+      <rect width={1080} height={1920} fill="url(#tnb)" /><ellipse cx={540} cy={990} rx={560} ry={640} fill="url(#tnw)" />
+      {Array.from({ length: 340 }).map((_, k) => { const a = hash(k) * 6.283, sp = 0.35 + hash(k + 3) * 0.9, ph = (hash(k + 5) + t * sp * 0.55) % 1, r0 = 40 + Math.pow(ph, 1.9) * 1100, len = 120 + Math.pow(ph, 1.25) * 900, col = hash(k + 7) > 0.45 ? '#ffc060' : hash(k + 8) > 0.5 ? '#8fb4ff' : '#dfe8ff', o = Math.sin(Math.PI * Math.min(1, ph * 1.05)) * (0.45 + 0.5 * hash(k + 2));
+        return <line key={k} x1={540 + Math.cos(a) * r0} y1={990 + Math.sin(a) * r0 * 1.12} x2={540 + Math.cos(a) * (r0 + len)} y2={990 + Math.sin(a) * (r0 + len) * 1.12} stroke={col} strokeWidth={1.4 + ph * 4.2} strokeLinecap="round" opacity={o} />; })}
+      <circle cx={540} cy={990} r={118} fill="none" stroke="#fff" strokeWidth={2} opacity={0.45} /><circle cx={540} cy={990} r={80} fill="url(#tnc)" /><circle cx={540} cy={990} r={26} fill="#fff6e0" /></svg>
+    {title && TITLE('The photo you just sent', 'is 3,000 m under the Arabian Sea right now', 1)}
+    {label && <div style={{ position: 'absolute', left: 60, top: 1230, font: `800 56px/1.05 ${FONT.ui}`, color: '#fff', textShadow: '0 0 20px rgba(120,170,255,.7)' }}>{label}<div style={{ font: `700 34px ${FONT.ui}`, color: '#7fd4ff' }}>{sub}</div></div>}
+    {title && <div style={{ position: 'absolute', left: 0, right: 0, top: 1400, textAlign: 'center', font: `800 58px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,.7)' }}>Right now <span style={{ color: '#ffc61a' }}>3,000 meters</span></div>}
+    <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{ms}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+  </AbsoluteFill>); };
+export const TunnelCable: React.FC = () => <LightTunnel />;
+export const TunnelDive: React.FC = () => <LightTunnel title label="Arabian Sea" sub="depth 410 m" ms="018" />;
+/* the globe in the reference's style: low over the Arabian Sea, real-looking Earth, big gold title, route drawn in yellow with the thin blue rest */
+export const GLOBE_REF_FRAMES = 150;
+export const GlobeRef: React.FC = () => { const f = useCurrentFrame(), t = f / 30, T0 = 4.3, tt = T0 + t * 0.8;
+  ov.lon = (x: number) => 64 - 14 * clamp01((x - T0) / 4); ov.show = () => 1; ov.pins = 0; ov.thin = true; ov.dense = true; ov.real = true; ov.dy = 260; ov.u = (x: number) => 0.06 + 0.34 * easeInOut(clamp01((x - T0) / 4));
+  return (<AbsoluteFill style={{ backgroundColor: '#02030f' }}>
+    <Sequence from={-Math.round(T0 * 30)}><Planet /></Sequence>
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 900, background: 'linear-gradient(#02030f 40%, rgba(2,3,15,0))' }} />
+    {TITLE('The photo you just sent', 'is 3,000 m under the Arabian Sea right now', 1)}
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 1760, textAlign: 'center', font: `800 58px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,.7)' }}>Right now <span style={{ color: '#ffc61a' }}>3,000 meters</span></div>
+    <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(18, 22, t / 5))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
+  </AbsoluteFill>); };

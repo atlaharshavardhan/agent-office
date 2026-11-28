@@ -24,7 +24,7 @@ import { ArriveGrid } from './v4/ArriveGrid';
 import { ArriveRain, RAIN_FRAMES } from './v4/ArriveRain';
 import { Arrive as ArriveHer, ARRIVE_FRAMES as ARRIVE_HER_FRAMES } from './v4/ArriveAnim';
 import { Snap, SNAP_FRAMES } from './v4/Snap';
-import { SeabedMs, RepeaterMs, PlanetMs, SeabedFast, SeabedLight, GlobeSat, SeabedLight12, GlobeSatStart, SeabedLight12b, GlobeSatQ, GlobeHook, SeabedLight12c, GlobeRoute, GLOBE_ROUTE_FRAMES, GlobeCut, GLOBE_CUT_FRAMES } from './v4/Final';
+import { SeabedMs, RepeaterMs, PlanetMs, SeabedFast, SeabedLight, GlobeSat, SeabedLight12, GlobeSatStart, SeabedLight12b, GlobeSatQ, GlobeHook, SeabedLight12c, GlobeRoute, GLOBE_ROUTE_FRAMES, GlobeCut, GLOBE_CUT_FRAMES, TunnelCable, TunnelDive, TUNNEL_FRAMES, GlobeRef, GLOBE_REF_FRAMES } from './v4/Final';
 import { HydRoom, HYD_ROOM_FRAMES } from './v4/HydRoom';
 import { HydSend, HYD_SEND_FRAMES, LondonRoom, LONDON_ROOM_FRAMES, Notif, NOTIF_FRAMES, FlyGlobe, FLY_GLOBE_FRAMES } from './v4/Story';
 import { HookGlobe, HOOK_GLOBE_FRAMES } from './v4/Hook';
@@ -121,6 +121,9 @@ export const Root: React.FC = () => (
     <Composition id="FlyGlobeV" component={() => <Vert><FlyGlobe /></Vert>} durationInFrames={FLY_GLOBE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="HydRoomV" component={HydRoom} durationInFrames={HYD_ROOM_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeHookV" component={() => <Vert><GlobeHook /></Vert>} durationInFrames={135} fps={30} width={1080} height={1920} />
+    <Composition id="TunnelCableV" component={TunnelCable} durationInFrames={TUNNEL_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="TunnelDiveV" component={TunnelDive} durationInFrames={TUNNEL_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="GlobeRefV" component={() => <Vert><GlobeRef /></Vert>} durationInFrames={GLOBE_REF_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeCutV" component={() => <Vert><GlobeCut /></Vert>} durationInFrames={GLOBE_CUT_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeRouteV" component={() => <Vert><GlobeRoute /></Vert>} durationInFrames={GLOBE_ROUTE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeSatQV" component={() => <Vert><GlobeSatQ /></Vert>} durationInFrames={60} fps={30} width={1080} height={1920} />

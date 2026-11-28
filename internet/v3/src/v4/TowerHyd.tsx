@@ -40,6 +40,17 @@ const shellMat = (o: number) => new THREE.ShaderMaterial({ transparent: true, de
   fragmentShader: 'uniform float o; varying vec3 vN; varying vec3 vV; void main(){ float d = abs(dot(normalize(vN), normalize(vV))); float f = pow(1.0 - d, 2.6); vec3 c = mix(vec3(1.0,0.62,0.18), vec3(1.0,0.86,0.5), f); gl_FragColor = vec4(c * (0.04 + 1.1*f) * o, (0.02 + 0.7*f) * o); }' });
 const Signal: React.FC<{ radii: number[] }> = ({ radii }) => { const mats = React.useMemo(() => radii.map((_, k) => shellMat(0.38 - k * 0.07)), [radii.join(',')]);
   return <group position={[TOWER.x, BASE + 21.2, TOWER.z]}>{radii.map((r, k) => <mesh key={k} material={mats[k]}><sphereGeometry args={[r, 96, 40, 0, Math.PI * 2, 0, Math.PI / 2]} /></mesh>)}</group>; };
+/* her tower in the reference's style: big cream antenna panels, radio units, rails, warm light from below */
+const PanelsBig: React.FC = () => (<group position={[TOWER.x, BASE + 20.4, TOWER.z]}>
+  <mesh position={[0, -1.2, 0]}><cylinderGeometry args={[2.1, 2.1, 0.14, 6]} /><meshStandardMaterial color="#5a6aa0" roughness={0.6} metalness={0.4} /></mesh>
+  <mesh position={[0, -0.45, 0]} rotation-x={Math.PI / 2}><torusGeometry args={[2.05, 0.045, 8, 6]} /><meshStandardMaterial color="#cfd8f0" /></mesh>
+  {Array.from({ length: 6 }).map((_, k) => <group key={k} rotation-y={-k * 1.047} position={[Math.cos(k * 1.047) * 1.75, 0.25, Math.sin(k * 1.047) * 1.75]}>
+    <RoundedBox args={[0.62, 3.1, 0.2]} radius={0.09} smoothness={4} position={[0, 0.6, 0]}><meshStandardMaterial color="#f2dfb8" roughness={0.5} emissive="#ffc880" emissiveIntensity={0.42} /></RoundedBox>
+    <RoundedBox args={[0.5, 0.8, 0.3]} radius={0.08} smoothness={3} position={[0, -0.2, -0.38]}><meshStandardMaterial color="#3a4468" roughness={0.5} metalness={0.3} /></RoundedBox></group>)}
+  <mesh position={[0, 2.0, 0]}><cylinderGeometry args={[0.14, 0.18, 4.2, 10]} /><meshStandardMaterial color="#3c4fb0" roughness={0.5} /></mesh>
+  <mesh position={[0, 4.3, 0]}><sphereGeometry args={[0.14, 10, 8]} /><meshBasicMaterial color="#ff4a3a" /></mesh>
+  <pointLight position={[0, -2.2, 0.6]} intensity={34} color="#ffc870" distance={11} />
+</group>);
 const Panels: React.FC = () => (<group position={[TOWER.x, BASE + 20.4, TOWER.z]}>
   {/* walkway ring with a soft railing, a radio unit behind each antenna, a dish, cable bundles */}
   <mesh position={[0, -1.2, 0]}><cylinderGeometry args={[1.9, 1.9, 0.12, 6]} /><meshStandardMaterial color="#5a6aa0" roughness={0.6} metalness={0.4} /></mesh>
@@ -82,11 +93,12 @@ export const TowerShot: React.FC<{ her?: boolean }> = ({ her }) => {
     <ThreeCanvas width={F.W} height={F.H} gl={{ antialias: true }} camera={{ fov: 36, near: 0.05, far: 400 }}>
       <CamNow /><color attach="background" args={['#0a0d34']} /><fog attach="fog" args={['#0c1040', 30, 160]} />
       <hemisphereLight args={['#7f8cff', '#160c44', 1.15]} /><directionalLight position={[-8, 12, 10]} intensity={1.3} color="#c9d2ff" />
-      <City /><Tower t={Math.max(0, (t - 3) * 0.3)} /><Panels /><SigAnim t={t} />
+      <City /><Tower t={Math.max(0, (t - 3) * 0.3)} />{her ? <PanelsBig /> : <Panels />}{her && <Cables beat={3} />}<SigAnim t={t} />
       <EffectComposer><Bloom intensity={0.6} luminanceThreshold={0.8} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.7} /></EffectComposer>
     </ThreeCanvas>
     <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(ms).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
     <div style={{ position: 'absolute', left: 90, top: 560, opacity: 1 - smoothN((t - 1.6) / 0.8), font: `800 54px ${FONT.ui}`, color: '#fff', textShadow: '0 0 18px rgba(127,212,255,.7), 0 4px 10px #000' }}>{her ? 'Her mobile tower' : 'Mobile tower'}</div>
+    {her && <div style={{ position: 'absolute', left: 60, top: 1400, opacity: smoothN((t - 3.5) / 0.8), font: `800 58px/1.05 ${FONT.ui}`, color: '#fff', textShadow: '0 0 22px rgba(120,170,255,.75), 0 4px 10px rgba(0,0,0,.6)' }}>London<div style={{ font: `700 34px ${FONT.ui}`, color: '#7fd4ff' }}>3:42 AM</div></div>}
   </AbsoluteFill>);
 };
 
