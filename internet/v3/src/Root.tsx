@@ -4,6 +4,7 @@ import { Prototype } from './Prototype';
 import { Vert, Horiz } from './v4/frame';
 import { Part2V6, PART2V6_FRAMES } from './v4/Part2V6';
 import { DogBetter } from './v4/DogBetter';
+import { HookGlobeTravel, HOOK_TRAVEL_FRAMES } from './v4/HookTravel';
 import { PhotoShatter3D, SHATTER_FRAMES } from './v4/PhotoShatter3D';
 import { FiberJourney, FIBER_FRAMES } from './v4/Fiber';
 import { FbB2, FbB3, FbB4 } from './v4/FibreHyd';
@@ -76,6 +77,7 @@ export const Root: React.FC = () => (
     <Composition id="SeabedV" component={() => <Vert><Seabed /></Vert>} durationInFrames={SEABED_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="DogPhotoV" component={() => <svg width={1080} height={1080} viewBox="0 0 190 190"><DogBetter /></svg>} durationInFrames={1} fps={30} width={1080} height={1080} />
     <Composition id="PhotoShatterV" component={PhotoShatter3D} durationInFrames={SHATTER_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="HookTravelV" component={() => <Vert><HookGlobeTravel /></Vert>} durationInFrames={HOOK_TRAVEL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="Part2V6" component={Part2V6} durationInFrames={PART2V6_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="SeabedBareV" component={() => <Vert><Seabed bare /></Vert>} durationInFrames={SEABED_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="SeabedRepeaterV" component={() => <Vert><SeabedRepeater /></Vert>} durationInFrames={REPEATER_FRAMES} fps={30} width={1080} height={1920} />

@@ -43,7 +43,7 @@ for k, g in enumerate(segs):
     if r.returncode: print('FAIL', g['id'], r.stderr[-400:]); sys.exit(1)
     files.append((f, g))
 # 3. hook + scenes, 0.12 s dissolves, watermark, sound
-ins = ['-i', 'video/internet-part2-hook-v11.mp4'] + sum([['-i', f] for f, g in files], []) + ['-i', 'video/part2v1/mark.png', '-i', 'v3/public/p2v6/audio.wav']
+ins = ['-i', 'video/internet-part2-hook-v12.mp4'] + sum([['-i', f] for f, g in files], []) + ['-i', 'video/part2v1/mark.png', '-i', 'v3/public/p2v6/audio.wav']
 n = len(files); fc = f'[0:v]scale={W}:{H},format=yuv420p[h];'; prev = '[h]'
 for k, (f, g) in enumerate(files):
     fc += f"{prev}[{k + 1}:v]xfade=transition=fade:duration={FADE}:offset={NA + g['at']:.3f}[x{k}];"; prev = f'[x{k}]'

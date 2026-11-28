@@ -21,7 +21,7 @@ export const R = 10;
 export const PLANET_FRAMES = 360;
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 /* the Part 2 hook turns the globe once and shows the cables only later: it sets these (lon = camera longitude by time, show = how much of the cable web and our route is visible, 0 to 1) */
-export const ov: { lon: null | ((t: number) => number); show: null | ((t: number) => number); pins: null | number; thin?: boolean; u?: null | ((t: number) => number); dense?: boolean; real?: boolean; dy?: number; alt?: null | ((t: number) => number); cut?: null | ((t: number) => number); blue?: boolean; sat?: boolean } = { lon: null, show: null, pins: null, thin: false, u: null, dense: false, real: false, alt: null };   // thin = Harsh: a thin edge on the globe and a few clear stars (hook v9)
+export const ov: { lon: null | ((t: number) => number); show: null | ((t: number) => number); pins: null | number; thin?: boolean; u?: null | ((t: number) => number); dense?: boolean; real?: boolean; dy?: number; alt?: null | ((t: number) => number); cut?: null | ((t: number) => number); cam?: null | ((t: number) => { lon: number; lat: number; d: number; fov: number }); blue?: boolean; sat?: boolean } = { lon: null, show: null, pins: null, thin: false, u: null, dense: false, real: false, alt: null };   // thin = Harsh: a thin edge on the globe and a few clear stars (hook v9)
 const seg = (t: number, a: number, b: number) => smooth((t - a) / (b - a));
 export const ll = (p: LL, r = R) => { const la = (p[1] * Math.PI) / 180, lo = (p[0] * Math.PI) / 180; return V(r * Math.cos(la) * Math.cos(lo), r * Math.sin(la), -r * Math.cos(la) * Math.sin(lo)); };
 const CITIES: LL[] = [MUMBAI, LONDON, [78.5, 17.4], [77.2, 28.6], [77.6, 13], [80.3, 13.1], [88.4, 22.6], [67, 24.9], [55.3, 25.3], [46.7, 24.7], [51.4, 35.7], [31.2, 30], [29, 41], [37.6, 55.8], [2.35, 48.9], [13.4, 52.5], [-3.7, 40.4], [12.5, 41.9], [103.8, 1.3], [114.2, 22.3], [121.5, 31.2], [139.8, 35.7], [126.9, 37.5], [116.4, 39.9], [100.5, 13.8], [106.8, -6.2], [151.2, -33.9], [144.9, -37.8], [18.4, -33.9], [28, -26.2], [3.4, 6.4], [36.8, -1.3], [-74, 40.7], [-118.2, 34], [-87.6, 41.9], [-99.1, 19.4], [-46.6, -23.5], [-58.4, -34.6], [-43.2, -22.9], [-79.4, 43.7], [-122.4, 37.8], [-80.2, 25.8]];
@@ -68,7 +68,7 @@ const CAM: CK[] = [
   { t: 6.6, lon: 42, lat: 20, d: 30, tl: null, fov: 40 },            // back and up: the whole Earth and the web
   { t: 12, lon: 14, lat: 26, d: 31, tl: null, fov: 40 },             // slow drift round towards Europe
 ];
-const camAt = (t: number) => { let i = 0; while (i < CAM.length - 2 && t > CAM[i + 1].t) i++; const a = CAM[i], b = CAM[i + 1], u = smooth((t - a.t) / (b.t - a.t));
+const camAt = (t: number) => { if (ov.cam) { const c = ov.cam(t); return { p: ll([c.lon, c.lat], c.d), l: V(0, 0, 0), fov: c.fov }; } let i = 0; while (i < CAM.length - 2 && t > CAM[i + 1].t) i++; const a = CAM[i], b = CAM[i + 1], u = smooth((t - a.t) / (b.t - a.t));
   const far = F.v ? 0.86 : 1, p = ll([ov.lon ? ov.lon(t) : lerp(a.lon, b.lon, u), lerp(a.lat, b.lat, u)], lerp(a.d * (a.tl ? 1 : far), b.d * (b.tl ? 1 : far), u)), ta = a.tl ? ll(a.tl) : V(0, 0, 0), tb = b.tl ? ll(b.tl) : V(0, 0, 0); return { p, l: ta.lerp(tb, u), fov: lerp(a.fov, b.fov, u) }; };
 /* once the whole Earth is in view it sits left of centre, leaving the right side for the words */
 const shift = (t: number) => (F.v ? 0 : 330 * seg(t, 3.6, 6.6));
