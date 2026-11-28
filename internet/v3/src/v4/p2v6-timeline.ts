@@ -81,16 +81,29 @@ export default {
    "fade": true
   },
   {
+   "id": "pb",
+   "group": "pb",
+   "folder": "rf6",
+   "file": "p2v6/pb.mp4",
+   "off": 0,
+   "a": 0.0,
+   "b": 4.0,
+   "at": 9.9505,
+   "end": 13.7505,
+   "speed": 1.0526,
+   "fade": true
+  },
+  {
    "id": "pa",
    "group": "pa",
    "folder": "rf",
    "file": "p2v6/pa.mp4",
    "off": 0,
-   "a": 0.0,
+   "a": 2.6,
    "b": 8.67,
-   "at": 9.9505,
+   "at": 13.7505,
    "end": 19.8319,
-   "speed": 0.8774,
+   "speed": 0.9981,
    "fade": true
   },
   {
