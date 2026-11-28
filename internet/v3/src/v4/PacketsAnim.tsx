@@ -19,8 +19,8 @@ export const PacketsA: React.FC = () => { const f = useCurrentFrame(), t = f / 3
     <div style={{ position: 'absolute', left: 0, right: 0, top: 740, textAlign: 'center', font: `900 190px/1 ${FONT.ui}`, color: GOLD, textShadow: '0 0 40px rgba(255,180,84,.55), 0 8px 18px rgba(0,0,0,.7)', opacity: sm(t / 0.5) }}>{count.toLocaleString('en-US')}</div>
     <div style={{ position: 'absolute', left: 0, right: 0, top: 950, textAlign: 'center', font: `800 60px ${FONT.ui}`, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,.8)', opacity: sm(t / 0.5) }}>packets</div>
     <Ms v={2} /></AbsoluteFill>); };
-export const PACKETS_B_FRAMES = 150;
-export const LabelB: React.FC = () => { const f = useCurrentFrame(), t = f / 30, grow = eo(t / 1.3), up = sm((t - 2.6) / 0.8), rows = [sm((t - 1.4) / 0.5), sm((t - 1.8) / 0.5)], card = sm((t - 3.0) / 0.6);
+export const PACKETS_B_FRAMES = 240;
+export const LabelB: React.FC = () => { const f = useCurrentFrame(), t = f / 30, grow = eo(t / 1.6), up = sm((t - 3.4) / 0.9), rows = [sm((t - 1.8) / 0.6), sm((t - 2.4) / 0.6)], card = sm((t - 4.2) / 0.7);
   const sc = lp(0.18, 1, grow), cy = lp(900, lp(640, 470, 0), up), y0 = lp(820, 440, up), s2 = lp(1, 0.62, up);
   return (<AbsoluteFill><Bg /><svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
     {Array.from({ length: 60 }).map((_, k) => { const [cx, cy2] = cloud(k); return <Pk key={k} x={cx} y={cy2} w={50 + hash(k + 9) * 90} rot={(hash(k + 4) - 0.5) * 60} o={0.22 * (1 - grow * 0.6)} />; })}

@@ -6,21 +6,21 @@ import { FONT } from '../lib/palette';
 import { DogPhoto } from './Story';
 /* Part 2, after the hook: the photo breaks into blocks, becomes ones and zeros, is ENCRYPTED, a zoom lens finds nothing, then the gold packets and the address label (STILL STORYBOARD, 9:16). The tower comes later. */
 const GOLD = '#ffb454', GOLD2 = '#ffd38a', INK = '#2a1630', CREAM = '#fff1dc';
-const Bg: React.FC = () => <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><defs><radialGradient id="eb" cx="50%" cy="42%" r="75%"><stop offset="0" stopColor="#101a4a" /><stop offset="1" stopColor="#04061a" /></radialGradient></defs><rect width={1080} height={1920} fill="url(#eb)" />{[...Array(50)].map((_, k) => <circle key={k} cx={hash(k) * 1080} cy={hash(k + 40) * 1920} r={1 + hash(k + 3) * 1.4} fill="#cfd8ff" opacity={0.35} />)}</svg>;
-const Ms: React.FC<{ v: string }> = ({ v }) => <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{v}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>;
+export const Bg: React.FC = () => <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><defs><radialGradient id="eb" cx="50%" cy="42%" r="75%"><stop offset="0" stopColor="#101a4a" /><stop offset="1" stopColor="#04061a" /></radialGradient></defs><rect width={1080} height={1920} fill="url(#eb)" />{[...Array(50)].map((_, k) => <circle key={k} cx={hash(k) * 1080} cy={hash(k + 40) * 1920} r={1 + hash(k + 3) * 1.4} fill="#cfd8ff" opacity={0.35} />)}</svg>;
+export const Ms: React.FC<{ v: string }> = ({ v }) => <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{v}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>;
 const Cap: React.FC<{ t: string; y?: number }> = ({ t, y = 1640 }) => <div style={{ position: 'absolute', left: 0, right: 0, top: y, display: 'flex', justifyContent: 'center' }}><div style={{ padding: '16px 36px', borderRadius: 40, background: '#2a1630', border: '3px solid #ffb454', font: `800 46px/1 ${FONT.ui}`, color: CREAM, textAlign: 'center' }}>{t}</div></div>;
 /* a dog block: a piece of the photo as a solid 3D block */
-const Block: React.FC<{ x: number; y: number; s: number; rot: number; i: number; j: number; n: number }> = ({ x, y, s, rot, i, j, n }) => (
+export const Block: React.FC<{ x: number; y: number; s: number; rot: number; i: number; j: number; n: number }> = ({ x, y, s, rot, i, j, n }) => (
   <g transform={`translate(${x} ${y}) rotate(${rot})`} style={{ filter: 'drop-shadow(14px 20px 14px rgba(0,0,0,.65))' }}>
     <rect x={-s / 2 + 10} y={-s / 2 + 12} width={s} height={s} rx={6} fill="#3a2418" />
     <svg x={-s / 2} y={-s / 2} width={s} height={s} viewBox={`${(j * 190) / n} ${(i * 190) / n} ${190 / n} ${190 / n}`} overflow="hidden"><DogPhoto /></svg>
     <rect x={-s / 2} y={-s / 2} width={s} height={s} rx={4} fill="none" stroke="#1a0f08" strokeWidth={3} />
   </g>);
-const Bits: React.FC<{ x: number; y: number; s: number; seed: number; lit: number }> = ({ x, y, s, seed, lit }) => (
+export const Bits: React.FC<{ x: number; y: number; s: number; seed: number; lit: number }> = ({ x, y, s, seed, lit }) => (
   <g transform={`translate(${x} ${y})`}><rect x={-s / 2} y={-s / 2} width={s} height={s} rx={8} fill="#1a1710" stroke="#4a3a1a" strokeWidth={3} />
     {[0, 1].map((r) => [0, 1, 2, 3].map((c) => { const b = hash(seed * 13 + r * 5 + c) > 0.5 ? '1' : '0'; return <text key={r + '-' + c} x={-s * 0.33 + c * s * 0.22} y={-s * 0.06 + r * s * 0.34} textAnchor="middle" fill={GOLD2} opacity={0.25 + 0.75 * lit * (b === '1' ? 1 : 0.5)} style={{ font: `800 ${s * 0.3}px ${FONT.mono}` }}>{b}</text>; }))}</g>);
 const COLS = 40, ROWS = 54, CW = 27, CH = 35;
-const Grid: React.FC<{ scramble?: boolean; mask?: boolean; seed?: number }> = ({ scramble, mask, seed = 1 }) => {
+export const Grid: React.FC<{ scramble?: boolean; mask?: boolean; seed?: number }> = ({ scramble, mask, seed = 1 }) => {
   const chars = '#%@&$?*+=<>/\\|~^';
   return (<g>
     {mask && <defs><mask id="dogmask" maskUnits="userSpaceOnUse" x={0} y={0} width={COLS * CW} height={ROWS * CH}><rect width={COLS * CW} height={ROWS * CH} fill="#000" /><svg x={60} y={150} width={COLS * CW - 120} height={COLS * CW - 120} viewBox="0 0 190 190"><DogPhoto /></svg></mask></defs>}
@@ -28,17 +28,19 @@ const Grid: React.FC<{ scramble?: boolean; mask?: boolean; seed?: number }> = ({
   </g>);
 };
 /* the dog drawn only with ones and zeros: the photo is sampled on a grid, bright where the dog is, dark on the background */
-const DogBits: React.FC = () => {
+export const DogBits: React.FC<{ reveal?: number; p?: number; tick?: number; o?: number }> = ({ reveal = 1, p = 0, tick = 0, o = 1 }) => {
   const G = 52, [cells, setCells] = useState<number[][] | null>(null), [h] = useState(() => delayRender('dog bits'));
   useEffect(() => { const url = URL.createObjectURL(new Blob([renderToStaticMarkup(<svg xmlns="http://www.w3.org/2000/svg" width={190} height={190} viewBox="0 0 190 190"><DogPhoto /></svg>)], { type: 'image/svg+xml' })), im = new Image();
     im.onload = () => { const c = document.createElement('canvas'); c.width = c.height = G; const g = c.getContext('2d')!; g.drawImage(im, 22, 28, 146, 146, 0, 0, G, G); const d = g.getImageData(0, 0, G, G).data, out: number[][] = [];
       for (let k = 0; k < G * G; k++) { const r = d[k * 4], gg = d[k * 4 + 1], b = d[k * 4 + 2], y = (k / G) | 0, bgR = 251 - (y / G) * 9, bgG = 232 - (y / G) * 48, bgB = 200 - (y / G) * 62, dist = Math.hypot(r - bgR, gg - bgG, b - bgB) / 255; out.push([Math.min(1, dist * 7), r, gg, b]); }
       setCells(out); URL.revokeObjectURL(url); continueRender(h); };
     im.onerror = () => continueRender(h); im.src = url; }, []);
-  const cw = 20;
-  return (<g transform={`translate(${(1080 - G * cw) / 2} 420)`}><defs><clipPath id="dbc"><rect width={G * cw} height={G * cw} /></clipPath></defs><g clipPath="url(#dbc)" opacity={0.26}><g transform={`scale(${(G * cw) / 146}) translate(-22 -28)`}><DogPhoto /></g></g>{cells && cells.map(([v, cr, cg, cb], k) => { const c = k % G, r = (k / G) | 0, b = hash(k * 7 + 3) > 0.5 ? '1' : '0', lit = v > 0.35; return <text key={k} x={c * cw + cw / 2} y={r * cw + 22} textAnchor="middle" fill={lit ? `rgb(${Math.min(255, cr * 1.15 + 20)},${Math.min(255, cg * 1.1 + 15)},${Math.min(255, cb * 1.0 + 10)})` : '#5a6aa8'} opacity={lit ? 1 : 0.18} style={{ font: `800 ${cw * 0.9}px ${FONT.mono}` }}>{b}</text>; })}</g>);
+  const cw = 20, syms = '#%@&$?*+=<>/\\|~^';
+  return (<g opacity={o} transform={`translate(${(1080 - G * cw) / 2} 420)`}><defs><clipPath id="dbc"><rect width={G * cw} height={G * cw} /></clipPath></defs><g clipPath="url(#dbc)" opacity={0.26 * (1 - p)}><g transform={`scale(${(G * cw) / 146}) translate(-22 -28)`}><DogPhoto /></g></g>
+    {cells && cells.map(([v, cr, cg, cb], k) => { const c = k % G, r = (k / G) | 0; if (r > reveal * G) return null; const hs = hash(k * 7 + 3 + Math.floor(tick / 5) * 31), sym = hash(k * 3 + 1) < p, ch = sym ? syms[Math.floor(hs * syms.length)] : hs > 0.5 ? '1' : '0', lit = v > 0.35;
+      return <text key={k} x={c * cw + cw / 2} y={r * cw + 22} textAnchor="middle" fill={sym ? (hs > 0.5 ? '#7fd4ff' : '#c58bff') : lit ? `rgb(${Math.min(255, cr * 1.15 + 20)},${Math.min(255, cg * 1.1 + 15)},${Math.min(255, cb * 1.0 + 10)})` : '#5a6aa8'} opacity={sym ? 0.5 : lit ? 1 : 0.18} style={{ font: `800 ${cw * 0.9}px ${FONT.mono}` }}>{ch}</text>; })}</g>);
 };
-const Lock: React.FC<{ x: number; y: number; k: number }> = ({ x, y, k }) => (<g transform={`translate(${x} ${y}) scale(${k})`} style={{ filter: 'drop-shadow(0 12px 22px rgba(0,0,0,.6)) drop-shadow(0 0 30px rgba(127,212,255,.6))' }}>
+export const Lock: React.FC<{ x: number; y: number; k: number }> = ({ x, y, k }) => (<g transform={`translate(${x} ${y}) scale(${k})`} style={{ filter: 'drop-shadow(0 12px 22px rgba(0,0,0,.6)) drop-shadow(0 0 30px rgba(127,212,255,.6))' }}>
   <path d="M -62 -40 L -62 -110 A 62 62 0 0 1 62 -110 L 62 -40" fill="none" stroke="#c9d6f0" strokeWidth={26} strokeLinecap="round" />
   <rect x={-110} y={-50} width={220} height={190} rx={30} fill="#2a7fe0" stroke="#9fd0ff" strokeWidth={6} /><circle cx={0} cy={30} r={26} fill="#0a2a5a" /><rect x={-9} y={40} width={18} height={50} rx={9} fill="#0a2a5a" /></g>);
 const Scene: React.FC<{ beat: number }> = ({ beat }) => {

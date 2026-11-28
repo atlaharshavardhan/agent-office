@@ -16,7 +16,7 @@ const Tile: React.FC<{ x: number; y: number; s: number; rot?: number; i: number;
     <rect x={-s / 2} y={s / 2 + 2} width={s} height={9} rx={3} fill="#2a1630" opacity={0.8} /><rect x={-s / 2 + 3} y={s / 2 + 5} width={s * 0.55} height={3} rx={1.5} fill="#ffd38a" />
     {tag && <g transform={`translate(0 ${-s / 2 - 18 * Math.max(1, s / 110)}) scale(${Math.max(1, s / 110)})`}><rect x={-36} y={-14} width={72} height={26} rx={6} fill="#ffd38a" /><text y={6} textAnchor="middle" fill={INK} style={{ font: `800 18px ${FONT.ui}` }}>{tag}</text></g>}
   </g>);
-const City: React.FC = () => (<g>
+export const City: React.FC = () => (<g>
   <defs><linearGradient id="pkG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffd38a" /><stop offset="1" stopColor="#d98a2a" /></linearGradient>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0a0e2c" /><stop offset="0.6" stopColor="#1a2250" /><stop offset="1" stopColor="#2a2a5a" /></linearGradient></defs>
   <rect width={1080} height={1920} fill="url(#sky)" />
@@ -24,8 +24,8 @@ const City: React.FC = () => (<g>
   {[...Array(15)].map((_, b) => { const w = 90 + hash(b) * 70, x = b * 74 - 20, h = 300 + hash(b + 5) * 520, y = 1920 - h; return <g key={b}><rect x={x} y={y} width={w} height={h} fill={b % 2 ? '#10153a' : '#0c1030'} />{[...Array(Math.floor(h / 46))].map((_, r) => [0, 1, 2].map((c) => hash(b * 99 + r * 7 + c) > 0.55 && <rect key={r + '-' + c} x={x + 12 + c * 26} y={y + 18 + r * 40} width={14} height={20} fill={hash(b + r + c) > 0.7 ? '#ffd38a' : '#7fa8ff'} opacity={0.75} />))}</g>; })}
   <rect x={0} y={1420} width={1080} height={500} fill="#0a0d26" opacity={0.65} />
 </g>);
-const PK = 2.3, PL = (1080 - PW * PK) / 2, PT = 250;      // our iPhone, big, centred
-const Ph: React.FC<{ k?: number; left?: number; top?: number; photo?: boolean; press?: boolean }> = ({ k = PK, left = PL, top = PT, photo = true, press }) => (
+export const PK = 2.3, PL = (1080 - PW * PK) / 2, PT = 250;      // our iPhone, big, centred
+export const Ph: React.FC<{ k?: number; left?: number; top?: number; photo?: boolean; press?: boolean }> = ({ k = PK, left = PL, top = PT, photo = true, press }) => (
   <IPhone v18 left={left} top={top} o={1} name="Girlfriend" avatar="#e0705a" k={k}>
     <div style={{ position: 'absolute', left: 8, top: 6, background: '#26252a', color: '#fff', borderRadius: '14px 14px 14px 4px', padding: '5px 10px', font: `700 15px ${FONT.ui}` }}>Send me a photo!</div>
     {photo && <div style={{ position: 'absolute', left: 36, top: 52, width: 176, height: 176, borderRadius: 14, overflow: 'hidden', border: '2px solid #0a84ff' }}><svg width={176} height={176} viewBox="0 0 190 190"><DogPhoto /></svg></div>}

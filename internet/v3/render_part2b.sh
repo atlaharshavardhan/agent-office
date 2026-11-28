@@ -4,13 +4,19 @@ cd "$(dirname "$0")"; C=../video/part2b; mkdir -p $C
 job() { ID=$1; A=$2; B=$3; OUT=$4; : > $C/$OUT.txt
   for a in $(seq $A 30 $B); do b=$((a+29)); [ $b -gt $B ] && b=$B; g=$C/$OUT-$a.mp4; echo "file '$OUT-$a.mp4'" >> $C/$OUT.txt; [ -f "$g" ] && continue
     for try in 1 2 3 4; do
-      npx remotion render bundleS1 $ID $C/tmp-$OUT-$a.mp4 --frames=$a-$b --muted --codec=h264 --crf=16 --concurrency=1 --gl=swangle --timeout=300000 > /dev/null 2>&1
+      npx remotion render bundleS2 $ID $C/tmp-$OUT-$a.mp4 --frames=$a-$b --muted --codec=h264 --crf=16 --concurrency=1 --gl=swangle --timeout=300000 > /dev/null 2>&1
       [ -f $C/tmp-$OUT-$a.mp4 ] || continue
       python3 check_glitch.py $C/tmp-$OUT-$a.mp4 | grep -q "glitch_frames=0 " && break; echo "glitch in $OUT $a, try $try"; rm -f $C/tmp-$OUT-$a.mp4; done
     [ -f $C/tmp-$OUT-$a.mp4 ] && mv $C/tmp-$OUT-$a.mp4 "$g" && echo "ok $OUT $a" || { echo "FAILED $OUT $a"; exit 1; }; done
   rm -f $C/$OUT.mp4; ffmpeg -v error -y -f concat -safe 0 -i $C/$OUT.txt -c copy $C/$OUT.mp4; echo "DONE $OUT"; }
+job S1V 0 159 s1
+job S2V 0 89 s2
+job S3V 0 81 s3
+job S4V 0 89 s4
+job S5V 0 87 s5
+job S6V 0 107 s6
 job PktAV 0 119 pa
-job PktLabelBV 0 149 pb
+job PktLabelBV 0 239 pb
 job TowerShotV 0 189 tw
 job UndergroundV 0 269 ug
 echo ALLDONE

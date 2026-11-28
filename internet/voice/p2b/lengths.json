@@ -1,14 +1,26 @@
 {
  "lengths": {
+  "s1": 4.672,
+  "s2": 2.645,
+  "s3": 2.24,
+  "s4": 2.603,
+  "s5": 2.496,
+  "s6": 3.349,
   "p1": 2.773,
-  "p2": 3.477,
+  "p2": 7.147,
   "p3": 2.795,
   "p4": 1.856,
   "p5": 5.205
  },
  "text": {
+  "s1": "Let's start where the photo starts: your phone, in Hyderabad. You tap send.",
+  "s2": "First, the photo breaks into tiny pieces.",
+  "s3": "Each piece is just ones and zeros.",
+  "s4": "Your whole photo, only ones and zeros.",
+  "s5": "Then your phone locks it. It is encrypted.",
+  "s6": "If anyone tries to look, they find nothing. Only noise.",
   "p1": "Now it is cut into about 2,000 packets.",
-  "p2": "Every packet gets a label: where it is going, and its number.",
+  "p2": "Every packet gets a label: where it is going, where it came from, and its number, so the pieces can be put back in order.",
   "p3": "Then radio waves carry them to a mobile tower.",
   "p4": "Its antennas catch the signal.",
   "p5": "A box at the bottom turns it into light, and sends it down a glass cable, under the street."

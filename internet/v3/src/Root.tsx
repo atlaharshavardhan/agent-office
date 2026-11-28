@@ -4,6 +4,7 @@ import { Prototype } from './Prototype';
 import { Vert, Horiz } from './v4/frame';
 import { FiberJourney, FIBER_FRAMES } from './v4/Fiber';
 import { FbB2, FbB3, FbB4 } from './v4/FibreHyd';
+import { S1Phone, S1_FRAMES, S2Break, S2_FRAMES, S3Bits, S3_FRAMES, S4Dog, S4_FRAMES, S5Lock, S5_FRAMES, S6Lens, S6_FRAMES } from './v4/StartAnim';
 import { PacketsA, PACKETS_A_FRAMES, LabelB, PACKETS_B_FRAMES } from './v4/PacketsAnim';
 import { TowerShot, TOWER_SHOT_FRAMES } from './v4/TowerHyd';
 import { TwB1, TwB2, TwB3, TwB4 } from './v4/TowerHyd';
@@ -66,6 +67,12 @@ export const Root: React.FC = () => (
     <Composition id="FbB2V" component={FbB2} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="FbB3V" component={FbB3} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="FbB4V" component={FbB4} durationInFrames={30} fps={30} width={1080} height={1920} />
+    <Composition id="S1V" component={S1Phone} durationInFrames={S1_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="S2V" component={S2Break} durationInFrames={S2_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="S3V" component={S3Bits} durationInFrames={S3_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="S4V" component={S4Dog} durationInFrames={S4_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="S5V" component={S5Lock} durationInFrames={S5_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="S6V" component={S6Lens} durationInFrames={S6_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="PktAV" component={PacketsA} durationInFrames={PACKETS_A_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="PktLabelBV" component={LabelB} durationInFrames={PACKETS_B_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="TowerShotV" component={() => <Vert><TowerShot /></Vert>} durationInFrames={TOWER_SHOT_FRAMES} fps={30} width={1080} height={1920} />
