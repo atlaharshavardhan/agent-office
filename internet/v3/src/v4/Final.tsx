@@ -77,3 +77,27 @@ export const GlobeSat: React.FC = () => {
   </AbsoluteFill>);
 };
 export const SeabedLight12: React.FC = () => <SeabedLight from={27} to={53} start={85} frames={45} />;
+
+/* shot 2 of the 12 s hook: the globe with the satellite question FIRST. The photo has just landed on the Hyderabad pin and starts along the cable (0 to 11 ms), a satellite flies in with "?", a red cross, "No". */
+export const GlobeSatStart: React.FC = () => {
+  const f = useCurrentFrame(), t = f / 30, T0 = 300 / 30;
+  ov.lon = () => 40; ov.show = () => 1; ov.pins = 0;
+  const q = prog(f, 0.05, 0.4, easeOut), no = prog(f, 0.95, 1.25, easeOut), satIn = prog(f, 0, 0.5, easeOut), land = prog(f, 0, 0.25, easeOut);
+  const u = 0.15 * easeInOut(clamp01((t - 0.3) / 1.6)), pt = T0 + t;
+  const [x, y, front] = project(pt, ll(routeAt(MAIN, u) as unknown as LL, R * 1.012));
+  const sx = lerp(1010, 790, satIn), sy = lerp(560, 690, satIn) + Math.sin(t * 2) * 5, ms = Math.round(11 * easeInOut(clamp01((t - 0.3) / 1.6)));
+  const chip = (txt: string, o: number, col: string) => <div style={{ position: 'absolute', left: 0, right: 0, top: 236, display: 'flex', justifyContent: 'center', opacity: o }}><div style={{ padding: '14px 34px', borderRadius: 32, background: 'rgba(10,14,36,.9)', border: `3px solid ${col}`, font: `800 42px/1 ${FONT.ui}`, color: '#fff', whiteSpace: 'nowrap' }}>{txt}</div></div>;
+  return (<AbsoluteFill style={{ backgroundColor: '#14091c' }}>
+    <Sequence from={-300}><Planet /></Sequence>
+    <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
+      <defs><radialGradient id="gs2"><stop offset="0" stopColor="#ffe3a0" stopOpacity={0.9} /><stop offset="1" stopColor="#ffb454" stopOpacity={0} /></radialGradient></defs>
+      <g opacity={satIn * (1 - no * 0.6)}><Sat x={sx} y={sy} s={1.1} rot={-18} /></g>
+      <g opacity={q * (1 - no)} transform={`translate(${sx - 150} ${sy - 85})`}><circle r={46} fill="#ffd38a" /><text y={20} textAnchor="middle" fill="#07102c" style={{ font: `900 64px ${FONT.ui}` }}>?</text></g>
+      <g opacity={no}><line x1={sx - 130} y1={sy - 90} x2={sx + 130} y2={sy + 90} stroke="#ff5a5a" strokeWidth={16} strokeLinecap="round" /><line x1={sx + 130} y1={sy - 90} x2={sx - 130} y2={sy + 90} stroke="#ff5a5a" strokeWidth={16} strokeLinecap="round" /></g>
+      {front && <g transform={`translate(${x} ${y})`} opacity={land}><circle r={100} fill="url(#gs2)" /><rect x={-46} y={-46} width={92} height={92} rx={12} fill="#fff" stroke="#ffb454" strokeWidth={5} /><svg x={-40} y={-40} width={80} height={80} viewBox="0 0 190 190"><Charminar /></svg></g>}
+    </svg>
+    {chip('A satellite?', q * (1 - no), '#ffd38a')}{chip('No', no, '#ff7a7a')}
+    <SpeedReadout ms={ms} style={{ top: 330 }} />
+  </AbsoluteFill>);
+};
+export const SeabedLight12b: React.FC = () => <SeabedLight from={11} to={53} start={85} frames={60} />;

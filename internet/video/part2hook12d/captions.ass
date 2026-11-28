@@ -1,0 +1,17 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 2
+
+[V4+ Styles]
+Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding
+Style: Cap,DejaVu Sans,50,&H00FFFFFF,&H00B9A3A0,&H00220A07,&H96000000,-1,0,0,0,100,100,0,0,1,5,2,2,110,150,470,1
+
+[Events]
+Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
+Dialogue: 0,0:00:00.15,0:00:02.21,Cap,,0,0,0,,{\k17\1c&HFFFFFF&}You {\k17\1c&HFFFFFF&}hit {\k28\1c&HFFFFFF&}send. {\k17\1c&HFFFFFF&}She {\k23\1c&HFFFFFF&}gets {\k11\1c&HFFFFFF&}it\N{\k34\1c&H54B4FF&}before {\k17\1c&H54B4FF&}you {\k34\1c&H54B4FF&}blink.
+Dialogue: 0,0:00:02.45,0:00:04.42,Cap,,0,0,0,,{\k25\1c&HFFFFFF&}A {\k127\1c&H54B4FF&}satellite? {\k38\1c&H54B4FF&}No.
+Dialogue: 0,0:00:04.40,0:00:06.74,Cap,,0,0,0,,{\k25\1c&HFFFFFF&}Just {\k38\1c&H54B4FF&}light, {\k44\1c&HFFFFFF&}through {\k13\1c&HFFFFFF&}a\N{\k32\1c&HFFFFFF&}cable {\k32\1c&H54B4FF&}under {\k19\1c&H54B4FF&}the {\k25\1c&H54B4FF&}sea,
+Dialogue: 0,0:00:06.70,0:00:07.92,Cap,,0,0,0,,{\k50\1c&H54B4FF&}sixty-five {\k65\1c&H54B4FF&}milliseconds.
+Dialogue: 0,0:00:09.95,0:00:11.34,Cap,,0,0,0,,{\k41\1c&H54B4FF&}How? {\k51\1c&HFFFFFF&}Let's {\k41\1c&HFFFFFF&}see.

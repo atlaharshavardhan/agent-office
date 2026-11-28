@@ -8,6 +8,11 @@ VOICE = "TX3LPaxmHKxFdv7VOQHJ"; SET = {"stability": 0.3, "similarity_boost": 0.8
 L = [
  ("s1", "Imagine the movement when you click send."),
  ("s2", "How does it travel to your girlfriend, who is in London?"),
+ ("w1", "You hit send. She gets it before you blink."),
+ ("n2", "A satellite? No."),
+ ("n3", "Just light, through a cable under the sea,"),
+ ("n4", "sixty-five milliseconds."),
+ ("n5", "How? Let's see."),
  ("q1", "Or does a satellite carry it?"),
  ("q2", "No. Almost all of it goes under the sea."),
  ("s4", "So how did it get there?"),

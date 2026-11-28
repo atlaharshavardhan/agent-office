@@ -9,7 +9,7 @@ import { Charminar, CharminarArt, PaperPhoto, DeskFlag, Chip, Limb, solveWrist, 
    His phone lies on the desk with the photo ready in the chat to Meera; his right index finger reaches, holds on the send arrow, taps; the photo lifts off the screen. */
 export const HYD_ROOM_FRAMES = 150;
 export const WIN_PANE = { x0: 672, y0: 142, x1: 812, y1: 372, cx: 741, cy: 256 };   // the window pane the photo breaks (screen pixels)
-export const HYD_TIMES = { reach: 0.1, touch: 0.7, tap: 0.95, lift: 1.15, hit: 1.9 };   // the quick version for the 10 s hook: tap, the photo flies at the window, the glass breaks at 1.9 s
+export const HYD_TIMES = { reach: 0.0, touch: 0.3, tap: 0.4, lift: 0.5, hit: 1.0 };   // the quick version for the 10 s hook: tap, the photo flies at the window, the glass breaks at 1.9 s
 const SKIN_A = '#b87a50', SLEEVE: [string, string, string, string] = ['#e0a63a', '#f2c25a', '#a8761e', '#fff1d0'];   // his skin tone and an ochre shirt
 
 /* the window: Hyderabad at night, the lit Charminar, rooftops, an auto-rickshaw passing in the street (one pass over the scene), stars, no rain */
@@ -68,7 +68,7 @@ const WindowBreak: React.FC<{ t: number; T: { hit: number } }> = ({ t, T }) => {
 
 export const HydRoom: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS, T = HYD_TIMES;
-  const u = easeInOut(prog(f, T.reach, T.touch)), point = prog(f, T.reach + 0.25, T.touch - 0.05, easeOut), lift = prog(f, T.reach, T.reach + 0.3, easeOut) * (1 - 0.75 * prog(f, T.touch - 0.2, T.touch));
+  const u = easeInOut(prog(f, T.reach, T.touch)), point = prog(f, T.reach + 0.05, T.touch - 0.05, easeOut), lift = prog(f, T.reach, T.reach + 0.3, easeOut) * (1 - 0.75 * prog(f, T.touch - 0.2, T.touch));
   const tapP = prog(f, T.tap, T.tap + 0.6), press = prog(f, T.tap, T.tap + 0.25, easeOut) * (1 - prog(f, T.tap + 0.25, T.tap + 0.6));
   const sending = t >= T.tap, delivered = t >= T.tap + 0.65;
   // his phone (cherry, 18 Pro look) lies on the desk, turned a little
@@ -179,6 +179,7 @@ export const HydRoom: React.FC = () => {
         </div>
       </div>
       <Chip text="HYDERABAD · 9:12 pm" col="#ffb454" top={482} left={36} />
+      <Chip text="13,000 km → 0.065 s" col="#ffe3a0" top={575} left={36} size={44} o={prog(f, 0.05, 0.3, easeOut)} />
     </AbsoluteFill>
   );
 };
