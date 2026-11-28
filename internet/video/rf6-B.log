@@ -8,3 +8,13 @@ ok rt 180
 ok rt 210
 ok rt 240
 ok rt 270
+ok rt 300
+ok rt 330
+DONE rt
+ok sbb 90
+ok sbb 120
+ok sbb 150
+ok sbb 180
+ok sbb 210
+DONE sbb
+ALLDONE B
