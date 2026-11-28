@@ -416,9 +416,11 @@ export const FlyGlobe: React.FC = () => {
         {arrived > 0 && (() => { const [lx, ly] = project(pt, ll(LONDON_LL, R * 1.012)); return [0, 1, 2].map((i) => { const p = clamp01((arrived - i * 0.2) / 0.8); return p > 0 ? <circle key={i} cx={lx} cy={ly} r={14 + p * 70} fill="none" stroke="#fff3c8" strokeWidth={6 * (1 - p)} opacity={0.9 * (1 - p)} /> : null; }); })()}
       </svg></AbsoluteFill>
       <Chip text="Hyderabad → London" col="#ffb454" top={236} />
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 330, display: 'flex', justifyContent: 'center' }}>
-        <div style={{ font: `800 104px/1 ${FONT.mono}`, color: '#ffe3a0', textShadow: '0 4px 20px rgba(0,0,0,.8)' }}>{ms}<span style={{ fontSize: 46, color: '#fff' }}> ms</span></div></div>
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 452, textAlign: 'center', font: `700 28px/1 ${FONT.ui}`, color: '#ffd38a', opacity: 0.9 }}>the ocean crossing, about 65 ms</div>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 322, display: 'flex', justifyContent: 'center', gap: 36, alignItems: 'flex-end', textShadow: '0 4px 20px rgba(0,0,0,.8)' }}>
+        <div style={{ font: `800 96px/1 ${FONT.mono}`, color: '#ffe3a0' }}>{ms}<span style={{ fontSize: 40, color: '#fff' }}> ms</span></div>
+        <div style={{ paddingBottom: 6 }}><div style={{ font: `800 34px/1 ${FONT.mono}`, color: '#fff' }}>{(Math.round((ms / 65) * 13000 / 100) * 100).toLocaleString('en-US')}<span style={{ fontSize: 22, color: '#ffd38a' }}> km travelled</span></div>
+          <div style={{ marginTop: 8, font: `800 30px/1 ${FONT.mono}`, color: '#9fe9ff' }}>200,000<span style={{ fontSize: 21, color: '#cfe9ff' }}> km/s  light in glass</span></div></div></div>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 440, textAlign: 'center', font: `700 24px/1 ${FONT.ui}`, color: '#ffd38a', opacity: 0.9 }}>about 13,000 km of cable in about 65 ms</div>
     </AbsoluteFill>
   );
 };

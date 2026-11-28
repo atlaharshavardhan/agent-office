@@ -7,10 +7,20 @@ import { Seabed, SeabedRepeater } from './Seabed';
 import { Planet } from './Planet';
 
 /* Part 2 final cut: the existing sea clips with a millisecond counter (top right) that keeps counting up, 12 -> 34 -> 47 -> 65 ms over the cable's trip. */
+/* the readout: big ms counter, then how far the photo has gone (about 13,000 km of cable in 65 ms) and how fast: light in glass, 200,000 km/s */
+export const KM_TOTAL = 13000;
+export const SpeedReadout: React.FC<{ ms: number; style?: React.CSSProperties }> = ({ ms, style }) => {
+  const km = Math.round(((ms / 65) * KM_TOTAL) / 100) * 100;
+  return (<div style={{ position: 'absolute', right: 70, top: 290, textAlign: 'right', textShadow: '0 0 28px rgba(255,200,110,.85), 0 4px 14px rgba(0,0,0,.75)', ...style }}>
+    <div><span style={{ font: `800 104px/1 ${FONT.mono}`, color: '#ffe3a0', letterSpacing: '0.02em' }}>{String(ms).padStart(3, '0')}</span><span style={{ font: `800 40px/1 ${FONT.mono}`, color: '#fff', marginLeft: 10 }}>ms</span></div>
+    <div style={{ marginTop: 12, font: `800 38px/1 ${FONT.mono}`, color: '#fff' }}>{km.toLocaleString('en-US')}<span style={{ fontSize: 26, color: '#ffd38a' }}> km travelled</span></div>
+    <div style={{ marginTop: 10, font: `800 34px/1 ${FONT.mono}`, color: '#9fe9ff' }}>200,000<span style={{ fontSize: 24, color: '#cfe9ff' }}> km/s</span></div>
+    <div style={{ marginTop: 8, font: `600 21px/1 ${FONT.ui}`, color: '#cdbfdc' }}>light in glass</div>
+  </div>);
+};
 const Hud: React.FC<{ from: number; to: number; start: number; frames: number }> = ({ from, to, start, frames }) => {
   const f = useCurrentFrame(), v = Math.round(lerp(from, to, easeInOut(clamp01((f - start) / frames))));
-  return (<div style={{ position: 'absolute', right: 96, top: 300, textAlign: 'right', fontFamily: FONT.mono, textShadow: '0 0 28px rgba(255,200,110,.85), 0 4px 14px rgba(0,0,0,.7)' }}>
-    <span style={{ font: `800 104px/1 ${FONT.mono}`, color: '#ffe3a0', letterSpacing: '0.02em' }}>{String(v).padStart(3, '0')}</span><span style={{ font: `800 40px/1 ${FONT.mono}`, color: '#fff', marginLeft: 10 }}>ms</span></div>);
+  return <SpeedReadout ms={v} />;
 };
 export const SeabedMs: React.FC = () => (<AbsoluteFill><Vert><Seabed /></Vert><Hud from={12} to={34} start={0} frames={90} /></AbsoluteFill>);
 export const RepeaterMs: React.FC = () => (<AbsoluteFill><Vert><SeabedRepeater /></Vert><Hud from={34} to={47} start={0} frames={72} /></AbsoluteFill>);

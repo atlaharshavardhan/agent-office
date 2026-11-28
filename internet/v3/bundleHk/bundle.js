@@ -118618,12 +118618,28 @@ const SeabedRepeater = () => {
 
 
 
+const KM_TOTAL = 13e3;
+const SpeedReadout = ({ ms, style }) => {
+  const km = Math.round(ms / 65 * KM_TOTAL / 100) * 100;
+  return /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { style: { position: "absolute", right: 70, top: 290, textAlign: "right", textShadow: "0 0 28px rgba(255,200,110,.85), 0 4px 14px rgba(0,0,0,.75)", ...style }, children: [
+    /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { children: [
+      /* @__PURE__ */ (0,jsx_runtime.jsx)("span", { style: { font: `800 104px/1 ${FONT.mono}`, color: "#ffe3a0", letterSpacing: "0.02em" }, children: String(ms).padStart(3, "0") }),
+      /* @__PURE__ */ (0,jsx_runtime.jsx)("span", { style: { font: `800 40px/1 ${FONT.mono}`, color: "#fff", marginLeft: 10 }, children: "ms" })
+    ] }),
+    /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { style: { marginTop: 12, font: `800 38px/1 ${FONT.mono}`, color: "#fff" }, children: [
+      km.toLocaleString("en-US"),
+      /* @__PURE__ */ (0,jsx_runtime.jsx)("span", { style: { fontSize: 26, color: "#ffd38a" }, children: " km travelled" })
+    ] }),
+    /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { style: { marginTop: 10, font: `800 34px/1 ${FONT.mono}`, color: "#9fe9ff" }, children: [
+      "200,000",
+      /* @__PURE__ */ (0,jsx_runtime.jsx)("span", { style: { fontSize: 24, color: "#cfe9ff" }, children: " km/s" })
+    ] }),
+    /* @__PURE__ */ (0,jsx_runtime.jsx)("div", { style: { marginTop: 8, font: `600 21px/1 ${FONT.ui}`, color: "#cdbfdc" }, children: "light in glass" })
+  ] });
+};
 const Hud = ({ from, to, start, frames }) => {
   const f = (0,esm.useCurrentFrame)(), v = Math.round(lerp(from, to, easeInOut(clamp01((f - start) / frames))));
-  return /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { style: { position: "absolute", right: 96, top: 300, textAlign: "right", fontFamily: FONT.mono, textShadow: "0 0 28px rgba(255,200,110,.85), 0 4px 14px rgba(0,0,0,.7)" }, children: [
-    /* @__PURE__ */ (0,jsx_runtime.jsx)("span", { style: { font: `800 104px/1 ${FONT.mono}`, color: "#ffe3a0", letterSpacing: "0.02em" }, children: String(v).padStart(3, "0") }),
-    /* @__PURE__ */ (0,jsx_runtime.jsx)("span", { style: { font: `800 40px/1 ${FONT.mono}`, color: "#fff", marginLeft: 10 }, children: "ms" })
-  ] });
+  return /* @__PURE__ */ (0,jsx_runtime.jsx)(SpeedReadout, { ms: v });
 };
 const SeabedMs = () => /* @__PURE__ */ (0,jsx_runtime.jsxs)(esm.AbsoluteFill, { children: [
   /* @__PURE__ */ (0,jsx_runtime.jsx)(Vert, { children: /* @__PURE__ */ (0,jsx_runtime.jsx)(Seabed, {}) }),
@@ -119286,11 +119302,23 @@ const FlyGlobe = () => {
       })()
     ] }) }),
     /* @__PURE__ */ (0,jsx_runtime.jsx)(Chip, { text: "Hyderabad \u2192 London", col: "#ffb454", top: 236 }),
-    /* @__PURE__ */ (0,jsx_runtime.jsx)("div", { style: { position: "absolute", left: 0, right: 0, top: 330, display: "flex", justifyContent: "center" }, children: /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { style: { font: `800 104px/1 ${FONT.mono}`, color: "#ffe3a0", textShadow: "0 4px 20px rgba(0,0,0,.8)" }, children: [
-      ms,
-      /* @__PURE__ */ (0,jsx_runtime.jsx)("span", { style: { fontSize: 46, color: "#fff" }, children: " ms" })
-    ] }) }),
-    /* @__PURE__ */ (0,jsx_runtime.jsx)("div", { style: { position: "absolute", left: 0, right: 0, top: 452, textAlign: "center", font: `700 28px/1 ${FONT.ui}`, color: "#ffd38a", opacity: 0.9 }, children: "the ocean crossing, about 65 ms" })
+    /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { style: { position: "absolute", left: 0, right: 0, top: 322, display: "flex", justifyContent: "center", gap: 36, alignItems: "flex-end", textShadow: "0 4px 20px rgba(0,0,0,.8)" }, children: [
+      /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { style: { font: `800 96px/1 ${FONT.mono}`, color: "#ffe3a0" }, children: [
+        ms,
+        /* @__PURE__ */ (0,jsx_runtime.jsx)("span", { style: { fontSize: 40, color: "#fff" }, children: " ms" })
+      ] }),
+      /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { style: { paddingBottom: 6 }, children: [
+        /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { style: { font: `800 34px/1 ${FONT.mono}`, color: "#fff" }, children: [
+          (Math.round(ms / 65 * 13e3 / 100) * 100).toLocaleString("en-US"),
+          /* @__PURE__ */ (0,jsx_runtime.jsx)("span", { style: { fontSize: 22, color: "#ffd38a" }, children: " km travelled" })
+        ] }),
+        /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { style: { marginTop: 8, font: `800 30px/1 ${FONT.mono}`, color: "#9fe9ff" }, children: [
+          "200,000",
+          /* @__PURE__ */ (0,jsx_runtime.jsx)("span", { style: { fontSize: 21, color: "#cfe9ff" }, children: " km/s  light in glass" })
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ (0,jsx_runtime.jsx)("div", { style: { position: "absolute", left: 0, right: 0, top: 440, textAlign: "center", font: `700 24px/1 ${FONT.ui}`, color: "#ffd38a", opacity: 0.9 }, children: "about 13,000 km of cable in about 65 ms" })
   ] });
 };
 
