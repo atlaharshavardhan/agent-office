@@ -37,9 +37,9 @@ const Waves: React.FC = () => (<group position={[0.3, 3.4, 0]} quaternion={new T
 /* the signal waves: big, soft, see-through glowing shells (bright thin edge, clear inside) that grow out of the antennas, like the reference */
 const shellMat = (o: number) => new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, uniforms: { o: { value: o } },
   vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix*vec4(position,1.); vN = normalize(normalMatrix*normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }',
-  fragmentShader: 'uniform float o; varying vec3 vN; varying vec3 vV; void main(){ float d = abs(dot(normalize(vN), normalize(vV))); float f = pow(1.0 - d, 2.6); vec3 c = mix(vec3(1.0,0.62,0.18), vec3(1.0,0.86,0.5), f); gl_FragColor = vec4(c * (0.10 + 1.3*f) * o, (0.05 + 0.85*f) * o); }' });
-const Signal: React.FC<{ radii: number[] }> = ({ radii }) => { const mats = React.useMemo(() => radii.map((_, k) => shellMat(1 - k * 0.22)), [radii.join(',')]);
-  return <group position={[TOWER.x, BASE + 21.2, TOWER.z]}>{radii.map((r, k) => <mesh key={k} material={mats[k]}><sphereGeometry args={[r, 96, 64]} /></mesh>)}</group>; };
+  fragmentShader: 'uniform float o; varying vec3 vN; varying vec3 vV; void main(){ float d = abs(dot(normalize(vN), normalize(vV))); float f = pow(1.0 - d, 2.6); vec3 c = mix(vec3(1.0,0.62,0.18), vec3(1.0,0.86,0.5), f); gl_FragColor = vec4(c * (0.04 + 1.1*f) * o, (0.02 + 0.7*f) * o); }' });
+const Signal: React.FC<{ radii: number[] }> = ({ radii }) => { const mats = React.useMemo(() => radii.map((_, k) => shellMat(0.38 - k * 0.07)), [radii.join(',')]);
+  return <group position={[TOWER.x, BASE + 21.2, TOWER.z]}>{radii.map((r, k) => <mesh key={k} material={mats[k]}><sphereGeometry args={[r, 96, 40, 0, Math.PI * 2, 0, Math.PI / 2]} /></mesh>)}</group>; };
 const Panels: React.FC = () => (<group position={[TOWER.x, BASE + 20.4, TOWER.z]}>
   {/* walkway ring with a soft railing, a radio unit behind each antenna, a dish, cable bundles */}
   <mesh position={[0, -1.2, 0]}><cylinderGeometry args={[1.9, 1.9, 0.12, 6]} /><meshStandardMaterial color="#5a6aa0" roughness={0.6} metalness={0.4} /></mesh>
