@@ -1,0 +1,17 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 2
+
+[V4+ Styles]
+Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding
+Style: Cap,DejaVu Sans,50,&H00FFFFFF,&H00B9A3A0,&H00220A07,&H96000000,-1,0,0,0,100,100,0,0,1,5,2,2,110,150,470,1
+
+[Events]
+Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
+Dialogue: 0,0:00:00.10,0:00:03.06,Cap,,0,0,0,,{\k44\1c&HFFFFFF&}Imagine {\k44\1c&HFFFFFF&}sending {\k13\1c&HFFFFFF&}a\N{\k31\1c&H54B4FF&}photo {\k13\1c&HFFFFFF&}to {\k25\1c&HFFFFFF&}your\N{\k63\1c&H54B4FF&}girlfriend {\k13\1c&HFFFFFF&}in {\k44\1c&HFFFFFF&}London.
+Dialogue: 0,0:00:03.05,0:00:05.05,Cap,,0,0,0,,{\k25\1c&HFFFFFF&}You'd {\k25\1c&HFFFFFF&}think {\k10\1c&HFFFFFF&}it {\k36\1c&HFFFFFF&}travels\N{\k36\1c&HFFFFFF&}through {\k10\1c&HFFFFFF&}a {\k51\1c&H54B4FF&}satellite,
+Dialogue: 0,0:00:05.05,0:00:07.93,Cap,,0,0,0,,{\k17\1c&HFFFFFF&}but {\k11\1c&HFFFFFF&}it {\k45\1c&HFFFFFF&}actually {\k39\1c&HFFFFFF&}crosses\N{\k17\1c&HFFFFFF&}the {\k28\1c&H54B4FF&}ocean {\k39\1c&HFFFFFF&}through {\k11\1c&HFFFFFF&}a\N{\k28\1c&HFFFFFF&}cable {\k11\1c&HFFFFFF&}as {\k34\1c&H54B4FF&}light,
+Dialogue: 0,0:00:08.95,0:00:10.54,Cap,,0,0,0,,{\k13\1c&HFFFFFF&}in {\k13\1c&HFFFFFF&}a {\k53\1c&H54B4FF&}fraction {\k13\1c&HFFFFFF&}of\N{\k13\1c&HFFFFFF&}a {\k46\1c&HFFFFFF&}second.
+Dialogue: 0,0:00:10.70,0:00:11.63,Cap,,0,0,0,,{\k37\1c&HFFFFFF&}But {\k49\1c&H54B4FF&}how?

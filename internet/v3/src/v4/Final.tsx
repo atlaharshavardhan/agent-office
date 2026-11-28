@@ -79,11 +79,11 @@ export const GlobeSat: React.FC = () => {
 export const SeabedLight12: React.FC = () => <SeabedLight from={27} to={53} start={85} frames={45} />;
 
 /* shot 2 of the 12 s hook: the globe with the satellite question FIRST. The photo has just landed on the Hyderabad pin and starts along the cable (0 to 11 ms), a satellite flies in with "?", a red cross, "No". */
-export const GlobeSatStart: React.FC = () => {
+export const GlobeSatStart: React.FC<{ cross?: boolean }> = ({ cross = true }) => {
   const f = useCurrentFrame(), t = f / 30, T0 = 300 / 30;
   ov.lon = () => 40; ov.show = () => 1; ov.pins = 0;
-  const q = prog(f, 0.05, 0.4, easeOut), no = prog(f, 0.95, 1.25, easeOut), satIn = prog(f, 0, 0.5, easeOut), land = prog(f, 0, 0.25, easeOut);
-  const u = 0.15 * easeInOut(clamp01((t - 0.3) / 1.6)), pt = T0 + t;
+  const q = prog(f, 0.05, 0.4, easeOut), no = cross ? prog(f, 0.95, 1.25, easeOut) : 0, satIn = prog(f, 0, 0.5, easeOut), land = prog(f, 0, 0.25, easeOut);
+  const u = 0.15 * easeInOut(clamp01((t - 0.3) / 1.6)), pt = T0 + t;   // (with cross=false the satellite stays with its question mark)
   const [x, y, front] = project(pt, ll(routeAt(MAIN, u) as unknown as LL, R * 1.012));
   const sx = lerp(1010, 790, satIn), sy = lerp(560, 690, satIn) + Math.sin(t * 2) * 5, ms = Math.round(11 * easeInOut(clamp01((t - 0.3) / 1.6)));
   const chip = (txt: string, o: number, col: string) => <div style={{ position: 'absolute', left: 0, right: 0, top: 236, display: 'flex', justifyContent: 'center', opacity: o }}><div style={{ padding: '14px 34px', borderRadius: 32, background: 'rgba(10,14,36,.9)', border: `3px solid ${col}`, font: `800 42px/1 ${FONT.ui}`, color: '#fff', whiteSpace: 'nowrap' }}>{txt}</div></div>;
@@ -101,3 +101,6 @@ export const GlobeSatStart: React.FC = () => {
   </AbsoluteFill>);
 };
 export const SeabedLight12b: React.FC = () => <SeabedLight from={11} to={53} start={85} frames={60} />;
+
+export const GlobeSatQ: React.FC = () => <GlobeSatStart cross={false} />;
+export const SeabedLight12c: React.FC = () => <SeabedLight from={11} to={65} start={85} frames={120} />;

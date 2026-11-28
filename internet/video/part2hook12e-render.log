@@ -1,0 +1,19 @@
+ok hyd 0
+ok hyd 30
+ok hyd 60
+DONE hyd
+ok gs 0
+ok gs 30
+DONE gs
+ok sl 85
+ok sl 115
+ok sl 145
+ok sl 175
+DONE sl
+ok lon 30
+DONE lon
+ok nt 0
+ok nt 30
+DONE nt
+ALLDONE
+END
