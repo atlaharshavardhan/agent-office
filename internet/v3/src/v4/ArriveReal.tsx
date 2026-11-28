@@ -60,12 +60,13 @@ const Scene: React.FC<{ t: number; pal: string }> = ({ t, pal }) => {
   </>); };
 export const PALS: Record<string, { base: number[]; fall: number[]; hot: number[]; emis: string; text: string }> = {
   gold: { base: [1, 0.74, 0.2], fall: [0.62, 0.46, 0.12], hot: [1, 0.97, 0.7], emis: '#7a4a08', text: '#3a2008' },
+  amber: { base: [0.98, 0.62, 0.1], fall: [0.7, 0.4, 0.06], hot: [1, 0.9, 0.5], emis: '#7a3a04', text: '#4a1a04' },
   cyan: { base: [0.22, 0.72, 1], fall: [0.12, 0.42, 0.62], hot: [0.85, 0.97, 1], emis: '#0a4a7a', text: '#04203a' },
   violet: { base: [0.62, 0.42, 1], fall: [0.36, 0.24, 0.62], hot: [0.95, 0.9, 1], emis: '#3a1a7a', text: '#160a3a' },
   teal: { base: [0.12, 0.85, 0.7], fall: [0.07, 0.5, 0.42], hot: [0.85, 1, 0.97], emis: '#066a5a', text: '#03231d' },
 };
 const lerp3 = (a: number, b: number, u: number) => a + (b - a) * u;
-export const ArriveReal: React.FC<{ pal?: string; cat?: 'dog' | 'dark' | 'gold' }> = ({ pal = 'gold', cat = 'dog' }) => {
+export const ArriveReal: React.FC<{ pal?: string; cat?: 'dog' | 'dark' | 'gold' }> = ({ pal = 'amber', cat = 'dog' }) => {
   const Photo: React.FC = () => (cat === 'dog' ? <DogPhoto /> : <CatPhoto gold={cat === 'gold'} />); const f = useCurrentFrame(), t = f / 30, ms = Math.round(lp(62, 65, sm((t - 0.3) / 9.6)));
   let landed = 0; const got: boolean[] = []; for (let n = 0; n < NT; n++) { const g = t >= TA(n) + FALL; got.push(g); if (g) landed++; }
   const count = Math.round((2000 * landed) / NT), pct = Math.round((100 * landed) / NT), TWd = 230 / COLS, THd = 230 / ROWS, hot = t < TL + 0.7 && t > 4.9 && count > 1000;
