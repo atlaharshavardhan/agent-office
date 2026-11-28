@@ -29,6 +29,8 @@ Made on 16 Nov 2026 for the first full Short draft. Source scenes are in `intern
 | 11-ShortEndA-old-ending | 4.8 s | old ending pieces, flat 2D style (probably replace) | `Short.tsx` |
 Old narration for these (Kokoro voice, now replaced by Liam) is in `old-short-voice-lines.json`; old cut list and timings in `old-short-plan.json`; old full draft: `internet/video/internet-short-v4-draft1.mp4`.
 
+## STANDING RULE FROM HARSH (28 Nov 2026): FREE VOICE FIRST. NEVER use ElevenLabs (Liam) for drafts or to try wording. Make every draft with a free voice (Kokoro, e.g. bm_george or similar, see voice/ scripts); use ElevenLabs ONLY after Harsh has said the script is final AND he says to record. Ask before every ElevenLabs call. (I broke this on 28 Nov: 839 characters were used without asking.)
+
 ## Rules learned in Part 1 (apply them to Part 2)
 - Voice: Liam, ElevenLabs, voice id `TX3LPaxmHKxFdv7VOQHJ`, model `eleven_multilingual_v2`, stability 0.3, similarity 0.8, style 0.55, speed 1.12 (script: `internet/voice/make_liam_voice.py`; the key is injected by the proxy, use a dummy header). It uses Harsh's paid characters: keep texts short and record each line once. Play speech at 1.06 and tighten pauses with `internet/audio/retime.py` (see its docstring).
 - Words: simple and short, one idea per line, check every number. Part 1 wording must not contradict Part 2 (a photo is about 2,000 packets; routers pass packets hop by hop).
