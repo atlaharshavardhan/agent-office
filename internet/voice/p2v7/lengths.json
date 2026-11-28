@@ -1,0 +1,15 @@
+{
+ "lengths": {
+  "m1": 2.304,
+  "m2": 5.824,
+  "m3": 1.899,
+  "m4": 0.853
+ },
+ "text": {
+  "m1": "You send a photo to your girlfriend in London.",
+  "m2": "But instead of flying through space, it races across the ocean as light, through a cable beneath the sea.",
+  "m3": "Seconds later, her phone buzzes.",
+  "m4": "But how?"
+ },
+ "speed": 1.2
+}
