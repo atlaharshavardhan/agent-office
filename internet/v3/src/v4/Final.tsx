@@ -131,7 +131,7 @@ const sm2 = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x * x
 export const GlobeCut: React.FC = () => {
   const f = useCurrentFrame(), t = f / 30, T0 = 7.0, tt = T0 + t, UC = 0.36, TC = 3.4, d1 = easeInOut(clamp01((t - 0.6) / (TC - 0.6))) * UC, ua = easeInOut(clamp01((t - 5.0) / 5.2));
   ov.lon = (x: number) => { const q = x - T0; return q < 3.4 ? lerp(72, 42, easeInOut(clamp01(q / 3.4))) : lerp(42, 12, easeInOut(clamp01((q - 3.4) / 7))); };
-  ov.show = () => 1; ov.pins = 0; ov.thin = true; ov.dense = true; ov.real = false; ov.u = (x: number) => { const q = x - T0; return easeInOut(clamp01((q - 0.6) / (TC - 0.6))) * UC; }; ov.alt = (x: number) => easeInOut(clamp01((x - T0 - 5.0) / 5.2));
+  ov.show = () => 1; ov.pins = 0; ov.thin = true; ov.dense = true; ov.real = false; ov.u = (x: number) => { const q = x - T0; return easeInOut(clamp01((q - 0.6) / (TC - 0.6))) * UC; }; ov.alt = (x: number) => easeInOut(clamp01((x - T0 - 5.0) / 5.2)); ov.cut = (x: number) => (x - T0 >= TC ? 1 : 0);
   const [cx, cy, cfront] = project(tt, ll(routeAt(MAIN, UC) as unknown as LL, R * 1.012)), [ax, ay, afront] = project(tt, ll(routeAt(ALT, ua) as unknown as LL, R * 1.012));
   const cut = easeOut(clamp01((t - TC) / 0.35)), drop = easeOut(clamp01((t - (TC - 0.7)) / 0.7)), blink = 0.5 + 0.5 * Math.sin(t * 10), ms = Math.round(lerp(50, 52, d1 / UC) + 8 * ua), op = easeOut(clamp01(t / 0.6));
   const c1 = easeOut(clamp01((t - 0.3) / 0.5)) * (1 - easeOut(clamp01((t - 3.0) / 0.4))), c2 = easeOut(clamp01((t - 3.4) / 0.5)) * (1 - easeOut(clamp01((t - 5.2) / 0.4))), c3 = easeOut(clamp01((t - 5.3) / 0.5)) * (1 - easeOut(clamp01((t - 10.0) / 0.4))), c4 = easeOut(clamp01((t - 10.2) / 0.5));
@@ -141,8 +141,7 @@ export const GlobeCut: React.FC = () => {
     <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}><defs><radialGradient id="gc2"><stop offset="0" stopColor="#ffffff" stopOpacity={0.95} /><stop offset="0.35" stopColor="#ffe27a" stopOpacity={0.8} /><stop offset="1" stopColor="#ffd23a" stopOpacity={0} /></radialGradient><radialGradient id="gcr"><stop offset="0" stopColor="#8a1c34" stopOpacity={0.95} /><stop offset="1" stopColor="#8a1c34" stopOpacity={0} /></radialGradient></defs>
       {cfront && t >= TC - 0.7 && <g transform={`translate(${cx} ${cy})`}>
         <g transform={`translate(0 ${-(1 - drop) * 520}) scale(1.6)`} opacity={sm2(drop * 3)}><path d="M 0 -62 L 0 38 M -22 -34 L 22 -34 M -42 14 Q -40 46 0 50 Q 40 46 42 14 M -42 14 L -56 6 M 42 14 L 56 6" fill="none" stroke="#e6f0ff" strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" /><circle cy={-72} r={12} fill="none" stroke="#e6f0ff" strokeWidth={7} /></g>
-        <g opacity={cut}><circle r={40 + 130 * (1 - cut)} fill="url(#gcr)" /><circle r={46 + 90 * (1 - cut)} fill="none" stroke="#d23c58" strokeWidth={8} opacity={0.5 + 0.5 * blink} />
-          <path d="M -34 -34 L 34 34 M 34 -34 L -34 34" stroke="#d23c58" strokeWidth={14} strokeLinecap="round" opacity={0.55 + 0.45 * blink} /></g></g>}
+        <g opacity={cut}><circle r={40 + 130 * (1 - cut)} fill="url(#gcr)" /></g></g>}
 </svg>
     <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 560, background: 'linear-gradient(#04061a 45%, rgba(4,6,26,0))', opacity: op }} />
     {cap('Almost all data travels in cables', c1)}{cap("A ship's anchor cuts one", c2, '#d94a64')}{cap('But there are many cables', c3, '#ffe04a')}{cap('So it takes another way', c4, '#ffe04a')}
