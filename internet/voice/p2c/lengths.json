@@ -1,19 +1,19 @@
 {
  "lengths": {
-  "b2": 2.837,
-  "s1": 2.304,
-  "s2": 2.304,
+  "b2": 2.603,
+  "s1": 2.219,
+  "s2": 2.219,
   "s3": 2.155,
-  "s4": 2.304,
-  "s5": 2.219,
-  "s6": 3.029,
+  "s4": 2.261,
+  "s5": 1.301,
+  "s6": 2.965,
   "o1": 1.707,
-  "o2": 2.475,
-  "p1": 2.475,
-  "p2": 3.925,
-  "p3": 2.624,
-  "p4": 1.685,
-  "p5": 4.587
+  "o2": 2.304,
+  "p1": 2.389,
+  "p2": 3.84,
+  "p3": 2.56,
+  "p4": 1.643,
+  "p5": 4.48
  },
  "text": {
   "b2": "To a computer, a photo is only ones and zeros.",
@@ -21,7 +21,7 @@
   "s2": "First, the photo breaks into tiny pieces.",
   "s3": "Every piece is just ones and zeros.",
   "s4": "Your whole photo, only ones and zeros.",
-  "s5": "Then your phone locks it. It is encrypted.",
+  "s5": "Then your phone encrypts it.",
   "s6": "If anyone tries to look, they find nothing. Only noise.",
   "o1": "But where do all these pieces go?",
   "o2": "And then, it has to cross an entire ocean.",
@@ -31,5 +31,5 @@
   "p4": "Its antennas catch the signal.",
   "p5": "A box at the bottom turns it into light, and sends it down a glass cable, under the street."
  },
- "speed": 1.25
+ "speed": 1.3
 }
