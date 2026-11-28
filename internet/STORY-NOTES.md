@@ -183,3 +183,5 @@ Mapping for Part 2: Hook = locked 12 s (v10). Lead = your phone, send, photo bre
 ## 28 Nov 2026 - PACKETS (Harsh): the packets form a 3D CLOUD (sphere), not a ring (cloud3 in v3/src/v4/PacketsAnim.tsx). The address card is the new glossy 3D label (AddressCard: gold bezel, chip header, icons, London/Hyderabad badges, progress bar, barcode, LOCKED stamp). Stills only, not rendered.
 
 ## 28 Nov 2026 - TEXT CARDS (Harsh): all label cards (Routers, Shore, Seabed, SeaCable tags) are the glossy style (blue gradient body, coloured glass border, top shine, accent bar, glow); the #1204 tag is a glossy gold tag. The router/server rack scene stays DARK (the brighter version was reverted).
+
+- OPTICAL CABLE LAYERS clip (SeaCable, "STEEL WIRES" etc.): Harsh wants it QUICK. Layers peel/appear fast, no slow moves, shorter scene (cut hold times; target about 8 s instead of 15 s). Apply when he says "render".
