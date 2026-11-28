@@ -16,6 +16,8 @@ def buzz():
     return o
 def bloop(f0):    # a pin pops in: a quick rising pitch, soft
     L = int(0.22 * SR); t = np.arange(L) / SR; f = f0 * (1 + 0.9 * (1 - np.exp(-t * 28))); ph = 2 * np.pi * np.cumsum(f) / SR; return np.sin(ph) * np.minimum(1, t / 0.004) * np.exp(-t * 14)
+def soft(d):      # ONE simple sound for the light in the cable: a low smooth tone that swells and fades (Harsh: simple, not game-like, quiet)
+    L = int(d * SR); t = np.arange(L) / SR; env = np.sin(np.pi * t / d) ** 2; return (np.sin(2 * np.pi * 196 * t) + 0.35 * np.sin(2 * np.pi * 294 * t)) * env * 0.5
 def shimmer(d):   # light racing along the cable: a glassy tone that rises, with fast tiny sparkles. A soft tone, not a whoosh.
     L = int(d * SR); t = np.arange(L) / SR; f = 520 * (1 + 1.6 * (t / d) ** 1.4); ph = 2 * np.pi * np.cumsum(f) / SR
     base = (np.sin(ph) + 0.35 * np.sin(2 * ph) + 0.2 * np.sin(3 * ph)) * (0.5 + 0.5 * np.sin(2 * np.pi * 14 * t)) * np.minimum(1, t / 0.12) * np.minimum(1, (d - t) / 0.2).clip(0)
@@ -35,11 +37,9 @@ for j in range(5):
     for k, m in enumerate(CH[j]):
         f = midi(m); tn = sum(np.sin(2 * np.pi * f * (1 + d) * t) for d in (-0.003, 0, 0.003)) / 3; put(tn * np.minimum(1, t / 1.2) * np.minimum(1, (4.4 - t) / 1.2).clip(0), j * 3.0, 0.03, (k - 1.5) * 0.4)
 put(tick(), 0.95, 0.5); g, _ = sf.read('audio/sfx-glass.wav'); put(g.mean(1) if g.ndim > 1 else g, 1.9, 0.8)
-put(bloop(520), 2.55, 0.28, -0.4); put(bloop(700), 2.95, 0.28, 0.4)                    # the two pins pop in
-put(shimmer(1.5), 3.4, 1.0, 0.0)                                                          # the light travels the cable (1.5 s)
-put(radar(), 5.15, 0.2, 0.3); put(thud(), 5.95, 0.4, 0.0); put(tone(1046, 0.5, 0.004, 0.3, 5), 6.2, 0.06)   # satellite ping, the red cross, cables light up
+put(soft(1.5), 3.4, 0.5, 0.0)                                                             # the light travels the cable (1.5 s): one soft tone
 put(tone(988, 1.0, 0.004, 0.5, 5, 0.2), 6.75, 0.09)                                       # it lands in London
 put(buzz(), 7.7, 0.22, -0.2); put(tone(1318, 0.9, 0.003, 0.5, 5, 0.25), 7.7, 0.16, 0.2)   # her phone
 put(tone(880, 1.1, 0.004, 0.6, 5, 0.2), 9.45, 0.12); put(tone(1318, 1.1, 0.004, 0.7, 5, 0.2), 9.6, 0.09)
-f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) / (0.8 * SR)); out *= f[:, None]; out = np.tanh(out * 1.2) / 1.2; out *= 0.76 / np.abs(out).max()
+f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) / (0.8 * SR)); out *= f[:, None]; out = np.tanh(out * 1.2) / 1.2; out *= 0.7 / np.abs(out).max()
 sf.write('video/part2hook12/sounds-b.wav', out, SR); subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', 'video/part2hook12/sounds-b.wav', '-c:a', 'libmp3lame', '-b:a', '192k', 'video/part2hook12/hook-sounds-b.mp3'], check=True); print('ok', round(float(np.abs(out).max()), 2))
