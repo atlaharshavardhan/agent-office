@@ -4,6 +4,13 @@ import json, subprocess, numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 W, H, FPS = 1080, 1920, 30; T = json.load(open('video/rf6/timeline.json')); NA = T['NA']; TOTAL = T['TOTAL']
 FNT = ImageFont.truetype('/usr/share/fonts/opentype/inter/Inter-ExtraBold.otf', 66)
+import os
+STYLES = {   # name: (box outline, box fill, handle fill, active word colour, glow)
+ 'gold':   ((255, 201, 74, 255), (40, 26, 4, 170), (255, 201, 74, 255), (255, 255, 255, 255), (8, 6, 22, 235)),
+ 'marker': ((255, 201, 74, 255), (255, 201, 74, 245), (255, 201, 74, 255), (14, 18, 48, 255), (8, 6, 22, 235)),
+ 'violet': ((176, 150, 255, 255), (30, 20, 70, 170), (176, 150, 255, 255), (255, 255, 255, 255), (8, 6, 22, 235)),
+ 'coral':  ((255, 122, 122, 255), (50, 14, 24, 170), (255, 122, 122, 255), (255, 255, 255, 255), (8, 6, 22, 235))}
+ST = STYLES[os.environ.get('CAPSTYLE', 'marker')]
 Y0, MAXW, LH = 1395, 930, 88          # caption block top, width and line height
 HOOK = [("The moment you hit send,", 0.10, 1.387), ("the photo pops up on your girlfriend's phone in London.", 1.60, 2.965), ("But how did it travel", 4.70, 1.387), ("across an entire ocean,", 6.20, 1.685), ("thousands of kilometres,", 8.00, 1.557), ("in the blink of an eye?", 9.70, 1.365)]
 sents = [(t, a, b - 0.0) for t, a, b in HOOK]
@@ -36,16 +43,28 @@ def render(c, active):
     for li, ln in enumerate(lines):
         tw = sum(FNT.getlength(x[0]) for x in ln) + sp * (len(ln) - 1); x = (W - tw) / 2; y = 40 + li * LH
         for w in ln:
-            ww = FNT.getlength(w[0]); pos[id(w)] = (x, y, ww); gd.text((x, y), w[0], font=FNT, fill=(6, 8, 30, 230), stroke_width=14); x += ww + sp
+            ww = FNT.getlength(w[0]); pos[id(w)] = (x, y, ww); gd.text((x, y), w[0], font=FNT, fill=ST[4], stroke_width=14); x += ww + sp
     glow = glow.filter(ImageFilter.GaussianBlur(14)); im.alpha_composite(glow); d = ImageDraw.Draw(im)
     for w in ws:
         x, y, ww = pos[id(w)]
         if w is active:   # the selection box: our cyan outline, navy fill, round handles at two corners
             bx0, by0, bx1, by1 = x - 14, y + 4, x + ww + 14, y + LH - 8
-            d.rounded_rectangle((bx0, by0, bx1, by1), 8, fill=(11, 18, 48, 150), outline=(95, 227, 255, 255), width=4)
-            for hx, hy in ((bx0, by0), (bx1, by1)): d.ellipse((hx - 9, hy - 9, hx + 9, hy + 9), fill=(95, 227, 255, 255), outline=(255, 255, 255, 255), width=3)
-        d.text((x, y), w[0], font=FNT, fill=(255, 255, 255, 255))
+            d.rounded_rectangle((bx0, by0, bx1, by1), 8, fill=ST[1], outline=ST[0], width=4)
+            for hx, hy in ((bx0, by0), (bx1, by1)): d.ellipse((hx - 9, hy - 9, hx + 9, hy + 9), fill=ST[2], outline=(255, 255, 255, 255), width=3)
+        d.text((x, y), w[0], font=FNT, fill=(ST[3] if w is active else (255, 255, 255, 255)))
     full = Image.new('RGBA', (W, H), (0, 0, 0, 0)); full.alpha_composite(im, (0, Y0 - 40)); return full.tobytes()
+if os.environ.get('CAPTEST'):
+    import sys
+    c = 3; act = chunk_words[c][2]; out = []
+    for st in ('gold', 'marker', 'violet', 'coral'):
+        os.environ['CAPSTYLE'] = st; ST = STYLES[st]; fr = Image.frombytes('RGBA', (W, H), render(c, act)); out.append((st, fr))
+    bgs = [Image.open(p).convert('RGBA').resize((W, H)) for p in sys.argv[1:]]
+    cell = []; 
+    for st, fr in out:
+        row = []
+        for b in bgs: x = b.copy(); x.alpha_composite(fr); row.append(x.crop((0, 1330, 1080, 1620)).resize((540, 145)))
+        cell.append(row)
+    sheet = Image.new('RGB', (540 * len(bgs), 145 * len(out) + 0)); [sheet.paste(r.convert('RGB'), (540 * j, 145 * i)) for i, row in enumerate(cell) for j, r in enumerate(row)]; sheet.save('/tmp/g2/capstyles.png'); sys.exit()
 blank = bytes(W * H * 4); cache = {}
 p = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-', '-c:v', 'qtrle', 'video/rf6/caps.mov'], stdin=subprocess.PIPE)
 nfr = int(TOTAL * FPS) + 2
