@@ -111,29 +111,28 @@ const Window: React.FC<{ t: number }> = ({ t }) => (<g>
   </g>
   {/* frame and mullions */}
   <rect x={540} y={130} width={500} height={860} rx={6} fill="none" stroke="#f3e6d0" strokeWidth={22} /><rect x={786} y={130} width={14} height={860} fill="#f3e6d0" /><rect x={540} y={512} width={500} height={14} fill="#f3e6d0" /><rect x={520} y={990} width={540} height={26} fill="#e6d6bc" />
-  <rect x={1010} y={110} width={80} height={900} fill="#2bb5a3" opacity={0.85} /><rect x={1036} y={110} width={6} height={900} fill="#1a8a7b" opacity={0.7} />
+  <rect x={1010} y={110} width={80} height={900} fill="#d9a13a" opacity={0.95} /><rect x={1036} y={110} width={6} height={900} fill="#a87420" opacity={0.7} />
 </g>);
 
 const PY = 0.66, TB = 905, S = (py: number) => TB + py * PY;       // the tabletop seen from above and behind her: back edge at y 905, front edge at y 1500
-/* a hand and sleeve lying on the table, in the table plane (x, y in plane px), the arm comes from the bottom (from her) */
-const Hand: React.FC<{ x: number; y: number; rot: number; skin?: string; pen?: boolean; wob?: number }> = ({ x, y, rot, skin = '#c98a5e', pen, wob = 0 }) => (
+/* a hand on the table (plane x, y; fingertips about 118 above y). The arm goes down to the bottom of the picture, to her. type = fingers tapping */
+const Hand: React.FC<{ x: number; y: number; rot: number; skin?: string; type?: number; t?: number; lean?: number }> = ({ x, y, rot, skin = '#c98a5e', type = 0, t = 0, lean = 1 }) => (
   <g transform={`translate(${x} ${y}) rotate(${rot})`}>
-    <rect x={-52} y={70} width={104} height={1100} rx={40} fill="#ff7a59" /><rect x={-52} y={70} width={104} height={20} fill="#ffd38a" opacity={0.9} /><path d="M -40 150 H 40 M -40 300 H 40" stroke="#c9543a" strokeWidth={4} opacity={0.5} />
-    <rect x={-40} y={-70} width={80} height={170} rx={34} fill={skin} />
-    {[-30, -10, 10, 30].map((fx, i) => <rect key={i} x={fx - 8} y={-118 + (i % 2) * 6} width={16} height={60} rx={8} fill={skin} />)}
-    <rect x={-70} y={-20} width={36} height={22} rx={11} fill={skin} transform="rotate(-30 -50 -10)" />
-    {pen && <g transform={`rotate(${wob} 0 -100)`}><rect x={-6} y={-190} width={12} height={150} rx={6} fill="#2a3a7a" transform="rotate(16 0 -100)" /><polygon points="-5,-196 5,-196 0,-212" fill="#e8c9a0" transform="rotate(16 0 -100)" /></g>}
+    <rect x={-40} y={70} width={80} height={1100} rx={34} fill="#ff7a59" /><rect x={-40} y={70} width={80} height={18} fill="#ffd38a" opacity={0.9} /><path d="M -32 170 H 32 M -32 330 H 32" stroke="#c9543a" strokeWidth={4} opacity={0.5} />
+    <rect x={-36} y={-62} width={72} height={170} rx={30} fill={skin} /><rect x={-42} y={-62} width={84} height={26} rx={13} fill="#e9c3a8" opacity={0.25} />
+    {[-26, -9, 9, 26].map((fx, i) => { const dy = type * Math.max(0, Math.sin(t * 16 + i * 1.7 + lean * 2)) * 11; return <g key={i}><rect x={fx - 8} y={-118 + (i % 2) * 6 + dy} width={16} height={64} rx={8} fill={skin} /><rect x={fx - 5} y={-118 + (i % 2) * 6 + dy} width={10} height={14} rx={5} fill="#f2d3c3" opacity={0.7} /></g>; })}
+    <rect x={lean > 0 ? -72 : 40} y={-20} width={34} height={22} rx={11} fill={skin} transform={`rotate(${lean > 0 ? -30 : 30} ${lean > 0 ? -55 : 57} -10)`} />
+    <rect x={-38} y={96} width={76} height={14} rx={6} fill="#ffd38a" />
   </g>);
 
 export const LondonRoom: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS;
-  const ring = 1.4, lit = prog(f, ring, ring + 0.1), banner = prog(f, ring + 0.2, ring + 0.6, easeOut), buzz = f >= ring * FPS && f < (ring + 1.0) * FPS ? Math.sin(f * 2.9) * 7 * (1 - prog(f, ring, ring + 1.0)) : 0;
-  const reach = prog(f, 2.5, 3.4, easeInOut), stopWrite = prog(f, ring, ring + 0.2), write = (1 - stopWrite) * Math.sin(t * 7) * 4;
-  // phone in the table plane (small, silver, lying near the laptop)
-  const PK = 1.0, PW2 = 236 * PK, PH2 = 484 * PK, cx = 700, cy = 1215 - 0, th = -8 * Math.PI / 180, pcy = (cy - TB) / PY;
-  const bx = cx - (PH2 / 2) * Math.sin(th), by = pcy + (PH2 / 2) * Math.cos(th), ax = -Math.sin(th), ay = Math.cos(th);
-  const cableEnd = [bx + ax * 120, by + ay * 120];
-  const LX = 300, LB = 1160;   // laptop: centre x and the line where its base meets the table
+  const ring = 1.4, lit = prog(f, ring, ring + 0.1), banner = prog(f, ring + 0.2, ring + 0.6, easeOut), buzz = f >= ring * FPS && f < (ring + 1.0) * FPS ? Math.sin(f * 2.9) * 5 * (1 - prog(f, ring, ring + 1.0)) : 0;
+  const reach = prog(f, 2.4, 3.3, easeInOut), typing = (1 - prog(f, ring, ring + 0.25)), tt = t;
+  // the phone lies on the table: small, silver (a 6.3 inch phone is about half as long as a 14 inch laptop is wide)
+  const PK = 0.52, PW2 = 236 * PK, PH2 = 484 * PK, cx = 650, cy = 1345, th = 14 * Math.PI / 180, pcy = (cy - TB) / PY;
+  const LX = 325, LB = 1170;   // laptop: centre x and the line where its base meets the table; 560 wide
+  const yk = (LB + 44 - TB) / PY + 118, rx = lerp(LX + 92, cx + 4, reach), ry = lerp(yk, pcy + 112, reach);   // right hand: from the keyboard to the phone
   return (
     <AbsoluteFill style={{ background: '#3a2230' }}>
       <div style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 860, background: 'linear-gradient(180deg,#4a2c38 0%,#5a3436 70%,#43282c 100%)' }} />
@@ -146,67 +145,76 @@ export const LondonRoom: React.FC = () => {
           <filter id="blur6"><feGaussianBlur stdDeviation="7" /></filter></defs>
         <g transform="translate(300 40) scale(0.66)"><Window t={t} /></g>
         <rect x={286} y={700} width={400} height={20} fill="#e6d6bc" />
-        {/* wall, baseboard, floor and a rug */}
+        {/* wall, baseboard, floor and a warm rug */}
         <rect x={0} y={840} width={1080} height={26} fill="#e8d9c0" />
         <rect x={0} y={866} width={1080} height={1054} fill="url(#floor)" />{Array.from({ length: 10 }).map((_, i) => <path key={i} d={`M 0 ${880 + i * 105} L 1080 ${880 + i * 105}`} stroke="#1e100c" strokeWidth={2} opacity={0.5} />)}
-        <polygon points="-40,1560 1120,1560 1160,1920 -80,1920" fill="#2bb5a3" opacity={0.85} /><polygon points="-10,1600 1090,1600 1120,1920 -40,1920" fill="none" stroke="#ffd38a" strokeWidth={6} opacity={0.7} />{Array.from({ length: 9 }).map((_, i) => <circle key={i} cx={60 + i * 120} cy={1700} r={22} fill="#ff7a59" opacity={0.6} />)}
-        {/* the wall socket and the plug in it, on the left wall */}
-        <rect x={70} y={730} width={72} height={96} rx={10} fill="#f3ece0" stroke="#cfc4b0" strokeWidth={2} /><rect x={88} y={756} width={7} height={16} rx={2} fill="#2a2018" /><rect x={114} y={756} width={7} height={16} rx={2} fill="#2a2018" />
-        <rect x={78} y={768} width={56} height={62} rx={10} fill="#fff" stroke="#d8d0c0" strokeWidth={2} /><rect x={88} y={820} width={36} height={14} rx={3} fill="#e8e2d4" />
-        {/* the table: legs, shadow on the floor, the top, its front edge */}
-        <path d="M 106 832 V 912" stroke="#f4f1ea" strokeWidth={11} strokeLinecap="round" />
-        <ellipse cx={540} cy={1860} rx={520} ry={40} fill="#000" opacity={0.4} filter="url(#blur6)" />
-        <rect x={80} y={1480} width={46} height={380} fill="#6a3c1c" /><rect x={954} y={1480} width={46} height={380} fill="#6a3c1c" />
-        <rect x={120} y={905} width={26} height={120} fill="#6a3c1c" opacity={0.85} /><rect x={934} y={905} width={26} height={120} fill="#6a3c1c" opacity={0.85} />
-        <polygon points="130,905 950,905 1040,1500 40,1500" fill="url(#wood2)" />{Array.from({ length: 9 }).map((_, i) => { const y = 935 + i * 66; const k = (y - 905) / 595; return <path key={i} d={`M ${130 - 90 * k} ${y} Q 540 ${y + 6} ${950 + 90 * k} ${y}`} stroke="#6a3c1c" strokeWidth={2} fill="none" opacity={0.3} />; })}
-        <polygon points="40,1500 1040,1500 1040,1548 40,1548" fill="#7a4624" /><rect x={40} y={1500} width={1000} height={5} fill="#e0a56e" />
-        <ellipse cx={700} cy={1130} rx={300} ry={110} fill="url(#lampPool)" />
-        <ellipse cx={LX} cy={1260} rx={280} ry={110} fill="url(#scrGlow)" opacity={0.7} />
+        <polygon points="-40,1700 1120,1700 1160,1920 -80,1920" fill="#a8452f" /><polygon points="-20,1730 1100,1730 1130,1920 -50,1920" fill="none" stroke="#f1d9a8" strokeWidth={6} opacity={0.85} />{Array.from({ length: 9 }).map((_, i) => <polygon key={i} points={`${60 + i * 120},1780 ${84 + i * 120},1806 ${60 + i * 120},1832 ${36 + i * 120},1806`} fill="#e8b04a" opacity={0.85} />)}
+        {/* the table: a long desk with a drawer, shadow on the rug, the top, its front edge */}
+        <ellipse cx={540} cy={1700} rx={640} ry={46} fill="#000" opacity={0.45} filter="url(#blur6)" />
+        <polygon points="-40,905 1120,905 1260,1500 -180,1500" fill="url(#wood2)" />{Array.from({ length: 9 }).map((_, i) => { const y = 935 + i * 66; return <path key={i} d={`M -40 ${y} Q 540 ${y + 6} 1120 ${y}`} stroke="#6a3c1c" strokeWidth={2} fill="none" opacity={0.3} />; })}
+        <rect x={-180} y={1500} width={1440} height={50} fill="#7a4624" /><rect x={-180} y={1500} width={1440} height={5} fill="#e0a56e" />
+        <rect x={-180} y={1550} width={1440} height={150} fill="#5a3218" /><rect x={300} y={1572} width={480} height={104} rx={8} fill="#6a3c1c" stroke="#8a5530" strokeWidth={4} /><rect x={500} y={1612} width={80} height={14} rx={7} fill="#e0b07a" />
+        <ellipse cx={700} cy={1130} rx={320} ry={110} fill="url(#lampPool)" />
+        <ellipse cx={LX} cy={LB + 130} rx={320} ry={120} fill="url(#scrGlow)" opacity={0.7} />
       </svg>
       {/* everything lying flat sits in the table plane */}
       <div style={{ position: 'absolute', left: 0, top: TB, width: 1080, height: 1300, transformOrigin: '0 0', transform: `scale(1, ${PY})` }}>
         <svg width={1080} height={1300} style={{ position: 'absolute', left: 0, top: 0 }}>
-          {/* notebook */}
-          <g transform="translate(250 800) rotate(-6)"><rect x={-170} y={-120} width={340} height={260} rx={10} fill="#00000040" transform="translate(10 14)" /><rect x={-170} y={-120} width={340} height={260} rx={10} fill="#f6efe0" /><rect x={-170} y={-120} width={22} height={260} fill="#c0504a" />{Array.from({ length: 8 }).map((_, i) => <line key={i} x1={-130} y1={-92 + i * 28} x2={150} y2={-92 + i * 28} stroke="#9fb4d0" strokeWidth={2} />)}<path d="M -110 -90 q 28 -14 56 0 t 56 0 t 56 0" stroke="#2a3a7a" strokeWidth={4} fill="none" opacity={0.7} /></g>
-          {/* cable: from the socket down the left edge, along the table, round under the phone, into the port */}
-          <path d={`M 108 -60 C 96 100 70 260 110 400 C 160 520 440 520 560 620 C 650 700 ${cableEnd[0] - 10} ${cableEnd[1] - 80} ${cableEnd[0]} ${cableEnd[1]}`} stroke="#00000033" strokeWidth={13} fill="none" strokeLinecap="round" transform="translate(6 10)" />
-          <path d={`M 108 -60 C 96 100 70 260 110 400 C 160 520 440 520 560 620 C 650 700 ${cableEnd[0] - 10} ${cableEnd[1] - 80} ${cableEnd[0]} ${cableEnd[1]}`} stroke="#f4f1ea" strokeWidth={11} fill="none" strokeLinecap="round" />
+          {/* notebook, pen lying beside it, glasses */}
+          <g transform="translate(880 700) rotate(6)"><rect x={-150} y={-105} width={300} height={226} rx={10} fill="#00000040" transform="translate(10 14)" /><rect x={-150} y={-105} width={300} height={226} rx={10} fill="#f6efe0" /><rect x={-150} y={-105} width={20} height={226} fill="#c0504a" />{Array.from({ length: 7 }).map((_, i) => <line key={i} x1={-112} y1={-78 + i * 28} x2={130} y2={-78 + i * 28} stroke="#9fb4d0" strokeWidth={2} />)}<path d="M -96 -76 q 24 -12 48 0 t 48 0 t 48 0" stroke="#2a3a7a" strokeWidth={4} fill="none" opacity={0.7} /></g>
+          <g transform="translate(770 840) rotate(-20)"><rect x={-90} y={-7} width={180} height={14} rx={7} fill="#00000040" transform="translate(5 8)" /><rect x={-90} y={-7} width={180} height={14} rx={7} fill="#2a3a7a" /><rect x={-90} y={-7} width={46} height={14} rx={7} fill="#c9a15a" /><polygon points="90,-5 108,0 90,5" fill="#e8c9a0" /></g>
+          <g transform="translate(560 900) rotate(-8)"><circle cx={-44} cy={0} r={26} fill="none" stroke="#2a1a14" strokeWidth={6} /><circle cx={44} cy={0} r={26} fill="none" stroke="#2a1a14" strokeWidth={6} /><path d="M -18 -4 q 18 -12 36 0" stroke="#2a1a14" strokeWidth={5} fill="none" /></g>
+          {/* coaster under the mug */}
+          <ellipse cx={982} cy={190} rx={52} ry={52} fill="#e8d9c0" opacity={0.9} />
         </svg>
-        <div style={{ position: 'absolute', left: cx - PW2 / 2 + buzz, top: pcy - PH2 / 2, width: PW2, height: PH2, transform: 'rotate(-8deg)', transformOrigin: '50% 50%', filter: 'drop-shadow(12px 18px 14px rgba(0,0,0,.5))' }}>
+        {/* her phone, small, silver, lying on the table, buzzing */}
+        <div style={{ position: 'absolute', left: cx - PW2 / 2 + buzz, top: pcy - PH2 / 2, width: PW2, height: PH2, transform: `rotate(${th * 180 / Math.PI}deg)`, transformOrigin: '50% 50%', filter: 'drop-shadow(8px 12px 9px rgba(0,0,0,.5))' }}>
           <IPhone v18="silver" left={0} top={0} o={1} name="" avatar="#000" k={PK}><Lock banner={banner} lit={lit} /></IPhone>
         </div>
         <svg width={1080} height={1300} style={{ position: 'absolute', left: 0, top: 0 }}>
-          <g transform={`translate(${bx + buzz} ${by}) rotate(${(Math.atan2(ay, ax) * 180) / Math.PI - 90})`}><rect x={-22} y={-4} width={44} height={74} rx={12} fill="#c9ccd2" stroke="#8a8d96" strokeWidth={3} /><rect x={-6} y={62} width={12} height={70} fill="#f4f1ea" /></g>
-          <Hand x={250} y={880 + write} rot={-8} pen wob={write * 2} />
-          <Hand x={lerp(860, 690, reach)} y={lerp(1060, 700, reach)} rot={lerp(8, -4, reach)} skin="#c98a5e" />
         </svg>
       </div>
       {/* things that stand up: shadow first, then the object */}
       <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none' }}>
-        {/* laptop: open, facing her, so we see its screen and keyboard */}
-        <ellipse cx={LX} cy={LB + 70} rx={250} ry={30} fill="#000" opacity={0.45} filter="url(#blur6)" />
-        <polygon points={`${LX - 190},${LB - 285} ${LX + 190},${LB - 285} ${LX + 205},${LB} ${LX - 205},${LB}`} fill="#1b1d26" stroke="#8a8d96" strokeWidth={5} />
-        <polygon points={`${LX - 176},${LB - 270} ${LX + 176},${LB - 270} ${LX + 190},${LB - 14} ${LX - 190},${LB - 14}`} fill="#fdf3e4" />
-        <rect x={LX - 160} y={LB - 252} width={110} height={16} fill="#2bb5a3" />{[0, 1, 2, 3, 4, 5].map((i) => <rect key={i} x={LX - 160} y={LB - 214 + i * 26} width={i % 3 === 2 ? 190 : 320} height={9} rx={4} fill="#c9b8a0" />)}<rect x={LX + 40} y={LB - 252} width={110} height={70} rx={6} fill="#ffb454" opacity={0.85} />
-        <polygon points={`${LX - 205},${LB} ${LX + 205},${LB} ${LX + 232},${LB + 66} ${LX - 232},${LB + 66}`} fill="#c9ccd2" stroke="#8a8d96" strokeWidth={3} />
-        {Array.from({ length: 4 }).map((_, r) => Array.from({ length: 14 }).map((_, c) => <rect key={r + '-' + c} x={LX - 196 + c * 28 - r * 2} y={LB + 6 + r * 12} width={22} height={8} rx={2} fill="#8a8d96" />))}
-        <rect x={LX - 40} y={LB + 52} width={80} height={11} rx={3} fill="#aeb1ba" />
-        {/* lamp on the table, back */}
-        <ellipse cx={560} cy={1060} rx={74} ry={16} fill="#000" opacity={0.5} filter="url(#blur6)" />
-        <ellipse cx={560} cy={1050} rx={46} ry={11} fill="#3a2a22" /><rect x={554} y={800} width={12} height={250} fill="#4a3a30" />
-        <path d="M 500 800 L 620 800 L 650 712 L 470 712 Z" fill="#ff9e5e" /><ellipse cx={560} cy={800} rx={60} ry={9} fill="#ffe7b0" />
-        {/* mug that says LONDON, right side */}
-        <ellipse cx={900} cy={1110} rx={70} ry={14} fill="#000" opacity={0.45} filter="url(#blur6)" />
-        <rect x={858} y={1000} width={86} height={106} rx={12} fill="#c0392b" /><ellipse cx={901} cy={1000} rx={43} ry={10} fill="#7a1e16" /><ellipse cx={901} cy={999} rx={36} ry={6} fill="#5a3320" />
-        <path d="M 944 1022 q 36 6 -4 56" stroke="#c0392b" strokeWidth={11} fill="none" />
-        <text x={901} y={1056} textAnchor="middle" fill="#fff" style={{ font: `800 15px ${FONT.ui}`, letterSpacing: '0.08em' }}>LONDON</text><text x={901} y={1076} textAnchor="middle" fill="#ffd38a" style={{ font: `800 15px ${FONT.ui}` }}>♥</text>
-        {[0, 1, 2].map((i) => <path key={i} d={`M ${884 + i * 18} 980 q 12 -26 0 -52 q -12 -26 0 -44`} stroke="#fff" strokeWidth={4} fill="none" opacity={0.22 - i * 0.04} strokeLinecap="round" transform={`translate(0 ${-((t * 18 + i * 8) % 26)})`} />)}
+        {/* the laptop: open, facing her, so we see its screen and keyboard */}
+        <ellipse cx={LX} cy={LB + 90} rx={330} ry={34} fill="#000" opacity={0.45} filter="url(#blur6)" />
+        <polygon points={`${LX - 270},${LB - 340} ${LX + 270},${LB - 340} ${LX + 290},${LB} ${LX - 290},${LB}`} fill="#1b1d26" stroke="#8a8d96" strokeWidth={6} />
+        <polygon points={`${LX - 252},${LB - 322} ${LX + 252},${LB - 322} ${LX + 272},${LB - 16} ${LX - 272},${LB - 16}`} fill="#fdf3e4" />
+        <rect x={LX - 252} y={LB - 322} width={504} height={26} fill="#e8d9c0" /><circle cx={LX - 232} cy={LB - 309} r={5} fill="#ff6b5e" /><circle cx={LX - 214} cy={LB - 309} r={5} fill="#ffbd44" /><circle cx={LX - 196} cy={LB - 309} r={5} fill="#3ec65a" />
+        <rect x={LX - 230} y={LB - 280} width={150} height={18} fill="#d9694f" />{[0, 1, 2, 3, 4, 5, 6].map((i) => <rect key={i} x={LX - 230} y={LB - 240 + i * 26} width={i % 3 === 2 ? 250 : 440} height={9} rx={4} fill="#c9b8a0" />)}
+        <rect x={LX + 40} y={LB - 280} width={160} height={96} rx={8} fill="#ffb454" opacity={0.9} /><polyline points={`${LX + 52},${LB - 206} ${LX + 90},${LB - 236} ${LX + 124},${LB - 216} ${LX + 188},${LB - 262}`} stroke="#fff" strokeWidth={5} fill="none" strokeLinejoin="round" />
+        <polygon points={`${LX - 290},${LB} ${LX + 290},${LB} ${LX + 326},${LB + 86} ${LX - 326},${LB + 86}`} fill="#c9ccd2" stroke="#8a8d96" strokeWidth={3} />
+        {Array.from({ length: 4 }).map((_, r) => Array.from({ length: 15 }).map((_, c) => <rect key={r + '-' + c} x={LX - 300 + c * 40 - r * 3} y={LB + 8 + r * 16} width={33} height={11} rx={3} fill="#8a8d96" />))}
+        <rect x={LX - 56} y={LB + 70} width={112} height={13} rx={4} fill="#aeb1ba" />
+        <rect x={LX - 296} y={LB - 330} width={48} height={48} fill="#ffe27a" transform={`rotate(-6 ${LX - 272} ${LB - 306})`} /><path d={`M ${LX - 286} ${LB - 316} h 28 M ${LX - 286} ${LB - 304} h 22`} stroke="#c98a2a" strokeWidth={3} />
+        {/* a small plant, back left */}
+        <ellipse cx={815} cy={1090} rx={60} ry={13} fill="#000" opacity={0.45} filter="url(#blur6)" />
+        <path d="M 777 1030 L 853 1030 L 843 1090 L 787 1090 Z" fill="#c0634a" /><rect x={773} y={1022} width={84} height={14} rx={5} fill="#d6785a" />
+        {[-40, -18, 6, 28, 44].map((a, i) => <path key={i} d={`M 815 1024 Q ${815 + a * 1.4} ${960 - (i % 2) * 20} ${815 + a * 2} ${930 + (i % 3) * 14}`} stroke="#3f8a4a" strokeWidth={9} fill="none" strokeLinecap="round" />)}
+        {[-40, -18, 6, 28, 44].map((a, i) => <ellipse key={i} cx={815 + a * 2} cy={930 + (i % 3) * 14} rx={20} ry={11} fill="#4fa05a" transform={`rotate(${a * 1.4} ${815 + a * 2} ${930 + (i % 3) * 14})`} />)}
+        {/* lamp on the table */}
+        <ellipse cx={700} cy={1070} rx={70} ry={15} fill="#000" opacity={0.5} filter="url(#blur6)" />
+        <ellipse cx={700} cy={1060} rx={44} ry={10} fill="#3a2a22" /><rect x={694} y={800} width={12} height={260} fill="#4a3a30" />
+        <path d="M 640 800 L 760 800 L 790 712 L 610 712 Z" fill="#ff9e5e" /><ellipse cx={700} cy={800} rx={60} ry={9} fill="#ffe7b0" />
+        {/* mug that says LONDON on its coaster */}
+        <ellipse cx={970} cy={1112} rx={64} ry={13} fill="#000" opacity={0.45} filter="url(#blur6)" />
+        <rect x={929} y={1010} width={82} height={100} rx={12} fill="#c0392b" /><ellipse cx={970} cy={1010} rx={41} ry={10} fill="#7a1e16" /><ellipse cx={970} cy={1009} rx={34} ry={6} fill="#5a3320" />
+        <path d="M 1011 1030 q 30 6 -4 52" stroke="#c0392b" strokeWidth={10} fill="none" />
+        <text x={970} y={1062} textAnchor="middle" fill="#fff" style={{ font: `800 14px ${FONT.ui}`, letterSpacing: '0.08em' }}>LONDON</text><text x={970} y={1082} textAnchor="middle" fill="#ffd38a" style={{ font: `800 14px ${FONT.ui}` }}>♥</text>
+        {[0, 1, 2].map((i) => <path key={i} d={`M ${955 + i * 16} 990 q 12 -26 0 -52 q -12 -26 0 -44`} stroke="#fff" strokeWidth={4} fill="none" opacity={0.22 - i * 0.04} strokeLinecap="round" transform={`translate(0 ${-((t * 18 + i * 8) % 26)})`} />)}
         {/* ding and vibration marks next to the phone */}
         {f >= ring * FPS && f < (ring + 1.6) * FPS ? <g opacity={1 - prog(f, ring + 1.0, ring + 1.6)}>
-          {[0, 1, 2].map((i) => { const p = ((t - ring) * 2 + i * 0.33) % 1; return <path key={i} d={`M ${cx + 160 + p * 40} ${cy - 40 - p * 10} q 22 40 0 80`} stroke="#ffd38a" strokeWidth={6} fill="none" strokeLinecap="round" opacity={1 - p} />; })}
-          {[0, 1, 2].map((i) => { const p = ((t - ring) * 2 + i * 0.33) % 1; return <path key={'l' + i} d={`M ${cx - 160 - p * 40} ${cy - 40 - p * 10} q -22 40 0 80`} stroke="#ffd38a" strokeWidth={6} fill="none" strokeLinecap="round" opacity={1 - p} />; })}
-          <text x={cx} y={cy - 220} textAnchor="middle" fill="#fff" style={{ font: `800 40px ${FONT.ui}`, paintOrder: 'stroke', stroke: '#2a1a20', strokeWidth: 8 }}>ding!  bzzzt</text></g> : null}
+          {[0, 1, 2].map((i) => { const p = ((t - ring) * 2 + i * 0.33) % 1; return <path key={i} d={`M ${cx + 110 + p * 36} ${cy - 30 - p * 8} q 18 34 0 68`} stroke="#ffd38a" strokeWidth={6} fill="none" strokeLinecap="round" opacity={1 - p} />; })}
+          {[0, 1, 2].map((i) => { const p = ((t - ring) * 2 + i * 0.33) % 1; return <path key={'l' + i} d={`M ${cx - 110 - p * 36} ${cy - 30 - p * 8} q -18 34 0 68`} stroke="#ffd38a" strokeWidth={6} fill="none" strokeLinecap="round" opacity={1 - p} />; })}
+          <text x={cx} y={cy - 150} textAnchor="middle" fill="#fff" style={{ font: `800 40px ${FONT.ui}`, paintOrder: 'stroke', stroke: '#2a1a20', strokeWidth: 8 }}>ding!  bzzzt</text></g> : null}
       </svg>
+      {/* her hands, in front of the laptop: on the keyboard, typing; the right one goes to the phone when it rings */}
+      <div style={{ position: 'absolute', left: 0, top: TB, width: 1080, height: 1300, transformOrigin: '0 0', transform: `scale(1, ${PY})` }}>
+        <svg width={1080} height={1300} style={{ position: 'absolute', left: 0, top: 0 }}>
+          <Hand x={LX - 92} y={yk} rot={-2} type={typing} t={tt} lean={1} />
+          <Hand x={rx} y={ry} rot={lerp(2, 22, reach)} type={typing} t={tt + 0.3} lean={-1} />
+        </svg>
+      </div>
       <Chip text="LONDON · 3:42 pm" col="#ffb454" top={236} />
     </AbsoluteFill>
   );
