@@ -48,3 +48,6 @@ Always send Harsh preview stills of each shot first and wait for his "render" be
 2. Ask Harsh the direction question and agree a short script (about 12 to 16 lines) in simple words.
 3. Check each clip against the rules above (names, text, camera, captions, no old "his video" wording), then send him stills.
 4. Build the sound and captions, render, retime, check frames, deliver with a cover (Canva, no person) and SRT.
+
+## Flicker fix (28 Nov 2026)
+Harsh saw continuous flicker in the first Part 2 re-renders. Cause: rendering 3D scenes with --concurrency=4 (and 2) drops frames, which come out almost black. Concurrency 1 is clean. Rule: render Part 2 pieces with --concurrency=1 and run internet/v3/check_glitch.py on each piece (render_part2_clips.sh and render_part2_new.sh do this and retry up to 4 times). Fixed clips: internet/part2/clips-v3/ (old glitchy clips-v2 removed).
