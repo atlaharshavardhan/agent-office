@@ -1,4 +1,4 @@
-"""Part 2: routers + shore (v1). Same recipe as make_part2c_final.py. Run from internet/ after v3/render_part2d.sh and voice/make_part2d_voice.py. Writes video/internet-part2-arrival-v5.mp4 + subtitles/part2-arrival-v5.srt"""
+"""Part 2: routers + shore (v1). Same recipe as make_part2c_final.py. Run from internet/ after v3/render_part2d.sh and voice/make_part2d_voice.py. Writes video/internet-part2-arrival-v6.mp4 + subtitles/part2-arrival-v6.srt"""
 import json, subprocess, numpy as np, soundfile as sf
 SR = 48000; D = 'video/part2m'; X = 0.15; FPS = 30
 L = json.load(open('voice/p2d/lengths.json'))['lengths']; T = json.load(open('voice/p2d/lengths.json'))['text']
@@ -38,16 +38,14 @@ def riser(d=1.0): n = int(d * SR); t = np.arange(n) / SR; ph = 2 * np.pi * np.cu
 def whoosh(): n = int(0.45 * SR); t = np.arange(n) / SR; env = np.sin(np.pi * np.clip(t / 0.45, 0, 1)) ** 2; return np.convolve(rng.normal(0, 1, n), np.ones(40) / 40, 'same') * env * 1.2
 place(shutter(), S['ar'] + 0.05, 0.3); place(riser(1.2), at('ar', 0.2), 0.25)
 def tk(fq): m = int(0.035 * SR); tt = np.arange(m) / SR; return (np.sin(2 * np.pi * fq * tt) * np.exp(-90 * tt) + rng.normal(0, 1, m) * np.exp(-200 * tt) * 0.15) * 0.8
-for i in range(130):                                                                  # the packets landing: soft ticks, rising in pitch as the photo fills up
-    tl = 0.95 + 4.6 * (i + 0.5) / 130 + (rng.random() - 0.5) * 0.03; place(tk(900 + 900 * (tl - 0.95) / 4.6), at('ar', tl), 0.16 + 0.1 * rng.random(), (rng.random() - 0.5) * 0.8)
 def swell(d=1.6): n = int(d * SR); t = np.arange(n) / SR; ph = 2 * np.pi * np.cumsum(500 + 900 * (t / d)) / SR; return (np.sin(ph) + 0.4 * np.sin(2 * ph)) * np.sin(np.pi * np.clip(t / d, 0, 1)) ** 1.5 * 0.45
-place(swell(), at('ar', 8.3), 0.35)                                                    # the unlock: the photo sweeps in [place(pop(), at('ar', 6.6 + k * 0.2), 0.35) for k in range(3)]; place(pop(), at('ar', 7.9), 0.45); place(pop(), at('ar', 10.5), 0.5)
+# (the landing ticks and the unlock swell were removed: Harsh did not like them)                                                    # the unlock: the photo sweeps in [place(pop(), at('ar', 6.6 + k * 0.2), 0.35) for k in range(3)]; place(pop(), at('ar', 7.9), 0.45); place(pop(), at('ar', 10.5), 0.5)
 f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) / (1.0 * SR)); out *= f[:, None]; out = np.tanh(out * 1.2) / 1.2; out *= 0.7 / np.abs(out).max(); sf.write(f'{D}/mix.wav', out[: int(TOTAL * SR)], SR)
 ins = []; fc = ''
 for i, (n, fr, ks) in enumerate(SH): ins += ['-i', f'{D}/{n}.mp4']; fc += f'[{i}:v]setpts=PTS*{k_[n]:.4f},fps={FPS},format=yuv420p[a{i}];'
 prev = '[a0]'
 fc = f'[{len(SH)}:v]format=rgba,colorchannelmixer=aa=0.3[wm];' + fc + f'{prev}[wm]overlay=24:926[v]'
-cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-arrival-v5.mp4']
+cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-arrival-v6.mp4']
 r = subprocess.run(cmd, capture_output=True, text=True); print('final', r.returncode, r.stderr[-300:])
 def ts(s): return '%02d:%02d:%02d,%03d' % (int(s // 3600), int(s % 3600 // 60), int(s % 60), round((s % 1) * 1000))
 rows = [(S[n] + vstart[k], L[k], T[k]) for n, fr, ks in SH for k in ks]
