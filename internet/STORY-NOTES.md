@@ -167,3 +167,5 @@ Harsh: do NOT render or make images for 16:9 now. Only 9:16.
 Mapping for Part 2: Hook = locked 12 s (v10). Lead = your phone, send, photo breaks. Body 1 = ones and zeros, encrypted, nothing to see. Open loop = "but where do the packets go?" Body 2 = packets, label, mobile tower. Open loop = "and then it must cross an ocean...". Body 3 = glass cable, light, (next parts). CTA = follow (Bell Ding sound).
 
 ## 28 Nov 2026 - RULE (Harsh): do NOT create or send .srt subtitle files until he says. Make the video only. (Earlier videos have srt files already; leave them alone, make no new ones.)
+
+## 28 Nov 2026 - Harsh: NO "Part 3" anywhere. The Part 2 ending is "That took less than a blink." then "Follow for more" (@TheInvisiTech, bell ding). No open-loop question about checking the photo.
