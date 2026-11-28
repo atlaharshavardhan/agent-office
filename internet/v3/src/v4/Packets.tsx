@@ -22,7 +22,7 @@ export const TOWER = V(17, 15, -30);
 const canvas = (w: number, h: number, draw: (g: CanvasRenderingContext2D) => void) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d')!); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
 const rr = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
 /* the little video he sends: the torch across the street, as a thumbnail */
-const drawThumb = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => {   /* his photo: the dog */
+export const drawThumb = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => {   /* his photo: the dog */
   g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); const u = w / 190, E = (cx: number, cy: number, rx: number, ry: number, col: string, rot = 0) => { g.fillStyle = col; g.beginPath(); g.ellipse(x + cx * u, y + cy * u, rx * u, ry * u, rot, 0, 7); g.fill(); };
   const bg = g.createLinearGradient(0, y, 0, y + h); bg.addColorStop(0, '#fbe8c8'); bg.addColorStop(1, '#f2b88a'); g.fillStyle = bg; g.fillRect(x, y, w, h);
   E(46, 96, 22, 40, '#9a5a2e', 0.25); E(144, 96, 22, 40, '#9a5a2e', -0.25); E(95, 96, 52, 48, '#d9a05a'); E(95, 62, 20, 12, '#e8b878'); E(95, 122, 28, 22, '#f6e3c2');
