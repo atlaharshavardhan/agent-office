@@ -82,16 +82,17 @@ export const SeabedLight12: React.FC = () => <SeabedLight from={27} to={53} star
 export const GlobeSatStart: React.FC<{ cross?: boolean }> = ({ cross = true }) => {
   const f = useCurrentFrame(), t = f / 30, T0 = 300 / 30;
   ov.lon = () => 40; ov.show = () => 1; ov.pins = 0; ov.thin = true;
+  ov.u = cross ? null : (tt: number) => 0.55 * easeInOut(clamp01((tt - 10 - 0.1) / 1.9));      // Harsh: the amber line is drawn live, with the photo at its tip
   const q = prog(f, 0.05, 0.4, easeOut), no = cross ? prog(f, 0.95, 1.25, easeOut) : 0, satIn = prog(f, 0, 0.5, easeOut), land = prog(f, 0, 0.25, easeOut);
-  const u = 0.15 * easeInOut(clamp01((t - 0.3) / 1.6)), pt = T0 + t;   // (with cross=false the satellite stays with its question mark)
+  const u = cross ? 0.15 * easeInOut(clamp01((t - 0.3) / 1.6)) : 0.55 * easeInOut(clamp01((t - 0.1) / 1.9)), pt = T0 + t;   // (with cross=false the satellite stays with its question mark)
   const [x, y, front] = project(pt, ll(routeAt(MAIN, u) as unknown as LL, R * 1.012));
-  const sx = lerp(-160, 390, satIn), sy = 452 + Math.sin(t * 2) * 5, ms = Math.round(11 * easeInOut(clamp01((t - 0.3) / 1.6)));
+  const sx = lerp(-160, 390, satIn) + Math.sin(t * 1.7) * 9, sy = 452 + Math.sin(t * 2.2) * 8, ms = Math.round(cross ? 11 * easeInOut(clamp01((t - 0.3) / 1.6)) : 65 * u);
   const chip = (txt: string, o: number, col: string) => <div style={{ position: 'absolute', left: 0, right: 0, top: 236, display: 'flex', justifyContent: 'center', opacity: o }}><div style={{ padding: '14px 34px', borderRadius: 32, background: 'rgba(10,14,36,.9)', border: `3px solid ${col}`, font: `800 42px/1 ${FONT.ui}`, color: '#fff', whiteSpace: 'nowrap' }}>{txt}</div></div>;
   return (<AbsoluteFill style={{ backgroundColor: '#14091c' }}>
     <Sequence from={-300}><Planet /></Sequence>
     <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
       <defs><radialGradient id="gs2"><stop offset="0" stopColor="#ffe3a0" stopOpacity={0.9} /><stop offset="1" stopColor="#ffb454" stopOpacity={0} /></radialGradient></defs>
-      <g opacity={satIn * (1 - no * 0.6)}><Sat x={sx} y={sy} s={1.0} rot={-14} /></g>
+      <g opacity={satIn * (1 - no * 0.6)}><Sat x={sx} y={sy} s={1.0} rot={-14 + Math.sin(t * 1.9) * 3} /></g>
       <g opacity={q * (1 - no)} transform={`translate(${sx - 150} ${sy - 12})`}><circle r={42} fill="#ffd38a" /><text y={18} textAnchor="middle" fill="#07102c" style={{ font: `900 58px ${FONT.ui}` }}>?</text></g>
       {/* dots only from the satellite towards the Earth */}
       <g opacity={q}>{Array.from({ length: 7 }).map((_, i) => { const ph = ((i / 7) + t * 0.9) % 1, x = lerp(sx + 4, sx - 14, ph), y = lerp(sy + 44, 592, ph); return <circle key={i} cx={x} cy={y} r={4 + 3 * ph} fill="#ffd38a" opacity={Math.sin(Math.PI * ph) * 0.95} />; })}</g>
