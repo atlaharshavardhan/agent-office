@@ -1,4 +1,4 @@
-"""Part 2: routers + shore (v1). Same recipe as make_part2c_final.py. Run from internet/ after v3/render_part2d.sh and voice/make_part2d_voice.py. Writes video/internet-part2-arrival-v3.mp4 + subtitles/part2-arrival-v3.srt"""
+"""Part 2: routers + shore (v1). Same recipe as make_part2c_final.py. Run from internet/ after v3/render_part2d.sh and voice/make_part2d_voice.py. Writes video/internet-part2-arrival-v4.mp4 + subtitles/part2-arrival-v4.srt"""
 import json, subprocess, numpy as np, soundfile as sf
 SR = 48000; D = 'video/part2l'; X = 0.15; FPS = 30
 L = json.load(open('voice/p2d/lengths.json'))['lengths']; T = json.load(open('voice/p2d/lengths.json'))['text']
@@ -47,7 +47,7 @@ ins = []; fc = ''
 for i, (n, fr, ks) in enumerate(SH): ins += ['-i', f'{D}/{n}.mp4']; fc += f'[{i}:v]setpts=PTS*{k_[n]:.4f},fps={FPS},format=yuv420p[a{i}];'
 prev = '[a0]'
 fc = f'[{len(SH)}:v]format=rgba,colorchannelmixer=aa=0.3[wm];' + fc + f'{prev}[wm]overlay=24:926[v]'
-cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-arrival-v3.mp4']
+cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-arrival-v4.mp4']
 r = subprocess.run(cmd, capture_output=True, text=True); print('final', r.returncode, r.stderr[-300:])
 def ts(s): return '%02d:%02d:%02d,%03d' % (int(s // 3600), int(s % 3600 // 60), int(s % 60), round((s % 1) * 1000))
 rows = [(S[n] + vstart[k], L[k], T[k]) for n, fr, ks in SH for k in ks]
