@@ -1,0 +1,27 @@
+{
+ "lengths": {
+  "n1": 11.008,
+  "n2": 12.309,
+  "n3": 9.131,
+  "n4": 12.864,
+  "n5": 12.523,
+  "n6": 10.069,
+  "n7": 10.731,
+  "n8": 17.259,
+  "n9": 2.283,
+  "n10": 1.259
+ },
+ "text": {
+  "n1": "First, your phone converts the photo into digital data. Millions of ones and zeros. Then, it encrypts that data, so if anyone intercepts it, all they see is scrambled data.",
+  "n2": "Next, the data is split into thousands of tiny packets. Each packet carries information about where it's going, where it came from, and how it fits into the original data. And now, they're ready to travel.",
+  "n3": "Radio waves carry them to a nearby mobile tower. From there, the data travels as pulses of light through a fibre-optic cable beneath the street.",
+  "n4": "Along the way, routers read the addresses and decide where to send each packet next. If one route is congested, they can take another. But eventually, the land ends, and the cable disappears beneath the ocean.",
+  "n5": "Deep underwater, the cable can be as thin as a garden hose. Layers of steel and plastic protect it, while copper carries electrical power. And at its core are glass fibres, thinner than a human hair.",
+  "n6": "Down here, your photo is nothing but pulses of light. Every 60 to 100 kilometres, a repeater amplifies the signal, keeping it strong across the ocean.",
+  "n7": "Almost all intercontinental internet traffic travels through cables like these. But what happens if a ship's anchor cuts one? The network can reroute the data through another cable.",
+  "n8": "Once the data reaches London, it travels to a mobile tower, which sends it to her phone as radio waves. The packets may arrive out of order, but they're put back into the correct sequence. If any are missing, they're requested again. Finally, her phone decrypts the data, and the photo appears.",
+  "n9": "All of this can happen in the blink of an eye.",
+  "n10": "Follow for more."
+ },
+ "speed": 1.15
+}

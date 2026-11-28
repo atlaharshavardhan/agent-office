@@ -71,6 +71,7 @@ export const Root: React.FC = () => (
     <Composition id="Flight" component={() => <Horiz><Flight /></Horiz>} durationInFrames={FLIGHT_FRAMES} fps={30} width={1920} height={1080} />
     <Composition id="LondonV4" component={() => <Horiz><LondonV4 /></Horiz>} durationInFrames={LONDON_FRAMES} fps={30} width={1920} height={1080} />
     <Composition id="SeabedV" component={() => <Vert><Seabed /></Vert>} durationInFrames={SEABED_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="SeabedBareV" component={() => <Vert><Seabed bare /></Vert>} durationInFrames={SEABED_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="SeabedRepeaterV" component={() => <Vert><SeabedRepeater /></Vert>} durationInFrames={REPEATER_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="PktB0V" component={PktB0} durationInFrames={30} fps={30} width={1080} height={1920} />
     <Composition id="PktB1V" component={PktB1} durationInFrames={30} fps={30} width={1080} height={1920} />

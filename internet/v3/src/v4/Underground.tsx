@@ -100,8 +100,15 @@ export const Underground: React.FC = () => {
         <EffectComposer><Bloom intensity={0.5} luminanceThreshold={0.86} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.22} darkness={0.75} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill><svg width={F.W} height={F.H}>
-        <g opacity={o}><line x1={x} y1={y + 26} x2={x - 70} y2={y + 130} stroke="#5fe3ff" strokeWidth={2.5} /><circle cx={x} cy={y + 26} r={6} fill="#5fe3ff" stroke="#070a22" strokeWidth={2.5} />
-          <g transform={`translate(${clampX(x - 90, 400)} ${y + 160})`}><rect x={-250} y={-40} width={500} height={96} rx={14} fill="#0e1430" fillOpacity={0.92} stroke="#5fe3ff" strokeWidth={2.5} /><text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 40px ${FONT.ui}`, letterSpacing: '0.04em' }}>FIBRE OPTIC CABLE</text><text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>under the street, the data is light</text></g></g>
+        <g opacity={o}>{(() => { const cx = clampX(x, 560), ww = 560; return <>
+          <defs><linearGradient id="ugF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#24357e" /><stop offset="1" stopColor="#0a1030" /></linearGradient><linearGradient id="ugH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffffff" stopOpacity={0.28} /><stop offset="1" stopColor="#ffffff" stopOpacity={0} /></linearGradient></defs>
+          <line x1={x} y1={y + 26} x2={cx} y2={y + 118} stroke="#5fe3ff" strokeWidth={2.5} /><circle cx={x} cy={y + 26} r={6} fill="#5fe3ff" stroke="#070a22" strokeWidth={2.5} />
+          <g transform={`translate(${cx} ${y + 170})`} style={{ filter: 'drop-shadow(0 10px 18px rgba(0,0,0,.6)) drop-shadow(0 0 16px #5fe3ff66)' }}>
+            <rect x={-ww / 2} y={-52} width={ww} height={128} rx={24} fill="url(#ugF)" stroke="#5fe3ff" strokeWidth={3.5} />
+            <path d={`M ${-ww / 2 + 26} -51 H ${ww / 2 - 26} Q ${ww / 2 - 4} -51 ${ww / 2 - 4} -28 V -18 H ${-ww / 2 + 4} V -28 Q ${-ww / 2 + 4} -51 ${-ww / 2 + 26} -51 Z`} fill="url(#ugH)" />
+            <rect x={-ww / 2 + 16} y={-36} width={9} height={98} rx={4.5} fill="#5fe3ff" />
+            <text y={-2} textAnchor="middle" fill="#eef1ff" style={{ font: `800 44px ${FONT.ui}`, letterSpacing: '0.03em' }}>FIBRE OPTIC CABLE</text>
+            <text x={8} y={44} textAnchor="middle" fill="#d6e4ff" style={{ font: `600 25px ${FONT.mono}` }}>under the street, the data is light</text></g></>; })()}</g>
       </svg></AbsoluteFill>
       <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(7, 9, seg(t, 1, 6)))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
     </AbsoluteFill>
