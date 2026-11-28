@@ -30,6 +30,7 @@ import { ArriveReal, REAL_FRAMES } from './v4/ArriveReal';
 import { ArriveRain, RAIN_FRAMES } from './v4/ArriveRain';
 import { Arrive as ArriveHer, ARRIVE_FRAMES as ARRIVE_HER_FRAMES } from './v4/ArriveAnim';
 import { Snap, SNAP_FRAMES } from './v4/Snap';
+import { MapFlyover } from './v4/MapFlyover';
 import { SeabedMs, RepeaterMs, PlanetMs, SeabedFast, SeabedLight, GlobeSat, SeabedLight12, GlobeSatStart, SeabedLight12b, GlobeSatQ, GlobeHook, SeabedLight12c, GlobeRoute, GLOBE_ROUTE_FRAMES, GlobeCut, GLOBE_CUT_FRAMES, TunnelCable, TunnelDive, TUNNEL_FRAMES, GlobeRef, GLOBE_REF_FRAMES } from './v4/Final';
 import { HydRoom, HYD_ROOM_FRAMES } from './v4/HydRoom';
 import { HydSend, HYD_SEND_FRAMES, LondonRoom, LONDON_ROOM_FRAMES, Notif, NOTIF_FRAMES, FlyGlobe, FLY_GLOBE_FRAMES } from './v4/Story';
@@ -144,6 +145,7 @@ export const Root: React.FC = () => (
     <Composition id="TunnelCableV" component={TunnelCable} durationInFrames={TUNNEL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="TunnelDiveV" component={TunnelDive} durationInFrames={TUNNEL_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeRefV" component={() => <Vert><GlobeRef /></Vert>} durationInFrames={GLOBE_REF_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="FlyoverHydLonV" component={() => <MapFlyover origin={[78.4867, 17.385]} destination={[-0.1276, 51.5072]} originLabel="Hyderabad" destinationLabel="London" routeColor="#ffe04a" />} durationInFrames={285} fps={30} width={1080} height={1920} />
     <Composition id="GlobeCutRealV" component={() => <Vert><GlobeCut real /></Vert>} durationInFrames={GLOBE_CUT_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeCutV" component={() => <Vert><GlobeCut /></Vert>} durationInFrames={GLOBE_CUT_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="GlobeRouteV" component={() => <Vert><GlobeRoute /></Vert>} durationInFrames={GLOBE_ROUTE_FRAMES} fps={30} width={1080} height={1920} />
