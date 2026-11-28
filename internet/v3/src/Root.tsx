@@ -11,6 +11,7 @@ import { SeaCable, SEACABLE_FRAMES } from './v4/SeaCable';
 import { Shore, SHORE_FRAMES } from './v4/Shore';
 import { Arrive, ARRIVE_FRAMES } from './v4/Arrive';
 import { Snap, SNAP_FRAMES } from './v4/Snap';
+import { HydSend, HYD_SEND_FRAMES, LondonRoom, LONDON_ROOM_FRAMES, Notif, NOTIF_FRAMES, FlyGlobe, FLY_GLOBE_FRAMES } from './v4/Story';
 import { HookGlobe, HOOK_GLOBE_FRAMES } from './v4/Hook';
 import { Routers, ROUTERS_FRAMES } from './v4/Routers';
 import { Underground, UNDER_FRAMES } from './v4/Underground';
@@ -55,6 +56,10 @@ export const Root: React.FC = () => (
     <Composition id="ShoreV" component={() => <Vert><Shore /></Vert>} durationInFrames={SHORE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="SeaCableV" component={() => <Vert><SeaCable /></Vert>} durationInFrames={SEACABLE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="HookGlobeV" component={() => <Vert><HookGlobe /></Vert>} durationInFrames={HOOK_GLOBE_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="HydSendV" component={HydSend} durationInFrames={HYD_SEND_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="LondonRoomV" component={LondonRoom} durationInFrames={LONDON_ROOM_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="NotifV" component={Notif} durationInFrames={NOTIF_FRAMES} fps={30} width={1080} height={1920} />
+    <Composition id="FlyGlobeV" component={() => <Vert><FlyGlobe /></Vert>} durationInFrames={FLY_GLOBE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="SnapV" component={Snap} durationInFrames={SNAP_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="ArriveV" component={Arrive} durationInFrames={ARRIVE_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="PlanetV" component={() => <Vert><Planet /></Vert>} durationInFrames={PLANET_FRAMES} fps={30} width={1080} height={1920} />

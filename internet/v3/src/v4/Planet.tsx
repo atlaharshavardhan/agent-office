@@ -12,8 +12,8 @@ import { FPS, clamp01, lerp, smooth, hash } from '../lib/anim';
 import { F, vfov, tr, clampX, EDGE } from './frame';
 import { FONT } from '../lib/palette';
 import { WEB, MAIN as MAIN_MUMBAI, MUMBAI, LONDON, HYD, routePts, LL } from '../tail/Globe';
-/* Part 2 goes the other way: the photo leaves the UK, crosses the sea and lands at Hyderabad (drawn straight, simplified) */
-const MAIN: LL[] = [...MAIN_MUMBAI].reverse().concat([HYD]);
+/* Part 2 (decided 28 Nov): the photo leaves Hyderabad, crosses the sea and lands in London (drawn straight from Hyderabad, simplified) */
+export const MAIN: LL[] = [HYD, ...MAIN_MUMBAI];
 
 /* V4, 16:9: the planet and its cables. From low over the Arabian Sea the camera pulls back until the whole Earth is in view,
    the web of undersea cables lighting up as it goes, our own route in amber. A real 3D globe with real coastlines. */
@@ -41,10 +41,10 @@ export const atmoMat = () => new THREE.ShaderMaterial({ transparent: true, side:
 
 type CK = { t: number; lon: number; lat: number; d: number; tl: LL | null; fov: number };
 const CAM: CK[] = [
-  { t: 0, lon: 8, lat: 46, d: 12.4, tl: [-6, 47], fov: 46 },        // low over the sea off the UK coast, the cable heading south
-  { t: 3.2, lon: 6, lat: 40, d: 14.5, tl: [8, 37], fov: 44 },
-  { t: 6.6, lon: 30, lat: 24, d: 30, tl: null, fov: 40 },            // back and up: the whole Earth and the web
-  { t: 12, lon: 46, lat: 28, d: 31, tl: null, fov: 40 },             // slow drift round towards Europe
+  { t: 0, lon: 70, lat: 4, d: 12.4, tl: [58, 15], fov: 46 },        // low over the Arabian Sea, the cable heading for the Red Sea
+  { t: 3.2, lon: 60, lat: 6, d: 14.5, tl: [44, 20], fov: 44 },
+  { t: 6.6, lon: 42, lat: 20, d: 30, tl: null, fov: 40 },            // back and up: the whole Earth and the web
+  { t: 12, lon: 14, lat: 26, d: 31, tl: null, fov: 40 },             // slow drift round towards Europe
 ];
 const camAt = (t: number) => { let i = 0; while (i < CAM.length - 2 && t > CAM[i + 1].t) i++; const a = CAM[i], b = CAM[i + 1], u = smooth((t - a.t) / (b.t - a.t));
   const far = F.v ? 0.86 : 1, p = ll([ov.lon ? ov.lon(t) : lerp(a.lon, b.lon, u), lerp(a.lat, b.lat, u)], lerp(a.d * (a.tl ? 1 : far), b.d * (b.tl ? 1 : far), u)), ta = a.tl ? ll(a.tl) : V(0, 0, 0), tb = b.tl ? ll(b.tl) : V(0, 0, 0); return { p, l: ta.lerp(tb, u), fov: lerp(a.fov, b.fov, u) }; };
@@ -80,7 +80,7 @@ const Earth: React.FC<{ t: number }> = ({ t }) => {
 };
 const Stars: React.FC = () => <>{Array.from({ length: 260 }).map((_, i) => { const a = hash(i) * 6.283, b = Math.acos(2 * hash(i + 7) - 1), r = 260; return <mesh key={i} position={[r * Math.sin(b) * Math.cos(a), r * Math.cos(b), r * Math.sin(b) * Math.sin(a)]}><sphereGeometry args={[0.25 + hash(i + 3) * 0.5, 6, 6]} /><meshBasicMaterial color="#cfd6ff" fog={false} /></mesh>; })}</>;
 
-const project = (t: number, p: THREE.Vector3): [number, number, boolean] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.1, 600); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); q.x -= (shift(t) / F.W) * 2; const front = p.clone().normalize().dot(c.p.clone().normalize()) > 0.18; return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H + shiftY(t), front]; };
+export const project = (t: number, p: THREE.Vector3): [number, number, boolean] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.1, 600); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); q.x -= (shift(t) / F.W) * 2; const front = p.clone().normalize().dot(c.p.clone().normalize()) > 0.18; return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H + shiftY(t), front]; };
 /* a Google Maps style pin: red teardrop with a white dot, its tip exactly on the city, name beside it */
 const Pin: React.FC<{ t: number; at: LL; name: string; col: string; a: number; dx: number; dy: number }> = ({ t, at, name, a, dx }) => { const [x, y, front] = project(t, ll(at, R * 1.01)), aa = ov.pins != null ? ov.pins + (name === 'HYDERABAD' ? 0.3 : 0) : a, o = seg(t, aa, aa + 0.4) * (front ? 1 : 0); if (o < 0.01) return null;
   const drop = 1 - seg(t, aa, aa + 0.5), side = dx < 0 ? -1 : 1, w = name.length * 19 + 20, ly = y - 50, lx = clampX(x + side * (64 + w / 2), w + 40);
@@ -105,9 +105,9 @@ export const Planet: React.FC = () => {
         <EffectComposer><Bloom intensity={0.6} luminanceThreshold={0.8} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.25} darkness={0.7} /></EffectComposer>
       </ThreeCanvas>
       <AbsoluteFill><svg width={F.W} height={F.H}>
-        <Pin t={t} at={LONDON} name="LONDON" col="#ff9c8a" a={0.4} dx={110} dy={-80} />
-        <Pin t={t} at={HYD} name="HYDERABAD" col="#ffe08a" a={7.2} dx={-200} dy={-110} />
-        <g opacity={seg(t, 0.5, 0.9) * (1 - seg(t, 3.6, 4.1))} {...EDGE} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>North Atlantic</text><text y={46} fill="#ffc24a" style={{ font: `500 30px ${FONT.mono}` }}>our packet, heading south for the Red Sea</text></g>
+        <Pin t={t} at={LONDON} name="LONDON" col="#ff9c8a" a={5.6} dx={110} dy={-80} />
+        <Pin t={t} at={HYD} name="HYDERABAD" col="#ffe08a" a={0.4} dx={-200} dy={-110} />
+        <g opacity={seg(t, 0.5, 0.9) * (1 - seg(t, 3.6, 4.1))} {...EDGE} transform={tr(120, 890)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>Arabian Sea</text><text y={46} fill="#ffc24a" style={{ font: `500 30px ${FONT.mono}` }}>our packet, on its way to the Red Sea</text></g>
       </svg></AbsoluteFill>
     </AbsoluteFill>
   );
