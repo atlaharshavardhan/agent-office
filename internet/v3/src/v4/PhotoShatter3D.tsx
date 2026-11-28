@@ -18,7 +18,7 @@ const lerp = (a: number, b: number, u: number) => a + (b - a) * u;
 const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => {
   // the photo stays still: the CAMERA flies straight in towards the centre as the hole opens, passes close to the tumbling pieces, then pulls back to the ring
   const k1 = sm((t - 0.35) / 1.6), k2 = sm((t - 2.05) / 0.95);
-  const pz = lerp(lerp(11.2, 3.2, k1), 10.8, k2), px = lerp(Math.sin(t * 1.3) * 0.5 * k1, 0, k2), py = lerp(-0.35 * k1, 0.1, k2), roll = lerp(0.12 * Math.sin(t * 1.7) * k1, 0, k2);
+  const pz = lerp(lerp(11.2, 3.2, k1), 10.8, k2), px = lerp(Math.sin(t * 1.3) * 0.5 * k1, 0, k2), py = lerp(-0.35 * k1, 0.1, k2), roll = lerp(-0.3 * k1 + 0.05 * Math.sin(t * 1.7) * k1, 0, k2);
   camera.position.set(px, py, pz); camera.up.set(0, 1, 0); camera.lookAt(0, 0, 0); camera.rotateZ(roll); (camera as THREE.PerspectiveCamera).fov = lerp(42, 62, k1 * (1 - k2)); (camera as THREE.PerspectiveCamera).updateProjectionMatrix(); }, [t, camera]); return null; };
 
 const Tiles: React.FC<{ t: number }> = ({ t }) => {
