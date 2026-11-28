@@ -14,10 +14,15 @@ const N = DOG_N, COUNT = N * N, SZ = 4.5, S = SZ / N;
 const sm = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); };
 const AMBER = ['#ffd27a', '#f2a93a', '#c98318', '#ffe3a0'].map((c) => new THREE.Color(c));
 
-const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => { camera.position.set(Math.sin(t * 0.7) * 1.1 * sm((t - 0.6) / 1.0), 0.2 * sm((t - 0.6) / 1.0), 11.2 - 0.7 * sm(t / 1.4)); camera.lookAt(0, 0, 0); (camera as THREE.PerspectiveCamera).fov = 42; (camera as THREE.PerspectiveCamera).updateProjectionMatrix(); }, [t, camera]); return null; };
+const lerp = (a: number, b: number, u: number) => a + (b - a) * u;
+const Cam: React.FC<{ t: number }> = ({ t }) => { const { camera } = useThree(); useLayoutEffect(() => {
+  const k1 = sm((t - 0.7) / 1.1), k2 = sm((t - 2.45) / 1.0);   // 1: fly in low and tilted (Harsh's angle), 2: pull back to the ring
+  const px = lerp(lerp(0, 1.9, k1), 0, k2), py = lerp(lerp(0.15, -3.0, k1), 0.1, k2), pz = lerp(lerp(11.2 - 0.7 * sm(t / 1.2), 2.9, k1), 10.8, k2);
+  const lx = lerp(lerp(0, -0.2, k1), 0, k2), ly = lerp(lerp(0, 0.4, k1), 0, k2), roll = lerp(lerp(0, -0.5, k1), 0, k2);
+  camera.position.set(px, py, pz); camera.up.set(0, 1, 0); camera.lookAt(lx, ly, 0.4); camera.rotateZ(roll); (camera as THREE.PerspectiveCamera).fov = lerp(42, 66, k1 * (1 - k2)); (camera as THREE.PerspectiveCamera).updateProjectionMatrix(); }, [t, camera]); return null; };
 
 const Tiles: React.FC<{ t: number }> = ({ t }) => {
-  const ref = useRef<THREE.InstancedMesh>(null);
+  const ref = useRef<THREE.InstancedMesh>(null), plates = useRef<THREE.Mesh[]>([]); const tex = useMemo(() => NUMS.map((n) => numTex(100 + ((n * 37) % 1900))), []), pi = useMemo(() => new Map(NUMS.map((n, q) => [n, q])), []);
   const base = useMemo(() => DOG_C.map((c) => new THREE.Color('#' + c)), []);
   const rnd = useMemo(() => { let a = 123456789; const R = () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let q = Math.imul(a ^ (a >>> 15), 1 | a); q = (q + Math.imul(q ^ (q >>> 7), 61 | q)) ^ q; return ((q ^ (q >>> 14)) >>> 0) / 4294967296; }; return Array.from({ length: COUNT }, () => [R(), R(), R(), R(), R()]); }, []);
   useLayoutEffect(() => {
@@ -41,12 +46,15 @@ const Tiles: React.FC<{ t: number }> = ({ t }) => {
         col.lerp(AMBER[Math.floor(h5 * 4) % 4], u);
       }
       o.position.set(px, py, pz); o.rotation.set(rx, ry, rz); o.scale.set(sx, sy, sz); o.updateMatrix(); m.setMatrixAt(i, o.matrix); m.setColorAt(i, col);
+      const q = pi.get(i); if (q !== undefined && plates.current[q]) { const pl = plates.current[q]; pl.position.copy(o.position); pl.quaternion.copy(o.quaternion); pl.translateZ(o.scale.z * 0.5 + 0.003); pl.scale.set(o.scale.x * 0.95, o.scale.x * 0.95 * 0.5, 1); pl.visible = u < 0.15 && t > 0.9; }
     }
     m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true;
-  }, [t, base, rnd]);
-  return <instancedMesh ref={ref} args={[undefined, undefined, COUNT]}><boxGeometry args={[1, 1, 1]} /><meshStandardMaterial roughness={0.42} metalness={0.2} emissive="#2a1a05" emissiveIntensity={0.25} /></instancedMesh>;
+  }, [t, base, rnd, pi]);
+  return <><instancedMesh ref={ref} args={[undefined, undefined, COUNT]}><boxGeometry args={[1, 1, 1]} /><meshStandardMaterial roughness={0.42} metalness={0.2} emissive="#2a1a05" emissiveIntensity={0.25} /></instancedMesh>{NUMS.map((n, q) => <mesh key={q} ref={(r) => { if (r) plates.current[q] = r; }}><planeGeometry args={[1, 1]} /><meshBasicMaterial map={tex[q]} toneMapped={false} /></mesh>)}</>;
 };
 
+const NUMS = Array.from({ length: 36 }, (_, q) => q * 53 + 7);
+const numTex = (n: number) => { const c = document.createElement('canvas'); c.width = 128; c.height = 64; const g = c.getContext('2d')!; g.fillStyle = '#1a1405'; g.fillRect(0, 0, 128, 64); g.strokeStyle = '#ffd27a'; g.lineWidth = 4; g.strokeRect(3, 3, 122, 58); g.fillStyle = '#ffd27a'; g.font = '800 40px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), 64, 34); const x = new THREE.CanvasTexture(c); x.colorSpace = THREE.SRGBColorSpace; return x; };
 export const PhotoShatter3D: React.FC = () => {
   const f = useCurrentFrame(), t = f / 30, cnt = Math.round(COUNT * sm((t - 1.1) / 1.6) / 10) * 10, ms = 1 + Math.round(1 * sm((t - 1.5) / 2.0));
   return (<AbsoluteFill style={{ background: 'radial-gradient(ellipse at 50% 45%, #0b1440 0%, #04061a 70%)' }}>
