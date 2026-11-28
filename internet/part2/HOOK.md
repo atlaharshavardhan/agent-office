@@ -41,3 +41,9 @@ Laptop screen is a document ("Script - Part 2 (draft)") with the script typed li
 ## London room v7 (28 Nov 2026): the "LONDON 3:42 pm" tag is replaced by a wall clock and a plaque
 Wall clock at 3:42 (hour hand 111 deg, minute hand 252 deg, red second hand sweeping) on the left wall; plaque under it: LONDON, 3:42 pm, Saturday 28 November GMT, Raining over the Thames, Hyderabad is 5 h 30 min ahead (9:12 pm). Time check: 3:42 pm GMT = 9:12 pm IST (UTC+5:30). Stills: part2/storyboard/london-v7/.
 (v8, same day: Harsh did not want the plaque card; the "LONDON · 3:42 pm" tag is back at the top left and the wall clock hangs just below it.)
+
+## LOCKED (Harsh, 28 Nov 2026): the London room (LondonRoom in Story.tsx, v9: clock moved up, LONDON 3:42 pm tag below it). Do not change it unless he asks.
+Next: the man's side (Arjun, Hyderabad, 9:12 pm), HydRoom in v3/src/v4/HydRoom.tsx.
+
+## Hyderabad room (the man's side), v1, 28 Nov 2026: HydRoom in v3/src/v4/HydRoom.tsx (composition HydRoomV, 150 frames), stills only
+Same desk style as London (locked) with his own look: purple-plum wall, maroon rug and curtain, ochre sleeves, a slightly darker skin tone, a Cherry iPhone 18 Pro. Window: night, crescent moon, stars, the floodlit Charminar, rooftops with lit windows, an auto-rickshaw passing once, no rain. Wall clock at 9:12 (HYDERABAD on the dial), tag "HYDERABAD · 9:12 pm" below it. Desk: framed photo of the Charminar, tulsi plant, lamp, Irani chai in a glass on a saucer with biscuits, notebook and pen. Timeline: 0 to 1.1 s both hands rest (left hand drums a little); 1.1 to 2.5 s right arm reaches, index extends, others curl; 2.5 to 2.85 s fingertip rests on the send arrow; 2.85 s tap (arrow glows, ripple, "Sending..."), 3.5 s "Delivered"; 3.3 to 4.8 s the photo lifts off the phone and flies up (to the globe). Stills: part2/storyboard/hyderabad-v1/.

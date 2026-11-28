@@ -1,0 +1,164 @@
+import React from 'react';
+import { AbsoluteFill, useCurrentFrame } from 'remotion';
+import { FPS, prog, lerp, easeOut, easeInOut, hash, clamp01 } from '../lib/anim';
+import { FONT } from '../lib/palette';
+import { IPhone, Compose } from '../dusk/Phone';
+import { Charminar, Chip, Limb, solveWrist, rot2, PY, TB, HS } from './Story';
+
+/* Part 2 hook, the man's side (9:16 only): Arjun's room in Hyderabad at 9:12 pm, same desk style as Meera's London room (locked) but his own colours.
+   His phone lies on the desk with the photo ready in the chat to Meera; his right index finger reaches, holds on the send arrow, taps; the photo lifts off the screen. */
+export const HYD_ROOM_FRAMES = 150;
+export const HYD_TIMES = { reach: 1.1, touch: 2.5, tap: 2.85, lift: 3.3 };
+const SKIN_A = '#b87a50', SLEEVE: [string, string, string, string] = ['#e0a63a', '#f2c25a', '#a8761e', '#fff1d0'];   // his skin tone and an ochre shirt
+
+/* the window: Hyderabad at night, the lit Charminar, rooftops, an auto-rickshaw passing in the street (one pass over the scene), stars, no rain */
+const HydWindow: React.FC<{ t: number }> = ({ t }) => {
+  const rickX = 1070 - 150 * t;
+  return (<g>
+    <defs>
+      <linearGradient id="hnSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#120c33" /><stop offset="0.6" stopColor="#3a1f5a" /><stop offset="1" stopColor="#b24a3a" /></linearGradient>
+      <linearGradient id="hcurt" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#6e1f33" /><stop offset="0.3" stopColor="#a63a50" /><stop offset="0.6" stopColor="#7e2a3e" /><stop offset="1" stopColor="#9c3448" /></linearGradient>
+      <radialGradient id="hFlood"><stop offset="0" stopColor="#ffd38a" stopOpacity={0.75} /><stop offset="1" stopColor="#ffb454" stopOpacity={0} /></radialGradient>
+      <clipPath id="hnWin"><rect x={540} y={130} width={500} height={860} rx={6} /></clipPath>
+    </defs>
+    <g clipPath="url(#hnWin)">
+      <rect x={540} y={130} width={500} height={860} fill="url(#hnSky)" />
+      {Array.from({ length: 34 }).map((_, i) => <circle key={i} cx={545 + hash(i + 7) * 490} cy={135 + hash(i + 9) * 380} r={1 + hash(i + 11) * 1.6} fill="#fff" opacity={0.45 + 0.4 * Math.abs(Math.sin(t * (1.2 + hash(i) * 2) + i))} />)}
+      <circle cx={640} cy={290} r={30} fill="#fff3d6" /><circle cx={654} cy={282} r={27} fill="#1c1240" />
+      {/* the Charminar, floodlit */}
+      <ellipse cx={800} cy={700} rx={230} ry={170} fill="url(#hFlood)" />
+      <g fill="#6a3a3a"><rect x={716} y={560} width={168} height={236} /><rect x={706} y={548} width={188} height={16} />
+        {[722, 878].map((x) => <g key={x}><rect x={x - 14} y={380} width={28} height={170} /><rect x={x - 20} y={440} width={40} height={8} /><rect x={x - 20} y={490} width={40} height={8} /><ellipse cx={x} cy={376} rx={20} ry={24} /><rect x={x - 3} y={330} width={6} height={32} /></g>)}
+        {[772, 828].map((x) => <g key={x}><rect x={x - 12} y={444} width={24} height={110} /><ellipse cx={x} cy={440} rx={15} ry={19} /><rect x={x - 2} y={404} width={4} height={26} /></g>)}
+        <ellipse cx={800} cy={552} rx={36} ry={22} /></g>
+      <g fill="#ffd38a">{[0, 1, 2].map((i) => <path key={i} d={`M ${742 + i * 48} 796 L ${742 + i * 48} 690 A 22 22 0 0 1 ${786 + i * 48} 690 L ${786 + i * 48} 796 Z`} opacity={0.92} />)}
+        {[0, 1, 2, 3].map((i) => <rect key={'w' + i} x={730 + i * 38} y={600} width={14} height={26} rx={7} opacity={0.85} />)}</g>
+      {/* rooftops with lit windows */}
+      <g fill="#241438"><rect x={540} y={700} width={150} height={100} /><rect x={560} y={660} width={60} height={40} /><rect x={900} y={690} width={140} height={110} /><rect x={930} y={640} width={50} height={50} /></g>
+      {[[560, 720], [600, 720], [640, 740], [920, 710], [960, 710], [1000, 730], [940, 750]].map(([x, y], i) => <rect key={i} x={x} y={y} width={14} height={18} fill="#ffd38a" opacity={0.5 + 0.5 * Math.abs(Math.sin(t * 0.7 + i))} />)}
+      {/* the street, with an auto-rickshaw passing */}
+      <rect x={540} y={796} width={500} height={194} fill="#1a1024" /><rect x={540} y={800} width={500} height={5} fill="#ffb454" opacity={0.5} />
+      <g transform={`translate(${rickX} 838)`}><rect x={-4} y={0} width={106} height={62} rx={14} fill="#f2b81c" /><rect x={-4} y={40} width={106} height={22} fill="#1a1a1a" /><path d="M 6 4 H 90 L 98 -22 H 8 Z" fill="#1a1a1a" /><rect x={14} y={12} width={42} height={24} rx={4} fill="#ffe7a8" /><circle cx={22} cy={66} r={14} fill="#111" /><circle cx={82} cy={66} r={14} fill="#111" /><circle cx={104} cy={30} r={7} fill="#fff7c8" /></g>
+    </g>
+    <rect x={540} y={130} width={500} height={860} rx={6} fill="none" stroke="#f3e6d0" strokeWidth={22} /><rect x={786} y={130} width={14} height={860} fill="#f3e6d0" /><rect x={540} y={512} width={500} height={14} fill="#f3e6d0" />
+    <rect x={522} y={990} width={536} height={24} rx={4} fill="#e6d6bc" /><rect x={522} y={990} width={536} height={4} fill="#fff6e0" opacity={0.7} />
+    <rect x={500} y={104} width={600} height={9} rx={4} fill="#5a4630" /><circle cx={500} cy={108} r={10} fill="#8a6a40" /><circle cx={1100} cy={108} r={10} fill="#8a6a40" /><rect x={516} y={104} width={12} height={34} fill="#5a4630" />
+    <path d="M 1000 112 H 1090 V 990 Q 1070 1004 1045 990 Q 1022 1004 1000 990 Z" fill="url(#hcurt)" />
+    {[1008, 1028, 1048, 1068, 1086].map((x, i) => <path key={x} d={`M ${x} 114 Q ${x + (i % 2 ? 7 : -7)} 540 ${x} 990`} stroke={i % 2 ? '#d98a9a' : '#4a1020'} strokeWidth={5} fill="none" opacity={0.5} />)}
+    {[1004, 1030, 1056, 1082].map((x) => <g key={x}><circle cx={x} cy={108} r={9} fill="none" stroke="#c9a15a" strokeWidth={4} /><rect x={x - 6} y={112} width={12} height={22} fill="#6e1f33" /></g>)}
+    <path d="M 1000 560 Q 1044 600 1090 560 L 1090 596 Q 1044 636 1000 596 Z" fill="#3a0a18" opacity={0.5} />
+  </g>);
+};
+
+export const HydRoom: React.FC = () => {
+  const f = useCurrentFrame(), t = f / FPS, T = HYD_TIMES;
+  const u = easeInOut(prog(f, T.reach, T.touch)), point = prog(f, T.reach + 0.5, T.touch - 0.2, easeOut), lift = prog(f, T.reach, T.reach + 0.3, easeOut) * (1 - 0.75 * prog(f, T.touch - 0.2, T.touch));
+  const tapP = prog(f, T.tap, T.tap + 0.6), press = prog(f, T.tap, T.tap + 0.25, easeOut) * (1 - prog(f, T.tap + 0.25, T.tap + 0.6));
+  const sending = t >= T.tap, delivered = t >= T.tap + 0.65;
+  const g = prog(f, T.lift, T.lift + 1.5, easeInOut);                                                         // the photo lifts off the phone
+  // his phone (cherry, 18 Pro look) lies on the desk, turned a little
+  const PK = 0.62, PW2 = 236 * PK, PH2 = 484 * PK, cx = 560, cy = 1330, th = -9, pcy = (cy - TB) / PY;
+  const [tdx, tdy] = rot2(85.5 * PK, 209 * PK, th), target: [number, number] = [cx + tdx, pcy + tdy];            // the send arrow on his screen
+  const anchorR: [number, number] = [900, 1650], anchorL: [number, number] = [270, 1650], bendEnd = -8;
+  const wEnd = solveWrist(anchorR, target, [-22 * HS, -150 * HS], bendEnd), w0: [number, number] = [830, 770];
+  const arc = Math.sin(Math.PI * u) * 30, wR: [number, number] = [lerp(w0[0], wEnd[0], u) + arc + Math.sin(t * 2.2) * 2 * (1 - u), lerp(w0[1], wEnd[1], u) + Math.sin(t * 3.1) * 1.5 * (1 - u)];
+  const wL: [number, number] = [330 + Math.sin(t * 1.7) * 2, 800 + Math.sin(t * 2.6) * 1.5];
+  const [pbx, pby] = rot2(15 * PK, 3 * PK, th);
+  const ghostX = cx + pbx, ghostY = TB + (pcy + pby) * PY - g * 640;
+  return (
+    <AbsoluteFill style={{ background: '#2a1a2e' }}>
+      <div style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 860, background: 'linear-gradient(180deg,#3a2540 0%,#4a2f45 70%,#3a2438 100%)' }} />
+      <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
+        <defs>
+          <linearGradient id="wood3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#b9794a" /><stop offset="1" stopColor="#9a5e34" /></linearGradient>
+          <linearGradient id="floor3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#40283a" /><stop offset="1" stopColor="#2a1626" /></linearGradient>
+          <radialGradient id="lampPool3"><stop offset="0" stopColor="#ffd89a" stopOpacity={0.75} /><stop offset="1" stopColor="#ffb454" stopOpacity={0} /></radialGradient>
+          <radialGradient id="scrGlow3"><stop offset="0" stopColor="#ffe3b0" stopOpacity={0.45} /><stop offset="1" stopColor="#ffe3b0" stopOpacity={0} /></radialGradient>
+          <filter id="blur6" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7" /></filter><filter id="blur3"><feGaussianBlur stdDeviation="3.5" /></filter></defs>
+        <g transform="translate(300 40) scale(0.66)"><HydWindow t={t} /></g>
+        {/* wall clock showing Hyderabad time, 9:12, with a sweeping second hand */}
+        <g transform="translate(250 330)">
+          <circle r={128} cy={8} fill="#000" opacity={0.35} filter="url(#blur6)" />
+          <circle r={124} fill="#d9a13a" stroke="#a87420" strokeWidth={6} /><circle r={108} fill="#fdf3e4" stroke="#c9a15a" strokeWidth={3} />
+          {Array.from({ length: 60 }).map((_, i) => { const a = (i * 6 * Math.PI) / 180, big = i % 5 === 0; return <line key={i} x1={Math.sin(a) * (big ? 86 : 94)} y1={-Math.cos(a) * (big ? 86 : 94)} x2={Math.sin(a) * 102} y2={-Math.cos(a) * 102} stroke="#3a2a22" strokeWidth={big ? 5 : 2} strokeLinecap="round" />; })}
+          {[[12, 0, -64], [3, 62, 10], [6, 0, 84], [9, -62, 10]].map(([n, x, y]) => <text key={n} x={x} y={y} textAnchor="middle" fill="#3a2a22" style={{ font: `800 30px ${FONT.ui}` }}>{n}</text>)}
+          <text y={36} textAnchor="middle" fill="#a87420" style={{ font: `800 12px ${FONT.ui}`, letterSpacing: '0.12em' }}>HYDERABAD</text>
+          <g transform={`rotate(${9 * 30 + 12 * 0.5})`}><rect x={-5} y={-62} width={10} height={72} rx={5} fill="#2a1a20" /></g>
+          <g transform="rotate(72)"><rect x={-3.6} y={-92} width={7.2} height={104} rx={3.6} fill="#2a1a20" /></g>
+          <g transform={`rotate(${(t % 60) * 6})`}><rect x={-1.6} y={-100} width={3.2} height={124} rx={1.6} fill="#d6252d" /><circle cy={20} r={5} fill="#d6252d" /></g>
+          <circle r={8} fill="#d6252d" /><circle r={3} fill="#fdf3e4" />
+        </g>
+        <rect x={0} y={840} width={1080} height={26} fill="#e8d9c0" />
+        <rect x={0} y={866} width={1080} height={1054} fill="url(#floor3)" />{Array.from({ length: 10 }).map((_, i) => <path key={i} d={`M 0 ${880 + i * 105} L 1080 ${880 + i * 105}`} stroke="#1a0c16" strokeWidth={2} opacity={0.5} />)}
+        <polygon points="-40,1700 1120,1700 1160,1920 -80,1920" fill="#7a2a3a" /><polygon points="-20,1730 1100,1730 1130,1920 -50,1920" fill="none" stroke="#f1d9a8" strokeWidth={6} opacity={0.85} />{Array.from({ length: 9 }).map((_, i) => <polygon key={i} points={`${60 + i * 120},1780 ${84 + i * 120},1806 ${60 + i * 120},1832 ${36 + i * 120},1806`} fill="#e8b04a" opacity={0.85} />)}
+        <ellipse cx={540} cy={1700} rx={640} ry={46} fill="#000" opacity={0.45} filter="url(#blur6)" />
+        <polygon points="-40,905 1120,905 1260,1500 -180,1500" fill="url(#wood3)" />{Array.from({ length: 9 }).map((_, i) => { const y = 935 + i * 66; return <path key={i} d={`M -40 ${y} Q 540 ${y + 6} 1120 ${y}`} stroke="#6a3c1c" strokeWidth={2} fill="none" opacity={0.3} />; })}
+        <rect x={-180} y={1500} width={1440} height={50} fill="#7a4624" /><rect x={-180} y={1500} width={1440} height={5} fill="#e0a56e" />
+        <rect x={-180} y={1550} width={1440} height={150} fill="#5a3218" /><rect x={300} y={1572} width={480} height={104} rx={8} fill="#6a3c1c" stroke="#8a5530" strokeWidth={4} /><rect x={500} y={1612} width={80} height={14} rx={7} fill="#e0b07a" />
+        <ellipse cx={850} cy={1085} rx={230} ry={62} fill="url(#lampPool3)" />
+        <ellipse cx={cx} cy={cy + 20} rx={230} ry={90} fill="url(#scrGlow3)" />
+      </svg>
+      {/* flat things: notebook, pen, the phone's shadow, the phone */}
+      <div style={{ position: 'absolute', left: 0, top: TB, width: 1080, height: 1800, transformOrigin: '0 0', transform: `scale(1, ${PY})` }}>
+        <svg width={1080} height={1800} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
+          <g transform="translate(260 790) rotate(-4)">
+            <rect x={-158} y={-112} width={316} height={240} rx={10} fill="#000" opacity={0.35} transform="translate(8 12)" filter="url(#blur3)" />
+            <rect x={-156} y={-110} width={312} height={236} rx={10} fill="#3a4a6a" /><rect x={-150} y={-108} width={150} height={228} rx={8} fill="#f1e7d3" /><rect x={0} y={-108} width={150} height={228} rx={8} fill="#f6efe0" />
+            <rect x={-40} y={-108} width={40} height={228} fill="#cfc2a8" opacity={0.55} /><rect x={0} y={-108} width={30} height={228} fill="#d9ceb6" opacity={0.5} /><rect x={-2.5} y={-108} width={5} height={228} fill="#9d8f74" />
+            {Array.from({ length: 7 }).map((_, i) => <g key={i}><line x1={-136} y1={-80 + i * 30} x2={-12} y2={-80 + i * 30} stroke="#9fb4d0" strokeWidth={2} /><line x1={14} y1={-80 + i * 30} x2={136} y2={-80 + i * 30} stroke="#9fb4d0" strokeWidth={2} /></g>)}
+            <path d="M -126 -84 q 22 -12 44 0 t 44 0 M -126 -54 q 24 -10 48 0 t 40 0" stroke="#7a2a3a" strokeWidth={3.4} fill="none" opacity={0.7} />
+          </g>
+          <g transform="translate(440 880) rotate(76)"><rect x={-84} y={-5} width={176} height={14} rx={7} fill="#000" opacity={0.35} /><rect x={-86} y={-8} width={176} height={14} rx={7} fill="#7a2a3a" /><rect x={-86} y={-8} width={44} height={14} rx={7} fill="#c9a15a" /><polygon points="90,-6 108,-1 90,4" fill="#e8c9a0" /></g>
+          <g transform={`translate(${cx + 7} ${pcy + 10}) rotate(${th})`}><rect x={-PW2 / 2} y={-PH2 / 2} width={PW2} height={PH2} rx={22} fill="#000" opacity={0.45} filter="url(#blur3)" /></g>
+        </svg>
+        <div style={{ position: 'absolute', left: cx - PW2 / 2, top: pcy - PH2 / 2, width: PW2, height: PH2, transform: `rotate(${th}deg)`, transformOrigin: '50% 50%' }}>
+          <IPhone v18 left={0} top={0} o={1} name="Meera" avatar="#e0705a" k={PK}>
+            <div style={{ position: 'absolute', left: 8, top: 6, background: '#26252a', color: '#fff', borderRadius: '14px 14px 14px 4px', padding: '5px 10px', font: `700 15px ${FONT.ui}` }}>Send me a photo!</div>
+            <div style={{ position: 'absolute', left: 36, top: 52, width: 176, height: 176, borderRadius: 14, overflow: 'hidden', border: '2px solid #0a84ff', opacity: sending ? 1 : 0.8 }}><svg width={176} height={176} viewBox="0 0 190 190"><Charminar /></svg></div>
+            <div style={{ position: 'absolute', right: 10, top: 232, font: `700 11px ${FONT.ui}`, color: delivered ? '#7dffb0' : '#8e8e93' }}>{delivered ? 'Delivered' : sending ? 'Sending…' : 'Not sent'}</div>
+            <Compose bottom={8} text={<span style={{ color: '#8e8e93' }}>Message</span>} press={press > 0.2} ready />
+          </IPhone>
+        </div>
+      </div>
+      {/* things that stand up */}
+      <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none' }}>
+        {/* a framed photo of the two of them at the Charminar */}
+        <ellipse cx={340} cy={1122} rx={74} ry={13} fill="#000" opacity={0.5} filter="url(#blur3)" />
+        <path d="M 340 1040 L 300 1118 L 380 1118 Z" fill="#4a2e1a" opacity={0.8} />
+        <rect x={286} y={972} width={108} height={136} rx={8} fill="#5a3a22" stroke="#3a2210" strokeWidth={3} /><rect x={296} y={982} width={88} height={116} fill="#fdf3e4" /><svg x={300} y={988} width={80} height={104} viewBox="0 0 190 190" preserveAspectRatio="xMidYMid slice"><Charminar /></svg>
+        {/* a tulsi plant in a clay pot */}
+        <ellipse cx={140} cy={1124} rx={50} ry={11} fill="#000" opacity={0.5} filter="url(#blur3)" />
+        <path d="M 107 1064 L 173 1064 L 165 1120 L 115 1120 Z" fill="#c0634a" /><ellipse cx={140} cy={1120} rx={25} ry={5} fill="#8a3f2a" /><rect x={101} y={1054} width={78} height={14} rx={5} fill="#d6785a" />
+        {[-34, -12, 8, 28, 46].map((a, i) => <path key={i} d={`M 140 1056 Q ${140 + a * 0.9} ${1004 - (i % 2) * 14} ${140 + a * 1.2} ${966 + (i % 3) * 12}`} stroke="#3f8a4a" strokeWidth={8} fill="none" strokeLinecap="round" />)}
+        {[-34, -12, 8, 28, 46].map((a, i) => <ellipse key={i} cx={140 + a * 1.2} cy={966 + (i % 3) * 12} rx={19} ry={10} fill="#4fa05a" transform={`rotate(${a * 1.3} ${140 + a * 1.2} ${966 + (i % 3) * 12})`} />)}
+        {/* the lamp */}
+        <ellipse cx={855} cy={1086} rx={74} ry={15} fill="#000" opacity={0.5} filter="url(#blur6)" />
+        <ellipse cx={855} cy={1076} rx={52} ry={12} fill="#2a1e18" /><rect x={803} y={1062} width={104} height={14} fill="#3a2a22" /><ellipse cx={855} cy={1062} rx={52} ry={12} fill="#4a3a30" /><ellipse cx={855} cy={1060} rx={30} ry={6} fill="#5a4838" />
+        <rect x={849} y={830} width={12} height={232} fill="#4a3a30" /><rect x={845} y={828} width={20} height={10} rx={3} fill="#6a5a46" />
+        <rect x={838} y={800} width={34} height={30} rx={6} fill="#6a5a46" /><rect x={838} y={812} width={34} height={5} fill="#3a2a22" /><circle cx={855} cy={796} r={13} fill="#fff3c8" opacity={0.95} />
+        <path d="M 805 794 L 905 794 L 880 706 L 830 706 Z" fill="#ff9e5e" /><ellipse cx={855} cy={794} rx={50} ry={8} fill="#ffe7b0" /><ellipse cx={855} cy={706} rx={25} ry={5} fill="#e0824a" />
+        {/* Irani chai in a glass on a saucer, with biscuits */}
+        <ellipse cx={760} cy={1215} rx={70} ry={14} fill="#000" opacity={0.4} filter="url(#blur3)" />
+        <ellipse cx={760} cy={1206} rx={64} ry={13} fill="#f3e6d0" stroke="#c9b898" strokeWidth={2} /><ellipse cx={760} cy={1204} rx={40} ry={8} fill="#e8d9c0" />
+        {[[712, 1210], [800, 1212]].map(([x, y], i) => <ellipse key={i} cx={x} cy={y} rx={13} ry={6} fill="#e8b878" stroke="#b88a52" strokeWidth={1.4} />)}
+        <path d="M 738 1130 L 782 1130 L 776 1198 L 744 1198 Z" fill="#c58a52" opacity={0.95} /><path d="M 738 1130 L 782 1130 L 779 1150 L 741 1150 Z" fill="#fff6e8" opacity={0.55} /><path d="M 738 1130 L 782 1130 L 776 1198 L 744 1198 Z" fill="none" stroke="#fff" strokeWidth={2.4} opacity={0.65} />
+        <ellipse cx={760} cy={1130} rx={22} ry={5} fill="#e8c898" /><ellipse cx={760} cy={1131} rx={18} ry={3.4} fill="#a8683a" />
+        {[0, 1, 2].map((i) => { const ph = (t * 0.7 + i * 0.33) % 1; return <path key={i} d={`M ${748 + i * 12} 1124 q 9 -22 0 -44 q -9 -20 0 -36`} stroke="#fff" strokeWidth={4} fill="none" opacity={0.3 * (1 - ph)} strokeLinecap="round" transform={`translate(0 ${-ph * 40})`} />; })}
+        {/* the photo lifts off the phone and flies up, towards the globe */}
+        {g > 0 && <g transform={`translate(${ghostX} ${ghostY}) rotate(${-8 * g}) scale(${1 + 0.35 * g})`} opacity={1 - clamp01((g - 0.75) / 0.25)}>
+          <circle r={120} fill="#ffb454" opacity={0.28 * (1 - g * 0.5)} filter="url(#blur6)" /><rect x={-58} y={-58} width={116} height={116} rx={12} fill="#fff" stroke="#ffb454" strokeWidth={5} /><svg x={-52} y={-52} width={104} height={104} viewBox="0 0 190 190"><Charminar /></svg></g>}
+      </svg>
+      {/* his hands: the left rests on the desk, the right reaches and taps send */}
+      <div style={{ position: 'absolute', left: 0, top: 0, width: 1080, height: 1920, clipPath: 'inset(0 0 190px 0)' }}>
+        <div style={{ position: 'absolute', left: 0, top: TB, width: 1080, height: 1800, transformOrigin: '0 0', transform: `scale(1, ${PY})` }}>
+          <svg width={1080} height={1800} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
+            <Limb anchor={anchorL} wrist={wL} side={-1} type={0.35 * (1 - u)} t={t} ph={0} skin={SKIN_A} sleeve={SLEEVE} />
+            <Limb anchor={anchorR} wrist={wR} side={1} bend={lerp(0, bendEnd, u)} t={t} ph={0.9} point={point} lift={lift} skin={SKIN_A} sleeve={SLEEVE} />
+            {tapP > 0 && tapP < 1 && [0, 1].map((i) => { const p = clamp01((tapP - i * 0.25) / 0.75); return p > 0 ? <ellipse key={i} cx={target[0]} cy={target[1]} rx={10 + p * 44} ry={10 + p * 44} fill="none" stroke="#fff3d0" strokeWidth={5 * (1 - p)} opacity={0.9 * (1 - p)} /> : null; })}
+          </svg>
+        </div>
+      </div>
+      <Chip text="HYDERABAD · 9:12 pm" col="#ffb454" top={482} left={36} />
+    </AbsoluteFill>
+  );
+};

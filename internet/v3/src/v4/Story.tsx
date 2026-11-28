@@ -29,7 +29,7 @@ export const Charminar: React.FC = () => (<g>
 const Bokeh: React.FC<{ n: number; seed: number; cols: string[]; y0: number; y1: number }> = ({ n, seed, cols, y0, y1 }) => (<>
   {Array.from({ length: n }).map((_, i) => <div key={i} style={{ position: 'absolute', left: hash(i + seed) * 1080 - 60, top: lerp(y0, y1, hash(i + seed + 9)), width: 60 + hash(i + seed + 3) * 120, height: 60 + hash(i + seed + 3) * 120, borderRadius: '50%', background: cols[i % cols.length], opacity: 0.16 + hash(i + seed + 5) * 0.2, filter: 'blur(10px)' }} />)}
 </>);
-const Chip: React.FC<{ text: string; col: string; top: number; o?: number; size?: number; left?: number }> = ({ text, col, top, o = 1, size = 38, left }) => (
+export const Chip: React.FC<{ text: string; col: string; top: number; o?: number; size?: number; left?: number }> = ({ text, col, top, o = 1, size = 38, left }) => (
   <div style={{ position: 'absolute', left: left ?? 0, right: left == null ? 0 : undefined, top, display: 'flex', justifyContent: left == null ? 'center' : 'flex-start', opacity: o }}><div style={{ padding: '12px 30px', borderRadius: 30, background: 'rgba(32,16,34,.88)', border: `3px solid ${col}`, font: `800 ${size}px/1 ${FONT.ui}`, color: '#fff', whiteSpace: 'nowrap' }}>{text}</div></div>);
 
 /* ================= 1. Hyderabad: his finger taps send ================= */
@@ -125,48 +125,48 @@ const Window: React.FC<{ t: number }> = ({ t }) => {
   <path d="M 1000 560 Q 1044 600 1090 560 L 1090 596 Q 1044 636 1000 596 Z" fill="#7a5010" opacity={0.55} />
 </g>); };
 
-const PY = 0.66, TB = 905;       // the desk top seen from above and behind her: back edge at y 905, front edge at y 1500; flat things live in a plane squashed to 66%
-const HS = 1.25;                       // hand size relative to the keys
+export const PY = 0.66, TB = 905;       // the desk top seen from above and behind her: back edge at y 905, front edge at y 1500; flat things live in a plane squashed to 66%
+export const HS = 1.25;                       // hand size relative to the keys
 const DOC_LINES = ['Scene 1 · Hyderabad: he taps send.', 'Scene 2 · The photo is cut into packets.', 'Scene 3 · Under the sea it is just light.'], DOC_LIVE = 'Scene 4 · London: her phone lights up.';
 const SKIN = '#c98a5e', SKIN_D = '#9a6034', NAIL = '#f2d3c3';
-const rot2 = (x: number, y: number, deg: number): [number, number] => { const r = (deg * Math.PI) / 180; return [x * Math.cos(r) - y * Math.sin(r), x * Math.sin(r) + y * Math.cos(r)]; };
+export const rot2 = (x: number, y: number, deg: number): [number, number] => { const r = (deg * Math.PI) / 180; return [x * Math.cos(r) - y * Math.sin(r), x * Math.sin(r) + y * Math.cos(r)]; };
 
 /* A hand in its own coordinates: wrist centre at (0,0), the fingers point up (-y). side 1 = right hand (thumb on the left), -1 = left hand (mirrored, thumb on the right).
    type = how much the fingers tap the keys; point = 0..1 the index finger straightens to touch, the other fingers curl in. */
-const HandShape: React.FC<{ side: 1 | -1; type: number; t: number; point: number; ph: number }> = ({ side, type, t, point, ph }) => {
+const HandShape: React.FC<{ side: 1 | -1; type: number; t: number; point: number; ph: number; skin?: string }> = ({ side, type, t, point, ph, skin = SKIN }) => {
   const fx = [-22, -7, 8, 23], len = [64, 72, 66, 52];
   return (<g transform={`scale(${side} 1)`}>
-    <path d="M -21 10 L -21 -6 Q -34 -34 -31 -68 L 31 -68 Q 34 -34 21 -6 L 21 10 Z" fill={SKIN} />
+    <path d="M -21 10 L -21 -6 Q -34 -34 -31 -68 L 31 -68 Q 34 -34 21 -6 L 21 10 Z" fill={skin} />
     <path d="M -21 -6 Q -34 -34 -31 -68 L -13 -68 Q -17 -36 -10 -6 Z" fill="#e6b08a" opacity={0.35} />
     <path d="M -24 -50 Q 0 -44 26 -52" stroke={SKIN_D} strokeWidth={2} fill="none" opacity={0.35} /><path d="M -12 2 Q 0 6 12 2" stroke={SKIN_D} strokeWidth={2} fill="none" opacity={0.4} />
     {fx.map((x, i) => {
       const press = type * Math.max(0, Math.sin(t * 15 + i * 1.9 + ph)), curl = i === 0 ? 0 : point;
       const L = i === 0 ? lerp(len[0], 86, point) : lerp(len[i], len[i] * 0.52, curl), y0 = -66 + press * 6, w = 14;
       return (<g key={i}>
-        <rect x={x - w / 2} y={y0 - L} width={w} height={L + 8} rx={7} fill={SKIN} />
+        <rect x={x - w / 2} y={y0 - L} width={w} height={L + 8} rx={7} fill={skin} />
         <path d={`M ${x - w / 2} ${y0 - L * 0.38} h ${w} M ${x - w / 2} ${y0 - L * 0.7} h ${w}`} stroke={SKIN_D} strokeWidth={1.6} opacity={0.4} />
         <rect x={x - 4.5} y={y0 - L + 1.5} width={9} height={12} rx={4.5} fill={NAIL} opacity={0.9} />
         {curl > 0.3 && <ellipse cx={x} cy={y0 - L * 0.22} rx={w / 2 + 1} ry={6} fill={SKIN_D} opacity={0.3 * curl} />}
       </g>);
     })}
     <g transform={`translate(-30 -24) rotate(${lerp(-36, -14, point)})`}>
-      <rect x={-8} y={-44 + point * 10} width={16} height={54} rx={8} fill={SKIN} /><rect x={-4.5} y={-43 + point * 10} width={9} height={11} rx={4.5} fill={NAIL} opacity={0.9} /><path d="M -8 -14 h 16" stroke={SKIN_D} strokeWidth={1.6} opacity={0.4} />
+      <rect x={-8} y={-44 + point * 10} width={16} height={54} rx={8} fill={skin} /><rect x={-4.5} y={-43 + point * 10} width={9} height={11} rx={4.5} fill={NAIL} opacity={0.9} /><path d="M -8 -14 h 16" stroke={SKIN_D} strokeWidth={1.6} opacity={0.4} />
     </g>
   </g>);
 };
 /* the arm: a sleeve that runs from a fixed point near her body (anchor) to the wrist; sleeve, wrist bend and hand all follow the wrist */
-const Limb: React.FC<{ anchor: [number, number]; wrist: [number, number]; side: 1 | -1; bend?: number; type?: number; t?: number; point?: number; lift?: number; ph?: number }> = ({ anchor, wrist, side, bend = 0, type = 0, t = 0, point = 0, lift = 0, ph = 0 }) => {
+export const Limb: React.FC<{ anchor: [number, number]; wrist: [number, number]; side: 1 | -1; bend?: number; type?: number; t?: number; point?: number; lift?: number; ph?: number; skin?: string; sleeve?: [string, string, string, string] }> = ({ anchor, wrist, side, bend = 0, type = 0, t = 0, point = 0, lift = 0, ph = 0, skin = SKIN, sleeve = ['#ff7a59', '#ff9d7a', '#c9543a', '#ffd38a'] }) => {
   const [ax, ay] = anchor, [wx, wy] = wrist, ang = (Math.atan2(wx - ax, ay - wy) * 180) / Math.PI, len = Math.hypot(wx - ax, wy - ay);
   return (<g transform={`translate(${wx} ${wy}) rotate(${ang})`}>
     <ellipse cx={lift * 12} cy={-44 * HS + lift * 14} rx={46 * HS} ry={84 * HS} fill="#000" opacity={0.3 - 0.12 * lift} filter="url(#blur6)" transform={`rotate(${bend})`} />
-    <polygon points={`-46,18 46,18 62,${len + 500} -62,${len + 500}`} fill="#ff7a59" /><polygon points={`-46,18 -24,18 -30,${len + 500} -62,${len + 500}`} fill="#ff9d7a" opacity={0.5} />
-    <path d={`M -42 ${len * 0.35} Q 0 ${len * 0.35 + 10} 42 ${len * 0.35} M -46 ${len * 0.62} Q 0 ${len * 0.62 + 10} 46 ${len * 0.62}`} stroke="#c9543a" strokeWidth={4} fill="none" opacity={0.5} />
-    <rect x={-48} y={16} width={96} height={22} rx={8} fill="#ffd38a" /><path d="M -48 27 H 48" stroke="#c9a15a" strokeWidth={2} opacity={0.7} />
-    <g transform={`rotate(${bend}) scale(${HS * (1 + 0.06 * lift)})`}><HandShape side={side} type={type} t={t} point={point} ph={ph} /></g>
+    <polygon points={`-46,18 46,18 62,${len + 500} -62,${len + 500}`} fill={sleeve[0]} /><polygon points={`-46,18 -24,18 -30,${len + 500} -62,${len + 500}`} fill={sleeve[1]} opacity={0.5} />
+    <path d={`M -42 ${len * 0.35} Q 0 ${len * 0.35 + 10} 42 ${len * 0.35} M -46 ${len * 0.62} Q 0 ${len * 0.62 + 10} 46 ${len * 0.62}`} stroke={sleeve[2]} strokeWidth={4} fill="none" opacity={0.5} />
+    <rect x={-48} y={16} width={96} height={22} rx={8} fill={sleeve[3]} /><path d="M -48 27 H 48" stroke="#c9a15a" strokeWidth={2} opacity={0.7} />
+    <g transform={`rotate(${bend}) scale(${HS * (1 + 0.06 * lift)})`}><HandShape side={side} type={type} t={t} point={point} ph={ph} skin={skin} /></g>
   </g>);
 };
 /* where must the wrist be so that the index fingertip lands exactly on the target? (the arm angle depends on the wrist, so a few passes) */
-const solveWrist = (anchor: [number, number], target: [number, number], tip: [number, number], bend: number): [number, number] => {
+export const solveWrist = (anchor: [number, number], target: [number, number], tip: [number, number], bend: number): [number, number] => {
   let w: [number, number] = [target[0] - tip[0], target[1] - tip[1]];
   for (let i = 0; i < 10; i++) { const ang = (Math.atan2(w[0] - anchor[0], anchor[1] - w[1]) * 180) / Math.PI, [dx, dy] = rot2(tip[0], tip[1], ang + bend); w = [target[0] - dx, target[1] - dy]; }
   return w;
