@@ -8,7 +8,7 @@ import { Planet, ov } from './Planet';
    and the cables under the sea light up. Uses the Planet globe from its late frames (whole Earth, cables lit). */
 export const HOOK_GLOBE_FRAMES = 330;   // 11 s: one turn of the globe (4 s), pins drop, then the explaining
 const T0 = 300 / FPS, SPIN = 2.0, PINS = 1.5;   // the Planet clock runs from 10 s here
-const Sat: React.FC<{ x: number; y: number; s: number; rot: number }> = ({ x, y, s, rot }) => (
+export const Sat: React.FC<{ x: number; y: number; s: number; rot: number }> = ({ x, y, s, rot }) => (
   <g transform={`translate(${x} ${y}) rotate(${rot}) scale(${s})`}>
     <rect x={-92} y={-16} width={64} height={32} rx={3} fill="#2a4fb8" stroke="#9fc0ff" strokeWidth={3} />{[-76, -60, -44].map((px) => <line key={px} x1={px} y1={-16} x2={px} y2={16} stroke="#9fc0ff" strokeWidth={1.5} />)}
     <rect x={28} y={-16} width={64} height={32} rx={3} fill="#2a4fb8" stroke="#9fc0ff" strokeWidth={3} />{[44, 60, 76].map((px) => <line key={px} x1={px} y1={-16} x2={px} y2={16} stroke="#9fc0ff" strokeWidth={1.5} />)}

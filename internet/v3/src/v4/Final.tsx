@@ -1,10 +1,15 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { lerp, easeInOut, clamp01, hash } from '../lib/anim';
+import { Sequence } from 'remotion';
 import { FONT } from '../lib/palette';
 import { Vert } from './frame';
 import { Seabed, SeabedRepeater } from './Seabed';
-import { Planet } from './Planet';
+import { Planet, ov, project, ll, R, MAIN } from './Planet';
+import { Sat } from './Hook';
+import { Charminar, PaperPhoto } from './Story';
+import { routeAt, LL, LONDON as LONDON_LL } from '../tail/Globe';
+import { prog, easeOut } from '../lib/anim';
 
 /* Part 2 final cut: the existing sea clips with a millisecond counter (top right) that keeps counting up, 12 -> 34 -> 47 -> 65 ms over the cable's trip. */
 /* the readout: big ms counter, then how far the photo has gone (about 13,000 km of cable in 65 ms) and how fast: light in glass, 200,000 km/s */
@@ -45,3 +50,30 @@ export const SeabedFast: React.FC = () => {
 
 /* the sea-floor shot for the 10 s hook: only the natural light of the scene (the bright flare racing along the cable) and the speed readout. No streak lines, no extra dashes. */
 export const SeabedLight: React.FC<{ from?: number; to?: number; start?: number; frames?: number }> = ({ from = 18, to = 53, start = 85, frames = 90 }) => (<AbsoluteFill><Vert><Seabed bare /></Vert><Hud from={from} to={to} start={start} frames={frames} /></AbsoluteFill>);
+
+/* the satellite question on the globe (12 s hook, shot 4, 2 s): a satellite flies in with a ? and the words "A satellite?", a red cross crosses it out ("Almost never"),
+   the cables are lit, and the photo (the dog) flies the last stretch of the route and lands on London. ms counter 53 to 65. */
+export const GlobeSat: React.FC = () => {
+  const f = useCurrentFrame(), t = f / 30, T0 = 300 / 30;
+  ov.lon = () => 40; ov.show = () => 1; ov.pins = 0;
+  const q = prog(f, 0.1, 0.55, easeOut), no = prog(f, 0.9, 1.2, easeOut), satIn = prog(f, 0, 0.65, easeOut);
+  const u = 0.78 + 0.22 * easeInOut(clamp01((t - 0.75) / 1.0)), pt = T0 + t, arrived = prog(f, 1.8, 2.0, easeOut);
+  const [x, y, front] = project(pt, ll(routeAt(MAIN, u) as unknown as LL, R * 1.012));
+  const sx = lerp(1010, 800, satIn), sy = lerp(470, 560, satIn) + Math.sin(t * 2) * 5;
+  const ms = Math.round(lerp(53, 65, easeInOut(clamp01((t - 0.75) / 1.0))));
+  const chip = (txt: string, o: number, col: string) => <div style={{ position: 'absolute', left: 0, right: 0, top: 236, display: 'flex', justifyContent: 'center', opacity: o }}><div style={{ padding: '14px 34px', borderRadius: 32, background: 'rgba(10,14,36,.9)', border: `3px solid ${col}`, font: `800 42px/1 ${FONT.ui}`, color: '#fff', whiteSpace: 'nowrap' }}>{txt}</div></div>;
+  return (<AbsoluteFill style={{ backgroundColor: '#14091c' }}>
+    <Sequence from={-300}><Planet /></Sequence>
+    <svg width={1080} height={1920} style={{ position: 'absolute', left: 0, top: 0 }}>
+      <defs><radialGradient id="gs"><stop offset="0" stopColor="#ffe3a0" stopOpacity={0.9} /><stop offset="1" stopColor="#ffb454" stopOpacity={0} /></radialGradient></defs>
+      <g opacity={satIn * (1 - no * 0.6)}><Sat x={sx} y={sy} s={1.0} rot={-18} /></g>
+      <g opacity={q * (1 - no)} transform={`translate(${sx - 140} ${sy - 80})`}><circle r={44} fill="#ffd38a" /><text y={19} textAnchor="middle" fill="#07102c" style={{ font: `900 60px ${FONT.ui}` }}>?</text></g>
+      <g opacity={no}><line x1={sx - 125} y1={sy - 85} x2={sx + 125} y2={sy + 85} stroke="#ff5a5a" strokeWidth={15} strokeLinecap="round" /><line x1={sx + 125} y1={sy - 85} x2={sx - 125} y2={sy + 85} stroke="#ff5a5a" strokeWidth={15} strokeLinecap="round" /></g>
+      {front && <g transform={`translate(${x} ${y})`}><circle r={100} fill="url(#gs)" /><rect x={-46} y={-46} width={92} height={92} rx={12} fill="#fff" stroke="#ffb454" strokeWidth={5} /><svg x={-40} y={-40} width={80} height={80} viewBox="0 0 190 190"><Charminar /></svg></g>}
+      {arrived > 0 && (() => { const [lx, ly] = project(pt, ll(LONDON_LL, R * 1.012)); return [0, 1].map((i) => { const p = clamp01((arrived - i * 0.25) / 0.75); return p > 0 ? <circle key={i} cx={lx} cy={ly} r={14 + p * 70} fill="none" stroke="#fff3c8" strokeWidth={6 * (1 - p)} opacity={0.9 * (1 - p)} /> : null; }); })()}
+    </svg>
+    {chip('A satellite?', q * (1 - no), '#ffd38a')}{chip('Almost never', no, '#ff7a7a')}
+    <SpeedReadout ms={ms} />
+  </AbsoluteFill>);
+};
+export const SeabedLight12: React.FC = () => <SeabedLight from={27} to={53} start={85} frames={45} />;

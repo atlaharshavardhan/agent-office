@@ -3,7 +3,7 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { FPS, prog, lerp, easeOut, easeInOut, hash, clamp01 } from '../lib/anim';
 import { FONT } from '../lib/palette';
 import { IPhone, Compose } from '../dusk/Phone';
-import { Charminar, CharminarArt, DeskFlag, Chip, Limb, solveWrist, rot2, PY, TB, HS } from './Story';
+import { Charminar, CharminarArt, PaperPhoto, DeskFlag, Chip, Limb, solveWrist, rot2, PY, TB, HS } from './Story';
 
 /* Part 2 hook, the man's side (9:16 only): Arjun's room in Hyderabad at 9:12 pm, same desk style as Meera's London room (locked) but his own colours.
    His phone lies on the desk with the photo ready in the chat to Meera; his right index finger reaches, holds on the send arrow, taps; the photo lifts off the screen. */
@@ -165,8 +165,7 @@ export const HydRoom: React.FC = () => {
         <ellipse cx={760} cy={1130} rx={22} ry={5} fill="#e8c898" /><ellipse cx={760} cy={1131} rx={18} ry={3.4} fill="#a8683a" />
         {[0, 1, 2].map((i) => { const ph = (t * 0.7 + i * 0.33) % 1; return <path key={i} d={`M ${748 + i * 12} 1124 q 9 -22 0 -44 q -9 -20 0 -36`} stroke="#fff" strokeWidth={4} fill="none" opacity={0.3 * (1 - ph)} strokeLinecap="round" transform={`translate(0 ${-ph * 40})`} />; })}
         {/* the photo flies at the window and breaks the glass */}
-        {flying && <g transform={`translate(${ghostX} ${ghostY}) rotate(${-10 * e1}) scale(${gScale})`} opacity={gOp}>
-          <circle r={118} fill="#ffb454" opacity={0.3} filter="url(#blur6)" /><rect x={-58} y={-58} width={116} height={116} rx={12} fill="#fff" stroke="#ffb454" strokeWidth={5} /><svg x={-52} y={-52} width={104} height={104} viewBox="0 0 190 190"><Charminar /></svg></g>}
+        {flying && <g transform={`translate(${ghostX} ${ghostY}) scale(${gScale * 1.15})`} opacity={gOp}><PaperPhoto size={110} t={t} spin={-6 * e1} /></g>}
         <WindowBreak t={t} T={T} />
       </svg>
       {/* his hands: the left rests on the desk, the right reaches and taps send */}

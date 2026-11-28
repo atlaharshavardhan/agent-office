@@ -63,6 +63,27 @@ export const DogPhoto: React.FC = () => (<g>
 /* Harsh, 28 Nov 2026: the photo he sends, the framed picture on his desk and the notification thumbnail are the DOG, not the Charminar. */
 export const Charminar: React.FC = DogPhoto;
 
+/* the photo as a FLEXIBLE sheet of paper (Harsh, 28 Nov 2026: "like paper, not a card", "flexible"): a thin print with a white border that bends and ripples in waves along its length as it flies, curls at the corner, and tumbles a little.
+   It is drawn as 16 thin vertical strips; each strip is moved up or down and tilted by a travelling sine wave, and shaded darker where the paper bends away from the light. size = width in px, t = seconds (drives the wave), spin = extra rotation in degrees. */
+export const PaperPhoto: React.FC<{ size?: number; t: number; spin?: number; id?: string }> = ({ size = 100, t, spin = 0, id = 'pp' }) => {
+  const N = 32, W = 108, H = 118, sw = W / N, k = size / 100, wob = Math.sin(t * 2.2) * 3 + spin, amp = 7, w1 = 1.35, sp = 5.5;   // magic-carpet glide: almost level, a calm wave runs through it
+  const off = (x: number) => Math.sin((x / W) * w1 * 6.283 - t * sp) * amp * (0.45 + 0.55 * (1 - x / W));                  // the wave starts at the front and flows back, bigger at the tail
+  return (<g transform={`rotate(${wob}) scale(${k})`}>
+    <ellipse cx={4} cy={H / 2 + 20} rx={46} ry={6} fill="#000" opacity={0.22} />
+    {Array.from({ length: N }).map((_, i) => {
+      const x0 = -W / 2 + i * sw, d0 = off(i * sw), d1 = off((i + 1) * sw), slope = (d1 - d0) / sw, shade = Math.max(0, Math.min(0.5, 0.18 + slope * 0.55)), cid = `${id}${i}`;
+      return (<g key={i} transform={`translate(0 ${(d0 + d1) / 2})`}>
+        <clipPath id={cid}><rect x={x0} y={-H / 2 - 20} width={sw + 0.8} height={H + 40} /></clipPath>
+        <g clipPath={`url(#${cid})`}>
+          <rect x={-W / 2} y={-H / 2} width={W} height={H} fill="#fbf8f0" /><svg x={-W / 2 + 7} y={-H / 2 + 7} width={W - 14} height={W - 14} viewBox="0 0 190 190"><Charminar /></svg>
+          <rect x={-W / 2} y={-H / 2} width={W} height={H} fill="#1a1020" opacity={shade} />
+        </g></g>);
+    })}
+    {[-1, 1].map((sd) => Array.from({ length: 9 }).map((_, j) => { const y0 = -H / 2 + 8 + j * ((H - 16) / 8), xe = sd * (W / 2), dy = off(sd < 0 ? 0 : W); return <path key={sd + '-' + j} d={`M ${xe} ${y0 + dy} q ${sd * 5} ${3 + Math.sin(t * 7 + j) * 2} ${sd * 11} ${Math.sin(t * 6 + j * 1.3) * 3}`} stroke="#d9a13a" strokeWidth={2.2} fill="none" strokeLinecap="round" />; }))}
+    <path d={`M ${W / 2 - 22} ${H / 2 + off(W)} L ${W / 2} ${H / 2 - 24 + off(W)} L ${W / 2} ${H / 2 + off(W)} Z`} fill="#e8e0cc" stroke="#cfc6b0" strokeWidth={0.8} opacity={0.9} />
+  </g>);
+};
+
 /* ---- a small desk flag on a pole, waving a little (kind: the Indian tricolour or the Union Jack); the cloth always extends to the right ---- */
 export const DeskFlag: React.FC<{ x: number; y: number; kind: 'in' | 'uk'; t: number; id: string }> = ({ x, y, kind, t, id }) => {
   const W = 94, H = 62, top = y - 150;
@@ -416,7 +437,7 @@ export const FlyGlobe: React.FC = () => {
       <AbsoluteFill><svg width={1080} height={1920}>
         <defs><radialGradient id="fg"><stop offset="0" stopColor="#ffe3a0" stopOpacity={0.9} /><stop offset="1" stopColor="#ffb454" stopOpacity={0} /></radialGradient><filter id="tglow"><feGaussianBlur stdDeviation="6" /></filter></defs>
         {trail && u > 0 && <><polyline points={trail} fill="none" stroke="#ffb454" strokeWidth={16} strokeLinecap="round" strokeLinejoin="round" opacity={0.55} filter="url(#tglow)" /><polyline points={trail} fill="none" stroke="#fff3c8" strokeWidth={6} strokeLinecap="round" strokeLinejoin="round" /></>}
-        {front && <g transform={`translate(${cardX} ${cardY})`} opacity={1 - 0.0 * arrived}><circle r={104 + 18 * arrived} fill="url(#fg)" /><rect x={-46} y={-46} width={92} height={92} rx={12} fill="#fff" stroke="#ffb454" strokeWidth={5} /><svg x={-40} y={-40} width={80} height={80} viewBox="0 0 190 190"><Charminar /></svg></g>}
+        {front && <g transform={`translate(${cardX} ${cardY})`} opacity={1}><circle r={104 + 18 * arrived} fill="url(#fg)" /><rect x={-46} y={-46} width={92} height={92} rx={12} fill="#fff" stroke="#ffb454" strokeWidth={5} /><svg x={-40} y={-40} width={80} height={80} viewBox="0 0 190 190"><Charminar /></svg></g>}
         {arrived > 0 && (() => { const [lx, ly] = project(pt, ll(LONDON_LL, R * 1.012)); return [0, 1, 2].map((i) => { const p = clamp01((arrived - i * 0.2) / 0.8); return p > 0 ? <circle key={i} cx={lx} cy={ly} r={14 + p * 70} fill="none" stroke="#fff3c8" strokeWidth={6 * (1 - p)} opacity={0.9 * (1 - p)} /> : null; }); })()}
       </svg></AbsoluteFill>
       <Chip text="Hyderabad → London" col="#ffb454" top={236} />
