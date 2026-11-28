@@ -1,8 +1,8 @@
-"""Part 2: routers + shore (v1). Same recipe as make_part2c_final.py. Run from internet/ after v3/render_part2d.sh and voice/make_part2d_voice.py. Writes video/internet-part2-routers-shore-v2.mp4 + subtitles/part2-routers-shore-v2.srt"""
+"""Part 2: routers + shore (v1). Same recipe as make_part2c_final.py. Run from internet/ after v3/render_part2d.sh and voice/make_part2d_voice.py. Writes video/internet-part2-routers-to-repeater-v1.mp4 + subtitles/part2-routers-to-repeater-v1.srt"""
 import json, subprocess, numpy as np, soundfile as sf
 SR = 48000; D = 'video/part2d'; X = 0.15; FPS = 30
 L = json.load(open('voice/p2d/lengths.json'))['lengths']; T = json.load(open('voice/p2d/lengths.json'))['text']
-SH = [('rt', 360, ['r1', 'r2']), ('sh', 285, ['r3', 'r4'])]; MINK = 0.62
+SH = [('rt', 360, ['r1', 'r2']), ('sh', 285, ['r3', 'r4']), ('sb', 294, ['q1', 'q2']), ('rp', 225, ['q3'])]; MINK = 0.62; TR = ['fadewhite', 'zoomin', 'fadewhite']
 dur = {}; vstart = {}
 for n, fr, ks in SH:
     t = 0.2
@@ -35,13 +35,17 @@ def riser(d=1.0): n = int(d * SR); t = np.arange(n) / SR; ph = 2 * np.pi * np.cu
 def whoosh(): n = int(0.45 * SR); t = np.arange(n) / SR; env = np.sin(np.pi * np.clip(t / 0.45, 0, 1)) ** 2; return np.convolve(rng.normal(0, 1, n), np.ones(40) / 40, 'same') * env * 1.2
 place(shutter(), S['rt'] + 0.05, 0.3); place(pop(), at('rt', 0.4), 0.4); place(pop(), at('rt', 2.4), 0.4); place(pop(), at('rt', 5.8), 0.4); place(whoosh(), at('rt', 5.0), 0.2)   # router label, destination, hero tag, busy
 place(shutter(), S['sh'] - 0.05, 0.3); place(riser(1.0), S['sh'] - 0.4, 0.3); place(pop(), at('sh', 0.6), 0.4)
+place(shutter(), S['sb'] - 0.05, 0.3); place(pop(), at('sb', 0.6), 0.4); place(riser(1.0), at('sb', 2.3), 0.3); place(pop(), at('sb', 3.3), 0.45)
+place(shutter(), S['rp'] - 0.05, 0.3); place(pop(), at('rp', 1.3), 0.4); place(riser(0.9), at('rp', 3.3), 0.3)
 f = np.minimum(1, np.arange(N) / (0.3 * SR)) * np.minimum(1, (N - np.arange(N)) / (1.0 * SR)); out *= f[:, None]; out = np.tanh(out * 1.2) / 1.2; out *= 0.7 / np.abs(out).max(); sf.write(f'{D}/mix.wav', out[: int(TOTAL * SR)], SR)
 ins = []; fc = ''
 for i, (n, fr, ks) in enumerate(SH): ins += ['-i', f'{D}/{n}.mp4']; fc += f'[{i}:v]setpts=PTS*{k_[n]:.4f},fps={FPS},format=yuv420p[a{i}];'
-fc += f'[a0][a1]xfade=transition=fadewhite:duration={X}:offset={S["sh"]:.3f}[x1];'
-fc = f'[{len(SH)}:v]format=rgba,colorchannelmixer=aa=0.3[wm];' + fc + '[x1][wm]overlay=24:926[v]'
-cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-routers-shore-v2.mp4']
+prev = '[a0]'
+for i in range(1, len(SH)):
+    o = f'[x{i}]'; fc += f'{prev}[a{i}]xfade=transition={TR[i - 1]}:duration={X}:offset={S[SH[i][0]]:.3f}{o};'; prev = o
+fc = f'[{len(SH)}:v]format=rgba,colorchannelmixer=aa=0.3[wm];' + fc + f'{prev}[wm]overlay=24:926[v]'
+cmd = ['ffmpeg', '-v', 'error', '-y'] + ins + ['-loop', '1', '-framerate', '30', '-t', f'{TOTAL:.2f}', '-i', 'video/part2v1/mark.png', '-i', f'{D}/mix.wav', '-filter_complex', fc, '-map', '[v]', '-map', f'{len(SH) + 1}:a', '-t', f'{TOTAL:.2f}', '-c:v', 'libx264', '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', 'video/internet-part2-routers-to-repeater-v1.mp4']
 r = subprocess.run(cmd, capture_output=True, text=True); print('final', r.returncode, r.stderr[-300:])
 def ts(s): return '%02d:%02d:%02d,%03d' % (int(s // 3600), int(s % 3600 // 60), int(s % 60), round((s % 1) * 1000))
 rows = [(S[n] + vstart[k], L[k], T[k]) for n, fr, ks in SH for k in ks]
-open('subtitles/part2-routers-shore-v2.srt', 'w').write('\n'.join(f'{i + 1}\n{ts(a)} --> {ts(a + d)}\n{x}\n' for i, (a, d, x) in enumerate(rows)))
+open('subtitles/part2-routers-to-repeater-v1.srt', 'w').write('\n'.join(f'{i + 1}\n{ts(a)} --> {ts(a + d)}\n{x}\n' for i, (a, d, x) in enumerate(rows)))

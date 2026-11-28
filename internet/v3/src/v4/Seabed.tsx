@@ -157,11 +157,11 @@ const Repeater: React.FC<{ t: number; idle?: boolean }> = ({ t, idle }) => {
 /* ---------- words over the picture ---------- */
 const project = (t: number, p: THREE.Vector3): [number, number] => { const c = camAt(t), cam = new THREE.PerspectiveCamera(vfov(c.fov), F.W / F.H, 0.05, 600); cam.position.copy(c.p); cam.lookAt(c.l); cam.updateMatrixWorld(); const q = p.clone().project(cam); return [(q.x * 0.5 + 0.5) * F.W, (-q.y * 0.5 + 0.5) * F.H]; };
 const Tag: React.FC<{ t: number; at: THREE.Vector3; text: string; sub?: string; a: number; b: number; dx: number; dy: number; col?: string }> = ({ t, at, text, sub, a, b, dx, dy, col = '#5fe3ff' }) => {
-  const o = seg(t, a, a + 0.4) * (1 - seg(t, b - 0.4, b)); if (o <= 0.001) return null; const [x, y] = project(t, at), w = Math.max(text.length * 19 + 44, (sub?.length ?? 0) * 11.5 + 44), lx = clampX(x + dx, w), ly = y + dy;
+  const o = seg(t, a, a + 0.4) * (1 - seg(t, b - 0.4, b)); if (o <= 0.001) return null; const [x, y] = project(t, at), w = Math.max(text.length * 30 + 60, (sub?.length ?? 0) * 19 + 60), lx = clampX(x + dx, w), ly = y + dy;
   return <g opacity={o}><line x1={x} y1={y} x2={lx} y2={ly + (dy < 0 ? 30 : -30)} stroke={col} strokeWidth={2.5} /><circle cx={x} cy={y} r={6} fill={col} stroke="#070a22" strokeWidth={2.5} />
-    <g transform={`translate(${lx} ${ly})`}><rect x={-w / 2} y={-30} width={w} height={sub ? 76 : 56} rx={12} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} />
-      <text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 28px ${FONT.ui}`, letterSpacing: '0.06em' }}>{text}</text>
-      {sub && <text y={34} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 18px ${FONT.mono}` }}>{sub}</text>}</g></g>; };
+    <g transform={`translate(${lx} ${ly})`}><rect x={-w / 2} y={-46} width={w} height={sub ? 128 : 78} rx={16} fill="#0e1430" fillOpacity={0.92} stroke={col} strokeWidth={2.5} />
+      <text y={7} textAnchor="middle" fill="#eef1ff" style={{ font: `800 46px ${FONT.ui}`, letterSpacing: '0.03em' }}>{text}</text>
+      {sub && <text y={52} textAnchor="middle" fill="#cfd8ff" style={{ font: `600 30px ${FONT.mono}` }}>{sub}</text>}</g></g>; };
 
 export const Seabed: React.FC<{ bare?: boolean }> = ({ bare }) => {
   KEYS = KEYS_RUN;
@@ -182,10 +182,11 @@ export const Seabed: React.FC<{ bare?: boolean }> = ({ bare }) => {
         <EffectComposer><Bloom intensity={0.45} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur /><Vignette eskil={false} offset={0.2} darkness={0.8} /></EffectComposer>
       </ThreeCanvas>
       {!bare && <AbsoluteFill><svg width={F.W} height={F.H}>
-        <g opacity={place} {...EDGE} transform={tr(120, 820)}><text fill="#eef1ff" style={{ font: `800 54px ${FONT.ui}` }}>{SEA_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `500 30px ${FONT.mono}` }}>{SEA_DEPTH}</text></g>
-        <g opacity={num} {...EDGE} transform={tr(960, 250)}><text textAnchor="middle" fill="#ffc94a" style={{ font: `800 170px ${FONT.ui}`, letterSpacing: '0.01em', filter: 'drop-shadow(0 0 26px rgba(255,180,60,.55))' }}>{count.toLocaleString('en-US')}<tspan dx={18} style={{ font: `800 62px ${FONT.ui}` }}>km/s</tspan></text>
-          <text y={70} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 30px ${FONT.mono}` }}>light in glass: about two thirds of its speed in space</text></g>
+        <g opacity={place} {...EDGE} transform={tr(120, 820)}><text fill="#eef1ff" style={{ font: `800 70px ${FONT.ui}` }}>{SEA_NAME}</text><text y={46} fill="#5fe3ff" style={{ font: `600 38px ${FONT.mono}` }}>{SEA_DEPTH}</text></g>
+        <g opacity={num} {...EDGE} transform={F.v ? 'translate(540 470)' : tr(960, 250)}><text textAnchor="middle" fill="#ffc94a" style={{ font: `800 170px ${FONT.ui}`, letterSpacing: '0.01em', filter: 'drop-shadow(0 0 26px rgba(255,180,60,.55))' }}>{count.toLocaleString('en-US')}<tspan dx={18} style={{ font: `800 62px ${FONT.ui}` }}>km/s</tspan></text>
+          <text y={70} textAnchor="middle" fill="#a9b4dd" style={{ font: `500 30px ${FONT.mono}` }}>light in glass: 2/3 of its speed in space</text></g>
       </svg></AbsoluteFill>}
+      <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(18, 40, seg(t, 0.5, 9.5)))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
     </AbsoluteFill>
   );
 };
@@ -210,6 +211,7 @@ export const SeabedRepeater: React.FC = () => {
       <AbsoluteFill><svg width={F.W} height={F.H}>
         <Tag t={t} at={top} text="REPEATER" sub="one every 60 to 100 km" a={1.2} b={7.4} dx={-40} dy={-170} />
       </svg></AbsoluteFill>
+      <div style={{ position: 'absolute', right: 70, top: 150, display: 'flex', alignItems: 'baseline', gap: 8, font: `800 120px/1 ${FONT.ui}`, color: '#7fd4ff', textShadow: '0 0 30px rgba(127,212,255,.6)' }}>{String(Math.round(lerp(40, 46, seg(t, 0.5, 7)))).padStart(3, '0')}<span style={{ font: `800 40px ${FONT.ui}` }}>ms</span></div>
     </AbsoluteFill>
   );
 };
