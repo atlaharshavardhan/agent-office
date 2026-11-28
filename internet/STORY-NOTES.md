@@ -165,3 +165,5 @@ Harsh: do NOT render or make images for 16:9 now. Only 9:16.
 
 ## 28 Nov 2026 - STRUCTURE Harsh wants us to follow (Reels "perfect structure"): 01 Hook, 02 Lead, 03 Body 1, 04 Open loop, 05 Body 2, 06 Open loop, 07 Body 3, 08 CTA.
 Mapping for Part 2: Hook = locked 12 s (v10). Lead = your phone, send, photo breaks. Body 1 = ones and zeros, encrypted, nothing to see. Open loop = "but where do the packets go?" Body 2 = packets, label, mobile tower. Open loop = "and then it must cross an ocean...". Body 3 = glass cable, light, (next parts). CTA = follow (Bell Ding sound).
+
+## 28 Nov 2026 - RULE (Harsh): do NOT create or send .srt subtitle files until he says. Make the video only. (Earlier videos have srt files already; leave them alone, make no new ones.)
